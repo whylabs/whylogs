@@ -4,17 +4,17 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<meta property="og:title" content="Fundamental concepts and modules of whylogs" />
+<meta property="og:title" content="Ecommerce Dataset - Usage Example" />
   
 <meta property="og:type" content="website" />
   
-<meta property="og:url" content="https://whylogs.readthedocs.io/examples/basic/README.html" />
+<meta property="og:url" content="https://whylogs.readthedocs.io/examples/datasets/ecommerce.html" />
   
-<meta property="og:description" content="In here you will find examples on: How to inspect, visualize and compare your profiles with the viz module ( Notebook_Profile_Visualizer), How to log different types of data ( Logging_Different_Dat..." />
-  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
+<meta property="og:description" content="🚩 Create a free WhyLabs account to get more value out of whylogs! Did you know you can store, visualize, and monitor whylogs profiles with the WhyLabs Observability Platform? Sign up for a free Why..." />
+  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Basics - v0 to v1" href="../../migration/basics.html" /><link rel="prev" title="Ecommerce Dataset" href="../../datasets/ecommerce.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.15"/>
-        <title>Fundamental concepts and modules of whylogs - whylogs v1.1.0</title>
+        <title>Ecommerce Dataset - Usage Example - whylogs v1.1.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=9ec31e2665bf879c1d47d93a8ec4893870ee1e45" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
@@ -152,7 +152,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -178,21 +178,21 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic/Getting_Started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../features/profiling.html">Profiling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../features/writing.html">Writers</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="Getting_Started.html">Getting Started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Inspecting_Profiles.html">Inspecting Profiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Logging_Different_Data.html">(why)Logging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Metric_Constraints.html">Data Validation with Metric Constraints</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Merging_Profiles.html">Merging Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Inspecting_Profiles.html">Inspecting Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Logging_Different_Data.html">(why)Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Metric_Constraints.html">Data Validation with Metric Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Merging_Profiles.html">Merging Profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../advanced/Constraints_Suite.html">Simple Constraints - Examples and Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../advanced/Condition_Count_Metrics.html">Condition Count Metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../advanced/Custom_Metrics.html">Custom Metrics</a></li>
@@ -214,13 +214,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../integrations/Dask_Profiling.html">Dask Profiling</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../datasets.html">Datasets</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../datasets.html">Datasets</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../datasets/weather.html">Weather Forecast Dataset</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../datasets/weather.html">Weather Forecast Dataset - Usage Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="weather.html">Weather Forecast Dataset - Usage Example</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../datasets/ecommerce.html">Ecommerce Dataset</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../datasets/ecommerce.html">Ecommerce Dataset - Usage Example</a></li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="../../datasets/ecommerce.html">Ecommerce Dataset</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Ecommerce Dataset - Usage Example</a></li>
 </ul>
 </li>
 </ul>
@@ -404,22 +404,1007 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="fundamental-concepts-and-modules-of-whylogs">
-<h1>Fundamental concepts and modules of whylogs<a class="headerlink" href="#fundamental-concepts-and-modules-of-whylogs" title="Permalink to this headline">#</a></h1>
-<p>In here you will find examples on:</p>
+          
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<blockquote>
+<div><p class="rubric" id="create-a-free-whylabs-account-to-get-more-value-out-of-whylogs">🚩 <em>Create a free WhyLabs account to get more value out of whylogs!</em></p>
+<p><em>Did you know you can store, visualize, and monitor whylogs profiles with the</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=ecommerce">WhyLabs Observability Platform</a><em>? Sign up for a</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=ecommerce">free WhyLabs account</a> <em>to leverage the power of whylogs and WhyLabs together!</em></p>
+</div></blockquote>
+<section id="Ecommerce-Dataset---Usage-Example">
+<h1>Ecommerce Dataset - Usage Example<a class="headerlink" href="#Ecommerce-Dataset---Usage-Example" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/datasets/ecommerce.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<p>This an example demonstrating the usage of the Ecommerce Dataset.</p>
+<p>For more information about the dataset itself, check the documentation on : <a class="reference external" href="https://whylogs.readthedocs.io/en/latest/datasets/ecommerce.html">https://whylogs.readthedocs.io/en/latest/datasets/ecommerce.html</a></p>
+<section id="Installing-the-datasets-module">
+<h2>Installing the datasets module<a class="headerlink" href="#Installing-the-datasets-module" title="Permalink to this headline">#</a></h2>
+<p>Uncomment the cell below if you don’t have the <code class="docutils literal notranslate"><span class="pre">datasets</span></code> module installed:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># %pip install -q whylogs[datasets]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Loading-the-Dataset">
+<h2>Loading the Dataset<a class="headerlink" href="#Loading-the-Dataset" title="Permalink to this headline">#</a></h2>
+<p>You can load the dataset of your choice by calling it from the <code class="docutils literal notranslate"><span class="pre">datasets</span></code> module:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.datasets</span> <span class="kn">import</span> <span class="n">Ecommerce</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">Ecommerce</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s2">&quot;base&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>If no <code class="docutils literal notranslate"><span class="pre">version</span></code> parameter is passed, the default version is <code class="docutils literal notranslate"><span class="pre">base</span></code>.</p>
+<p>This will create a folder in the current directory named <code class="docutils literal notranslate"><span class="pre">whylogs_data</span></code> with the csv files for the Ecommerce Dataset. If the files already exist, the module will not redownload the files.</p>
+</section>
+<section id="Discovering-Information">
+<h2>Discovering Information<a class="headerlink" href="#Discovering-Information" title="Permalink to this headline">#</a></h2>
+<p>To know what are the available versions for a given dataset, you can call:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Ecommerce</span><span class="o">.</span><span class="n">describe_versions</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(&#39;base&#39;,)
+</pre></div></div>
+</div>
+<p>To get access to overall description of the dataset:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">Ecommerce</span><span class="o">.</span><span class="n">describe</span><span class="p">()[:</span><span class="mi">1000</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ecommerce Dataset
+=================
+
+The Ecommerce dataset contains transaction information of several products for a popular grocery supermarket in India. It contains features such as the product&#39;s description, category, market price and user rating.
+
+The original data was sourced from Kaggle&#39;s [BigBasket Entire Product List](https://www.kaggle.com/datasets/surajjha101/bigbasket-entire-product-list-28k-datapoints). From the source data additional transformations were made, such as: oversampling and feature creation/engineering.
+
+License:
+CC BY-NC-SA 4.0
+
+Usage
+-----
+
+You can follow this guide to see how to use the ecommerce dataset:
+
+.. toctree::
+    :maxdepth: 1
+
+    ../examples/datasets/ecommerce
+
+
+Versions and Data Partitions
+----------------------------
+
+Currently the dataset contains one version: **base**. The task for the base version is to classify wether an incoming product should be provided a discount, given product features such as history of items sold, user rating, catego
+</pre></div></div>
+</div>
+<p>note: the output was truncated to first 1000 characters as <code class="docutils literal notranslate"><span class="pre">describe()</span></code> will print a rather lengthy description.</p>
+</section>
+<section id="Getting-Baseline-Data">
+<h2>Getting Baseline Data<a class="headerlink" href="#Getting-Baseline-Data" title="Permalink to this headline">#</a></h2>
+<p>You can access data from two different partitions: the baseline dataset and inference dataset.</p>
+<p>The baseline can be accessed as a whole, whereas the inference dataset can be accessed in periodic batches, defined by the user.</p>
+<p>To get a <code class="docutils literal notranslate"><span class="pre">baseline</span></code> object, just call <code class="docutils literal notranslate"><span class="pre">dataset.get_baseline()</span></code>:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.datasets</span> <span class="kn">import</span> <span class="n">Weather</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">Ecommerce</span><span class="p">()</span>
+
+<span class="n">baseline</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_baseline</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">baseline</span></code> will contain different attributes - one timestamp and five dataframes.</p>
 <ul class="simple">
-<li><p>How to inspect, visualize and compare your profiles with the <code class="docutils literal notranslate"><span class="pre">viz</span></code> module (<code class="docutils literal notranslate"><span class="pre">Notebook_Profile_Visualizer</span></code>)</p></li>
-<li><p>How to log different types of data (<code class="docutils literal notranslate"><span class="pre">Logging_Different_Data</span></code>)</p></li>
-<li><p>How to Configure tracking metrics according to data type or column features (<code class="docutils literal notranslate"><span class="pre">Schema_configuration</span></code>)</p></li>
-<li><p>More to come!</p></li>
+<li><p>timestamp: the batch’s timestamp (at the start)</p></li>
+<li><p>data: the complete dataframe</p></li>
+<li><p>features: input features</p></li>
+<li><p>target: output feature(s)</p></li>
+<li><p>prediction: output prediction and, possibly, features such as uncertainty, confidence, probability</p></li>
+<li><p>extra: metadata features that are not of any of the previous categories, but still contain relevant information about the data.</p></li>
 </ul>
-<p>Feel free to hit the <code class="docutils literal notranslate"><span class="pre">Open</span> <span class="pre">in</span> <span class="pre">Colab</span></code> button on the top of any of the examples to explore and interact with it!</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">baseline</span><span class="o">.</span><span class="n">timestamp</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+datetime.datetime(2022, 9, 12, 0, 0, tzinfo=datetime.timezone.utc)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">baseline</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>product</th>
+      <th>sales_last_week</th>
+      <th>market_price</th>
+      <th>rating</th>
+      <th>category</th>
+    </tr>
+    <tr>
+      <th>date</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Wood - Centre Filled Bar Infused With Dark Mou...</td>
+      <td>1</td>
+      <td>350.0</td>
+      <td>4.500000</td>
+      <td>Snacks and Branded Foods</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Toasted Almonds</td>
+      <td>1</td>
+      <td>399.0</td>
+      <td>3.944479</td>
+      <td>Gourmet and World Food</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Instant Thai Noodles - Hot &amp; Spicy Tomyum</td>
+      <td>1</td>
+      <td>95.0</td>
+      <td>3.300000</td>
+      <td>Gourmet and World Food</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Thokku - Vathakozhambu</td>
+      <td>1</td>
+      <td>336.0</td>
+      <td>4.300000</td>
+      <td>Snacks and Branded Foods</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Beetroot Powder</td>
+      <td>1</td>
+      <td>150.0</td>
+      <td>3.944479</td>
+      <td>Gourmet and World Food</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Setting-Parameters">
+<h2>Setting Parameters<a class="headerlink" href="#Setting-Parameters" title="Permalink to this headline">#</a></h2>
+<p>With <code class="docutils literal notranslate"><span class="pre">set_parameters</span></code>, you can specify the timestamps for both baseline and inference datasets, as well as the inference interval.</p>
+<p>By default, the timestamp is set as: - Current date for baseline dataset - Tomorrow’s date for inference dataset</p>
+<p>These timestamps can be defined by the user to any given day, including the dataset’s original date.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">inference_interval</span></code> defines the interval for each batch: ‘1d’ means that we will have daily batches, while ‘7d’ would mean weekly batches.</p>
+<p>To set the timestamps to the original dataset’s date, set <code class="docutils literal notranslate"><span class="pre">original</span></code> to true, like below:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Currently, the inference interval takes a str in the format &quot;Xd&quot;, where X is an integer between 1-30</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">inference_interval</span><span class="o">=</span><span class="s2">&quot;1d&quot;</span><span class="p">,</span> <span class="n">original</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">baseline</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_baseline</span><span class="p">()</span>
+<span class="n">baseline</span><span class="o">.</span><span class="n">timestamp</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+datetime.datetime(2022, 8, 9, 0, 0, tzinfo=datetime.timezone.utc)
+</pre></div></div>
+</div>
+<p>You can set timestamp by using the <code class="docutils literal notranslate"><span class="pre">baseline_timestamp</span></code> and <code class="docutils literal notranslate"><span class="pre">inference_start_timestamp</span></code>, and the inference interval like below:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">baseline_timestamp</span><span class="o">=</span><span class="n">now</span><span class="p">,</span> <span class="n">inference_start_timestamp</span><span class="o">=</span><span class="n">now</span><span class="p">,</span> <span class="n">inference_interval</span><span class="o">=</span><span class="s2">&quot;1d&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<blockquote>
+<div><p>Note that we are passing the datetime converted to the UTC timezone. If a naive datetime is passed (no information on timezones), local time zone will be assumed. The local timestamp, however, will be converted to the proper datetime in UTC timezone. Passing a naive datetime will trigger a warning, letting you know of this behavior.</p>
+</div></blockquote>
+<p>Note that if both <code class="docutils literal notranslate"><span class="pre">original</span></code> and a timestamp (baseline or inference) is passed simultaneously, the defined timestamp will be overwritten by the original dataset timestamp.</p>
+</section>
+<section id="Getting-Inference-Data-#1---By-Date">
+<h2>Getting Inference Data #1 - By Date<a class="headerlink" href="#Getting-Inference-Data-#1---By-Date" title="Permalink to this headline">#</a></h2>
+<p>You can get inference data in two different ways. The first is to specify the exact date you want, which will return a single batch:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batch</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_inference_data</span><span class="p">(</span><span class="n">target_date</span><span class="o">=</span><span class="n">now</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>You can access the attributes just as showed before:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batch</span><span class="o">.</span><span class="n">timestamp</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+datetime.datetime(2022, 9, 12, 0, 0, tzinfo=datetime.timezone.utc)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batch</span><span class="o">.</span><span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>product</th>
+      <th>sales_last_week</th>
+      <th>market_price</th>
+      <th>rating</th>
+      <th>category</th>
+      <th>category.Baby Care</th>
+      <th>category.Bakery, Cakes and Dairy</th>
+      <th>category.Beauty and Hygiene</th>
+      <th>category.Beverages</th>
+      <th>category.Cleaning and Household</th>
+      <th>category.Eggs, Meat and Fish</th>
+      <th>category.Foodgrains, Oil and Masala</th>
+      <th>category.Fruits and Vegetables</th>
+      <th>category.Gourmet and World Food</th>
+      <th>category.Kitchen, Garden and Pets</th>
+      <th>category.Snacks and Branded Foods</th>
+      <th>output_discount</th>
+      <th>output_prediction</th>
+      <th>output_score</th>
+    </tr>
+    <tr>
+      <th>date</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>1-2-3 Noodles - Veg Masala Flavour</td>
+      <td>2</td>
+      <td>12.0</td>
+      <td>4.200000</td>
+      <td>Snacks and Branded Foods</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Jaggery Powder - Organic, Sulphur Free</td>
+      <td>1</td>
+      <td>280.0</td>
+      <td>3.996552</td>
+      <td>Gourmet and World Food</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.571833</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Pudding - Assorted</td>
+      <td>3</td>
+      <td>50.0</td>
+      <td>4.400000</td>
+      <td>Gourmet and World Food</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.600000</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Perfectly Moist Dark Chocolate Fudge Cake Mix ...</td>
+      <td>1</td>
+      <td>495.0</td>
+      <td>4.000000</td>
+      <td>Gourmet and World Food</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.517833</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Pasta/Spaghetti Spoon - Nylon, Silicon Handle,...</td>
+      <td>1</td>
+      <td>299.0</td>
+      <td>3.732046</td>
+      <td>Kitchen, Garden and Pets</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.950000</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Premium Fish Fillet</td>
+      <td>1</td>
+      <td>250.0</td>
+      <td>3.931378</td>
+      <td>Eggs, Meat and Fish</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.910000</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Organic Fennel &amp; Nut Delight Laddoo - Low Carb...</td>
+      <td>1</td>
+      <td>499.0</td>
+      <td>1.700000</td>
+      <td>Snacks and Branded Foods</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.622333</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Steel Storage Deep Dabba/ Container Set With P...</td>
+      <td>1</td>
+      <td>695.0</td>
+      <td>3.600000</td>
+      <td>Kitchen, Garden and Pets</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.990000</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Venezia Large Bowl - Tempered Glass</td>
+      <td>2</td>
+      <td>495.0</td>
+      <td>3.813672</td>
+      <td>Kitchen, Garden and Pets</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.860000</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>Cologne - Tattoo For Men</td>
+      <td>1</td>
+      <td>799.0</td>
+      <td>4.000000</td>
+      <td>Beauty and Hygiene</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.585714</td>
+    </tr>
+  </tbody>
+</table>
+<p>4133 rows × 19 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batch</span><span class="o">.</span><span class="n">prediction</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>output_prediction</th>
+      <th>output_score</th>
+    </tr>
+    <tr>
+      <th>date</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>0</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>0</td>
+      <td>0.571833</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>1</td>
+      <td>0.600000</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>1</td>
+      <td>0.517833</td>
+    </tr>
+    <tr>
+      <th>2022-09-12 00:00:00+00:00</th>
+      <td>1</td>
+      <td>0.950000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Getting-Inference-Data-#2---By-Number-of-Batches">
+<h2>Getting Inference Data #2 - By Number of Batches<a class="headerlink" href="#Getting-Inference-Data-#2---By-Number-of-Batches" title="Permalink to this headline">#</a></h2>
+<p>The second way is to specify the number of batches you want and also the date for the first batch.</p>
+<p>You can then iterate over the returned object to get the batches. You can then use the batch any way you want. Here’s an example that retrieves daily batches for a period of 5 days and logs each one with <strong>whylogs</strong>, saving the binary profiles to disk:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="n">batches</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_inference_data</span><span class="p">(</span><span class="n">number_batches</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">batches</span><span class="p">:</span>
+  <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;logging batch of size </span><span class="si">{}</span><span class="s2"> for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">data</span><span class="p">),</span><span class="n">batch</span><span class="o">.</span><span class="n">timestamp</span><span class="p">))</span>
+  <span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
+  <span class="n">profile</span><span class="o">.</span><span class="n">set_dataset_timestamp</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
+  <span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;batch_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">timestamp</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+logging batch of size 4133 for 2022-09-12 00:00:00+00:00
+logging batch of size 4193 for 2022-09-13 00:00:00+00:00
+logging batch of size 4136 for 2022-09-14 00:00:00+00:00
+logging batch of size 4130 for 2022-09-15 00:00:00+00:00
+logging batch of size 4131 for 2022-09-16 00:00:00+00:00
+</pre></div></div>
+</div>
+</section>
 </section>
 
         </article>
@@ -427,8 +1412,26 @@
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="../../migration/basics.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Basics - v0 to v1</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../../datasets/ecommerce.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Ecommerce Dataset</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -474,8 +1477,33 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Ecommerce Dataset - Usage Example</a><ul>
+<li><a class="reference internal" href="#Installing-the-datasets-module">Installing the datasets module</a></li>
+<li><a class="reference internal" href="#Loading-the-Dataset">Loading the Dataset</a></li>
+<li><a class="reference internal" href="#Discovering-Information">Discovering Information</a></li>
+<li><a class="reference internal" href="#Getting-Baseline-Data">Getting Baseline Data</a></li>
+<li><a class="reference internal" href="#Setting-Parameters">Setting Parameters</a></li>
+<li><a class="reference internal" href="#Getting-Inference-Data-#1---By-Date">Getting Inference Data #1 - By Date</a></li>
+<li><a class="reference internal" href="#Getting-Inference-Data-#2---By-Number-of-Batches">Getting Inference Data #2 - By Number of Batches</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
@@ -489,5 +1517,7 @@
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     </body>
 </html>

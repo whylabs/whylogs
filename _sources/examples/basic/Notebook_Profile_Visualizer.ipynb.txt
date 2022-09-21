@@ -4,6 +4,14 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
+    ">### 🚩 *Create a free WhyLabs account to get more value out of whylogs!*<br> \n",
+    ">*Did you know you can store, visualize, and monitor whylogs profiles with the [WhyLabs Observability Platform](https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&utm_medium=whylogs-example&utm_campaign=Notebook_Profile_Visualizer)? Sign up for a [free WhyLabs account](https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&utm_medium=whylogs-example&utm_campaign=Notebook_Profile_Visualizer) to leverage the power of whylogs and WhyLabs together!*"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
     "# Drift Analysis with Profile Visualizer"
    ]
   },
@@ -5666,7 +5674,7 @@
  ],
  "metadata": {
   "kernelspec": {
-   "display_name": "Python 3.8.10 ('.venv': poetry)",
+   "display_name": "Python 3.9.5 ('base')",
    "language": "python",
    "name": "python3"
   },
@@ -5680,12 +5688,12 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.8.10"
+   "version": "3.9.5"
   },
   "orig_nbformat": 4,
   "vscode": {
    "interpreter": {
-    "hash": "8f1d1cdf7b0c0137b2e908d9e0223223ef0df6103abd59220d912dae2e1b6996"
+    "hash": "8148c804a5838694570acf40aa3269caeebb6c584d51452dd558e946dfc16d39"
    }
   }
  },
