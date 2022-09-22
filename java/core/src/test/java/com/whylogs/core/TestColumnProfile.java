@@ -29,7 +29,7 @@ public class TestColumnProfile {
   public void testColumnProfileInit() {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
     Assert.assertEquals(profile.getName(), columnName);
-    Assert.assertEquals(profile.getSchema().getType(), IntegralMetric.class);
+    Assert.assertEquals(profile.getSchema().getType(), Integer.class);
     Assert.assertEquals(profile.getCachedSize(), CACHE_SIZE);
   }
 
