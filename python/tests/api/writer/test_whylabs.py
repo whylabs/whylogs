@@ -2,15 +2,16 @@ import datetime
 import logging
 import os
 import tempfile
+from unittest.mock import MagicMock
 
 import pytest
-import requests
 import responses
 from responses import PUT
 
 import whylogs as why
 from whylogs.api.writer import Writers
 from whylogs.api.writer.whylabs import WhyLabsWriter
+from whylogs.core.feature_weights import FeatureWeights
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +54,7 @@ class TestWhylabsWriter(object):
             dataset_timestamp = profile.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
             response = writer._do_upload(dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name)
-            assert isinstance(response, requests.Response)
-            assert response.status_code == 200
+            assert response[0] is True
 
     @pytest.mark.skip("Skip for now. Will need more mocking")
     def test_upload_reference_request(self, results):
@@ -78,8 +78,7 @@ class TestWhylabsWriter(object):
                 profile_path=tmp_file.name,
                 reference_profile_name="RefProfileAlias",
             )
-            assert isinstance(response, requests.Response)
-            assert response.status_code == 200
+            assert response[0] is True
 
     @pytest.mark.skip("Skip for now. Probably need more mocking")
     def test_api_key_null_raises_error(self, results, caplog):
@@ -89,6 +88,48 @@ class TestWhylabsWriter(object):
             writer: WhyLabsWriter = Writers.get("whylabs")
             writer.write(profile=results.profile())
         os.environ["WHYLABS_API_KEY"] = "01234567890.any"
+
+    def test_put_feature_weight(self):
+        weights = {
+            "col1": 0.7,
+            "col2": 0.3,
+            "col3": 0.01,
+        }
+
+        feature_weights = FeatureWeights(weights)
+        writer = WhyLabsWriter()
+        writer.write = MagicMock(return_value=(True, "200"))
+        result = writer.write(feature_weights)
+
+        writer.write.assert_called_with(feature_weights)
+        assert isinstance(feature_weights, FeatureWeights)
+        assert result == (True, "200")
+
+    def test_put_feature_weight_writer(self):
+        weights = {
+            "col1": 0.7,
+            "col2": 0.3,
+            "col3": 0.01,
+        }
+
+        feature_weights = FeatureWeights(weights)
+        feature_weights_writer = feature_weights.writer("whylabs")
+        feature_weights_writer.write = MagicMock(return_value=(True, "200"))
+        result = feature_weights_writer.write()
+        assert isinstance(feature_weights, FeatureWeights)
+        assert result == (True, "200")
+
+    def test_get_feature_weight(self):
+        writer = WhyLabsWriter()
+        get_result = FeatureWeights(
+            weights={"col1": 0.7, "col2": 0.3, "col3": 0.01},
+            metadata={"version": 13, "updatedTimestamp": 1663620626701, "author": "system"},
+        )
+
+        writer.get_feature_weights = MagicMock(return_value=get_result)
+        result = writer.get_feature_weights()
+        assert result == get_result
+        assert isinstance(result, FeatureWeights)
 
     def test_option_will_overwrite_defaults(self) -> None:
         writer = WhyLabsWriter()
@@ -106,3 +147,10 @@ class TestWhylabsWriter(object):
         # TODO: inspect error or mock better to avoid network call and keep test focused.
         with pytest.raises(ValueError):
             results.writer("whylabs").option(api_key="bad_key_format").write(dataset_id="dataset_id", dest="tmp")
+
+    def test_write_response(self, results):
+        with pytest.raises(ValueError):
+            response = (
+                results.writer("whylabs").option(api_key="bad_key_format").write(dataset_id="dataset_id", dest="tmp")
+            )
+            assert response[0] is True

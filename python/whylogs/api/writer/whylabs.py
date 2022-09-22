@@ -2,11 +2,12 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Optional
+from typing import Any, Dict, Optional, Tuple
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore
 from whylabs_client import ApiClient, Configuration  # type: ignore
+from whylabs_client.api.feature_weights_api import FeatureWeightsApi
 from whylabs_client.api.log_api import AsyncLogResponse  # type: ignore
 from whylabs_client.api.log_api import (
     LogApi,
@@ -19,15 +20,68 @@ from whylabs_client.rest import ForbiddenException  # type: ignore
 from whylogs import __version__ as _version
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
-from whylogs.core import DatasetProfileView
+from whylogs.core import ColumnProfileView, DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.errors import BadConfigError
+from whylogs.core.feature_weights import FeatureWeights
+from whylogs.core.metrics import Metric
+from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.utils import deprecated_alias
+from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
+
+try:
+    from PIL.Image import Image as ImageType  # noqa trigger ImportError if unavailable
+
+    from whylogs.extras.image_metric import ImageMetric
+except ImportError:
+    # dummy ImageMetric class so nothing will be an instance of it
+    class ImageMetric:  # type: ignore[no-redef]
+        pass
+
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 logger = logging.getLogger(__name__)
 
 API_KEY_ENV = "WHYLABS_API_KEY"
+
+
+def _uncompound_metric_feature_flag() -> bool:
+    return True
+
+
+def _v0_compatible_image_feature_flag() -> bool:
+    return False
+
+
+def _uncompounded_column_name(column_name: str, metric_name: str, submetric_name: str, metric: Metric) -> str:
+    if isinstance(metric, ImageMetric) and _v0_compatible_image_feature_flag():
+        return submetric_name
+    return f"{column_name}.{metric_name}.{submetric_name}"
+
+
+def _uncompound_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
+    result: Dict[str, ColumnProfileView] = dict()
+    for submetric_name, submetric in metric.submetrics.items():
+        new_col_name = _uncompounded_column_name(col_name, metric_name, submetric_name, metric)
+        result[new_col_name] = ColumnProfileView({submetric.namespace: submetric})
+    return result
+
+
+def _uncompund_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
+    new_prof = DatasetProfileView(
+        columns=prof._columns,
+        dataset_timestamp=prof._dataset_timestamp,
+        creation_timestamp=prof._creation_timestamp,
+        metrics=prof._metrics,
+    )
+    new_columns: Dict[str, ColumnProfileView] = dict()
+    for col_name, col_prof in new_prof._columns.items():
+        for metric_name, metric in col_prof._metrics.items():
+            if isinstance(metric, CompoundMetric):
+                new_columns.update(_uncompound_metric(col_name, metric_name, metric))
+
+    new_prof._columns.update(new_columns)
+    return new_prof
 
 
 class WhyLabsWriter(Writer):
@@ -75,6 +129,7 @@ class WhyLabsWriter(Writer):
         self._api_key = api_key or os.environ.get("WHYLABS_API_KEY")
         self._api_key_id = ""
         self._dataset_id = dataset_id or os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+        self._feature_weights = None
         self.whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
         self._reference_profile_name = os.environ.get("WHYLABS_REFERENCE_PROFILE_NAME")
         self._api_log_client: Optional[ApiClient] = None
@@ -122,28 +177,84 @@ class WhyLabsWriter(Writer):
             self._ssl_ca_cert = ssl_ca_cert
         return self
 
-    @deprecated_alias(profile="file")
-    def write(self, file: Writable, **kwargs: Any) -> None:
-        profile_view = file.view() if isinstance(file, DatasetProfile) else file
+    def write_feature_weights(self, file: FeatureWeights, **kwargs: Any) -> Tuple[bool, str]:
+        """Put feature weights for the specified dataset.
 
-        if not isinstance(profile_view, DatasetProfileView):
+        Parameters
+        ----------
+        file : FeatureWeights
+            FeatureWeights object representing the Feature Weights for the specified dataset
+
+        Returns
+        -------
+        Tuple[bool, str]
+            Tuple with a boolean (1-success, 0-fail) and string with the request's status code.
+        """
+        self._feature_weights = file.to_dict()
+        if kwargs.get("dataset_id") is not None:
+            self._dataset_id = kwargs.get("dataset_id")
+        return self._do_upload_feature_weights()
+
+    def get_feature_weights(self, **kwargs: Any) -> Optional[FeatureWeights]:
+        """Get latest version for the feature weights for the specified dataset
+
+        Returns
+        -------
+        FeatureWeightResponse
+            Response of the GET request, with segmentWeights and metadata.
+        """
+        if kwargs.get("dataset_id") is not None:
+            self._dataset_id = kwargs.get("dataset_id")
+
+        result = self._do_get_feature_weights()
+        feature_weights_set = result.get("segmentWeights")
+        metadata = result.get("metadata")
+        if feature_weights_set and isinstance(feature_weights_set, list):
+            feature_weights = FeatureWeights(weights=feature_weights_set[0]["weights"], metadata=metadata)
+            return feature_weights
+        return None
+
+    @deprecated_alias(profile="file")
+    def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
+
+        if isinstance(file, FeatureWeights):
+            return self.write_feature_weights(file, **kwargs)
+
+        view = file.view() if isinstance(file, DatasetProfile) else file
+        has_segments = isinstance(view, SegmentedDatasetProfileView)
+
+        if not has_segments and not isinstance(view, DatasetProfileView):
             raise ValueError(
                 "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
             )
+
+        if _uncompound_metric_feature_flag():
+            if has_segments:
+                updated_profile_view = _uncompund_dataset_profile(view.profile_view)
+                view = SegmentedDatasetProfileView(
+                    profile_view=updated_profile_view, segment=view._segment, partition=view._partition
+                )
+
+            else:
+                view = _uncompund_dataset_profile(view)
 
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
 
         with tempfile.NamedTemporaryFile() as tmp_file:
-            profile_view.write(path=tmp_file.name)
+            if has_segments:
+                view.write(path=tmp_file.name, use_v0=True)
+            else:
+                view.write(path=tmp_file.name)
             tmp_file.flush()
 
-            dataset_timestamp = profile_view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
+            dataset_timestamp = view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp_epoch = int(dataset_timestamp.timestamp() * 1000)
-            self._do_upload(
+            response = self._do_upload(
                 dataset_timestamp=dataset_timestamp_epoch,
                 profile_path=tmp_file.name,
             )
+        return response
 
     def _validate_api_key(self) -> None:
         if self._api_key is None:
@@ -156,11 +267,7 @@ class WhyLabsWriter(Writer):
             raise ValueError("Invalid format. Expecting a dot at an index 10")
         self._api_key_id = self._api_key[:10]
 
-    def _do_upload(
-        self,
-        dataset_timestamp: int,
-        profile_path: str,
-    ) -> requests.Response:
+    def _validate_org_and_dataset(self) -> None:
         if self._org_id is None:
             raise EnvironmentError(
                 "Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID " "environment variable"
@@ -170,8 +277,46 @@ class WhyLabsWriter(Writer):
                 "Missing dataset ID. Specify it via WHYLABS_DEFAULT_DATASET_ID environment "
                 "variable or on your write method"
             )
-        if self._api_key is None:
-            raise EnvironmentError("Missing API key. Specify it via WHYLABS_API_KEY environment variable.")
+
+    def _do_get_feature_weights(self):
+        """Get latest version for the feature weights for the specified dataset
+
+        Returns
+        -------
+            Response of the GET request, with segmentWeights and metadata.
+        """
+        self._validate_org_and_dataset()
+        self._validate_api_key()
+
+        result = self._get_column_weights()
+        return result
+
+    def _do_upload_feature_weights(self) -> Tuple[bool, str]:
+        """Put feature weights for the specified dataset.
+
+        Returns
+        -------
+        Tuple[bool, str]
+            Tuple with a boolean (1-success, 0-fail) and string with the request's status code.
+        """
+
+        self._validate_org_and_dataset()
+        self._validate_api_key()
+
+        result = self._put_feature_weights()
+        if result == 200:
+            return True, str(result)
+        else:
+            return False, str(result)
+
+    def _do_upload(
+        self,
+        dataset_timestamp: int,
+        profile_path: str,
+    ) -> Tuple[bool, str]:
+
+        self._validate_org_and_dataset()
+        self._validate_api_key()
 
         logger.debug("Generating the upload URL")
         upload_url = self._get_upload_url(dataset_timestamp=dataset_timestamp)
@@ -179,17 +324,32 @@ class WhyLabsWriter(Writer):
         try:
             with open(profile_path, "rb") as f:
                 http_response = requests.put(upload_url, data=f.read())
+                is_successful = False
                 if http_response.status_code == 200:
+                    is_successful = True
                     logger.info(
                         f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
                         f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
                     )
-                return http_response
+                return is_successful, http_response.text
         except requests.RequestException as e:
             logger.info(
                 f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
                 + f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}. Error occurred: {e}"
             )
+            return False, str(e)
+
+    def _get_or_create_feature_weights_client(self) -> FeatureWeightsApi:
+        environment_api_key = os.environ.get(API_KEY_ENV)
+
+        if self._api_log_client is None:
+            self._refresh_api_client()
+        elif environment_api_key is not None and self._api_key != environment_api_key:
+            logger.warning(f"Updating API key ID from: {self._api_key_id} to: {environment_api_key[:10]}")
+            self._api_key = environment_api_key
+            self._refresh_api_client()
+
+        return FeatureWeightsApi(self._api_log_client)
 
     def _get_or_create_api_log_client(self) -> LogApi:
         environment_api_key = os.environ.get(API_KEY_ENV)
@@ -238,6 +398,44 @@ class WhyLabsWriter(Writer):
     def _build_log_reference_request(dataset_timestamp: int, alias: Optional[str] = None) -> LogReferenceRequest:
         return LogReferenceRequest(dataset_timestamp=dataset_timestamp, alias=alias)
 
+    def _get_column_weights(self):
+        feature_weight_api = self._get_or_create_feature_weights_client()
+        try:
+            result = feature_weight_api.get_column_weights(
+                org_id=self._org_id,
+                dataset_id=self._dataset_id,
+            )
+            return result
+        except ForbiddenException as e:
+            api_key_id = self._api_key[:10] if self._api_key else None
+            logger.exception(
+                f"Failed to upload {self._org_id}/{self._dataset_id} to "
+                f"{self.whylabs_api_endpoint}"
+                f" with API token ID: {api_key_id}"
+            )
+            raise e
+
+    def _put_feature_weights(self):
+        feature_weight_api = self._get_or_create_feature_weights_client()
+        try:
+            result = feature_weight_api.put_column_weights(
+                org_id=self._org_id,
+                dataset_id=self._dataset_id,
+                body={
+                    "segmentWeights": [self._feature_weights],
+                },
+                _return_http_data_only=False,
+            )
+            return result[1]
+        except ForbiddenException as e:
+            api_key_id = self._api_key[:10] if self._api_key else None
+            logger.exception(
+                f"Failed to upload {self._org_id}/{self._dataset_id} to "
+                f"{self.whylabs_api_endpoint}"
+                f" with API token ID: {api_key_id}"
+            )
+            raise e
+
     def _post_log_async(self, request: LogAsyncRequest, dataset_timestamp: int) -> AsyncLogResponse:
         log_api = self._get_or_create_api_log_client()
         try:
@@ -270,12 +468,12 @@ class WhyLabsWriter(Writer):
             raise e
 
     def _get_upload_url(self, dataset_timestamp: int) -> str:
-        if self._reference_profile_name is None:
-            request = self._build_log_async_request(dataset_timestamp)
-            res = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
-            upload_url = res["upload_url"]
-        else:
+        if self._reference_profile_name is not None:
             request = self._build_log_reference_request(dataset_timestamp, alias=self._reference_profile_name)
             res = self._post_log_reference(request=request, dataset_timestamp=dataset_timestamp)
+            upload_url = res["upload_url"]
+        else:
+            request = self._build_log_async_request(dataset_timestamp)
+            res = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
             upload_url = res["upload_url"]
         return upload_url

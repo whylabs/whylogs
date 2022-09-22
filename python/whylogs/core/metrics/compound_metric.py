@@ -84,7 +84,7 @@ class CompoundMetric(Metric, ABC):
         for sub_name, submetric in self.submetrics.items():
             sub_summary = submetric.to_summary_dict(cfg)
             for comp_name, comp_msg in sub_summary.items():
-                summary["/".join([self.namespace, sub_name, comp_name])] = comp_msg
+                summary["/".join([sub_name, comp_name])] = comp_msg
         return summary
 
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
