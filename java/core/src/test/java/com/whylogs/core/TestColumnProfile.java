@@ -1,7 +1,6 @@
 package com.whylogs.core;
 
 import com.whylogs.core.metrics.IntegralMetric;
-import com.whylogs.core.metrics.Metric;
 import com.whylogs.core.metrics.MetricConfig;
 import com.whylogs.core.metrics.components.MaxIntegralComponent;
 import com.whylogs.core.metrics.components.MinIntegralComponent;
@@ -13,8 +12,6 @@ import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
 
 @Test
 public class TestColumnProfile {
