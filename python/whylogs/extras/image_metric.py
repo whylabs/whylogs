@@ -1,6 +1,6 @@
 import logging
 from itertools import chain
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import whylogs as why
 from whylogs.api.logger.result_set import ResultSet
@@ -124,7 +124,8 @@ class ImageMetric(CompoundMetric):
         return OperationResult.ok(count)
 
     @classmethod
-    def zero(cls, config: MetricConfig) -> "ImageMetric":
+    def zero(cls, config: Optional[MetricConfig]=None) -> "ImageMetric":
+        config = config or MetricConfig()
         dummy_image = new_image("HSV", (1, 1))
         metadata = get_pil_image_metadata(dummy_image)
         submetrics: Dict[str, Metric] = dict()

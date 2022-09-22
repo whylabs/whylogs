@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from typing import Optional
 
 from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.metrics.metrics import DistributionMetric, MetricConfig, custom_metric
@@ -15,7 +16,7 @@ class GoodCM(CompoundMetric):
         return "good"
 
     @classmethod
-    def zero(cls, config: MetricConfig) -> "GoodCM":
+    def zero(cls, config: Optional[MetricConfig]=None) -> "GoodCM":
         return cls({})
 
 
@@ -45,7 +46,7 @@ def test_colon_in_namespace_fails() -> None:
                 return "bad:namespace"
 
             @classmethod
-            def zero(cls, config: MetricConfig) -> "BadCM1":
+            def zero(cls, config: Optional[MetricConfig]=None) -> "BadCM1":
                 return cls({})
 
 
@@ -59,7 +60,7 @@ def test_slash_in_namespace_fails() -> None:
                 return "bad/namespace"
 
             @classmethod
-            def zero(cls, config: MetricConfig) -> "BadCM2":
+            def zero(cls, config: Optional[MetricConfig]=None) -> "BadCM2":
                 return cls({})
 
 

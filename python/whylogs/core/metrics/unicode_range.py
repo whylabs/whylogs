@@ -1,6 +1,6 @@
 import unicodedata
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.metrics.metrics import (
@@ -97,7 +97,8 @@ class UnicodeRangeMetric(CompoundMetric):
         return OperationResult.ok(len(data))
 
     @classmethod
-    def zero(cls, config: MetricConfig) -> "UnicodeRangeMetric":
+    def zero(cls, config: Optional[MetricConfig]=None) -> "UnicodeRangeMetric":
+        config = config or MetricConfig()
         return cls(config.unicode_ranges, lower_case=config.lower_case, normalize=config.normalize)
 
     @classmethod

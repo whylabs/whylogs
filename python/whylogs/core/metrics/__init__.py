@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 
 from whylogs.core.metrics.column_metrics import ColumnCountsMetric, TypeCountersMetric
 from whylogs.core.metrics.condition_count_metric import ConditionCountMetric
@@ -26,5 +27,6 @@ class StandardMetric(Enum):
     def __init__(self, clz: Metric):
         self._clz = clz
 
-    def zero(self, config: MetricConfig) -> Metric:  # type: ignore
+    def zero(self, config: Optional[MetricConfig]=None) -> Metric:  # type: ignore
+        config = config or MetricConfig()
         return self._clz.zero(config)
