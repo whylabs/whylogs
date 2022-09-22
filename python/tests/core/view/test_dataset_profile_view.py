@@ -108,3 +108,10 @@ def test_different_ordered() -> None:
     merged_view = profile_view1.merge(profile_view2)
     view2 = merged_view.to_pandas().columns
     assert (view1 == view2).all()
+
+
+def test_to_pandas_empty() -> None:
+    profile = DatasetProfile().view()
+    pdf: pd.DataFrame = profile.to_pandas()
+    assert pdf is not None
+    assert pdf.empty
