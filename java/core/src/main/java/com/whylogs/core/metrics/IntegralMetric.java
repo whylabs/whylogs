@@ -3,6 +3,7 @@ package com.whylogs.core.metrics;
 import com.whylogs.core.PreprocessedColumn;
 import com.whylogs.core.SummaryConfig;
 import com.whylogs.core.metrics.components.MaxIntegralComponent;
+import com.whylogs.core.metrics.components.MetricComponent;
 import com.whylogs.core.metrics.components.MinIntegralComponent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,7 +63,14 @@ public class IntegralMetric extends AbstractMetric<IntegralMetric> {
     return OperationResult.ok(successes);
   }
 
-  // @Override // TODO: move this to a factory so it can be accessed for building
+  @Override
+  public HashMap<String, MetricComponent> getComponents() {
+    HashMap<String, MetricComponent> components = new HashMap<>();
+    components.put(this.maxComponent.getTypeName(), this.maxComponent);
+    components.put(this.minComponent.getTypeName(), this.minComponent);
+    return components;
+  }
+
   public static IntegralMetric zero(MetricConfig config) {
     return new IntegralMetric();
   }

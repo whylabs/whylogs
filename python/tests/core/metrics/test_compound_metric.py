@@ -108,10 +108,10 @@ def test_compound_metric_summary() -> None:
     metric.columnar_update(col)
     summary = metric.to_summary_dict(None)
 
-    assert "good/Metric1/mean" in summary
-    assert "good/Metric1/stddev" in summary
-    assert "good/Metric2/n" in summary
-    assert "good/Metric2/median" in summary
+    assert "Metric1/mean" in summary
+    assert "Metric1/stddev" in summary
+    assert "Metric2/n" in summary
+    assert "Metric2/median" in summary
 
 
 def test_compound_metric_merge() -> None:
