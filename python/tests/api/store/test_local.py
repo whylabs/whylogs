@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from whylogs.api.store.date_config import DateConfig
-from whylogs.api.store.local import LocalStore
+from whylogs.api.store.local_store import LocalStore
+from whylogs.api.store.query import DateQuery
 from whylogs.core import DatasetProfile, DatasetProfileView
 
 DEFAULT_PATH = os.path.join(os.getcwd(), "profile_store")
@@ -71,13 +71,13 @@ class TestLocalStore(object):
         store.write(profile=profile_view)
         store.write(profile=profile_view)
 
-        date_config = DateConfig(start_date=datetime.utcnow())
+        date_config = DateQuery(start_date=datetime.utcnow())
         read_profile = store.get(date_config=date_config)
 
         assert read_profile is not None
         assert isinstance(read_profile, DatasetProfileView)
 
-        larger_date_config = DateConfig(
+        larger_date_config = DateQuery(
             start_date=datetime.utcnow() - timedelta(days=7),
             end_date=datetime.utcnow(),
         )
@@ -90,5 +90,5 @@ class TestLocalStore(object):
         store.write(profile=profile_view)
         Path(os.path.join(store._default_path, store.base_name, "profile_2022-02-01_23123.bin")).touch()
 
-        date_config = DateConfig(start_date=datetime.utcnow())
+        date_config = DateQuery(start_date=datetime.utcnow())
         assert store.get(date_config=date_config)

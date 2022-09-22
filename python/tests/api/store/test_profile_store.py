@@ -5,14 +5,14 @@ from unittest.mock import MagicMock
 
 from pytest import fixture
 
-from whylogs.api.store.date_config import DateConfig
 from whylogs.api.store.profile_store import ProfileStore
+from whylogs.api.store.query import DateQuery
 
 
 @fixture
 def date_config():
     config = MagicMock(
-        wraps=DateConfig,
+        wraps=DateQuery,
         start_date=datetime(2022, 1, 1),
         end_date=datetime(2022, 1, 2),
     )

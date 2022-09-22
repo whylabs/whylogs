@@ -73,7 +73,7 @@ class TimedRollingLogger(Logger):
         fork: bool = False,
         skip_empty: bool = False,
         callback: Optional[Callable[[Writer, DatasetProfileView, str], None]] = None,
-        store: Optional[ProfileStore] = None,
+        store_list: List[ProfileStore] = [],
     ):
         super().__init__(schema)
         if base_name is None:
@@ -86,7 +86,7 @@ class TimedRollingLogger(Logger):
         self.aligned = aligned
         self.fork = fork
         self.skip_empty = skip_empty
-        self.store = store
+        self.store_list = store_list
 
         # base on TimedRotatingFileHandler
         self.when = when.upper()
@@ -130,8 +130,7 @@ class TimedRollingLogger(Logger):
         writer.check_interval(self.interval)
 
     def append_store(self, store: ProfileStore) -> None:
-        if store is not None:
-            self.store = store
+        self.store_list.append(store)
 
     def _compute_current_batch_timestamp(self, now: Optional[float] = None) -> int:
         if now is None:
@@ -204,8 +203,8 @@ class TimedRollingLogger(Logger):
             while profile.is_active:
                 time.sleep(1)
 
-            if self.store is not None:
-                self.store.write(profile=profile.view())
+            for store in self.store_list:
+                store.write(profile=profile.view())
 
             for w in self._writers:
                 w.write(profile=profile.view(), dest=timed_filename)

@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
 
-from whylogs.api.store.date_config import DateConfig
 from whylogs.api.store.profile_store import ProfileStore
+from whylogs.api.store.query import DateQuery
 from whylogs.core.constraints import ConstraintsBuilder
 from whylogs.core.constraints.factories import greater_than_number
 
 # 1. Configure Store
 store = ProfileStore(base_name="test_constraints")
-now_config = DateConfig(start_date=datetime.now())
-reference_config = DateConfig(start_date=datetime.now() - timedelta(days=7), end_date=datetime.now())
+now_config = DateQuery(start_date=datetime.now())
+reference_config = DateQuery(start_date=datetime.now() - timedelta(days=7), end_date=datetime.now())
 
 # 2. Get the profile
 profile_view = store.get(date_config=now_config)
