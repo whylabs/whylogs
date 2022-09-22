@@ -24,7 +24,7 @@ public class ColumnProfileView {
   }
 
   public ColumnProfileView merge(ColumnProfileView otherView) {
-    if(otherView == null){
+    if (otherView == null) {
       // TODO: log warning that otehrwas null and this returns original
       return this;
     }
@@ -80,7 +80,7 @@ public class ColumnProfileView {
   }
 
   public HashMap<String, Object> toSummaryDict(
-          Optional<String> columnMetric, Optional<SummaryConfig> config) throws UnsupportedError {
+      Optional<String> columnMetric, Optional<SummaryConfig> config) throws UnsupportedError {
     SummaryConfig summaryConfig = config.orElse(new SummaryConfig());
     HashMap<String, Object> summary = new HashMap<>();
 

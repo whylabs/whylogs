@@ -4,11 +4,10 @@ import com.whylogs.core.metrics.Metric;
 import com.whylogs.core.metrics.OperationResult;
 import com.whylogs.core.schemas.ColumnSchema;
 import com.whylogs.core.views.ColumnProfileView;
-import lombok.Getter;
-import lombok.ToString;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @ToString

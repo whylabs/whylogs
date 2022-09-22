@@ -24,6 +24,7 @@ public class DatasetProfile {
   private HashMap<String, ColumnProfile<?>> columns;
   private boolean isActive = false;
   private int trackCount = 0;
+  private HashMap<String, Metric> metrics = new HashMap<>();
 
   public DatasetProfile(
       Optional<DatasetSchema> datasetSchema,
@@ -42,6 +43,10 @@ public class DatasetProfile {
       throw new InputMismatchException("Column name not found in schema");
     }
     this.columns.get(colName).addMetric(metric);
+  }
+
+  public void addDatasetMetric(String name, Metric metric) {
+    this.metrics.put(name, metric);
   }
 
   /*
