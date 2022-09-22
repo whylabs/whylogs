@@ -1,11 +1,9 @@
 package com.whylogs.core.views;
 
-import java.io.*;
 import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import whylogs.core.message.*;
 
 // TODO: extend writable when we do Protobuf
 @AllArgsConstructor
@@ -17,7 +15,7 @@ public class DatasetProfileView {
   private Date creationTimestamp;
 
   public DatasetProfileView merge(DatasetProfileView otherView) {
-    if(otherView == null) {
+    if (otherView == null) {
       return this;
     }
 
