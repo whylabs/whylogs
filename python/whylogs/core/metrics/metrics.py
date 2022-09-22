@@ -91,7 +91,7 @@ class OperationResult:
 class Metric(ABC):
     @classmethod
     # TODO: deprecate config argument
-    def get_namespace(cls, config: Optional[MetricConfig]=None) -> str:
+    def get_namespace(cls, config: Optional[MetricConfig] = None) -> str:
         return cls.zero().namespace
 
     @property
@@ -143,7 +143,7 @@ class Metric(ABC):
 
     @classmethod
     @abstractmethod
-    def zero(cls: Type[METRIC], config: Optional[MetricConfig]=None) -> METRIC:
+    def zero(cls: Type[METRIC], config: Optional[MetricConfig] = None) -> METRIC:
         pass
 
     @classmethod
@@ -192,7 +192,7 @@ class IntsMetric(Metric):
         return OperationResult.ok(successes)
 
     @classmethod
-    def zero(cls, config: Optional[MetricConfig]=None) -> "IntsMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "IntsMetric":
         return IntsMetric(max=MaxIntegralComponent(-sys.maxsize), min=MinIntegralComponent(sys.maxsize))
 
     def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Union[int, float, str, None]]:
@@ -413,7 +413,7 @@ class DistributionMetric(Metric):
         return self.kll.value.get_min_value()
 
     @classmethod
-    def zero(cls, config: Optional[MetricConfig]=None) -> "DistributionMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "DistributionMetric":
         config = config or MetricConfig()
         configured_kll_k = config.kll_k_large if config.large_kll_k else config.kll_k
         sk = ds.kll_doubles_sketch(k=configured_kll_k)
@@ -491,7 +491,7 @@ class FrequentItemsMetric(Metric):
         return summary["frequent_strings"]
 
     @classmethod
-    def zero(cls, config: Optional[MetricConfig]=None) -> "FrequentItemsMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "FrequentItemsMetric":
         config = config or MetricConfig()
         sk = ds.frequent_strings_sketch(lg_max_k=config.fi_lg_max_k)
         return FrequentItemsMetric(frequent_strings=FrequentStringsComponent(sk))
@@ -566,7 +566,7 @@ class CardinalityMetric(Metric):
         return result
 
     @classmethod
-    def zero(cls, config: Optional[MetricConfig]=None) -> "CardinalityMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "CardinalityMetric":
         config = config or MetricConfig()
         sk = ds.hll_sketch(config.hll_lg_k)
         return CardinalityMetric(hll=HllComponent(sk))

@@ -142,7 +142,7 @@ class ConditionCountMetric(Metric):
         return OperationResult.ok(count)
 
     @classmethod
-    def zero(cls, config: Optional[MetricConfig]=None) -> "ConditionCountMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "ConditionCountMetric":
         config = config or ConditionCountConfig()
         if not isinstance(config, ConditionCountConfig):
             raise ValueError("ConditionCountMetric.zero() requires ConditionCountConfig argument")

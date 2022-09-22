@@ -97,7 +97,7 @@ class UnicodeRangeMetric(CompoundMetric):
         return OperationResult.ok(len(data))
 
     @classmethod
-    def zero(cls, config: Optional[MetricConfig]=None) -> "UnicodeRangeMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "UnicodeRangeMetric":
         config = config or MetricConfig()
         return cls(config.unicode_ranges, lower_case=config.lower_case, normalize=config.normalize)
 

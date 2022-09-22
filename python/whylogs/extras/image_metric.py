@@ -124,7 +124,7 @@ class ImageMetric(CompoundMetric):
         return OperationResult.ok(count)
 
     @classmethod
-    def zero(cls, config: Optional[MetricConfig]=None) -> "ImageMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "ImageMetric":
         config = config or MetricConfig()
         dummy_image = new_image("HSV", (1, 1))
         metadata = get_pil_image_metadata(dummy_image)

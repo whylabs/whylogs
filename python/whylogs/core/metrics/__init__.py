@@ -27,6 +27,6 @@ class StandardMetric(Enum):
     def __init__(self, clz: Metric):
         self._clz = clz
 
-    def zero(self, config: Optional[MetricConfig]=None) -> Metric:  # type: ignore
+    def zero(self, config: Optional[MetricConfig] = None) -> Metric:  # type: ignore
         config = config or MetricConfig()
         return self._clz.zero(config)
