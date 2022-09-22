@@ -6,11 +6,11 @@ import whylogs as why
 from whylogs.api.writer.whylabs import _uncompund_dataset_profile
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.datatypes import DataType
-from whylogs.core.metrics import Metric, MetricConfig
+from whylogs.core.metrics import Metric
 from whylogs.core.preprocessing import ListView, PreprocessedColumn
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
-from whylogs.extras.image_metric import ImageMetric, log_image
+from whylogs.extras.image_metric import ImageMetric, ImageMetricConfig, log_image
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ def image_loader(path: str = None) -> ImageType:
 
 class TestResolver(Resolver):
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-        return {ImageMetric.get_namespace(MetricConfig()): ImageMetric.zero(column_schema.cfg)}
+        return {ImageMetric.get_namespace(ImageMetricConfig()): ImageMetric.zero(column_schema.cfg)}
 
 
 def test_image_metric() -> None:
@@ -49,9 +49,60 @@ def test_image_metric() -> None:
     img = image_loader(image_path)
     ppc = PreprocessedColumn()
     ppc.list = ListView(objs=[img])
-    metric = ImageMetric.zero(MetricConfig())
+    metric = ImageMetric.zero(ImageMetricConfig())
     metric.columnar_update(ppc)
-    assert metric.to_summary_dict(SummaryConfig())["ImagePixelWidth/mean"] > 0
+    summary = metric.to_summary_dict(SummaryConfig())
+    assert summary["ImagePixelWidth/mean"] > 0
+    # these should be discovered EXIF tags
+    assert summary["ImageWidth/max"] == 1733
+    assert summary["PhotometricInterpretation/min"] == 2
+    assert summary["Orientation/max"] == 1
+    assert summary["ResolutionUnit/max"] == 2
+    assert "Software/frequent_strings" in summary
+
+
+def test_allowed_exif_tags() -> None:
+    image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
+    img = image_loader(image_path)
+    ppc = PreprocessedColumn()
+    ppc.list = ListView(objs=[img])
+    config = ImageMetricConfig(allowed_exif_tags={"PhotometricInterpretation"})
+    metric = ImageMetric.zero(config)
+    metric.columnar_update(ppc)
+    summary = metric.to_summary_dict(SummaryConfig())
+    assert summary["ImagePixelWidth/mean"] > 0  # image stat, not an EXIF tag
+    assert "PhotometricInterpretation/min" in summary  # allowed EXIF tag
+    assert "ResolutionUnit/max" not in summary  # not an allowed EXIF tag
+
+
+def test_forbidden_exif_tags() -> None:
+    image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
+    img = image_loader(image_path)
+    ppc = PreprocessedColumn()
+    ppc.list = ListView(objs=[img])
+    config = ImageMetricConfig(forbidden_exif_tags={"PhotometricInterpretation"})
+    metric = ImageMetric.zero(config)
+    metric.columnar_update(ppc)
+    summary = metric.to_summary_dict(SummaryConfig())
+    assert summary["ImagePixelWidth/mean"] > 0  # image stat, not an EXIF tag
+    assert "PhotometricInterpretation/min" not in summary  # forbidden EXIF tag
+    assert "ResolutionUnit/max" in summary  # empty allowed_exif_tags means allow anything not explicitly forbidden
+
+
+def test_forbidden_overrules_allowed_exif_tags() -> None:
+    image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
+    img = image_loader(image_path)
+    ppc = PreprocessedColumn()
+    ppc.list = ListView(objs=[img])
+    config = ImageMetricConfig(
+        allowed_exif_tags={"PhotometricInterpretation"}, forbidden_exif_tags={"PhotometricInterpretation"}
+    )
+    metric = ImageMetric.zero(config)
+    metric.columnar_update(ppc)
+    summary = metric.to_summary_dict(SummaryConfig())
+    assert summary["ImagePixelWidth/mean"] > 0  # image stat, not an EXIF tag
+    assert "PhotometricInterpretation/min" not in summary  # forbidden > allowed
+    assert "ResolutionUnit/max" not in summary  # non-empty allowed_exif_tags means only explicitly allowed tags
 
 
 def test_log_image() -> None:
@@ -66,7 +117,7 @@ def test_log_interface() -> None:
     image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
     img = image_loader(image_path)
 
-    schema = DatasetSchema(resolvers=TestResolver())
+    schema = DatasetSchema(default_configs=ImageMetricConfig(), resolvers=TestResolver())
 
     results = why.log(row={"image_col": img}, schema=schema).view().get_column("image_col")
     logger.info(results.to_summary_dict())

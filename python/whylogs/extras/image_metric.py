@@ -1,6 +1,7 @@
 import logging
+from dataclasses import dataclass, field
 from itertools import chain
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Set, Union
 
 import whylogs as why
 from whylogs.api.logger.result_set import ResultSet
@@ -101,11 +102,32 @@ def image_based_metadata(img):
     }
 
 
+@dataclass(frozen=True)
+class ImageMetricConfig(MetricConfig):
+    allowed_exif_tags: Set[str] = field(default_factory=set)
+    forbidden_exif_tags: Set[str] = field(default_factory=set)
+
+
+def _trackable_exif_tag(exif_tag: str, allowed_tags: Set[str], forbidden_tags: Set[str]) -> bool:
+    if exif_tag in forbidden_tags:
+        return False
+    if not allowed_tags:  # empty set -> allow anything not explicitly forbidden
+        return True
+    return exif_tag in allowed_tags
+
+
 class ImageMetric(CompoundMetric):
-    def __init__(self, submetrics: Dict[str, Metric]):
+    def __init__(
+        self,
+        submetrics: Dict[str, Metric],
+        allowed_exif_tags: Optional[Set[str]] = None,
+        forbidden_exif_tags: Optional[Set[str]] = None,
+    ):
         if ImageType is None:
             logger.error("Install Pillow for image support")
         super(ImageMetric, self).__init__(submetrics)
+        self._allowed_exif_tags = allowed_exif_tags or set()
+        self._forbidden_exif_tags = forbidden_exif_tags or set()
 
     @property
     def namespace(self) -> str:
@@ -118,15 +140,28 @@ class ImageMetric(CompoundMetric):
             if isinstance(image, ImageType):
                 metadata = get_pil_image_metadata(image)
                 for attr in metadata.keys():
+                    if attr not in submetric_names:  # EXIF tag discovery
+                        if _trackable_exif_tag(attr, self._allowed_exif_tags, self._forbidden_exif_tags):
+                            # TODO: add a resolver to ImageMetricConfig
+                            if isinstance(metadata[attr], int) or isinstance(metadata[attr], float):
+                                self.submetrics[attr] = DistributionMetric.zero(MetricConfig())
+                            elif isinstance(metadata[attr], str):
+                                self.submetrics[attr] = FrequentItemsMetric.zero(MetricConfig())
+
                     if attr in submetric_names:
                         self.submetrics[attr].columnar_update(PreprocessedColumn.apply([metadata[attr]]))
+
                 count += 1
         return OperationResult.ok(count)
 
     @classmethod
     def zero(cls, config: MetricConfig) -> "ImageMetric":
+        if not isinstance(config, ImageMetricConfig):
+            logger.warning("ImageMetric.zero() needs an ImageMetricConfig")
+            config = ImageMetricConfig()
+
         dummy_image = new_image("HSV", (1, 1))
-        metadata = get_pil_image_metadata(dummy_image)
+        metadata = get_pil_image_metadata(dummy_image)  # any EXIF tags will be discovered as images are logged
         submetrics: Dict[str, Metric] = dict()
         for tag, value in metadata.items():
             if isinstance(value, int):
@@ -136,12 +171,14 @@ class ImageMetric(CompoundMetric):
             elif isinstance(value, str) and not config.fi_disabled:
                 submetrics[tag] = FrequentItemsMetric.zero(config)
 
-        return ImageMetric(submetrics)
+        return ImageMetric(submetrics, config.allowed_exif_tags, config.forbidden_exif_tags)
 
 
 def log_image(
     images: Union[ImageType, List[ImageType], Dict[str, ImageType]],
     default_column_prefix: str = "image",
+    schema: Optional[DatasetSchema] = None,
+    default_configs: Optional[ImageMetricConfig] = None,
 ) -> ResultSet:
     if isinstance(images, ImageType):
         images = {default_column_prefix: images}
@@ -161,7 +198,10 @@ def log_image(
 
     class ImageResolver(Resolver):
         def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-            return {ImageMetric.get_namespace(MetricConfig()): ImageMetric.zero(MetricConfig())}
+            return {ImageMetric.get_namespace(ImageMetricConfig()): ImageMetric.zero(column_schema.cfg)}
 
-    schema = DatasetSchema(types={key: ImageType for key in images.keys()}, resolvers=ImageResolver())
+    config = default_configs or ImageMetricConfig()
+    schema = schema or DatasetSchema(
+        types={key: ImageType for key in images.keys()}, default_configs=config, resolvers=ImageResolver()
+    )
     return why.log(row=images, schema=schema)
