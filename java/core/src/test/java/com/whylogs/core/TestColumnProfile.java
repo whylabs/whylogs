@@ -36,7 +36,6 @@ public class TestColumnProfile {
   @Test
   public void testAddMetric() {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
-    profile.addMetric(IntegralMetric.zero(new MetricConfig()));
     Assert.assertEquals(profile.getMetrics().size(), 1);
     Assert.assertEquals(profile.getMetrics().get("ints").getClass(), IntegralMetric.class);
     IntegralMetric metric = (IntegralMetric) profile.getMetrics().get("ints");

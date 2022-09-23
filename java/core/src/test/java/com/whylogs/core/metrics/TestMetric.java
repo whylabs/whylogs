@@ -17,5 +17,7 @@ public class TestMetric {
       Assert.assertTrue(metric instanceof IntegralMetric);
       metric.merge(new IntegralMetric());
     }
+
+    Assert.assertEquals(metrics.size(), 2);
   }
 }
