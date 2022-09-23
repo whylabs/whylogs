@@ -45,15 +45,15 @@ public class DatasetProfileView {
     return Optional.ofNullable(this.columns.get(columnName));
   }
 
-  public HashMap<String, ColumnProfileView> getColumns(Optional<ArrayList<String>> colNames) {
+  public Map<String, ColumnProfileView> getColumns(Optional<ArrayList<String>> colNames) {
     if (colNames.isPresent()) {
       HashMap<String, ColumnProfileView> result = new HashMap<>();
       for (String colName : colNames.get()) {
         result.put(colName, this.columns.get(colName));
       }
-      return result;
+      return Collections.unmodifiableMap(result);
     } else {
-      return this.columns;
+      return Collections.unmodifiableMap(this.columns);
     }
   }
 }
