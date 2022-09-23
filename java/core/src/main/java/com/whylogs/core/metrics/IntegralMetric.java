@@ -27,8 +27,8 @@ public class IntegralMetric extends AbstractMetric<IntegralMetric> {
   public IntegralMetric(MaxIntegralComponent maxComponent, MinIntegralComponent minComponent) {
     this();
 
-    this.maxComponent = maxComponent;
-    this.minComponent = minComponent;
+    this.maxComponent = maxComponent.copy();
+    this.minComponent = minComponent.copy();
   }
 
   private void setMax(int max) {

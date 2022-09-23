@@ -31,6 +31,11 @@ public class MaxIntegralComponent extends IntegralComponent {
   }
 
   @Override
+  public MaxIntegralComponent copy(){
+    return new MaxIntegralComponent(this.getValue());
+  }
+
+  @Override
   public String getTypeName() {
     return this.getClass().getSimpleName();
   }

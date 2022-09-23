@@ -18,4 +18,9 @@ public class IntegralComponent extends MetricComponent<Integer> {
   public String getTypeName() {
     return this.getClass().getSimpleName();
   }
+
+  @Override
+  public MetricComponent copy(){
+    return super.copy();
+  }
 }

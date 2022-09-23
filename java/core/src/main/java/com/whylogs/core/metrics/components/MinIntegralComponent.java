@@ -27,6 +27,11 @@ public class MinIntegralComponent extends IntegralComponent {
     return TYPE_ID;
   }
 
+  @Override
+  public MinIntegralComponent copy(){
+    return new MinIntegralComponent(this.getValue());
+  }
+
   public static MinIntegralComponent min(Collection<? extends Integer> list) {
     int min = Integer.MAX_VALUE;
     for (Integer i : list) {

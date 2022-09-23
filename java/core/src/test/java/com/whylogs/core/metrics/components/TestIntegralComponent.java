@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 public class TestIntegralComponent {
 
   @Test
-  public void test_integral() {
+  public void testIntegral() {
     IntegralComponent component = new IntegralComponent(1);
     Assert.assertEquals((int) component.getValue(), 1);
 
@@ -15,5 +15,12 @@ public class TestIntegralComponent {
     Assert.assertEquals((int) component.getValue(), 0);
 
     Assert.assertEquals(component.getTypeId(), 0);
+  }
+
+  @Test
+  public void testCopy(){
+    IntegralComponent component = new IntegralComponent(1);
+    Assert.assertEquals((int) component.getValue(), 1);
+    Assert.assertEquals((int) component.copy().getValue(), 1);
   }
 }

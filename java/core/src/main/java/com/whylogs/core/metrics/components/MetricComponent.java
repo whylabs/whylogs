@@ -44,6 +44,10 @@ public class MetricComponent<T> {
     return this.getClass().getSimpleName();
   }
 
+  public <M extends MetricComponent> M copy(){
+    return (M) new MetricComponent(value);
+  }
+
   public MetricComponent<T> merge(MetricComponent<T> other) {
     // TODO this is where we will use the aggregators
     throw new NotImplementedException();
@@ -52,7 +56,7 @@ public class MetricComponent<T> {
   // TODO to_protobuf
   // TODO from_protobuf
   // TODO: add a from_protobuf iwht registries passed in
-  public static <T extends MetricComponent> T from_protobuf(MetricComponentMessage message) {
+  public static <M extends MetricComponent> M from_protobuf(MetricComponentMessage message) {
     // TODO: check that it's a MetricComponent dataclass
     throw new NotImplementedException();
   }
