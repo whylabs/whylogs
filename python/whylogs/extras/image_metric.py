@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 
 try:
     from PIL.Image import Image as ImageType
-    from PIL.Image import new as new_image
     from PIL.ImageStat import Stat
     from PIL.TiffImagePlugin import IFDRational
     from PIL.TiffTags import TAGS
@@ -71,9 +70,9 @@ def get_pil_image_statistics(
     return metadata
 
 
-def get_pil_image_metadata(img: ImageType) -> Dict:
+def get_pil_exif_metadata(img: ImageType) -> Dict:
     """
-    Grab statistics data from a PIL ImageStats.Stat
+    Grab EXIF metadata from image
 
     Args:
         img (ImageType): PIL Image
@@ -91,9 +90,6 @@ def get_pil_image_metadata(img: ImageType) -> Dict:
         except KeyError:
             logger.warning(f"Couldn't read exif tag: {k} skipping.")
 
-    metadata.update(image_based_metadata(img))
-    metadata.update(get_pil_image_statistics(img))
-
     return metadata
 
 
@@ -103,6 +99,22 @@ def image_based_metadata(img):
         "ImagePixelHeight": img.height,
         "Colorspace": img.mode,
     }
+
+
+def get_pil_image_metadata(img: ImageType) -> Dict:
+    """
+    Grab statistics data from a PIL ImageStats.Stat
+
+    Args:
+        img (ImageType): PIL Image
+
+    Returns:
+        Dict: of metadata
+    """
+    metadata = {}
+    metadata.update(image_based_metadata(img))
+    metadata.update(get_pil_image_statistics(img))
+    return metadata
 
 
 class SubmetricSchema(ABC):
@@ -179,12 +191,18 @@ class ImageMetric(CompoundMetric):
             return True
         return exif_tag in self._allowed_exif_tags
 
-    def _discover_submetrics(self, name: str, value: Any) -> None:
+    def _add_submetric(self, name: str, value: Any) -> None:
+        submetrics = self._submetric_schema.resolve(name, self._type_mapper(type(value)), self._fi_disabled)
+        self.submetrics.update(submetrics)
+        self._attribute_names.add(name)
+
+    def _discover_exif_submetrics(self, name: str, value: Any) -> None:
+        if name not in self._attribute_names and self._wants_to_track(name):
+            self._add_submetric(name, value)
+
+    def _discover_image_submetrics(self, name: str, value: Any) -> None:
         if name not in self._attribute_names:
-            if self._wants_to_track(name):
-                submetrics = self._submetric_schema.resolve(name, self._type_mapper(type(value)), self._fi_disabled)
-                self.submetrics.update(submetrics)
-                self._attribute_names.add(name)
+            self._add_submetric(name, value)
 
     def _update_relevant_submetrics(self, name: str, data: PreprocessedColumn) -> None:
         for prefix in self._submetric_schema.prefixes():
@@ -196,10 +214,16 @@ class ImageMetric(CompoundMetric):
         count = 0
         for image in list(chain.from_iterable(view.raw_iterator())):
             if isinstance(image, ImageType):
-                metadata = get_pil_image_metadata(image)
+                metadata = get_pil_exif_metadata(image)
                 for name, value in metadata.items():
-                    self._discover_submetrics(name, value)  # EXIF tag discovery
+                    self._discover_exif_submetrics(name, value)  # EXIF tag discovery
                     data = PreprocessedColumn.apply([metadata[name]])
+                    self._update_relevant_submetrics(name, data)
+
+                image_data = get_pil_image_metadata(image)
+                for name, value in image_data.items():
+                    self._discover_image_submetrics(name, value)
+                    data = PreprocessedColumn.apply([image_data[name]])
                     self._update_relevant_submetrics(name, data)
 
                 count += 1
@@ -212,20 +236,9 @@ class ImageMetric(CompoundMetric):
             logger.error("ImageMetric.zero() needs an ImageMetricConfig")
             config = ImageMetricConfig()
 
-        dummy_image = new_image("HSV", (1, 1))
-        metadata = get_pil_image_metadata(dummy_image)  # any EXIF tags will be discovered as images are logged
-        attribute_names = set(metadata.keys())
-
-        submetrics: Dict[str, Metric] = dict()
-        for name, value in metadata.items():
-            attribute_metrics = config.submetric_schema.resolve(
-                name, config.type_mapper(type(value)), config.fi_disabled
-            )
-            submetrics.update(attribute_metrics)
-
         return ImageMetric(
-            submetrics,
-            attribute_names,
+            {},  # submetrics will be discovered as images are logged
+            None,
             config.allowed_exif_tags,
             config.forbidden_exif_tags,
             config.submetric_schema,
@@ -238,7 +251,6 @@ def log_image(
     images: Union[ImageType, List[ImageType], Dict[str, ImageType]],
     default_column_prefix: str = "image",
     schema: Optional[DatasetSchema] = None,
-    default_configs: Optional[ImageMetricConfig] = None,
 ) -> ResultSet:
     if isinstance(images, ImageType):
         images = {default_column_prefix: images}
@@ -258,10 +270,12 @@ def log_image(
 
     class ImageResolver(Resolver):
         def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-            return {ImageMetric.get_namespace(ImageMetricConfig()): ImageMetric.zero(column_schema.cfg)}
+            return {ImageMetric.get_namespace(): ImageMetric.zero(column_schema.cfg)}
 
-    config = default_configs or ImageMetricConfig()
     schema = schema or DatasetSchema(
-        types={key: ImageType for key in images.keys()}, default_configs=config, resolvers=ImageResolver()
+        types={key: ImageType for key in images.keys()}, default_configs=ImageMetricConfig(), resolvers=ImageResolver()
     )
+    if not isinstance(schema.default_configs, ImageMetricConfig):
+        raise ValueError("log_image requires DatasetSchema with an ImageMetricConfig as default_configs")
+
     return why.log(row=images, schema=schema)
