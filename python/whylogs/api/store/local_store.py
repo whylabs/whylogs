@@ -7,13 +7,16 @@ from typing import Optional
 
 import whylogs as why
 from whylogs.api.store.profile_store import ProfileStore
-from whylogs.api.store.query import DateQuery, ProfileIdQuery, StoreQuery
+from whylogs.api.store.query import DateQuery
 from whylogs.api.store.utils.random_strings import random_string
 from whylogs.api.writer.local import LocalWriter
 from whylogs.core import DatasetProfileView
 
 DEFAULT_DIR = "profile_store/"
 logger = logging.getLogger(__name__)
+
+# TODO how to prevent users from creating a huge list?
+# should the profile store be aware of its min/max dates?
 
 
 class LocalStore(ProfileStore):
@@ -58,9 +61,14 @@ class LocalStore(ProfileStore):
     This will fetch all existing profiles from `my_model` from the past
     7 days in a single merged DatasetProfileView.
 
-    :param base_name: the name of the dataset or model that you're logging
+    :param base_name: the unique name of the dataset or model that you're logging
     :type base_name: str
 
+    >**NOTE**: The parameter `base_name` should always be written using
+    the snake_case pattern, and it must also be **unique** to your existing
+    dataset/ML model. If you use the same `base_name` to store different profiles,
+    you will end up mixing those profiles and not being able to fetch and get
+    them properly again.
     """
 
     def __init__(self, base_name: str):
@@ -74,23 +82,22 @@ class LocalStore(ProfileStore):
         now = datetime.utcnow()
         return f"profile_{now.date()}_{now.hour}:{now.minute}:{now.second}_{random_string()}.bin"
 
-    def get(self, query: StoreQuery) -> Optional[DatasetProfileView]:
+    def get(self, query: DateQuery) -> Optional[DatasetProfileView]:
         logger.debug("Fetching profiles with specified StoreQuery...")
-        files_query = query.query()
+        dates = self._get_dates(query=query)
         files_list = []
         base_directory = os.path.join(self._default_path, self.base_name)
 
         if isinstance(query, DateQuery):
-            for date in files_query:
+            for date in dates:
                 files_list.extend(glob(f"{base_directory}/profile_{date}*.bin"))
-        elif isinstance(query, ProfileIdQuery):
-            files_list.extend(glob(f"{base_directory}/{files_query}*bin"))
         else:
             logger.warning("You must define a proper StoreQuery")
             return None
 
         logger.debug(f"Profiles found! Number of profiles is {len(files_list)}")
-        profiles_list = [why.read(file).view() for file in files_list]
+
+        profiles_list = (why.read(file).view() for file in files_list)
         merged_profile = reduce(lambda x, y: x.merge(y), profiles_list)
         return merged_profile
 

@@ -10,7 +10,7 @@ from whylogs.api.store.query import DateQuery
 
 
 @fixture
-def date_config():
+def query():
     config = MagicMock(
         wraps=DateQuery,
         start_date=datetime(2022, 1, 1),
@@ -27,24 +27,24 @@ class TestProfileClass(ProfileStore):
         pass
 
 
-def test_get_date_range_returns_generator(date_config):
-    result = TestProfileClass()._get_date_range(date_config=date_config)
+def test_get_date_range_returns_generator(query):
+    result = TestProfileClass()._get_date_range(query=query)
     assert isinstance(result, Generator)
     for date in result:
         assert date >= datetime(2022, 1, 1)
 
 
-def test_get_dates_list(date_config):
-    result = TestProfileClass().get_dates_list(date_config=date_config)
+def test_get_dates_list(query):
+    result = TestProfileClass()._get_dates(query=query)
 
     assert isinstance(result, List)
     for date in result:
         assert time.strptime(date, "%Y-%m-%d")
 
 
-def test_get_dates_with_single_date(date_config):
-    date_config.end_date = datetime(2022, 1, 1)
-    result = TestProfileClass().get_dates_list(date_config=date_config)
+def test_get_dates_with_single_date(query):
+    query.end_date = datetime(2022, 1, 1)
+    result = TestProfileClass()._get_dates(query=query)
     assert isinstance(result, List)
     assert len(result) == 1
     assert time.strptime(result[0], "%Y-%m-%d")
