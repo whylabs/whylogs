@@ -105,9 +105,9 @@ public class DatasetProfile {
 
   private void initializeNewColumns(Set<String> colNames) {
     for (String column : colNames) {
-      ColumnSchema columnSchema = this.schema.columns.get(column);
+      ColumnSchema columnSchema = this.schema.getColumns().get(column);
       if (columnSchema != null) {
-        this.columns.put(column, new ColumnProfile(column, columnSchema, this.schema.cache_size));
+        this.columns.put(column, new ColumnProfile(column, columnSchema, this.schema.getCacheSize()));
       }
       // TODO: log warning 'Encountered a column without schema: %s", col' in an else
     }

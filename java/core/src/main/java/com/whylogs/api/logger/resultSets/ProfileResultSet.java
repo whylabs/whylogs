@@ -10,7 +10,7 @@ import lombok.NonNull;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class ProfileResultSet extends ResultSet {
-  @NonNull private DatasetProfile profile;
+  @NonNull private final DatasetProfile profile;
 
   public ProfileResultSet(DatasetProfile profile) {
     super();
