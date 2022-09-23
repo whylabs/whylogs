@@ -59,7 +59,24 @@ def _uncompounded_column_name(column_name: str, metric_name: str, submetric_name
     return f"{column_name}.{metric_name}.{submetric_name}"
 
 
+def _ugly_hack(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
+    result: Dict[str, ColumnProfileView] = dict()
+    for attribute in metric._attribute_names:
+        metrics: Dict[str, Metric] = dict()
+        for prefix in metric._resolver.prefixes():
+            key = f"{prefix}_{attribute}"
+            if key in metric.submetrics:
+                metrics[metric.submetrics[key].namespace] = metric.submetrics[key]
+        if metrics:
+            new_col_name = f"{col_name}.{attribute}"
+            result[new_col_name] = ColumnProfileView(metrics)
+
+    return result
+    
 def _uncompound_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
+    if isinstance(metric, ImageMetric):
+        return _ugly_hack(col_name, metric_name, metric)
+
     result: Dict[str, ColumnProfileView] = dict()
     for submetric_name, submetric in metric.submetrics.items():
         new_col_name = _uncompounded_column_name(col_name, metric_name, submetric_name, metric)
