@@ -90,7 +90,7 @@ Attributes
       :property:
 
 
-   .. py:method:: zero(config: MetricConfig) -> METRIC
+   .. py:method:: zero(config: Optional[MetricConfig] = None) -> METRIC
       :classmethod:
       :abstractmethod:
 

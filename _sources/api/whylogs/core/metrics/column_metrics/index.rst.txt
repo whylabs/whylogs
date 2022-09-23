@@ -60,7 +60,7 @@ Classes
    .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 
 
-   .. py:method:: zero(config: whylogs.core.metrics.metrics.MetricConfig) -> TypeCountersMetric
+   .. py:method:: zero(config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None) -> TypeCountersMetric
       :classmethod:
 
 
@@ -109,7 +109,7 @@ Classes
    .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
 
 
-   .. py:method:: zero(config: whylogs.core.metrics.metrics.MetricConfig) -> ColumnCountsMetric
+   .. py:method:: zero(config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None) -> ColumnCountsMetric
       :classmethod:
 
 

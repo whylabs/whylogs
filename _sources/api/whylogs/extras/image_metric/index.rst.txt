@@ -111,7 +111,7 @@ Attributes
    .. py:method:: columnar_update(view: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 
 
-   .. py:method:: zero(config: whylogs.core.metrics.metrics.MetricConfig) -> ImageMetric
+   .. py:method:: zero(config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None) -> ImageMetric
       :classmethod:
 
 

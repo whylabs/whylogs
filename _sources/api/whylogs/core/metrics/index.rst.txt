@@ -74,7 +74,7 @@ Classes
    .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
 
 
-   .. py:method:: zero(config: whylogs.core.metrics.metrics.MetricConfig) -> ColumnCountsMetric
+   .. py:method:: zero(config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None) -> ColumnCountsMetric
       :classmethod:
 
 
@@ -138,7 +138,7 @@ Classes
    .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 
 
-   .. py:method:: zero(config: whylogs.core.metrics.metrics.MetricConfig) -> TypeCountersMetric
+   .. py:method:: zero(config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None) -> TypeCountersMetric
       :classmethod:
 
 
@@ -198,7 +198,7 @@ Classes
    .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 
 
-   .. py:method:: zero(config: whylogs.core.metrics.metrics.MetricConfig) -> ConditionCountMetric
+   .. py:method:: zero(config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None) -> ConditionCountMetric
       :classmethod:
 
 
@@ -251,7 +251,7 @@ Classes
       :property:
 
 
-   .. py:method:: zero(config: MetricConfig) -> CardinalityMetric
+   .. py:method:: zero(config: Optional[MetricConfig] = None) -> CardinalityMetric
       :classmethod:
 
 
@@ -380,7 +380,7 @@ Classes
       :property:
 
 
-   .. py:method:: zero(config: MetricConfig) -> DistributionMetric
+   .. py:method:: zero(config: Optional[MetricConfig] = None) -> DistributionMetric
       :classmethod:
 
 
@@ -425,7 +425,7 @@ Classes
       :property:
 
 
-   .. py:method:: zero(config: MetricConfig) -> FrequentItemsMetric
+   .. py:method:: zero(config: Optional[MetricConfig] = None) -> FrequentItemsMetric
       :classmethod:
 
 
@@ -471,7 +471,7 @@ Classes
    .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> OperationResult
 
 
-   .. py:method:: zero(config: MetricConfig) -> IntsMetric
+   .. py:method:: zero(config: Optional[MetricConfig] = None) -> IntsMetric
       :classmethod:
 
 
@@ -536,7 +536,7 @@ Classes
       :abstractmethod:
 
 
-   .. py:method:: zero(config: MetricConfig) -> METRIC
+   .. py:method:: zero(config: Optional[MetricConfig] = None) -> METRIC
       :classmethod:
       :abstractmethod:
 
@@ -645,7 +645,7 @@ Classes
    .. py:method:: columnar_update(view: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 
 
-   .. py:method:: zero(config: whylogs.core.metrics.metrics.MetricConfig) -> UnicodeRangeMetric
+   .. py:method:: zero(config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None) -> UnicodeRangeMetric
       :classmethod:
 
 
@@ -722,7 +722,7 @@ Classes
 
       
 
-   .. py:method:: zero(config: metrics.MetricConfig) -> metrics.Metric
+   .. py:method:: zero(config: Optional[metrics.MetricConfig] = None) -> metrics.Metric
 
 
    .. py:method:: name()

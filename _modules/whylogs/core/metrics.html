@@ -404,6 +404,7 @@
         <article role="main">
           <h1>Source code for whylogs.core.metrics</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.column_metrics</span> <span class="kn">import</span> <span class="n">ColumnCountsMetric</span><span class="p">,</span> <span class="n">TypeCountersMetric</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">ConditionCountMetric</span>
@@ -431,7 +432,8 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clz</span><span class="p">:</span> <span class="n">Metric</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_clz</span> <span class="o">=</span> <span class="n">clz</span>
 
-<div class="viewcode-block" id="StandardMetric.zero"><a class="viewcode-back" href="../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.StandardMetric.zero">[docs]</a>    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Metric</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+<div class="viewcode-block" id="StandardMetric.zero"><a class="viewcode-back" href="../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.StandardMetric.zero">[docs]</a>    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Metric</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">MetricConfig</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clz</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div></div>
 </pre></div>
         </article>

@@ -173,7 +173,7 @@ Attributes
       :abstractmethod:
 
 
-   .. py:method:: zero(config: MetricConfig) -> METRIC
+   .. py:method:: zero(config: Optional[MetricConfig] = None) -> METRIC
       :classmethod:
       :abstractmethod:
 
@@ -207,7 +207,7 @@ Attributes
    .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> OperationResult
 
 
-   .. py:method:: zero(config: MetricConfig) -> IntsMetric
+   .. py:method:: zero(config: Optional[MetricConfig] = None) -> IntsMetric
       :classmethod:
 
 
@@ -347,7 +347,7 @@ Attributes
       :property:
 
 
-   .. py:method:: zero(config: MetricConfig) -> DistributionMetric
+   .. py:method:: zero(config: Optional[MetricConfig] = None) -> DistributionMetric
       :classmethod:
 
 
@@ -415,7 +415,7 @@ Attributes
       :property:
 
 
-   .. py:method:: zero(config: MetricConfig) -> FrequentItemsMetric
+   .. py:method:: zero(config: Optional[MetricConfig] = None) -> FrequentItemsMetric
       :classmethod:
 
 
@@ -471,7 +471,7 @@ Attributes
       :property:
 
 
-   .. py:method:: zero(config: MetricConfig) -> CardinalityMetric
+   .. py:method:: zero(config: Optional[MetricConfig] = None) -> CardinalityMetric
       :classmethod:
 
 
@@ -531,7 +531,7 @@ Attributes
       :abstractmethod:
 
 
-   .. py:method:: zero(config: MetricConfig) -> METRIC
+   .. py:method:: zero(config: Optional[MetricConfig] = None) -> METRIC
       :classmethod:
       :abstractmethod:
 
