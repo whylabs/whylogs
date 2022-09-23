@@ -6,7 +6,6 @@ import com.whylogs.core.schemas.ColumnSchema;
 import com.whylogs.core.views.ColumnProfileView;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;

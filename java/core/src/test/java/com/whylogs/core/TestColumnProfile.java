@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 @Test
 public class TestColumnProfile {
   private final String columnName = "testColumn";
-  private final int  CACHE_SIZE = 2;
+  private final int CACHE_SIZE = 2;
 
   private ColumnProfile<Integer> getDefaultColumnProfile() {
     ColumnSchema standardSchema =
