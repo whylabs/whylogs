@@ -74,7 +74,10 @@ public class IntegralMetric extends AbstractMetric<IntegralMetric> {
   public static IntegralMetric zero(MetricConfig config) {
     return new IntegralMetric();
   }
-  public static IntegralMetric zero() {return new IntegralMetric();}
+
+  public static IntegralMetric zero() {
+    return new IntegralMetric();
+  }
 
   @Override
   public HashMap<String, Object> toSummaryDict() {

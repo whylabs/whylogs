@@ -18,7 +18,7 @@ public class TestIntegralComponent {
   }
 
   @Test
-  public void testCopy(){
+  public void testCopy() {
     IntegralComponent component = new IntegralComponent(1);
     Assert.assertEquals((int) component.getValue(), 1);
     Assert.assertEquals((int) component.copy().getValue(), 1);

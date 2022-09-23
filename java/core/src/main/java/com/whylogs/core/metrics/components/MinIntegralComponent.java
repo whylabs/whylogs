@@ -28,7 +28,7 @@ public class MinIntegralComponent extends IntegralComponent {
   }
 
   @Override
-  public MinIntegralComponent copy(){
+  public MinIntegralComponent copy() {
     return new MinIntegralComponent(this.getValue());
   }
 

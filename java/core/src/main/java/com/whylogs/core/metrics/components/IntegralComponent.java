@@ -20,7 +20,7 @@ public class IntegralComponent extends MetricComponent<Integer> {
   }
 
   @Override
-  public MetricComponent copy(){
-    return super.copy();
+  public IntegralComponent copy() {
+    return new IntegralComponent(this.getValue());
   }
 }

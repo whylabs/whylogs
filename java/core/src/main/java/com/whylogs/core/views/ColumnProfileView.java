@@ -18,10 +18,9 @@ public class ColumnProfileView {
   }
 
   public ColumnProfileView(HashMap<String, Metric> metrics, int successes, int failures) {
-    if(metrics == null) {
-      this.metrics = new HashMap<>();
-    } else {
-      this.metrics.putAll(metrics);
+    this.metrics = new HashMap<>();
+    if (metrics != null) {
+      this.metrics = metrics;
     }
     this.successes = successes;
     this.failures = failures;

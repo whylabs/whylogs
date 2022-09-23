@@ -44,8 +44,8 @@ public class MetricComponent<T> {
     return this.getClass().getSimpleName();
   }
 
-  public <M extends MetricComponent> M copy(){
-    return (M) new MetricComponent(value);
+  public MetricComponent<T> copy() {
+    return new MetricComponent<T>(value);
   }
 
   public MetricComponent<T> merge(MetricComponent<T> other) {

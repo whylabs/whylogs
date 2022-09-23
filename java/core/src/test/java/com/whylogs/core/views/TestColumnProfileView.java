@@ -98,8 +98,7 @@ public class TestColumnProfileView {
   public void testToSummaryDict() throws UnsupportedError {
     ColumnProfileView columnProfileView = getDefaultColumnProfile();
     HashMap<String, Object> summary =
-        columnProfileView.toSummaryDict(
-            Optional.of("ints"), Optional.of(new SummaryConfig()));
+        columnProfileView.toSummaryDict(Optional.of("ints"), Optional.of(new SummaryConfig()));
     Assert.assertEquals(summary.size(), 2);
     Assert.assertEquals(summary.get("ints/min"), Integer.MAX_VALUE);
     Assert.assertEquals(summary.get("ints/max"), Integer.MIN_VALUE);
