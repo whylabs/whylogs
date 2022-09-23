@@ -101,11 +101,20 @@ class ConfusionMatrix:
         targets_indx = _encode_to_integers(targets, self.labels)
         prediction_indx = _encode_to_integers(predictions, self.labels)
 
-        for ind in range(len(predictions)):
-            entry_key = prediction_indx[ind], targets_indx[ind]
+        # prebatch the inputs per cell
+        batches: Dict[Tuple[int, int], List[float]] = dict()
+        length_of_targets = len(targets)
+        for index in range(length_of_targets):
+            entry_key = prediction_indx[index], targets_indx[index]
+            if entry_key in batches:
+                batches[entry_key].append(scores[index])
+            else:
+                batches[entry_key] = [scores[index]]
+
+        for entry_key in batches:
             if entry_key not in self.confusion_matrix:
                 self.confusion_matrix[entry_key] = DistributionMetric.zero(self.default_config)
-            data = PreprocessedColumn.apply([scores[ind]])
+            data = PreprocessedColumn.apply(batches[entry_key])
             self.confusion_matrix[entry_key].columnar_update(data)
 
     def merge(self, other_cm):
