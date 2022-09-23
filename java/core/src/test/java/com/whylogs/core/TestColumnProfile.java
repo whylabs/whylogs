@@ -30,7 +30,7 @@ public class TestColumnProfile {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
     Assert.assertEquals(profile.getName(), columnName);
     Assert.assertEquals(profile.getSchema().getType(), Integer.class);
-    Assert.assertEquals(profile.getCachedSize(), CACHE_SIZE);
+    Assert.assertEquals(profile.getCacheSize(), CACHE_SIZE);
   }
 
   @Test
@@ -53,7 +53,7 @@ public class TestColumnProfile {
   @Test
   public void testTrack() {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
-    Assert.assertEquals(profile.getCachedSize(), CACHE_SIZE);
+    Assert.assertEquals(profile.getCacheSize(), CACHE_SIZE);
 
     HashMap<String, Integer> row = new HashMap<>();
     row.put(columnName, 5);
@@ -73,7 +73,7 @@ public class TestColumnProfile {
   @Test
   public void testTrackNull() {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
-    Assert.assertEquals(profile.getCachedSize(), CACHE_SIZE);
+    Assert.assertEquals(profile.getCacheSize(), CACHE_SIZE);
 
     HashMap<String, Integer> row = new HashMap<>();
     row.put(columnName, 1);

@@ -15,7 +15,7 @@ public class ColumnProfile<T> {
   // Required
   private String name;
   private ColumnSchema schema;
-  private int cachedSize;
+  private int cacheSize;
 
   // Has Defaults
   private HashMap<String, Metric> metrics;
@@ -25,10 +25,10 @@ public class ColumnProfile<T> {
 
   private ArrayList<T> cachedValues;
 
-  public ColumnProfile(String name, ColumnSchema schema, int cachedSize) {
+  public ColumnProfile(String name, ColumnSchema schema, int cacheSize) {
     this.name = name;
     this.schema = schema;
-    this.cachedSize = cachedSize; // TODO: add logger for size of cache on column
+    this.cacheSize = cacheSize; // TODO: add logger for size of cache on column
 
     // Defaulted
     this.metrics = new HashMap<>();
@@ -51,7 +51,7 @@ public class ColumnProfile<T> {
     T value = this.projector.apply(row);
     this.cachedValues.add(value);
 
-    if (this.cachedValues.size() >= this.cachedSize) {
+    if (this.cachedValues.size() >= this.cacheSize) {
       this.flush();
     }
   }
