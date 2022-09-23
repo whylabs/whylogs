@@ -108,14 +108,6 @@ class ImageMetricConfig(MetricConfig):
     forbidden_exif_tags: Set[str] = field(default_factory=set)
 
 
-def _trackable_exif_tag(exif_tag: str, allowed_tags: Set[str], forbidden_tags: Set[str]) -> bool:
-    if exif_tag in forbidden_tags:
-        return False
-    if not allowed_tags:  # empty set -> allow anything not explicitly forbidden
-        return True
-    return exif_tag in allowed_tags
-
-
 class ImageMetric(CompoundMetric):
     def __init__(
         self,
@@ -133,6 +125,13 @@ class ImageMetric(CompoundMetric):
     def namespace(self) -> str:
         return "image"
 
+    def _wants_to_track(self, exif_tag: str) -> bool:
+        if exif_tag in self._forbidden_exif_tags:
+            return False
+        if not self._allowed_exif_tags:  # empty set -> allow anything not explicitly forbidden
+            return True
+        return exif_tag in self._allowed_exif_tags
+
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         submetric_names = self.submetrics.keys()
         count = 0
@@ -141,7 +140,7 @@ class ImageMetric(CompoundMetric):
                 metadata = get_pil_image_metadata(image)
                 for attr in metadata.keys():
                     if attr not in submetric_names:  # EXIF tag discovery
-                        if _trackable_exif_tag(attr, self._allowed_exif_tags, self._forbidden_exif_tags):
+                        if self._wants_to_track(attr):
                             # TODO: add a resolver to ImageMetricConfig
                             if isinstance(metadata[attr], int) or isinstance(metadata[attr], float):
                                 self.submetrics[attr] = DistributionMetric.zero(MetricConfig())
