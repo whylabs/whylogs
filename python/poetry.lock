@@ -2404,12 +2404,12 @@ mlflow = ["mlflow-skinny"]
 s3 = ["boto3"]
 spark = ["pyarrow", "pyspark"]
 viz = ["ipython", "pybars3", "scipy"]
-whylabs = ["whylabs-client"]
+whylabs = ["whylabs-client", "requests"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1, <4"
-content-hash = "7d58e6c60702fe0602de3825d8e3643f63a5f3d962741ee41a72d557e3d4014a"
+content-hash = "bf9db79da0d285ca90e425c07d40ca346a8a5b57092c6190587e933e643f3f50"
 
 [metadata.files]
 2to3 = [
