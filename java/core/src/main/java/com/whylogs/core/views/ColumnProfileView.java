@@ -18,7 +18,7 @@ public class ColumnProfileView {
   }
 
   public ColumnProfileView(HashMap<String, Metric> metrics, int successes, int failures) {
-    this.metrics = metrics;
+    this.metrics.putAll(metrics);
     this.successes = successes;
     this.failures = failures;
   }
