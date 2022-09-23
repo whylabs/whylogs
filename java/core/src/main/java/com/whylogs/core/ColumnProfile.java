@@ -6,20 +6,23 @@ import com.whylogs.core.schemas.ColumnSchema;
 import com.whylogs.core.views.ColumnProfileView;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
+@EqualsAndHashCode
 public class ColumnProfile<T> {
   // Required
-  private String name;
-  private ColumnSchema schema;
-  private int cacheSize;
+  private final String name;
+  private final ColumnSchema schema;
+  private final int cacheSize;
 
   // Has Defaults
   private HashMap<String, Metric> metrics;
-  private SingleFieldProjector projector;
+  private final SingleFieldProjector<T> projector;
   private int successCount;
   private int failureCount;
 
@@ -32,7 +35,7 @@ public class ColumnProfile<T> {
 
     // Defaulted
     this.metrics = new HashMap<>();
-    this.projector = new SingleFieldProjector(name);
+    this.projector = new SingleFieldProjector<T>(name);
     this.successCount = 0;
     this.failureCount = 0;
     this.cachedValues = new ArrayList<>();
@@ -47,7 +50,7 @@ public class ColumnProfile<T> {
   }
 
   // TODO: this only gets one not every part of the row. Should projector actually do it multiple?
-  public void track(HashMap<String, T> row) {
+  public void track(HashMap<String, Object> row) {
     T value = this.projector.apply(row);
     this.cachedValues.add(value);
 

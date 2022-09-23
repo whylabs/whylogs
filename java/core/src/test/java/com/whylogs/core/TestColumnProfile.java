@@ -14,8 +14,8 @@ import org.testng.annotations.Test;
 
 @Test
 public class TestColumnProfile {
-  private String columnName = "testColumn";
-  private int CACHE_SIZE = 2;
+  private final String columnName = "testColumn";
+  private final int  CACHE_SIZE = 2;
 
   private ColumnProfile<Integer> getDefaultColumnProfile() {
     ColumnSchema standardSchema =
@@ -54,7 +54,7 @@ public class TestColumnProfile {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
     Assert.assertEquals(profile.getCacheSize(), CACHE_SIZE);
 
-    HashMap<String, Integer> row = new HashMap<>();
+    HashMap<String, Object> row = new HashMap<>();
     row.put(columnName, 5);
     row.put("test2", 2);
 
@@ -74,7 +74,7 @@ public class TestColumnProfile {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
     Assert.assertEquals(profile.getCacheSize(), CACHE_SIZE);
 
-    HashMap<String, Integer> row = new HashMap<>();
+    HashMap<String, Object> row = new HashMap<>();
     row.put(columnName, 1);
     profile.track(row);
 
@@ -93,7 +93,7 @@ public class TestColumnProfile {
   public void testFlush() {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
 
-    HashMap<String, Integer> row = new HashMap<>();
+    HashMap<String, Object> row = new HashMap<>();
     row.put(columnName, 5);
 
     profile.track(row);

@@ -44,7 +44,7 @@ public class DatasetProfile {
     this.columns.get(colName).addMetric(metric);
   }
 
-  public <T> void track(HashMap<String, T> row) {
+  public void track(HashMap<String, Object> row) {
     try {
       this.isActive = true;
       this.trackCount += 1;
@@ -54,7 +54,7 @@ public class DatasetProfile {
     }
   }
 
-  private <T> void doTrack(HashMap<String, T> row) {
+  private void doTrack(HashMap<String, Object> row) {
     boolean dirty = this.schema.resolve(row);
     if (dirty) {
       Set<String> schemaColumnNames = this.schema.getColNames();
@@ -68,7 +68,7 @@ public class DatasetProfile {
     }
 
     for (String col : row.keySet()) {
-      ArrayList<T> values = new ArrayList<>();
+      ArrayList<Object> values = new ArrayList<>();
       values.add(row.get(col));
       this.columns.get(col).trackColumn(values);
     }
