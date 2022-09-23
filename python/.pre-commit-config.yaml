@@ -55,3 +55,4 @@ repos:
       - id: forbid-new-submodules
       - id: mixed-line-ending
       - id: trailing-whitespace
+        exclude: .bumpversion.cfg|.dockerignore
