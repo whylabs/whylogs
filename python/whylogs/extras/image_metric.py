@@ -105,7 +105,7 @@ def image_based_metadata(img):
     }
 
 
-class ImageResolver(ABC):
+class SubmetricSchema(ABC):
     @abstractmethod
     def prefixes(self) -> Set[str]:
         raise NotImplementedError
@@ -115,7 +115,7 @@ class ImageResolver(ABC):
         raise NotImplementedError
 
 
-class StandardResolver(ImageResolver):
+class ImageSubmetricSchema(SubmetricSchema):
     def prefixes(self) -> Set[str]:
         return {"counts", "types", "dist", "ints", "card", "fi"}
 
@@ -143,7 +143,7 @@ class StandardResolver(ImageResolver):
 class ImageMetricConfig(MetricConfig):
     allowed_exif_tags: Set[str] = field(default_factory=set)
     forbidden_exif_tags: Set[str] = field(default_factory=set)
-    resolver: Resolver = field(default_factory=StandardResolver)
+    submetric_schema: SubmetricSchema = field(default_factory=ImageSubmetricSchema)
     type_mapper: TypeMapper = field(default_factory=StandardTypeMapper)
 
 
@@ -154,7 +154,7 @@ class ImageMetric(CompoundMetric):
         attribute_names: Optional[Set[str]] = None,
         allowed_exif_tags: Optional[Set[str]] = None,
         forbidden_exif_tags: Optional[Set[str]] = None,
-        resolver: Optional[Resolver] = None,
+        submetric_schema: Optional[SubmetricSchema] = None,
         type_mapper: Optional[TypeMapper] = None,
         fi_disabled: bool = False,
     ):
@@ -164,7 +164,7 @@ class ImageMetric(CompoundMetric):
         self._attribute_names = attribute_names or set()
         self._allowed_exif_tags = allowed_exif_tags or set()
         self._forbidden_exif_tags = forbidden_exif_tags or set()
-        self._resolver = resolver or StandardResolver()
+        self._submetric_schema = submetric_schema or ImageSubmetricSchema()
         self._type_mapper = type_mapper or StandardTypeMapper()
         self._fi_disabled = fi_disabled
 
@@ -182,12 +182,12 @@ class ImageMetric(CompoundMetric):
     def _discover_submetrics(self, name: str, value: Any) -> None:
         if name not in self._attribute_names:
             if self._wants_to_track(name):
-                submetrics = self._resolver.resolve(name, self._type_mapper(type(value)), self._fi_disabled)
+                submetrics = self._submetric_schema.resolve(name, self._type_mapper(type(value)), self._fi_disabled)
                 self.submetrics.update(submetrics)
                 self._attribute_names.add(name)
 
     def _update_relevant_submetrics(self, name: str, data: PreprocessedColumn) -> None:
-        for prefix in self._resolver.prefixes():
+        for prefix in self._submetric_schema.prefixes():
             submetric_name = f"{prefix}_{name}"
             if submetric_name in self.submetrics:
                 self.submetrics[submetric_name].columnar_update(data)
@@ -218,7 +218,9 @@ class ImageMetric(CompoundMetric):
 
         submetrics: Dict[str, Metric] = dict()
         for name, value in metadata.items():
-            attribute_metrics = config.resolver.resolve(name, config.type_mapper(type(value)), config.fi_disabled)
+            attribute_metrics = config.submetric_schema.resolve(
+                name, config.type_mapper(type(value)), config.fi_disabled
+            )
             submetrics.update(attribute_metrics)
 
         return ImageMetric(
@@ -226,7 +228,7 @@ class ImageMetric(CompoundMetric):
             attribute_names,
             config.allowed_exif_tags,
             config.forbidden_exif_tags,
-            config.resolver,
+            config.submetric_schema,
             config.type_mapper,
             config.fi_disabled,
         )

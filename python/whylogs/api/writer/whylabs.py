@@ -46,10 +46,21 @@ API_KEY_ENV = "WHYLABS_API_KEY"
 
 
 def _uncompound_metric_feature_flag() -> bool:
+    """
+    v0 whylabs doesn't understand compound metrics. If this is True, turn
+    each submetric in a compound metric into its own column in the profile
+    so that v0 whylabs will only see metrics it understands.
+    """
     return True
 
 
 def _v0_compatible_image_feature_flag() -> bool:
+    """
+    v0 whylogs only supported logging a single image in a profile.
+    v1 supports multiple image in a profile by giving each image "channel"
+    a unique name. If this returns True, use the old V0 column naming
+    convention that only supports a single image.
+    """
     return False
 
 
@@ -59,16 +70,20 @@ def _uncompounded_column_name(column_name: str, metric_name: str, submetric_name
     return f"{column_name}.{metric_name}.{submetric_name}"
 
 
-def _ugly_hack(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
+def _uncompound_image_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
+    """
+    Special handling to turn ImageMetric into a V0 whylabs-compatible profile
+    by grouping the expected metrics into a column for each image attribute.
+    """
     result: Dict[str, ColumnProfileView] = dict()
     for attribute in metric._attribute_names:
         metrics: Dict[str, Metric] = dict()
-        for prefix in metric._resolver.prefixes():
+        for prefix in metric._submetric_schema.prefixes():
             key = f"{prefix}_{attribute}"
             if key in metric.submetrics:
                 metrics[metric.submetrics[key].namespace] = metric.submetrics[key]
         if metrics:
-            new_col_name = f"{col_name}.{attribute}"
+            new_col_name = f"{col_name}.{attribute}" if not _v0_compatible_image_feature_flag() else attribute
             result[new_col_name] = ColumnProfileView(metrics)
 
     return result
@@ -76,7 +91,7 @@ def _ugly_hack(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[
 
 def _uncompound_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
     if isinstance(metric, ImageMetric):
-        return _ugly_hack(col_name, metric_name, metric)
+        return _uncompound_image_metric(col_name, metric_name, metric)
 
     result: Dict[str, ColumnProfileView] = dict()
     for submetric_name, submetric in metric.submetrics.items():
@@ -86,6 +101,10 @@ def _uncompound_metric(col_name: str, metric_name: str, metric: CompoundMetric) 
 
 
 def _uncompund_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
+    """
+    v0 whylabs doesn't understand compound metrics. This creates a new column for
+    each submetric in a compound metric so that whylabs only sees metrics it understands.
+    """
     new_prof = DatasetProfileView(
         columns=prof._columns,
         dataset_timestamp=prof._dataset_timestamp,
