@@ -6,16 +6,17 @@ from typing import Any, Dict, List, Optional, Set, Union
 
 import whylogs as why
 from whylogs.api.logger.result_set import ResultSet
-from whylogs.core.datatypes import DataType, Integral, Fractional, String, StandardTypeMapper, TypeMapper
+from whylogs.core.datatypes import (
+    DataType,
+    Fractional,
+    Integral,
+    StandardTypeMapper,
+    String,
+    TypeMapper,
+)
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.compound_metric import CompoundMetric
-from whylogs.core.metrics.metrics import (
-    DistributionMetric,
-    FrequentItemsMetric,
-    Metric,
-    MetricConfig,
-    OperationResult,
-)
+from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
@@ -110,7 +111,7 @@ class ImageResolver(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def resolve(self, name: str, why_type: DataType, fi_disabled: bool=False) -> Dict[str, Metric]:
+    def resolve(self, name: str, why_type: DataType, fi_disabled: bool = False) -> Dict[str, Metric]:
         raise NotImplementedError
 
 
@@ -118,11 +119,11 @@ class StandardResolver(ImageResolver):
     def prefixes(self) -> Set[str]:
         return {"counts", "types", "dist", "ints", "card", "fi"}
 
-    def resolve(self, name: str, why_type: DataType, fi_disabled: bool=False) -> Dict[str, Metric]:
+    def resolve(self, name: str, why_type: DataType, fi_disabled: bool = False) -> Dict[str, Metric]:
         metrics: Dict[str, Metric] = {
             f"counts_{name}": StandardMetric.counts.zero(MetricConfig()),
             f"types_{name}": StandardMetric.types.zero(MetricConfig()),
-            f"card_{name}": StandardMetric.cardinality.zero(MetricConfig())
+            f"card_{name}": StandardMetric.cardinality.zero(MetricConfig()),
         }
 
         if isinstance(why_type, Integral):
@@ -136,7 +137,7 @@ class StandardResolver(ImageResolver):
             metrics[f"fi_{name}"] = StandardMetric.frequent_items.zero(MetricConfig())
 
         return metrics
-    
+
 
 @dataclass(frozen=True)
 class ImageMetricConfig(MetricConfig):
@@ -205,7 +206,7 @@ class ImageMetric(CompoundMetric):
         return OperationResult.ok(count)
 
     @classmethod
-    def zero(cls, config: Optional[MetricConfig]=None) -> "ImageMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "ImageMetric":
         config = config or ImageMetricConfig()
         if not isinstance(config, ImageMetricConfig):
             logger.error("ImageMetric.zero() needs an ImageMetricConfig")
@@ -227,7 +228,7 @@ class ImageMetric(CompoundMetric):
             config.forbidden_exif_tags,
             config.resolver,
             config.type_mapper,
-            config.fi_disabled
+            config.fi_disabled,
         )
 
 

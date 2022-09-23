@@ -72,7 +72,8 @@ def _ugly_hack(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[
             result[new_col_name] = ColumnProfileView(metrics)
 
     return result
-    
+
+
 def _uncompound_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
     if isinstance(metric, ImageMetric):
         return _ugly_hack(col_name, metric_name, metric)

@@ -69,7 +69,7 @@ def test_image_metric() -> None:
     for component in ["fractional", "boolean", "string", "object"]:
         assert summary[f"types_ImagePixelWidth/{component}"] == 0
 
-    for tag in ["ImagePixelWidth", "PhotometricInterpretation", "Orientation",  "ResolutionUnit"]:
+    for tag in ["ImagePixelWidth", "PhotometricInterpretation", "Orientation", "ResolutionUnit"]:
         assert summary[f"counts_{tag}/n"] == summary[f"dist_{tag}/n"]
         assert summary[f"counts_{tag}/null"] == 0
 
