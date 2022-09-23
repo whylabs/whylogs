@@ -27,11 +27,11 @@ public class DatasetProfile {
 
   public DatasetProfile(
       Optional<DatasetSchema> datasetSchema,
-      Optional<Date> datasetaTimestampe,
-      Optional<Date> creationTimestampe) {
+      Optional<Date> datasetTimestamp,
+      Optional<Date> creationTimestamp) {
     this.schema = datasetSchema.orElse(new DatasetSchema());
-    this.datasetTimestamp = datasetaTimestampe.orElse(new Date());
-    this.creationTimestamp = creationTimestampe.orElse(new Date());
+    this.datasetTimestamp = datasetTimestamp.orElse(new Date());
+    this.creationTimestamp = creationTimestamp.orElse(new Date());
 
     this.columns = new HashMap<>();
     this.initializeNewColumns(schema.getColNames());
