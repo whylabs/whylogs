@@ -44,18 +44,6 @@ public class DatasetProfile {
     this.columns.get(colName).addMetric(metric);
   }
 
-  /*
-  TODO: I don't beleive we need this in Java? (with the T Object)
-  public <T> void track(T obj){
-      try{
-          this.isActive = true;
-          this.trackCount += 1;
-          this.doTrack(obj);
-      } finally {
-          this.isActive = false;
-      }
-  }*/
-
   public <T> void track(HashMap<String, T> row) {
     try {
       this.isActive = true;
