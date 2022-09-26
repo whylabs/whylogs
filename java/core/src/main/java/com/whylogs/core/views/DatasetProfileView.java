@@ -1,18 +1,29 @@
 package com.whylogs.core.views;
 
+import java.time.Instant;
 import java.util.*;
-import lombok.AllArgsConstructor;
+
 import lombok.Getter;
 import lombok.ToString;
 
 // TODO: extend writable when we do Protobuf
-@AllArgsConstructor
 @Getter
 @ToString
 public class DatasetProfileView {
   private HashMap<String, ColumnProfileView> columns;
-  private Date datasetTimestamp;
-  private Date creationTimestamp;
+  private Instant datasetTimestamp;
+  private Instant creationTimestamp;
+
+
+  public DatasetProfileView(HashMap<String, ColumnProfileView> columns){
+    this(columns, Instant.now(), Instant.now());
+  }
+
+  public DatasetProfileView(HashMap<String, ColumnProfileView> columns, Instant datasetTimestamp, Instant creationTimestamp) {
+    this.columns = columns;
+    this.datasetTimestamp = datasetTimestamp;
+    this.creationTimestamp = creationTimestamp;
+  }
 
   public DatasetProfileView merge(DatasetProfileView otherView) {
     if (otherView == null) {

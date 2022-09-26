@@ -46,6 +46,7 @@ public class ColumnProfile<T> {
     }
 
     this.metrics.put(metric.getNamespace(), metric);
+    // TODO: Wouldn't this implement a success count here?
   }
 
   // TODO: this only gets one not every part of the row. Should projector actually do it multiple?

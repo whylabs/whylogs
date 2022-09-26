@@ -5,6 +5,8 @@ import com.whylogs.core.schemas.ColumnSchema;
 import com.whylogs.core.schemas.DatasetSchema;
 import com.whylogs.core.views.ColumnProfileView;
 import com.whylogs.core.views.DatasetProfileView;
+
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
 import lombok.Getter;
@@ -14,24 +16,22 @@ import lombok.ToString;
 @Getter
 @ToString
 public class DatasetProfile {
-  // TODO: Time zone is all mixed up. Fix
   public static int _LARGE_CACHE_SIZE_LIMIT = 1024 * 100;
 
   private DatasetSchema schema;
-  // QUESTION: Do we need zones here? Do we just use UTC?
-  private Date datasetTimestamp;
-  private Date creationTimestamp;
+  private Instant datasetTimestamp;
+  private Instant creationTimestamp;
   private HashMap<String, ColumnProfile<?>> columns;
   private boolean isActive = false;
   private int trackCount = 0;
 
   public DatasetProfile(
       Optional<DatasetSchema> datasetSchema,
-      Optional<Date> datasetTimestamp,
-      Optional<Date> creationTimestamp) {
+      Optional<Instant> datasetTimestamp,
+      Optional<Instant> creationTimestamp) {
     this.schema = datasetSchema.orElse(new DatasetSchema());
-    this.datasetTimestamp = datasetTimestamp.orElse(new Date());
-    this.creationTimestamp = creationTimestamp.orElse(new Date());
+    this.datasetTimestamp = datasetTimestamp.orElse(Instant.now());
+    this.creationTimestamp = creationTimestamp.orElse(Instant.now());
 
     this.columns = new HashMap<>();
     this.initializeNewColumns(schema.getColNames());
@@ -83,7 +83,11 @@ public class DatasetProfile {
     if (datasetTimestamp.getZone() == null) {
       // TODO: log warning if it's not there
     }
-    this.datasetTimestamp = Date.from(datasetTimestamp.toInstant());
+    this.datasetTimestamp = datasetTimestamp.toInstant();
+  }
+
+  public void setDatasetTimestamp(Instant datasetTimestamp) {
+    this.datasetTimestamp = datasetTimestamp;
   }
 
   private void initializeNewColumns(Set<String> colNames) {
