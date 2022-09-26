@@ -8,11 +8,15 @@ from whylogs.core import DatasetProfileView
 
 class ProfileStore(ABC):
     @abstractmethod
+    def list(self) -> List[str]:
+        pass
+
+    @abstractmethod
     def get(self, query: DateQuery) -> DatasetProfileView:
         pass
 
     @abstractmethod
-    def write(self, profile: Optional[DatasetProfileView]) -> None:
+    def write(self, profile: Optional[DatasetProfileView], profile_name: str) -> None:
         pass
 
     @staticmethod

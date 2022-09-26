@@ -204,10 +204,10 @@ class TimedRollingLogger(Logger):
                 time.sleep(1)
 
             for store in self.store_list:
-                store.write(profile=profile.view())
+                store.write(profile=profile.view(), profile_name=self.base_name)
 
             for w in self._writers:
-                w.write(profile=profile.view(), dest=timed_filename)
+                w.write(file=profile.view(), dest=timed_filename)
                 if self._callback and callable(self._callback):
                     self._callback(w, profile.view(), timed_filename)
 
