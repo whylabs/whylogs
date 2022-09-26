@@ -25,6 +25,8 @@ public class DatasetProfile {
   private boolean isActive = false;
   private int trackCount = 0;
 
+  // TODO: I don't like how this works for customers. I wouldn't want
+  // TODO: to have to pass the optionals around. We should just use overloading instead
   public DatasetProfile(
       Optional<DatasetSchema> datasetSchema,
       Optional<Instant> datasetTimestamp,
@@ -110,6 +112,7 @@ public class DatasetProfile {
     return new DatasetProfileView(columns, this.datasetTimestamp, this.creationTimestamp);
   }
 
+  // TODO: This isn't working correctly because track with the cache isn't working correctly
   public void flush() {
     for (String colName : this.columns.keySet()) {
       this.columns.get(colName).flush();
@@ -124,7 +127,7 @@ public class DatasetProfile {
     }
 
     if (!path.get().endsWith("bin")) {
-      String finalPath = path.get() + defaultPath;
+      String finalPath = path.get() + "_" + defaultPath;
       return finalPath;
     }
 

@@ -60,7 +60,7 @@ public class IntegralMetric extends AbstractMetric<IntegralMetric> {
 
     this.setMax(max_);
     this.setMin(min_);
-    return OperationResult.ok(successes);
+    return OperationResult.status(successes, 0, data.getNullCount());
   }
 
   @Override

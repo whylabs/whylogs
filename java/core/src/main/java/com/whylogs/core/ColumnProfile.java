@@ -24,6 +24,7 @@ public class ColumnProfile<T> {
   private final SingleFieldProjector<T> projector;
   private int successCount;
   private int failureCount;
+  private int nullCount;
 
   private ArrayList<T> cachedValues;
 
@@ -37,6 +38,7 @@ public class ColumnProfile<T> {
     this.projector = new SingleFieldProjector<T>(name);
     this.successCount = 0;
     this.failureCount = 0;
+    this.nullCount = 0;
     this.cachedValues = new ArrayList<>();
   }
 
@@ -73,6 +75,7 @@ public class ColumnProfile<T> {
       OperationResult result = metric.columnarUpdate(proccessedColumn);
       this.successCount += result.getSuccesses();
       this.failureCount += result.getFailures();
+      this.nullCount += result.getNulls();
     }
   }
 
