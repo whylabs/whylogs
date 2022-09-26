@@ -99,13 +99,6 @@ public class SummaryConverters {
 
     val histogram = fromUpdateDoublesSketch(numberTracker.getHistogram());
 
-    val result = numberTracker.getThetaSketch().getResult();
-    val uniqueCountSummary =
-        UniqueCountSummary.newBuilder()
-            .setEstimate(result.getEstimate())
-            .setLower(result.getLowerBound(1))
-            .setUpper(result.getUpperBound(1));
-
     // some unfortunate type mismatches requires conversions.
     val QUANTILES = new double[] {0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0};
     val boxedQuantiles = toObject(QUANTILES);
@@ -130,7 +123,6 @@ public class SummaryConverters {
         .setMax(max)
         .setMean(mean)
         .setHistogram(histogram)
-        .setUniqueCount(uniqueCountSummary)
         .setQuantiles(quantileSummary)
         .setIsDiscrete(false) // TODO: migrate Python code over
         .build();

@@ -75,9 +75,15 @@ public class ColumnProfile {
 
   public void track(Object value) {
     synchronized (this) {
+      counters.incrementCount();
 
       // TODO: ignore this if we already know the data type
       val typedData = TypedDataConverter.convert(value);
+      if (isNull(typedData)) {
+        schemaTracker.track(InferredType.Type.NULL);
+        return;
+      }
+      schemaTracker.track(typedData.getType());
 
       switch (typedData.getType()) {
         case FRACTIONAL:
