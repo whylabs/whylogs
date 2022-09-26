@@ -5,6 +5,7 @@ import com.whylogs.core.SummaryConfig;
 import com.whylogs.core.metrics.components.MetricComponent;
 import java.util.HashMap;
 import lombok.*;
+import org.apache.commons.lang3.NotImplementedException;
 
 @EqualsAndHashCode
 @Getter
@@ -23,15 +24,15 @@ public abstract class Metric {
   public abstract HashMap<String, MetricComponent> getComponents();
 
   public Metric merge(Metric other) {
-    Metric merged = this;
     if (!this.namespace.equals(other.namespace)) {
       throw new IllegalArgumentException("Cannot merge metrics with different namespaces");
     }
 
     if (this instanceof IntegralMetric) {
-      ((IntegralMetric) merged).merge((IntegralMetric) other);
+      return ((IntegralMetric) this).merge((IntegralMetric) other);
     }
-    return merged;
+
+    throw new NotImplementedException("Cannot merge metrics of type " + this.getClass().getName());
   }
 
   public @NonNull String getNamespace() {
