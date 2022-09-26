@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
 from whylogs.api.logger.segment_processing import segment_processing
+from whylogs.api.store import ProfileStore
 from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.errors import LoggingError
@@ -83,6 +84,9 @@ class Logger(ABC):
     @abstractmethod
     def close(self) -> None:
         self._is_closed = True
+
+    def append_store(self, store: ProfileStore) -> None:
+        pass
 
     def __enter__(self) -> "Logger":
         return self

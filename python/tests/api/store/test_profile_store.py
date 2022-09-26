@@ -1,4 +1,3 @@
-import time
 from datetime import datetime
 from typing import Generator, List
 from unittest.mock import MagicMock
@@ -39,7 +38,7 @@ def test_get_dates_list(query):
 
     assert isinstance(result, List)
     for date in result:
-        assert time.strptime(date, "%Y-%m-%d")
+        assert isinstance(date, datetime)
 
 
 def test_get_dates_with_single_date(query):
@@ -47,4 +46,4 @@ def test_get_dates_with_single_date(query):
     result = TestProfileClass()._get_dates(query=query)
     assert isinstance(result, List)
     assert len(result) == 1
-    assert time.strptime(result[0], "%Y-%m-%d")
+    assert isinstance(result[0], datetime)

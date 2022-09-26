@@ -15,9 +15,6 @@ from whylogs.core import DatasetProfileView
 DEFAULT_DIR = "profile_store/"
 logger = logging.getLogger(__name__)
 
-# TODO how to prevent users from creating a huge list?
-# should the profile store be aware of its min/max dates?
-
 
 class LocalStore(ProfileStore):
     """
@@ -90,7 +87,7 @@ class LocalStore(ProfileStore):
 
         if isinstance(query, DateQuery):
             for date in dates:
-                files_list.extend(glob(f"{base_directory}/profile_{date}*.bin"))
+                files_list.extend(glob(f"{base_directory}/profile_{date.strftime('%Y-%m-%d')}*.bin"))
         else:
             logger.warning("You must define a proper StoreQuery")
             return None

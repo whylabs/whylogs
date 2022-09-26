@@ -13,6 +13,3 @@ class DateQuery:
             self.end_date = self.start_date
         if self.end_date < self.start_date:
             self.start_date, self.end_date = self.end_date, self.start_date
-
-
-# TODO allow for more or less granular queries -> hourly, yearly

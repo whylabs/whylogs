@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import List, Optional
 
 from whylogs.api.store.query import DateQuery
@@ -20,9 +20,8 @@ class ProfileStore(ABC):
         for n in range(int((query.end_date - query.start_date).days) + 1):
             yield query.start_date + timedelta(n)
 
-    # TODO return datetimes instead of strings
-    def _get_dates(self, query: DateQuery) -> List[str]:
+    def _get_dates(self, query: DateQuery) -> List[datetime]:
         dates = []
         for single_date in self._get_date_range(query=query):
-            dates.append(single_date.strftime("%Y-%m-%d"))
+            dates.append(single_date)
         return dates
