@@ -7,6 +7,7 @@ from typing import Any, Dict, Optional
 from IPython.core.display import HTML  # type: ignore
 
 from whylogs.api.usage_stats import emit_usage
+from whylogs.api.writer.whylabs import _uncompound_dataset_profile
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.constraints import Constraints
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
@@ -211,8 +212,8 @@ class NotebookProfileVisualizer:
             Reference, or baseline, profile to be compared against the target profile.
 
         """
-        self._target_view = target_profile_view
-        self._ref_view = reference_profile_view
+        self._target_view = _uncompound_dataset_profile(target_profile_view) if target_profile_view else None
+        self._ref_view = _uncompound_dataset_profile(reference_profile_view) if reference_profile_view else None
 
     def profile_summary(self, cell_height: str = None) -> HTML:
         page_spec = PageSpecEnum.PROFILE_SUMMARY.value

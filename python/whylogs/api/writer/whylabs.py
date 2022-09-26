@@ -100,7 +100,7 @@ def _uncompound_metric(col_name: str, metric_name: str, metric: CompoundMetric) 
     return result
 
 
-def _uncompund_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
+def _uncompound_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
     """
     v0 whylabs doesn't understand compound metrics. This creates a new column for
     each submetric in a compound metric so that whylabs only sees metrics it understands.
@@ -267,13 +267,13 @@ class WhyLabsWriter(Writer):
 
         if _uncompound_metric_feature_flag():
             if has_segments:
-                updated_profile_view = _uncompund_dataset_profile(view.profile_view)
+                updated_profile_view = _uncompound_dataset_profile(view.profile_view)
                 view = SegmentedDatasetProfileView(
                     profile_view=updated_profile_view, segment=view._segment, partition=view._partition
                 )
 
             else:
-                view = _uncompund_dataset_profile(view)
+                view = _uncompound_dataset_profile(view)
 
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
