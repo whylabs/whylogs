@@ -424,7 +424,16 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric" title="whylogs.extras.image_metric.ImageMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImageMetric</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.SubmetricSchema" title="whylogs.extras.image_metric.SubmetricSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubmetricSchema</span></code></a></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.ImageSubmetricSchema" title="whylogs.extras.image_metric.ImageSubmetricSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImageSubmetricSchema</span></code></a></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig" title="whylogs.extras.image_metric.ImageMetricConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImageMetricConfig</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric" title="whylogs.extras.image_metric.ImageMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImageMetric</span></code></a></p></td>
 <td><p>CompoundMetric serves as a base class for custom metrics that consist</p></td>
 </tr>
 </tbody>
@@ -443,13 +452,16 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.get_pil_image_statistics" title="whylogs.extras.image_metric.get_pil_image_statistics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pil_image_statistics</span></code></a>(→ Dict)</p></td>
 <td><p>Compute statistics data for a PIL Image</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.get_pil_image_metadata" title="whylogs.extras.image_metric.get_pil_image_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pil_image_metadata</span></code></a>(→ Dict)</p></td>
-<td><p>Grab statistics data from a PIL ImageStats.Stat</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.get_pil_exif_metadata" title="whylogs.extras.image_metric.get_pil_exif_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pil_exif_metadata</span></code></a>(→ Dict)</p></td>
+<td><p>Grab EXIF metadata from image</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.image_based_metadata" title="whylogs.extras.image_metric.image_based_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">image_based_metadata</span></code></a>(img)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.log_image" title="whylogs.extras.image_metric.log_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_image</span></code></a>(→ whylogs.api.logger.result_set.ResultSet)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.get_pil_image_metadata" title="whylogs.extras.image_metric.get_pil_image_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pil_image_metadata</span></code></a>(→ Dict)</p></td>
+<td><p>Grab statistics data from a PIL ImageStats.Stat</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.log_image" title="whylogs.extras.image_metric.log_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_image</span></code></a>(→ whylogs.api.logger.result_set.ResultSet)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -514,9 +526,9 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="whylogs.extras.image_metric.get_pil_image_metadata">
-<span class="sig-prename descclassname"><span class="pre">whylogs.extras.image_metric.</span></span><span class="sig-name descname"><span class="pre">get_pil_image_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PIL.Image.Image</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#get_pil_image_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.get_pil_image_metadata" title="Permalink to this definition">#</a></dt>
-<dd><p>Grab statistics data from a PIL ImageStats.Stat</p>
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.get_pil_exif_metadata">
+<span class="sig-prename descclassname"><span class="pre">whylogs.extras.image_metric.</span></span><span class="sig-name descname"><span class="pre">get_pil_exif_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PIL.Image.Image</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#get_pil_exif_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.get_pil_exif_metadata" title="Permalink to this definition">#</a></dt>
+<dd><p>Grab EXIF metadata from image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>img</strong> (<em>ImageType</em>) – PIL Image</p>
@@ -535,9 +547,172 @@
 <span class="sig-prename descclassname"><span class="pre">whylogs.extras.image_metric.</span></span><span class="sig-name descname"><span class="pre">image_based_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#image_based_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.image_based_metadata" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.get_pil_image_metadata">
+<span class="sig-prename descclassname"><span class="pre">whylogs.extras.image_metric.</span></span><span class="sig-name descname"><span class="pre">get_pil_image_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PIL.Image.Image</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#get_pil_image_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.get_pil_image_metadata" title="Permalink to this definition">#</a></dt>
+<dd><p>Grab statistics data from a PIL ImageStats.Stat</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>img</strong> (<em>ImageType</em>) – PIL Image</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>of metadata</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.SubmetricSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.extras.image_metric.</span></span><span class="sig-name descname"><span class="pre">SubmetricSchema</span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#SubmetricSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.SubmetricSchema" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/abc.html#abc.ABC" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.SubmetricSchema.prefixes">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prefixes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#SubmetricSchema.prefixes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.SubmetricSchema.prefixes" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Set[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.SubmetricSchema.resolve">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">why_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../core/datatypes/index.html#whylogs.core.datatypes.DataType" title="whylogs.core.datatypes.DataType"><span class="pre">whylogs.core.datatypes.DataType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fi_disabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><span class="pre">whylogs.core.metrics.metrics.Metric</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#SubmetricSchema.resolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.SubmetricSchema.resolve" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>why_type</strong> (<a class="reference internal" href="../../core/datatypes/index.html#whylogs.core.datatypes.DataType" title="whylogs.core.datatypes.DataType"><em>whylogs.core.datatypes.DataType</em></a>) – </p></li>
+<li><p><strong>fi_disabled</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference internal" href="../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric">whylogs.core.metrics.metrics.Metric</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageSubmetricSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.extras.image_metric.</span></span><span class="sig-name descname"><span class="pre">ImageSubmetricSchema</span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#ImageSubmetricSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.ImageSubmetricSchema" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#whylogs.extras.image_metric.SubmetricSchema" title="whylogs.extras.image_metric.SubmetricSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubmetricSchema</span></code></a></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageSubmetricSchema.prefixes">
+<span class="sig-name descname"><span class="pre">prefixes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#ImageSubmetricSchema.prefixes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.ImageSubmetricSchema.prefixes" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Set[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageSubmetricSchema.resolve">
+<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">why_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../core/datatypes/index.html#whylogs.core.datatypes.DataType" title="whylogs.core.datatypes.DataType"><span class="pre">whylogs.core.datatypes.DataType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fi_disabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><span class="pre">whylogs.core.metrics.metrics.Metric</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#ImageSubmetricSchema.resolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.ImageSubmetricSchema.resolve" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>why_type</strong> (<a class="reference internal" href="../../core/datatypes/index.html#whylogs.core.datatypes.DataType" title="whylogs.core.datatypes.DataType"><em>whylogs.core.datatypes.DataType</em></a>) – </p></li>
+<li><p><strong>fi_disabled</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference internal" href="../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric">whylogs.core.metrics.metrics.Metric</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.extras.image_metric.</span></span><span class="sig-name descname"><span class="pre">ImageMetricConfig</span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#ImageMetricConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics.MetricConfig</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.allowed_exif_tags">
+<span class="sig-name descname"><span class="pre">allowed_exif_tags</span></span><em class="property"><span class="w"> </span><span class="pre">:Set[str]</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.allowed_exif_tags" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.forbidden_exif_tags">
+<span class="sig-name descname"><span class="pre">forbidden_exif_tags</span></span><em class="property"><span class="w"> </span><span class="pre">:Set[str]</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.forbidden_exif_tags" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.submetric_schema">
+<span class="sig-name descname"><span class="pre">submetric_schema</span></span><em class="property"><span class="w"> </span><span class="pre">:SubmetricSchema</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.submetric_schema" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.type_mapper">
+<span class="sig-name descname"><span class="pre">type_mapper</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.datatypes.TypeMapper</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.type_mapper" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.hll_lg_k">
+<span class="sig-name descname"><span class="pre">hll_lg_k</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span> <span class="pre">=</span> <span class="pre">12</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.hll_lg_k" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.kll_k">
+<span class="sig-name descname"><span class="pre">kll_k</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span> <span class="pre">=</span> <span class="pre">256</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.kll_k" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.fi_lg_max_k">
+<span class="sig-name descname"><span class="pre">fi_lg_max_k</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span> <span class="pre">=</span> <span class="pre">10</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.fi_lg_max_k" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.fi_disabled">
+<span class="sig-name descname"><span class="pre">fi_disabled</span></span><em class="property"><span class="w"> </span><span class="pre">:bool</span> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.fi_disabled" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.track_unicode_ranges">
+<span class="sig-name descname"><span class="pre">track_unicode_ranges</span></span><em class="property"><span class="w"> </span><span class="pre">:bool</span> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.track_unicode_ranges" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.large_kll_k">
+<span class="sig-name descname"><span class="pre">large_kll_k</span></span><em class="property"><span class="w"> </span><span class="pre">:bool</span> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.large_kll_k" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.kll_k_large">
+<span class="sig-name descname"><span class="pre">kll_k_large</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span> <span class="pre">=</span> <span class="pre">1024</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.kll_k_large" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.unicode_ranges">
+<span class="sig-name descname"><span class="pre">unicode_ranges</span></span><em class="property"><span class="w"> </span><span class="pre">:Dict[str,</span> <span class="pre">Tuple[int,</span> <span class="pre">int]]</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.unicode_ranges" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.lower_case">
+<span class="sig-name descname"><span class="pre">lower_case</span></span><em class="property"><span class="w"> </span><span class="pre">:bool</span> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.lower_case" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetricConfig.normalize">
+<span class="sig-name descname"><span class="pre">normalize</span></span><em class="property"><span class="w"> </span><span class="pre">:bool</span> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetricConfig.normalize" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetric">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.extras.image_metric.</span></span><span class="sig-name descname"><span class="pre">ImageMetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">submetrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><span class="pre">whylogs.core.metrics.metrics.Metric</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#ImageMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetric" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.extras.image_metric.</span></span><span class="sig-name descname"><span class="pre">ImageMetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">submetrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><span class="pre">whylogs.core.metrics.metrics.Metric</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attribute_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowed_exif_tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forbidden_exif_tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">submetric_schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.extras.image_metric.SubmetricSchema" title="whylogs.extras.image_metric.SubmetricSchema"><span class="pre">SubmetricSchema</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_mapper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../core/datatypes/index.html#whylogs.core.datatypes.TypeMapper" title="whylogs.core.datatypes.TypeMapper"><span class="pre">whylogs.core.datatypes.TypeMapper</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fi_disabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#ImageMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetric" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../../core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric" title="whylogs.core.metrics.compound_metric.CompoundMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric.CompoundMetric</span></code></a></p>
 <p>CompoundMetric serves as a base class for custom metrics that consist
 of one or more metrics. It is handy when you need to do some
@@ -555,7 +730,15 @@ the Metric interface. Don’t use / or : in the subclass’ namespace.</p>
 <p>See UnicodeRangeMetric for an example.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>submetrics</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference internal" href="../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><em>whylogs.core.metrics.metrics.Metric</em></a><em>]</em>) – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>submetrics</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference internal" href="../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><em>whylogs.core.metrics.metrics.Metric</em></a><em>]</em>) – </p></li>
+<li><p><strong>attribute_names</strong> (<em>Optional</em><em>[</em><em>Set</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>allowed_exif_tags</strong> (<em>Optional</em><em>[</em><em>Set</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>forbidden_exif_tags</strong> (<em>Optional</em><em>[</em><em>Set</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>submetric_schema</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#whylogs.extras.image_metric.SubmetricSchema" title="whylogs.extras.image_metric.SubmetricSchema"><em>SubmetricSchema</em></a><em>]</em>) – </p></li>
+<li><p><strong>type_mapper</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../../core/datatypes/index.html#whylogs.core.datatypes.TypeMapper" title="whylogs.core.datatypes.TypeMapper"><em>whylogs.core.datatypes.TypeMapper</em></a><em>]</em>) – </p></li>
+<li><p><strong>fi_disabled</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -701,12 +884,13 @@ the Metric interface. Don’t use / or : in the subclass’ namespace.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="whylogs.extras.image_metric.log_image">
-<span class="sig-prename descclassname"><span class="pre">whylogs.extras.image_metric.</span></span><span class="sig-name descname"><span class="pre">log_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">PIL.Image.Image</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">PIL.Image.Image</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PIL.Image.Image</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_column_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'image'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../api/logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet"><span class="pre">whylogs.api.logger.result_set.ResultSet</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#log_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.log_image" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">whylogs.extras.image_metric.</span></span><span class="sig-name descname"><span class="pre">log_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">PIL.Image.Image</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">PIL.Image.Image</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PIL.Image.Image</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_column_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'image'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../core/schema/index.html#whylogs.core.schema.DatasetSchema" title="whylogs.core.schema.DatasetSchema"><span class="pre">whylogs.core.schema.DatasetSchema</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../api/logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet"><span class="pre">whylogs.api.logger.result_set.ResultSet</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#log_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.log_image" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>images</strong> (<em>Union</em><em>[</em><em>PIL.Image.Image</em><em>, </em><em>List</em><em>[</em><em>PIL.Image.Image</em><em>]</em><em>, </em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>PIL.Image.Image</em><em>]</em><em>]</em>) – </p></li>
 <li><p><strong>default_column_prefix</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>schema</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../../core/schema/index.html#whylogs.core.schema.DatasetSchema" title="whylogs.core.schema.DatasetSchema"><em>whylogs.core.schema.DatasetSchema</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -792,8 +976,36 @@ the Metric interface. Don’t use / or : in the subclass’ namespace.</p>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageType">ImageType</a></li>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.DEFAULT_IMAGE_FEATURES">DEFAULT_IMAGE_FEATURES</a></li>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.get_pil_image_statistics">get_pil_image_statistics</a></li>
-<li><a class="reference internal" href="#whylogs.extras.image_metric.get_pil_image_metadata">get_pil_image_metadata</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.get_pil_exif_metadata">get_pil_exif_metadata</a></li>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.image_based_metadata">image_based_metadata</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.get_pil_image_metadata">get_pil_image_metadata</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.SubmetricSchema">SubmetricSchema</a><ul>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.SubmetricSchema.prefixes">prefixes</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.SubmetricSchema.resolve">resolve</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageSubmetricSchema">ImageSubmetricSchema</a><ul>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageSubmetricSchema.prefixes">prefixes</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageSubmetricSchema.resolve">resolve</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig">ImageMetricConfig</a><ul>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.allowed_exif_tags">allowed_exif_tags</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.forbidden_exif_tags">forbidden_exif_tags</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.submetric_schema">submetric_schema</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.type_mapper">type_mapper</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.hll_lg_k">hll_lg_k</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.kll_k">kll_k</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.fi_lg_max_k">fi_lg_max_k</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.fi_disabled">fi_disabled</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.track_unicode_ranges">track_unicode_ranges</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.large_kll_k">large_kll_k</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.kll_k_large">kll_k_large</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.unicode_ranges">unicode_ranges</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.lower_case">lower_case</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetricConfig.normalize">normalize</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric">ImageMetric</a><ul>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric.submetrics">submetrics</a></li>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric.namespace">namespace</a></li>

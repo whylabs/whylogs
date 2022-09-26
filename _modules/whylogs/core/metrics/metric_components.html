@@ -553,15 +553,24 @@
 
 
 <div class="viewcode-block" id="KllComponent"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metric_components/index.html#whylogs.core.metrics.metric_components.KllComponent">[docs]</a><span class="k">class</span> <span class="nc">KllComponent</span><span class="p">(</span><span class="n">MetricComponent</span><span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">kll_doubles_sketch</span><span class="p">]):</span>
-    <span class="n">mtype</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">kll_doubles_sketch</span></div>
+    <span class="n">mtype</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">kll_doubles_sketch</span>
+
+    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KllComponent&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">KllComponent</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_protobuf</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="HllComponent"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metric_components/index.html#whylogs.core.metrics.metric_components.HllComponent">[docs]</a><span class="k">class</span> <span class="nc">HllComponent</span><span class="p">(</span><span class="n">MetricComponent</span><span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">hll_sketch</span><span class="p">]):</span>
-    <span class="n">mtype</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">hll_sketch</span></div>
+    <span class="n">mtype</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">hll_sketch</span>
+
+    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;HllComponent&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HllComponent</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_protobuf</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="FrequentStringsComponent"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metric_components/index.html#whylogs.core.metrics.metric_components.FrequentStringsComponent">[docs]</a><span class="k">class</span> <span class="nc">FrequentStringsComponent</span><span class="p">(</span><span class="n">MetricComponent</span><span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">frequent_strings_sketch</span><span class="p">]):</span>
-    <span class="n">mtype</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">frequent_strings_sketch</span></div>
+    <span class="n">mtype</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">frequent_strings_sketch</span>
+
+    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;FrequentStringsComponent&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">FrequentStringsComponent</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_protobuf</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="CustomComponent"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metric_components/index.html#whylogs.core.metrics.metric_components.CustomComponent">[docs]</a><span class="k">class</span> <span class="nc">CustomComponent</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">MetricComponent</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>

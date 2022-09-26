@@ -404,20 +404,24 @@
         <article role="main">
           <h1>Source code for whylogs.extras.image_metric</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ResultSet</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">DataType</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.compound_metric</span> <span class="kn">import</span> <span class="n">CompoundMetric</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">DistributionMetric</span><span class="p">,</span>
-    <span class="n">FrequentItemsMetric</span><span class="p">,</span>
-    <span class="n">Metric</span><span class="p">,</span>
-    <span class="n">MetricConfig</span><span class="p">,</span>
-    <span class="n">OperationResult</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DataType</span><span class="p">,</span>
+    <span class="n">Fractional</span><span class="p">,</span>
+    <span class="n">Integral</span><span class="p">,</span>
+    <span class="n">StandardTypeMapper</span><span class="p">,</span>
+    <span class="n">String</span><span class="p">,</span>
+    <span class="n">TypeMapper</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics</span> <span class="kn">import</span> <span class="n">StandardMetric</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.compound_metric</span> <span class="kn">import</span> <span class="n">CompoundMetric</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">MetricConfig</span><span class="p">,</span> <span class="n">OperationResult</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">PreprocessedColumn</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">ColumnSchema</span><span class="p">,</span> <span class="n">DatasetSchema</span>
@@ -426,7 +430,6 @@
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">PIL.Image</span> <span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">ImageType</span>
-    <span class="kn">from</span> <span class="nn">PIL.Image</span> <span class="kn">import</span> <span class="n">new</span> <span class="k">as</span> <span class="n">new_image</span>
     <span class="kn">from</span> <span class="nn">PIL.ImageStat</span> <span class="kn">import</span> <span class="n">Stat</span>
     <span class="kn">from</span> <span class="nn">PIL.TiffImagePlugin</span> <span class="kn">import</span> <span class="n">IFDRational</span>
     <span class="kn">from</span> <span class="nn">PIL.TiffTags</span> <span class="kn">import</span> <span class="n">TAGS</span>
@@ -472,9 +475,9 @@
     <span class="k">return</span> <span class="n">metadata</span></div>
 
 
-<div class="viewcode-block" id="get_pil_image_metadata"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.get_pil_image_metadata">[docs]</a><span class="k">def</span> <span class="nf">get_pil_image_metadata</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="n">ImageType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<div class="viewcode-block" id="get_pil_exif_metadata"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.get_pil_exif_metadata">[docs]</a><span class="k">def</span> <span class="nf">get_pil_exif_metadata</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="n">ImageType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Grab statistics data from a PIL ImageStats.Stat</span>
+<span class="sd">    Grab EXIF metadata from image</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        img (ImageType): PIL Image</span>
@@ -492,9 +495,6 @@
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t read exif tag: </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> skipping.&quot;</span><span class="p">)</span>
 
-    <span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">image_based_metadata</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
-    <span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">get_pil_image_statistics</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
-
     <span class="k">return</span> <span class="n">metadata</span></div>
 
 
@@ -506,48 +506,156 @@
     <span class="p">}</span></div>
 
 
+<div class="viewcode-block" id="get_pil_image_metadata"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.get_pil_image_metadata">[docs]</a><span class="k">def</span> <span class="nf">get_pil_image_metadata</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="n">ImageType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Grab statistics data from a PIL ImageStats.Stat</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        img (ImageType): PIL Image</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict: of metadata</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">image_based_metadata</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">get_pil_image_statistics</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">metadata</span></div>
+
+
+<div class="viewcode-block" id="SubmetricSchema"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.SubmetricSchema">[docs]</a><span class="k">class</span> <span class="nc">SubmetricSchema</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="SubmetricSchema.prefixes"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.SubmetricSchema.prefixes">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="SubmetricSchema.resolve"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.SubmetricSchema.resolve">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">fi_disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="ImageSubmetricSchema"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.ImageSubmetricSchema">[docs]</a><span class="k">class</span> <span class="nc">ImageSubmetricSchema</span><span class="p">(</span><span class="n">SubmetricSchema</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageSubmetricSchema.prefixes"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.ImageSubmetricSchema.prefixes">[docs]</a>    <span class="k">def</span> <span class="nf">prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;counts&quot;</span><span class="p">,</span> <span class="s2">&quot;types&quot;</span><span class="p">,</span> <span class="s2">&quot;dist&quot;</span><span class="p">,</span> <span class="s2">&quot;ints&quot;</span><span class="p">,</span> <span class="s2">&quot;card&quot;</span><span class="p">,</span> <span class="s2">&quot;fi&quot;</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="ImageSubmetricSchema.resolve"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.ImageSubmetricSchema.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">fi_disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
+        <span class="n">metrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">&quot;counts_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">StandardMetric</span><span class="o">.</span><span class="n">counts</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">()),</span>
+            <span class="sa">f</span><span class="s2">&quot;types_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">StandardMetric</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">()),</span>
+            <span class="sa">f</span><span class="s2">&quot;card_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">()),</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">why_type</span><span class="p">,</span> <span class="n">Integral</span><span class="p">):</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;dist_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">())</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;ints_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">StandardMetric</span><span class="o">.</span><span class="n">ints</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">())</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">fi_disabled</span><span class="p">:</span>
+                <span class="n">metrics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;fi_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">why_type</span><span class="p">,</span> <span class="n">Fractional</span><span class="p">):</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;dist_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">why_type</span><span class="p">,</span> <span class="n">String</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">fi_disabled</span><span class="p">:</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;fi_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">metrics</span></div></div>
+
+
+<div class="viewcode-block" id="ImageMetricConfig"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.ImageMetricConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ImageMetricConfig</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">):</span>
+    <span class="n">allowed_exif_tags</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span>
+    <span class="n">forbidden_exif_tags</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span>
+    <span class="n">submetric_schema</span><span class="p">:</span> <span class="n">SubmetricSchema</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">ImageSubmetricSchema</span><span class="p">)</span>
+    <span class="n">type_mapper</span><span class="p">:</span> <span class="n">TypeMapper</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">StandardTypeMapper</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="ImageMetric"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.ImageMetric">[docs]</a><span class="k">class</span> <span class="nc">ImageMetric</span><span class="p">(</span><span class="n">CompoundMetric</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">submetrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">submetrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">],</span>
+        <span class="n">attribute_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">allowed_exif_tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">forbidden_exif_tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">submetric_schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SubmetricSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">type_mapper</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TypeMapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fi_disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="k">if</span> <span class="n">ImageType</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Install Pillow for image support&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ImageMetric</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">submetrics</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attribute_names</span> <span class="o">=</span> <span class="n">attribute_names</span> <span class="ow">or</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_allowed_exif_tags</span> <span class="o">=</span> <span class="n">allowed_exif_tags</span> <span class="ow">or</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_forbidden_exif_tags</span> <span class="o">=</span> <span class="n">forbidden_exif_tags</span> <span class="ow">or</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_submetric_schema</span> <span class="o">=</span> <span class="n">submetric_schema</span> <span class="ow">or</span> <span class="n">ImageSubmetricSchema</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type_mapper</span> <span class="o">=</span> <span class="n">type_mapper</span> <span class="ow">or</span> <span class="n">StandardTypeMapper</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fi_disabled</span> <span class="o">=</span> <span class="n">fi_disabled</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;image&quot;</span>
 
+    <span class="k">def</span> <span class="nf">_wants_to_track</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exif_tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">exif_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forbidden_exif_tags</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_allowed_exif_tags</span><span class="p">:</span>  <span class="c1"># empty set -&gt; allow anything not explicitly forbidden</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">exif_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_allowed_exif_tags</span>
+
+    <span class="k">def</span> <span class="nf">_add_submetric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">submetrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_submetric_schema</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_mapper</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fi_disabled</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">submetrics</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attribute_names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_discover_exif_submetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attribute_names</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wants_to_track</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_submetric</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_discover_image_submetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attribute_names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_submetric</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update_relevant_submetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">PreprocessedColumn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_submetric_schema</span><span class="o">.</span><span class="n">prefixes</span><span class="p">():</span>
+            <span class="n">submetric_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">submetric_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="p">[</span><span class="n">submetric_name</span><span class="p">]</span><span class="o">.</span><span class="n">columnar_update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
 <div class="viewcode-block" id="ImageMetric.columnar_update"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.ImageMetric.columnar_update">[docs]</a>    <span class="k">def</span> <span class="nf">columnar_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">:</span> <span class="n">PreprocessedColumn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OperationResult</span><span class="p">:</span>
-        <span class="n">submetric_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">view</span><span class="o">.</span><span class="n">raw_iterator</span><span class="p">())):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ImageType</span><span class="p">):</span>
-                <span class="n">metadata</span> <span class="o">=</span> <span class="n">get_pil_image_metadata</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">submetric_names</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span><span class="o">.</span><span class="n">columnar_update</span><span class="p">(</span><span class="n">PreprocessedColumn</span><span class="o">.</span><span class="n">apply</span><span class="p">([</span><span class="n">metadata</span><span class="p">[</span><span class="n">attr</span><span class="p">]]))</span>
+                <span class="n">metadata</span> <span class="o">=</span> <span class="n">get_pil_exif_metadata</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_discover_exif_submetrics</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>  <span class="c1"># EXIF tag discovery</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">PreprocessedColumn</span><span class="o">.</span><span class="n">apply</span><span class="p">([</span><span class="n">metadata</span><span class="p">[</span><span class="n">name</span><span class="p">]])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_update_relevant_submetrics</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+                <span class="n">image_data</span> <span class="o">=</span> <span class="n">get_pil_image_metadata</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">image_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_discover_image_submetrics</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">PreprocessedColumn</span><span class="o">.</span><span class="n">apply</span><span class="p">([</span><span class="n">image_data</span><span class="p">[</span><span class="n">name</span><span class="p">]])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_update_relevant_submetrics</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
                 <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">OperationResult</span><span class="o">.</span><span class="n">ok</span><span class="p">(</span><span class="n">count</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ImageMetric.zero"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.ImageMetric.zero">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ImageMetric&quot;</span><span class="p">:</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">MetricConfig</span><span class="p">()</span>
-        <span class="n">dummy_image</span> <span class="o">=</span> <span class="n">new_image</span><span class="p">(</span><span class="s2">&quot;HSV&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="n">metadata</span> <span class="o">=</span> <span class="n">get_pil_image_metadata</span><span class="p">(</span><span class="n">dummy_image</span><span class="p">)</span>
-        <span class="n">submetrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-                <span class="n">submetrics</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">DistributionMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
-                <span class="n">submetrics</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">DistributionMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">fi_disabled</span><span class="p">:</span>
-                <span class="n">submetrics</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">FrequentItemsMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">ImageMetricConfig</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ImageMetricConfig</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;ImageMetric.zero() needs an ImageMetricConfig&quot;</span><span class="p">)</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">ImageMetricConfig</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">ImageMetric</span><span class="p">(</span><span class="n">submetrics</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">ImageMetric</span><span class="p">(</span>
+            <span class="p">{},</span>  <span class="c1"># submetrics will be discovered as images are logged</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">allowed_exif_tags</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">forbidden_exif_tags</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">submetric_schema</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">type_mapper</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">fi_disabled</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="log_image"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.log_image">[docs]</a><span class="k">def</span> <span class="nf">log_image</span><span class="p">(</span>
     <span class="n">images</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ImageType</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">ImageType</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ImageType</span><span class="p">]],</span>
     <span class="n">default_column_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultSet</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">ImageType</span><span class="p">):</span>
         <span class="n">images</span> <span class="o">=</span> <span class="p">{</span><span class="n">default_column_prefix</span><span class="p">:</span> <span class="n">images</span><span class="p">}</span>
@@ -567,9 +675,14 @@
 
     <span class="k">class</span> <span class="nc">ImageResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
-            <span class="k">return</span> <span class="p">{</span><span class="n">ImageMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">()):</span> <span class="n">ImageMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">())}</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">ImageMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">():</span> <span class="n">ImageMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)}</span>
 
-    <span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">types</span><span class="o">=</span><span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">ImageType</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">images</span><span class="o">.</span><span class="n">keys</span><span class="p">()},</span> <span class="n">resolvers</span><span class="o">=</span><span class="n">ImageResolver</span><span class="p">())</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="n">schema</span> <span class="ow">or</span> <span class="n">DatasetSchema</span><span class="p">(</span>
+        <span class="n">types</span><span class="o">=</span><span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">ImageType</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">images</span><span class="o">.</span><span class="n">keys</span><span class="p">()},</span> <span class="n">default_configs</span><span class="o">=</span><span class="n">ImageMetricConfig</span><span class="p">(),</span> <span class="n">resolvers</span><span class="o">=</span><span class="n">ImageResolver</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schema</span><span class="o">.</span><span class="n">default_configs</span><span class="p">,</span> <span class="n">ImageMetricConfig</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;log_image requires DatasetSchema with an ImageMetricConfig as default_configs&quot;</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">images</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span></div>
 </pre></div>
         </article>

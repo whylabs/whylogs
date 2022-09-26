@@ -12,6 +12,9 @@ Classes
 
 .. autoapisummary::
 
+   whylogs.extras.image_metric.SubmetricSchema
+   whylogs.extras.image_metric.ImageSubmetricSchema
+   whylogs.extras.image_metric.ImageMetricConfig
    whylogs.extras.image_metric.ImageMetric
 
 
@@ -22,8 +25,9 @@ Functions
 .. autoapisummary::
 
    whylogs.extras.image_metric.get_pil_image_statistics
-   whylogs.extras.image_metric.get_pil_image_metadata
+   whylogs.extras.image_metric.get_pil_exif_metadata
    whylogs.extras.image_metric.image_based_metadata
+   whylogs.extras.image_metric.get_pil_image_metadata
    whylogs.extras.image_metric.log_image
 
 
@@ -64,9 +68,9 @@ Attributes
    :rtype: Dict
 
 
-.. py:function:: get_pil_image_metadata(img: PIL.Image.Image) -> Dict
+.. py:function:: get_pil_exif_metadata(img: PIL.Image.Image) -> Dict
 
-   Grab statistics data from a PIL ImageStats.Stat
+   Grab EXIF metadata from image
 
    :param img: PIL Image
    :type img: ImageType
@@ -78,7 +82,123 @@ Attributes
 .. py:function:: image_based_metadata(img)
 
 
-.. py:class:: ImageMetric(submetrics: Dict[str, whylogs.core.metrics.metrics.Metric])
+.. py:function:: get_pil_image_metadata(img: PIL.Image.Image) -> Dict
+
+   Grab statistics data from a PIL ImageStats.Stat
+
+   :param img: PIL Image
+   :type img: ImageType
+
+   :returns: of metadata
+   :rtype: Dict
+
+
+.. py:class:: SubmetricSchema
+
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: prefixes() -> Set[str]
+      :abstractmethod:
+
+
+   .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, fi_disabled: bool = False) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+      :abstractmethod:
+
+
+
+.. py:class:: ImageSubmetricSchema
+
+   Bases: :py:obj:`SubmetricSchema`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: prefixes() -> Set[str]
+
+
+   .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, fi_disabled: bool = False) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+
+
+
+.. py:class:: ImageMetricConfig
+
+   Bases: :py:obj:`whylogs.core.metrics.metrics.MetricConfig`
+
+   .. py:attribute:: allowed_exif_tags
+      :annotation: :Set[str]
+
+      
+
+   .. py:attribute:: forbidden_exif_tags
+      :annotation: :Set[str]
+
+      
+
+   .. py:attribute:: submetric_schema
+      :annotation: :SubmetricSchema
+
+      
+
+   .. py:attribute:: type_mapper
+      :annotation: :whylogs.core.datatypes.TypeMapper
+
+      
+
+   .. py:attribute:: hll_lg_k
+      :annotation: :int = 12
+
+      
+
+   .. py:attribute:: kll_k
+      :annotation: :int = 256
+
+      
+
+   .. py:attribute:: fi_lg_max_k
+      :annotation: :int = 10
+
+      
+
+   .. py:attribute:: fi_disabled
+      :annotation: :bool = False
+
+      
+
+   .. py:attribute:: track_unicode_ranges
+      :annotation: :bool = False
+
+      
+
+   .. py:attribute:: large_kll_k
+      :annotation: :bool = True
+
+      
+
+   .. py:attribute:: kll_k_large
+      :annotation: :int = 1024
+
+      
+
+   .. py:attribute:: unicode_ranges
+      :annotation: :Dict[str, Tuple[int, int]]
+
+      
+
+   .. py:attribute:: lower_case
+      :annotation: :bool = True
+
+      
+
+   .. py:attribute:: normalize
+      :annotation: :bool = True
+
+      
+
+
+.. py:class:: ImageMetric(submetrics: Dict[str, whylogs.core.metrics.metrics.Metric], attribute_names: Optional[Set[str]] = None, allowed_exif_tags: Optional[Set[str]] = None, forbidden_exif_tags: Optional[Set[str]] = None, submetric_schema: Optional[SubmetricSchema] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, fi_disabled: bool = False)
 
    Bases: :py:obj:`whylogs.core.metrics.compound_metric.CompoundMetric`
 
@@ -143,6 +263,6 @@ Attributes
 
 
 
-.. py:function:: log_image(images: Union[PIL.Image.Image, List[PIL.Image.Image], Dict[str, PIL.Image.Image]], default_column_prefix: str = 'image') -> whylogs.api.logger.result_set.ResultSet
+.. py:function:: log_image(images: Union[PIL.Image.Image, List[PIL.Image.Image], Dict[str, PIL.Image.Image]], default_column_prefix: str = 'image', schema: Optional[whylogs.core.schema.DatasetSchema] = None) -> whylogs.api.logger.result_set.ResultSet
 
 
