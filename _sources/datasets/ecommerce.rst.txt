@@ -3,7 +3,7 @@ Ecommerce Dataset
 
 The Ecommerce dataset contains transaction information of several products for a popular grocery supermarket in India. It contains features such as the product's description, category, market price and user rating.
 
-The original data was sourced from Kaggle's [BigBasket Entire Product List](https://www.kaggle.com/datasets/surajjha101/bigbasket-entire-product-list-28k-datapoints). From the source data additional transformations were made, such as: oversampling and feature creation/engineering.
+The original data was sourced from Kaggle's `BigBasket Entire Product List <https://www.kaggle.com/datasets/surajjha101/bigbasket-entire-product-list-28k-datapoints>`_ . From the source data additional transformations were made, such as: oversampling and feature creation/engineering.
 
 License:
 CC BY-NC-SA 4.0
@@ -23,7 +23,7 @@ Versions and Data Partitions
 ----------------------------
 
 Currently the dataset contains one version: **base**. The task for the base version is to classify wether an incoming product should be provided a discount, given product features such as history of items sold, user rating, category and market price.
-The **base** version contains two partitions: __Baseline__ and __Inference__
+The **base** version contains two partitions: **Baseline** and **Inference**
 
 base
 ~~~~
@@ -47,7 +47,7 @@ This version contains 5
       * Extra Features: 11
    * Period: from 2022-08-19 to 2022-09-08
 
-There are 11 possible categories for a given product. In order to get the desired size for the dataset, original data was oversampled for each category with the [Random Oversampling Examples (ROSE)](https://link.springer.com/article/10.1007/s10618-012-0295-5) algorithm.
+There are 11 possible categories for a given product. In order to get the desired size for the dataset, original data was oversampled for each category with the `Random Oversampling Examples (ROSE) <https://link.springer.com/article/10.1007/s10618-012-0295-5>`_.
 
 The original data didn't contain date and time information. Data was artificially partitioned into separate days in a preprocessing stage for the fabrication of this dataset.
 
