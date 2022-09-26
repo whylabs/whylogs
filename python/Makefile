@@ -34,7 +34,7 @@ endif
 
 install-poetry:
 	@$(call i, Installing Poetry)
-	curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+	curl -sSL https://install.python-poetry.org | python3 -
 
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
