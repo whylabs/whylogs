@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from dataclasses import dataclass, field
 from itertools import chain
 from typing import Any, Dict, List, Optional, Set, Union
@@ -183,6 +184,17 @@ class ImageMetric(CompoundMetric):
     @property
     def namespace(self) -> str:
         return "image"
+
+    def merge(self, other: "ImageMetric") -> "ImageMetric":
+        merged = super(ImageMetric, self).merge(other)
+        merged._attribute_names = self._attribute_names.copy()
+        merged._attribute_names.update(other._attribute_names)
+        merged._allowed_exif_tags = self._allowed_exif_tags.copy()
+        merged._forbidden_exif_tags = self._forbidden_exif_tags.copy()
+        merged._submetric_schema = deepcopy(self._submetric_schema)
+        merged._type_mapper = deepcopy(self._type_mapper)
+        merged._fi_disabled = self._fi_disabled
+        return merged
 
     def _wants_to_track(self, exif_tag: str) -> bool:
         if exif_tag in self._forbidden_exif_tags:
