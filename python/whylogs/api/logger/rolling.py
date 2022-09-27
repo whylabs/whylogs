@@ -10,7 +10,6 @@ from typing import Any, Callable, Dict, List, Optional
 from typing_extensions import Literal
 
 from whylogs.api.logger.logger import Logger
-from whylogs.api.store.profile_store import ProfileStore
 from whylogs.api.writer import Writer
 from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
 from whylogs.core.stubs import pd
@@ -73,7 +72,6 @@ class TimedRollingLogger(Logger):
         fork: bool = False,
         skip_empty: bool = False,
         callback: Optional[Callable[[Writer, DatasetProfileView, str], None]] = None,
-        store_list: List[ProfileStore] = [],
     ):
         super().__init__(schema)
         if base_name is None:
@@ -86,7 +84,6 @@ class TimedRollingLogger(Logger):
         self.aligned = aligned
         self.fork = fork
         self.skip_empty = skip_empty
-        self.store_list = store_list
 
         # base on TimedRotatingFileHandler
         self.when = when.upper()
@@ -128,9 +125,6 @@ class TimedRollingLogger(Logger):
 
     def check_writer(self, writer: Writer) -> None:
         writer.check_interval(self.interval)
-
-    def append_store(self, store: ProfileStore) -> None:
-        self.store_list.append(store)
 
     def _compute_current_batch_timestamp(self, now: Optional[float] = None) -> int:
         if now is None:
@@ -203,7 +197,7 @@ class TimedRollingLogger(Logger):
             while profile.is_active:
                 time.sleep(1)
 
-            for store in self.store_list:
+            for store in self._store_list:
                 store.write(profile_view=profile.view(), profile_name=self.base_name)
 
             for w in self._writers:

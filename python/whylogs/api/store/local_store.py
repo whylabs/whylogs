@@ -77,6 +77,8 @@ class LocalStore(ProfileStore):
         self._default_path = os.path.join(os.getcwd(), DEFAULT_DIR)
         logger.debug(f"Default ProfileStore path set to {self._default_path}")
         self._writer = LocalWriter(base_dir=self._default_path)
+        if not os.path.isdir(self._default_path):
+            os.makedirs(os.path.join(self._default_path))
 
     @staticmethod
     def _get_profile_filename() -> str:

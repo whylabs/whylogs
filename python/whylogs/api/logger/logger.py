@@ -31,6 +31,7 @@ class Logger(ABC):
         self._schema = schema
         self._writers: List[Writer] = []
         atexit.register(self.close)
+        self._store_list: List[ProfileStore] = []
 
     def check_writer(self, _: Writer) -> None:
         """Checks if a writer is configured correctly for this class"""
@@ -46,6 +47,9 @@ class Logger(ABC):
         assert writer is not None
         self.check_writer(writer)
         self._writers.append(writer)
+
+    def append_store(self, store: ProfileStore) -> None:
+        self._store_list.append(store)
 
     @abstractmethod
     def _get_matching_profiles(
@@ -84,9 +88,6 @@ class Logger(ABC):
     @abstractmethod
     def close(self) -> None:
         self._is_closed = True
-
-    def append_store(self, store: ProfileStore) -> None:
-        pass
 
     def __enter__(self) -> "Logger":
         return self
