@@ -19,6 +19,9 @@ def query():
 
 
 class TestProfileClass(ProfileStore):
+    def list(self):
+        pass
+
     def get(self):
         pass
 

@@ -4,14 +4,14 @@ from whylogs.api.store.query import DateQuery
 
 
 def test_larger_start_goes_to_end():
-    config = DateQuery(start_date=datetime(2022, 1, 1), end_date=datetime(2021, 1, 1))
+    query = DateQuery(start_date=datetime(2022, 1, 1), end_date=datetime(2021, 1, 1), profile_name="test")
 
-    assert config.start_date == datetime(2021, 1, 1)
-    assert config.end_date == datetime(2022, 1, 1)
+    assert query.start_date == datetime(2021, 1, 1)
+    assert query.end_date == datetime(2022, 1, 1)
 
 
 def test_start_equals_end_if_only_start():
-    config = DateQuery(start_date=datetime(2022, 1, 1), end_date=None)
+    query = DateQuery(start_date=datetime(2022, 1, 1), end_date=None, profile_name="test")
 
-    assert config.start_date == datetime(2022, 1, 1)
-    assert config.end_date == config.start_date
+    assert query.start_date == datetime(2022, 1, 1)
+    assert query.end_date == query.start_date

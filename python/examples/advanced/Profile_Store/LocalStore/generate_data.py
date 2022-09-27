@@ -5,8 +5,8 @@ import pandas as pd
 import whylogs as why
 from whylogs.api.store.local_store import LocalStore
 
-logger = why.logger(mode="rolling", interval=10, when="S")
-logger.append_store(store=LocalStore(base_name="test_constraints"))
+logger = why.logger(mode="rolling", interval=10, when="S", base_name="test_constraints")
+logger.append_store(store=LocalStore())
 
 
 def predict():

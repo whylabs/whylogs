@@ -105,11 +105,11 @@ class LocalStore(ProfileStore):
         merged_profile = reduce(lambda x, y: x.merge(y), profiles_list)
         return merged_profile
 
-    def write(self, profile: DatasetProfileView, profile_name: str) -> None:
+    def write(self, profile_view: DatasetProfileView, profile_name: str) -> None:
         if not os.path.isdir(os.path.join(self._default_path, profile_name)):
             logger.debug(f"Creating directory for {profile_name}")
             os.makedirs(os.path.join(self._default_path, profile_name))
 
         profile_dest = os.path.join(self._default_path, profile_name, self._get_profile_filename())
         logger.debug("Writing to profile to default store destination...")
-        self._writer.write(file=profile, dest=profile_dest)
+        self._writer.write(file=profile_view, dest=profile_dest)
