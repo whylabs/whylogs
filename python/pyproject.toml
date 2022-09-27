@@ -98,6 +98,9 @@ viz = [
     "ipython",
     "pybars3",
     "scipy",
+    "Pillow",
+    "whylabs-client",
+    "requests",
 ]
 spark = [
     "pyarrow",
