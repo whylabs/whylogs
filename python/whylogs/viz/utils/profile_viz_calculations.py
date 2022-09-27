@@ -165,7 +165,7 @@ def generate_summaries(
     ref_summary: DatasetSummary = {"columns": {}, "properties": overall_stats}
     target_summary: DatasetSummary = {"columns": {}, "properties": None}
     for target_col_name in target_col_views:
-        if target_col_name in ref_col_views:
+        if target_col_name in ref_col_views and target_col_name != "image":
             target_column_summary: ColumnSummary = {
                 "histogram": None,
                 "frequentItems": None,
