@@ -147,3 +147,29 @@ def test_viz_constraints_report(
         html_file_name=test_output,
     )
     webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)
+
+
+def test_uncompounded_image_profile():
+    from PIL import Image
+
+    from whylogs.api.writer.whylabs import _uncompound_dataset_profile
+    from whylogs.extras.image_metric import log_image
+
+    img1 = Image.effect_mandelbrot((256, 256), (-3, -2.5, 2, 2.5), 9)
+    img2 = Image.effect_mandelbrot((256, 256), (-3, -2.5, 2, 2.5), 20)
+
+    prof1 = log_image(img1).profile().view()
+    prof2 = log_image(img2).profile().view()
+    merged_prof = prof1.merge(prof2)
+
+    assert set(prof1.get_column("image")._metrics["image"].submetrics.keys()) == set(
+        prof2.get_column("image")._metrics["image"].submetrics.keys()
+    )
+    assert set(merged_prof.get_column("image")._metrics["image"].submetrics.keys()) == set(
+        prof2.get_column("image")._metrics["image"].submetrics.keys()
+    )
+    uncomp1 = _uncompound_dataset_profile(prof1)
+    uncomp2 = _uncompound_dataset_profile(prof2)
+    uncompM = _uncompound_dataset_profile(merged_prof)
+    assert set(uncomp1.get_columns()) == set(uncomp2.get_columns())
+    assert set(uncomp1.get_columns()) == set(uncompM.get_columns())
