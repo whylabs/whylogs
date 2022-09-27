@@ -228,6 +228,9 @@ Attributes
       :property:
 
 
+   .. py:method:: merge(other: ImageMetric) -> ImageMetric
+
+
    .. py:method:: columnar_update(view: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 
 
@@ -236,9 +239,6 @@ Attributes
 
 
    .. py:method:: merge_submetrics(other: COMPOUND_METRIC) -> Dict[str, whylogs.core.metrics.Metric]
-
-
-   .. py:method:: merge(other: COMPOUND_METRIC) -> COMPOUND_METRIC
 
 
    .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage

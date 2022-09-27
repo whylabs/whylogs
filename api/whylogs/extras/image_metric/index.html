@@ -757,6 +757,19 @@ the Metric interface. Don’t use / or : in the subclass’ namespace.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetric.merge">
+<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric" title="whylogs.extras.image_metric.ImageMetric"><span class="pre">ImageMetric</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric" title="whylogs.extras.image_metric.ImageMetric"><span class="pre">ImageMetric</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#ImageMetric.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetric.merge" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric" title="whylogs.extras.image_metric.ImageMetric"><em>ImageMetric</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric" title="whylogs.extras.image_metric.ImageMetric">ImageMetric</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetric.columnar_update">
 <span class="sig-name descname"><span class="pre">columnar_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../core/preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><span class="pre">whylogs.core.preprocessing.PreprocessedColumn</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.OperationResult" title="whylogs.core.metrics.metrics.OperationResult"><span class="pre">whylogs.core.metrics.metrics.OperationResult</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#ImageMetric.columnar_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetric.columnar_update" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -791,19 +804,6 @@ the Metric interface. Don’t use / or : in the subclass’ namespace.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference internal" href="../../core/metrics/index.html#whylogs.core.metrics.Metric" title="whylogs.core.metrics.Metric">whylogs.core.metrics.Metric</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.extras.image_metric.ImageMetric.merge">
-<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">COMPOUND_METRIC</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">COMPOUND_METRIC</span></span></span><a class="headerlink" href="#whylogs.extras.image_metric.ImageMetric.merge" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>other</strong> (<em>COMPOUND_METRIC</em>) – </p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>COMPOUND_METRIC</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1009,10 +1009,10 @@ the Metric interface. Don’t use / or : in the subclass’ namespace.</p>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric">ImageMetric</a><ul>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric.submetrics">submetrics</a></li>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric.namespace">namespace</a></li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric.merge">merge</a></li>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric.columnar_update">columnar_update</a></li>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric.zero">zero</a></li>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric.merge_submetrics">merge_submetrics</a></li>
-<li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric.merge">merge</a></li>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric.to_protobuf">to_protobuf</a></li>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric.get_component_paths">get_component_paths</a></li>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric.to_summary_dict">to_summary_dict</a></li>
