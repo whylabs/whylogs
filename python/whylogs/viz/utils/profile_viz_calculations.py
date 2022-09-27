@@ -9,6 +9,7 @@ from whylogs.core.metrics import CardinalityMetric
 from whylogs.core.utils import get_distribution_metrics
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.extras.image_metric import ImageMetric
 from whylogs.viz.utils import (
     DescriptiveStatistics,
     QuantileStats,
@@ -148,6 +149,12 @@ def generate_profile_summary(
     return summaries
 
 
+def is_image_compound_metric(col_view: ColumnProfileView) -> bool:
+    if isinstance(col_view.get_metric("image"), ImageMetric):
+        return True
+    return False
+
+
 def generate_summaries(
     target_view: DatasetProfileView, ref_view: Optional[DatasetProfileView], config: Optional[SummaryConfig]
 ) -> Optional[Dict[str, Any]]:
@@ -165,7 +172,7 @@ def generate_summaries(
     ref_summary: DatasetSummary = {"columns": {}, "properties": overall_stats}
     target_summary: DatasetSummary = {"columns": {}, "properties": None}
     for target_col_name in target_col_views:
-        if target_col_name in ref_col_views:
+        if target_col_name in ref_col_views and not is_image_compound_metric(target_col_views[target_col_name]):
             target_column_summary: ColumnSummary = {
                 "histogram": None,
                 "frequentItems": None,
