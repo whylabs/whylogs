@@ -31,5 +31,6 @@ If you're willing to learn more how to use and get going with whylogs, take a lo
     - [WhyLabs - Reference Profile](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Reference_Profiles_to_WhyLabs.ipynb) - Send profiles as Reference (Static) Profiles to WhyLabs
     - [WhyLabs - Regression Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Regression_Performance_Metrics_to_WhyLabs.ipynb) - Monitor Regression Model Performance Metrics with whylogs and WhyLabs
     - [WhyLabs - Classification Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Classification_Performance_Metrics_to_WhyLabs.ipynb) - Monitor Classification Model Performance Metrics with whylogs and WhyLabs
+    - [WhyLabs - Feature Importance](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Feature_Weights_to_WhyLabs.ipynb) - Track and monitor feature importance with whylogs and WhyLabs
 
 The examples in this folder can also be viewed in whylogs' documentation in https://whylogs.readthedocs.io/en/latest/

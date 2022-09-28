@@ -54,6 +54,7 @@ Integrations
     examples/integrations/writers/Writing_Profiles
     examples/integrations/writers/Writing_Regression_Performance_Metrics_to_WhyLabs
     examples/integrations/writers/Writing_Classification_Performance_Metrics_to_WhyLabs
+    examples/integrations/writers/Writing_Feature_Weights_to_WhyLabs
     examples/integrations/Fugue_Profiling
     examples/integrations/Pyspark_Profiling
     examples/integrations/Mlflow_Logging
