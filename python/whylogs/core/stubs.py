@@ -16,22 +16,26 @@ except ImportError:  # noqa
         logger.error("Pandas is installed but numpy is not. Your environment is probably broken.")
 
 
+class _StubClass:
+    pass
+
+
 @dataclass(frozen=True)
 class NumpyStub:
-    dtype: None = None
-    number: None = None
-    floating: None = None
-    ndarray: None = None
-    timedelta64: None = None
-    datetime64: None = None
-    unicode_: None = None
-    issubdtype: None = None
+    dtype: type = _StubClass
+    number: type = _StubClass
+    floating: type = _StubClass
+    ndarray: type = _StubClass
+    timedelta64: type = _StubClass
+    datetime64: type = _StubClass
+    unicode_: type = _StubClass
+    issubdtype: type = _StubClass
 
 
 @dataclass(frozen=True)
 class PandasStub(object):
-    Series: None = None
-    DataFrame: None = None
+    Series: type = _StubClass
+    DataFrame: type = _StubClass
 
 
 if _np is None:
