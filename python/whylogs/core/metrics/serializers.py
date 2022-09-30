@@ -121,22 +121,30 @@ class SerializerRegistry:
         return res
 
 
-_STANDARD_REGISTRY = SerializerRegistry()
+_STANDARD_REGISTRY = None
+
+
+def _get_or_create_registry() -> SerializerRegistry:
+    global _STANDARD_REGISTRY
+    if _STANDARD_REGISTRY is None:
+        _STANDARD_REGISTRY = SerializerRegistry()
+
+    return _STANDARD_REGISTRY
 
 
 def get_serializer(
     *, mtype: Optional[type] = None, type_id: int = 0, registry: Optional[SerializerRegistry] = None
 ) -> Optional[Serializer]:
     if registry is None:
-        registry = _STANDARD_REGISTRY
+        registry = _get_or_create_registry()
     return registry.get(mtype=mtype, type_id=type_id)
 
 
-def serializer(*, type_id: int, registry: SerializerRegistry = _STANDARD_REGISTRY):  # type: ignore
+def serializer(*, type_id: int, registry: Optional[SerializerRegistry] = None):  # type: ignore
     if type_id < _MAX_BUILT_IN_ID:
         raise ValueError("Custom aggregator id must be equal or greater than 100")
 
     if registry is None:
-        registry = _STANDARD_REGISTRY
+        registry = _get_or_create_registry()
 
     return _decorate_func(key=type_id, name=f"custom.{type_id}", wrapper_dict=registry._id_serializer, clazz=Serializer)
