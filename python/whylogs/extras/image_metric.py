@@ -176,8 +176,6 @@ class ImageMetric(MultiMetric):
 
     def merge(self, other: "ImageMetric") -> "ImageMetric":
         merged = super(ImageMetric, self).merge(other)
-        merged._attribute_names = self._attribute_names.copy()
-        merged._attribute_names.update(other._attribute_names)
         merged._allowed_exif_tags = self._allowed_exif_tags.copy()
         merged._forbidden_exif_tags = self._forbidden_exif_tags.copy()
         merged._submetric_schema = deepcopy(self._submetric_schema)

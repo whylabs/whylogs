@@ -176,9 +176,9 @@ def test_unicode_range_enabled() -> None:
     assert "basic-latin" in metric.submetrics
     assert "emoticon" in metric.submetrics
 
-    assert metric.submetrics["digits"].mean.value == np.array(digit_counts).mean()
-    assert metric.submetrics["emoticon"].mean.value == np.array(emoticon_counts).mean()
-    assert metric.submetrics["basic-latin"].mean.value == np.array(latin_counts).mean()
+    assert metric.submetrics["digits"]["distribution"].mean.value == np.array(digit_counts).mean()
+    assert metric.submetrics["emoticon"]["distribution"].mean.value == np.array(emoticon_counts).mean()
+    assert metric.submetrics["basic-latin"]["distribution"].mean.value == np.array(latin_counts).mean()
 
 
 def test_unicode_range_default_config_off() -> None:
