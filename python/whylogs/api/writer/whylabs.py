@@ -26,6 +26,7 @@ from whylogs.core.errors import BadConfigError
 from whylogs.core.feature_weights import FeatureWeights
 from whylogs.core.metrics import Metric
 from whylogs.core.metrics.compound_metric import CompoundMetric
+from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.utils import deprecated_alias
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 
@@ -100,6 +101,15 @@ def _uncompound_metric(col_name: str, metric_name: str, metric: CompoundMetric) 
     return result
 
 
+def _uncompound_multimetric(col_name: str, metric_name: str, metric: MultiMetric) -> Dict[str, ColumnProfileView]:
+    result: Dict[str, ColumnProfileView] = dict()
+    for submetric_name, submetrics in metric.submetrics.items():
+        new_col_name = f"{col_name}.{submetric_name}" if not _v0_compatible_image_feature_flag() else submetric_name
+        result[new_col_name] = ColumnProfileView(submetrics)
+
+    return result
+
+
 def _uncompound_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
     """
     v0 whylabs doesn't understand compound metrics. This creates a new column for
@@ -116,6 +126,8 @@ def _uncompound_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
         for metric_name, metric in col_prof._metrics.items():
             if isinstance(metric, CompoundMetric):
                 new_columns.update(_uncompound_metric(col_name, metric_name, metric))
+            if isinstance(metric, MultiMetric):
+                new_columns.update(_uncompound_multimetric(col_name, metric_name, metric))
 
     new_prof._columns.update(new_columns)
     return new_prof

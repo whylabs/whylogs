@@ -16,7 +16,7 @@ from whylogs.core.datatypes import (
     TypeMapper,
 )
 from whylogs.core.metrics import StandardMetric
-from whylogs.core.metrics.compound_metric import CompoundMetric
+from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import Resolver
@@ -120,34 +120,27 @@ def get_pil_image_metadata(img: ImageType) -> Dict:
 
 class SubmetricSchema(ABC):
     @abstractmethod
-    def prefixes(self) -> Set[str]:
-        raise NotImplementedError
-
-    @abstractmethod
     def resolve(self, name: str, why_type: DataType, fi_disabled: bool = False) -> Dict[str, Metric]:
         raise NotImplementedError
 
 
 class ImageSubmetricSchema(SubmetricSchema):
-    def prefixes(self) -> Set[str]:
-        return {"counts", "types", "dist", "ints", "card", "fi"}
-
     def resolve(self, name: str, why_type: DataType, fi_disabled: bool = False) -> Dict[str, Metric]:
         metrics: Dict[str, Metric] = {
-            f"counts_{name}": StandardMetric.counts.zero(MetricConfig()),
-            f"types_{name}": StandardMetric.types.zero(MetricConfig()),
-            f"card_{name}": StandardMetric.cardinality.zero(MetricConfig()),
+            "counts": StandardMetric.counts.zero(MetricConfig()),
+            "types": StandardMetric.types.zero(MetricConfig()),
+            "cardinality": StandardMetric.cardinality.zero(MetricConfig()),
         }
 
         if isinstance(why_type, Integral):
-            metrics[f"dist_{name}"] = StandardMetric.distribution.zero(MetricConfig())
-            metrics[f"ints_{name}"] = StandardMetric.ints.zero(MetricConfig())
+            metrics["distribution"] = StandardMetric.distribution.zero(MetricConfig())
+            metrics["ints"] = StandardMetric.ints.zero(MetricConfig())
             if not fi_disabled:
-                metrics[f"fi_{name}"] = StandardMetric.frequent_items.zero(MetricConfig())
+                metrics["frequent_items"] = StandardMetric.frequent_items.zero(MetricConfig())
         elif isinstance(why_type, Fractional):
-            metrics[f"dist_{name}"] = StandardMetric.distribution.zero(MetricConfig())
+            metrics["distribution"] = StandardMetric.distribution.zero(MetricConfig())
         elif isinstance(why_type, String) and not fi_disabled:
-            metrics[f"fi_{name}"] = StandardMetric.frequent_items.zero(MetricConfig())
+            metrics["frequent_items"] = StandardMetric.frequent_items.zero(MetricConfig())
 
         return metrics
 
@@ -158,11 +151,10 @@ class ImageMetricConfig(MetricConfig):
     forbidden_exif_tags: Set[str] = field(default_factory=set)
 
 
-class ImageMetric(CompoundMetric):
+class ImageMetric(MultiMetric):
     def __init__(
         self,
-        submetrics: Dict[str, Metric],
-        attribute_names: Optional[Set[str]] = None,
+        submetrics: Dict[str, Dict[str, Metric]],
         allowed_exif_tags: Optional[Set[str]] = None,
         forbidden_exif_tags: Optional[Set[str]] = None,
         submetric_schema: Optional[SubmetricSchema] = None,
@@ -172,7 +164,6 @@ class ImageMetric(CompoundMetric):
         if ImageType is None:
             logger.error("Install Pillow for image support")
         super(ImageMetric, self).__init__(submetrics)
-        self._attribute_names = attribute_names or set()
         self._allowed_exif_tags = allowed_exif_tags or set()
         self._forbidden_exif_tags = forbidden_exif_tags or set()
         self._submetric_schema = submetric_schema or ImageSubmetricSchema()
@@ -202,23 +193,23 @@ class ImageMetric(CompoundMetric):
         return exif_tag in self._allowed_exif_tags
 
     def _add_submetric(self, name: str, value: Any) -> None:
-        submetrics = self._submetric_schema.resolve(name, self._type_mapper(type(value)), self._fi_disabled)
-        self.submetrics.update(submetrics)
-        self._attribute_names.add(name)
+        self.submetrics[name] = self._submetric_schema.resolve(name, self._type_mapper(type(value)), self._fi_disabled)
+
 
     def _discover_exif_submetrics(self, name: str, value: Any) -> None:
-        if name not in self._attribute_names and self._wants_to_track(name):
+        if name not in self.submetrics and self._wants_to_track(name):
             self._add_submetric(name, value)
 
     def _discover_image_submetrics(self, name: str, value: Any) -> None:
-        if name not in self._attribute_names:
+        if name not in self.submetrics:
             self._add_submetric(name, value)
 
     def _update_relevant_submetrics(self, name: str, data: PreprocessedColumn) -> None:
-        for prefix in self._submetric_schema.prefixes():
-            submetric_name = f"{prefix}_{name}"
-            if submetric_name in self.submetrics:
-                self.submetrics[submetric_name].columnar_update(data)
+        if name not in self.submetrics:
+            return
+
+        for metric in self.submetrics[name].values():
+            metric.columnar_update(data)
 
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         count = 0
@@ -248,7 +239,6 @@ class ImageMetric(CompoundMetric):
 
         return ImageMetric(
             {},  # submetrics will be discovered as images are logged
-            None,
             config.allowed_exif_tags,
             config.forbidden_exif_tags,
             None,  # use standard ImageSubmetricSchema
