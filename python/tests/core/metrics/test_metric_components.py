@@ -33,6 +33,20 @@ def test_metric_components(component_type) -> None:
     assert metric_component.value == 12
 
 
+def test_min_component() -> None:
+    first = MinIntegralComponent(1)
+    second = MinIntegralComponent(2)
+    res = first + second
+    assert res.value == 1
+
+
+def test_max_component() -> None:
+    first = MaxIntegralComponent(1)
+    second = MaxIntegralComponent(2)
+    res = first + second
+    assert res.value == 2
+
+
 def test_custom_metric_components() -> None:
     class TestCustomComponent(CustomComponent):
         type_id = 101
