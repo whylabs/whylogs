@@ -71,6 +71,6 @@ Attributes
 .. py:function:: get_serializer(*, mtype: Optional[type] = None, type_id: int = 0, registry: Optional[SerializerRegistry] = None) -> Optional[Serializer]
 
 
-.. py:function:: serializer(*, type_id: int, registry: SerializerRegistry = _STANDARD_REGISTRY)
+.. py:function:: serializer(*, type_id: int, registry: Optional[SerializerRegistry] = None)
 
 
