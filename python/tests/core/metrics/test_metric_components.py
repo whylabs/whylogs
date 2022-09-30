@@ -1,6 +1,9 @@
+from copy import deepcopy
 from logging import getLogger
 
 import pytest
+
+import whylogs_sketching as ds  # type: ignore
 
 from whylogs.core.metrics.metric_components import (
     CustomComponent,
@@ -45,6 +48,12 @@ def test_max_component() -> None:
     second = MaxIntegralComponent(2)
     res = first + second
     assert res.value == 2
+
+
+def test_component_deepcopy() -> None:
+    orig = FrequentStringsComponent(ds.frequent_strings_sketch(lg_max_k = 10))
+    copy1 = deepcopy(orig)
+    copy2 = deepcopy(copy1)  # the test passes if this line doesn't crash
 
 
 def test_custom_metric_components() -> None:
