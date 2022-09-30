@@ -4,6 +4,7 @@ from typing import Any, Dict
 import numpy as np
 import pytest
 
+from whylogs.core.configs import SummaryConfig
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import DataType
 from whylogs.core.metrics import Metric, MetricConfig
@@ -21,10 +22,10 @@ def test_unicode_range_metric() -> None:
     alpha_counts = [0, 0, 0, 1, 3, 3]
     metric.columnar_update(col)
 
-    assert metric.submetrics["digits"].mean.value == np.array(digit_counts).mean()
-    assert metric.submetrics["alpha"].mean.value == np.array(alpha_counts).mean()
-    assert metric.submetrics["UNKNOWN"].mean.value == 0
-    assert metric.submetrics[_STRING_LENGTH].mean.value == np.array([len(s) for s in strings]).mean()
+    assert metric.submetrics["digits"]["distribution"].mean.value == np.array(digit_counts).mean()
+    assert metric.submetrics["alpha"]["distribution"].mean.value == np.array(alpha_counts).mean()
+    assert metric.submetrics["UNKNOWN"]["distribution"].mean.value == 0
+    assert metric.submetrics[_STRING_LENGTH]["distribution"].mean.value == np.array([len(s) for s in strings]).mean()
 
 
 def test_unicode_range_metric_upper_case() -> None:
@@ -42,8 +43,8 @@ def test_unicode_range_metric_upper_case() -> None:
     lower_counts = [3, 0, 0, 4, 0, 2]
     metric.columnar_update(col)
 
-    assert metric.submetrics["lower"].mean.value == np.array(lower_counts).mean()
-    assert metric.submetrics["upper"].mean.value == np.array(upper_counts).mean()
+    assert metric.submetrics["lower"]["distribution"].mean.value == np.array(lower_counts).mean()
+    assert metric.submetrics["upper"]["distribution"].mean.value == np.array(upper_counts).mean()
 
 
 def test_unicode_range_metric_unknown() -> None:
@@ -52,13 +53,13 @@ def test_unicode_range_metric_unknown() -> None:
     col = PreprocessedColumn.apply(strings)
     metric.columnar_update(col)
 
-    assert metric.submetrics["digits"].mean.value > 0
-    assert metric.submetrics["alpha"].mean.value > 0
-    assert metric.submetrics["UNKNOWN"].mean.value == np.array([0, 0, 0, 0, 0, 0, 3, 3, 3]).mean()
+    assert metric.submetrics["digits"]["distribution"].mean.value > 0
+    assert metric.submetrics["alpha"]["distribution"].mean.value > 0
+    assert metric.submetrics["UNKNOWN"]["distribution"].mean.value == np.array([0, 0, 0, 0, 0, 0, 3, 3, 3]).mean()
 
 
 def test_unicode_range_metric_zero() -> None:
-    metric = UnicodeRangeMetric.zero(MetricConfig())
+    metric = UnicodeRangeMetric.zero()
     for range in MetricConfig().unicode_ranges.keys():
         assert range in metric.submetrics
 
@@ -87,8 +88,8 @@ def test_unicode_range_metric_serialization() -> None:
     msg = metric.to_protobuf()
     deserialized = UnicodeRangeMetric.from_protobuf(msg)
 
-    assert deserialized.submetrics["digits"].mean.value == metric.submetrics["digits"].mean.value
-    assert deserialized.submetrics["alpha"].mean.value == metric.submetrics["alpha"].mean.value
+    assert deserialized.submetrics["digits"]["distribution"].mean.value == metric.submetrics["digits"]["distribution"].mean.value
+    assert deserialized.submetrics["alpha"]["distribution"].mean.value == metric.submetrics["alpha"]["distribution"].mean.value
     assert len(deserialized.submetrics) == len(metric.submetrics)
 
 
@@ -96,11 +97,14 @@ def test_unicode_range_metric_summary() -> None:
     metric = UnicodeRangeMetric({"digits": (48, 57), "alpha": (97, 122)})
     col = PreprocessedColumn.apply(["1", "12", "123", "1234a", "abc", "abc123"])
     metric.columnar_update(col)
-    summary = metric.to_summary_dict(None)
+    summary = metric.to_summary_dict(SummaryConfig())
 
-    assert "digits/mean" in summary
-    assert "alpha/mean" in summary
-    assert f"{_STRING_LENGTH}/mean" in summary
+    for subname in ["digits", "alpha", _STRING_LENGTH]:
+        assert f"{subname}:distribution/mean" in summary
+        assert f"{subname}:types/integral" in summary
+        assert f"{subname}:counts/n" in summary
+        assert f"{subname}:ints/max" in summary
+        assert f"{subname}:cardinality/est" in summary
 
 
 def test_unicode_range_metric_merge() -> None:
@@ -112,13 +116,13 @@ def test_unicode_range_metric_merge() -> None:
     metric2.columnar_update(col2)
     merged = metric1 + metric2
 
-    assert merged.submetrics["digits"].kll.value.get_n() == 6
-    assert merged.submetrics["digits"].kll.value.get_min_value() == 0
-    assert merged.submetrics["digits"].kll.value.get_max_value() == 4
+    assert merged.submetrics["digits"]["distribution"].kll.value.get_n() == 6
+    assert merged.submetrics["digits"]["distribution"].kll.value.get_min_value() == 0
+    assert merged.submetrics["digits"]["distribution"].kll.value.get_max_value() == 4
 
-    assert merged.submetrics["alpha"].kll.value.get_n() == 6
-    assert merged.submetrics["alpha"].kll.value.get_min_value() == 0
-    assert merged.submetrics["alpha"].kll.value.get_max_value() == 3
+    assert merged.submetrics["alpha"]["distribution"].kll.value.get_n() == 6
+    assert merged.submetrics["alpha"]["distribution"].kll.value.get_min_value() == 0
+    assert merged.submetrics["alpha"]["distribution"].kll.value.get_max_value() == 3
 
 
 class UnicodeResolver(Resolver):
