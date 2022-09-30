@@ -88,8 +88,14 @@ def test_unicode_range_metric_serialization() -> None:
     msg = metric.to_protobuf()
     deserialized = UnicodeRangeMetric.from_protobuf(msg)
 
-    assert deserialized.submetrics["digits"]["distribution"].mean.value == metric.submetrics["digits"]["distribution"].mean.value
-    assert deserialized.submetrics["alpha"]["distribution"].mean.value == metric.submetrics["alpha"]["distribution"].mean.value
+    assert (
+        deserialized.submetrics["digits"]["distribution"].mean.value
+        == metric.submetrics["digits"]["distribution"].mean.value
+    )
+    assert (
+        deserialized.submetrics["alpha"]["distribution"].mean.value
+        == metric.submetrics["alpha"]["distribution"].mean.value
+    )
     assert len(deserialized.submetrics) == len(metric.submetrics)
 
 

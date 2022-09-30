@@ -55,16 +55,16 @@ class MultiMetric(Metric, ABC):
 
     def __init__(self, submetrics: Dict[str, Dict[str, Metric]]):
         """
-        Parameters
-        ----------
-        submetrics : Dict[str, Dict[str, Metric]]
-            The collection of metrics that comprise the CompoundMetric.
+                Parameters
+                ----------
+                submetrics : Dict[str, Dict[str, Metric]]
+                    The collection of metrics that comprise the CompoundMetric.
 
-TODO: type this
+        TODO: type this
 
-               "<submetric name>/<component name>"
-            Submetric names should only contain alphanumeric characters,
-            hyphens, and underscores.
+                       "<submetric name>/<component name>"
+                    Submetric names should only contain alphanumeric characters,
+                    hyphens, and underscores.
         """
 
         if ":" in self.namespace or "/" in self.namespace:
@@ -84,7 +84,9 @@ TODO: type this
         submetrics: Dict[str, Dict[str, Metric]] = dict()
         for submetric_name in submetric_names:
             if submetric_name in self.submetrics and submetric_name in other.submetrics:
-                submetrics[submetric_name] = _do_submetric_merge(self.submetrics[submetric_name], other.submetrics[submetric_name])
+                submetrics[submetric_name] = _do_submetric_merge(
+                    self.submetrics[submetric_name], other.submetrics[submetric_name]
+                )
             elif submetric_name in self.submetrics:
                 submetrics[submetric_name] = deepcopy(self.submetrics[submetric_name])
             else:
@@ -129,7 +131,7 @@ TODO: type this
         for sub_name, metrics in self.submetrics.items():
             for metric in metrics.values():
                 result = result + metric.columnar_update(view)
-                
+
         return result
 
     @classmethod

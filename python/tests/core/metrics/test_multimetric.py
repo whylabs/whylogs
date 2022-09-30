@@ -3,7 +3,6 @@ from typing import Optional
 import numpy as np
 import pytest
 
-from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.metrics.column_metrics import ColumnCountsMetric, TypeCountersMetric
 from whylogs.core.metrics.metrics import (
     CardinalityMetric,
@@ -13,6 +12,7 @@ from whylogs.core.metrics.metrics import (
     MetricConfig,
     custom_metric,
 )
+from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.preprocessing import PreprocessedColumn
 
 
@@ -25,7 +25,7 @@ class GoodMM(MultiMetric):
         return "good"
 
     @classmethod
-    def zero(cls, config: Optional[MetricConfig] = None) -> "GoodCM":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "GoodMM":
         return cls({})
 
 

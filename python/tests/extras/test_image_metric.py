@@ -105,7 +105,9 @@ def test_forbidden_exif_tags() -> None:
     summary = metric.to_summary_dict(SummaryConfig())
     assert summary["ImagePixelWidth:distribution/mean"] > 0  # image stat, not an EXIF tag
     assert "PhotometricInterpretation:distribution/min" not in summary  # forbidden EXIF tag
-    assert "ResolutionUnit:distribution/max" in summary  # empty allowed_exif_tags means allow anything not explicitly forbidden
+    assert (
+        "ResolutionUnit:distribution/max" in summary
+    )  # empty allowed_exif_tags means allow anything not explicitly forbidden
 
 
 def test_forbidden_overrules_allowed_exif_tags() -> None:
@@ -121,7 +123,9 @@ def test_forbidden_overrules_allowed_exif_tags() -> None:
     summary = metric.to_summary_dict(SummaryConfig())
     assert summary["ImagePixelWidth:distribution/mean"] > 0  # image stat, not an EXIF tag
     assert "PhotometricInterpretation:distribution/min" not in summary  # forbidden > allowed
-    assert "ResolutionUnit:distribution/max" not in summary  # non-empty allowed_exif_tags means only explicitly allowed tags
+    assert (
+        "ResolutionUnit:distribution/max" not in summary
+    )  # non-empty allowed_exif_tags means only explicitly allowed tags
 
 
 def test_log_image() -> None:

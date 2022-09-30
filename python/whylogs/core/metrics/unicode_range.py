@@ -2,7 +2,7 @@ import unicodedata
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
-from whylogs.core.metrics.multimetric import MultiMetric
+from whylogs.core.metrics.column_metrics import ColumnCountsMetric, TypeCountersMetric
 from whylogs.core.metrics.metrics import (
     CardinalityMetric,
     DistributionMetric,
@@ -10,7 +10,7 @@ from whylogs.core.metrics.metrics import (
     MetricConfig,
     OperationResult,
 )
-from whylogs.core.metrics.column_metrics import ColumnCountsMetric, TypeCountersMetric
+from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
 
@@ -59,7 +59,8 @@ class UnicodeRangeMetric(MultiMetric):
                 DistributionMetric.get_namespace(): DistributionMetric.zero(MetricConfig(large_kll_k=False)),
                 IntsMetric.get_namespace(): IntsMetric.zero(),
                 TypeCountersMetric.get_namespace(): TypeCountersMetric.zero(),
-            } for key in keys
+            }
+            for key in keys
         }
         super(type(self), self).__init__(submetrics)  # type: ignore
 

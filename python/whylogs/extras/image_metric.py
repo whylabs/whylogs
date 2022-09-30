@@ -16,8 +16,8 @@ from whylogs.core.datatypes import (
     TypeMapper,
 )
 from whylogs.core.metrics import StandardMetric
-from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
+from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
@@ -192,7 +192,6 @@ class ImageMetric(MultiMetric):
 
     def _add_submetric(self, name: str, value: Any) -> None:
         self.submetrics[name] = self._submetric_schema.resolve(name, self._type_mapper(type(value)), self._fi_disabled)
-
 
     def _discover_exif_submetrics(self, name: str, value: Any) -> None:
         if name not in self.submetrics and self._wants_to_track(name):

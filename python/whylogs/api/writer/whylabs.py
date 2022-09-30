@@ -71,29 +71,7 @@ def _uncompounded_column_name(column_name: str, metric_name: str, submetric_name
     return f"{column_name}.{metric_name}.{submetric_name}"
 
 
-def _uncompound_image_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
-    """
-    Special handling to turn ImageMetric into a V0 whylabs-compatible profile
-    by grouping the expected metrics into a column for each image attribute.
-    """
-    result: Dict[str, ColumnProfileView] = dict()
-    for attribute in metric._attribute_names:
-        metrics: Dict[str, Metric] = dict()
-        for prefix in metric._submetric_schema.prefixes():
-            key = f"{prefix}_{attribute}"
-            if key in metric.submetrics:
-                metrics[metric.submetrics[key].namespace] = metric.submetrics[key]
-        if metrics:
-            new_col_name = f"{col_name}.{attribute}" if not _v0_compatible_image_feature_flag() else attribute
-            result[new_col_name] = ColumnProfileView(metrics)
-
-    return result
-
-
 def _uncompound_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
-    if isinstance(metric, ImageMetric):
-        return _uncompound_image_metric(col_name, metric_name, metric)
-
     result: Dict[str, ColumnProfileView] = dict()
     for submetric_name, submetric in metric.submetrics.items():
         new_col_name = _uncompounded_column_name(col_name, metric_name, submetric_name, metric)
