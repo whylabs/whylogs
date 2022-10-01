@@ -137,16 +137,6 @@ Attributes
 
       
 
-   .. py:attribute:: submetric_schema
-      :annotation: :SubmetricSchema
-
-      
-
-   .. py:attribute:: type_mapper
-      :annotation: :whylogs.core.datatypes.TypeMapper
-
-      
-
    .. py:attribute:: hll_lg_k
       :annotation: :int = 12
 

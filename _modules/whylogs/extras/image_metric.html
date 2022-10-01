@@ -560,9 +560,7 @@
 <div class="viewcode-block" id="ImageMetricConfig"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.ImageMetricConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ImageMetricConfig</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">):</span>
     <span class="n">allowed_exif_tags</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span>
-    <span class="n">forbidden_exif_tags</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span>
-    <span class="n">submetric_schema</span><span class="p">:</span> <span class="n">SubmetricSchema</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">ImageSubmetricSchema</span><span class="p">)</span>
-    <span class="n">type_mapper</span><span class="p">:</span> <span class="n">TypeMapper</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">StandardTypeMapper</span><span class="p">)</span></div>
+    <span class="n">forbidden_exif_tags</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ImageMetric"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.ImageMetric">[docs]</a><span class="k">class</span> <span class="nc">ImageMetric</span><span class="p">(</span><span class="n">CompoundMetric</span><span class="p">):</span>
@@ -658,8 +656,8 @@
             <span class="kc">None</span><span class="p">,</span>
             <span class="n">config</span><span class="o">.</span><span class="n">allowed_exif_tags</span><span class="p">,</span>
             <span class="n">config</span><span class="o">.</span><span class="n">forbidden_exif_tags</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">submetric_schema</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">type_mapper</span><span class="p">,</span>
+            <span class="kc">None</span><span class="p">,</span>  <span class="c1"># use standard ImageSubmetricSchema</span>
+            <span class="kc">None</span><span class="p">,</span>  <span class="c1"># use standard TypeMapper</span>
             <span class="n">config</span><span class="o">.</span><span class="n">fi_disabled</span><span class="p">,</span>
         <span class="p">)</span></div></div>
 
