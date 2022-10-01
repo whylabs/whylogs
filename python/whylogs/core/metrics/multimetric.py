@@ -35,7 +35,7 @@ class MultiMetric(Metric, ABC):
     """
     MultiMetric serves as a base class for custom metrics that consist
     of one or more metrics. It is handy when you need to do some
-    processing of the logged values and track serveral metrics on
+    processing of the logged values and track several metrics on
     the results. The sub-metrics must either be a StandardMetric, or tagged
     as a @custom_metric or @dataclass. Note that MultiMetric is neither, so it
     cannot be nested.
