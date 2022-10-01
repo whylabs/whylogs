@@ -156,8 +156,6 @@ class ImageSubmetricSchema(SubmetricSchema):
 class ImageMetricConfig(MetricConfig):
     allowed_exif_tags: Set[str] = field(default_factory=set)
     forbidden_exif_tags: Set[str] = field(default_factory=set)
-    submetric_schema: SubmetricSchema = field(default_factory=ImageSubmetricSchema)
-    type_mapper: TypeMapper = field(default_factory=StandardTypeMapper)
 
 
 class ImageMetric(CompoundMetric):
@@ -253,8 +251,8 @@ class ImageMetric(CompoundMetric):
             None,
             config.allowed_exif_tags,
             config.forbidden_exif_tags,
-            config.submetric_schema,
-            config.type_mapper,
+            None,  # use standard ImageSubmetricSchema
+            None,  # use standard TypeMapper
             config.fi_disabled,
         )
 
