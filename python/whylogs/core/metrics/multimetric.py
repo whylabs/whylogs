@@ -58,7 +58,7 @@ class MultiMetric(Metric, ABC):
                 Parameters
                 ----------
                 submetrics : Dict[str, Dict[str, Metric]]
-                    The collection of metrics that comprise the CompoundMetric.
+                    The collection of metrics that comprise the MultiMetric.
 
         TODO: type this
 
@@ -77,7 +77,7 @@ class MultiMetric(Metric, ABC):
 
     def merge_submetrics(self: MULTI_METRIC, other: MULTI_METRIC) -> Dict[str, Metric]:
         if self.namespace != other.namespace:
-            raise ValueError(f"Attempt to merge CompoundMetrics {self.namespace} and {other.namespace}")
+            raise ValueError(f"Attempt to merge MultiMetrics {self.namespace} and {other.namespace}")
 
         submetric_names = set(self.submetrics.keys())
         submetric_names.update(other.submetrics.keys())
