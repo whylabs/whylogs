@@ -24,7 +24,6 @@ def _test_df():
 
 
 def _is_testable_version():
-    return True
     # TODO: Due to https://github.com/fugue-project/triad/issues/91
     # this test doesn't work on very rare cases, will re-enable when
     # the issue is resolved
