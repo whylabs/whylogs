@@ -11,7 +11,10 @@ from fugue import (
     transform,
     transformer,
 )
-from fugue.dataframe.utils import normalize_dataframe_column_names, rename_dataframe_column_names
+from fugue.dataframe.utils import (
+    normalize_dataframe_column_names,
+    rename_dataframe_column_names,
+)
 
 import whylogs as why
 from whylogs.core.view.column_profile_view import ColumnProfileView
