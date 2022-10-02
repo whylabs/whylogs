@@ -451,30 +451,30 @@ scandir = ["scandir (>=1.5,<2.0)"]
 
 [[package]]
 name = "fugue"
-version = "0.7.2"
+version = "0.7.3.dev1"
 description = "An abstraction layer for distributed computation"
 category = "main"
 optional = true
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 adagio = ">=0.2.4"
-fugue-sql-antlr = ">=0.1.0"
+fugue-sql-antlr = ">=0.1.1"
 jinja2 = "*"
 pandas = ">=1.0.2"
 pyarrow = ">=0.15.1"
 qpd = ">=0.3.1"
 sqlalchemy = "*"
-triad = ">=0.6.6"
+triad = ">=0.6.9"
 
 [package.extras]
-all = ["dask[dataframe,distributed]", "duckdb (>=0.3.2)", "fugue-sql-antlr[cpp] (>=0.1.0)", "ibis-framework (>=2)", "ipython (>=7.10.0)", "jupyterlab", "notebook", "pyarrow (>=5.0.0)", "pyarrow (>=7.0.0)", "pyspark", "qpd[dask] (>=0.3.1)", "ray (>=2.0.0)"]
-cpp_sql_parser = ["fugue-sql-antlr[cpp] (>=0.1.0)"]
+all = ["dask[dataframe,distributed]", "duckdb (>=0.5.0)", "fugue-sql-antlr[cpp] (>=0.1.0)", "ibis-framework (>=2.1.1)", "ibis-framework (>=3.2.0)", "ipython (>=7.10.0)", "jupyterlab", "notebook", "pyarrow (>=7.0.0)", "pyspark", "qpd[dask] (>=0.3.1)", "ray (>=2.0.0)"]
+cpp_sql_parser = ["fugue-sql-antlr[cpp] (>=0.1.1)"]
 dask = ["dask[dataframe,distributed]", "qpd[dask] (>=0.3.1)"]
-duckdb = ["duckdb (>=0.3.2)", "numpy", "pyarrow (>=5.0.0)"]
-ibis = ["ibis-framework (>=2.1.1)"]
+duckdb = ["duckdb (>=0.5.0)", "numpy", "pyarrow (>=7.0.0)"]
+ibis = ["ibis-framework (>=2.1.1)", "ibis-framework (>=3.2.0)"]
 notebook = ["ipython (>=7.10.0)", "jupyterlab", "notebook"]
-ray = ["duckdb (>=0.3.2)", "pyarrow (>=7.0.0)", "ray (>=2.0.0)"]
+ray = ["duckdb (>=0.5.0)", "pyarrow (>=7.0.0)", "ray (>=2.0.0)"]
 spark = ["pyspark"]
 
 [[package]]
@@ -1241,10 +1241,10 @@ python-versions = ">=3.7.1"
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.21.0", markers = "python_version >= \"3.10\""},
     {version = ">=1.17.3", markers = "platform_machine != \"aarch64\" and platform_machine != \"arm64\" and python_version < \"3.10\""},
     {version = ">=1.19.2", markers = "platform_machine == \"aarch64\" and python_version < \"3.10\""},
     {version = ">=1.20.0", markers = "platform_machine == \"arm64\" and python_version < \"3.10\""},
+    {version = ">=1.21.0", markers = "python_version >= \"3.10\""},
 ]
 python-dateutil = ">=2.7.3"
 pytz = ">=2017.3"
@@ -2214,11 +2214,11 @@ test = ["pre-commit", "pytest"]
 
 [[package]]
 name = "triad"
-version = "0.6.8"
+version = "0.6.9"
 description = "A collection of python utils for Fugue projects"
 category = "main"
 optional = true
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 fs = "*"
@@ -2403,13 +2403,13 @@ image = ["Pillow"]
 mlflow = ["mlflow-skinny"]
 s3 = ["boto3"]
 spark = ["pyarrow", "pyspark"]
-viz = ["ipython", "pybars3", "scipy"]
+viz = ["ipython", "pybars3", "scipy", "Pillow", "whylabs-client", "requests"]
 whylabs = ["whylabs-client", "requests"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1, <4"
-content-hash = "bf9db79da0d285ca90e425c07d40ca346a8a5b57092c6190587e933e643f3f50"
+content-hash = "0118912b2449322b6f71b59fbe445df24b2bf78c0e2bd6d2f6ee9f0f7b67a2df"
 
 [metadata.files]
 2to3 = [
@@ -2743,8 +2743,8 @@ fs = [
     {file = "fs-2.4.16.tar.gz", hash = "sha256:ae97c7d51213f4b70b6a958292530289090de3a7e15841e108fbe144f069d313"},
 ]
 fugue = [
-    {file = "fugue-0.7.2-py3-none-any.whl", hash = "sha256:ffb0c2754eb95c6730725da9dfa265c39df8cbf189fabcbce02a1177145005fa"},
-    {file = "fugue-0.7.2.tar.gz", hash = "sha256:8009315e371ab622aed326438c69ba4ad03126c618d48e839c3b18fa1917d441"},
+    {file = "fugue-0.7.3.dev1-py3-none-any.whl", hash = "sha256:8a3b04fd0349696c01680a892b4800f476b523c5cb2683161f7c8817160f6c47"},
+    {file = "fugue-0.7.3.dev1.tar.gz", hash = "sha256:38a5b2ec6b48de7842e345514f3d9369111ecb43bc2e71d8a793c17333cdbbd7"},
 ]
 fugue-sql-antlr = [
     {file = "fugue-sql-antlr-0.1.1.tar.gz", hash = "sha256:e276badd471cf3e1659e94ba181896e2b1887de63ef53ac2badc73483b1c9332"},
@@ -3823,7 +3823,6 @@ sqlparse = [
 ]
 tabulate = [
     {file = "tabulate-0.8.10-py3-none-any.whl", hash = "sha256:0ba055423dbaa164b9e456abe7920c5e8ed33fcc16f6d1b2f2d152c8e1e8b4fc"},
-    {file = "tabulate-0.8.10-py3.8.egg", hash = "sha256:436f1c768b424654fce8597290d2764def1eea6a77cfa5c33be00b1bc0f4f63d"},
     {file = "tabulate-0.8.10.tar.gz", hash = "sha256:6c57f3f3dd7ac2782770155f3adb2db0b1a269637e42f27599925e64b114f519"},
 ]
 tenacity = [
@@ -3868,8 +3867,8 @@ traitlets = [
     {file = "traitlets-5.4.0.tar.gz", hash = "sha256:3f2c4e435e271592fe4390f1746ea56836e3a080f84e7833f0f801d9613fec39"},
 ]
 triad = [
-    {file = "triad-0.6.8-py3-none-any.whl", hash = "sha256:a19da626f0cee4a91f2472270bb4cfe0851bf8766d5263ae499a5c03c552daf3"},
-    {file = "triad-0.6.8.tar.gz", hash = "sha256:588cf30e41fec815f7466e913d9b9d4e5119ea789a77748e4bf4546502580c1a"},
+    {file = "triad-0.6.9-py3-none-any.whl", hash = "sha256:140e39cd3745a25b714eea8ca0b7afff36c13293bba479a7d465b79473e0ee3a"},
+    {file = "triad-0.6.9.tar.gz", hash = "sha256:777d5930f325a64b3a11c2b0fb6322e30d981d32846a4abca2f8ae07f5b7f971"},
 ]
 twine = [
     {file = "twine-4.0.1-py3-none-any.whl", hash = "sha256:42026c18e394eac3e06693ee52010baa5313e4811d5a11050e7d48436cf41b9e"},
