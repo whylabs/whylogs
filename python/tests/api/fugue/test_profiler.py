@@ -18,7 +18,7 @@ def _test_df():
             "1": np.random.choice([1, 2, 3], n),
             "a b": np.random.choice(["a", "b"], n),
             "_1": np.random.random(n),
-            "d": np.random.choice(["xy", "z"], n),
+            "d e": np.random.choice(["xy", "z"], n),
         }
     )
 

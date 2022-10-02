@@ -110,7 +110,7 @@ class _FugueProfiler:
         else:
             pdf = df
         res = why.log(pdf[self._cols] if self._cols is not None else pdf).view().serialize()
-        return df.head(1)[self._by].assign(**{self._profile_field: res})
+        return df.head(1)[self._by].assign(**{self._profile_field: res})  # type: ignore
 
     # ---------------- Starting Fugue related logic
 
