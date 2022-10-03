@@ -451,7 +451,7 @@ scandir = ["scandir (>=1.5,<2.0)"]
 
 [[package]]
 name = "fugue"
-version = "0.7.3.dev1"
+version = "0.7.3"
 description = "An abstraction layer for distributed computation"
 category = "main"
 optional = true
@@ -2409,7 +2409,7 @@ whylabs = ["whylabs-client", "requests"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1, <4"
-content-hash = "0118912b2449322b6f71b59fbe445df24b2bf78c0e2bd6d2f6ee9f0f7b67a2df"
+content-hash = "3342a5a2121b16c2f7da33a04620dd445e98ed3c459e6cad16cd1189094ed3e7"
 
 [metadata.files]
 2to3 = [
@@ -2743,8 +2743,8 @@ fs = [
     {file = "fs-2.4.16.tar.gz", hash = "sha256:ae97c7d51213f4b70b6a958292530289090de3a7e15841e108fbe144f069d313"},
 ]
 fugue = [
-    {file = "fugue-0.7.3.dev1-py3-none-any.whl", hash = "sha256:8a3b04fd0349696c01680a892b4800f476b523c5cb2683161f7c8817160f6c47"},
-    {file = "fugue-0.7.3.dev1.tar.gz", hash = "sha256:38a5b2ec6b48de7842e345514f3d9369111ecb43bc2e71d8a793c17333cdbbd7"},
+    {file = "fugue-0.7.3-py3-none-any.whl", hash = "sha256:731951134821c5b77442f4ce575b4430aa84fa1451cc381238dde69e5ac2f92c"},
+    {file = "fugue-0.7.3.tar.gz", hash = "sha256:6d9ac12b473905770f2496f70a8581ed7bed26b535c686fa994c18e23453d507"},
 ]
 fugue-sql-antlr = [
     {file = "fugue-sql-antlr-0.1.1.tar.gz", hash = "sha256:e276badd471cf3e1659e94ba181896e2b1887de63ef53ac2badc73483b1c9332"},
