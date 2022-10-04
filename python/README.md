@@ -8,7 +8,8 @@
   <h3 align="center">
    <a href="https://whylogs.readthedocs.io/"><b>Documentation</b></a> &bull;
    <a href="https://bit.ly/whylogsslack"><b>Slack Community</b></a> &bull;
-   <a href="https://github.com/whylabs/whylogs#python-quickstart"><b>Python Quickstart</b></a>
+   <a href="https://github.com/whylabs/whylogs#python-quickstart"><b>Python Quickstart</b></a> &bull;
+   <a href="https://whylogs.readthedocs.io/en/latest/examples/integrations/writers/Writing_to_WhyLabs.html"><b>WhyLabs Quickstart</b></a>
  </h3>
 
 <p align="center">
@@ -52,6 +53,10 @@ These three functionalities enable a variety of use cases for data scientists, m
 - And more
 
 whylogs can be run in Python or [Apache Spark](https://docs.whylabs.ai/docs/spark-integration) (both PySpark and Scala) environments on a variety of [data types](#data-types). We [integrate](#integrations) with lots of other tools including Pandas, [AWS Sagemaker](https://aws.amazon.com/blogs/startups/preventing-amazon-sagemaker-model-degradation-with-whylabs/), [MLflow](https://docs.whylabs.ai/docs/mlflow-integration), [Flask](https://whylabs.ai/blog/posts/deploy-and-monitor-your-ml-application-with-flask-and-whylabs), [Ray](https://docs.whylabs.ai/docs/ray-integration), [RAPIDS](https://whylabs.ai/blog/posts/monitoring-high-performance-machine-learning-models-with-rapids-and-whylogs), [Apache Kafka](https://docs.whylabs.ai/docs/kafka-integration), and more.
+
+<a href="https://hub.whylabsapp.com/signup" target="_blank">
+    <img src="https://user-images.githubusercontent.com/7946482/193939278-66a36574-2f2c-482a-9811-ad4479f0aafe.png" alt="WhyLabs Signup">
+</a>
 
 If you have any questions, comments, or just want to hang out with us, please join [our Slack Community](https://bit.ly/rsqrd-slack). In addition to joining the Slack Community, you can also help this project by giving us a ⭐ in the upper right corner of this page.
 
@@ -139,6 +144,29 @@ In your local Python environment, you can set data constraints or visualize your
 
 In addition, you can send whylogs profiles to the SaaS ML monitoring and AI observability platform [WhyLabs](https://whylabs.ai). With WhyLabs, you can automatically set up monitoring for your machine learning models, getting notified on both data quality and data change issues (such as data drift). If you’re interested in trying out WhyLabs, check out the always free [Starter edition](https://whylabs.ai/free), which allows you to experience the entire platform’s capabilities with no credit card required.
 
+## WhyLabs<a name="whylabs" />
+
+WhyLabs is a managed service offering built for helping users make the most of their whylogs profiles. With WhyLabs, users can ingest profiles and set up automated monitoring as well as gain full observability into their data and ML systems. With WhyLabs, users can ensure the reliability of their data and models, and debug any problems that arise with them.
+
+Ingesting whylogs profiles into WhyLabs is easy. After obtaining your access credentials from the platform, you’ll need to set them in your Python environment, log a dataset, and write it to WhyLabs, like so:
+
+```python
+import whylogs as why
+import os
+
+os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-0" # ORG-ID is case sensistive
+os.environ["WHYLABS_API_KEY"] = "YOUR-API-KEY"
+os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "model-0" # The selected model project "MODEL-NAME" is "model-0"
+
+results = why.log(df)
+
+results.writer("whylabs").write()
+```
+
+![image](https://github.com/whylabs/whylogs/blob/assets/images/chrome-capture-2022-9-4%20(1).gif)
+
+If you’re interested in trying out WhyLabs, check out the always free [Starter edition](https://hub.whylabsapp.com/signup), which allows you to experience the entire platform’s capabilities with no credit card required.
+
 ## Data Constraints<a name="data-constraints" />
 
 Constraints are a powerful feature built on top of whylogs profiles that enable you to quickly and easily validate that your data looks the way that it should. There are numerous types of constraints that you can set on your data (that numerical data will always fall within a certain range, that text data will always be in a JSON format, etc) and, if your dataset fails to satisfy a constraint, you can fail your unit tests or your CI/CD pipeline.
@@ -186,7 +214,7 @@ visualization.set_profiles(target_profile_view=prof_view, reference_profile_view
 visualization.summary_drift_report()
 ```
 
-![image](https://user-images.githubusercontent.com/7946482/169669536-a25cce95-acde-4637-b7b9-c2a685f0bc3f.png)
+![image](https://raw.githubusercontent.com/whylabs/whylogs/assets/images/chrome-capture-2022-9-4%20(1).gif)
 
 To learn more about visualizing your profiles, check out: the [Visualizer Example](https://bit.ly/whylogsvisualizerexample)
 
