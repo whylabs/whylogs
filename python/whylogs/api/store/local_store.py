@@ -1,5 +1,6 @@
 import logging
 import os
+import uuid
 from datetime import datetime
 from functools import reduce
 from glob import glob
@@ -8,7 +9,6 @@ from typing import List, Optional, Union
 import whylogs as why
 from whylogs.api.store.profile_store import ProfileStore
 from whylogs.api.store.query import DateQuery, ProfileNameQuery
-from whylogs.api.store.utils.random_strings import random_string
 from whylogs.api.writer.local import LocalWriter
 from whylogs.core import DatasetProfileView
 
@@ -83,7 +83,7 @@ class LocalStore(ProfileStore):
     @staticmethod
     def _get_profile_filename() -> str:
         now = datetime.utcnow()
-        return f"profile_{now.date()}_{now.hour}:{now.minute}:{now.second}_{random_string()}.bin"
+        return f"profile_{now.date()}_{now.hour}:{now.minute}:{now.second}_{uuid.uuid4()}.bin"
 
     def list(self) -> List[str]:
         return [listed_file.name for listed_file in os.scandir(self._default_path) if listed_file.is_dir()]
