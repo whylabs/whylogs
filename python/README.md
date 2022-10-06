@@ -154,7 +154,7 @@ Ingesting whylogs profiles into WhyLabs is easy. After obtaining your access cre
 import whylogs as why
 import os
 
-os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-0" # ORG-ID is case sensistive
+os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-0" # ORG-ID is case-sensitive
 os.environ["WHYLABS_API_KEY"] = "YOUR-API-KEY"
 os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "model-0" # The selected model project "MODEL-NAME" is "model-0"
 
@@ -163,7 +163,7 @@ results = why.log(df)
 results.writer("whylabs").write()
 ```
 
-![image](https://github.com/whylabs/whylogs/blob/assets/images/chrome-capture-2022-9-4%20(1).gif)
+![image](<https://github.com/whylabs/whylogs/blob/assets/images/chrome-capture-2022-9-4%20(1).gif>)
 
 If you’re interested in trying out WhyLabs, check out the always free [Starter edition](https://hub.whylabsapp.com/signup), which allows you to experience the entire platform’s capabilities with no credit card required.
 
@@ -214,7 +214,7 @@ visualization.set_profiles(target_profile_view=prof_view, reference_profile_view
 visualization.summary_drift_report()
 ```
 
-![image](https://raw.githubusercontent.com/whylabs/whylogs/assets/images/chrome-capture-2022-9-4%20(1).gif)
+![image](<https://raw.githubusercontent.com/whylabs/whylogs/assets/images/chrome-capture-2022-9-4%20(1).gif>)
 
 To learn more about visualizing your profiles, check out: the [Visualizer Example](https://bit.ly/whylogsvisualizerexample)
 
