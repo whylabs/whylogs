@@ -419,7 +419,8 @@
   <h3 align="center">
    <a href="https://whylogs.readthedocs.io/"><b>Documentation</b></a> &bull;
    <a href="https://bit.ly/whylogsslack"><b>Slack Community</b></a> &bull;
-   <a href="https://github.com/whylabs/whylogs#python-quickstart"><b>Python Quickstart</b></a>
+   <a href="https://github.com/whylabs/whylogs#python-quickstart"><b>Python Quickstart</b></a> &bull;
+   <a href="https://whylogs.readthedocs.io/en/latest/examples/integrations/writers/Writing_to_WhyLabs.html"><b>WhyLabs Quickstart</b></a>
  </h3>
 <p align="center">
 <a href="https://github.com/whylabs/whylogs-python/blob/mainline/LICENSE" target="_blank">
@@ -461,6 +462,9 @@
 <li><p>And more</p></li>
 </ul>
 <p>whylogs can be run in Python or <a class="reference external" href="https://docs.whylabs.ai/docs/spark-integration">Apache Spark</a> (both PySpark and Scala) environments on a variety of <span class="xref myst">data types</span>. We <span class="xref myst">integrate</span> with lots of other tools including Pandas, <a class="reference external" href="https://aws.amazon.com/blogs/startups/preventing-amazon-sagemaker-model-degradation-with-whylabs/">AWS Sagemaker</a>, <a class="reference external" href="https://docs.whylabs.ai/docs/mlflow-integration">MLflow</a>, <a class="reference external" href="https://whylabs.ai/blog/posts/deploy-and-monitor-your-ml-application-with-flask-and-whylabs">Flask</a>, <a class="reference external" href="https://docs.whylabs.ai/docs/ray-integration">Ray</a>, <a class="reference external" href="https://whylabs.ai/blog/posts/monitoring-high-performance-machine-learning-models-with-rapids-and-whylogs">RAPIDS</a>, <a class="reference external" href="https://docs.whylabs.ai/docs/kafka-integration">Apache Kafka</a>, and more.</p>
+<a href="https://hub.whylabsapp.com/signup" target="_blank">
+    <img src="https://user-images.githubusercontent.com/7946482/193939278-66a36574-2f2c-482a-9811-ad4479f0aafe.png" alt="WhyLabs Signup">
+</a>
 <p>If you have any questions, comments, or just want to hang out with us, please join <a class="reference external" href="https://bit.ly/rsqrd-slack">our Slack Community</a>. In addition to joining the Slack Community, you can also help this project by giving us a ⭐ in the upper right corner of this page.</p>
 </section>
 <section id="python-quickstart-a-name-python-quickstart">
@@ -531,6 +535,25 @@ For images, replace `df` with `image="path/to/image.png"`. Similarly, you can pr
 <p>In addition, you can send whylogs profiles to the SaaS ML monitoring and AI observability platform <a class="reference external" href="https://whylabs.ai">WhyLabs</a>. With WhyLabs, you can automatically set up monitoring for your machine learning models, getting notified on both data quality and data change issues (such as data drift). If you’re interested in trying out WhyLabs, check out the always free <a class="reference external" href="https://whylabs.ai/free">Starter edition</a>, which allows you to experience the entire platform’s capabilities with no credit card required.</p>
 </section>
 </section>
+<section id="whylabs-a-name-whylabs">
+<h1>WhyLabs<a name="whylabs" /><a class="headerlink" href="#whylabs-a-name-whylabs" title="Permalink to this headline">#</a></h1>
+<p>WhyLabs is a managed service offering built for helping users make the most of their whylogs profiles. With WhyLabs, users can ingest profiles and set up automated monitoring as well as gain full observability into their data and ML systems. With WhyLabs, users can ensure the reliability of their data and models, and debug any problems that arise with them.</p>
+<p>Ingesting whylogs profiles into WhyLabs is easy. After obtaining your access credentials from the platform, you’ll need to set them in your Python environment, log a dataset, and write it to WhyLabs, like so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_ORG_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;org-0&quot;</span> <span class="c1"># ORG-ID is case-sensitive</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;YOUR-API-KEY&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_DATASET_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;model-0&quot;</span> <span class="c1"># The selected model project &quot;MODEL-NAME&quot; is &quot;model-0&quot;</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+<span class="n">results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;whylabs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><img alt="image" src="https://github.com/whylabs/whylogs/blob/assets/images/chrome-capture-2022-9-4%20(1).gif" /></p>
+<p>If you’re interested in trying out WhyLabs, check out the always free <a class="reference external" href="https://hub.whylabsapp.com/signup">Starter edition</a>, which allows you to experience the entire platform’s capabilities with no credit card required.</p>
+</section>
 <section id="data-constraints-a-name-data-constraints">
 <h1>Data Constraints<a name="data-constraints" /><a class="headerlink" href="#data-constraints-a-name-data-constraints" title="Permalink to this headline">#</a></h1>
 <p>Constraints are a powerful feature built on top of whylogs profiles that enable you to quickly and easily validate that your data looks the way that it should. There are numerous types of constraints that you can set on your data (that numerical data will always fall within a certain range, that text data will always be in a JSON format, etc) and, if your dataset fails to satisfy a constraint, you can fail your unit tests or your CI/CD pipeline.</p>
@@ -572,7 +595,7 @@ For images, replace `df` with `image="path/to/image.png"`. Similarly, you can pr
 <span class="n">visualization</span><span class="o">.</span><span class="n">summary_drift_report</span><span class="p">()</span>
 </pre></div>
 </div>
-<p><img alt="image" src="https://user-images.githubusercontent.com/7946482/169669536-a25cce95-acde-4637-b7b9-c2a685f0bc3f.png" /></p>
+<p><img alt="image" src="https://raw.githubusercontent.com/whylabs/whylogs/assets/images/chrome-capture-2022-9-4%20(1).gif" /></p>
 <p>To learn more about visualizing your profiles, check out: the <a class="reference external" href="https://bit.ly/whylogsvisualizerexample">Visualizer Example</a></p>
 </section>
 <section id="data-types-a-name-data-types">
