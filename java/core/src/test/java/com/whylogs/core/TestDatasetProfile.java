@@ -92,7 +92,7 @@ public class TestDatasetProfile {
     data.put("test2", "2");
     profile.track(data);
 
-    Assert.assertEquals(profile.getColumns().get("test").getCachedValues().size(), 1);
+    Assert.assertEquals(profile.getColumns().get("test").getNullCount(), 1);
     Assert.assertEquals(profile.getTrackCount(), 1);
   }
 
@@ -111,7 +111,7 @@ public class TestDatasetProfile {
     DatasetProfile profile = defaultProfile();
     DatasetProfileView view = profile.view();
     Assert.assertEquals(view.getColumns().size(), 2);
-    Assert.assertEquals(view.getColumns().get("test").getMetrics().size(), 0);
+    Assert.assertEquals(view.getColumns().get("test").getMetrics().size(), 1);
   }
 
   public void testFlush() {
