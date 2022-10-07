@@ -67,6 +67,9 @@ Functions
    .. py:method:: append_writer(name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
 
 
+   .. py:method:: append_store(store: whylogs.api.store.ProfileStore) -> None
+
+
    .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
 
 
@@ -189,6 +192,9 @@ Functions
    .. py:method:: append_writer(name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
 
 
+   .. py:method:: append_store(store: whylogs.api.store.ProfileStore) -> None
+
+
    .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
 
 
@@ -212,6 +218,9 @@ Functions
 
 
    .. py:method:: append_writer(name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
+
+
+   .. py:method:: append_store(store: whylogs.api.store.ProfileStore) -> None
 
 
    .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet

@@ -1,0 +1,46 @@
+:py:mod:`whylogs.api.store.query`
+=================================
+
+.. py:module:: whylogs.api.store.query
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.store.query.DateQuery
+   whylogs.api.store.query.ProfileNameQuery
+
+
+
+
+.. py:class:: DateQuery
+
+   .. py:attribute:: profile_name
+      :annotation: :str
+
+      
+
+   .. py:attribute:: start_date
+      :annotation: :datetime.datetime
+
+      
+
+   .. py:attribute:: end_date
+      :annotation: :Optional[datetime.datetime]
+
+      
+
+
+.. py:class:: ProfileNameQuery
+
+   .. py:attribute:: profile_name
+      :annotation: :str
+
+      
+
+

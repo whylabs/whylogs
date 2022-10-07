@@ -1,0 +1,106 @@
+:py:mod:`whylogs.api.store.local_store`
+=======================================
+
+.. py:module:: whylogs.api.store.local_store
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.store.local_store.LocalStore
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.store.local_store.DEFAULT_DIR
+   whylogs.api.store.local_store.logger
+
+
+.. py:data:: DEFAULT_DIR
+   :annotation: = profile_store/
+
+   
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: LocalStore
+
+   Bases: :py:obj:`whylogs.api.store.profile_store.ProfileStore`
+
+   The LocalStore is the implementation of the base :class:ProfileStore
+   that will manage reading and writing profiles on the local file system.
+
+   In order to instantiate the object, you will need to define a profile_name,
+   which is related to the name of the model or dataset you're profiling.
+   To properly use the LocalStore to generate files, you should append it
+   to your existing Rolling Logger, as the below example demonstrates.
+
+   ```python
+   import whylogs as why
+   from whylogs.api.store.local import LocalStore
+
+   logger = why.logger(mode="rolling", interval=10, when="S", base_name="my_model")
+   logger.append_store(store=LocalStore())
+
+   new_df = model.predict(input_data)
+   logger.log(new_df)
+   ```
+
+   The above piece of code will make sure to write the logged profiles
+   to the correct location that can be further fetched using the same
+   LocalStore, like so:
+
+   ```python
+   from datetime import datetime, timedelta
+
+   from whylogs.api.store.date_config import DateConfig
+
+   store = LocalStore()
+   query = DateQuery(
+       profile_name="my_model",
+       start_date = datetime.utcnow() - timedelta(days=7),
+       end_date = datetime.utcnow()
+   )
+
+   profile_view = store.get(query=query)
+   ```
+
+   This will fetch all existing profiles from `my_model` from the past
+   7 days in a single merged DatasetProfileView.
+
+   To list existing profiles on your local ProfileStore, you can do:
+
+   ```python
+   store = LocalStore()
+   store.list()
+   ```
+
+   >**NOTE**: The parameter `profile_name` should always use the snake_case pattern,
+   and it must also be **unique** to your existing dataset/ML model.
+   If you use the same `profile_name` to store different profiles,
+   you will end up mixing those profiles and not being able to fetch and get
+   them properly again.
+
+   .. py:method:: list() -> List[str]
+
+
+   .. py:method:: get(query: Union[whylogs.api.store.query.DateQuery, whylogs.api.store.query.ProfileNameQuery]) -> Optional[whylogs.core.DatasetProfileView]
+
+
+   .. py:method:: write(profile_view: whylogs.core.DatasetProfileView, profile_name: str) -> None
+
+
+

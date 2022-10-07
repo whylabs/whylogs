@@ -21,21 +21,18 @@ Classes
 
    Bases: :py:obj:`abc.ABC`
 
-   A holder object for profiles.
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
 
-   .. py:method:: get_matching_profile(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, segment: Optional[whylogs.core.Segment] = None, schema: Optional[whylogs.core.schema.DatasetSchema] = None) -> List[whylogs.core.DatasetProfile]
+   .. py:method:: list() -> List[str]
       :abstractmethod:
 
 
-   .. py:method:: read(id: Optional[str], dataset_timestamp: Optional[datetime.datetime] = None, segment: Optional[whylogs.core.Segment] = None, schema: Optional[whylogs.core.schema.DatasetSchema] = None) -> Optional[whylogs.core.DatasetProfile]
+   .. py:method:: get(query: whylogs.api.store.query.DateQuery) -> whylogs.core.DatasetProfileView
       :abstractmethod:
 
 
-   .. py:method:: write(data: whylogs.api.writer.writer.Writable, model_id: Optional[str] = None, dataset_timestamp: Optional[datetime.datetime] = None, segment: Optional[whylogs.core.Segment] = None, schema: Optional[whylogs.core.schema.DatasetSchema] = None) -> None
-      :abstractmethod:
-
-
-   .. py:method:: query(*args: Any, **kwargs: Any) -> List[whylogs.core.DatasetProfile]
+   .. py:method:: write(profile_view: Optional[whylogs.core.DatasetProfileView], profile_name: str) -> None
       :abstractmethod:
 
 

@@ -268,7 +268,10 @@
 </ul>
 </li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../store/local_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.local_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../store/profile_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.profile_store</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../store/query/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.query</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../store/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.s3</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
@@ -540,6 +543,19 @@ inheritance.</p>
 <li><p><strong>writer</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../writer/index.html#whylogs.api.writer.Writer" title="whylogs.api.writer.Writer"><em>whylogs.api.writer.Writer</em></a><em>]</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.api.logger.Logger.append_store">
+<span class="sig-name descname"><span class="pre">append_store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../store/index.html#whylogs.api.store.ProfileStore" title="whylogs.api.store.ProfileStore"><span class="pre">whylogs.api.store.ProfileStore</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/api/logger/logger.html#Logger.append_store"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.logger.Logger.append_store" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>store</strong> (<a class="reference internal" href="../store/index.html#whylogs.api.store.ProfileStore" title="whylogs.api.store.ProfileStore"><em>whylogs.api.store.ProfileStore</em></a>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
@@ -918,6 +934,19 @@ kinds of profiles such as segmented profiles here.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="whylogs.api.logger.TimedRollingLogger.append_store">
+<span class="sig-name descname"><span class="pre">append_store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../store/index.html#whylogs.api.store.ProfileStore" title="whylogs.api.store.ProfileStore"><span class="pre">whylogs.api.store.ProfileStore</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#whylogs.api.logger.TimedRollingLogger.append_store" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>store</strong> (<a class="reference internal" href="../store/index.html#whylogs.api.store.ProfileStore" title="whylogs.api.store.ProfileStore"><em>whylogs.api.store.ProfileStore</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.logger.TimedRollingLogger.log">
 <span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pandas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">whylogs.core.stubs.pd.DataFrame</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet"><span class="pre">whylogs.api.logger.result_set.ResultSet</span></a></span></span><a class="headerlink" href="#whylogs.api.logger.TimedRollingLogger.log" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -991,6 +1020,19 @@ inheritance.</p>
 <li><p><strong>writer</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../writer/index.html#whylogs.api.writer.Writer" title="whylogs.api.writer.Writer"><em>whylogs.api.writer.Writer</em></a><em>]</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.api.logger.TransientLogger.append_store">
+<span class="sig-name descname"><span class="pre">append_store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../store/index.html#whylogs.api.store.ProfileStore" title="whylogs.api.store.ProfileStore"><span class="pre">whylogs.api.store.ProfileStore</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#whylogs.api.logger.TransientLogger.append_store" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>store</strong> (<a class="reference internal" href="../store/index.html#whylogs.api.store.ProfileStore" title="whylogs.api.store.ProfileStore"><em>whylogs.api.store.ProfileStore</em></a>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
@@ -1714,6 +1756,7 @@ target, prediction, and/or score.
 <li><a class="reference internal" href="#whylogs.api.logger.Logger">Logger</a><ul>
 <li><a class="reference internal" href="#whylogs.api.logger.Logger.check_writer">check_writer</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.Logger.append_writer">append_writer</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.Logger.append_store">append_store</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.Logger.log">log</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.Logger.close">close</a></li>
 </ul>
@@ -1751,6 +1794,7 @@ target, prediction, and/or score.
 <li><a class="reference internal" href="#whylogs.api.logger.TimedRollingLogger.check_writer">check_writer</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.TimedRollingLogger.close">close</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.TimedRollingLogger.append_writer">append_writer</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.TimedRollingLogger.append_store">append_store</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.TimedRollingLogger.log">log</a></li>
 </ul>
 </li>
@@ -1759,6 +1803,7 @@ target, prediction, and/or score.
 <li><a class="reference internal" href="#whylogs.api.logger.TransientLogger.close">close</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.TransientLogger.check_writer">check_writer</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.TransientLogger.append_writer">append_writer</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.TransientLogger.append_store">append_store</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.TransientLogger.log">log</a></li>
 </ul>
 </li>

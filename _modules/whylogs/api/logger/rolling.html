@@ -259,7 +259,10 @@
 </ul>
 </li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../../../api/whylogs/api/store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/local_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.local_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/profile_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.profile_store</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/query/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.query</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.s3</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
@@ -558,6 +561,23 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_flush</span><span class="p">(</span><span class="n">old_profile</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_get_time_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">time</span><span class="o">.</span><span class="n">struct_time</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">utc</span><span class="p">:</span>
+            <span class="n">time_tuple</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_batch_timestamp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">time_tuple</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_batch_timestamp</span><span class="p">)</span>
+            <span class="n">current_time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+
+            <span class="n">dst_now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">current_time</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">dst_then</span> <span class="o">=</span> <span class="n">time_tuple</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">dst_now</span> <span class="o">!=</span> <span class="n">dst_then</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">dst_now</span><span class="p">:</span>
+                    <span class="n">addend</span> <span class="o">=</span> <span class="mi">3600</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">addend</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3600</span>
+                <span class="n">time_tuple</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_batch_timestamp</span> <span class="o">+</span> <span class="n">addend</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">time_tuple</span>
+
     <span class="k">def</span> <span class="nf">_flush</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">:</span> <span class="n">DatasetProfile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
@@ -576,28 +596,20 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;In child process&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Didn&#39;t fork. Writing in the same process&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">utc</span><span class="p">:</span>
-                <span class="n">time_tuple</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_batch_timestamp</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">time_tuple</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_batch_timestamp</span><span class="p">)</span>
-                <span class="n">current_time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
 
-                <span class="n">dst_now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">current_time</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">dst_then</span> <span class="o">=</span> <span class="n">time_tuple</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">dst_now</span> <span class="o">!=</span> <span class="n">dst_then</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">dst_now</span><span class="p">:</span>
-                        <span class="n">addend</span> <span class="o">=</span> <span class="mi">3600</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">addend</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3600</span>
-                    <span class="n">time_tuple</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_batch_timestamp</span> <span class="o">+</span> <span class="n">addend</span><span class="p">)</span>
+            <span class="n">time_tuple</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_time_tuple</span><span class="p">()</span>
             <span class="n">timed_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">suffix</span><span class="p">,</span> <span class="n">time_tuple</span><span class="p">)</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_extension</span><span class="si">}</span><span class="s2">&quot;</span>
+
             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Writing out put with timed_filename: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">timed_filename</span><span class="p">)</span>
 
             <span class="k">while</span> <span class="n">profile</span><span class="o">.</span><span class="n">is_active</span><span class="p">:</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
+            <span class="k">for</span> <span class="n">store</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_store_list</span><span class="p">:</span>
+                <span class="n">store</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile_view</span><span class="o">=</span><span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">(),</span> <span class="n">profile_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_name</span><span class="p">)</span>
+
             <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="p">:</span>
-                <span class="n">w</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">(),</span> <span class="n">dest</span><span class="o">=</span><span class="n">timed_filename</span><span class="p">)</span>
+                <span class="n">w</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">(),</span> <span class="n">dest</span><span class="o">=</span><span class="n">timed_filename</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="ow">and</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">(),</span> <span class="n">timed_filename</span><span class="p">)</span>
 

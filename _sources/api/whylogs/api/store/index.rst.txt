@@ -10,7 +10,10 @@ Submodules
    :titlesonly:
    :maxdepth: 1
 
+   local_store/index.rst
    profile_store/index.rst
+   query/index.rst
+   s3/index.rst
 
 
 Package Contents
@@ -21,8 +24,79 @@ Classes
 
 .. autoapisummary::
 
+   whylogs.api.store.LocalStore
    whylogs.api.store.ProfileStore
+   whylogs.api.store.DateQuery
+   whylogs.api.store.ProfileNameQuery
 
+
+
+
+.. py:class:: LocalStore
+
+   Bases: :py:obj:`whylogs.api.store.profile_store.ProfileStore`
+
+   The LocalStore is the implementation of the base :class:ProfileStore
+   that will manage reading and writing profiles on the local file system.
+
+   In order to instantiate the object, you will need to define a profile_name,
+   which is related to the name of the model or dataset you're profiling.
+   To properly use the LocalStore to generate files, you should append it
+   to your existing Rolling Logger, as the below example demonstrates.
+
+   ```python
+   import whylogs as why
+   from whylogs.api.store.local import LocalStore
+
+   logger = why.logger(mode="rolling", interval=10, when="S", base_name="my_model")
+   logger.append_store(store=LocalStore())
+
+   new_df = model.predict(input_data)
+   logger.log(new_df)
+   ```
+
+   The above piece of code will make sure to write the logged profiles
+   to the correct location that can be further fetched using the same
+   LocalStore, like so:
+
+   ```python
+   from datetime import datetime, timedelta
+
+   from whylogs.api.store.date_config import DateConfig
+
+   store = LocalStore()
+   query = DateQuery(
+       profile_name="my_model",
+       start_date = datetime.utcnow() - timedelta(days=7),
+       end_date = datetime.utcnow()
+   )
+
+   profile_view = store.get(query=query)
+   ```
+
+   This will fetch all existing profiles from `my_model` from the past
+   7 days in a single merged DatasetProfileView.
+
+   To list existing profiles on your local ProfileStore, you can do:
+
+   ```python
+   store = LocalStore()
+   store.list()
+   ```
+
+   >**NOTE**: The parameter `profile_name` should always use the snake_case pattern,
+   and it must also be **unique** to your existing dataset/ML model.
+   If you use the same `profile_name` to store different profiles,
+   you will end up mixing those profiles and not being able to fetch and get
+   them properly again.
+
+   .. py:method:: list() -> List[str]
+
+
+   .. py:method:: get(query: Union[whylogs.api.store.query.DateQuery, whylogs.api.store.query.ProfileNameQuery]) -> Optional[whylogs.core.DatasetProfileView]
+
+
+   .. py:method:: write(profile_view: whylogs.core.DatasetProfileView, profile_name: str) -> None
 
 
 
@@ -30,22 +104,45 @@ Classes
 
    Bases: :py:obj:`abc.ABC`
 
-   A holder object for profiles.
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
 
-   .. py:method:: get_matching_profile(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, segment: Optional[whylogs.core.Segment] = None, schema: Optional[whylogs.core.schema.DatasetSchema] = None) -> List[whylogs.core.DatasetProfile]
+   .. py:method:: list() -> List[str]
       :abstractmethod:
 
 
-   .. py:method:: read(id: Optional[str], dataset_timestamp: Optional[datetime.datetime] = None, segment: Optional[whylogs.core.Segment] = None, schema: Optional[whylogs.core.schema.DatasetSchema] = None) -> Optional[whylogs.core.DatasetProfile]
+   .. py:method:: get(query: whylogs.api.store.query.DateQuery) -> whylogs.core.DatasetProfileView
       :abstractmethod:
 
 
-   .. py:method:: write(data: whylogs.api.writer.writer.Writable, model_id: Optional[str] = None, dataset_timestamp: Optional[datetime.datetime] = None, segment: Optional[whylogs.core.Segment] = None, schema: Optional[whylogs.core.schema.DatasetSchema] = None) -> None
+   .. py:method:: write(profile_view: Optional[whylogs.core.DatasetProfileView], profile_name: str) -> None
       :abstractmethod:
 
 
-   .. py:method:: query(*args: Any, **kwargs: Any) -> List[whylogs.core.DatasetProfile]
-      :abstractmethod:
 
+.. py:class:: DateQuery
+
+   .. py:attribute:: profile_name
+      :annotation: :str
+
+      
+
+   .. py:attribute:: start_date
+      :annotation: :datetime.datetime
+
+      
+
+   .. py:attribute:: end_date
+      :annotation: :Optional[datetime.datetime]
+
+      
+
+
+.. py:class:: ProfileNameQuery
+
+   .. py:attribute:: profile_name
+      :annotation: :str
+
+      
 
 

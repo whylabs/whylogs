@@ -259,7 +259,10 @@
 </ul>
 </li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../../../api/whylogs/api/store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/local_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.local_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/profile_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.profile_store</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/query/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.query</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.s3</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
@@ -410,6 +413,7 @@
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ProfileResultSet</span><span class="p">,</span> <span class="n">ResultSet</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.segment_processing</span> <span class="kn">import</span> <span class="n">segment_processing</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.store</span> <span class="kn">import</span> <span class="n">ProfileStore</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer</span> <span class="kn">import</span> <span class="n">Writer</span><span class="p">,</span> <span class="n">Writers</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.errors</span> <span class="kn">import</span> <span class="n">LoggingError</span>
@@ -435,6 +439,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">schema</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Writer</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_store_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ProfileStore</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="Logger.check_writer"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/logger/index.html#whylogs.api.logger.Logger.check_writer">[docs]</a>    <span class="k">def</span> <span class="nf">check_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">Writer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Checks if a writer is configured correctly for this class&quot;&quot;&quot;</span></div>
@@ -450,6 +455,9 @@
         <span class="k">assert</span> <span class="n">writer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_writer</span><span class="p">(</span><span class="n">writer</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">writer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Logger.append_store"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/logger/index.html#whylogs.api.logger.Logger.append_store">[docs]</a>    <span class="k">def</span> <span class="nf">append_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store</span><span class="p">:</span> <span class="n">ProfileStore</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_store_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">store</span><span class="p">)</span></div>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_get_matching_profiles</span><span class="p">(</span>
