@@ -68,8 +68,9 @@ public class DatasetProfile {
       this.initializeNewColumns(newColumnNames);
     }
 
+    ArrayList<Object> values = new ArrayList<>();
     for (String col : row.keySet()) {
-      ArrayList<Object> values = new ArrayList<>();
+      values = new ArrayList<>();
       values.add(row.get(col));
       this.columns.get(col).trackColumn(values);
     }

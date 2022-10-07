@@ -76,7 +76,7 @@ public class IntegralMetric extends AbstractMetric<IntegralMetric> {
   }
 
   public static IntegralMetric zero() {
-    return new IntegralMetric();
+    return IntegralMetric.zero(new MetricConfig());
   }
 
   @Override

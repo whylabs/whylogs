@@ -13,7 +13,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode
-public class ColumnProfile<T> {
+public class ColumnProfile<T> implements AutoCloseable {
   // Required
   private final String name;
   private final ColumnSchema schema;
@@ -82,5 +82,10 @@ public class ColumnProfile<T> {
   public ColumnProfileView view() {
     this.flush();
     return new ColumnProfileView(this.metrics, this.successCount, this.failureCount);
+  }
+
+  @Override
+  public void close() throws Exception {
+    this.flush();
   }
 }
