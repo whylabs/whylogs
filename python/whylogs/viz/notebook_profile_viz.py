@@ -7,10 +7,10 @@ from typing import Any, Dict, Optional
 from IPython.core.display import HTML  # type: ignore
 
 from whylogs.api.usage_stats import emit_usage
-from whylogs.api.writer.whylabs import _uncompound_dataset_profile
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.constraints import Constraints
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.migration.uncompound import _uncompound_dataset_profile
 from whylogs.viz.enums.enums import PageSpec, PageSpecEnum
 from whylogs.viz.utils.frequent_items_calculations import zero_padding_frequent_items
 from whylogs.viz.utils.html_template_utils import _get_compiled_template
