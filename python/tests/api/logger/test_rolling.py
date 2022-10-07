@@ -10,6 +10,8 @@ import pandas as pd
 import pytest
 
 import whylogs as why
+from whylogs.api.store.local_store import LocalStore
+from whylogs.api.store.query import ProfileNameQuery
 from whylogs.core.errors import BadConfigError
 
 
@@ -116,3 +118,17 @@ def test_good_whylabs_writer_config() -> None:
 def count_files(tmp_path: Any) -> int:
     only_files = [f for f in listdir(tmp_path) if isfile(os.path.join(tmp_path, f))]
     return len(only_files)
+
+
+def test_rolling_with_local_store_writes() -> None:
+    store = LocalStore()
+    df = pd.DataFrame(data={"a": [1, 2, 3, 4]})
+
+    with why.logger(mode="rolling", interval=1, when="S", base_name="test_base_name", skip_empty=True) as logger:
+        logger.append_store(store=store)
+        logger.log(df)
+        time.sleep(1)
+        assert len(store.list()) == 1
+
+        query = ProfileNameQuery(profile_name="test_base_name")
+        assert store.get(query=query)

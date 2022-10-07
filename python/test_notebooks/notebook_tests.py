@@ -40,7 +40,7 @@ def process_notebook(notebook_filename):
     notebook to HTML (with outputs) and overwrites the .ipynb file (without outputs).
     """
     try:
-        pm.execute_notebook(notebook_filename, OUTPUT_NOTEBOOK, timeout=120)
+        pm.execute_notebook(notebook_filename, OUTPUT_NOTEBOOK, timeout=180)
     except Exception as e:
         print(f"Notebook: {notebook_filename} failed test with exception: {e}")
         raise

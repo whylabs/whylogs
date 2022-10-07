@@ -153,6 +153,23 @@ class TimedRollingLogger(Logger):
 
         self._flush(old_profile)
 
+    def _get_time_tuple(self) -> time.struct_time:
+        if self.utc:
+            time_tuple = time.gmtime(self._current_batch_timestamp)
+        else:
+            time_tuple = time.localtime(self._current_batch_timestamp)
+            current_time = int(time.time())
+
+            dst_now = time.localtime(current_time)[-1]
+            dst_then = time_tuple[-1]
+            if dst_now != dst_then:
+                if dst_now:
+                    addend = 3600
+                else:
+                    addend = -3600
+                time_tuple = time.localtime(self._current_batch_timestamp + addend)
+        return time_tuple
+
     def _flush(self, profile: DatasetProfile) -> None:
         if profile is None:
             return
@@ -171,28 +188,20 @@ class TimedRollingLogger(Logger):
                 logger.debug("In child process")
             else:
                 logger.debug("Didn't fork. Writing in the same process")
-            if self.utc:
-                time_tuple = time.gmtime(self._current_batch_timestamp)
-            else:
-                time_tuple = time.localtime(self._current_batch_timestamp)
-                current_time = int(time.time())
 
-                dst_now = time.localtime(current_time)[-1]
-                dst_then = time_tuple[-1]
-                if dst_now != dst_then:
-                    if dst_now:
-                        addend = 3600
-                    else:
-                        addend = -3600
-                    time_tuple = time.localtime(self._current_batch_timestamp + addend)
+            time_tuple = self._get_time_tuple()
             timed_filename = f"{self.base_name}.{time.strftime(self.suffix, time_tuple)}{self.file_extension}"
+
             logging.debug("Writing out put with timed_filename: %s", timed_filename)
 
             while profile.is_active:
                 time.sleep(1)
 
+            for store in self._store_list:
+                store.write(profile_view=profile.view(), profile_name=self.base_name)
+
             for w in self._writers:
-                w.write(profile=profile.view(), dest=timed_filename)
+                w.write(file=profile.view(), dest=timed_filename)
                 if self._callback and callable(self._callback):
                     self._callback(w, profile.view(), timed_filename)
 
