@@ -3,11 +3,8 @@ package com.whylogs.core.views;
 import com.whylogs.core.metrics.IntegralMetric;
 import com.whylogs.core.metrics.Metric;
 import com.whylogs.core.metrics.MetricConfig;
-
 import java.time.Instant;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Optional;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -24,7 +21,8 @@ public class TestDatasetProfileView {
   @Test
   public void testDatasetProfileViewInit() {
     DatasetProfileView view =
-        new DatasetProfileView(new HashMap<String, ColumnProfileView>(), Instant.now(), Instant.now());
+        new DatasetProfileView(
+            new HashMap<String, ColumnProfileView>(), Instant.now(), Instant.now());
     Assert.assertEquals(view.getColumns().size(), 0);
 
     view = getDefaultDatasetProfile();
@@ -53,9 +51,7 @@ public class TestDatasetProfileView {
   public void testMergeWithEmpty() {
     DatasetProfileView view = getDefaultDatasetProfile();
     DatasetProfileView result =
-        view.merge(
-            new DatasetProfileView(
-                new HashMap<String, ColumnProfileView>()));
+        view.merge(new DatasetProfileView(new HashMap<String, ColumnProfileView>()));
     Assert.assertEquals(result.getColumns().size(), 1);
     Assert.assertNotNull(result.getColumns().get("test").getMetric("ints"));
   }

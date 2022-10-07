@@ -2,12 +2,11 @@ package com.whylogs.core.schemas;
 
 import com.whylogs.core.metrics.MetricConfig;
 import com.whylogs.core.resolvers.Resolver;
+import com.whylogs.core.resolvers.StandardResolver;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
-
-import com.whylogs.core.resolvers.StandardResolver;
 import lombok.Data;
 
 @Data

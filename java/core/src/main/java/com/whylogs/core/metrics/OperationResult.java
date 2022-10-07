@@ -10,11 +10,11 @@ public class OperationResult {
   private final int failures;
   private final int nulls;
 
-  public static OperationResult nulls(int numberOfNulls){
+  public static OperationResult nulls(int numberOfNulls) {
     return new OperationResult(0, 0, numberOfNulls);
   }
 
-  public static OperationResult status(int successes, int failures, int nulls){
+  public static OperationResult status(int successes, int failures, int nulls) {
     return new OperationResult(successes, failures, nulls);
   }
 

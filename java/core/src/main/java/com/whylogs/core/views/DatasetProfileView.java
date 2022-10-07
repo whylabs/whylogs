@@ -2,7 +2,6 @@ package com.whylogs.core.views;
 
 import java.time.Instant;
 import java.util.*;
-
 import lombok.Getter;
 import lombok.ToString;
 
@@ -14,12 +13,14 @@ public class DatasetProfileView {
   private Instant datasetTimestamp;
   private Instant creationTimestamp;
 
-
-  public DatasetProfileView(HashMap<String, ColumnProfileView> columns){
+  public DatasetProfileView(HashMap<String, ColumnProfileView> columns) {
     this(columns, Instant.now(), Instant.now());
   }
 
-  public DatasetProfileView(HashMap<String, ColumnProfileView> columns, Instant datasetTimestamp, Instant creationTimestamp) {
+  public DatasetProfileView(
+      HashMap<String, ColumnProfileView> columns,
+      Instant datasetTimestamp,
+      Instant creationTimestamp) {
     this.columns = columns;
     this.datasetTimestamp = datasetTimestamp;
     this.creationTimestamp = creationTimestamp;
