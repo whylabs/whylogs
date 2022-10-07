@@ -12,7 +12,7 @@ public class TestDatasetProfileView {
 
   private DatasetProfileView getDefaultDatasetProfile() {
     HashMap<String, ColumnProfileView> columnProfileViews = new HashMap<>();
-    HashMap<String, Metric> testMetrics = new HashMap<>();
+    HashMap<String, Metric<?>> testMetrics = new HashMap<>();
     testMetrics.put("ints", IntegralMetric.zero(new MetricConfig()));
     columnProfileViews.put("test", new ColumnProfileView(testMetrics));
     return new DatasetProfileView(columnProfileViews);

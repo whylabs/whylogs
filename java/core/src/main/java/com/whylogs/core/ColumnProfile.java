@@ -20,7 +20,7 @@ public class ColumnProfile<T> implements AutoCloseable {
   private final int cacheSize;
 
   // Has Defaults
-  private HashMap<String, Metric> metrics;
+  private HashMap<String, Metric<?>> metrics;
   private final SingleFieldProjector<T> projector;
   private int successCount;
   private int failureCount;
@@ -35,14 +35,14 @@ public class ColumnProfile<T> implements AutoCloseable {
 
     // Defaulted
     this.metrics = this.schema.getMetrics();
-    this.projector = new SingleFieldProjector<T>(name);
+    this.projector = new SingleFieldProjector<>(name);
     this.successCount = 0;
     this.failureCount = 0;
     this.nullCount = 0;
     this.cachedValues = new ArrayList<>();
   }
 
-  public void addMetric(Metric metric) {
+  public void addMetric(Metric<?> metric) {
     if (this.metrics.containsKey(metric.getNamespace())) {
       // TODO: Add logger with warning about replacement
     }
@@ -71,7 +71,7 @@ public class ColumnProfile<T> implements AutoCloseable {
   public void trackColumn(ArrayList<?> values) {
     PreprocessedColumn proccessedColumn = PreprocessedColumn.apply(values);
 
-    for (Metric metric : this.metrics.values()) {
+    for (Metric<?> metric : this.metrics.values()) {
       OperationResult result = metric.columnarUpdate(proccessedColumn);
       this.successCount += result.getSuccesses();
       this.failureCount += result.getFailures();

@@ -14,16 +14,16 @@ import org.testng.annotations.Test;
 public class TestColumnProfileView {
 
   private ColumnProfileView getDefaultColumnProfile() {
-    Metric integralMetric = IntegralMetric.zero(new MetricConfig());
-    HashMap<String, Metric> metrics = new HashMap<>();
+    Metric<IntegralMetric> integralMetric = IntegralMetric.zero(new MetricConfig());
+    HashMap<String, Metric<?>> metrics = new HashMap<>();
     metrics.put(integralMetric.getNamespace(), integralMetric);
 
     return new ColumnProfileView(metrics);
   }
 
   private ColumnProfileView getChangedSuccessFailProfile(int success, int fail) {
-    Metric integralMetric = IntegralMetric.zero(new MetricConfig());
-    HashMap<String, Metric> metrics = new HashMap<>();
+    Metric<IntegralMetric> integralMetric = IntegralMetric.zero(new MetricConfig());
+    HashMap<String, Metric<?>> metrics = new HashMap<>();
     metrics.put(integralMetric.getNamespace(), integralMetric);
 
     return new ColumnProfileView(metrics, success, fail);

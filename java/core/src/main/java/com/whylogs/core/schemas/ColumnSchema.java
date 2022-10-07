@@ -18,7 +18,7 @@ public class ColumnSchema {
   private MetricConfig config;
   private Resolver resolver;
 
-  public HashMap<String, Metric> getMetrics() {
+  public HashMap<String, Metric<?>> getMetrics() {
     return this.resolver.resolve(this);
   }
 }
