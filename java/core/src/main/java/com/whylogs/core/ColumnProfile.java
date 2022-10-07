@@ -34,7 +34,7 @@ public class ColumnProfile<T> {
     this.cacheSize = cacheSize; // TODO: add logger for size of cache on column
 
     // Defaulted
-    this.metrics = new HashMap<>();
+    this.metrics = this.schema.getMetrics();
     this.projector = new SingleFieldProjector<T>(name);
     this.successCount = 0;
     this.failureCount = 0;

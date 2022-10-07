@@ -10,18 +10,15 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Optional;
 
-// TODO: Tracking down bug in this. Something is weird with how the track happens
-
 @Test
 public class TestDatasetProfile {
     private Instant creationTime;
     private Instant datasetTime;
 
-
     private DatasetSchema defaultSchema() {
         DatasetSchema datasetSchema = new DatasetSchema();
         HashMap<String, Object> data = new HashMap<>();
-        // TODO: Double check this dataschema that it's working as expected
+        // TODO: Double check this data schema that it's working as expected
         data.put("test", 1);
         data.put("test2", "2");
         Assert.assertTrue(datasetSchema.resolve(data));
@@ -57,7 +54,7 @@ public class TestDatasetProfile {
 
         Assert.assertTrue(DatasetProfile.getDefaultPath(Optional.of("test")).contains("test_profile"));
         Assert.assertEquals(profile.getSchema().getColumns().size(), 2);
-        Assert.assertEquals(profile.getSchema().getColumns().get("test").getMetrics().size(), 2);
+        Assert.assertEquals(profile.getSchema().getColumns().get("test").getMetrics().size(), 1);   // THere should only be the IntegralMetric
     }
 
     @Test
@@ -101,7 +98,6 @@ public class TestDatasetProfile {
 
         Assert.assertEquals(profile.getColumns().get("notSeen").getSuccessCount(), 1);
         Assert.assertEquals(profile.getTrackCount(), 1);
-
     }
 
     public void testView(){
@@ -118,6 +114,5 @@ public class TestDatasetProfile {
         data.put("test2", "2");
         profile.track(data);
         profile.flush();
-
     }
 }
