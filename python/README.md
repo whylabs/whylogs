@@ -214,7 +214,7 @@ visualization.set_profiles(target_profile_view=prof_view, reference_profile_view
 visualization.summary_drift_report()
 ```
 
-![image](<https://raw.githubusercontent.com/whylabs/whylogs/assets/images/chrome-capture-2022-9-4%20(1).gif>)
+![image](<https://user-images.githubusercontent.com/7946482/169669536-a25cce95-acde-4637-b7b9-c2a685f0bc3f.png>)
 
 To learn more about visualizing your profiles, check out: the [Visualizer Example](https://bit.ly/whylogsvisualizerexample)
 
