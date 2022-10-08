@@ -299,6 +299,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/metric_components/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metric_components</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/multimetric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.multimetric</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/registry/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.registry</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/serializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.serializers</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/unicode_range/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.unicode_range</span></code></a></li>
@@ -357,6 +358,7 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../api/whylogs/migration/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/migration/converters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration.converters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/migration/uncompound/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration.uncompound</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../api/whylogs/viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -410,12 +412,15 @@
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.compound_metric</span> <span class="kn">import</span> <span class="n">CompoundMetric</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.column_metrics</span> <span class="kn">import</span> <span class="n">ColumnCountsMetric</span><span class="p">,</span> <span class="n">TypeCountersMetric</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CardinalityMetric</span><span class="p">,</span>
     <span class="n">DistributionMetric</span><span class="p">,</span>
+    <span class="n">IntsMetric</span><span class="p">,</span>
     <span class="n">MetricConfig</span><span class="p">,</span>
     <span class="n">OperationResult</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.multimetric</span> <span class="kn">import</span> <span class="n">MultiMetric</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">PreprocessedColumn</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.proto</span> <span class="kn">import</span> <span class="n">MetricMessage</span>
 
@@ -423,7 +428,7 @@
 
 
 <div class="viewcode-block" id="UnicodeRangeMetric"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/unicode_range/index.html#whylogs.core.metrics.UnicodeRangeMetric">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">UnicodeRangeMetric</span><span class="p">(</span><span class="n">CompoundMetric</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">UnicodeRangeMetric</span><span class="p">(</span><span class="n">MultiMetric</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For string values, maintains a DistributionMetric for the counts of</span>
 <span class="sd">    characters that fall within user-defined codepoint ranges.</span>
@@ -455,10 +460,18 @@
         <span class="k">if</span> <span class="n">_STRING_LENGTH</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_definitions</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;STRING_LENGTH cannot be used as a range name&quot;</span><span class="p">)</span>
 
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range_definitions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">keys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">_STRING_LENGTH</span><span class="p">)</span>
         <span class="n">submetrics</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">key</span><span class="p">:</span> <span class="n">DistributionMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">(</span><span class="n">large_kll_k</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_definitions</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">key</span><span class="p">:</span> <span class="p">{</span>
+                <span class="n">CardinalityMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">():</span> <span class="n">CardinalityMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(),</span>
+                <span class="n">ColumnCountsMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">():</span> <span class="n">ColumnCountsMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(),</span>
+                <span class="n">DistributionMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">():</span> <span class="n">DistributionMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">(</span><span class="n">large_kll_k</span><span class="o">=</span><span class="kc">False</span><span class="p">)),</span>
+                <span class="n">IntsMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">():</span> <span class="n">IntsMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(),</span>
+                <span class="n">TypeCountersMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">():</span> <span class="n">TypeCountersMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(),</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span>
         <span class="p">}</span>
-        <span class="n">submetrics</span><span class="p">[</span><span class="n">_STRING_LENGTH</span><span class="p">]</span> <span class="o">=</span> <span class="n">DistributionMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">(</span><span class="n">large_kll_k</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
         <span class="nb">super</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">submetrics</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
     <span class="nd">@property</span>
@@ -498,10 +511,14 @@
 
         <span class="n">submetric_col</span> <span class="o">=</span> <span class="n">PreprocessedColumn</span><span class="p">()</span>
         <span class="n">submetric_col</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">ints</span> <span class="o">=</span> <span class="n">lengths</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="p">[</span><span class="n">_STRING_LENGTH</span><span class="p">]</span><span class="o">.</span><span class="n">columnar_update</span><span class="p">(</span><span class="n">submetric_col</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="p">[</span><span class="n">_STRING_LENGTH</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">metric</span><span class="o">.</span><span class="n">columnar_update</span><span class="p">(</span><span class="n">submetric_col</span><span class="p">)</span>
+
         <span class="k">for</span> <span class="n">range_name</span><span class="p">,</span> <span class="n">range_list</span> <span class="ow">in</span> <span class="n">range_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">submetric_col</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">ints</span> <span class="o">=</span> <span class="n">range_list</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="p">[</span><span class="n">range_name</span><span class="p">]</span><span class="o">.</span><span class="n">columnar_update</span><span class="p">(</span><span class="n">submetric_col</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="p">[</span><span class="n">range_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">metric</span><span class="o">.</span><span class="n">columnar_update</span><span class="p">(</span><span class="n">submetric_col</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">OperationResult</span><span class="o">.</span><span class="n">ok</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="UnicodeRangeMetric.zero"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/unicode_range/index.html#whylogs.core.metrics.UnicodeRangeMetric.zero">[docs]</a>    <span class="nd">@classmethod</span>

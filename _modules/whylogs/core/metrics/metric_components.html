@@ -299,6 +299,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/metric_components/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metric_components</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/multimetric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.multimetric</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/registry/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.registry</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/serializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.serializers</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/unicode_range/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.unicode_range</span></code></a></li>
@@ -357,6 +358,7 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../api/whylogs/migration/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/migration/converters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration.converters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/migration/uncompound/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration.uncompound</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../api/whylogs/viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -518,6 +520,9 @@
             <span class="n">mtype</span> <span class="o">=</span> <span class="n">_mtype</span>
             <span class="n">type_id</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">type_id</span>
             <span class="n">registries</span> <span class="o">=</span> <span class="n">_registries</span>
+
+            <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DeserializedComponent&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">DeserializedComponent</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_protobuf</span><span class="p">())</span>
 
         <span class="n">component</span> <span class="o">=</span> <span class="n">DeserializedComponent</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
         <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">_deserializer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

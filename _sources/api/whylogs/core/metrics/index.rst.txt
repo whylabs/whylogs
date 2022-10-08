@@ -19,6 +19,7 @@ Submodules
    maths/index.rst
    metric_components/index.rst
    metrics/index.rst
+   multimetric/index.rst
    registry/index.rst
    serializers/index.rst
    unicode_range/index.rst
@@ -599,9 +600,9 @@ Classes
       
 
 
-.. py:class:: UnicodeRangeMetric(submetrics: Dict[str, whylogs.core.metrics.Metric])
+.. py:class:: UnicodeRangeMetric(submetrics: Dict[str, Dict[str, whylogs.core.metrics.Metric]])
 
-   Bases: :py:obj:`whylogs.core.metrics.compound_metric.CompoundMetric`
+   Bases: :py:obj:`whylogs.core.metrics.multimetric.MultiMetric`
 
    For string values, maintains a DistributionMetric for the counts of
    characters that fall within user-defined codepoint ranges.
@@ -631,7 +632,7 @@ Classes
       
 
    .. py:attribute:: submetrics
-      :annotation: :Dict[str, whylogs.core.metrics.Metric]
+      :annotation: :Dict[str, Dict[str, whylogs.core.metrics.Metric]]
 
       
 
@@ -653,7 +654,7 @@ Classes
       :classmethod:
 
 
-   .. py:method:: merge_submetrics(other: COMPOUND_METRIC) -> Dict[str, whylogs.core.metrics.Metric]
+   .. py:method:: merge_submetrics(other: MULTI_METRIC) -> Dict[str, whylogs.core.metrics.Metric]
 
 
    .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
@@ -665,7 +666,7 @@ Classes
    .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
 
 
-   .. py:method:: submetrics_from_protobuf(msg: whylogs.core.proto.MetricMessage) -> Dict[str, whylogs.core.metrics.Metric]
+   .. py:method:: submetrics_from_protobuf(msg: whylogs.core.proto.MetricMessage) -> Dict[str, Dict[str, whylogs.core.metrics.Metric]]
       :classmethod:
 
 

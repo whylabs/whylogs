@@ -16,5 +16,6 @@ Submodules
    :maxdepth: 1
 
    converters/index.rst
+   uncompound/index.rst
 
 

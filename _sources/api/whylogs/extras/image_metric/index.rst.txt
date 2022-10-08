@@ -100,10 +100,6 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: prefixes() -> Set[str]
-      :abstractmethod:
-
-
    .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, fi_disabled: bool = False) -> Dict[str, whylogs.core.metrics.metrics.Metric]
       :abstractmethod:
 
@@ -115,9 +111,6 @@ Attributes
 
    Helper class that provides a standard way to create an ABC using
    inheritance.
-
-   .. py:method:: prefixes() -> Set[str]
-
 
    .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, fi_disabled: bool = False) -> Dict[str, whylogs.core.metrics.metrics.Metric]
 
@@ -188,29 +181,29 @@ Attributes
       
 
 
-.. py:class:: ImageMetric(submetrics: Dict[str, whylogs.core.metrics.metrics.Metric], attribute_names: Optional[Set[str]] = None, allowed_exif_tags: Optional[Set[str]] = None, forbidden_exif_tags: Optional[Set[str]] = None, submetric_schema: Optional[SubmetricSchema] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, fi_disabled: bool = False)
+.. py:class:: ImageMetric(submetrics: Dict[str, Dict[str, whylogs.core.metrics.metrics.Metric]], allowed_exif_tags: Optional[Set[str]] = None, forbidden_exif_tags: Optional[Set[str]] = None, submetric_schema: Optional[SubmetricSchema] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, fi_disabled: bool = False)
 
-   Bases: :py:obj:`whylogs.core.metrics.compound_metric.CompoundMetric`
+   Bases: :py:obj:`whylogs.core.metrics.multimetric.MultiMetric`
 
-   CompoundMetric serves as a base class for custom metrics that consist
+   MultiMetric serves as a base class for custom metrics that consist
    of one or more metrics. It is handy when you need to do some
-   processing of the logged values and track serveral metrics on
+   processing of the logged values and track several metrics on
    the results. The sub-metrics must either be a StandardMetric, or tagged
-   as a @custom_metric or @dataclass. Note that CompoundMetric is neither, so it
+   as a @custom_metric or @dataclass. Note that MultiMetric is neither, so it
    cannot be nested.
 
    Typically you will need to override namespace(); columnar_update(), calling
    it on the submetrics as needed; and the zero() method to return an
    appropriate "empty" instance of your metric. You will need to override from_protobuf()
    and merge() if your subclass __init__() method takes arguments different than
-   CompoundMetrtic's. You can use the submetrics_from_protbuf() and merge_submetrics()
-   helper methods to implement them. The CompoundMetric class will handle the rest of
+   MultiMetrtic's. You can use the submetrics_from_protbuf() and merge_submetrics()
+   helper methods to implement them. The MultiMetric class will handle the rest of
    the Metric interface. Don't use / or : in the subclass' namespace.
 
    See UnicodeRangeMetric for an example.
 
    .. py:attribute:: submetrics
-      :annotation: :Dict[str, whylogs.core.metrics.Metric]
+      :annotation: :Dict[str, Dict[str, whylogs.core.metrics.Metric]]
 
       
 
@@ -228,7 +221,7 @@ Attributes
       :classmethod:
 
 
-   .. py:method:: merge_submetrics(other: COMPOUND_METRIC) -> Dict[str, whylogs.core.metrics.Metric]
+   .. py:method:: merge_submetrics(other: MULTI_METRIC) -> Dict[str, whylogs.core.metrics.Metric]
 
 
    .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
@@ -240,11 +233,11 @@ Attributes
    .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
 
 
-   .. py:method:: submetrics_from_protobuf(msg: whylogs.core.proto.MetricMessage) -> Dict[str, whylogs.core.metrics.Metric]
+   .. py:method:: submetrics_from_protobuf(msg: whylogs.core.proto.MetricMessage) -> Dict[str, Dict[str, whylogs.core.metrics.Metric]]
       :classmethod:
 
 
-   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> COMPOUND_METRIC
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> MULTI_METRIC
       :classmethod:
 
 

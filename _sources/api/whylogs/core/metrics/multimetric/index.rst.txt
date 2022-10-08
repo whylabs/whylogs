@@ -1,0 +1,104 @@
+:py:mod:`whylogs.core.metrics.multimetric`
+==========================================
+
+.. py:module:: whylogs.core.metrics.multimetric
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.metrics.multimetric.MultiMetric
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.metrics.multimetric.logger
+   whylogs.core.metrics.multimetric.MULTI_METRIC
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:data:: MULTI_METRIC
+   
+
+   
+
+.. py:class:: MultiMetric(submetrics: Dict[str, Dict[str, whylogs.core.metrics.Metric]])
+
+   Bases: :py:obj:`whylogs.core.metrics.Metric`, :py:obj:`abc.ABC`
+
+   MultiMetric serves as a base class for custom metrics that consist
+   of one or more metrics. It is handy when you need to do some
+   processing of the logged values and track several metrics on
+   the results. The sub-metrics must either be a StandardMetric, or tagged
+   as a @custom_metric or @dataclass. Note that MultiMetric is neither, so it
+   cannot be nested.
+
+   Typically you will need to override namespace(); columnar_update(), calling
+   it on the submetrics as needed; and the zero() method to return an
+   appropriate "empty" instance of your metric. You will need to override from_protobuf()
+   and merge() if your subclass __init__() method takes arguments different than
+   MultiMetrtic's. You can use the submetrics_from_protbuf() and merge_submetrics()
+   helper methods to implement them. The MultiMetric class will handle the rest of
+   the Metric interface. Don't use / or : in the subclass' namespace.
+
+   See UnicodeRangeMetric for an example.
+
+   .. py:attribute:: submetrics
+      :annotation: :Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+
+      
+
+   .. py:method:: merge_submetrics(other: MULTI_METRIC) -> Dict[str, whylogs.core.metrics.Metric]
+
+
+   .. py:method:: merge(other: MULTI_METRIC) -> MULTI_METRIC
+
+
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
+
+
+   .. py:method:: get_component_paths() -> List[str]
+
+
+   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+
+
+   .. py:method:: columnar_update(view: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
+
+
+   .. py:method:: submetrics_from_protobuf(msg: whylogs.core.proto.MetricMessage) -> Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+      :classmethod:
+
+
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> MULTI_METRIC
+      :classmethod:
+
+
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
+      :classmethod:
+
+
+   .. py:method:: namespace() -> str
+      :property:
+
+
+   .. py:method:: zero(config: Optional[MetricConfig] = None) -> METRIC
+      :classmethod:
+      :abstractmethod:
+
+
+

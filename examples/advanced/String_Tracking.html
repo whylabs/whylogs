@@ -308,6 +308,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/metric_components/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metric_components</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/multimetric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.multimetric</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/registry/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.registry</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/serializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.serializers</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/unicode_range/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.unicode_range</span></code></a></li>
@@ -366,6 +367,7 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/migration/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/migration/converters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration.converters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/migration/uncompound/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration.uncompound</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -685,7 +687,7 @@ div.rendered_html tbody tr:hover {
 <h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
 <p>If you haven’t already, install whylogs:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install whylogs
@@ -697,7 +699,7 @@ div.rendered_html tbody tr:hover {
 <h2>Creating the Data<a class="headerlink" href="#Creating-the-Data" title="Permalink to this headline">#</a></h2>
 <p>Let’s create a simple dataframe to demonstrate. To better visualize how the metrics work, we’ll create 3 columns: - <code class="docutils literal notranslate"><span class="pre">onlyDigits</span></code>: Column of strings that contain only digit characters - <code class="docutils literal notranslate"><span class="pre">onlyAlpha</span></code>: Column of strings that contain only latin letters (no digits) - <code class="docutils literal notranslate"><span class="pre">mixed</span></code>: Column of strings that contain, digits, letters and other types of charachters, like punctuation and symbols</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -713,11 +715,13 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div>
+  <div id="df-5d415b05-ba54-4744-a7e5-f9aefe0b5d1d">
+    <div class="colab-df-container">
+      <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -773,7 +777,82 @@ div.rendered_html tbody tr:hover {
     </tr>
   </tbody>
 </table>
-</div></div>
+</div>
+      <button class="colab-df-convert" onclick="convertToInteractive('df-5d415b05-ba54-4744-a7e5-f9aefe0b5d1d')"
+              title="Convert this dataframe to an interactive table."
+              style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+       width="24px">
+    <path d="M0 0h24v24H0V0z" fill="none"/>
+    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  </svg>
+      </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      flex-wrap:wrap;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+      <script>
+        const buttonEl =
+          document.querySelector('#df-5d415b05-ba54-4744-a7e5-f9aefe0b5d1d button.colab-df-convert');
+        buttonEl.style.display =
+          google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+        async function convertToInteractive(key) {
+          const element = document.querySelector('#df-5d415b05-ba54-4744-a7e5-f9aefe0b5d1d');
+          const dataTable =
+            await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                     [key], {});
+          if (!dataTable) return;
+
+          const docLinkHtml = 'Like what you see? Visit the ' +
+            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+            + ' to learn more about interactive tables.';
+          element.innerHTML = '';
+          dataTable['output_type'] = 'display_data';
+          await google.colab.output.renderOutput(dataTable, element);
+          const docLink = document.createElement('div');
+          docLink.innerHTML = docLinkHtml;
+          element.appendChild(docLink);
+        }
+      </script>
+    </div>
+  </div></div>
 </div>
 </section>
 <section id="Configuring-the-Metrics-in-the-DatasetSchema">
@@ -783,7 +862,7 @@ div.rendered_html tbody tr:hover {
 <div><p>If you’re interested in seeing how you can add or remove different metrics according to the column type or column name, please refer to this example on <a class="reference external" href="https://whylogs.readthedocs.io/en/stable/examples/basic/Schema_Configuration.html">Schema Configuration</a></p>
 </div></blockquote>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">ColumnSchema</span><span class="p">,</span> <span class="n">DatasetSchema</span>
@@ -795,14 +874,14 @@ div.rendered_html tbody tr:hover {
 
 <span class="k">class</span> <span class="nc">UnicodeResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">UnicodeRangeMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">):</span> <span class="n">UnicodeRangeMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">UnicodeRangeMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">():</span> <span class="n">UnicodeRangeMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)}</span>
 </pre></div>
 </div>
 </div>
 <p>Resolvers are passed to whylogs through a <code class="docutils literal notranslate"><span class="pre">DatasetSchema</span></code>, so we’ll have to create a custom Schema as well.</p>
 <p>We’ll just have to: - Pass the UnicodeResolver created previously - Since we’re interested in changing the default character ranges, we’ll also pass a Metric Configuration with the desired ranges</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">MetricConfig</span><span class="p">(</span><span class="n">unicode_ranges</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;digits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">48</span><span class="p">,</span> <span class="mi">57</span><span class="p">),</span> <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">97</span><span class="p">,</span> <span class="mi">122</span><span class="p">)})</span>
@@ -813,7 +892,7 @@ div.rendered_html tbody tr:hover {
 <p>If a default MetricConfig is not passed, it would use the default unicode ranges, which would track the default ranges such as: emoticons, control characters and extended latin.</p>
 <p>We can now log the dataframe and pass our schema when calling <code class="docutils literal notranslate"><span class="pre">log</span></code>:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -828,7 +907,7 @@ div.rendered_html tbody tr:hover {
 <h2>Unicode Range and String Length Metrics<a class="headerlink" href="#Unicode-Range-and-String-Length-Metrics" title="Permalink to this headline">#</a></h2>
 <p>Let’s take a look at the <strong>Profile View</strong>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view_df</span> <span class="o">=</span> <span class="n">prof</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
@@ -837,11 +916,13 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div>
+  <div id="df-2d1ab49b-b679-44db-b321-cfd7b9af06e0">
+    <div class="colab-df-container">
+      <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -859,27 +940,27 @@ div.rendered_html tbody tr:hover {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>unicode_range/unicode_range/digits/mean</th>
-      <th>unicode_range/unicode_range/digits/stddev</th>
-      <th>unicode_range/unicode_range/digits/n</th>
-      <th>unicode_range/unicode_range/digits/max</th>
-      <th>unicode_range/unicode_range/digits/min</th>
-      <th>unicode_range/unicode_range/digits/q_01</th>
-      <th>unicode_range/unicode_range/digits/q_05</th>
-      <th>unicode_range/unicode_range/digits/q_10</th>
-      <th>unicode_range/unicode_range/digits/q_25</th>
-      <th>unicode_range/unicode_range/digits/median</th>
-      <th>...</th>
-      <th>unicode_range/unicode_range/string_length/q_01</th>
-      <th>unicode_range/unicode_range/string_length/q_05</th>
-      <th>unicode_range/unicode_range/string_length/q_10</th>
-      <th>unicode_range/unicode_range/string_length/q_25</th>
-      <th>unicode_range/unicode_range/string_length/median</th>
-      <th>unicode_range/unicode_range/string_length/q_75</th>
-      <th>unicode_range/unicode_range/string_length/q_90</th>
-      <th>unicode_range/unicode_range/string_length/q_95</th>
-      <th>unicode_range/unicode_range/string_length/q_99</th>
       <th>type</th>
+      <th>unicode_range/UNKNOWN:cardinality/est</th>
+      <th>unicode_range/UNKNOWN:cardinality/lower_1</th>
+      <th>unicode_range/UNKNOWN:cardinality/upper_1</th>
+      <th>unicode_range/UNKNOWN:counts/n</th>
+      <th>unicode_range/UNKNOWN:counts/null</th>
+      <th>unicode_range/UNKNOWN:distribution/max</th>
+      <th>unicode_range/UNKNOWN:distribution/mean</th>
+      <th>unicode_range/UNKNOWN:distribution/median</th>
+      <th>unicode_range/UNKNOWN:distribution/min</th>
+      <th>...</th>
+      <th>unicode_range/string_length:distribution/q_95</th>
+      <th>unicode_range/string_length:distribution/q_99</th>
+      <th>unicode_range/string_length:distribution/stddev</th>
+      <th>unicode_range/string_length:ints/max</th>
+      <th>unicode_range/string_length:ints/min</th>
+      <th>unicode_range/string_length:types/boolean</th>
+      <th>unicode_range/string_length:types/fractional</th>
+      <th>unicode_range/string_length:types/integral</th>
+      <th>unicode_range/string_length:types/object</th>
+      <th>unicode_range/string_length:types/string</th>
     </tr>
     <tr>
       <th>column</th>
@@ -908,61 +989,61 @@ div.rendered_html tbody tr:hover {
   </thead>
   <tbody>
     <tr>
-      <th>onlyDigits</th>
-      <td>1.8</td>
-      <td>0.748331</td>
-      <td>5</td>
-      <td>3.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>2.0</td>
-      <td>...</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>2.0</td>
-      <td>2.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>SummaryType.COLUMN</td>
-    </tr>
-    <tr>
       <th>mixed</th>
-      <td>4.2</td>
-      <td>2.039608</td>
-      <td>5</td>
-      <td>8.0</td>
-      <td>2.0</td>
-      <td>2.0</td>
-      <td>2.0</td>
-      <td>2.0</td>
-      <td>3.0</td>
-      <td>4.0</td>
-      <td>...</td>
-      <td>8.0</td>
-      <td>8.0</td>
-      <td>8.0</td>
-      <td>11.0</td>
-      <td>23.0</td>
-      <td>31.0</td>
-      <td>32.0</td>
-      <td>32.0</td>
-      <td>32.0</td>
       <td>SummaryType.COLUMN</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.00025</td>
+      <td>0</td>
+      <td>0</td>
+      <td>9.0</td>
+      <td>4.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>32.0</td>
+      <td>32.0</td>
+      <td>9.939819</td>
+      <td>-9223372036854775807</td>
+      <td>9223372036854775807</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>onlyAlpha</th>
+      <td>SummaryType.COLUMN</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.00005</td>
+      <td>0</td>
+      <td>0</td>
       <td>0.0</td>
-      <td>0.000000</td>
-      <td>5</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
+      <td>...</td>
+      <td>7.0</td>
+      <td>7.0</td>
+      <td>1.264911</td>
+      <td>-9223372036854775807</td>
+      <td>9223372036854775807</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>onlyDigits</th>
+      <td>SummaryType.COLUMN</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.00005</td>
+      <td>0</td>
+      <td>0</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -970,19 +1051,94 @@ div.rendered_html tbody tr:hover {
       <td>...</td>
       <td>3.0</td>
       <td>3.0</td>
-      <td>3.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>7.0</td>
-      <td>7.0</td>
-      <td>7.0</td>
-      <td>SummaryType.COLUMN</td>
+      <td>0.748331</td>
+      <td>-9223372036854775807</td>
+      <td>9223372036854775807</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
     </tr>
   </tbody>
 </table>
-<p>3 rows × 57 columns</p>
-</div></div>
+<p>3 rows × 105 columns</p>
+</div>
+      <button class="colab-df-convert" onclick="convertToInteractive('df-2d1ab49b-b679-44db-b321-cfd7b9af06e0')"
+              title="Convert this dataframe to an interactive table."
+              style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+       width="24px">
+    <path d="M0 0h24v24H0V0z" fill="none"/>
+    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  </svg>
+      </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      flex-wrap:wrap;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+      <script>
+        const buttonEl =
+          document.querySelector('#df-2d1ab49b-b679-44db-b321-cfd7b9af06e0 button.colab-df-convert');
+        buttonEl.style.display =
+          google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+        async function convertToInteractive(key) {
+          const element = document.querySelector('#df-2d1ab49b-b679-44db-b321-cfd7b9af06e0');
+          const dataTable =
+            await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                     [key], {});
+          if (!dataTable) return;
+
+          const docLinkHtml = 'Like what you see? Visit the ' +
+            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+            + ' to learn more about interactive tables.';
+          element.innerHTML = '';
+          dataTable['output_type'] = 'display_data';
+          await google.colab.output.renderOutput(dataTable, element);
+          const docLink = document.createElement('div');
+          docLink.innerHTML = docLinkHtml;
+          element.appendChild(docLink);
+        }
+      </script>
+    </div>
+  </div></div>
 </div>
 <p>You can see there’s a lot of different metrics for each of the original dataframe’s columns. In the <code class="docutils literal notranslate"><span class="pre">unicode_range</span></code> metric, we’ll have additional sub metrics. In this case, we have metrics for:</p>
 <ul class="simple">
@@ -1002,24 +1158,24 @@ div.rendered_html tbody tr:hover {
 </ul>
 <p>For instance, let’s check the mean for <code class="docutils literal notranslate"><span class="pre">alpha</span></code></p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view_df</span><span class="p">[</span><span class="s1">&#39;unicode_range/alpha/mean&#39;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view_df</span><span class="p">[</span><span class="s1">&#39;unicode_range/alpha:distribution/mean&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 column
-onlyDigits     0.0
 mixed         12.8
 onlyAlpha      5.0
-Name: unicode_range/unicode_range/alpha/mean, dtype: float64
+onlyDigits     0.0
+Name: unicode_range/alpha:distribution/mean, dtype: float64
 </pre></div></div>
 </div>
 <p>The above values shows a mean of 0 for <code class="docutils literal notranslate"><span class="pre">onlyDigits</span></code> - which is expected, since we don’t have any letters in this column, only digits. We also have a mean of 5 for <code class="docutils literal notranslate"><span class="pre">onlyAlpha</span></code>, which will coincide of the string’s length mean for the same column, since we only have letters characters in this columns. For <code class="docutils literal notranslate"><span class="pre">mixed</span></code> the mean is 12.8, and we can indeed see that this column has a higher count of letter character than the previous columns.</p>
@@ -1028,47 +1184,47 @@ Name: unicode_range/unicode_range/alpha/mean, dtype: float64
 </div></blockquote>
 <p>Let’s now check the <code class="docutils literal notranslate"><span class="pre">UNKNOWN</span></code> namespace:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view_df</span><span class="p">[</span><span class="s1">&#39;unicode_range/UNKNOWN/mean&#39;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view_df</span><span class="p">[</span><span class="s1">&#39;unicode_range/UNKNOWN:distribution/mean&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 column
-onlyDigits     0.0
-mixed         24.8
-onlyAlpha      5.0
-Name: unicode_range/unicode_range/UNKNOWN/mean, dtype: float64
+mixed         4.0
+onlyAlpha     0.0
+onlyDigits    0.0
+Name: unicode_range/UNKNOWN:distribution/mean, dtype: float64
 </pre></div></div>
 </div>
 <p>Since we have only digits and letters in <code class="docutils literal notranslate"><span class="pre">onlyDigit</span></code> and <code class="docutils literal notranslate"><span class="pre">onlyAlpha</span></code>, there are no characters outside of the defined ranges, yielding means of 0. In the <code class="docutils literal notranslate"><span class="pre">mixed</span></code>, however, this value is non-zero, since there are characters such as <code class="docutils literal notranslate"><span class="pre">.,</span> <span class="pre">-,</span> <span class="pre">º</span></code>, and whitespaces, that are not in any of the predefined ranges.</p>
 <p>The last namespace <code class="docutils literal notranslate"><span class="pre">string_lenth</span></code>, contains metrics for the string’s length:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view_df</span><span class="p">[</span><span class="s1">&#39;unicode_range/string_length/min&#39;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view_df</span><span class="p">[</span><span class="s1">&#39;unicode_range/string_length:distribution/min&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 column
-onlyDigits    1.0
 mixed         8.0
 onlyAlpha     3.0
-Name: unicode_range/unicode_range/string_length/min, dtype: float64
+onlyDigits    1.0
+Name: unicode_range/string_length:distribution/min, dtype: float64
 </pre></div></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">string_length</span></code> doesn’t take into account any particular range. It containts aggregate metrics for the overall string length of each column. In this case, we’re seeing the minimum value for the 3 columns: 1 for <code class="docutils literal notranslate"><span class="pre">onlyDigits</span></code>, 3 for <code class="docutils literal notranslate"><span class="pre">onlyAlpha</span></code> and 8 for <code class="docutils literal notranslate"><span class="pre">mixed</span></code>. Since the dataframe used here is very small, we can easily check the original data and verify that these metrics are indeed correct.</p>
