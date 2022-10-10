@@ -116,7 +116,7 @@ class MultiMetric(Metric, ABC):
 
         return res
 
-    def to_summary_dict(self, cfg: Optional[SummaryConfig]=None) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         cfg = cfg or SummaryConfig()
         summary = {}
         for sub_name, metrics in self.submetrics.items():

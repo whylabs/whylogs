@@ -134,7 +134,7 @@ class Metric(ABC):
         return res
 
     @abstractmethod
-    def to_summary_dict(self, cfg: Optional[SummaryConfig]=None) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         raise NotImplementedError
 
     @abstractmethod
@@ -195,7 +195,7 @@ class IntsMetric(Metric):
     def zero(cls, config: Optional[MetricConfig] = None) -> "IntsMetric":
         return IntsMetric(max=MaxIntegralComponent(-sys.maxsize), min=MinIntegralComponent(sys.maxsize))
 
-    def to_summary_dict(self, cfg: Optional[SummaryConfig]=None) -> Dict[str, Union[int, float, str, None]]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Union[int, float, str, None]]:
         return {"max": self.maximum, "min": self.minimum}
 
     @property
@@ -472,7 +472,7 @@ class FrequentItemsMetric(Metric):
 
         return OperationResult(successes=successes, failures=failures)
 
-    def to_summary_dict(self, cfg: Optional[SummaryConfig]=None) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         cfg = cfg or SummaryConfig()
         all_freq_items = self.frequent_strings.value.get_frequent_items(
             cfg.frequent_items_error_type.to_datasketches_type()
@@ -535,7 +535,7 @@ class CardinalityMetric(Metric):
             failures = len(view.list.objs)
         return OperationResult(successes=successes, failures=failures)
 
-    def to_summary_dict(self, cfg: Optional[SummaryConfig]=None) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         cfg = cfg or SummaryConfig()
         return {
             "est": self.hll.value.get_estimate(),
@@ -593,7 +593,7 @@ class CustomMetricBase(Metric, ABC):
     def get_component_paths(self) -> List[str]:
         return [_STRUCT_NAME]  # Assumes everything to be serde'd will be in the Struct
 
-    def to_summary_dict(self, cfg: Optional[SummaryConfig]=None) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         return asdict(self, dict_factory=_drop_private_fields)
 
     def to_protobuf(self) -> MetricMessage:

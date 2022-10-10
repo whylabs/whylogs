@@ -92,7 +92,7 @@ class CompoundMetric(Metric, ABC):
                 res.append(sub_name + ":" + submetric.namespace + "/" + comp_name)
         return res
 
-    def to_summary_dict(self, cfg: Optional[SummaryConfig]=None) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         cfg = cfg or SummaryConfig()
         summary = {}
         for sub_name, submetric in self.submetrics.items():

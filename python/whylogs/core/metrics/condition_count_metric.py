@@ -159,7 +159,7 @@ class ConditionCountMetric(Metric):
 
         return MetricMessage(metric_components=msg)
 
-    def to_summary_dict(self, cfg: Optional[SummaryConfig]=None) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         summary = {"total": self.total.value}
         for cond_name in self.matches.keys():
             summary[cond_name] = self.matches[cond_name].value
