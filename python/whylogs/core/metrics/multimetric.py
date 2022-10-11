@@ -1,7 +1,7 @@
 import logging
 from abc import ABC
 from copy import deepcopy
-from typing import Any, Dict, List, Type, TypeVar
+from typing import Any, Dict, List, Optional, Type, TypeVar
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.errors import DeserializationError, UnsupportedError
@@ -116,7 +116,8 @@ class MultiMetric(Metric, ABC):
 
         return res
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
+        cfg = cfg or SummaryConfig()
         summary = {}
         for sub_name, metrics in self.submetrics.items():
             for namespace, metric in metrics.items():

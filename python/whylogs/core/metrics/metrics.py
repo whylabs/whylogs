@@ -134,7 +134,7 @@ class Metric(ABC):
         return res
 
     @abstractmethod
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         raise NotImplementedError
 
     @abstractmethod
@@ -195,7 +195,7 @@ class IntsMetric(Metric):
     def zero(cls, config: Optional[MetricConfig] = None) -> "IntsMetric":
         return IntsMetric(max=MaxIntegralComponent(-sys.maxsize), min=MinIntegralComponent(sys.maxsize))
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Union[int, float, str, None]]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Union[int, float, str, None]]:
         return {"max": self.maximum, "min": self.minimum}
 
     @property
@@ -217,7 +217,7 @@ class DistributionMetric(Metric):
     def namespace(self) -> str:
         return "distribution"
 
-    def to_summary_dict(self, cfg: SummaryConfig = None) -> Dict[str, Union[int, float, str, None]]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Union[int, float, str, None]]:
         if self.n == 0:
             quantiles = [None, None, None, None, None, None, None, None, None]
         else:
@@ -472,7 +472,8 @@ class FrequentItemsMetric(Metric):
 
         return OperationResult(successes=successes, failures=failures)
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
+        cfg = cfg or SummaryConfig()
         all_freq_items = self.frequent_strings.value.get_frequent_items(
             cfg.frequent_items_error_type.to_datasketches_type()
         )
@@ -487,7 +488,7 @@ class FrequentItemsMetric(Metric):
     def strings(self) -> List[FrequentItem]:
         if self.frequent_strings.value.is_empty():
             return []
-        summary = self.to_summary_dict(cfg=SummaryConfig())
+        summary = self.to_summary_dict()
         return summary["frequent_strings"]
 
     @classmethod
@@ -534,7 +535,8 @@ class CardinalityMetric(Metric):
             failures = len(view.list.objs)
         return OperationResult(successes=successes, failures=failures)
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
+        cfg = cfg or SummaryConfig()
         return {
             "est": self.hll.value.get_estimate(),
             f"upper_{cfg.hll_stddev}": self.hll.value.get_upper_bound(cfg.hll_stddev),
@@ -591,7 +593,7 @@ class CustomMetricBase(Metric, ABC):
     def get_component_paths(self) -> List[str]:
         return [_STRUCT_NAME]  # Assumes everything to be serde'd will be in the Struct
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         return asdict(self, dict_factory=_drop_private_fields)
 
     def to_protobuf(self) -> MetricMessage:

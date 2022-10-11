@@ -19,7 +19,7 @@ class TypeCountersMetric(Metric):
     def namespace(self) -> str:
         return "types"
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         return {
             "integral": self.integral.value,
             "fractional": self.fractional.value,
@@ -109,7 +109,7 @@ class ColumnCountsMetric(Metric):
         self.null.set(null)
         return OperationResult.ok(data.len)
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         return {"n": self.n.value, "null": self.null.value}
 
     @classmethod

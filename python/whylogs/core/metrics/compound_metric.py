@@ -1,6 +1,6 @@
 from abc import ABC
 from copy import deepcopy
-from typing import Any, Dict, List, Type, TypeVar
+from typing import Any, Dict, List, Optional, Type, TypeVar
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.errors import DeserializationError, UnsupportedError
@@ -92,7 +92,8 @@ class CompoundMetric(Metric, ABC):
                 res.append(sub_name + ":" + submetric.namespace + "/" + comp_name)
         return res
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
+        cfg = cfg or SummaryConfig()
         summary = {}
         for sub_name, submetric in self.submetrics.items():
             sub_summary = submetric.to_summary_dict(cfg)
