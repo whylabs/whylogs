@@ -529,6 +529,16 @@ class CardinalityMetric(Metric):
             self.hll.value.update_str_list(view.list.strings)
             successes += len(view.list.strings)
 
+        # special handling for bool counts
+        if view.bool_count > 0:
+            if view.bool_count_where_true > 0 and view.bool_count > view.bool_count_where_true:
+                self.hll.value.update_int_list([1, 0])
+            elif view.bool_count_where_true > 0:
+                self.hll.value.update(1)
+            else:
+                self.hll.value.update(0)
+            successes += view.bool_count
+
         failures = 0
         if view.list.objs:
             failures = len(view.list.objs)

@@ -1,10 +1,15 @@
 import numpy as np
 import pandas as pd
+import pytest
 
 import whylogs as why
 from whylogs.core import ColumnProfileView
 from whylogs.core.metrics.maths import VarianceM2Result, parallel_variance_m2
-from whylogs.core.metrics.metrics import DistributionMetric, MetricConfig
+from whylogs.core.metrics.metrics import (
+    CardinalityMetric,
+    DistributionMetric,
+    MetricConfig,
+)
 from whylogs.core.preprocessing import PreprocessedColumn
 
 
@@ -151,3 +156,26 @@ def test_frequent_items_handling_int_as_string() -> None:
 
     res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
     assert res.array[0][0].value == "1"  # type: ignore
+
+
+def test_cardinality_metric_booleans() -> None:
+    cardinality = CardinalityMetric.zero(MetricConfig())
+    data = pd.Series([True, False, True, True])
+    col = PreprocessedColumn.apply(data)
+    cardinality.columnar_update(col)
+
+    assert cardinality.estimate == pytest.approx(2, 0.1)
+
+
+def test_cardinality_metric_row_booleans() -> None:
+    column_name = "col1"
+    data = {column_name: True}
+    profile = why.log(data).profile()
+    view = profile.view()
+    cardinality = view.get_column(column_name).get_metric("cardinality")
+
+    assert cardinality is not None
+    assert cardinality.estimate == pytest.approx(1, 0.1)
+    # track a bool value of false in the same column and check that cardinality increased to near 2.
+    profile.track(row={column_name: False})
+    assert cardinality.estimate == pytest.approx(2, 0.1)
