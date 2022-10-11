@@ -72,7 +72,7 @@ Classes
    .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 
 
-   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
 
 
    .. py:method:: zero(config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None) -> ColumnCountsMetric
@@ -133,7 +133,7 @@ Classes
       :property:
 
 
-   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
 
 
    .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
@@ -206,7 +206,7 @@ Classes
    .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
 
 
-   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
 
 
    .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> ConditionCountMetric
@@ -237,7 +237,7 @@ Classes
    .. py:method:: columnar_update(view: whylogs.core.preprocessing.PreprocessedColumn) -> OperationResult
 
 
-   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
 
 
    .. py:method:: estimate() -> Optional[float]
@@ -300,7 +300,7 @@ Classes
       :property:
 
 
-   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig = None) -> Dict[str, Union[int, float, str, None]]
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Union[int, float, str, None]]
 
 
    .. py:method:: columnar_update(view: whylogs.core.preprocessing.PreprocessedColumn) -> OperationResult
@@ -419,7 +419,7 @@ Classes
    .. py:method:: columnar_update(view: whylogs.core.preprocessing.PreprocessedColumn) -> OperationResult
 
 
-   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
 
 
    .. py:method:: strings() -> List[FrequentItem]
@@ -476,7 +476,7 @@ Classes
       :classmethod:
 
 
-   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Union[int, float, str, None]]
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Union[int, float, str, None]]
 
 
    .. py:method:: maximum() -> float
@@ -529,7 +529,7 @@ Classes
    .. py:method:: get_component_paths() -> List[str]
 
 
-   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
       :abstractmethod:
 
 
@@ -663,7 +663,7 @@ Classes
    .. py:method:: get_component_paths() -> List[str]
 
 
-   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
 
 
    .. py:method:: submetrics_from_protobuf(msg: whylogs.core.proto.MetricMessage) -> Dict[str, Dict[str, whylogs.core.metrics.Metric]]
