@@ -30,7 +30,7 @@ public abstract class ResultSet {
   // TODO: Come back for ModelPerformanceMetrics
 
   // Question: why is the python addMetrics when it only adds the one?
-  public void addMetric(String name, Metric metric) throws Error {
+  public void addMetric(String name, Metric<?> metric) throws Error {
     if (!this.profile().isPresent()) {
       throw new Error(
           "Cannot add " + name + " metric " + metric + " to a result set without a profile");

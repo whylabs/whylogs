@@ -6,7 +6,7 @@ import com.whylogs.core.metrics.Metric;
 import com.whylogs.core.metrics.MetricConfig;
 import com.whylogs.core.views.ColumnProfileView;
 import com.whylogs.core.views.DatasetProfileView;
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -14,19 +14,28 @@ import org.testng.annotations.Test;
 @Test
 public class TestViewResultSet {
 
-  private DatasetProfileView getDefaultDatasetProfile() {
+  private DatasetProfileView getDefaultDatasetProfile(Instant timestamp) {
     HashMap<String, ColumnProfileView> columnProfileViews = new HashMap<>();
-    HashMap<String, Metric> testMetrics = new HashMap<>();
+    HashMap<String, Metric<?>> testMetrics = new HashMap<>();
     testMetrics.put("ints", IntegralMetric.zero(new MetricConfig()));
     columnProfileViews.put("test", new ColumnProfileView(testMetrics));
-    return new DatasetProfileView(columnProfileViews, new Date(), new Date());
+
+    return new DatasetProfileView(columnProfileViews, timestamp, timestamp);
   }
 
   @Test
   public void testViewResultSet() {
-    DatasetProfileView view = getDefaultDatasetProfile();
+    Instant timestamp = Instant.now();
+    DatasetProfileView view = getDefaultDatasetProfile(timestamp);
     ViewResultSet viewResultSet = new ViewResultSet(view);
     Assert.assertNotNull(viewResultSet);
-    Assert.assertEquals(viewResultSet.view().get().getColumns().size(), 1);
+
+    if (viewResultSet.view().isPresent()) {
+      Assert.assertEquals(viewResultSet.view().get().getColumns().size(), 1);
+      Assert.assertEquals(
+          viewResultSet.view().get().getColumns().get("test").getComponents().size(), 2);
+    } else {
+      Assert.fail("View is not present");
+    }
   }
 }

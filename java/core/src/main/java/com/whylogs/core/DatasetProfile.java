@@ -39,14 +39,14 @@ public class DatasetProfile {
     this.initializeNewColumns(schema.getColNames());
   }
 
-  public void addMetric(String colName, Metric metric) {
+  public void addMetric(String colName, Metric<?> metric) {
     if (!this.columns.containsKey(colName)) {
       throw new InputMismatchException("Column name not found in schema");
     }
     this.columns.get(colName).addMetric(metric);
   }
 
-  public void addDatasetMetric(String name, Metric metric) {
+  public void addDatasetMetric(String name, Metric<?> metric) {
     this.metrics.put(name, metric);
   }
 
@@ -73,7 +73,7 @@ public class DatasetProfile {
       this.initializeNewColumns(newColumnNames);
     }
 
-    ArrayList<Object> values = new ArrayList<>();
+    ArrayList<Object> values;
     for (String col : row.keySet()) {
       values = new ArrayList<>();
       values.add(row.get(col));
@@ -101,7 +101,8 @@ public class DatasetProfile {
     for (String column : colNames) {
       ColumnSchema columnSchema = this.schema.getColumns().get(column);
       if (columnSchema != null) {
-        this.columns.put(column, new ColumnProfile(column, columnSchema, this.schema.getCacheSize()));
+        this.columns.put(
+            column, new ColumnProfile<>(column, columnSchema, this.schema.getCacheSize()));
       }
       // TODO: log warning 'Encountered a column without schema: %s", col' in an else
     }
@@ -131,8 +132,7 @@ public class DatasetProfile {
     }
 
     if (!path.get().endsWith("bin")) {
-      String finalPath = path.get() + "_" + defaultPath;
-      return finalPath;
+      return path.get() + "_" + defaultPath;
     }
 
     return path.get();

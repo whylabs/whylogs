@@ -27,7 +27,7 @@ public class DatasetProfileView {
   }
 
   public DatasetProfileView merge(DatasetProfileView otherView) {
-    if(otherView == null) {
+    if (otherView == null) {
       return this;
     }
 
