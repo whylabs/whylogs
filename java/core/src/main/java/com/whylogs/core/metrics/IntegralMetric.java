@@ -13,7 +13,7 @@ import lombok.Getter;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)
-public class IntegralMetric extends AbstractMetric<IntegralMetric> {
+public class IntegralMetric extends Metric<IntegralMetric> {
   public static final String NAMESPACE = "ints";
   private MaxIntegralComponent maxComponent;
   private MinIntegralComponent minComponent;
@@ -27,8 +27,8 @@ public class IntegralMetric extends AbstractMetric<IntegralMetric> {
   public IntegralMetric(MaxIntegralComponent maxComponent, MinIntegralComponent minComponent) {
     this();
 
-    this.maxComponent = maxComponent;
-    this.minComponent = minComponent;
+    this.maxComponent = maxComponent.copy();
+    this.minComponent = minComponent.copy();
   }
 
   private void setMax(int max) {
@@ -60,7 +60,7 @@ public class IntegralMetric extends AbstractMetric<IntegralMetric> {
 
     this.setMax(max_);
     this.setMin(min_);
-    return OperationResult.ok(successes);
+    return OperationResult.status(successes, 0, data.getNullCount());
   }
 
   @Override
@@ -73,6 +73,10 @@ public class IntegralMetric extends AbstractMetric<IntegralMetric> {
 
   public static IntegralMetric zero(MetricConfig config) {
     return new IntegralMetric();
+  }
+
+  public static IntegralMetric zero() {
+    return IntegralMetric.zero(new MetricConfig());
   }
 
   @Override
@@ -91,7 +95,7 @@ public class IntegralMetric extends AbstractMetric<IntegralMetric> {
   }
 
   @Override
-  public IntegralMetric merge(IntegralMetric other) {
+  public IntegralMetric merge(Metric<?> other) {
     if (!this.getNamespace().equals(other.getNamespace())) {
       throw new IllegalArgumentException(
           "Cannot merge IntegralMetrics with different namespaces:"
@@ -100,8 +104,9 @@ public class IntegralMetric extends AbstractMetric<IntegralMetric> {
               + other.getNamespace());
     }
 
-    int max = Integer.max(this.maxComponent.getValue(), other.maxComponent.getValue());
-    int min = Integer.min(this.minComponent.getValue(), other.minComponent.getValue());
+    IntegralMetric other_ = (IntegralMetric) other;
+    int max = Integer.max(this.maxComponent.getValue(), other_.maxComponent.getValue());
+    int min = Integer.min(this.minComponent.getValue(), other_.minComponent.getValue());
 
     return new IntegralMetric(new MaxIntegralComponent(max), new MinIntegralComponent(min));
   }

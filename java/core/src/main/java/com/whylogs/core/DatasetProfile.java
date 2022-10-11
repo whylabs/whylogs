@@ -5,6 +5,7 @@ import com.whylogs.core.schemas.ColumnSchema;
 import com.whylogs.core.schemas.DatasetSchema;
 import com.whylogs.core.views.ColumnProfileView;
 import com.whylogs.core.views.DatasetProfileView;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
 import lombok.Getter;
@@ -14,25 +15,25 @@ import lombok.ToString;
 @Getter
 @ToString
 public class DatasetProfile {
-  // TODO: Time zone is all mixed up. Fix
   public static int _LARGE_CACHE_SIZE_LIMIT = 1024 * 100;
 
   private DatasetSchema schema;
-  // QUESTION: Do we need zones here? Do we just use UTC?
-  private Date datasetTimestamp;
-  private Date creationTimestamp;
+  private Instant datasetTimestamp;
+  private Instant creationTimestamp;
   private HashMap<String, ColumnProfile<?>> columns;
   private boolean isActive = false;
   private int trackCount = 0;
   private HashMap<String, Metric> metrics = new HashMap<>();
 
+  // TODO: I don't like how this works for customers. I wouldn't want
+  // TODO: to have to pass the optionals around. We should just use overloading instead
   public DatasetProfile(
       Optional<DatasetSchema> datasetSchema,
-      Optional<Date> datasetaTimestampe,
-      Optional<Date> creationTimestampe) {
+      Optional<Instant> datasetTimestamp,
+      Optional<Instant> creationTimestamp) {
     this.schema = datasetSchema.orElse(new DatasetSchema());
-    this.datasetTimestamp = datasetaTimestampe.orElse(new Date());
-    this.creationTimestamp = creationTimestampe.orElse(new Date());
+    this.datasetTimestamp = datasetTimestamp.orElse(Instant.now());
+    this.creationTimestamp = creationTimestamp.orElse(Instant.now());
 
     this.columns = new HashMap<>();
     this.initializeNewColumns(schema.getColNames());
@@ -49,19 +50,7 @@ public class DatasetProfile {
     this.metrics.put(name, metric);
   }
 
-  /*
-  TODO: I don't beleive we need this in Java? (with the T Object)
-  public <T> void track(T obj){
-      try{
-          this.isActive = true;
-          this.trackCount += 1;
-          this.doTrack(obj);
-      } finally {
-          this.isActive = false;
-      }
-  }*/
-
-  public <T> void track(HashMap<String, T> row) {
+  public void track(HashMap<String, Object> row) {
     try {
       this.isActive = true;
       this.trackCount += 1;
@@ -71,7 +60,7 @@ public class DatasetProfile {
     }
   }
 
-  private <T> void doTrack(HashMap<String, T> row) {
+  private void doTrack(HashMap<String, Object> row) {
     boolean dirty = this.schema.resolve(row);
     if (dirty) {
       Set<String> schemaColumnNames = this.schema.getColNames();
@@ -84,8 +73,9 @@ public class DatasetProfile {
       this.initializeNewColumns(newColumnNames);
     }
 
+    ArrayList<Object> values = new ArrayList<>();
     for (String col : row.keySet()) {
-      ArrayList<T> values = new ArrayList<>();
+      values = new ArrayList<>();
       values.add(row.get(col));
       this.columns.get(col).trackColumn(values);
     }
@@ -100,7 +90,11 @@ public class DatasetProfile {
     if (datasetTimestamp.getZone() == null) {
       // TODO: log warning if it's not there
     }
-    this.datasetTimestamp = Date.from(datasetTimestamp.toInstant());
+    this.datasetTimestamp = datasetTimestamp.toInstant();
+  }
+
+  public void setDatasetTimestamp(Instant datasetTimestamp) {
+    this.datasetTimestamp = datasetTimestamp;
   }
 
   private void initializeNewColumns(Set<String> colNames) {
@@ -137,7 +131,7 @@ public class DatasetProfile {
     }
 
     if (!path.get().endsWith("bin")) {
-      String finalPath = path.get() + defaultPath;
+      String finalPath = path.get() + "_" + defaultPath;
       return finalPath;
     }
 

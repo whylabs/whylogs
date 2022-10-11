@@ -10,7 +10,7 @@ import lombok.*;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public abstract class Metric {
+public abstract class Metric<TSubclass extends Metric> {
 
   @NonNull private String namespace;
 
@@ -22,17 +22,7 @@ public abstract class Metric {
 
   public abstract HashMap<String, MetricComponent> getComponents();
 
-  public Metric merge(Metric other) {
-    Metric merged = this;
-    if (!this.namespace.equals(other.namespace)) {
-      throw new IllegalArgumentException("Cannot merge metrics with different namespaces");
-    }
-
-    if (this instanceof IntegralMetric) {
-      ((IntegralMetric) merged).merge((IntegralMetric) other);
-    }
-    return merged;
-  }
+  public abstract TSubclass merge(Metric<?> other);
 
   public @NonNull String getNamespace() {
     return namespace;

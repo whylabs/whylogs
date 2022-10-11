@@ -6,10 +6,14 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class SingleFieldProjector {
+public class SingleFieldProjector<T> {
   private final String columnName;
 
-  public <T> T apply(HashMap<String, T> row) {
-    return row.get(columnName);
+  public T apply(HashMap<String, Object> row) {
+    if (!row.containsKey(this.columnName)) {
+      throw new IllegalArgumentException("Column " + this.columnName + " not found in row");
+    }
+
+    return (T) row.get(this.columnName);
   }
 }

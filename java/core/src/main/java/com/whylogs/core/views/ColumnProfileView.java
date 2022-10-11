@@ -9,16 +9,19 @@ import lombok.Getter;
 
 @Getter
 public class ColumnProfileView {
-  private HashMap<String, Metric> metrics;
+  private HashMap<String, Metric<?>> metrics;
   private int successes = 0;
   private int failures = 0;
 
-  public ColumnProfileView(HashMap<String, Metric> metrics) {
+  public ColumnProfileView(HashMap<String, Metric<?>> metrics) {
     this.metrics = metrics;
   }
 
-  public ColumnProfileView(HashMap<String, Metric> metrics, int successes, int failures) {
-    this.metrics = metrics;
+  public ColumnProfileView(HashMap<String, Metric<?>> metrics, int successes, int failures) {
+    this.metrics = new HashMap<>();
+    if (metrics != null) {
+      this.metrics.putAll(metrics);
+    }
     this.successes = successes;
     this.failures = failures;
   }
@@ -33,12 +36,12 @@ public class ColumnProfileView {
     allMetricNames.addAll(this.metrics.keySet());
     allMetricNames.addAll(otherView.metrics.keySet());
 
-    HashMap<String, Metric> mergedMetrics = new HashMap<>();
+    HashMap<String, Metric<?>> mergedMetrics = new HashMap<>();
     for (String metricName : allMetricNames) {
-      Metric thisMetric = this.metrics.get(metricName);
-      Metric otherMetric = otherView.metrics.get(metricName);
+      Metric<?> thisMetric = this.metrics.get(metricName);
+      Metric<?> otherMetric = otherView.metrics.get(metricName);
 
-      Metric result = thisMetric;
+      Metric<?> result = thisMetric;
 
       if (thisMetric != null && otherMetric != null) {
         result = thisMetric.merge(otherMetric);
@@ -53,7 +56,7 @@ public class ColumnProfileView {
         mergedMetrics, this.successes + otherView.successes, this.failures + otherView.failures);
   }
 
-  public Optional<Metric> getMetric(String metricName) {
+  public Optional<Metric<?>> getMetric(String metricName) {
     return Optional.ofNullable(this.metrics.get(metricName));
   }
 
@@ -62,17 +65,17 @@ public class ColumnProfileView {
   }
 
   // TODO: metric needs a getComponentPath
-  public ArrayList<String> getMetricComponentPaths() {
+  public List<String> getMetricComponentPaths() {
     ArrayList<String> paths = new ArrayList<>();
     for (String metricName : this.getMetricNames()) {
-      Optional<Metric> metric = this.getMetric(metricName);
+      Optional<Metric<?>> metric = this.getMetric(metricName);
       if (metric.isPresent()) {
         for (String componentName : metric.get().getComponents().keySet()) {
           paths.add(metricName + "/" + componentName);
         }
       }
     }
-    return paths;
+    return Collections.unmodifiableList(paths);
   }
 
   public ArrayList<String> getMetricNames() {
@@ -101,10 +104,10 @@ public class ColumnProfileView {
     return summary;
   }
 
-  private HashMap<String, Object> getMetricSummaryHelper(
-      SummaryConfig summaryConfig, Optional<Metric> maybeMetric) {
+  private Map<String, Object> getMetricSummaryHelper(
+      SummaryConfig summaryConfig, Optional<Metric<?>> maybeMetric) {
     HashMap<String, Object> result = new HashMap<>();
-    Metric metric;
+    Metric<?> metric;
     if (maybeMetric.isPresent()) {
       metric = maybeMetric.get();
       HashMap<String, Object> metricSummary = metric.toSummaryDict(summaryConfig);
@@ -113,17 +116,15 @@ public class ColumnProfileView {
         result.put(fullName, metricSummary.get(componentName));
       }
     }
-    return result;
+    return Collections.unmodifiableMap(result);
   }
 
   public Map<String, MetricComponent> getComponents() {
     HashMap<String, MetricComponent> result = new HashMap<>();
     for (String metricName : this.getMetricNames()) {
-      Optional<Metric> metric = this.getMetric(metricName);
-      if (metric.isPresent()) {
-        result.putAll(metric.get().getComponents());
-      }
+      Optional<Metric<?>> metric = this.getMetric(metricName);
+      metric.ifPresent(value -> result.putAll(value.getComponents()));
     }
-    return result;
+    return Collections.unmodifiableMap(result);
   }
 }

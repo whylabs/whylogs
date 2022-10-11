@@ -14,16 +14,16 @@ import org.testng.annotations.Test;
 public class TestColumnProfileView {
 
   private ColumnProfileView getDefaultColumnProfile() {
-    Metric integralMetric = IntegralMetric.zero(new MetricConfig());
-    HashMap<String, Metric> metrics = new HashMap<>();
+    Metric<IntegralMetric> integralMetric = IntegralMetric.zero(new MetricConfig());
+    HashMap<String, Metric<?>> metrics = new HashMap<>();
     metrics.put(integralMetric.getNamespace(), integralMetric);
 
     return new ColumnProfileView(metrics);
   }
 
   private ColumnProfileView getChangedSuccessFailProfile(int success, int fail) {
-    Metric integralMetric = IntegralMetric.zero(new MetricConfig());
-    HashMap<String, Metric> metrics = new HashMap<>();
+    Metric<IntegralMetric> integralMetric = IntegralMetric.zero(new MetricConfig());
+    HashMap<String, Metric<?>> metrics = new HashMap<>();
     metrics.put(integralMetric.getNamespace(), integralMetric);
 
     return new ColumnProfileView(metrics, success, fail);
@@ -71,7 +71,7 @@ public class TestColumnProfileView {
   @Test
   public void testGetMetricComponentPaths() {
     ColumnProfileView columnProfileView = getDefaultColumnProfile();
-    ArrayList<String> paths = columnProfileView.getMetricComponentPaths();
+    List<String> paths = columnProfileView.getMetricComponentPaths();
     Assert.assertEquals(paths.size(), 2);
     Assert.assertEquals(paths.get(0), "ints/MaxIntegralComponent");
     Assert.assertEquals(paths.get(1), "ints/MinIntegralComponent");
@@ -80,7 +80,7 @@ public class TestColumnProfileView {
   @Test
   public void testGetMetricComponentPathsEmpty() {
     ColumnProfileView columnProfileView = ColumnProfileView.zero();
-    ArrayList<String> paths = columnProfileView.getMetricComponentPaths();
+    List<String> paths = columnProfileView.getMetricComponentPaths();
     Assert.assertEquals(paths.size(), 0);
   }
 
@@ -88,7 +88,7 @@ public class TestColumnProfileView {
   public void testGetMetricComponentPathsNull() {
     ColumnProfileView columnProfileView = getDefaultColumnProfile();
     columnProfileView = columnProfileView.merge(null);
-    ArrayList<String> paths = columnProfileView.getMetricComponentPaths();
+    List<String> paths = columnProfileView.getMetricComponentPaths();
     Assert.assertEquals(paths.size(), 2);
     Assert.assertEquals(paths.get(0), "ints/MaxIntegralComponent");
     Assert.assertEquals(paths.get(1), "ints/MinIntegralComponent");
@@ -98,8 +98,7 @@ public class TestColumnProfileView {
   public void testToSummaryDict() throws UnsupportedError {
     ColumnProfileView columnProfileView = getDefaultColumnProfile();
     HashMap<String, Object> summary =
-        columnProfileView.toSummaryDict(
-            Optional.ofNullable("ints"), Optional.ofNullable(new SummaryConfig()));
+        columnProfileView.toSummaryDict(Optional.of("ints"), Optional.of(new SummaryConfig()));
     Assert.assertEquals(summary.size(), 2);
     Assert.assertEquals(summary.get("ints/min"), Integer.MAX_VALUE);
     Assert.assertEquals(summary.get("ints/max"), Integer.MIN_VALUE);

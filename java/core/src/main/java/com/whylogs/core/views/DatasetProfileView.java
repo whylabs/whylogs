@@ -1,21 +1,33 @@
 package com.whylogs.core.views;
 
+import java.time.Instant;
 import java.util.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
 // TODO: extend writable when we do Protobuf
-@AllArgsConstructor
 @Getter
 @ToString
 public class DatasetProfileView {
   private HashMap<String, ColumnProfileView> columns;
-  private Date datasetTimestamp;
-  private Date creationTimestamp;
+  private Instant datasetTimestamp;
+  private Instant creationTimestamp;
+
+  public DatasetProfileView(HashMap<String, ColumnProfileView> columns) {
+    this(columns, Instant.now(), Instant.now());
+  }
+
+  public DatasetProfileView(
+      HashMap<String, ColumnProfileView> columns,
+      Instant datasetTimestamp,
+      Instant creationTimestamp) {
+    this.columns = columns;
+    this.datasetTimestamp = datasetTimestamp;
+    this.creationTimestamp = creationTimestamp;
+  }
 
   public DatasetProfileView merge(DatasetProfileView otherView) {
-    if (otherView == null) {
+    if(otherView == null) {
       return this;
     }
 
@@ -45,15 +57,15 @@ public class DatasetProfileView {
     return Optional.ofNullable(this.columns.get(columnName));
   }
 
-  public HashMap<String, ColumnProfileView> getColumns(Optional<ArrayList<String>> colNames) {
+  public Map<String, ColumnProfileView> getColumns(Optional<ArrayList<String>> colNames) {
     if (colNames.isPresent()) {
       HashMap<String, ColumnProfileView> result = new HashMap<>();
       for (String colName : colNames.get()) {
         result.put(colName, this.columns.get(colName));
       }
-      return result;
+      return Collections.unmodifiableMap(result);
     } else {
-      return this.columns;
+      return Collections.unmodifiableMap(this.columns);
     }
   }
 }

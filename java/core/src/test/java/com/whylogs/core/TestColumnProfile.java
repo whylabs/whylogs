@@ -14,8 +14,8 @@ import org.testng.annotations.Test;
 
 @Test
 public class TestColumnProfile {
-  private String columnName = "testColumn";
-  private int CACHE_SIZE = 2;
+  private final String columnName = "testColumn";
+  private final int CACHE_SIZE = 2;
 
   private ColumnProfile<Integer> getDefaultColumnProfile() {
     ColumnSchema standardSchema =
@@ -29,14 +29,13 @@ public class TestColumnProfile {
   public void testColumnProfileInit() {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
     Assert.assertEquals(profile.getName(), columnName);
-    Assert.assertEquals(profile.getSchema().getType(), IntegralMetric.class);
-    Assert.assertEquals(profile.getCachedSize(), CACHE_SIZE);
+    Assert.assertEquals(profile.getSchema().getType(), Integer.class);
+    Assert.assertEquals(profile.getCacheSize(), CACHE_SIZE);
   }
 
   @Test
   public void testAddMetric() {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
-    profile.addMetric(IntegralMetric.zero(new MetricConfig()));
     Assert.assertEquals(profile.getMetrics().size(), 1);
     Assert.assertEquals(profile.getMetrics().get("ints").getClass(), IntegralMetric.class);
     IntegralMetric metric = (IntegralMetric) profile.getMetrics().get("ints");
@@ -53,9 +52,9 @@ public class TestColumnProfile {
   @Test
   public void testTrack() {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
-    Assert.assertEquals(profile.getCachedSize(), CACHE_SIZE);
+    Assert.assertEquals(profile.getCacheSize(), CACHE_SIZE);
 
-    HashMap<String, Integer> row = new HashMap<>();
+    HashMap<String, Object> row = new HashMap<>();
     row.put(columnName, 5);
     row.put("test2", 2);
 
@@ -73,9 +72,9 @@ public class TestColumnProfile {
   @Test
   public void testTrackNull() {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
-    Assert.assertEquals(profile.getCachedSize(), CACHE_SIZE);
+    Assert.assertEquals(profile.getCacheSize(), CACHE_SIZE);
 
-    HashMap<String, Integer> row = new HashMap<>();
+    HashMap<String, Object> row = new HashMap<>();
     row.put(columnName, 1);
     profile.track(row);
 
@@ -94,7 +93,7 @@ public class TestColumnProfile {
   public void testFlush() {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
 
-    HashMap<String, Integer> row = new HashMap<>();
+    HashMap<String, Object> row = new HashMap<>();
     row.put(columnName, 5);
 
     profile.track(row);
