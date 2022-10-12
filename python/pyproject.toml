@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "1.1.7"
+version = "1.1.8.dev0"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -12,7 +12,7 @@ include = ["whylogs/core/proto/v0/*.py*", "whylogs/core/proto/*.py*"]
 [tool.poetry.dependencies]
 # core dependencies. Be REALLY mindful when touching this list
 python = ">=3.7.1, <4"
-whylogs-sketching = ">=3.4.1.dev3"
+whylogs-sketching = ">=3.4.1.dev2"
 protobuf = ">=3.19.4"
 importlib-metadata = { version = "<4.3", python = "<3.8" }
 typing-extensions = {version = ">=3.10", markers = "python_version < \"3.11\""}
