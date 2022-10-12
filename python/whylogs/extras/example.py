@@ -92,15 +92,20 @@ for w in vocab:
         vocab_map[w] = dim
         dim += 1
 
+doc_lengths = []
 ndocs = len(inaugural.fileids())
 doc = 0
 index = np.zeros((vocab_size, ndocs))
 for fid in inaugural.fileids():
     stopped = [t.casefold() for t in inaugural.words(fid) if t.casefold() not in stop_words]
     stemmed = [stemmer.stem(w) for w in stopped]
+    doc_lengths.append(len(stemmed))
     for w in stemmed:
         index[vocab_map[w], doc] += 1
     doc += 1
+
+print(f"doc lenghts {doc_lengths}\nmean: {np.array(doc_lengths).mean()}\nstd: {np.std(doc_lengths)}\nmax: {max(doc_lengths)}\nmin: {min(doc_lengths)}\nnum docs: {len(doc_lengths)}\nnum terms: {vocab_size}")
+print()
 
 A = index.copy()
 log_entropy(A)
@@ -113,10 +118,10 @@ g = entropy(index)
 
 num_concepts = 100
 old_doc_decay_rate = 0.8
-svd_config = SvdMetricConfig(num_concepts, old_doc_decay_rate)
+svd_config = SvdMetricConfig(k=num_concepts, decay=old_doc_decay_rate)
 svd = UpdatableSvdMetric.zero(svd_config)
 
-nlp_config = NlpConfig(svd)
+nlp_config = NlpConfig(svd=svd)
 ref_nlp = NlpMetric.zero(nlp_config)
 
 for fid in inaugural.fileids():
@@ -131,6 +136,10 @@ for fid in inaugural.fileids():
 
     ref_nlp.columnar_update(_preprocessifier(stemmed, doc_vec))  # update SVD & residual
 
+print(f"\nU: {svd.U.value}\nS: {svd.S.value}\n")
+assert svd.namespace == "updatable_svd"
+assert ref_nlp.svd.namespace == "updatable_svd"
+
 # save reference profile locally
 write_me = ref_nlp.to_protobuf()  # small--only has 3 DistributionMetrics and a FrequentItemsMetric
 svd_write_me = ref_nlp.svd.to_protobuf()  # big--contains the SVD approximation & parameters
@@ -138,10 +147,12 @@ svd_write_me = ref_nlp.svd.to_protobuf()  # big--contains the SVD approximation 
 
 # production tracking, no reference update
 
-svd = SvdMetric.from_protobuf(svd_write_me)  # use UpdatableSvdMetric to train in production
+prod_svd = SvdMetric.from_protobuf(svd_write_me)  # use UpdatableSvdMetric to train in production
+# nlp_config = NlpConfig(prod_svd)
 nlp_config = NlpConfig(svd)
 prod_nlp = NlpMetric.zero(nlp_config)
 
+residuals = []
 for fid in inaugural.fileids():
     stopped = [t.casefold() for t in inaugural.words(fid) if t.casefold() not in stop_words]
     stemmed = [stemmer.stem(w) for w in stopped]
@@ -152,7 +163,10 @@ for fid in inaugural.fileids():
     for i in range(vocab_size):
         doc_vec[i] = g[i] * np.log(doc_vec[i] + 1.0)
 
+    residuals.append(prod_nlp.svd.residual(doc_vec))
     prod_nlp.columnar_update(_preprocessifier(stemmed, doc_vec))  # update residual only, not SVD
+
+print(f"\nresiduals: {residuals}\n")
 
 # if we trained with production data
 # write_me = prod_nlp.svd.to_protobuf()
