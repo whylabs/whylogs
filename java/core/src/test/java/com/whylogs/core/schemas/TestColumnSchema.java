@@ -17,8 +17,8 @@ public class TestColumnSchema {
         new ColumnSchema(Integer.class, new MetricConfig(), new StandardResolver());
     HashMap<String, ? extends Metric> metrics = columnSchema.getMetrics();
 
-    // TODO: I'm not sure I like this. Might want to rethink the Metric just a little
     Assert.assertEquals(metrics.get("ints").getClass(), IntegralMetric.class);
+    Assert.assertEquals(columnSchema.getType(), Integer.class);
     IntegralMetric ints = (IntegralMetric) metrics.get("ints");
     Assert.assertEquals((int) ints.getMaxComponent().getValue(), Integer.MIN_VALUE);
   }

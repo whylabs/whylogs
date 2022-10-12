@@ -2,6 +2,7 @@ package com.whylogs.core.schemas;
 
 import com.whylogs.core.metrics.MetricConfig;
 import com.whylogs.core.resolvers.Resolver;
+import com.whylogs.core.resolvers.StandardResolver;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Optional;
@@ -19,13 +20,19 @@ public class DatasetSchema {
   public boolean schema_based_automerge = false;
 
   public DatasetSchema() {
+    this(Optional.empty(), Optional.empty());
+  }
+
+  public DatasetSchema(Optional<MetricConfig> defaultConfig, Optional<Resolver> resolver) {
     this.columns = new HashMap<>();
-    this.defaultConfig = new MetricConfig();
+    this.defaultConfig = defaultConfig.orElse(new MetricConfig());
+    this.resolver = resolver.orElse(new StandardResolver());
   }
 
   public DatasetSchema(int cache_size, boolean schema_based_automerge) {
     this.columns = new HashMap<>();
     this.defaultConfig = new MetricConfig();
+    this.resolver = new StandardResolver();
     this.cache_size = cache_size;
     this.schema_based_automerge = schema_based_automerge;
 
