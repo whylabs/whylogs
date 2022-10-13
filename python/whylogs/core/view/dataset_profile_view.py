@@ -282,10 +282,12 @@ class DatasetProfileView(Writable):
 
     def to_pandas(self, column_metric: Optional[str] = None, cfg: Optional[SummaryConfig] = None) -> pd.DataFrame:
         all_dicts = []
-        for col_name, col in sorted(self._columns.items()):
-            sum_dict = col.to_summary_dict(column_metric=column_metric, cfg=cfg)
-            sum_dict["column"] = col_name
-            sum_dict["type"] = SummaryType.COLUMN
-            all_dicts.append(dict(sorted(sum_dict.items())))
-        df = pd.DataFrame(all_dicts)
-        return df.set_index("column")
+        if self._columns:
+            for col_name, col in sorted(self._columns.items()):
+                sum_dict = col.to_summary_dict(column_metric=column_metric, cfg=cfg)
+                sum_dict["column"] = col_name
+                sum_dict["type"] = SummaryType.COLUMN
+                all_dicts.append(dict(sorted(sum_dict.items())))
+            df = pd.DataFrame(all_dicts)
+            return df.set_index("column")
+        return pd.DataFrame(all_dicts)

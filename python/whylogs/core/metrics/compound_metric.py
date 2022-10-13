@@ -1,5 +1,6 @@
 from abc import ABC
-from typing import Any, Dict, List, Type, TypeVar
+from copy import deepcopy
+from typing import Any, Dict, List, Optional, Type, TypeVar
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.errors import DeserializationError, UnsupportedError
@@ -41,7 +42,7 @@ class CompoundMetric(Metric, ABC):
             The collection of metrics that comprise the CompoundMetric.
             The key servers as the name of the sub-metric. E.g., the
             metric summary entries will have keys of the form
-               "<namespace>/<submetric name>/<component name>"
+               "<submetric name>/<component name>"
             Submetric names should only contain alphanumeric characters,
             hyphens, and underscores.
         """
@@ -57,9 +58,21 @@ class CompoundMetric(Metric, ABC):
     def merge_submetrics(self: COMPOUND_METRIC, other: COMPOUND_METRIC) -> Dict[str, Metric]:
         if self.namespace != other.namespace:
             raise ValueError(f"Attempt to merge CompoundMetrics {self.namespace} and {other.namespace}")
-        if self.submetrics.keys() != other.submetrics.keys():
-            raise ValueError("Attempt to merge incompatible CompoundMetrics")
-        return {name: (self.submetrics[name] + other.submetrics[name]) for name in self.submetrics.keys()}
+
+        submetric_names = set(self.submetrics.keys())
+        submetric_names.update(other.submetrics.keys())
+        submetrics: Dict[str, Metric] = dict()
+        for submetric_name in submetric_names:
+            if submetric_name in self.submetrics and submetric_name in other.submetrics:
+                if self.submetrics[submetric_name].namespace != other.submetrics[submetric_name].namespace:
+                    raise ValueError("Attempt to merge CompoundMetrics with incompatible submetric types")
+                submetrics[submetric_name] = self.submetrics[submetric_name] + other.submetrics[submetric_name]
+            elif submetric_name in self.submetrics:
+                submetrics[submetric_name] = deepcopy(self.submetrics[submetric_name])
+            else:
+                submetrics[submetric_name] = deepcopy(other.submetrics[submetric_name])
+
+        return submetrics
 
     def merge(self: COMPOUND_METRIC, other: COMPOUND_METRIC) -> COMPOUND_METRIC:
         return self.__class__(self.merge_submetrics(other))
@@ -79,7 +92,8 @@ class CompoundMetric(Metric, ABC):
                 res.append(sub_name + ":" + submetric.namespace + "/" + comp_name)
         return res
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
+        cfg = cfg or SummaryConfig()
         summary = {}
         for sub_name, submetric in self.submetrics.items():
             sub_summary = submetric.to_summary_dict(cfg)

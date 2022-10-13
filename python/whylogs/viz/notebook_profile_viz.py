@@ -10,6 +10,7 @@ from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.constraints import Constraints
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.migration.uncompound import _uncompound_dataset_profile
 from whylogs.viz.enums.enums import PageSpec, PageSpecEnum
 from whylogs.viz.utils.frequent_items_calculations import zero_padding_frequent_items
 from whylogs.viz.utils.html_template_utils import _get_compiled_template
@@ -211,8 +212,8 @@ class NotebookProfileVisualizer:
             Reference, or baseline, profile to be compared against the target profile.
 
         """
-        self._target_view = target_profile_view
-        self._ref_view = reference_profile_view
+        self._target_view = _uncompound_dataset_profile(target_profile_view) if target_profile_view else None
+        self._ref_view = _uncompound_dataset_profile(reference_profile_view) if reference_profile_view else None
 
     def profile_summary(self, cell_height: str = None) -> HTML:
         page_spec = PageSpecEnum.PROFILE_SUMMARY.value

@@ -90,10 +90,9 @@ class OperationResult:
 
 class Metric(ABC):
     @classmethod
+    # TODO: deprecate config argument
     def get_namespace(cls, config: Optional[MetricConfig] = None) -> str:
-        if config is None:
-            config = MetricConfig()
-        return cls.zero(config).namespace
+        return cls.zero().namespace
 
     @property
     @abstractmethod
@@ -135,7 +134,7 @@ class Metric(ABC):
         return res
 
     @abstractmethod
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         raise NotImplementedError
 
     @abstractmethod
@@ -144,7 +143,7 @@ class Metric(ABC):
 
     @classmethod
     @abstractmethod
-    def zero(cls: Type[METRIC], config: MetricConfig) -> METRIC:
+    def zero(cls: Type[METRIC], config: Optional[MetricConfig] = None) -> METRIC:
         pass
 
     @classmethod
@@ -193,10 +192,10 @@ class IntsMetric(Metric):
         return OperationResult.ok(successes)
 
     @classmethod
-    def zero(cls, config: MetricConfig) -> "IntsMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "IntsMetric":
         return IntsMetric(max=MaxIntegralComponent(-sys.maxsize), min=MinIntegralComponent(sys.maxsize))
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Union[int, float, str, None]]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Union[int, float, str, None]]:
         return {"max": self.maximum, "min": self.minimum}
 
     @property
@@ -218,7 +217,7 @@ class DistributionMetric(Metric):
     def namespace(self) -> str:
         return "distribution"
 
-    def to_summary_dict(self, cfg: SummaryConfig = None) -> Dict[str, Union[int, float, str, None]]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Union[int, float, str, None]]:
         if self.n == 0:
             quantiles = [None, None, None, None, None, None, None, None, None]
         else:
@@ -414,7 +413,8 @@ class DistributionMetric(Metric):
         return self.kll.value.get_min_value()
 
     @classmethod
-    def zero(cls, config: MetricConfig) -> "DistributionMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "DistributionMetric":
+        config = config or MetricConfig()
         configured_kll_k = config.kll_k_large if config.large_kll_k else config.kll_k
         sk = ds.kll_doubles_sketch(k=configured_kll_k)
         return DistributionMetric(
@@ -472,7 +472,8 @@ class FrequentItemsMetric(Metric):
 
         return OperationResult(successes=successes, failures=failures)
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
+        cfg = cfg or SummaryConfig()
         all_freq_items = self.frequent_strings.value.get_frequent_items(
             cfg.frequent_items_error_type.to_datasketches_type()
         )
@@ -487,11 +488,12 @@ class FrequentItemsMetric(Metric):
     def strings(self) -> List[FrequentItem]:
         if self.frequent_strings.value.is_empty():
             return []
-        summary = self.to_summary_dict(cfg=SummaryConfig())
+        summary = self.to_summary_dict()
         return summary["frequent_strings"]
 
     @classmethod
-    def zero(cls, config: MetricConfig) -> "FrequentItemsMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "FrequentItemsMetric":
+        config = config or MetricConfig()
         sk = ds.frequent_strings_sketch(lg_max_k=config.fi_lg_max_k)
         return FrequentItemsMetric(frequent_strings=FrequentStringsComponent(sk))
 
@@ -528,12 +530,23 @@ class CardinalityMetric(Metric):
             self.hll.value.update_str_list(view.list.strings)
             successes += len(view.list.strings)
 
+        # special handling for bool counts
+        if view.bool_count > 0:
+            if view.bool_count_where_true > 0 and view.bool_count > view.bool_count_where_true:
+                self.hll.value.update_int_list([1, 0])
+            elif view.bool_count_where_true > 0:
+                self.hll.value.update(1)
+            else:
+                self.hll.value.update(0)
+            successes += view.bool_count
+
         failures = 0
         if view.list.objs:
             failures = len(view.list.objs)
         return OperationResult(successes=successes, failures=failures)
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
+        cfg = cfg or SummaryConfig()
         return {
             "est": self.hll.value.get_estimate(),
             f"upper_{cfg.hll_stddev}": self.hll.value.get_upper_bound(cfg.hll_stddev),
@@ -565,7 +578,8 @@ class CardinalityMetric(Metric):
         return result
 
     @classmethod
-    def zero(cls, config: MetricConfig) -> "CardinalityMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "CardinalityMetric":
+        config = config or MetricConfig()
         sk = ds.hll_sketch(config.hll_lg_k)
         return CardinalityMetric(hll=HllComponent(sk))
 
@@ -589,7 +603,7 @@ class CustomMetricBase(Metric, ABC):
     def get_component_paths(self) -> List[str]:
         return [_STRUCT_NAME]  # Assumes everything to be serde'd will be in the Struct
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         return asdict(self, dict_factory=_drop_private_fields)
 
     def to_protobuf(self) -> MetricMessage:

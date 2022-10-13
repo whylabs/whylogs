@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
 from whylogs.api.logger.segment_processing import segment_processing
+from whylogs.api.store import ProfileStore
 from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.errors import LoggingError
@@ -30,6 +31,7 @@ class Logger(ABC):
         self._schema = schema
         self._writers: List[Writer] = []
         atexit.register(self.close)
+        self._store_list: List[ProfileStore] = []
 
     def check_writer(self, _: Writer) -> None:
         """Checks if a writer is configured correctly for this class"""
@@ -45,6 +47,9 @@ class Logger(ABC):
         assert writer is not None
         self.check_writer(writer)
         self._writers.append(writer)
+
+    def append_store(self, store: ProfileStore) -> None:
+        self._store_list.append(store)
 
     @abstractmethod
     def _get_matching_profiles(

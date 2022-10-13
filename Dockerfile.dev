@@ -19,6 +19,7 @@ RUN curl -LJO https://github.com/protocolbuffers/protobuf/releases/download/v3.1
     pip install pandas && \
     pip install sphinx && \
     apt install openjdk-11-jre-headless -y && \
+    apt install graphviz -y && \
     curl -fsSL https://deb.nodesource.com/setup_17.x | bash - && \
     apt install nodejs -y && \
     npm install --global yarn && \
@@ -32,7 +33,7 @@ RUN apt install less -y && \
 USER whyuser
 
 WORKDIR /home/whyuser
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python - && \
+RUN curl -sSL https://install.python-poetry.org | python3 - && \
     echo source /home/whyuser/.poetry/env >> .bashrc
 
 WORKDIR /workspace

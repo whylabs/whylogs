@@ -4,7 +4,7 @@ from copy import copy
 from dataclasses import dataclass, field
 from enum import Enum
 from itertools import chain
-from typing import Any, Callable, Dict, List, Set, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.metric_components import IntegralComponent, MetricComponent
@@ -142,8 +142,9 @@ class ConditionCountMetric(Metric):
         return OperationResult.ok(count)
 
     @classmethod
-    def zero(cls, config: MetricConfig) -> "ConditionCountMetric":
-        if config is None or not isinstance(config, ConditionCountConfig):
+    def zero(cls, config: Optional[MetricConfig] = None) -> "ConditionCountMetric":
+        config = config or ConditionCountConfig()
+        if not isinstance(config, ConditionCountConfig):
             raise ValueError("ConditionCountMetric.zero() requires ConditionCountConfig argument")
 
         return ConditionCountMetric(
@@ -158,7 +159,7 @@ class ConditionCountMetric(Metric):
 
         return MetricMessage(metric_components=msg)
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         summary = {"total": self.total.value}
         for cond_name in self.matches.keys():
             summary[cond_name] = self.matches[cond_name].value

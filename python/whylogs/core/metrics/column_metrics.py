@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.metric_components import IntegralComponent
@@ -19,7 +19,7 @@ class TypeCountersMetric(Metric):
     def namespace(self) -> str:
         return "types"
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         return {
             "integral": self.integral.value,
             "fractional": self.fractional.value,
@@ -78,7 +78,7 @@ class TypeCountersMetric(Metric):
         return OperationResult.ok(successes)
 
     @classmethod
-    def zero(cls, config: MetricConfig) -> "TypeCountersMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "TypeCountersMetric":
         return TypeCountersMetric(
             integral=IntegralComponent(0),
             fractional=IntegralComponent(0),
@@ -109,9 +109,9 @@ class ColumnCountsMetric(Metric):
         self.null.set(null)
         return OperationResult.ok(data.len)
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         return {"n": self.n.value, "null": self.null.value}
 
     @classmethod
-    def zero(cls, config: MetricConfig) -> "ColumnCountsMetric":
+    def zero(cls, config: Optional[MetricConfig] = None) -> "ColumnCountsMetric":
         return ColumnCountsMetric(n=IntegralComponent(0), null=IntegralComponent(0))
