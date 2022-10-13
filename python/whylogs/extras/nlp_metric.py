@@ -1,9 +1,10 @@
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from io import BytesIO
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+import scipy as sp
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics import StandardMetric
@@ -46,7 +47,7 @@ def _deserialize_ndarray(a: bytes) -> np.ndarray:
 
 
 class VectorComponent(MetricComponent[np.ndarray]):
-    # mtype = np.ndarray
+    #    mtype = np.ndarray
     type_id = 101
 
 
@@ -56,8 +57,8 @@ def serialize(value: np.ndarray) -> MetricComponentMessage:
 
 
 @deserializer(type_id=101)
-def deserialize(msg: MetricComponentMessage) -> "VectorComponent":
-    return VectorComponent(value=_deserialize_ndarray(msg.serialized_bytes))
+def deserialize(msg: MetricComponentMessage) -> np.ndarray:
+    return _deserialize_ndarray(msg.serialized_bytes)
 
 
 """
@@ -105,17 +106,11 @@ class SvdMetric(Metric):
         # TODO: zero-pad vector if it's too short; complain if it's too long
         U = self.U.value
         S = self.S.value
-        print(f"residual\n  vector {vector.shape}\n  U {U.shape}\n  S {S.shape}\n")
         residual = U.transpose().dot(vector)
-        print(f"   U' x {residual.shape}")
         residual = _reciprocal(S) * residual
-        print(f"   S^ U' x {residual.shape}")
         residual = S * residual
-        print(f"   S S^ U' x {residual.shape}")
         residual = U.dot(residual)
-        print(f"   U S S^ U' x {residual.shape}")
         residual = residual - vector
-        print(f"   U S S^ U' x - x {residual.shape}")
         residual = np.linalg.norm(residual) / np.linalg.norm(vector)
         return residual
 
@@ -149,6 +144,7 @@ class SvdMetric(Metric):
         return SvdMetric(
             k=IntegralComponent(0),
             decay=FractionalComponent(0.0),
+            # TODO: make this mergeable?
             U=VectorComponent(np.zeros((1, 1))),
             S=VectorComponent(np.zeros(1)),
         )
@@ -168,18 +164,14 @@ class UpdatableSvdMetric(SvdMetric):
         U0, S0 = self.U.value, self.S.value
         if U0.shape == (1, 1):
             U0 = np.zeros((U1.shape[0], k))
-            print(f"_resketch initial size {U0.shape}")
             S0 = np.zeros(k)
         if U0.shape[0] < U1.shape[0]:
             U0 = np.pad(U0, ((0, U1.shape[0] - U0.shape[0]), (0, 0)), "constant")
         assert U0.shape[0] == U1.shape[0]
-        print(f"_resketch U0 {U0.shape} S0 {S0.shape} U1 {U1.shape} S1 {S1.shape}")
 
         Q, R = np.linalg.qr(np.concatenate((decay * U0 * S0, U1 * S1), axis=1))
-        print(f"   Q {Q.shape} R {R.shape}")
-        UR, S, VRT = np.linalg.svd(R)
+        UR, S, VRT = sp.sparse.linalg.svds(R, k)
         U = np.dot(Q, UR)
-        print(f"   U {U.shape} S {S.shape}")
         return U, S
 
     def merge(self, other: "SvdMetric") -> "UpdatableSvdMetric":
@@ -211,8 +203,8 @@ class UpdatableSvdMetric(SvdMetric):
             raise ValueError("UpdatableSvdMetric.zero() requires SvdMetricConfig argument")
 
         return UpdatableSvdMetric(
-            k=IntegralComponent(config.k),
-            decay=FractionalComponent(config.decay),
+            k=IntegralComponent(cfg.k),
+            decay=FractionalComponent(cfg.decay),
             U=VectorComponent(np.zeros((1, 1))),
             S=VectorComponent(np.zeros(1)),
         )
@@ -231,7 +223,7 @@ class NlpConfig(MetricConfig):
     """
 
     # The default will not allow updates or residual computation
-    svd: SvdMetric = SvdMetric.zero(SvdMetricConfig())
+    svd: SvdMetric = field(default_factory = SvdMetric.zero)
 
 
 @dataclass
@@ -241,7 +233,7 @@ class NlpMetric(MultiMetric):
     """
 
     svd: SvdMetric  # use an UpdatableSvdMetric to train while tracking, or SvdMetric if SVD is to be static
-    fi_disabled: bool
+    fi_disabled: bool = False
 
     def __post_init__(self):
         submetrics = {
@@ -308,8 +300,9 @@ class NlpMetric(MultiMetric):
         if terms:
             term_lengths = [len(term) for term in terms]
             self._update_submetrics("term_length", PreprocessedColumn.apply(term_lengths))
-            self._update_submetrics("frequent_terms", PreprocessedColumn.apply(terms))
-            self._update_submetrics("doc_length"], PreprocessedColumn.apply([len(terms)]))
+            self._update_submetrics("doc_length", PreprocessedColumn.apply([len(terms)]))
+            if not self.fi_disabled:
+                self._update_submetrics("frequent_terms", PreprocessedColumn.apply(terms))
 
         self.svd.columnar_update(data)  # no-op if SVD is not updating
         residuals: List[float] = []
@@ -326,7 +319,7 @@ class NlpMetric(MultiMetric):
         if not isinstance(cfg, NlpConfig):
             raise ValueError("NlpMetric.zero() requires an NlpConfig argument")
 
-        return NlpMetric(svd=cfg.svd, cfg.fi_disabled)
+        return NlpMetric(cfg.svd, cfg.fi_disabled)
 
     @classmethod
     def from_protobuf(cls, msg: MetricMessage) -> "NlpMetric":
