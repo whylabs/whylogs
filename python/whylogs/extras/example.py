@@ -140,17 +140,30 @@ print(f"\nU: {svd.U.value}\nS: {svd.S.value}\n")
 assert svd.namespace == "updatable_svd"
 assert ref_nlp.svd.namespace == "updatable_svd"
 
+
 # save reference profile locally
 write_me = ref_nlp.to_protobuf()  # small--only has 3 DistributionMetrics and a FrequentItemsMetric
 svd_write_me = ref_nlp.svd.to_protobuf()  # big--contains the SVD approximation & parameters
 
+print(f"experiment {svd.U.value.shape}")
 
 # production tracking, no reference update
 
 prod_svd = SvdMetric.from_protobuf(svd_write_me)  # use UpdatableSvdMetric to train in production
-# nlp_config = NlpConfig(prod_svd)
-nlp_config = NlpConfig(svd)
-prod_nlp = NlpMetric.zero(nlp_config)
+
+print(svd)
+print(prod_svd)
+
+print(f"ref shape {ref_nlp.svd.U.value.shape}  deser {prod_svd.U.value.shape} : {type(prod_svd)}\n")
+
+nlp_config = NlpConfig(svd=prod_svd)
+print(type(nlp_config.svd.U.value))
+print(f"conf shape {np.shape(nlp_config.svd.U.value)}  prod_svd shape {prod_svd.U.value.shape}")
+
+#nlp_config = NlpConfig(svd)
+prod_nlp = NlpMetric.zero(cfg=nlp_config)
+print(f"prod_nlp shape {np.shape(prod_nlp.svd.U.value)}")
+
 
 residuals = []
 for fid in inaugural.fileids():
