@@ -82,17 +82,18 @@ class S3Writer(Writer):
         except ClientError as e:
             logging.error(e)
             return False, str(e)
-        return True, "Uploaded " + tmp_file.name + " to " + self.bucket_name + "/" + self.object_name
+        return True, f"Uploaded {tmp_file.name} to {self.bucket_name}/{self.object_name}"
 
     def option(
         self,
         bucket_name: Optional[str] = None,
         object_name: Optional[str] = None,
         s3_client: Optional[BaseClient] = None,
-    ) -> None:  # type: ignore
+    ) -> "S3Writer":  # type: ignore
         if bucket_name:
             self.bucket_name = bucket_name
         if object_name:
             self.object_name = object_name
         if s3_client:
             self.s3_client = s3_client
+        return self
