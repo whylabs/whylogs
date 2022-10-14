@@ -74,6 +74,7 @@ stop_words = set(
         "- ",
         "/",
         '?"',
+        "...",
         "",
     ]
 )
@@ -86,10 +87,12 @@ vocab = {stemmer.stem(w.casefold()) for w in vstopped}
 vocab_size = len(vocab)
 
 vocab_map = {}
+rev_map = [""] * vocab_size
 dim = 0
 for w in vocab:
     if w not in vocab_map:
         vocab_map[w] = dim
+        rev_map[dim] = w
         dim += 1
 
 doc_lengths = []
@@ -99,6 +102,8 @@ index = np.zeros((vocab_size, ndocs))
 for fid in inaugural.fileids():
     stopped = [t.casefold() for t in inaugural.words(fid) if t.casefold() not in stop_words]
     stemmed = [stemmer.stem(w) for w in stopped]
+#    print(f"{fid} : {stemmed}")
+#    print()
     doc_lengths.append(len(stemmed))
     for w in stemmed:
         index[vocab_map[w], doc] += 1
@@ -116,7 +121,7 @@ g = entropy(index)
 
 # build reference profile
 
-num_concepts = 100
+num_concepts = 10
 old_doc_decay_rate = 0.8
 svd_config = SvdMetricConfig(k=num_concepts, decay=old_doc_decay_rate)
 svd = UpdatableSvdMetric.zero(svd_config)
@@ -141,11 +146,17 @@ assert svd.namespace == "updatable_svd"
 assert ref_nlp.svd.namespace == "updatable_svd"
 
 
+concepts = svd.U.value.transpose()
+for i in range(concepts.shape[0]):
+    pos_idx = sorted(range(len(concepts[i])), key=lambda x: concepts[i][x])[-10:]
+    neg_idx = sorted(range(len(concepts[i])), key=lambda x: -1 * concepts[i][x])[-5:]
+    print(", ".join([rev_map[j] for j in pos_idx])) # + [rev_map[j] for j in neg_idx]))
+print()
+
 # save reference profile locally
 write_me = ref_nlp.to_protobuf()  # small--only has 3 DistributionMetrics and a FrequentItemsMetric
 svd_write_me = ref_nlp.svd.to_protobuf()  # big--contains the SVD approximation & parameters
 
-print(f"experiment {svd.U.value.shape}")
 
 # production tracking, no reference update
 
@@ -154,15 +165,11 @@ prod_svd = SvdMetric.from_protobuf(svd_write_me)  # use UpdatableSvdMetric to tr
 print(svd)
 print(prod_svd)
 
-print(f"ref shape {ref_nlp.svd.U.value.shape}  deser {prod_svd.U.value.shape} : {type(prod_svd)}\n")
-
 nlp_config = NlpConfig(svd=prod_svd)
 print(type(nlp_config.svd.U.value))
-print(f"conf shape {np.shape(nlp_config.svd.U.value)}  prod_svd shape {prod_svd.U.value.shape}")
 
 #nlp_config = NlpConfig(svd)
 prod_nlp = NlpMetric.zero(cfg=nlp_config)
-print(f"prod_nlp shape {np.shape(prod_nlp.svd.U.value)}")
 
 
 residuals = []
@@ -189,4 +196,5 @@ send_me = prod_nlp.to_protobuf()
 
 # get stats on doc length, term length, SVD "fit"
 view_me = prod_nlp.to_summary_dict(SummaryConfig())
-print(view_me)
+# print(view_me)
+
