@@ -170,7 +170,7 @@ class UpdatableSvdMetric(SvdMetric):
         assert U0.shape[0] == U1.shape[0]
 
         Q, R = np.linalg.qr(np.concatenate((decay * U0 * S0, U1 * S1), axis=1))
-        UR, S, VRT = sp.sparse.linalg.svds(R, k)
+        UR, S, VRT = sp.sparse.linalg.svds(R, k, return_singular_vectors = "u")
         U = np.dot(Q, UR)
         return U, S
 
@@ -189,7 +189,8 @@ class UpdatableSvdMetric(SvdMetric):
 
             # TODO: batch this
             vectors_processed += 1
-            U1, S1, _ = np.linalg.svd(vector.reshape((vector.shape[0], 1)), False, True, False)
+            # U1, S1, _ = np.linalg.svd(vector.reshape((vector.shape[0], 1)), False, True, False)
+            U1, S1 = vector.reshape((vector.shape[0], 1)), np.array([[1]])
             new_U, new_S = self._resketch(k, decay, U1, S1)
             self.U.set(new_U)
             self.S.set(new_S)
@@ -336,3 +337,24 @@ def _preprocessifier(terms: List[str], vector: np.ndarray) -> PreprocessedColumn
     result = PreprocessedColumn()
     result.list = list_view
     return result
+
+
+def log_nlp(
+    terms: Optional[List[str]] = None,
+    vector: Optional[np.ndarray] = None,
+    column_name: Optional[str] = None,
+    schemas: Optional[DatasetSchema] = None,
+) -> ResultSet:
+    column_name = column_name or "nlp"
+
+    class NlpResolver(Resolver):
+        def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+            return {NlpMetric.get_namespace(): ImageMetric.zero(column_schema.cfg)}
+
+    schema = schema or DatasetSchema(
+        types={key: ImageType for key in images.keys()}, default_configs=ImageMetricConfig(), resolvers=ImageResolver()
+    )
+    if not isinstance(schema.default_configs, NlpConfig):
+        raise ValueError("log_nlp requires DatasetSchema with an NlpConfig as default_configs")
+
+    return why.log(row=images, schema=schema)
