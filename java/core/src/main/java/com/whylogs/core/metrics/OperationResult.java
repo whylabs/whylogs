@@ -40,4 +40,8 @@ public class OperationResult {
     int new_nulls = this.nulls + other.getNulls();
     return new OperationResult(new_successes, new_failures, new_nulls);
   }
+
+  public OperationResult copy() {
+    return new OperationResult(this.successes, this.failures, this.nulls);
+  }
 }

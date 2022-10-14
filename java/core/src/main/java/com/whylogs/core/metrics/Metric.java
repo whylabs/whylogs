@@ -10,7 +10,7 @@ import lombok.*;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public abstract class Metric<TSubclass extends Metric> {
+public abstract class Metric<TSubclass extends Metric<?>> {
 
   @NonNull private String namespace;
 
@@ -20,11 +20,13 @@ public abstract class Metric<TSubclass extends Metric> {
 
   public abstract OperationResult columnarUpdate(PreprocessedColumn data);
 
-  public abstract HashMap<String, MetricComponent> getComponents();
+  public abstract HashMap<String, MetricComponent<?>> getComponents();
 
   public abstract TSubclass merge(Metric<?> other);
 
   public @NonNull String getNamespace() {
     return namespace;
   }
+
+  public abstract TSubclass copy();
 }

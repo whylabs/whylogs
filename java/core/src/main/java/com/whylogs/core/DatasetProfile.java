@@ -8,21 +8,44 @@ import com.whylogs.core.views.DatasetProfileView;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.ToString;
 
 // TODO: extend WRITABLE interface
 @Getter
 @ToString
+@EqualsAndHashCode
 public class DatasetProfile {
   public static int _LARGE_CACHE_SIZE_LIMIT = 1024 * 100;
 
-  private DatasetSchema schema;
+  private final DatasetSchema schema;
   private Instant datasetTimestamp;
-  private Instant creationTimestamp;
+  private final Instant creationTimestamp;
   private HashMap<String, ColumnProfile<?>> columns;
   private boolean isActive = false;
   private int trackCount = 0;
+
+  private DatasetProfile(
+      DatasetSchema schema,
+      Instant datasetTimestamp,
+      Instant creationTimestamp,
+      @NonNull HashMap<String, ColumnProfile<?>> columns,
+      boolean isActive,
+      int trackCount) {
+    this.schema = schema; // TODO: do a copy here
+    this.datasetTimestamp = datasetTimestamp;
+    this.creationTimestamp = creationTimestamp;
+
+    this.columns = new HashMap<>();
+    for (ColumnProfile<?> column : columns.values()) {
+      this.columns.put(column.getName(), column.copy());
+    }
+
+    this.isActive = isActive;
+    this.trackCount = trackCount;
+  }
 
   // TODO: I don't like how this works for customers. I wouldn't want
   // TODO: to have to pass the optionals around. We should just use overloading instead
@@ -38,7 +61,7 @@ public class DatasetProfile {
     this.initializeNewColumns(schema.getColNames());
   }
 
-  public void addMetric(String colName, Metric metric) {
+  public void addMetric(String colName, Metric<?> metric) {
     if (!this.columns.containsKey(colName)) {
       throw new InputMismatchException("Column name not found in schema");
     }
@@ -68,7 +91,7 @@ public class DatasetProfile {
       this.initializeNewColumns(newColumnNames);
     }
 
-    ArrayList<Object> values = new ArrayList<>();
+    ArrayList<Object> values;
     for (String col : row.keySet()) {
       values = new ArrayList<>();
       values.add(row.get(col));
@@ -94,9 +117,10 @@ public class DatasetProfile {
 
   private void initializeNewColumns(Set<String> colNames) {
     for (String column : colNames) {
-      ColumnSchema columnSchema = this.schema.columns.get(column);
+      ColumnSchema columnSchema = this.schema.getColumns().get(column);
       if (columnSchema != null) {
-        this.columns.put(column, new ColumnProfile(column, columnSchema, this.schema.cache_size));
+        this.columns.put(
+            column, new ColumnProfile<>(column, columnSchema, this.schema.getCacheSize()));
       }
       // TODO: log warning 'Encountered a column without schema: %s", col' in an else
     }
@@ -127,10 +151,19 @@ public class DatasetProfile {
     }
 
     if (!path.get().endsWith("bin")) {
-      String finalPath = path.get() + "_" + defaultPath;
-      return finalPath;
+      return path.get() + "_" + defaultPath;
     }
 
     return path.get();
+  }
+
+  public DatasetProfile copy() {
+    return new DatasetProfile(
+        this.schema,
+        this.datasetTimestamp,
+        this.creationTimestamp,
+        this.columns,
+        this.isActive,
+        this.trackCount);
   }
 }

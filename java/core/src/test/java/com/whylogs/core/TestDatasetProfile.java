@@ -107,6 +107,7 @@ public class TestDatasetProfile {
     Assert.assertEquals(profile.getTrackCount(), 1);
   }
 
+  @Test
   public void testView() {
     DatasetProfile profile = defaultProfile();
     DatasetProfileView view = profile.view();
@@ -114,6 +115,7 @@ public class TestDatasetProfile {
     Assert.assertEquals(view.getColumns().get("test").getMetrics().size(), 1);
   }
 
+  @Test
   public void testFlush() {
     DatasetProfile profile = defaultProfile();
     HashMap<String, Object> data = new HashMap<>();
@@ -121,5 +123,18 @@ public class TestDatasetProfile {
     data.put("test2", "2");
     profile.track(data);
     profile.flush();
+  }
+
+  @Test
+  public void testCopy() {
+    DatasetProfile profile = defaultProfile();
+    HashMap<String, Object> data = new HashMap<>();
+    data.put("test", 1);
+    data.put("test2", "2");
+    profile.track(data);
+
+    DatasetProfile copyProfile = profile.copy();
+    Assert.assertEquals(copyProfile, profile);
+    Assert.assertNotSame(copyProfile, profile);
   }
 }

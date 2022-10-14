@@ -64,8 +64,8 @@ public class IntegralMetric extends Metric<IntegralMetric> {
   }
 
   @Override
-  public HashMap<String, MetricComponent> getComponents() {
-    HashMap<String, MetricComponent> components = new HashMap<>();
+  public HashMap<String, MetricComponent<?>> getComponents() {
+    HashMap<String, MetricComponent<?>> components = new HashMap<>();
     components.put(this.maxComponent.getTypeName(), this.maxComponent);
     components.put(this.minComponent.getTypeName(), this.minComponent);
     return components;
@@ -109,5 +109,10 @@ public class IntegralMetric extends Metric<IntegralMetric> {
     int min = Integer.min(this.minComponent.getValue(), other_.minComponent.getValue());
 
     return new IntegralMetric(new MaxIntegralComponent(max), new MinIntegralComponent(min));
+  }
+
+  @Override
+  public IntegralMetric copy() {
+    return new IntegralMetric(this.maxComponent.copy(), this.minComponent.copy());
   }
 }

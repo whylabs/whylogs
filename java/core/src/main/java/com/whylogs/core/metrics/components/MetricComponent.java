@@ -45,7 +45,7 @@ public class MetricComponent<T> {
   }
 
   public MetricComponent<T> copy() {
-    return new MetricComponent<T>(value);
+    return new MetricComponent<>(this.value);
   }
 
   public MetricComponent<T> merge(MetricComponent<T> other) {
@@ -56,7 +56,7 @@ public class MetricComponent<T> {
   // TODO to_protobuf
   // TODO from_protobuf
   // TODO: add a from_protobuf iwht registries passed in
-  public static <M extends MetricComponent> M from_protobuf(MetricComponentMessage message) {
+  public static <M extends MetricComponent<?>> M from_protobuf(MetricComponentMessage message) {
     // TODO: check that it's a MetricComponent dataclass
     throw new NotImplementedException();
   }

@@ -140,4 +140,19 @@ public class TestColumnProfile {
     IntegralMetric metric = (IntegralMetric) view.getMetrics().get("ints");
     Assert.assertEquals((int) metric.getMaxComponent().getValue(), 2);
   }
+
+  @Test
+  public void testCopy() {
+    ColumnProfile<Integer> profileA = getDefaultColumnProfile();
+    ArrayList<Integer> column = new ArrayList<>();
+    column.add(1);
+    column.add(2);
+    column.add(null);
+    profileA.trackColumn(column);
+
+    ColumnProfile<Integer> profileB = profileA.copy();
+    Assert.assertEquals(profileA, profileB);
+    Assert.assertNotSame(profileA, profileB);
+    Assert.assertNotSame(profileA.getMetrics(), profileB.getMetrics());
+  }
 }

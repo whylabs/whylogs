@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.ToString;
 
 @Getter
@@ -25,8 +26,33 @@ public class ColumnProfile<T> implements AutoCloseable {
   private int successCount;
   private int failureCount;
   private int nullCount;
-
   private ArrayList<T> cachedValues;
+
+  private ColumnProfile(
+      String name,
+      ColumnSchema schema,
+      SingleFieldProjector<T> projector,
+      int cacheSize,
+      @NonNull HashMap<String, Metric<?>> metrics,
+      int successCount,
+      int failureCount,
+      int nullCount,
+      @NonNull ArrayList<T> cachedValues) {
+    this.name = name;
+    this.schema = schema; // todo: do a copy here
+    this.projector = projector;
+    this.cacheSize = cacheSize;
+
+    this.metrics = this.schema.getMetrics();
+    for (Metric<?> metric : metrics.values()) {
+      this.metrics.put(metric.getNamespace(), metric.copy());
+    }
+
+    this.successCount = successCount;
+    this.failureCount = failureCount;
+    this.nullCount = nullCount;
+    this.cachedValues = new ArrayList<>(cachedValues);
+  }
 
   public ColumnProfile(String name, ColumnSchema schema, int cacheSize) {
     this.name = name;
@@ -82,6 +108,19 @@ public class ColumnProfile<T> implements AutoCloseable {
   public ColumnProfileView view() {
     this.flush();
     return new ColumnProfileView(this.metrics, this.successCount, this.failureCount);
+  }
+
+  public ColumnProfile<T> copy() {
+    return new ColumnProfile<>(
+        this.name,
+        this.schema,
+        this.projector,
+        this.cacheSize,
+        this.metrics,
+        this.successCount,
+        this.failureCount,
+        this.nullCount,
+        this.cachedValues);
   }
 
   @Override

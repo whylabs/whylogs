@@ -121,4 +121,16 @@ public class TestIntegralMetric {
     Assert.assertEquals((int) merged.getMaxComponent().getValue(), expectedMax);
     Assert.assertEquals((int) merged.getMinComponent().getValue(), expectedMin);
   }
+
+  @Test
+  public void test_copy() {
+    IntegralMetric metricA = IntegralMetric.zero();
+    IntegralMetric metricB = metricA.copy();
+
+    // Test values the same
+    Assert.assertEquals(metricA, metricB);
+
+    // test address is different
+    Assert.assertNotSame(metricA, metricB);
+  }
 }
