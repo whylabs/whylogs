@@ -67,7 +67,7 @@ public class DatasetSchema {
     this.schemaBasedAutomerge = other.isSchemaBasedAutomerge();
 
     this.columns = new HashMap<>();
-    for(String colName : other.getColumns().keySet()) {
+    for (String colName : other.getColumns().keySet()) {
       this.columns.put(colName, other.getColumns().get(colName).copy());
     }
   }

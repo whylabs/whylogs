@@ -7,5 +7,6 @@ import java.util.HashMap;
 public abstract class Resolver {
 
   public abstract HashMap<String, Metric<?>> resolve(ColumnSchema schema);
+
   public abstract Resolver copy();
 }
