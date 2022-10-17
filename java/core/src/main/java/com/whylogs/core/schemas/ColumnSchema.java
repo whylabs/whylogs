@@ -21,4 +21,8 @@ public class ColumnSchema {
   public HashMap<String, Metric<?>> getMetrics() {
     return this.resolver.resolve(this);
   }
+
+  public ColumnSchema copy() {
+    return new ColumnSchema(this.type, this.config, this.resolver);
+  }
 }

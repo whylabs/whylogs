@@ -32,4 +32,9 @@ public class StandardResolver extends Resolver {
     }
     return resolvedMetrics;
   }
+
+  @Override
+  public Resolver copy() {
+    return new StandardResolver();
+  }
 }

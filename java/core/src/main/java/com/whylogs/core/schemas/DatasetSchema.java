@@ -59,10 +59,21 @@ public class DatasetSchema {
     }
   }
 
+  private DatasetSchema(DatasetSchema other) {
+    this.types = new HashMap<>(other.types);
+    this.defaultConfig = other.getDefaultConfig().copy();
+    this.resolver = other.getResolver().copy();
+    this.cacheSize = other.getCacheSize();
+    this.schemaBasedAutomerge = other.isSchemaBasedAutomerge();
+
+    this.columns = new HashMap<>();
+    for(String colName : other.getColumns().keySet()) {
+      this.columns.put(colName, other.getColumns().get(colName).copy());
+    }
+  }
+
   public DatasetSchema copy() {
-    DatasetSchema copy = new DatasetSchema();
-    // TODO: copy over
-    return copy;
+    return new DatasetSchema(this);
   }
 
   public boolean resolve(HashMap<String, ?> data) {

@@ -79,4 +79,8 @@ public class MetricConfig {
           }
         });
   }
+
+  public MetricConfig copy() {
+    return new MetricConfig();
+  }
 }
