@@ -90,6 +90,14 @@ Attributes
 
 .. py:class:: SegmentationPartition
 
+   .. py:property:: simple
+      :type: bool
+
+
+   .. py:property:: filter_id
+      :type: str
+
+
    .. py:attribute:: name
       :annotation: :str
 
@@ -109,14 +117,6 @@ Attributes
       :annotation: :Optional[SegmentFilter]
 
       
-
-   .. py:method:: simple() -> bool
-      :property:
-
-
-   .. py:method:: filter_id() -> str
-      :property:
-
 
 
 .. py:function:: segment_on_column(column_name: str) -> Mapping[str, SegmentationPartition]

@@ -69,7 +69,7 @@ Attributes
    .. py:method:: write(file: whylogs.api.writer.writer.Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
-   .. py:method:: option(bucket_name: Optional[str] = None, object_name: Optional[str] = None, s3_client: Optional[botocore.client.BaseClient] = None) -> None
+   .. py:method:: option(bucket_name: Optional[str] = None, object_name: Optional[str] = None, s3_client: Optional[botocore.client.BaseClient] = None) -> S3Writer
 
 
    .. py:method:: check_interval(interval_seconds: int) -> None

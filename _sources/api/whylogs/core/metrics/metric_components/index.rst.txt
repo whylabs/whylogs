@@ -73,6 +73,10 @@ Attributes
    histogram, mean and m2. The calculation of components could be independent or could be coupled with other
    components.
 
+   .. py:property:: value
+      :type: T
+
+
    .. py:attribute:: mtype
       :annotation: :Optional[Type[T]]
 
@@ -87,10 +91,6 @@ Attributes
       :annotation: :Optional[Registries]
 
       
-
-   .. py:method:: value() -> T
-      :property:
-
 
    .. py:method:: set(value: T) -> None
 
@@ -113,6 +113,10 @@ Attributes
    histogram, mean and m2. The calculation of components could be independent or could be coupled with other
    components.
 
+   .. py:property:: value
+      :type: T
+
+
    .. py:attribute:: mtype
       
 
@@ -127,10 +131,6 @@ Attributes
       :annotation: :Optional[Registries]
 
       
-
-   .. py:method:: value() -> T
-      :property:
-
 
    .. py:method:: set(value: T) -> None
 
@@ -153,6 +153,10 @@ Attributes
    histogram, mean and m2. The calculation of components could be independent or could be coupled with other
    components.
 
+   .. py:property:: value
+      :type: T
+
+
    .. py:attribute:: mtype
       
 
@@ -170,10 +174,6 @@ Attributes
 
    .. py:method:: min(lhs: int, rhs: int) -> int
       :staticmethod:
-
-
-   .. py:method:: value() -> T
-      :property:
 
 
    .. py:method:: set(value: T) -> None
@@ -197,6 +197,10 @@ Attributes
    histogram, mean and m2. The calculation of components could be independent or could be coupled with other
    components.
 
+   .. py:property:: value
+      :type: T
+
+
    .. py:attribute:: mtype
       
 
@@ -214,10 +218,6 @@ Attributes
 
    .. py:method:: max(lhs: int, rhs: int) -> int
       :staticmethod:
-
-
-   .. py:method:: value() -> T
-      :property:
 
 
    .. py:method:: set(value: T) -> None
@@ -241,6 +241,10 @@ Attributes
    histogram, mean and m2. The calculation of components could be independent or could be coupled with other
    components.
 
+   .. py:property:: value
+      :type: T
+
+
    .. py:attribute:: mtype
       
 
@@ -255,10 +259,6 @@ Attributes
       :annotation: :Optional[Registries]
 
       
-
-   .. py:method:: value() -> T
-      :property:
-
 
    .. py:method:: set(value: T) -> None
 
@@ -324,6 +324,10 @@ Attributes
          except KeyError:
              return default
 
+   .. py:property:: value
+      :type: T
+
+
    .. py:attribute:: type_id
       
 
@@ -338,10 +342,6 @@ Attributes
       :annotation: :Optional[Registries]
 
       
-
-   .. py:method:: value() -> T
-      :property:
-
 
    .. py:method:: set(value: T) -> None
 

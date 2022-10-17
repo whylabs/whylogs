@@ -200,6 +200,10 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
+   .. py:property:: namespace
+      :type: str
+
+
    .. py:attribute:: conditions
       :annotation: :Dict[str, Condition]
 
@@ -214,10 +218,6 @@ Attributes
       :annotation: :Dict[str, whylogs.core.metrics.metric_components.IntegralComponent]
 
       
-
-   .. py:method:: namespace() -> str
-      :property:
-
 
    .. py:method:: merge(other: ConditionCountMetric) -> ConditionCountMetric
 

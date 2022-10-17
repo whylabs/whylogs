@@ -46,24 +46,26 @@ Attributes
                               The timestamp tied to the exact moment when the :class:`DatasetProfile` is created.
                               If None is provided, it will take the current timestamp as default
 
-   .. py:method:: creation_timestamp() -> datetime.datetime
-      :property:
+   .. py:property:: creation_timestamp
+      :type: datetime.datetime
 
 
-   .. py:method:: dataset_timestamp() -> datetime.datetime
-      :property:
+   .. py:property:: dataset_timestamp
+      :type: datetime.datetime
 
 
-   .. py:method:: is_active() -> bool
-      :property:
+   .. py:property:: is_active
+      :type: bool
+
+      Returns True if the profile tracking code is currently running.
+
+   .. py:property:: is_empty
+      :type: bool
 
       Returns True if the profile tracking code is currently running.
 
-
-   .. py:method:: is_empty() -> bool
-      :property:
-
-      Returns True if the profile tracking code is currently running.
+   .. py:property:: model_performance_metrics
+      :type: whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics
 
 
    .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
@@ -76,10 +78,6 @@ Attributes
 
 
    .. py:method:: add_model_performance_metrics(metric: whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics) -> None
-
-
-   .. py:method:: model_performance_metrics() -> whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics
-      :property:
 
 
    .. py:method:: track(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> None

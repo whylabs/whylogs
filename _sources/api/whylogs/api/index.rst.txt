@@ -69,6 +69,10 @@ Functions
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
+   .. py:property:: performance_metrics
+      :type: Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+
+
    .. py:method:: read(multi_profile_file: str) -> ResultSet
       :staticmethod:
 
@@ -89,10 +93,6 @@ Functions
 
 
    .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
-
-
-   .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
-      :property:
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None

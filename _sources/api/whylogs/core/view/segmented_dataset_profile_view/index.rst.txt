@@ -37,24 +37,22 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: segment() -> whylogs.core.segment.Segment
-      :property:
+   .. py:property:: segment
+      :type: whylogs.core.segment.Segment
 
 
-   .. py:method:: partition() -> whylogs.core.segmentation_partition.SegmentationPartition
-      :property:
+   .. py:property:: partition
+      :type: whylogs.core.segmentation_partition.SegmentationPartition
 
 
-   .. py:method:: profile_view() -> whylogs.core.view.dataset_profile_view.DatasetProfileView
-      :property:
+   .. py:property:: profile_view
+      :type: whylogs.core.view.dataset_profile_view.DatasetProfileView
 
 
-   .. py:method:: dataset_timestamp()
-      :property:
+   .. py:property:: dataset_timestamp
 
 
-   .. py:method:: creation_timestamp()
-      :property:
+   .. py:property:: creation_timestamp
 
 
    .. py:method:: get_default_path() -> str

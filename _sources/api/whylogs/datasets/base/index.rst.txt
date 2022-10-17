@@ -45,41 +45,35 @@ Attributes
    A batch can represent either a baseline or inference batch.
    The complete data is a sum of the remaining dataframe properties: features, target, prediction, and misc.
 
-   .. py:method:: data() -> pandas.DataFrame
-      :property:
+   .. py:property:: data
+      :type: pandas.DataFrame
 
       The complete dataframe for all available features.
 
-
-   .. py:method:: timestamp() -> datetime.date
-      :property:
+   .. py:property:: timestamp
+      :type: datetime.date
 
       The batch's timestamp (at the start)
 
-
-   .. py:method:: target() -> pandas.DataFrame
-      :property:
+   .. py:property:: target
+      :type: pandas.DataFrame
 
       Ouput feature(s)
 
-
-   .. py:method:: prediction() -> pandas.DataFrame
-      :property:
+   .. py:property:: prediction
+      :type: pandas.DataFrame
 
       Output prediction and, possibly, features such as uncertainty, confidence, probability scores
 
-
-   .. py:method:: extra() -> pandas.DataFrame
-      :property:
+   .. py:property:: extra
+      :type: pandas.DataFrame
 
       Metadata features that are not of any of the previous categories, but still contain relevant information about the data.
 
-
-   .. py:method:: features() -> pandas.DataFrame
-      :property:
+   .. py:property:: features
+      :type: pandas.DataFrame
 
       Input features
-
 
 
 .. py:class:: Dataset

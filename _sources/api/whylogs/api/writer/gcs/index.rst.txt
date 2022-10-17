@@ -1,0 +1,75 @@
+:py:mod:`whylogs.api.writer.gcs`
+================================
+
+.. py:module:: whylogs.api.writer.gcs
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.writer.gcs.GCSWriter
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.writer.gcs.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: GCSWriter(gcs_client: Optional[google.cloud.storage.Client] = None, object_name: Optional[str] = None, bucket_name: Optional[str] = None)
+
+   Bases: :py:obj:`whylogs.api.writer.Writer`
+
+   A whylogs writer to upload DatasetProfileViews onto Google Cloud Storage (GCS).
+
+   >**IMPORTANT**: In order to correctly connect to your GCS container, make sure you have
+   the following environment variables set: `[GOOGLE_APPLICATION_CREDENTIALS]`
+
+   :param bucket_name = "your-bucket-name":
+   :param source_file_name = "local/path/to/file":
+   :param destination_blob_name = "storage-object-name":
+
+   :returns:
+   :rtype: None
+
+   .. rubric:: Examples
+
+   An example usage of this method can be represented with the simple code above. Here we
+   are assuming the user has already assigned a pandas.DataFrame to the `df` variable.
+
+   ```python
+   import whylogs as why
+
+   profile = why.log(pandas=df)
+   profile.writer("gcs").option(bucket_name="my_bucket").write()
+   ```
+
+   .. py:method:: write(file: whylogs.api.writer.writer.Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
+
+
+   .. py:method:: option(bucket_name: Optional[str] = None, object_name: Optional[str] = None, gcs_client: Optional[Any] = None) -> GCSWriter
+
+
+   .. py:method:: check_interval(interval_seconds: int) -> None
+
+      Validate an interval configuration for a given writer.
+
+      Some writer only accepts certain interval configuration. By default, this should return True for a valid
+      non-negative interval.
+
+
+

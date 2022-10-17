@@ -68,6 +68,10 @@ Attributes
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
+   .. py:property:: performance_metrics
+      :type: Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+
+
    .. py:method:: read(multi_profile_file: str) -> ResultSet
       :staticmethod:
 
@@ -88,10 +92,6 @@ Attributes
 
 
    .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
-
-
-   .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
-      :property:
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
@@ -113,6 +113,10 @@ Attributes
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
+   .. py:property:: performance_metrics
+      :type: Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+
+
    .. py:method:: profile() -> Optional[whylogs.core.DatasetProfile]
 
 
@@ -131,10 +135,6 @@ Attributes
 
 
    .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
-
-
-   .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
-      :property:
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
@@ -156,6 +156,10 @@ Attributes
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
+   .. py:property:: performance_metrics
+      :type: Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+
+
    .. py:method:: profile() -> Optional[whylogs.core.DatasetProfile]
 
 
@@ -174,10 +178,6 @@ Attributes
 
 
    .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
-
-
-   .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
-      :property:
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
@@ -199,18 +199,22 @@ Attributes
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
+   .. py:property:: partitions
+      :type: Optional[List[whylogs.core.segmentation_partition.SegmentationPartition]]
+
+
+   .. py:property:: count
+      :type: int
+
+
+   .. py:property:: performance_metrics
+      :type: Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+
+
    .. py:method:: profile(segment: Optional[whylogs.core.Segment] = None) -> Optional[whylogs.core.DatasetProfile]
 
 
-   .. py:method:: partitions() -> Optional[List[whylogs.core.segmentation_partition.SegmentationPartition]]
-      :property:
-
-
    .. py:method:: segments(restrict_to_parition_id: Optional[str] = None) -> Optional[List[whylogs.core.Segment]]
-
-
-   .. py:method:: count() -> int
-      :property:
 
 
    .. py:method:: segments_in_partition(partition: whylogs.core.segmentation_partition.SegmentationPartition) -> Optional[Dict[whylogs.core.Segment, whylogs.core.DatasetProfile]]
@@ -237,10 +241,6 @@ Attributes
 
 
    .. py:method:: writer(name: str = 'local') -> ResultSetWriter
-
-
-   .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
-      :property:
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None

@@ -51,8 +51,8 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: return_type() -> Type[NT]
-      :property:
+   .. py:property:: return_type
+      :type: Type[NT]
 
 
    .. py:method:: match(dtype_or_type: Any) -> bool
@@ -77,8 +77,8 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: return_type() -> Type[NT]
-      :property:
+   .. py:property:: return_type
+      :type: Type[NT]
 
 
    .. py:method:: match(dtype_or_type: Any) -> bool
@@ -93,8 +93,8 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: return_type() -> Type[NT]
-      :property:
+   .. py:property:: return_type
+      :type: Type[NT]
 
 
    .. py:method:: match(dtype_or_type: Any) -> bool
@@ -109,8 +109,8 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: return_type() -> Type[NT]
-      :property:
+   .. py:property:: return_type
+      :type: Type[NT]
 
 
    .. py:method:: match(dtype_or_type: Any) -> bool
@@ -125,11 +125,11 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
+   .. py:property:: return_type
+      :type: Type[NT]
+
+
    .. py:method:: is_compatible(value: Any) -> bool
-
-
-   .. py:method:: return_type() -> Type[NT]
-      :property:
 
 
    .. py:method:: match(dtype_or_type: Any) -> bool

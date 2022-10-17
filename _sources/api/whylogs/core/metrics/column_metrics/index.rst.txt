@@ -25,6 +25,10 @@ Classes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
+   .. py:property:: namespace
+      :type: str
+
+
    .. py:attribute:: integral
       :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
 
@@ -49,10 +53,6 @@ Classes
       :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
 
       
-
-   .. py:method:: namespace() -> str
-      :property:
-
 
    .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
 
@@ -89,6 +89,10 @@ Classes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
+   .. py:property:: namespace
+      :type: str
+
+
    .. py:attribute:: n
       :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
 
@@ -98,10 +102,6 @@ Classes
       :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
 
       
-
-   .. py:method:: namespace() -> str
-      :property:
-
 
    .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 

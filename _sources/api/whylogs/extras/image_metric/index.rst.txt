@@ -202,14 +202,14 @@ Attributes
 
    See UnicodeRangeMetric for an example.
 
+   .. py:property:: namespace
+      :type: str
+
+
    .. py:attribute:: submetrics
       :annotation: :Dict[str, Dict[str, whylogs.core.metrics.Metric]]
 
       
-
-   .. py:method:: namespace() -> str
-      :property:
-
 
    .. py:method:: merge(other: ImageMetric) -> ImageMetric
 

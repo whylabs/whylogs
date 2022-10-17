@@ -10,6 +10,7 @@ Submodules
    :titlesonly:
    :maxdepth: 1
 
+   gcs/index.rst
    local/index.rst
    mlflow/index.rst
    s3/index.rst

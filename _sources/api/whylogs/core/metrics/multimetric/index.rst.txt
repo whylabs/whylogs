@@ -57,6 +57,11 @@ Attributes
 
    See UnicodeRangeMetric for an example.
 
+   .. py:property:: namespace
+      :type: str
+      :abstractmethod:
+
+
    .. py:attribute:: submetrics
       :annotation: :Dict[str, Dict[str, whylogs.core.metrics.Metric]]
 
@@ -90,10 +95,6 @@ Attributes
 
    .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
       :classmethod:
-
-
-   .. py:method:: namespace() -> str
-      :property:
 
 
    .. py:method:: zero(config: Optional[MetricConfig] = None) -> METRIC

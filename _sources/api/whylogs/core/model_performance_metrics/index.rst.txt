@@ -44,6 +44,10 @@ Classes
 
       :type: RegressionMetrics
 
+   .. py:property:: output_fields
+      :type: Optional[List[str]]
+
+
    .. py:method:: to_protobuf() -> whylogs.core.proto.v0.ModelProfileMessage
 
 
@@ -70,10 +74,6 @@ Classes
 
 
    .. py:method:: specify_output_fields(column_names: Union[str, Set[str]]) -> None
-
-
-   .. py:method:: output_fields() -> Optional[List[str]]
-      :property:
 
 
    .. py:method:: merge(other)

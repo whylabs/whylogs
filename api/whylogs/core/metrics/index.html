@@ -13,10 +13,10 @@
 <meta property="og:description" content="Submodules: whylogs.core.metrics.aggregators, whylogs.core.metrics.column_metrics, whylogs.core.metrics.compound_metric, whylogs.core.metrics.condition_count_metric, whylogs.core.metrics.decorators..." />
   <link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" /><link rel="next" title="whylogs.core.metrics.aggregators" href="aggregators/index.html" /><link rel="prev" title="whylogs.core.constraints.metric_constraints" href="../constraints/metric_constraints/index.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.09.15"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
         <title>whylogs.core.metrics - whylogs v1.1.7</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=9ec31e2665bf879c1d47d93a8ec4893870ee1e45" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
@@ -276,6 +276,7 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../api/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../api/writer/gcs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.gcs</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/writer/local/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.local</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/writer/mlflow/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.mlflow</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/writer/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.s3</span></code></a></li>
@@ -402,7 +403,8 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
+          
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -491,6 +493,16 @@
 <dd><p>Bases: <a class="reference internal" href="metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics.Metric</span></code></a></p>
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.ColumnCountsMetric.namespace">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.core.metrics.ColumnCountsMetric.namespace" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.ColumnCountsMetric.n">
 <span class="sig-name descname"><span class="pre">n</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.ColumnCountsMetric.n" title="Permalink to this definition">#</a></dt>
@@ -500,16 +512,6 @@ inheritance.</p>
 <dt class="sig sig-object py" id="whylogs.core.metrics.ColumnCountsMetric.null">
 <span class="sig-name descname"><span class="pre">null</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.ColumnCountsMetric.null" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.ColumnCountsMetric.namespace">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.ColumnCountsMetric.namespace" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.ColumnCountsMetric.columnar_update">
@@ -617,6 +619,16 @@ inheritance.</p>
 <dd><p>Bases: <a class="reference internal" href="metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics.Metric</span></code></a></p>
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.TypeCountersMetric.namespace">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.core.metrics.TypeCountersMetric.namespace" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.TypeCountersMetric.integral">
 <span class="sig-name descname"><span class="pre">integral</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.TypeCountersMetric.integral" title="Permalink to this definition">#</a></dt>
@@ -641,16 +653,6 @@ inheritance.</p>
 <dt class="sig sig-object py" id="whylogs.core.metrics.TypeCountersMetric.object">
 <span class="sig-name descname"><span class="pre">object</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.TypeCountersMetric.object" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.TypeCountersMetric.namespace">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.TypeCountersMetric.namespace" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.TypeCountersMetric.to_summary_dict">
@@ -758,6 +760,16 @@ inheritance.</p>
 <dd><p>Bases: <a class="reference internal" href="metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics.Metric</span></code></a></p>
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.ConditionCountMetric.namespace">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.core.metrics.ConditionCountMetric.namespace" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.ConditionCountMetric.conditions">
 <span class="sig-name descname"><span class="pre">conditions</span></span><em class="property"><span class="w"> </span><span class="pre">:Dict[str,</span> <span class="pre">Condition]</span></em><a class="headerlink" href="#whylogs.core.metrics.ConditionCountMetric.conditions" title="Permalink to this definition">#</a></dt>
@@ -772,16 +784,6 @@ inheritance.</p>
 <dt class="sig sig-object py" id="whylogs.core.metrics.ConditionCountMetric.matches">
 <span class="sig-name descname"><span class="pre">matches</span></span><em class="property"><span class="w"> </span><span class="pre">:Dict[str,</span> <span class="pre">whylogs.core.metrics.metric_components.IntegralComponent]</span></em><a class="headerlink" href="#whylogs.core.metrics.ConditionCountMetric.matches" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.ConditionCountMetric.namespace">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.ConditionCountMetric.namespace" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.ConditionCountMetric.merge">
@@ -902,20 +904,50 @@ inheritance.</p>
 <dd><p>Bases: <a class="reference internal" href="#whylogs.core.metrics.Metric" title="whylogs.core.metrics.Metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Metric</span></code></a></p>
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.core.metrics.CardinalityMetric.hll">
-<span class="sig-name descname"><span class="pre">hll</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.HllComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.CardinalityMetric.hll" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
+<dl class="py property">
 <dt class="sig sig-object py" id="whylogs.core.metrics.CardinalityMetric.namespace">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.CardinalityMetric.namespace" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.core.metrics.CardinalityMetric.namespace" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.CardinalityMetric.estimate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">estimate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.CardinalityMetric.estimate" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.CardinalityMetric.upper_1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">upper_1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.CardinalityMetric.upper_1" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.CardinalityMetric.lower_1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lower_1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.CardinalityMetric.lower_1" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.CardinalityMetric.hll">
+<span class="sig-name descname"><span class="pre">hll</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.HllComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.CardinalityMetric.hll" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.CardinalityMetric.columnar_update">
@@ -939,36 +971,6 @@ inheritance.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, Any]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.CardinalityMetric.estimate">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">estimate</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.CardinalityMetric.estimate" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.CardinalityMetric.upper_1">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">upper_1</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.CardinalityMetric.upper_1" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.CardinalityMetric.lower_1">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lower_1</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.CardinalityMetric.lower_1" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1053,6 +1055,168 @@ inheritance.</p>
 <dd><p>Bases: <a class="reference internal" href="#whylogs.core.metrics.Metric" title="whylogs.core.metrics.Metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Metric</span></code></a></p>
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.namespace">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.namespace" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.n">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.n" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.variance">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">variance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.variance" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the population variance of the stream.</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm">https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford’s_online_algorithm</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.stddev">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stddev</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.stddev" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.avg">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">avg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.avg" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.median">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">median</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.median" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_01">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_01</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_01" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_05">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_05</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_05" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_10">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_10</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_10" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_25">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_25</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_25" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_75">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_75</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_75" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_90">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_90</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_90" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_95">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_95</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_95" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_99">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_99</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_99" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.max">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.max" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.min">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.min" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.kll">
 <span class="sig-name descname"><span class="pre">kll</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.KllComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.kll" title="Permalink to this definition">#</a></dt>
@@ -1067,16 +1231,6 @@ inheritance.</p>
 <dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.m2">
 <span class="sig-name descname"><span class="pre">m2</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.FractionalComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.m2" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.namespace">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.namespace" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.to_summary_dict">
@@ -1118,158 +1272,6 @@ inheritance.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric" title="whylogs.core.metrics.DistributionMetric">DistributionMetric</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.n">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.n" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.variance">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">variance</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.variance" title="Permalink to this definition">#</a></dt>
-<dd><p>Returns the population variance of the stream.</p>
-<p><a class="reference external" href="https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm">https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford’s_online_algorithm</a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.stddev">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stddev</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.stddev" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.avg">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">avg</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.avg" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.median">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">median</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.median" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_01">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_01</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_01" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_05">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_05</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_05" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_10">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_10</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_10" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_25">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_25</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_25" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_75">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_75</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_75" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_90">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_90</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_90" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_95">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_95</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_95" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.q_99">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">q_99</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.q_99" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.max">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.max" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.DistributionMetric.min">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.DistributionMetric.min" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1341,20 +1343,30 @@ inheritance.</p>
 <dd><p>Bases: <a class="reference internal" href="#whylogs.core.metrics.Metric" title="whylogs.core.metrics.Metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Metric</span></code></a></p>
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.core.metrics.FrequentItemsMetric.frequent_strings">
-<span class="sig-name descname"><span class="pre">frequent_strings</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.FrequentStringsComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.FrequentItemsMetric.frequent_strings" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
+<dl class="py property">
 <dt class="sig sig-object py" id="whylogs.core.metrics.FrequentItemsMetric.namespace">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.FrequentItemsMetric.namespace" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.core.metrics.FrequentItemsMetric.namespace" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.FrequentItemsMetric.strings">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">FrequentItem</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.FrequentItemsMetric.strings" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="metrics/index.html#whylogs.core.metrics.metrics.FrequentItem" title="whylogs.core.metrics.metrics.FrequentItem">FrequentItem</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.FrequentItemsMetric.frequent_strings">
+<span class="sig-name descname"><span class="pre">frequent_strings</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.FrequentStringsComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.FrequentItemsMetric.frequent_strings" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.FrequentItemsMetric.columnar_update">
@@ -1378,16 +1390,6 @@ inheritance.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, Any]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.FrequentItemsMetric.strings">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strings</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">FrequentItem</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.FrequentItemsMetric.strings" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>List[<a class="reference internal" href="metrics/index.html#whylogs.core.metrics.metrics.FrequentItem" title="whylogs.core.metrics.metrics.FrequentItem">FrequentItem</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1472,6 +1474,36 @@ inheritance.</p>
 <dd><p>Bases: <a class="reference internal" href="#whylogs.core.metrics.Metric" title="whylogs.core.metrics.Metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Metric</span></code></a></p>
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.IntsMetric.namespace">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.core.metrics.IntsMetric.namespace" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.IntsMetric.maximum">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">maximum</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></em><a class="headerlink" href="#whylogs.core.metrics.IntsMetric.maximum" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.IntsMetric.minimum">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">minimum</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></em><a class="headerlink" href="#whylogs.core.metrics.IntsMetric.minimum" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.IntsMetric.max">
 <span class="sig-name descname"><span class="pre">max</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.MaxIntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.IntsMetric.max" title="Permalink to this definition">#</a></dt>
@@ -1481,16 +1513,6 @@ inheritance.</p>
 <dt class="sig sig-object py" id="whylogs.core.metrics.IntsMetric.min">
 <span class="sig-name descname"><span class="pre">min</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.MinIntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.IntsMetric.min" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.IntsMetric.namespace">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.IntsMetric.namespace" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.IntsMetric.columnar_update">
@@ -1527,26 +1549,6 @@ inheritance.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, Union[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)">int</a>, <a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>, <a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a>]]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.IntsMetric.maximum">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">maximum</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.IntsMetric.maximum" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.IntsMetric.minimum">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">minimum</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.IntsMetric.minimum" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1618,6 +1620,16 @@ inheritance.</p>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/abc.html#abc.ABC" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.Metric.namespace">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.core.metrics.Metric.namespace" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.Metric.get_namespace">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.metrics.MetricConfig" title="whylogs.core.metrics.MetricConfig"><span class="pre">MetricConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/metrics/metrics.html#Metric.get_namespace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.Metric.get_namespace" title="Permalink to this definition">#</a></dt>
@@ -1627,16 +1639,6 @@ inheritance.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.Metric.namespace">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.Metric.namespace" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1805,6 +1807,16 @@ range to be tracked. The string length is tracked under the key
 <dd class="field-odd"><p><strong>submetrics</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference internal" href="#whylogs.core.metrics.Metric" title="whylogs.core.metrics.Metric"><em>whylogs.core.metrics.Metric</em></a><em>]</em><em>]</em>) – </p>
 </dd>
 </dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.UnicodeRangeMetric.namespace">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.core.metrics.UnicodeRangeMetric.namespace" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.UnicodeRangeMetric.range_definitions">
 <span class="sig-name descname"><span class="pre">range_definitions</span></span><em class="property"><span class="w"> </span><span class="pre">:Dict[str,</span> <span class="pre">Tuple[int,</span> <span class="pre">int]]</span></em><a class="headerlink" href="#whylogs.core.metrics.UnicodeRangeMetric.range_definitions" title="Permalink to this definition">#</a></dt>
@@ -1824,16 +1836,6 @@ range to be tracked. The string length is tracked under the key
 <dt class="sig sig-object py" id="whylogs.core.metrics.UnicodeRangeMetric.submetrics">
 <span class="sig-name descname"><span class="pre">submetrics</span></span><em class="property"><span class="w"> </span><span class="pre">:Dict[str,</span> <span class="pre">Dict[str,</span> <span class="pre">whylogs.core.metrics.Metric]]</span></em><a class="headerlink" href="#whylogs.core.metrics.UnicodeRangeMetric.submetrics" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.UnicodeRangeMetric.namespace">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.UnicodeRangeMetric.namespace" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.UnicodeRangeMetric.merge">
@@ -2130,9 +2132,9 @@ range to be tracked. The string length is tracked under the key
 <li><a class="reference internal" href="#package-contents">Package Contents</a><ul>
 <li><a class="reference internal" href="#classes">Classes</a><ul>
 <li><a class="reference internal" href="#whylogs.core.metrics.ColumnCountsMetric">ColumnCountsMetric</a><ul>
+<li><a class="reference internal" href="#whylogs.core.metrics.ColumnCountsMetric.namespace">namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.ColumnCountsMetric.n">n</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.ColumnCountsMetric.null">null</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.ColumnCountsMetric.namespace">namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.ColumnCountsMetric.columnar_update">columnar_update</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.ColumnCountsMetric.to_summary_dict">to_summary_dict</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.ColumnCountsMetric.zero">zero</a></li>
@@ -2144,12 +2146,12 @@ range to be tracked. The string length is tracked under the key
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.metrics.TypeCountersMetric">TypeCountersMetric</a><ul>
+<li><a class="reference internal" href="#whylogs.core.metrics.TypeCountersMetric.namespace">namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.TypeCountersMetric.integral">integral</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.TypeCountersMetric.fractional">fractional</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.TypeCountersMetric.boolean">boolean</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.TypeCountersMetric.string">string</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.TypeCountersMetric.object">object</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.TypeCountersMetric.namespace">namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.TypeCountersMetric.to_summary_dict">to_summary_dict</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.TypeCountersMetric.columnar_update">columnar_update</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.TypeCountersMetric.zero">zero</a></li>
@@ -2161,10 +2163,10 @@ range to be tracked. The string length is tracked under the key
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.metrics.ConditionCountMetric">ConditionCountMetric</a><ul>
+<li><a class="reference internal" href="#whylogs.core.metrics.ConditionCountMetric.namespace">namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.ConditionCountMetric.conditions">conditions</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.ConditionCountMetric.total">total</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.ConditionCountMetric.matches">matches</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.ConditionCountMetric.namespace">namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.ConditionCountMetric.merge">merge</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.ConditionCountMetric.add_conditions">add_conditions</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.ConditionCountMetric.get_component_paths">get_component_paths</a></li>
@@ -2177,13 +2179,13 @@ range to be tracked. The string length is tracked under the key
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric">CardinalityMetric</a><ul>
-<li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric.hll">hll</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric.namespace">namespace</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric.columnar_update">columnar_update</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric.to_summary_dict">to_summary_dict</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric.estimate">estimate</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric.upper_1">upper_1</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric.lower_1">lower_1</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric.hll">hll</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric.columnar_update">columnar_update</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric.to_summary_dict">to_summary_dict</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric.zero">zero</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric.get_namespace">get_namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.CardinalityMetric.merge">merge</a></li>
@@ -2193,13 +2195,7 @@ range to be tracked. The string length is tracked under the key
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric">DistributionMetric</a><ul>
-<li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.kll">kll</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.mean">mean</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.m2">m2</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.namespace">namespace</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.to_summary_dict">to_summary_dict</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.columnar_update">columnar_update</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.merge">merge</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.n">n</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.variance">variance</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.stddev">stddev</a></li>
@@ -2215,6 +2211,12 @@ range to be tracked. The string length is tracked under the key
 <li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.q_99">q_99</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.max">max</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.min">min</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.kll">kll</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.mean">mean</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.m2">m2</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.to_summary_dict">to_summary_dict</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.columnar_update">columnar_update</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.merge">merge</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.zero">zero</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.get_namespace">get_namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.DistributionMetric.to_protobuf">to_protobuf</a></li>
@@ -2223,11 +2225,11 @@ range to be tracked. The string length is tracked under the key
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric">FrequentItemsMetric</a><ul>
-<li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.frequent_strings">frequent_strings</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.namespace">namespace</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.strings">strings</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.frequent_strings">frequent_strings</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.columnar_update">columnar_update</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.to_summary_dict">to_summary_dict</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.strings">strings</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.zero">zero</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.get_namespace">get_namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.merge">merge</a></li>
@@ -2237,14 +2239,14 @@ range to be tracked. The string length is tracked under the key
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric">IntsMetric</a><ul>
+<li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.namespace">namespace</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.maximum">maximum</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.minimum">minimum</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.max">max</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.min">min</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.namespace">namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.columnar_update">columnar_update</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.zero">zero</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.to_summary_dict">to_summary_dict</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.maximum">maximum</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.minimum">minimum</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.get_namespace">get_namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.merge">merge</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.IntsMetric.to_protobuf">to_protobuf</a></li>
@@ -2253,8 +2255,8 @@ range to be tracked. The string length is tracked under the key
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.metrics.Metric">Metric</a><ul>
-<li><a class="reference internal" href="#whylogs.core.metrics.Metric.get_namespace">get_namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.Metric.namespace">namespace</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.Metric.get_namespace">get_namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.Metric.merge">merge</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.Metric.to_protobuf">to_protobuf</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.Metric.get_component_paths">get_component_paths</a></li>
@@ -2278,11 +2280,11 @@ range to be tracked. The string length is tracked under the key
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric">UnicodeRangeMetric</a><ul>
+<li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.namespace">namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.range_definitions">range_definitions</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.lower_case">lower_case</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.normalize">normalize</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.submetrics">submetrics</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.namespace">namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.merge">merge</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.columnar_update">columnar_update</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.zero">zero</a></li>

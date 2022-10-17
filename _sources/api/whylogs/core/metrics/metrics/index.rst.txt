@@ -148,12 +148,13 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
+   .. py:property:: namespace
+      :type: str
+      :abstractmethod:
+
+
    .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
       :classmethod:
-
-
-   .. py:method:: namespace() -> str
-      :property:
 
 
    .. py:method:: merge(other: METRIC) -> METRIC
@@ -190,6 +191,18 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
+   .. py:property:: namespace
+      :type: str
+
+
+   .. py:property:: maximum
+      :type: float
+
+
+   .. py:property:: minimum
+      :type: float
+
+
    .. py:attribute:: max
       :annotation: :whylogs.core.metrics.metric_components.MaxIntegralComponent
 
@@ -200,10 +213,6 @@ Attributes
 
       
 
-   .. py:method:: namespace() -> str
-      :property:
-
-
    .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> OperationResult
 
 
@@ -212,14 +221,6 @@ Attributes
 
 
    .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Union[int, float, str, None]]
-
-
-   .. py:method:: maximum() -> float
-      :property:
-
-
-   .. py:method:: minimum() -> float
-      :property:
 
 
    .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
@@ -247,6 +248,73 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
+   .. py:property:: namespace
+      :type: str
+
+
+   .. py:property:: n
+      :type: float
+
+
+   .. py:property:: variance
+      :type: float
+
+      Returns the population variance of the stream.
+
+      https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm
+
+   .. py:property:: stddev
+      :type: float
+
+
+   .. py:property:: avg
+      :type: float
+
+
+   .. py:property:: median
+      :type: Optional[float]
+
+
+   .. py:property:: q_01
+      :type: Optional[float]
+
+
+   .. py:property:: q_05
+      :type: Optional[float]
+
+
+   .. py:property:: q_10
+      :type: Optional[float]
+
+
+   .. py:property:: q_25
+      :type: Optional[float]
+
+
+   .. py:property:: q_75
+      :type: Optional[float]
+
+
+   .. py:property:: q_90
+      :type: Optional[float]
+
+
+   .. py:property:: q_95
+      :type: Optional[float]
+
+
+   .. py:property:: q_99
+      :type: Optional[float]
+
+
+   .. py:property:: max
+      :type: float
+
+
+   .. py:property:: min
+      :type: float
+
+
    .. py:attribute:: kll
       :annotation: :whylogs.core.metrics.metric_components.KllComponent
 
@@ -261,10 +329,6 @@ Attributes
       :annotation: :whylogs.core.metrics.metric_components.FractionalComponent
 
       
-
-   .. py:method:: namespace() -> str
-      :property:
-
 
    .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Union[int, float, str, None]]
 
@@ -281,70 +345,6 @@ Attributes
 
 
    .. py:method:: merge(other: DistributionMetric) -> DistributionMetric
-
-
-   .. py:method:: n() -> float
-      :property:
-
-
-   .. py:method:: variance() -> float
-      :property:
-
-      Returns the population variance of the stream.
-
-      https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm
-
-
-   .. py:method:: stddev() -> float
-      :property:
-
-
-   .. py:method:: avg() -> float
-      :property:
-
-
-   .. py:method:: median() -> Optional[float]
-      :property:
-
-
-   .. py:method:: q_01() -> Optional[float]
-      :property:
-
-
-   .. py:method:: q_05() -> Optional[float]
-      :property:
-
-
-   .. py:method:: q_10() -> Optional[float]
-      :property:
-
-
-   .. py:method:: q_25() -> Optional[float]
-      :property:
-
-
-   .. py:method:: q_75() -> Optional[float]
-      :property:
-
-
-   .. py:method:: q_90() -> Optional[float]
-      :property:
-
-
-   .. py:method:: q_95() -> Optional[float]
-      :property:
-
-
-   .. py:method:: q_99() -> Optional[float]
-      :property:
-
-
-   .. py:method:: max() -> float
-      :property:
-
-
-   .. py:method:: min() -> float
-      :property:
 
 
    .. py:method:: zero(config: Optional[MetricConfig] = None) -> DistributionMetric
@@ -396,23 +396,23 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
+   .. py:property:: namespace
+      :type: str
+
+
+   .. py:property:: strings
+      :type: List[FrequentItem]
+
+
    .. py:attribute:: frequent_strings
       :annotation: :whylogs.core.metrics.metric_components.FrequentStringsComponent
 
       
 
-   .. py:method:: namespace() -> str
-      :property:
-
-
    .. py:method:: columnar_update(view: whylogs.core.preprocessing.PreprocessedColumn) -> OperationResult
 
 
    .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
-
-
-   .. py:method:: strings() -> List[FrequentItem]
-      :property:
 
 
    .. py:method:: zero(config: Optional[MetricConfig] = None) -> FrequentItemsMetric
@@ -444,31 +444,31 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
+   .. py:property:: namespace
+      :type: str
+
+
+   .. py:property:: estimate
+      :type: Optional[float]
+
+
+   .. py:property:: upper_1
+      :type: Optional[float]
+
+
+   .. py:property:: lower_1
+      :type: Optional[float]
+
+
    .. py:attribute:: hll
       :annotation: :whylogs.core.metrics.metric_components.HllComponent
 
       
 
-   .. py:method:: namespace() -> str
-      :property:
-
-
    .. py:method:: columnar_update(view: whylogs.core.preprocessing.PreprocessedColumn) -> OperationResult
 
 
    .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
-
-
-   .. py:method:: estimate() -> Optional[float]
-      :property:
-
-
-   .. py:method:: upper_1() -> Optional[float]
-      :property:
-
-
-   .. py:method:: lower_1() -> Optional[float]
-      :property:
 
 
    .. py:method:: zero(config: Optional[MetricConfig] = None) -> CardinalityMetric
@@ -503,6 +503,11 @@ Attributes
    in the summary and will be [de]serialized. Such subclasses will need to
    implement the namespace, merge, and zero methods.
 
+   .. py:property:: namespace
+      :type: str
+      :abstractmethod:
+
+
    .. py:method:: get_component_paths() -> List[str]
 
 
@@ -518,10 +523,6 @@ Attributes
 
    .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
       :classmethod:
-
-
-   .. py:method:: namespace() -> str
-      :property:
 
 
    .. py:method:: merge(other: METRIC) -> METRIC

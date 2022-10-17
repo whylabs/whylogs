@@ -53,8 +53,8 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: name() -> str
-      :property:
+   .. py:property:: name
+      :type: str
 
 
    .. py:method:: build(func: whylogs.core.metrics.decorators.FuncType, name: str) -> Serializer

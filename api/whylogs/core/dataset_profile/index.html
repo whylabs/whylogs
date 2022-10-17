@@ -13,10 +13,10 @@
 <meta property="og:description" content="Module Contents: Classes: Attributes:" />
   <link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" /><link rel="next" title="whylogs.core.datatypes" href="../datatypes/index.html" /><link rel="prev" title="whylogs.core.configs" href="../configs/index.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.09.15"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
         <title>whylogs.core.dataset_profile - whylogs v1.1.7</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=9ec31e2665bf879c1d47d93a8ec4893870ee1e45" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
@@ -276,6 +276,7 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../api/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../api/writer/gcs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.gcs</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/writer/local/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.local</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/writer/mlflow/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.mlflow</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/writer/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.s3</span></code></a></li>
@@ -402,7 +403,8 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
+          
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -477,9 +479,9 @@ If None is provided, it will take the current timestamp as default</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
+<dl class="py property">
 <dt class="sig sig-object py" id="whylogs.core.dataset_profile.DatasetProfile.creation_timestamp">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">creation_timestamp</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><span class="pre">datetime.datetime</span></a></span></span><a class="headerlink" href="#whylogs.core.dataset_profile.DatasetProfile.creation_timestamp" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">creation_timestamp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><span class="pre">datetime.datetime</span></a></em><a class="headerlink" href="#whylogs.core.dataset_profile.DatasetProfile.creation_timestamp" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)">datetime.datetime</a></p>
@@ -487,9 +489,9 @@ If None is provided, it will take the current timestamp as default</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="py property">
 <dt class="sig sig-object py" id="whylogs.core.dataset_profile.DatasetProfile.dataset_timestamp">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dataset_timestamp</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><span class="pre">datetime.datetime</span></a></span></span><a class="headerlink" href="#whylogs.core.dataset_profile.DatasetProfile.dataset_timestamp" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dataset_timestamp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><span class="pre">datetime.datetime</span></a></em><a class="headerlink" href="#whylogs.core.dataset_profile.DatasetProfile.dataset_timestamp" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)">datetime.datetime</a></p>
@@ -497,9 +499,9 @@ If None is provided, it will take the current timestamp as default</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="py property">
 <dt class="sig sig-object py" id="whylogs.core.dataset_profile.DatasetProfile.is_active">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_active</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#whylogs.core.dataset_profile.DatasetProfile.is_active" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_active</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#whylogs.core.dataset_profile.DatasetProfile.is_active" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns True if the profile tracking code is currently running.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
@@ -508,13 +510,23 @@ If None is provided, it will take the current timestamp as default</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
+<dl class="py property">
 <dt class="sig sig-object py" id="whylogs.core.dataset_profile.DatasetProfile.is_empty">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_empty</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#whylogs.core.dataset_profile.DatasetProfile.is_empty" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_empty</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#whylogs.core.dataset_profile.DatasetProfile.is_empty" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns True if the profile tracking code is currently running.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.dataset_profile.DatasetProfile.model_performance_metrics">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_performance_metrics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../model_performance_metrics/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics"><span class="pre">whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics</span></a></em><a class="headerlink" href="#whylogs.core.dataset_profile.DatasetProfile.model_performance_metrics" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="../model_performance_metrics/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics">whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -573,16 +585,6 @@ If None is provided, it will take the current timestamp as default</p></li>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.dataset_profile.DatasetProfile.model_performance_metrics">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_performance_metrics</span></span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../model_performance_metrics/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics"><span class="pre">whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics</span></a></span></span><a class="headerlink" href="#whylogs.core.dataset_profile.DatasetProfile.model_performance_metrics" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="../model_performance_metrics/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics">whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -761,11 +763,11 @@ If None is provided, it will take the current timestamp as default</p></li>
 <li><a class="reference internal" href="#whylogs.core.dataset_profile.DatasetProfile.dataset_timestamp">dataset_timestamp</a></li>
 <li><a class="reference internal" href="#whylogs.core.dataset_profile.DatasetProfile.is_active">is_active</a></li>
 <li><a class="reference internal" href="#whylogs.core.dataset_profile.DatasetProfile.is_empty">is_empty</a></li>
+<li><a class="reference internal" href="#whylogs.core.dataset_profile.DatasetProfile.model_performance_metrics">model_performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.core.dataset_profile.DatasetProfile.set_dataset_timestamp">set_dataset_timestamp</a></li>
 <li><a class="reference internal" href="#whylogs.core.dataset_profile.DatasetProfile.add_metric">add_metric</a></li>
 <li><a class="reference internal" href="#whylogs.core.dataset_profile.DatasetProfile.add_dataset_metric">add_dataset_metric</a></li>
 <li><a class="reference internal" href="#whylogs.core.dataset_profile.DatasetProfile.add_model_performance_metrics">add_model_performance_metrics</a></li>
-<li><a class="reference internal" href="#whylogs.core.dataset_profile.DatasetProfile.model_performance_metrics">model_performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.core.dataset_profile.DatasetProfile.track">track</a></li>
 <li><a class="reference internal" href="#whylogs.core.dataset_profile.DatasetProfile.view">view</a></li>
 <li><a class="reference internal" href="#whylogs.core.dataset_profile.DatasetProfile.flush">flush</a></li>

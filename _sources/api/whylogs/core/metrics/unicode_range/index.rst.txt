@@ -33,6 +33,10 @@ Classes
         range to be tracked. The string length is tracked under the key
         "STRING_LENGTH" so don't use that as a range name.
 
+   .. py:property:: namespace
+      :type: str
+
+
    .. py:attribute:: range_definitions
       :annotation: :Dict[str, Tuple[int, int]]
 
@@ -52,10 +56,6 @@ Classes
       :annotation: :Dict[str, Dict[str, whylogs.core.metrics.Metric]]
 
       
-
-   .. py:method:: namespace() -> str
-      :property:
-
 
    .. py:method:: merge(other: UnicodeRangeMetric) -> UnicodeRangeMetric
 
