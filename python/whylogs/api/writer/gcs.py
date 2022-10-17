@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class GCSWriter(Writer):
     """
-    A WhyLogs writer to upload DatasetProfileViews onto Google Cloud Storage (GCS).
+    A whylogs writer to upload DatasetProfileViews onto Google Cloud Storage (GCS).
 
     >**IMPORTANT**: In order to correctly connect to your GCS container, make sure you have
     the following environment variables set: `[GOOGLE_APPLICATION_CREDENTIALS]`
