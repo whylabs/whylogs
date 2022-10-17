@@ -42,7 +42,7 @@ nbconvert = {version = "^7.0.0", optional = true}
 boto3 = {version = "^1.22.13", optional = true }
 whylabs-client = {version = "0.4.0.dev0", optional = true}
 mlflow-skinny = {version = "^1.26.1", optional = true}
-
+google-cloud-storage = {version = "^2.5.0", optional = true}
 
 # Pyspark related dependencies
 pyarrow = {version = "^8.0.0", optional = true}
@@ -77,6 +77,7 @@ ipykernel = ">=6.11" # for developing in Jupyter notebook
 types-python-dateutil = "^2.8.12"
 moto = "^3.1.9"
 twine = "^4.0.1"
+gcp-storage-emulator = "^2022.6.11"
 
 [tool.poetry.extras]
 docs = [
@@ -108,6 +109,9 @@ spark = [
 ]
 datasets = [
   "pandas",
+]
+gcs = [
+  "google-cloud-storage",
 ]
 s3 = [
   "boto3"
