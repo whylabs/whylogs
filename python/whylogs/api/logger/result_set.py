@@ -104,7 +104,7 @@ class ResultSet(ABC):
         else:
             raise ValueError("Cannot add performance metrics to a result set with no profile!")
 
-    def add_metrics(self, name: str, metric: Metric) -> None:
+    def add_metric(self, name: str, metric: Metric) -> None:
         profile = self.profile()
         if profile:
             profile.add_dataset_metric(name, metric)
