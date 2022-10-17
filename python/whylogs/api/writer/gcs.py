@@ -2,11 +2,11 @@ import logging
 import tempfile
 from typing import Any, Optional, Tuple
 
-from google.cloud import exceptions
-from google.cloud.storage import Client
+from google.cloud import exceptions, storage  # type: ignore
 
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
+from whylogs.core.utils import deprecated_alias
 
 logger = logging.getLogger(__name__)
 
@@ -41,14 +41,17 @@ class GCSWriter(Writer):
     ```
     """
 
-    # TODO add specific typing for gcs_client
     def __init__(
-        self, gcs_client: Optional[Client] = None, object_name: Optional[str] = None, bucket_name: Optional[str] = None
+        self,
+        gcs_client: Optional[storage.Client] = None,
+        object_name: Optional[str] = None,
+        bucket_name: Optional[str] = None,
     ):
-        self.gcs_client = gcs_client or Client()
+        self.gcs_client = gcs_client or storage.Client()
         self.object_name = object_name
         self.bucket_name = bucket_name
 
+    @deprecated_alias(profile="file")
     def write(
         self,
         file: Writable,
