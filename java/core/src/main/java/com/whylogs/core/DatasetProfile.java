@@ -50,7 +50,7 @@ public class DatasetProfile {
     this.metrics.put(name, metric);
   }
 
-  public void track(HashMap<String, Object> row) {
+  public void track(HashMap<String, ?> row) {
     try {
       this.isActive = true;
       this.trackCount += 1;
@@ -60,7 +60,7 @@ public class DatasetProfile {
     }
   }
 
-  private void doTrack(HashMap<String, Object> row) {
+  private void doTrack(HashMap<String, ?> row) {
     boolean dirty = this.schema.resolve(row);
     if (dirty) {
       Set<String> schemaColumnNames = this.schema.getColNames();

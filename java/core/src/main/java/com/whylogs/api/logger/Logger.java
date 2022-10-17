@@ -1,17 +1,24 @@
 package com.whylogs.api.logger;
 
+import com.whylogs.api.logger.resultSets.ProfileResultSet;
+import com.whylogs.api.logger.resultSets.ResultSet;
 import com.whylogs.api.writer.Writer;
 import com.whylogs.api.writer.WritersRegistry;
+import com.whylogs.core.DatasetProfile;
 import com.whylogs.core.schemas.DatasetSchema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @NoArgsConstructor
 @Getter
 @EqualsAndHashCode
+@ToString
 public abstract class Logger implements AutoCloseable {
     private boolean isClosed = false;
     private DatasetSchema schema;
@@ -48,4 +55,31 @@ public abstract class Logger implements AutoCloseable {
         writers.add(writer);
     }
 
+    protected abstract ArrayList<DatasetProfile> getMatchingProfiles(Object data);
+    protected abstract <O> ArrayList<DatasetProfile> getMatchingProfiles(Map<String, O> data);
+
+    @Override
+    public void close(){
+        isClosed = true;
+    }
+
+    public ResultSet log(HashMap<String, ?> data){
+        // What type of data is the object? Right now we don't process that in track.
+        if(isClosed){
+            throw new IllegalStateException("Logger is closed");
+        } else if(data == null){
+            throw new IllegalArgumentException("Data cannot be null");
+        }
+
+        // TODO: implement segment processing here
+
+        ArrayList<DatasetProfile> profiles = getMatchingProfiles(data);
+        for(DatasetProfile profile : profiles){
+            profile.track(data);
+        }
+
+        // Question: Why does this only return the first profile? IS this
+        // getting ready for multiple profiles later on?
+        return new ProfileResultSet(profiles.get(0));
+    }
 }
