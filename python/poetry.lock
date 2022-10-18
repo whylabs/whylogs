@@ -184,14 +184,14 @@ dev = ["Sphinx (==4.3.2)", "black (==22.3.0)", "build (==0.8.0)", "flake8 (==4.0
 
 [[package]]
 name = "boto3"
-version = "1.24.91"
+version = "1.24.93"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 
 [package.dependencies]
-botocore = ">=1.27.91,<1.28.0"
+botocore = ">=1.27.93,<1.28.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.6.0,<0.7.0"
 
@@ -200,7 +200,7 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.27.91"
+version = "1.27.93"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
@@ -1097,11 +1097,11 @@ sqlserver = ["mlflow-dbstore"]
 
 [[package]]
 name = "more-itertools"
-version = "8.14.0"
+version = "9.0.0"
 description = "More routines for operating on iterables, beyond itertools"
 category = "dev"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.7"
 
 [[package]]
 name = "moto"
@@ -1327,7 +1327,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "oauthlib"
-version = "3.2.1"
+version = "3.2.2"
 description = "A generic, spec-compliant, thorough implementation of the OAuth request-signing logic"
 category = "main"
 optional = true
@@ -1785,7 +1785,7 @@ six = ">=1.5"
 
 [[package]]
 name = "pytz"
-version = "2022.4"
+version = "2022.5"
 description = "World timezone definitions, modern and historical"
 category = "main"
 optional = false
@@ -2297,18 +2297,18 @@ python-versions = "*"
 
 [[package]]
 name = "tinycss2"
-version = "1.1.1"
+version = "1.2.1"
 description = "A tiny CSS parser"
 category = "main"
 optional = true
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 webencodings = ">=0.4"
 
 [package.extras]
 doc = ["sphinx", "sphinx_rtd_theme"]
-test = ["coverage[toml]", "pytest", "pytest-cov", "pytest-flake8", "pytest-isort"]
+test = ["flake8", "isort", "pytest"]
 
 [[package]]
 name = "toml"
@@ -2353,13 +2353,14 @@ telegram = ["requests"]
 
 [[package]]
 name = "traitlets"
-version = "5.4.0"
+version = "5.5.0"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.7"
 
 [package.extras]
+docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
 test = ["pre-commit", "pytest"]
 
 [[package]]
@@ -2507,7 +2508,7 @@ watchdog = ["watchdog"]
 
 [[package]]
 name = "whylabs-client"
-version = "0.4.0.dev0"
+version = "0.4.0"
 description = "WhyLabs API client"
 category = "main"
 optional = true
@@ -2568,7 +2569,7 @@ whylabs = ["whylabs-client", "requests"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1, <4"
-content-hash = "6b51968f28c40da536ff49115d7b146809ecc7e0680704db4832a3555e59080d"
+content-hash = "570f2a9ef03d4a1922d983f7cdcdfc86a000a9fe7849871bbdf3675b01bf902d"
 
 [metadata.files]
 2to3 = [
@@ -2654,12 +2655,12 @@ bleach = [
     {file = "bleach-5.0.1.tar.gz", hash = "sha256:0d03255c47eb9bd2f26aa9bb7f2107732e7e8fe195ca2f64709fcf3b0a4a085c"},
 ]
 boto3 = [
-    {file = "boto3-1.24.91-py3-none-any.whl", hash = "sha256:b295640bc1be637f8f7c8c8fca70781048d6397196109e59f20541824fab4b67"},
-    {file = "boto3-1.24.91.tar.gz", hash = "sha256:3225366014949039e6687387242e73f237f0fee0a9b7c20461894f1ee40686b8"},
+    {file = "boto3-1.24.93-py3-none-any.whl", hash = "sha256:db9f04eeb942e7998d1971c35e1658e2d9d6687166a4ebc036f484a71a79bbeb"},
+    {file = "boto3-1.24.93.tar.gz", hash = "sha256:7881fc380f2f489ae9b3a2f2448334aef9f7be58d85a7a0e8c10458247b09afa"},
 ]
 botocore = [
-    {file = "botocore-1.27.91-py3-none-any.whl", hash = "sha256:1d6e97bd8653f732c7078b34aa2bb438e750898957e5a0a74b6c72918bc1d0f7"},
-    {file = "botocore-1.27.91.tar.gz", hash = "sha256:c8fac203a391cc2e4b682877bfce70e723e33c529b35b399a1d574605fbeb1af"},
+    {file = "botocore-1.27.93-py3-none-any.whl", hash = "sha256:7648891692c3c69038eef902f8d64af59f91211f713fe9072fb83ecdd310dbbc"},
+    {file = "botocore-1.27.93.tar.gz", hash = "sha256:d5200f7b9150cdb91c9d3994980870d7bb4554e19c4d9d847f64626d8ceacf95"},
 ]
 bump2version = [
     {file = "bump2version-1.0.1-py2.py3-none-any.whl", hash = "sha256:37f927ea17cde7ae2d7baf832f8e80ce3777624554a653006c9144f8017fe410"},
@@ -3256,8 +3257,8 @@ mlflow-skinny = [
     {file = "mlflow_skinny-1.29.0-py3-none-any.whl", hash = "sha256:101615d74fdc05c40c8d669ae4d79205d22d260fac8109535004dbf6fb78c905"},
 ]
 more-itertools = [
-    {file = "more-itertools-8.14.0.tar.gz", hash = "sha256:c09443cd3d5438b8dafccd867a6bc1cb0894389e90cb53d227456b0b0bccb750"},
-    {file = "more_itertools-8.14.0-py3-none-any.whl", hash = "sha256:1bc4f91ee5b1b31ac7ceacc17c09befe6a40a503907baf9c839c229b5095cfd2"},
+    {file = "more-itertools-9.0.0.tar.gz", hash = "sha256:5a6257e40878ef0520b1803990e3e22303a41b5714006c32a3fd8304b26ea1ab"},
+    {file = "more_itertools-9.0.0-py3-none-any.whl", hash = "sha256:250e83d7e81d0c87ca6bd942e6aeab8cc9daa6096d12c5308f3f92fa5e5c1f41"},
 ]
 moto = [
     {file = "moto-3.1.18-py3-none-any.whl", hash = "sha256:b6eb096e7880c46ac44d6d90988c0043e31462115cfdc913a0ee8f470bd9555c"},
@@ -3356,8 +3357,8 @@ numpy = [
     {file = "numpy-1.21.1.zip", hash = "sha256:dff4af63638afcc57a3dfb9e4b26d434a7a602d225b42d746ea7fe2edf1342fd"},
 ]
 oauthlib = [
-    {file = "oauthlib-3.2.1-py3-none-any.whl", hash = "sha256:88e912ca1ad915e1dcc1c06fc9259d19de8deacd6fd17cc2df266decc2e49066"},
-    {file = "oauthlib-3.2.1.tar.gz", hash = "sha256:1565237372795bf6ee3e5aba5e2a85bd5a65d0e2aa5c628b9a97b7d7a0da3721"},
+    {file = "oauthlib-3.2.2-py3-none-any.whl", hash = "sha256:8139f29aac13e25d502680e9e19963e83f16838d48a0d71c287fe40e7067fbca"},
+    {file = "oauthlib-3.2.2.tar.gz", hash = "sha256:9859c40929662bec5d64f34d01c99e093149682a3f38915dc0655d5a633dd918"},
 ]
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
@@ -3677,8 +3678,8 @@ python-dateutil = [
     {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
 ]
 pytz = [
-    {file = "pytz-2022.4-py2.py3-none-any.whl", hash = "sha256:2c0784747071402c6e99f0bafdb7da0fa22645f06554c7ae06bf6358897e9c91"},
-    {file = "pytz-2022.4.tar.gz", hash = "sha256:48ce799d83b6f8aab2020e369b627446696619e79645419610b9facd909b3174"},
+    {file = "pytz-2022.5-py2.py3-none-any.whl", hash = "sha256:335ab46900b1465e714b4fda4963d87363264eb662aab5e65da039c25f1f5b22"},
+    {file = "pytz-2022.5.tar.gz", hash = "sha256:c4d88f472f54d615e9cd582a5004d1e5f624854a6a27a6211591c251f22a6914"},
 ]
 pywin32 = [
     {file = "pywin32-304-cp310-cp310-win32.whl", hash = "sha256:3c7bacf5e24298c86314f03fa20e16558a4e4138fc34615d7de4070c23e65af3"},
@@ -4014,8 +4015,8 @@ textwrap3 = [
     {file = "textwrap3-0.9.2.zip", hash = "sha256:5008eeebdb236f6303dcd68f18b856d355f6197511d952ba74bc75e40e0c3414"},
 ]
 tinycss2 = [
-    {file = "tinycss2-1.1.1-py3-none-any.whl", hash = "sha256:fe794ceaadfe3cf3e686b22155d0da5780dd0e273471a51846d0a02bc204fec8"},
-    {file = "tinycss2-1.1.1.tar.gz", hash = "sha256:b2e44dd8883c360c35dd0d1b5aad0b610e5156c2cb3b33434634e539ead9d8bf"},
+    {file = "tinycss2-1.2.1-py3-none-any.whl", hash = "sha256:2b80a96d41e7c3914b8cda8bc7f705a4d9c49275616e886103dd839dfc847847"},
+    {file = "tinycss2-1.2.1.tar.gz", hash = "sha256:8cff3a8f066c2ec677c06dbc7b45619804a6938478d9d73c284b29d14ecb0627"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
@@ -4043,8 +4044,8 @@ tqdm = [
     {file = "tqdm-4.64.1.tar.gz", hash = "sha256:5f4f682a004951c1b450bc753c710e9280c5746ce6ffedee253ddbcbf54cf1e4"},
 ]
 traitlets = [
-    {file = "traitlets-5.4.0-py3-none-any.whl", hash = "sha256:93663cc8236093d48150e2af5e2ed30fc7904a11a6195e21bab0408af4e6d6c8"},
-    {file = "traitlets-5.4.0.tar.gz", hash = "sha256:3f2c4e435e271592fe4390f1746ea56836e3a080f84e7833f0f801d9613fec39"},
+    {file = "traitlets-5.5.0-py3-none-any.whl", hash = "sha256:1201b2c9f76097195989cdf7f65db9897593b0dfd69e4ac96016661bb6f0d30f"},
+    {file = "traitlets-5.5.0.tar.gz", hash = "sha256:b122f9ff2f2f6c1709dab289a05555be011c87828e911c0cf4074b85cb780a79"},
 ]
 triad = [
     {file = "triad-0.7.0-py3-none-any.whl", hash = "sha256:f23bfbdb82e6a1020b393070ee68bea78795b729c0600bb5970f98c77d66ac7d"},
@@ -4121,7 +4122,8 @@ Werkzeug = [
     {file = "Werkzeug-2.1.2.tar.gz", hash = "sha256:1ce08e8093ed67d638d63879fd1ba3735817f7a80de3674d293f5984f25fb6e6"},
 ]
 whylabs-client = [
-    {file = "whylabs_client-0.4.0.dev0-py3-none-any.whl", hash = "sha256:71cac6e9779d359d134ba248fa2eeb1f790b036689de3c5d0488b2205848c60c"},
+    {file = "whylabs-client-0.4.0.tar.gz", hash = "sha256:ad997b9c6eba3ea84d69fcd5a96667b7c30cae4fa8fc95752a1c4d957b3f4529"},
+    {file = "whylabs_client-0.4.0-py3-none-any.whl", hash = "sha256:016151c3a25118a50f2c88675a3754cf8b5ee57196f3d28a2e67a12be1449d65"},
 ]
 whylogs-sketching = [
     {file = "whylogs-sketching-3.4.1.dev3.tar.gz", hash = "sha256:40b90eb9d5e4cbbfa63f6a1f3a3332b72258d270044b79030dc5d720fddd9499"},
