@@ -1,11 +1,12 @@
 package com.whylogs.api.logger.rollingLogger;
 
-import com.sun.org.apache.xpath.internal.functions.FuncFalse;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.Timer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Getter
 @EqualsAndHashCode
@@ -13,22 +14,27 @@ import java.util.Timer;
 public class Scheduler {
     // Multithreading schedule.
     // Schedule a function to be called repeatedly based on a schedule
-
-    private Timer timer;
+    private ScheduledExecutorService scheduledService;
     private float initial;
     private boolean ranInitial = false;
     private float interval;
     private Runnable func;
     private boolean isRunning = false;
+    private String[] args;
     // TODO: figure out args an dkwards
 
-    public Scheduler() {
+    public Scheduler(float initial, float interval, Runnable func, String[] args) {
+        this.initial = initial;
+        this.interval = interval;
+        this.func = func;
+        this.args = args;
         this.start();
     }
 
     private void run(){
+        // TODO: Looking at this I think this is wrong to have lines 35 & 36
         this.isRunning = false;
-        this.start();
+        this.start();    // Question: why do we need to start again?
         this.func.run(); // TODO: figure out args and kwargs
     }
 
@@ -37,14 +43,19 @@ public class Scheduler {
             return;
         }
 
-        float interval = this.getInterval();
+        float initial = 0;
         if(!this.ranInitial){
-            interval = this.getInitial();
+            initial = this.getInitial();
             this.ranInitial = true;
         }
-        this.isRunning = true;
 
-        this.timer = new Timer(interval, this::run);
-        this.timer.schedule(this::run, (long) this.initial, (long) this.interval);
+        this.scheduledService = Executors.newSingleThreadScheduledExecutor();
+        this.scheduledService.scheduleAtFixedRate(this::run, (long) initial, (long) this.interval, TimeUnit.SECONDS);
+        this.isRunning = true;
+    }
+
+    public void stop(){
+        this.scheduledService.shutdown();
+        this.isRunning = false;
     }
 }
