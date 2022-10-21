@@ -2,7 +2,7 @@ import os
 
 os.environ["TELEMETRY_DEV"] = "1"  # noqa: E402
 
-from whylogs import __version__, package_version  # noqa
+from whylogs import __version__, log, package_version  # noqa
 
 """
 This is here to verify that the produced wheel includes
@@ -30,6 +30,16 @@ def test_version() -> None:
     assert __version__ == current_version
 
 
+def test_basic_log() -> None:
+    """test basic log scenario on row data."""
+    column_name = "a_column_name"
+    results = log(row={column_name: 3})
+    assert results is not None
+    column_profile_dictionary = results.view().get_columns()
+    assert column_name in column_profile_dictionary
+
+
 test_package_version()
 test_package_version_not_found()
 test_version()
+test_basic_log()
