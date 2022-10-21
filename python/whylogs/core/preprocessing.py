@@ -208,7 +208,7 @@ class PreprocessedColumn:
                     null_count += 1
 
             result.null_count = null_count
-            if np.ndarray:
+            if is_not_stub(np.ndarray):
                 ints = np.asarray(int_list, dtype=int)
                 floats = np.asarray(float_list, dtype=float)
 
