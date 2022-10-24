@@ -12,7 +12,7 @@ from whylogs.viz.utils.frequent_items_calculations import (
     zero_padding_frequent_items,
 )
 
-QUANTILES = [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0]
+QUANTILES = list(np.linspace(0, 1, 100))
 
 
 class ColumnDriftValue(TypedDict):
