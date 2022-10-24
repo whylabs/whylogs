@@ -175,17 +175,14 @@ A simple example of setting and testing a constraint is:
 
 ```python
 import whylogs as why
-from whylogs.core.constraints import Constraints, ConstraintsBuilder, MetricsSelector, MetricConstraint
+from whylogs.core.constraints import Constraints, ConstraintsBuilder
+from whylogs.core.constraints.factories import greater_than_number
 
 profile_view = why.log(df).view()
 builder = ConstraintsBuilder(profile_view)
+builder.add_constraint(greater_than_number(column_name="col_name", number=0.15))
 
-builder.add_constraint(MetricConstraint(
-    name="col_name >= 0",
-    condition=lambda x: x.min >= 0,
-    metric_selector=MetricsSelector(metric_name='distribution', column_name='col_name')
-))
-constraints: Constraints = builder.build()
+constraints = builder.build()
 constraints.report()
 ```
 
