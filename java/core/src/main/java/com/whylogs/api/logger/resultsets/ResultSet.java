@@ -30,11 +30,7 @@ public abstract class ResultSet {
   // TODO: Come back for ModelPerformanceMetrics
 
   public void addMetric(String name, Metric<?> metric) throws Error {
-    if (!this.profile().isPresent()) {
-      throw new Error(
-          "Cannot add " + name + " metric " + metric + " to a result set without a profile");
-    }
-
-    this.profile().get().addMetric(name, metric);
+    DatasetProfile profile = this.profile().orElseThrow(() -> new Error("Cannot add " + name + " metric " + metric + " to a result set without a profile");
+    profile.addMetric(name, metric);
   }
 }
