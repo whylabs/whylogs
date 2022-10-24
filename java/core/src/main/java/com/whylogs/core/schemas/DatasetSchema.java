@@ -13,7 +13,7 @@ import lombok.Data;
 public class DatasetSchema {
   private HashMap<String, Type> types = new HashMap<>();
   private final int LARGE_CACHE_SIZE_LIMIT = 1024 * 100;
-  private HashMap<String, ColumnSchema> columns;
+  protected HashMap<String, ColumnSchema> columns;
   private MetricConfig defaultConfig;
   private Resolver resolver;
   private int cacheSize = 1024;

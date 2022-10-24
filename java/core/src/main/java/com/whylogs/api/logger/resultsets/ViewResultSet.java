@@ -1,4 +1,4 @@
-package com.whylogs.api.logger.resultSets;
+package com.whylogs.api.logger.resultsets;
 
 import com.whylogs.core.DatasetProfile;
 import com.whylogs.core.views.DatasetProfileView;
@@ -11,12 +11,10 @@ public class ViewResultSet extends ResultSet {
   @NonNull private final DatasetProfileView view;
 
   public ViewResultSet(@NonNull DatasetProfileView view) {
-    super();
     this.view = view;
   }
 
   public ViewResultSet(DatasetProfile profile) {
-    super();
     this.view = profile.view();
   }
 

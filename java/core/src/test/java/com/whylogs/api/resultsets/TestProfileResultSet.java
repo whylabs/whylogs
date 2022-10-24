@@ -1,6 +1,6 @@
 package com.whylogs.api.resultsets;
 
-import com.whylogs.api.logger.resultSets.ProfileResultSet;
+import com.whylogs.api.logger.resultsets.ProfileResultSet;
 import com.whylogs.core.DatasetProfile;
 import com.whylogs.core.errors.Error;
 import com.whylogs.core.metrics.IntegralMetric;

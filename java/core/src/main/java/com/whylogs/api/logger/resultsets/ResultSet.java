@@ -1,4 +1,4 @@
-package com.whylogs.api.logger.resultSets;
+package com.whylogs.api.logger.resultsets;
 
 import com.whylogs.core.DatasetProfile;
 import com.whylogs.core.errors.Error;
