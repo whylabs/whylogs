@@ -27,9 +27,7 @@ public class DatasetProfile {
   // TODO: I don't like how this works for customers. I wouldn't want
   // TODO: to have to pass the optionals around. We should just use overloading instead
   public DatasetProfile(
-          DatasetSchema datasetSchema,
-          Instant datasetTimestamp,
-          Instant creationTimestamp) {
+      DatasetSchema datasetSchema, Instant datasetTimestamp, Instant creationTimestamp) {
     this.schema = datasetSchema;
     this.datasetTimestamp = datasetTimestamp;
     this.creationTimestamp = creationTimestamp;
@@ -38,19 +36,16 @@ public class DatasetProfile {
     this.initializeNewColumns(schema.getColNames());
   }
 
-  public DatasetProfile(
-          DatasetSchema datasetSchema,
-          Instant datasetTimestamp) {
-      this(datasetSchema, datasetTimestamp, Instant.now());
+  public DatasetProfile(DatasetSchema datasetSchema, Instant datasetTimestamp) {
+    this(datasetSchema, datasetTimestamp, Instant.now());
   }
 
-  public DatasetProfile(
-          DatasetSchema datasetSchema) {
-      this(datasetSchema, Instant.now(), Instant.now());
+  public DatasetProfile(DatasetSchema datasetSchema) {
+    this(datasetSchema, Instant.now(), Instant.now());
   }
 
   public DatasetProfile() {
-      this(new DatasetSchema());
+    this(new DatasetSchema());
   }
 
   public void addMetric(String colName, Metric<?> metric) {
@@ -113,8 +108,13 @@ public class DatasetProfile {
 
   private void initializeNewColumns(Set<String> colNames) {
     for (String column : colNames) {
-      this.schema.get(column).ifPresent(columnSchema -> this.columns.put(
-              column, new ColumnProfile<>(column, columnSchema, this.schema.getCacheSize())));
+      this.schema
+          .get(column)
+          .ifPresent(
+              columnSchema ->
+                  this.columns.put(
+                      column,
+                      new ColumnProfile<>(column, columnSchema, this.schema.getCacheSize())));
     }
   }
 
@@ -143,6 +143,6 @@ public class DatasetProfile {
   }
 
   public static String getDefaultPath() {
-    return  "profile." + Instant.now().toEpochMilli() + ".bin";
+    return "profile." + Instant.now().toEpochMilli() + ".bin";
   }
 }

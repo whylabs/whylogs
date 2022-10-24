@@ -5,7 +5,6 @@ import com.whylogs.core.schemas.DatasetSchema;
 import com.whylogs.core.views.DatasetProfileView;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.Optional;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -54,7 +53,7 @@ public class TestDatasetProfile {
     Assert.assertEquals(profile.getColumns().size(), 2);
     Assert.assertEquals(profile.getColumns().get("test").getFailureCount(), 0);
 
-    Assert.assertTrue(DatasetProfile.getDefaultPath("test").contains("test_profile"));
+    Assert.assertTrue(DatasetProfile.getDefaultPath("test").endsWith(".bin"));
     Assert.assertEquals(profile.getSchema().getColumns().size(), 2);
     Assert.assertEquals(
         profile.getSchema().getColumns().get("test").getMetrics().size(),

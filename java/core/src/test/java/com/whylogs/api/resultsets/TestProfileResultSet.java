@@ -8,7 +8,6 @@ import com.whylogs.core.metrics.MetricConfig;
 import com.whylogs.core.schemas.DatasetSchema;
 import java.util.HashMap;
 import java.util.InputMismatchException;
-import java.util.Optional;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -22,8 +21,7 @@ public class TestProfileResultSet {
     DatasetSchema datasetSchema = new DatasetSchema();
     datasetSchema.resolve(data);
 
-    DatasetProfile datasetProfile =
-        new DatasetProfile(datasetSchema);
+    DatasetProfile datasetProfile = new DatasetProfile(datasetSchema);
     return new ProfileResultSet(datasetProfile);
   }
 
