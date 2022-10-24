@@ -106,7 +106,7 @@ Functions
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
 
 
-   .. py:method:: add_metrics(name: str, metric: whylogs.core.metrics.metrics.Metric) -> None
+   .. py:method:: add_metric(name: str, metric: whylogs.core.metrics.metrics.Metric) -> None
 
 
 
