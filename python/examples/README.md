@@ -18,6 +18,7 @@ If you're willing to learn more how to use and get going with whylogs, take a lo
   - [Constraints Suite](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Constraints_Suite.ipynb) - A collection of simple out-of-the-box constraints for the most common use-cases
   - [Custom Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Custom_Metrics.ipynb) - Create your own metrics and metric components
   - [String Tracking](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/String_Tracking.ipynb) - Track unicode ranges and character length distribution metrics for your textual features
+  - [Image Logging](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Image_Logging.ipynb) - Track image-related metrics
   - [Segments](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Segments.ipynb) - Segment your data to improve visibility to the sub-group level
 - Integrations - Use whylogs with external platforms
   - [Pyspark](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Pyspark_Profiling.ipynb) - Use whylogs with pyspark
