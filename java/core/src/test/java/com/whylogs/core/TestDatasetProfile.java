@@ -25,21 +25,18 @@ public class TestDatasetProfile {
   }
 
   private DatasetProfile defaultProfile() {
-    return new DatasetProfile(Optional.of(defaultSchema()), Optional.empty(), Optional.empty());
+    return new DatasetProfile(defaultSchema());
   }
 
   private DatasetProfile customTimeZone() {
-    return new DatasetProfile(
-        Optional.of(defaultSchema()),
-        Optional.ofNullable(creationTime),
-        Optional.ofNullable(datasetTime));
+    return new DatasetProfile(defaultSchema(), creationTime, datasetTime);
   }
 
   @Test
   public void testDatasetTimes() {
-    DatasetProfile profile = customTimeZone();
     creationTime = Instant.now();
     datasetTime = Instant.now();
+    DatasetProfile profile = customTimeZone();
     Assert.assertEquals(
         profile.getCreationTimestamp().getEpochSecond(), creationTime.getEpochSecond());
     Assert.assertEquals(
@@ -57,7 +54,7 @@ public class TestDatasetProfile {
     Assert.assertEquals(profile.getColumns().size(), 2);
     Assert.assertEquals(profile.getColumns().get("test").getFailureCount(), 0);
 
-    Assert.assertTrue(DatasetProfile.getDefaultPath(Optional.of("test")).contains("test_profile"));
+    Assert.assertTrue(DatasetProfile.getDefaultPath("test").contains("test_profile"));
     Assert.assertEquals(profile.getSchema().getColumns().size(), 2);
     Assert.assertEquals(
         profile.getSchema().getColumns().get("test").getMetrics().size(),

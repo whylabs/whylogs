@@ -23,7 +23,7 @@ public class TestProfileResultSet {
     datasetSchema.resolve(data);
 
     DatasetProfile datasetProfile =
-        new DatasetProfile(Optional.of(datasetSchema), Optional.empty(), Optional.empty());
+        new DatasetProfile(datasetSchema);
     return new ProfileResultSet(datasetProfile);
   }
 

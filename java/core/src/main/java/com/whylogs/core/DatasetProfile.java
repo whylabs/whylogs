@@ -1,7 +1,6 @@
 package com.whylogs.core;
 
 import com.whylogs.core.metrics.Metric;
-import com.whylogs.core.schemas.ColumnSchema;
 import com.whylogs.core.schemas.DatasetSchema;
 import com.whylogs.core.views.ColumnProfileView;
 import com.whylogs.core.views.DatasetProfileView;
@@ -23,20 +22,35 @@ public class DatasetProfile {
   private HashMap<String, ColumnProfile<?>> columns;
   private boolean isActive = false;
   private int trackCount = 0;
-  private HashMap<String, Metric> metrics = new HashMap<>();
+  private HashMap<String, Metric<?>> metrics = new HashMap<>();
 
   // TODO: I don't like how this works for customers. I wouldn't want
   // TODO: to have to pass the optionals around. We should just use overloading instead
   public DatasetProfile(
-      Optional<DatasetSchema> datasetSchema,
-      Optional<Instant> datasetTimestamp,
-      Optional<Instant> creationTimestamp) {
-    this.schema = datasetSchema.orElse(new DatasetSchema());
-    this.datasetTimestamp = datasetTimestamp.orElse(Instant.now());
-    this.creationTimestamp = creationTimestamp.orElse(Instant.now());
+          DatasetSchema datasetSchema,
+          Instant datasetTimestamp,
+          Instant creationTimestamp) {
+    this.schema = datasetSchema;
+    this.datasetTimestamp = datasetTimestamp;
+    this.creationTimestamp = creationTimestamp;
 
     this.columns = new HashMap<>();
     this.initializeNewColumns(schema.getColNames());
+  }
+
+  public DatasetProfile(
+          DatasetSchema datasetSchema,
+          Instant datasetTimestamp) {
+      this(datasetSchema, datasetTimestamp, Instant.now());
+  }
+
+  public DatasetProfile(
+          DatasetSchema datasetSchema) {
+      this(datasetSchema, Instant.now(), Instant.now());
+  }
+
+  public DatasetProfile() {
+      this(new DatasetSchema());
   }
 
   public void addMetric(String colName, Metric<?> metric) {
@@ -120,17 +134,15 @@ public class DatasetProfile {
     }
   }
 
-  public static String getDefaultPath(Optional<String> path) {
-    String defaultPath = "profile." + (int) System.currentTimeMillis() + ".bin";
-
-    if (!path.isPresent()) {
-      return defaultPath;
+  public static String getDefaultPath(String path) {
+    if (!path.endsWith("bin")) {
+      return path + "_" + Instant.now().toEpochMilli() + ".bin";
     }
 
-    if (!path.get().endsWith("bin")) {
-      return path.get() + "_" + defaultPath;
-    }
+    return path;
+  }
 
-    return path.get();
+  public static String getDefaultPath() {
+    return  "profile." + Instant.now().toEpochMilli() + ".bin";
   }
 }
