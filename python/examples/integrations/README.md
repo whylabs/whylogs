@@ -2,17 +2,19 @@
 
 Welcome! In this section you will find examples on how to integrate `whylogs`' with different tools and platforms.
 
-| Integration                                                                                                                               | Description                                                                  |
-| ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| [BigQuery](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/BigQuery_Example.ipynb)                 | Profile data queried from a Google BigQuery table                            |
-| [Dask](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Dask_Profiling.ipynb)                       | Profile data in parallel with Dask                                           |
-| [Fugue](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Fugue_Profiling.ipynb)                     | Use Fugue to unify parallel whylogs profiling tasks                          |
-| [Feature Stores](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Feature_Stores_and_whylogs.ipynb) | Learn how to log features from your Feature Store with Feast and whylogs     |
-| [Flask](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/flask_streaming/flask_with_whylogs.ipynb)  | See how you can create a Flask app with this whylogs + WhyLabs integration   |
-| [Kafka](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/kafka-example/Kafka_Example.ipynb)         | Learn how to consume and profile streaming data from an existing Kafka topic |
-| [MLflow](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Mlflow_Logging.ipynb)                     | Log your whylogs profiles to an MLflow experiment                            |
-| [Pyspark](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Pyspark_Profiling.ipynb)                 | Create whylogs profiles in a distributed fashion with pyspark                |
-| [s3, GCS, etc.](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Profiles.ipynb)    | See different ways and locations to write your whylogs profiles              |
+| Integration                                                                                                                               | Description                                                                              |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [Apache Airflow](https://github.com/whylabs/airflow-provider-whylogs)                                                                     | Use Airflow Operators to create drift reports and run contraint validations on your data |
+| [BigQuery](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/BigQuery_Example.ipynb)                 | Profile data queried from a Google BigQuery table                                        |
+| [Dask](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Dask_Profiling.ipynb)                       | Profile data in parallel with Dask                                                       |
+| [Fugue](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Fugue_Profiling.ipynb)                     | Use Fugue to unify parallel whylogs profiling tasks                                      |
+| [Feature Stores](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Feature_Stores_and_whylogs.ipynb) | Learn how to log features from your Feature Store with Feast and whylogs                 |
+| [Flask](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/flask_streaming/flask_with_whylogs.ipynb)  | See how you can create a Flask app with this whylogs + WhyLabs integration               |
+| [Kafka](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/kafka-example/Kafka_Example.ipynb)         | Learn how to consume and profile streaming data from an existing Kafka topic             |
+| [MLflow](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Mlflow_Logging.ipynb)                     | Log your whylogs profiles to an MLflow experiment                                        |
+| [Pyspark](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Pyspark_Profiling.ipynb)                 | Create whylogs profiles in a distributed fashion with pyspark                            |
+| [s3](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Profiles.ipynb)               | See how to write your whylogs profiles to AWS S3 object storage                          |
+| [GCS](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Profiles.ipynb)              | See how to write your whylogs profiles to the Google Cloud Storage                       |
 
 ### 📈 Whylabs
 
