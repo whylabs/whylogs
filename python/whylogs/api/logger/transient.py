@@ -13,9 +13,3 @@ class TransientLogger(Logger):
         self, obj: Any = None, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
     ) -> List[DatasetProfile]:
         return [DatasetProfile(schema=self._schema)]
-
-    def flush(self) -> None:
-        pass
-
-    def close(self) -> None:
-        pass
