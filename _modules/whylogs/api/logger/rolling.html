@@ -621,7 +621,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_do_rollover</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div></div>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TimedRollingLogger</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
 </pre></div>
         </article>
       </div>

@@ -24,12 +24,6 @@ Classes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: flush() -> None
-
-
-   .. py:method:: close() -> None
-
-
    .. py:method:: check_writer(_: whylogs.api.writer.Writer) -> None
 
       Checks if a writer is configured correctly for this class
@@ -42,6 +36,9 @@ Classes
 
 
    .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
+
+
+   .. py:method:: close() -> None
 
 
 

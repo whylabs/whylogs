@@ -61,7 +61,6 @@ Attributes
 
 
    .. py:method:: close() -> None
-      :abstractmethod:
 
 
 
