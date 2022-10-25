@@ -1,4 +1,4 @@
-## 📝 Whylogs Examples
+# Examples
 
 Welcome to our examples!
 If you want to get your hands dirty, check out the [Getting Started](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/basic/Getting_Started.ipynb) Notebook.

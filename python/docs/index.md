@@ -22,7 +22,6 @@
     features/writing
     examples
     datasets
-    integrations/index
 ```
 
 ```{eval-rst}

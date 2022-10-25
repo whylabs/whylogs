@@ -52,8 +52,6 @@ These three functionalities enable a variety of use cases for data scientists, m
 - Standardize data documentation practices across the organization
 - And more
 
-whylogs can be run in Python or [Apache Spark](https://docs.whylabs.ai/docs/spark-integration) (both PySpark and Scala) environments on a variety of [data types](#data-types). We [integrate](#integrations) with lots of other tools including Pandas, [AWS Sagemaker](https://aws.amazon.com/blogs/startups/preventing-amazon-sagemaker-model-degradation-with-whylabs/), [MLflow](https://docs.whylabs.ai/docs/mlflow-integration), [Flask](https://whylabs.ai/blog/posts/deploy-and-monitor-your-ml-application-with-flask-and-whylabs), [Ray](https://docs.whylabs.ai/docs/ray-integration), [RAPIDS](https://whylabs.ai/blog/posts/monitoring-high-performance-machine-learning-models-with-rapids-and-whylogs), [Apache Kafka](https://docs.whylabs.ai/docs/kafka-integration), and more.
-
 <a href="https://hub.whylabsapp.com/signup" target="_blank">
     <img src="https://user-images.githubusercontent.com/7946482/193939278-66a36574-2f2c-482a-9811-ad4479f0aafe.png" alt="WhyLabs Signup">
 </a>
@@ -75,7 +73,7 @@ df = pd.read_csv("path/to/file.csv")
 results = why.log(df)
 ```
 
-And voila, you now have a whylogs profile. To learn more about about a whylogs profile is and what you can do with it, read on.
+And voilà, you now have a whylogs profile. To learn more about about a whylogs profile is and what you can do with it, read on.
 
 ## Table of Contents
 
