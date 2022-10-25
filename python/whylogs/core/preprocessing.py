@@ -3,8 +3,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Iterable, Iterator, List, Optional
 
-from whylogs.core.stubs import np as np
-from whylogs.core.stubs import pd as pd
+from whylogs.core.stubs import is_not_stub, np, pd
 
 logger = logging.getLogger("whylogs.core.views")
 
@@ -188,7 +187,7 @@ class PreprocessedColumn:
 
         if isinstance(data, List):
             result.len = len(data)
-            if pd.Series:
+            if is_not_stub(pd.Series):
                 return PreprocessedColumn.apply(pd.Series(data, dtype="object"))
 
             int_list = []
@@ -209,7 +208,7 @@ class PreprocessedColumn:
                     null_count += 1
 
             result.null_count = null_count
-            if np.ndarray:
+            if is_not_stub(np.ndarray):
                 ints = np.asarray(int_list, dtype=int)
                 floats = np.asarray(float_list, dtype=float)
 

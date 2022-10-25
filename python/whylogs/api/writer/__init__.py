@@ -22,4 +22,8 @@ class Writers:
             from whylogs.api.writer.mlflow import MlflowWriter
 
             return MlflowWriter(**kwargs)  # type: ignore
+        elif name == "gcs":
+            from whylogs.api.writer.gcs import GCSWriter
+
+            return GCSWriter(**kwargs)  # type: ignore
         raise ValueError(f"Unrecognized writer: {name}")
