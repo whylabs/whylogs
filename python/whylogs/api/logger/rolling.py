@@ -15,6 +15,7 @@ from whylogs.api.logger.segment_cache import SegmentCache
 from whylogs.api.writer import Writer
 from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
 from whylogs.core.stubs import pd
+from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 
 logger = logging.getLogger(__name__)
 
@@ -189,8 +190,11 @@ class TimedRollingLogger(Logger):
 
     def _flush(self, results: ResultSet) -> None:
         if results is None:
+            logger.debug("The result is None, skipping flush of result set.")
             return
-
+        if results.count == 0:
+            logger.debug("The result's count is zero, skipping flush of result set.")
+            return
         profiles = results.get_writables()
         if profiles is None:
             logger.debug("The result set's writable is None, skipping flush of result set.")
@@ -214,11 +218,16 @@ class TimedRollingLogger(Logger):
                 logger.debug("Didn't fork. Writing in the same process")
 
             time_tuple = self._get_time_tuple()
-            timed_filename = f"{self.base_name}.{time.strftime(self.suffix, time_tuple)}{self.file_extension}"
 
-            logging.debug("Writing out put with timed_filename: %s", timed_filename)
             profile_count = 0
             for profile in profiles:
+                has_segments = isinstance(profile, SegmentedDatasetProfileView)
+                if has_segments:
+                    timed_filename = f"{self.base_name}.{time.strftime(self.suffix, time_tuple)}_{profile.get_segment_string()}{self.file_extension}"
+                else:
+                    timed_filename = f"{self.base_name}.{time.strftime(self.suffix, time_tuple)}{self.file_extension}"
+                logging.debug("Writing out put with timed_filename: %s", timed_filename)
+
                 profile_count = profile_count + 1
                 logger.debug(f"Writing profile {profile_count} of {number_of_profiles}")
 

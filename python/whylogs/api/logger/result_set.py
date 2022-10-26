@@ -99,6 +99,13 @@ class ResultSet(ABC):
             profile.set_dataset_timestamp(dataset_timestamp)
 
     @property
+    def count(self) -> int:
+        result = 0
+        if self.view() is not None:
+            result = 1
+        return result
+
+    @property
     def performance_metrics(self) -> Optional[ModelPerformanceMetrics]:
         profile = self.profile()
         if profile:
