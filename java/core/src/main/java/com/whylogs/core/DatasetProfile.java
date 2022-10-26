@@ -1,7 +1,6 @@
 package com.whylogs.core;
 
 import com.whylogs.core.metrics.Metric;
-import com.whylogs.core.schemas.ColumnSchema;
 import com.whylogs.core.schemas.DatasetSchema;
 import com.whylogs.core.views.ColumnProfileView;
 import com.whylogs.core.views.DatasetProfileView;
@@ -23,26 +22,41 @@ public class DatasetProfile {
   private HashMap<String, ColumnProfile<?>> columns;
   private boolean isActive = false;
   private int trackCount = 0;
+  private HashMap<String, Metric<?>> metrics = new HashMap<>();
 
   // TODO: I don't like how this works for customers. I wouldn't want
   // TODO: to have to pass the optionals around. We should just use overloading instead
   public DatasetProfile(
-      Optional<DatasetSchema> datasetSchema,
-      Optional<Instant> datasetTimestamp,
-      Optional<Instant> creationTimestamp) {
-    this.schema = datasetSchema.orElse(new DatasetSchema());
-    this.datasetTimestamp = datasetTimestamp.orElse(Instant.now());
-    this.creationTimestamp = creationTimestamp.orElse(Instant.now());
+      DatasetSchema datasetSchema, Instant datasetTimestamp, Instant creationTimestamp) {
+    this.schema = datasetSchema;
+    this.datasetTimestamp = datasetTimestamp;
+    this.creationTimestamp = creationTimestamp;
 
     this.columns = new HashMap<>();
     this.initializeNewColumns(schema.getColNames());
   }
 
-  public void addMetric(String colName, Metric metric) {
+  public DatasetProfile(DatasetSchema datasetSchema, Instant datasetTimestamp) {
+    this(datasetSchema, datasetTimestamp, Instant.now());
+  }
+
+  public DatasetProfile(DatasetSchema datasetSchema) {
+    this(datasetSchema, Instant.now(), Instant.now());
+  }
+
+  public DatasetProfile() {
+    this(new DatasetSchema());
+  }
+
+  public void addMetric(String colName, Metric<?> metric) {
     if (!this.columns.containsKey(colName)) {
       throw new InputMismatchException("Column name not found in schema");
     }
     this.columns.get(colName).addMetric(metric);
+  }
+
+  public void addDatasetMetric(String name, Metric<?> metric) {
+    this.metrics.put(name, metric);
   }
 
   public void track(HashMap<String, Object> row) {
@@ -68,7 +82,7 @@ public class DatasetProfile {
       this.initializeNewColumns(newColumnNames);
     }
 
-    ArrayList<Object> values = new ArrayList<>();
+    ArrayList<Object> values;
     for (String col : row.keySet()) {
       values = new ArrayList<>();
       values.add(row.get(col));
@@ -94,11 +108,13 @@ public class DatasetProfile {
 
   private void initializeNewColumns(Set<String> colNames) {
     for (String column : colNames) {
-      ColumnSchema columnSchema = this.schema.columns.get(column);
-      if (columnSchema != null) {
-        this.columns.put(column, new ColumnProfile(column, columnSchema, this.schema.cache_size));
-      }
-      // TODO: log warning 'Encountered a column without schema: %s", col' in an else
+      this.schema
+          .get(column)
+          .ifPresent(
+              columnSchema ->
+                  this.columns.put(
+                      column,
+                      new ColumnProfile<>(column, columnSchema, this.schema.getCacheSize())));
     }
   }
 
@@ -112,25 +128,21 @@ public class DatasetProfile {
     return new DatasetProfileView(columns, this.datasetTimestamp, this.creationTimestamp);
   }
 
-  // TODO: This isn't working correctly because track with the cache isn't working correctly
   public void flush() {
     for (String colName : this.columns.keySet()) {
       this.columns.get(colName).flush();
     }
   }
 
-  public static String getDefaultPath(Optional<String> path) {
-    String defaultPath = "profile." + (int) System.currentTimeMillis() + ".bin";
-
-    if (!path.isPresent()) {
-      return defaultPath;
+  public static String getDefaultPath(String path) {
+    if (!path.endsWith("bin")) {
+      return path + "_" + Instant.now().toEpochMilli() + ".bin";
     }
 
-    if (!path.get().endsWith("bin")) {
-      String finalPath = path.get() + "_" + defaultPath;
-      return finalPath;
-    }
+    return path;
+  }
 
-    return path.get();
+  public static String getDefaultPath() {
+    return "profile." + Instant.now().toEpochMilli() + ".bin";
   }
 }

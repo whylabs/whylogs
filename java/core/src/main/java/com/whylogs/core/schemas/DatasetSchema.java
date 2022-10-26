@@ -13,11 +13,11 @@ import lombok.Data;
 public class DatasetSchema {
   private HashMap<String, Type> types = new HashMap<>();
   private final int LARGE_CACHE_SIZE_LIMIT = 1024 * 100;
-  public HashMap<String, ColumnSchema> columns;
-  public MetricConfig defaultConfig;
-  public Resolver resolver;
-  public int cache_size = 1024;
-  public boolean schema_based_automerge = false;
+  protected HashMap<String, ColumnSchema> columns;
+  private MetricConfig defaultConfig;
+  private Resolver resolver;
+  private int cacheSize = 1024;
+  private boolean schema_based_automerge = false;
 
   public DatasetSchema() {
     this(Optional.empty(), Optional.empty());
@@ -29,19 +29,20 @@ public class DatasetSchema {
     this.resolver = resolver.orElse(new StandardResolver());
   }
 
-  public DatasetSchema(int cache_size, boolean schema_based_automerge) {
+  public DatasetSchema(int cacheSize, boolean schema_based_automerge) {
     this.columns = new HashMap<>();
     this.defaultConfig = new MetricConfig();
+    this.cacheSize = cacheSize;
     this.resolver = new StandardResolver();
-    this.cache_size = cache_size;
+    this.cacheSize = cacheSize;
     this.schema_based_automerge = schema_based_automerge;
 
-    if (cache_size < 0) {
+    if (cacheSize < 0) {
       // TODO: log warning
-      this.cache_size = 0;
+      this.cacheSize = 0;
     }
 
-    if (cache_size > LARGE_CACHE_SIZE_LIMIT) {
+    if (cacheSize > LARGE_CACHE_SIZE_LIMIT) {
       // TODO: log warning
     }
 
