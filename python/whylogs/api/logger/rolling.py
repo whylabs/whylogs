@@ -195,7 +195,7 @@ class TimedRollingLogger(Logger):
         if not profiles:
             return
         number_of_profiles = len(profiles)
-        logger.debug(f"about to write {number_of_profiles}.")
+        logger.debug(f"about to write {number_of_profiles} profiles.")
 
         pid = 0
         if self.fork:
