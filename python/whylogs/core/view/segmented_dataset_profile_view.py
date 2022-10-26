@@ -67,6 +67,10 @@ class SegmentedDatasetProfileView(Writable):
     def creation_timestamp(self):
         return self.profile_view.creation_timestamp
 
+    @property
+    def is_active(self) -> bool:
+        return False
+
     def get_default_path(self) -> str:
         return f"profile_{self._profile_view.creation_timestamp}_{self._segment.parent_id}_{'_'.join(self._segment.key)}.bin"
 
