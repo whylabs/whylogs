@@ -207,6 +207,7 @@ class WhyLabsWriter(Writer):
                 dataset_timestamp=dataset_timestamp_epoch,
                 profile_path=tmp_file.name,
             )
+        # TODO: retry
         return response
 
     def _validate_api_key(self) -> None:

@@ -68,7 +68,10 @@ class SegmentedDatasetProfileView(Writable):
         return self.profile_view.creation_timestamp
 
     def get_default_path(self) -> str:
-        return f"profile_{self._profile_view.creation_timestamp}_{self._segment.parent_id}_{'_'.join(self._segment.key)}.bin"
+        return f"profile_{self._profile_view.creation_timestamp}_{self.get_segment_string()}.bin"
+
+    def get_segment_string(self) -> str:
+        return f"{self._segment.parent_id}_{'_'.join(self._segment.key)}"
 
     def _write_as_v0_message(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         message_v0 = v1_to_dataset_profile_message_v0(self.profile_view, self.segment, self.partition)
