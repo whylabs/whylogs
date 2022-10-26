@@ -192,9 +192,13 @@ class TimedRollingLogger(Logger):
             return
 
         profiles = results.get_writables()
-        if not profiles:
+        if profiles is None:
+            logger.debug("The result set's writable is None, skipping flush of result set.")
             return
         number_of_profiles = len(profiles)
+        if number_of_profiles == 0:
+            logger.debug("The result set's writable list has length zero, skipping flush of result set.")
+            return
         logger.debug(f"about to write {number_of_profiles} profiles.")
 
         pid = 0
