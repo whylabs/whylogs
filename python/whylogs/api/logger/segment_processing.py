@@ -2,7 +2,7 @@ import logging
 from typing import Any, Dict, Iterable, Iterator, List, Mapping, Optional, Tuple
 
 from whylogs.api.logger.result_set import SegmentedResultSet
-from whylogs.api.store.profile_store import ProfileStore
+from whylogs.api.logger.segment_cache import SegmentCache
 from whylogs.core import DatasetSchema
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.input_resolver import _pandas_or_dict
@@ -20,11 +20,11 @@ def _process_segment(
     segment_key: Segment,
     segments: Dict[Segment, Any],
     schema: DatasetSchema,
-    store: Optional[ProfileStore] = None,
+    segment_cache: Optional[SegmentCache] = None,
 ):
     profile = None
-    if store:
-        profile = store.get_matching_profiles(segmented_data, segment=segment_key)
+    if segment_cache:
+        profile = segment_cache.get_or_create_matching_profile(segment_key)
 
     if profile is None:
         profile = DatasetProfile(schema)
@@ -40,7 +40,7 @@ def _process_simple_partition(
     columns: List[str],
     pandas: Optional[pd.DataFrame] = None,
     row: Optional[Mapping[str, Any]] = None,
-    profile_cache: Optional[ProfileStore] = None,
+    segment_cache: Optional[SegmentCache] = None,
 ):
     if pandas is not None:
         # simple means we can segment on column values
@@ -54,11 +54,11 @@ def _process_simple_partition(
             else:
                 segment_tuple_key = (str(group),)
             segment_key = Segment(segment_tuple_key, partition_id)
-            _process_segment(pandas_segment, segment_key, segments, schema, profile_cache)
+            _process_segment(pandas_segment, segment_key, segments, schema, segment_cache)
     elif row:
         # TODO: consider if we need to combine with the column names
         segment_key = Segment(tuple(str(row[element]) for element in columns), partition_id)
-        _process_segment(row, segment_key, segments, schema, profile_cache)
+        _process_segment(row, segment_key, segments, schema, segment_cache)
 
 
 def _filter_inputs(
@@ -90,7 +90,7 @@ def _log_segment(
     obj: Any = None,
     pandas: Optional[pd.DataFrame] = None,
     row: Optional[Mapping[str, Any]] = None,
-    store: Optional[ProfileStore] = None,
+    segment_cache: Optional[SegmentCache] = None,
 ) -> Dict[Segment, Any]:
     segments: Dict[Segment, Any] = {}
     pandas, row = _pandas_or_dict(obj, pandas, row)
@@ -99,7 +99,7 @@ def _log_segment(
     if partition.simple:
         columns = partition.mapper.col_names if partition.mapper else None
         if columns:
-            _process_simple_partition(partition.id, schema, segments, columns, pandas, row, store)
+            _process_simple_partition(partition.id, schema, segments, columns, pandas, row, segment_cache)
     else:
         raise NotImplementedError("custom mapped segments not yet implemented")
     return segments
@@ -110,6 +110,7 @@ def segment_processing(
     obj: Any = None,
     pandas: Optional[pd.DataFrame] = None,
     row: Optional[Dict[str, Any]] = None,
+    segment_cache: Optional[SegmentCache] = None,
 ) -> SegmentedResultSet:
     number_of_partitions = len(schema.segments)
     logger.info(f"The specified schema defines segments with {number_of_partitions} partitions.")
@@ -130,7 +131,7 @@ def segment_processing(
             logger.debug(
                 f"{partition_name}: defines mapper on colums ({segment_partition.mapper.col_names}) and id ({segment_partition.mapper.id})"
             )
-        partition_segments = _log_segment(segment_partition, schema, obj, pandas, row)
+        partition_segments = _log_segment(segment_partition, schema, obj, pandas, row, segment_cache)
         segmented_profiles[segment_partition.id] = partition_segments
         segment_partitions.append(segment_partition)
         logger.debug(f"Done profiling for partition with name({partition_name})")

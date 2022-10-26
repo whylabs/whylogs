@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 from logging import getLogger
 from typing import Any, Dict, List, Optional
 
@@ -90,6 +91,11 @@ class ResultSet(ABC):
     def get_writables(self) -> Optional[List[Writable]]:
         return [self.view()]
 
+    def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
+        profile = self.profile()
+        if profile:
+            profile.set_dataset_timestamp(dataset_timestamp)
+
     @property
     def performance_metrics(self) -> Optional[ModelPerformanceMetrics]:
         profile = self.profile()
@@ -167,6 +173,16 @@ class SegmentedResultSet(ResultSet):
     @property
     def partitions(self) -> Optional[List[SegmentationPartition]]:
         return self._partitions
+
+    def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
+        # TODO: pull dataset_timestamp up into a result set scoped property
+        segment_keys = self.segments()
+        if not segment_keys:
+            return
+        for key in segment_keys:
+            profile = self.profile(segment=key)
+            if profile:
+                profile.set_dataset_timestamp(dataset_timestamp)
 
     def segments(self, restrict_to_parition_id: Optional[str] = None) -> Optional[List[Segment]]:
         result: Optional[List[Segment]] = None

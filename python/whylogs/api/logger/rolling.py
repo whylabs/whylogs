@@ -10,6 +10,8 @@ from typing import Any, Callable, Dict, List, Optional
 from typing_extensions import Literal
 
 from whylogs.api.logger.logger import Logger
+from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
+from whylogs.api.logger.segment_cache import SegmentCache
 from whylogs.api.writer import Writer
 from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
 from whylogs.core.stubs import pd
@@ -104,6 +106,8 @@ class TimedRollingLogger(Logger):
 
         now = time.time()
         self._current_batch_timestamp = self._compute_current_batch_timestamp(now)
+        if schema and schema.segments:
+            self._segment_cache = SegmentCache(schema)
 
         self._current_profile: DatasetProfile = DatasetProfile(
             schema=schema,
@@ -142,16 +146,29 @@ class TimedRollingLogger(Logger):
     def _do_rollover(self) -> None:
         if self._is_closed:
             return
-        old_profile = self._current_profile
 
         self._current_batch_timestamp = self._compute_current_batch_timestamp()
         dataset_timestamp = datetime.utcfromtimestamp(self._current_batch_timestamp)
+
+        if self._segment_cache:
+            self._flush(self._segment_cache.flush(dataset_timestamp))
+            return
+
+        old_profile = self._current_profile
+
         self._current_profile = DatasetProfile(
             schema=self._schema,
             dataset_timestamp=dataset_timestamp,
         )
 
-        self._flush(old_profile)
+        while old_profile.is_active:
+            time.sleep(1)
+
+        if self.skip_empty and old_profile.is_empty:
+            logger.debug("skip_empty is set for profile. Skipping empty profile.")
+            return
+
+        self._flush(ProfileResultSet(old_profile))
 
     def _get_time_tuple(self) -> time.struct_time:
         if self.utc:
@@ -170,12 +187,15 @@ class TimedRollingLogger(Logger):
                 time_tuple = time.localtime(self._current_batch_timestamp + addend)
         return time_tuple
 
-    def _flush(self, profile: DatasetProfile) -> None:
-        if profile is None:
+    def _flush(self, results: ResultSet) -> None:
+        if results is None:
             return
-        if self.skip_empty and profile.is_empty:
-            logger.debug("skip_empty is set. Skipping empty profiles")
+
+        profiles = results.get_writables()
+        if not profiles:
             return
+        number_of_profiles = len(profiles)
+        logger.debug(f"about to write {number_of_profiles}.")
 
         pid = 0
         if self.fork:
@@ -193,17 +213,20 @@ class TimedRollingLogger(Logger):
             timed_filename = f"{self.base_name}.{time.strftime(self.suffix, time_tuple)}{self.file_extension}"
 
             logging.debug("Writing out put with timed_filename: %s", timed_filename)
+            profile_count = 0
+            for profile in profiles:
+                profile_count = profile_count + 1
+                logger.debug(f"Writing profile {profile_count} of {number_of_profiles}")
 
-            while profile.is_active:
-                time.sleep(1)
+                for store in self._store_list:
+                    store.write(profile_view=profile, profile_name=self.base_name)
 
-            for store in self._store_list:
-                store.write(profile_view=profile.view(), profile_name=self.base_name)
-
-            for w in self._writers:
-                w.write(file=profile.view(), dest=timed_filename)
-                if self._callback and callable(self._callback):
-                    self._callback(w, profile.view(), timed_filename)
+                for w in self._writers:
+                    w.write(file=profile, dest=timed_filename)
+                    if self._callback and callable(self._callback):
+                        self._callback(w, profile, timed_filename)
+                if not self._writers and self._callback and callable(self._callback):
+                    self._callback(None, profile, timed_filename)
 
     def close(self) -> None:
         logging.debug("Closing the writer")
