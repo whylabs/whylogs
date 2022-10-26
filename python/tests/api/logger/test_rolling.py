@@ -156,8 +156,7 @@ def test_rolling_row_messages_with_segments(tmp_path: Any) -> None:
 
     # without an explicit call to rolling_logger.flush we expect that the elapsed time
     # is less than the 60s interval, so the callback should not have been triggered
-    initial_callback_count = rolling_callback.call_count
-    assert initial_callback_count == 0
+    assert rolling_callback.call_count == 0
 
     # after explicitly calling close on the logger, we trigger one more flush which has two segments and expect two callbacks
     rolling_logger.close()
