@@ -24,7 +24,7 @@ public class TransientLogger extends Logger{
     protected ArrayList<DatasetProfile> getMatchingProfiles(Object data) {
         // In this case, we don't have any profiles to match against
         ArrayList<DatasetProfile> profiles = new ArrayList<>();
-        DatasetProfile profile = new DatasetProfile(Optional.ofNullable(getSchema()), Optional.empty(), Optional.empty());
+        DatasetProfile profile = new DatasetProfile(getSchema());
         profiles.add(profile);
         return profiles;
     }

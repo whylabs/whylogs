@@ -32,6 +32,7 @@ class Logger(ABC):
         self._writers: List[Writer] = []
         atexit.register(self.close)
         self._store_list: List[ProfileStore] = []
+        self._segment_cache = None
 
     def check_writer(self, _: Writer) -> None:
         """Checks if a writer is configured correctly for this class"""
@@ -76,7 +77,7 @@ class Logger(ABC):
 
         # If segments are defined use segment_processing to return a SegmentedResultSet
         if self._schema and self._schema.segments:
-            return segment_processing(self._schema, obj, pandas, row)
+            return segment_processing(self._schema, obj, pandas, row, self._segment_cache)
 
         profiles = self._get_matching_profiles(obj, pandas=pandas, row=row)
 
@@ -85,7 +86,6 @@ class Logger(ABC):
 
         return ProfileResultSet(profiles[0])
 
-    @abstractmethod
     def close(self) -> None:
         self._is_closed = True
 

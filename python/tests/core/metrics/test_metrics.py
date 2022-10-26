@@ -179,3 +179,23 @@ def test_cardinality_metric_row_booleans() -> None:
     # track a bool value of false in the same column and check that cardinality increased to near 2.
     profile.track(row={column_name: False})
     assert cardinality.estimate == pytest.approx(2, 0.1)
+
+
+def test_cardinality_metric_booleans_top_level_api() -> None:
+    input_rows = 5
+    col_name = "p"
+    d = {col_name: [bool(i % 2) for i in range(input_rows)]}
+    df = pd.DataFrame(data=d)
+
+    results = why.log(df)
+    col_prof = results.view().get_column(col_name)
+    cardinality: CardinalityMetric = col_prof.get_metric("cardinality")
+    assert cardinality is not None
+    assert cardinality.estimate == pytest.approx(2, 0.1)
+
+
+def test_cardinality_metric_booleans_all_false() -> None:
+    df = pd.DataFrame({"b": [False for i in range(3)]})
+    col_prof = why.log(df).view().get_column("b")
+    cardinality: CardinalityMetric = col_prof.get_metric("cardinality")
+    assert cardinality.estimate == pytest.approx(1, 0.1)

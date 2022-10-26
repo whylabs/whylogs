@@ -1,6 +1,6 @@
 package com.whylogs.api.resultsets;
 
-import com.whylogs.api.logger.resultSets.ViewResultSet;
+import com.whylogs.api.logger.resultsets.ViewResultSet;
 import com.whylogs.core.metrics.IntegralMetric;
 import com.whylogs.core.metrics.Metric;
 import com.whylogs.core.metrics.MetricConfig;
