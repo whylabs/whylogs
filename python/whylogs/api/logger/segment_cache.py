@@ -1,13 +1,15 @@
-from datetime import datetime
 import logging
 import time
+from datetime import datetime
 from typing import Dict, Optional
+
 from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.segment import Segment
 
 logger = logging.getLogger(__name__)
+
 
 class SegmentCache(object):
     """
@@ -32,7 +34,7 @@ class SegmentCache(object):
         return self._cache
 
     def flush(self, dataset_timestamp: Optional[datetime]) -> SegmentedResultSet:
-        segmented_profiles = dict()
+        segmented_profiles: Dict[str, Dict[Segment, DatasetProfile]] = dict()
         for segment_key in self._cache:
             segments = segmented_profiles.get(segment_key.parent_id)
             if segments is None:
@@ -47,4 +49,3 @@ class SegmentCache(object):
         if dataset_timestamp:
             results.set_dataset_timestamp(dataset_timestamp)
         return results
-
