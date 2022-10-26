@@ -58,6 +58,9 @@ Attributes
    .. py:method:: get_default_path() -> str
 
 
+   .. py:method:: get_segment_string() -> str
+
+
    .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 

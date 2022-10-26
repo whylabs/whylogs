@@ -30,6 +30,6 @@ Attributes
 
    
 
-.. py:function:: segment_processing(schema: whylogs.core.DatasetSchema, obj: Any = None, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.SegmentedResultSet
+.. py:function:: segment_processing(schema: whylogs.core.DatasetSchema, obj: Any = None, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, segment_cache: Optional[whylogs.api.logger.segment_cache.SegmentCache] = None) -> whylogs.api.logger.result_set.SegmentedResultSet
 
 

@@ -248,6 +248,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/logger/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.logger</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/logger/result_set/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.result_set</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/logger/rolling/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.rolling</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/logger/segment_cache/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.segment_cache</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/logger/segment_processing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.segment_processing</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/logger/transient/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.transient</span></code></a></li>
 </ul>
@@ -421,9 +422,12 @@
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Literal</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ProfileResultSet</span><span class="p">,</span> <span class="n">ResultSet</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.logger.segment_cache</span> <span class="kn">import</span> <span class="n">SegmentCache</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer</span> <span class="kn">import</span> <span class="n">Writer</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">DatasetSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.view.segmented_dataset_profile_view</span> <span class="kn">import</span> <span class="n">SegmentedDatasetProfileView</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -515,6 +519,8 @@
 
         <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_batch_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_current_batch_timestamp</span><span class="p">(</span><span class="n">now</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">schema</span> <span class="ow">and</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_segment_cache</span> <span class="o">=</span> <span class="n">SegmentCache</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_profile</span><span class="p">:</span> <span class="n">DatasetProfile</span> <span class="o">=</span> <span class="n">DatasetProfile</span><span class="p">(</span>
             <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
@@ -553,16 +559,29 @@
     <span class="k">def</span> <span class="nf">_do_rollover</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">old_profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_profile</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_batch_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_current_batch_timestamp</span><span class="p">()</span>
         <span class="n">dataset_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_batch_timestamp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_cache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_flush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_segment_cache</span><span class="o">.</span><span class="n">flush</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="n">old_profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_profile</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_profile</span> <span class="o">=</span> <span class="n">DatasetProfile</span><span class="p">(</span>
             <span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">,</span>
             <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_flush</span><span class="p">(</span><span class="n">old_profile</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">old_profile</span><span class="o">.</span><span class="n">is_active</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_empty</span> <span class="ow">and</span> <span class="n">old_profile</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;skip_empty is set for profile. Skipping empty profile.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flush</span><span class="p">(</span><span class="n">ProfileResultSet</span><span class="p">(</span><span class="n">old_profile</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_get_time_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">time</span><span class="o">.</span><span class="n">struct_time</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">utc</span><span class="p">:</span>
@@ -581,12 +600,22 @@
                 <span class="n">time_tuple</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_batch_timestamp</span> <span class="o">+</span> <span class="n">addend</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">time_tuple</span>
 
-    <span class="k">def</span> <span class="nf">_flush</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">:</span> <span class="n">DatasetProfile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_flush</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">ResultSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;The result is None, skipping flush of result set.&quot;</span><span class="p">)</span>
             <span class="k">return</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_empty</span> <span class="ow">and</span> <span class="n">profile</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;skip_empty is set. Skipping empty profiles&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">results</span><span class="o">.</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;The result&#39;s count is zero, skipping flush of result set.&quot;</span><span class="p">)</span>
             <span class="k">return</span>
+        <span class="n">profiles</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get_writables</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">profiles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;The result set&#39;s writable is None, skipping flush of result set.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">number_of_profiles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">profiles</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">number_of_profiles</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;The result set&#39;s writable list has length zero, skipping flush of result set.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;about to write </span><span class="si">{</span><span class="n">number_of_profiles</span><span class="si">}</span><span class="s2"> profiles.&quot;</span><span class="p">)</span>
 
         <span class="n">pid</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fork</span><span class="p">:</span>
@@ -601,20 +630,28 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Didn&#39;t fork. Writing in the same process&quot;</span><span class="p">)</span>
 
             <span class="n">time_tuple</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_time_tuple</span><span class="p">()</span>
-            <span class="n">timed_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">suffix</span><span class="p">,</span> <span class="n">time_tuple</span><span class="p">)</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_extension</span><span class="si">}</span><span class="s2">&quot;</span>
 
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Writing out put with timed_filename: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">timed_filename</span><span class="p">)</span>
+            <span class="n">profile_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">profile</span> <span class="ow">in</span> <span class="n">profiles</span><span class="p">:</span>
+                <span class="n">has_segments</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">has_segments</span><span class="p">:</span>
+                    <span class="n">timed_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">suffix</span><span class="p">,</span> <span class="n">time_tuple</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">profile</span><span class="o">.</span><span class="n">get_segment_string</span><span class="p">()</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_extension</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">timed_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">suffix</span><span class="p">,</span> <span class="n">time_tuple</span><span class="p">)</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_extension</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Writing out put with timed_filename: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">timed_filename</span><span class="p">)</span>
 
-            <span class="k">while</span> <span class="n">profile</span><span class="o">.</span><span class="n">is_active</span><span class="p">:</span>
-                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">profile_count</span> <span class="o">=</span> <span class="n">profile_count</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing profile </span><span class="si">{</span><span class="n">profile_count</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">number_of_profiles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">store</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_store_list</span><span class="p">:</span>
-                <span class="n">store</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile_view</span><span class="o">=</span><span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">(),</span> <span class="n">profile_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_name</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">store</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_store_list</span><span class="p">:</span>
+                    <span class="n">store</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile_view</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span> <span class="n">profile_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_name</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="p">:</span>
-                <span class="n">w</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">(),</span> <span class="n">dest</span><span class="o">=</span><span class="n">timed_filename</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="ow">and</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">(),</span> <span class="n">timed_filename</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="p">:</span>
+                    <span class="n">w</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">timed_filename</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="ow">and</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">timed_filename</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="ow">and</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">timed_filename</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TimedRollingLogger.close"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/rolling/index.html#whylogs.api.logger.TimedRollingLogger.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Closing the writer&quot;</span><span class="p">)</span>

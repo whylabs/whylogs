@@ -247,6 +247,7 @@
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/logger/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.logger</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/logger/result_set/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.result_set</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/logger/rolling/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.rolling</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/logger/segment_cache/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.segment_cache</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/logger/segment_processing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.segment_processing</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/logger/transient/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.transient</span></code></a></li>
 </ul>
@@ -904,8 +905,6 @@
         </ul></li>
         <li><a href="api/whylogs/core/segmentation_partition/index.html#whylogs.core.segmentation_partition.ColumnMapperFunction">ColumnMapperFunction (class in whylogs.core.segmentation_partition)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/proto/index.html#whylogs.core.proto.ColumnMessage">ColumnMessage (in module whylogs.core.proto)</a>
 
         <ul>
@@ -918,6 +917,8 @@
           <li><a href="api/whylogs/core/proto/v0/v0_messages_pb2/index.html#whylogs.core.proto.v0.v0_messages_pb2.ColumnMessageV0">(in module whylogs.core.proto.v0.v0_messages_pb2)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/index.html#whylogs.core.ColumnProfile">ColumnProfile (class in whylogs.core)</a>
 
         <ul>
@@ -1078,8 +1079,24 @@
           <li><a href="api/whylogs/core/schema/index.html#whylogs.core.schema.DatasetSchema.copy">(whylogs.core.schema.DatasetSchema method)</a>
 </li>
         </ul></li>
-        <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.SegmentedResultSet.count">count (whylogs.api.logger.result_set.SegmentedResultSet property)</a>
+        <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.ProfileResultSet.count">count (whylogs.api.logger.ProfileResultSet property)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.ProfileResultSet.count">(whylogs.api.logger.result_set.ProfileResultSet property)</a>
 </li>
+          <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet.count">(whylogs.api.logger.result_set.ResultSet property)</a>
+</li>
+          <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.SegmentedResultSet.count">(whylogs.api.logger.result_set.SegmentedResultSet property)</a>
+</li>
+          <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.ViewResultSet.count">(whylogs.api.logger.result_set.ViewResultSet property)</a>
+</li>
+          <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.ResultSet.count">(whylogs.api.logger.ResultSet property)</a>
+</li>
+          <li><a href="api/whylogs/api/index.html#whylogs.api.ResultSet.count">(whylogs.api.ResultSet property)</a>
+</li>
+          <li><a href="api/whylogs/index.html#whylogs.ResultSet.count">(whylogs.ResultSet property)</a>
+</li>
+        </ul></li>
         <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.count">count() (whylogs.core.view.dataset_profile_view.SummaryType method)</a>
 </li>
         <li><a href="api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.count_below_number">count_below_number() (in module whylogs.core.constraints.factories)</a>
@@ -1621,6 +1638,8 @@
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.DatasetProfile.flush">flush() (whylogs.api.logger.DatasetProfile method)</a>
 
         <ul>
+          <li><a href="api/whylogs/api/logger/segment_cache/index.html#whylogs.api.logger.segment_cache.SegmentCache.flush">(whylogs.api.logger.segment_cache.SegmentCache method)</a>
+</li>
           <li><a href="api/whylogs/core/column_profile/index.html#whylogs.core.column_profile.ColumnProfile.flush">(whylogs.core.column_profile.ColumnProfile method)</a>
 </li>
           <li><a href="api/whylogs/core/index.html#whylogs.core.ColumnProfile.flush">(whylogs.core.ColumnProfile method)</a>
@@ -1682,10 +1701,10 @@
 </li>
         <li><a href="api/whylogs/core/configs/index.html#whylogs.core.configs.FrequentItemsErrorType.numerator">FrequentItemsErrorType.numerator (class in whylogs.core.configs)</a>
 </li>
-        <li><a href="api/whylogs/core/configs/index.html#whylogs.core.configs.FrequentItemsErrorType.real">FrequentItemsErrorType.real (class in whylogs.core.configs)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/whylogs/core/configs/index.html#whylogs.core.configs.FrequentItemsErrorType.real">FrequentItemsErrorType.real (class in whylogs.core.configs)</a>
+</li>
         <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.FrequentItemsMetric">FrequentItemsMetric (class in whylogs.core.metrics)</a>
 
         <ul>
@@ -2120,11 +2139,17 @@
           <li><a href="api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.ImageMetric.get_namespace">(whylogs.extras.image_metric.ImageMetric class method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/logger/segment_cache/index.html#whylogs.api.logger.segment_cache.SegmentCache.get_or_create_matching_profile">get_or_create_matching_profile() (whylogs.api.logger.segment_cache.SegmentCache method)</a>
+</li>
         <li><a href="api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.get_pil_exif_metadata">get_pil_exif_metadata() (in module whylogs.extras.image_metric)</a>
 </li>
         <li><a href="api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.get_pil_image_metadata">get_pil_image_metadata() (in module whylogs.extras.image_metric)</a>
 </li>
         <li><a href="api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.get_pil_image_statistics">get_pil_image_statistics() (in module whylogs.extras.image_metric)</a>
+</li>
+        <li><a href="api/whylogs/core/view/segmented_dataset_profile_view/index.html#whylogs.core.view.segmented_dataset_profile_view.SegmentedDatasetProfileView.get_segment_string">get_segment_string() (whylogs.core.view.segmented_dataset_profile_view.SegmentedDatasetProfileView method)</a>
+</li>
+        <li><a href="api/whylogs/api/logger/segment_cache/index.html#whylogs.api.logger.segment_cache.SegmentCache.get_segments">get_segments() (whylogs.api.logger.segment_cache.SegmentCache method)</a>
 </li>
         <li><a href="api/whylogs/core/metrics/serializers/index.html#whylogs.core.metrics.serializers.get_serializer">get_serializer() (in module whylogs.core.metrics.serializers)</a>
 </li>
@@ -2592,6 +2617,8 @@
           <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.logger">(in module whylogs.api.logger.result_set)</a>
 </li>
           <li><a href="api/whylogs/api/logger/rolling/index.html#whylogs.api.logger.rolling.logger">(in module whylogs.api.logger.rolling)</a>
+</li>
+          <li><a href="api/whylogs/api/logger/segment_cache/index.html#whylogs.api.logger.segment_cache.logger">(in module whylogs.api.logger.segment_cache)</a>
 </li>
           <li><a href="api/whylogs/api/logger/segment_processing/index.html#whylogs.api.logger.segment_processing.logger">(in module whylogs.api.logger.segment_processing)</a>
 </li>
@@ -3085,6 +3112,8 @@
           <li><a href="api/whylogs/api/logger/result_set/index.html#module-whylogs.api.logger.result_set">whylogs.api.logger.result_set</a>
 </li>
           <li><a href="api/whylogs/api/logger/rolling/index.html#module-whylogs.api.logger.rolling">whylogs.api.logger.rolling</a>
+</li>
+          <li><a href="api/whylogs/api/logger/segment_cache/index.html#module-whylogs.api.logger.segment_cache">whylogs.api.logger.segment_cache</a>
 </li>
           <li><a href="api/whylogs/api/logger/segment_processing/index.html#module-whylogs.api.logger.segment_processing">whylogs.api.logger.segment_processing</a>
 </li>
@@ -4197,6 +4226,8 @@
           <li><a href="api/whylogs/core/proto/whylogs_messages_pb2/index.html#whylogs.core.proto.whylogs_messages_pb2.SegmentationPartition">(in module whylogs.core.proto.whylogs_messages_pb2)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/logger/segment_cache/index.html#whylogs.api.logger.segment_cache.SegmentCache">SegmentCache (class in whylogs.api.logger.segment_cache)</a>
+</li>
         <li><a href="api/whylogs/core/view/segmented_dataset_profile_view/index.html#whylogs.core.view.segmented_dataset_profile_view.SegmentedDatasetProfileView">SegmentedDatasetProfileView (class in whylogs.core.view.segmented_dataset_profile_view)</a>
 </li>
         <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.SegmentedResultSet">SegmentedResultSet (class in whylogs.api.logger.result_set)</a>
@@ -4258,9 +4289,25 @@
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.DatasetProfile.set_dataset_timestamp">set_dataset_timestamp() (whylogs.api.logger.DatasetProfile method)</a>
 
         <ul>
+          <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.ProfileResultSet.set_dataset_timestamp">(whylogs.api.logger.ProfileResultSet method)</a>
+</li>
+          <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.ProfileResultSet.set_dataset_timestamp">(whylogs.api.logger.result_set.ProfileResultSet method)</a>
+</li>
+          <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet.set_dataset_timestamp">(whylogs.api.logger.result_set.ResultSet method)</a>
+</li>
+          <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.SegmentedResultSet.set_dataset_timestamp">(whylogs.api.logger.result_set.SegmentedResultSet method)</a>
+</li>
+          <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.ViewResultSet.set_dataset_timestamp">(whylogs.api.logger.result_set.ViewResultSet method)</a>
+</li>
+          <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.ResultSet.set_dataset_timestamp">(whylogs.api.logger.ResultSet method)</a>
+</li>
+          <li><a href="api/whylogs/api/index.html#whylogs.api.ResultSet.set_dataset_timestamp">(whylogs.api.ResultSet method)</a>
+</li>
           <li><a href="api/whylogs/core/dataset_profile/index.html#whylogs.core.dataset_profile.DatasetProfile.set_dataset_timestamp">(whylogs.core.dataset_profile.DatasetProfile method)</a>
 </li>
           <li><a href="api/whylogs/core/index.html#whylogs.core.DatasetProfile.set_dataset_timestamp">(whylogs.core.DatasetProfile method)</a>
+</li>
+          <li><a href="api/whylogs/index.html#whylogs.ResultSet.set_dataset_timestamp">(whylogs.ResultSet method)</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/datasets/base/index.html#whylogs.datasets.base.Dataset.set_parameters">set_parameters() (whylogs.datasets.base.Dataset method)</a>
@@ -4275,6 +4322,8 @@
           <li><a href="api/whylogs/datasets/weather/index.html#whylogs.datasets.weather.Weather.set_parameters">(whylogs.datasets.weather.Weather method)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.set_profiles">set_profiles() (whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer method)</a>
 
         <ul>
@@ -4287,8 +4336,6 @@
           <li><a href="api/whylogs/core/index.html#whylogs.core.SegmentationPartition.simple">(whylogs.core.SegmentationPartition property)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.smaller_than_number">smaller_than_number() (in module whylogs.core.constraints.factories)</a>
 
         <ul>
@@ -5035,6 +5082,13 @@
 </li>
         </ul></li>
         <li>
+    whylogs.api.logger.segment_cache
+
+        <ul>
+          <li><a href="api/whylogs/api/logger/segment_cache/index.html#module-whylogs.api.logger.segment_cache">module</a>
+</li>
+        </ul></li>
+        <li>
     whylogs.api.logger.segment_processing
 
         <ul>
@@ -5447,6 +5501,8 @@
           <li><a href="api/whylogs/core/proto/v0/index.html#module-whylogs.core.proto.v0">module</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     whylogs.core.proto.v0.v0_constraints_pb2
 
@@ -5454,8 +5510,6 @@
           <li><a href="api/whylogs/core/proto/v0/v0_constraints_pb2/index.html#module-whylogs.core.proto.v0.v0_constraints_pb2">module</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     whylogs.core.proto.v0.v0_messages_pb2
 

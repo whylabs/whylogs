@@ -13,6 +13,7 @@ Submodules
    logger/index.rst
    result_set/index.rst
    rolling/index.rst
+   segment_cache/index.rst
    segment_processing/index.rst
    transient/index.rst
 
@@ -89,6 +90,10 @@ Functions
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
+   .. py:property:: count
+      :type: int
+
+
    .. py:property:: performance_metrics
       :type: Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
 
@@ -111,6 +116,9 @@ Functions
 
 
    .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
+
+
+   .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
@@ -132,6 +140,10 @@ Functions
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
+   .. py:property:: count
+      :type: int
+
+
    .. py:property:: performance_metrics
       :type: Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
 
@@ -156,6 +168,9 @@ Functions
 
 
    .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
+
+
+   .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None

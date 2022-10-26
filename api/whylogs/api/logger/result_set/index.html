@@ -257,6 +257,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.logger</span></code></a></li>
 <li class="toctree-l5 current current-page"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.result_set</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../rolling/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.rolling</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../segment_cache/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.segment_cache</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../segment_processing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.segment_processing</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../transient/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.transient</span></code></a></li>
 </ul>
@@ -560,6 +561,16 @@ simplifies the navigation among these profiles.</p>
 <p>Note that currently we only hold one profile but we’re planning to add other
 kinds of profiles such as segmented profiles here.</p>
 <dl class="py property">
+<dt class="sig sig-object py" id="whylogs.api.logger.result_set.ResultSet.count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><a class="headerlink" href="#whylogs.api.logger.result_set.ResultSet.count" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="whylogs.api.logger.result_set.ResultSet.performance_metrics">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">performance_metrics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics"><span class="pre">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.logger.result_set.ResultSet.performance_metrics" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -639,6 +650,19 @@ kinds of profiles such as segmented profiles here.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="whylogs.api.logger.result_set.ResultSet.set_dataset_timestamp">
+<span class="sig-name descname"><span class="pre">set_dataset_timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><span class="pre">datetime.datetime</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#ResultSet.set_dataset_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.logger.result_set.ResultSet.set_dataset_timestamp" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset_timestamp</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><em>datetime.datetime</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.logger.result_set.ResultSet.add_model_performance_metrics">
 <span class="sig-name descname"><span class="pre">add_model_performance_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics"><span class="pre">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#ResultSet.add_model_performance_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.logger.result_set.ResultSet.add_model_performance_metrics" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -683,6 +707,16 @@ kinds of profiles such as segmented profiles here.</p>
 <dd class="field-odd"><p><strong>view</strong> (<a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><em>whylogs.core.DatasetProfileView</em></a>) – </p>
 </dd>
 </dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.api.logger.result_set.ViewResultSet.count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><a class="headerlink" href="#whylogs.api.logger.result_set.ViewResultSet.count" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="whylogs.api.logger.result_set.ViewResultSet.performance_metrics">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">performance_metrics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics"><span class="pre">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.logger.result_set.ViewResultSet.performance_metrics" title="Permalink to this definition">#</a></dt>
@@ -763,6 +797,19 @@ kinds of profiles such as segmented profiles here.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="whylogs.api.logger.result_set.ViewResultSet.set_dataset_timestamp">
+<span class="sig-name descname"><span class="pre">set_dataset_timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><span class="pre">datetime.datetime</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#whylogs.api.logger.result_set.ViewResultSet.set_dataset_timestamp" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset_timestamp</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><em>datetime.datetime</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.logger.result_set.ViewResultSet.add_model_performance_metrics">
 <span class="sig-name descname"><span class="pre">add_model_performance_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics"><span class="pre">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#whylogs.api.logger.result_set.ViewResultSet.add_model_performance_metrics" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -807,6 +854,16 @@ kinds of profiles such as segmented profiles here.</p>
 <dd class="field-odd"><p><strong>profile</strong> (<a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfile" title="whylogs.core.DatasetProfile"><em>whylogs.core.DatasetProfile</em></a>) – </p>
 </dd>
 </dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.api.logger.result_set.ProfileResultSet.count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><a class="headerlink" href="#whylogs.api.logger.result_set.ProfileResultSet.count" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="whylogs.api.logger.result_set.ProfileResultSet.performance_metrics">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">performance_metrics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics"><span class="pre">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.logger.result_set.ProfileResultSet.performance_metrics" title="Permalink to this definition">#</a></dt>
@@ -882,6 +939,19 @@ kinds of profiles such as segmented profiles here.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Optional[List[<a class="reference internal" href="../../writer/writer/index.html#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable">whylogs.api.writer.writer.Writable</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.api.logger.result_set.ProfileResultSet.set_dataset_timestamp">
+<span class="sig-name descname"><span class="pre">set_dataset_timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><span class="pre">datetime.datetime</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#whylogs.api.logger.result_set.ProfileResultSet.set_dataset_timestamp" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset_timestamp</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><em>datetime.datetime</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -973,6 +1043,19 @@ kinds of profiles such as segmented profiles here.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>Optional[<a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfile" title="whylogs.core.DatasetProfile">whylogs.core.DatasetProfile</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.api.logger.result_set.SegmentedResultSet.set_dataset_timestamp">
+<span class="sig-name descname"><span class="pre">set_dataset_timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><span class="pre">datetime.datetime</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.set_dataset_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.logger.result_set.SegmentedResultSet.set_dataset_timestamp" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset_timestamp</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><em>datetime.datetime</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1227,6 +1310,7 @@ kinds of profiles such as segmented profiles here.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet">ResultSet</a><ul>
+<li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.count">count</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.performance_metrics">performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.read">read</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.reader">reader</a></li>
@@ -1234,11 +1318,13 @@ kinds of profiles such as segmented profiles here.</p>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.view">view</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.profile">profile</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.get_writables">get_writables</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.set_dataset_timestamp">set_dataset_timestamp</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.add_model_performance_metrics">add_model_performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.add_metric">add_metric</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet">ViewResultSet</a><ul>
+<li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.count">count</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.performance_metrics">performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.profile">profile</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.view">view</a></li>
@@ -1246,11 +1332,13 @@ kinds of profiles such as segmented profiles here.</p>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.reader">reader</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.writer">writer</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.get_writables">get_writables</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.set_dataset_timestamp">set_dataset_timestamp</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.add_model_performance_metrics">add_model_performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.add_metric">add_metric</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet">ProfileResultSet</a><ul>
+<li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.count">count</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.performance_metrics">performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.profile">profile</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.view">view</a></li>
@@ -1258,6 +1346,7 @@ kinds of profiles such as segmented profiles here.</p>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.reader">reader</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.writer">writer</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.get_writables">get_writables</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.set_dataset_timestamp">set_dataset_timestamp</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.add_model_performance_metrics">add_model_performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.add_metric">add_metric</a></li>
 </ul>
@@ -1267,6 +1356,7 @@ kinds of profiles such as segmented profiles here.</p>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.count">count</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.performance_metrics">performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.profile">profile</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.set_dataset_timestamp">set_dataset_timestamp</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.segments">segments</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.segments_in_partition">segments_in_partition</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.view">view</a></li>

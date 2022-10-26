@@ -10,7 +10,7 @@
   
 <meta property="og:url" content="https://whylogs.readthedocs.io/api/whylogs/api/index.html" />
   
-<meta property="og:description" content="Subpackages: whylogs.api.fugue- whylogs.api.fugue.profiler., whylogs.api.logger- whylogs.api.logger.logger, whylogs.api.logger.result_set, whylogs.api.logger.rolling, whylogs.api.logger.segment_pro..." />
+<meta property="og:description" content="Subpackages: whylogs.api.fugue- whylogs.api.fugue.profiler., whylogs.api.logger- whylogs.api.logger.logger, whylogs.api.logger.result_set, whylogs.api.logger.rolling, whylogs.api.logger.segment_cac..." />
   <link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" /><link rel="next" title="whylogs.api.fugue" href="fugue/index.html" /><link rel="prev" title="whylogs" href="../index.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
@@ -257,6 +257,7 @@
 <li class="toctree-l5"><a class="reference internal" href="logger/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.logger</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="logger/result_set/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.result_set</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="logger/rolling/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.rolling</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="logger/segment_cache/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.segment_cache</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="logger/segment_processing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.segment_processing</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="logger/transient/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.transient</span></code></a></li>
 </ul>
@@ -432,6 +433,7 @@
 <li class="toctree-l2"><a class="reference internal" href="logger/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.logger</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="logger/result_set/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.result_set</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="logger/rolling/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.rolling</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="logger/segment_cache/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.segment_cache</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="logger/segment_processing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.segment_processing</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="logger/transient/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.transient</span></code></a></li>
 </ul>
@@ -541,6 +543,16 @@ simplifies the navigation among these profiles.</p>
 <p>Note that currently we only hold one profile but we’re planning to add other
 kinds of profiles such as segmented profiles here.</p>
 <dl class="py property">
+<dt class="sig sig-object py" id="whylogs.api.ResultSet.count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><a class="headerlink" href="#whylogs.api.ResultSet.count" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="whylogs.api.ResultSet.performance_metrics">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">performance_metrics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics"><span class="pre">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.ResultSet.performance_metrics" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -615,6 +627,19 @@ kinds of profiles such as segmented profiles here.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Optional[List[<a class="reference internal" href="writer/writer/index.html#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable">whylogs.api.writer.writer.Writable</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.api.ResultSet.set_dataset_timestamp">
+<span class="sig-name descname"><span class="pre">set_dataset_timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><span class="pre">datetime.datetime</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/api/logger/result_set.html#ResultSet.set_dataset_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.ResultSet.set_dataset_timestamp" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset_timestamp</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><em>datetime.datetime</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -863,6 +888,7 @@ target, prediction, and/or score.
 <li><a class="reference internal" href="#functions">Functions</a><ul>
 <li><a class="reference internal" href="#whylogs.api.profiling">profiling</a></li>
 <li><a class="reference internal" href="#whylogs.api.ResultSet">ResultSet</a><ul>
+<li><a class="reference internal" href="#whylogs.api.ResultSet.count">count</a></li>
 <li><a class="reference internal" href="#whylogs.api.ResultSet.performance_metrics">performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.api.ResultSet.read">read</a></li>
 <li><a class="reference internal" href="#whylogs.api.ResultSet.reader">reader</a></li>
@@ -870,6 +896,7 @@ target, prediction, and/or score.
 <li><a class="reference internal" href="#whylogs.api.ResultSet.view">view</a></li>
 <li><a class="reference internal" href="#whylogs.api.ResultSet.profile">profile</a></li>
 <li><a class="reference internal" href="#whylogs.api.ResultSet.get_writables">get_writables</a></li>
+<li><a class="reference internal" href="#whylogs.api.ResultSet.set_dataset_timestamp">set_dataset_timestamp</a></li>
 <li><a class="reference internal" href="#whylogs.api.ResultSet.add_model_performance_metrics">add_model_performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.api.ResultSet.add_metric">add_metric</a></li>
 </ul>

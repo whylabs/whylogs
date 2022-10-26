@@ -1,0 +1,51 @@
+:py:mod:`whylogs.api.logger.segment_cache`
+==========================================
+
+.. py:module:: whylogs.api.logger.segment_cache
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.segment_cache.SegmentCache
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.segment_cache.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: SegmentCache(schema: whylogs.core.schema.DatasetSchema, segments: Optional[Dict[whylogs.core.segment.Segment, whylogs.core.dataset_profile.DatasetProfile]] = None)
+
+   Bases: :py:obj:`object`
+
+   Container for segmented profiles.
+
+   Stores DatasetProfiles while processing inputs using a segmentation DatasetSchema.
+   The contained profiles may be stored in memory or on disk.
+
+   .. py:method:: get_or_create_matching_profile(segment_key: whylogs.core.segment.Segment) -> whylogs.core.dataset_profile.DatasetProfile
+
+
+   .. py:method:: get_segments() -> Dict[whylogs.core.segment.Segment, whylogs.core.dataset_profile.DatasetProfile]
+
+
+   .. py:method:: flush(dataset_timestamp: Optional[datetime.datetime]) -> whylogs.api.logger.result_set.SegmentedResultSet
+
+
+
