@@ -93,7 +93,9 @@ class ResultSet(ABC):
 
     def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
         profile = self.profile()
-        if profile:
+        if profile is None:
+            raise ValueError("Cannot set timestamp on a result set without a profile!")
+        else:
             profile.set_dataset_timestamp(dataset_timestamp)
 
     @property
