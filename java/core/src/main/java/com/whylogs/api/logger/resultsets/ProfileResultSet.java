@@ -1,4 +1,4 @@
-package com.whylogs.api.logger.resultSets;
+package com.whylogs.api.logger.resultsets;
 
 import com.whylogs.core.DatasetProfile;
 import com.whylogs.core.views.DatasetProfileView;
@@ -12,7 +12,7 @@ import lombok.NonNull;
 public class ProfileResultSet extends ResultSet {
   @NonNull private final DatasetProfile profile;
 
-  public ProfileResultSet(DatasetProfile profile) {
+  public ProfileResultSet(@NonNull DatasetProfile profile) {
     super();
     this.profile = profile;
   }
