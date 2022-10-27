@@ -1,18 +1,23 @@
 from typing import Dict, Optional
 
 import numpy as np
+import whylogs_sketching as ds
 from scipy import stats  # type: ignore
 from typing_extensions import TypedDict
 from whylogs_sketching import kll_doubles_sketch  # type: ignore
-
+import warnings
 from whylogs.core.view.dataset_profile_view import DatasetProfileView  # type: ignore
+from whylogs.core.view.column_profile_view import ColumnProfileView  # type: ignore
+from whylogs.viz.utils.histogram_calculations import MAX_HIST_BUCKETS, HIST_AVG_NUMBER_PER_BUCKET, _calculate_bins
 from whylogs.viz.utils.frequent_items_calculations import (
     FrequentStats,
     get_frequent_stats,
     zero_padding_frequent_items,
 )
+from scipy.spatial.distance import euclidean
 
-QUANTILES = [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0]
+
+QUANTILES = list(np.linspace(0, 1, 100))
 
 
 class ColumnDriftValue(TypedDict):
@@ -22,8 +27,15 @@ class ColumnDriftValue(TypedDict):
     test: str
 
 
+class ColumnDriftStatistic(TypedDict):
+    """Statistic for applied algorithm, along with the name of the applied algorithm."""
+
+    statistic: float
+    algorithm: str
+
+
 def _compute_ks_test_p_value(
-    target_distribution: kll_doubles_sketch, reference_distribution: kll_doubles_sketch
+    target_distribution: kll_doubles_sketch, reference_distribution: kll_doubles_sketch, quants=None
 ) -> Optional[ColumnDriftValue]:
     """Compute the Kolmogorov-Smirnov test p-value of two continuous distributions.
 
@@ -49,11 +61,17 @@ def _compute_ks_test_p_value(
     if reference_distribution.is_empty() or target_distribution.is_empty():
         return None
 
-    D_max = 0
-    target_quantile_values = target_distribution.get_quantiles(QUANTILES)
-    ref_quantile_values = reference_distribution.get_quantiles(QUANTILES)
+    if quants:
+        target_quantile_values = target_distribution.get_quantiles(quants)
+        ref_quantile_values = reference_distribution.get_quantiles(quants)
+        num_quantiles = len(quants)
 
-    num_quantiles = len(QUANTILES)
+    else:
+        target_quantile_values = target_distribution.get_quantiles(QUANTILES)
+        ref_quantile_values = reference_distribution.get_quantiles(QUANTILES)
+        num_quantiles = len(QUANTILES)
+
+    D_max = 0
     i, j = 0, 0
     while i < num_quantiles and j < num_quantiles:
         if target_quantile_values[i] < ref_quantile_values[j]:
@@ -183,8 +201,39 @@ def _get_chi2_p_value(target_view_column, reference_view_column) -> Optional[Col
     return chi2_p_value
 
 
+def _get_hellinger_distance(
+    target_view_column: ColumnProfileView, reference_view_column: ColumnProfileView, nbins=None
+) -> ColumnDriftStatistic:
+    if not nbins:
+        nbins = MAX_HIST_BUCKETS
+    target_dist_metric = target_view_column.get_metric("distribution")
+    ref_dist_metric = reference_view_column.get_metric("distribution")
+
+    if target_dist_metric is None or ref_dist_metric is None:
+        warnings.warn("Column must have a Distribution Metric assigned to it.")
+        return None
+
+    target_kll_sketch = target_dist_metric.kll.value
+    ref_kll_sketch = ref_dist_metric.kll.value
+
+    if target_kll_sketch.is_empty() or ref_kll_sketch.is_empty():
+        warnings.warn("Distribution sketch must not be empty.")
+        return None
+
+    start = min([target_kll_sketch.get_min_value(), ref_kll_sketch.get_min_value()])
+    end = max([target_kll_sketch.get_max_value(), ref_kll_sketch.get_max_value()])
+    n = target_kll_sketch.get_n() + ref_kll_sketch.get_n()
+    bins, end = _calculate_bins(end=end, start=start, n=n, avg_per_bucket=HIST_AVG_NUMBER_PER_BUCKET, max_buckets=nbins)
+
+    target_pmf = target_kll_sketch.get_pmf(bins)
+    ref_pmf = ref_kll_sketch.get_pmf(bins)
+
+    distance = euclidean(np.sqrt(target_pmf), np.sqrt(ref_pmf)) / np.sqrt(2)
+    return {"statistic": distance, "algorithm": "hellinger"}
+
+
 def calculate_drift_values(
-    target_view: DatasetProfileView, reference_view: DatasetProfileView
+    target_view: DatasetProfileView, reference_view: DatasetProfileView, statistic=False
 ) -> Dict[str, Optional[ColumnDriftValue]]:
     """Calculate drift values between both profiles. Applicable for numerical and categorical features.
 
@@ -196,6 +245,8 @@ def calculate_drift_values(
         Target Profile View
     reference_view : DatasetProfileView
         Reference Profile View
+    statistic: bool
+        If false, value will be a pvalue. If true value will be a statistic.
 
     Returns
     -------
@@ -209,9 +260,15 @@ def calculate_drift_values(
         if target_column_name in reference_view_columns:
             target_view_column = target_view_columns[target_column_name]
             reference_view_column = reference_view_columns[target_column_name]
-
-            drift_values[target_column_name] = _get_ks_p_value(
-                target_view_column=target_view_column, reference_view_column=reference_view_column
-            ) or _get_chi2_p_value(target_view_column=target_view_column, reference_view_column=reference_view_column)
+            if not statistic:
+                drift_values[target_column_name] = _get_ks_p_value(
+                    target_view_column=target_view_column, reference_view_column=reference_view_column
+                ) or _get_chi2_p_value(
+                    target_view_column=target_view_column, reference_view_column=reference_view_column
+                )
+            else:
+                drift_values[target_column_name] = _get_hellinger_distance(
+                    target_view_column=target_view_column, reference_view_column=reference_view_column
+                )
 
     return drift_values

@@ -10,6 +10,7 @@ from whylogs.viz.utils.drift_calculations import (
     _compute_ks_test_p_value,
     _get_chi2_p_value,
     _get_ks_p_value,
+    _get_hellinger_distance,
     calculate_drift_values,
 )
 
@@ -69,6 +70,12 @@ def test_get_chi2_p_value_returns_none(mock_view_column):
     assert not result
 
 
+def test_get_hellinger_distance_float(view_columns):
+    actual_result = _get_hellinger_distance(view_columns["weight"], view_columns["weight"])
+    assert actual_result["algorithm"] == "hellinger"
+    assert isinstance(actual_result["statistic"], float)
+
+
 def test_calculate_drift_values_result_format(profile_view):
     result_dict = calculate_drift_values(target_view=profile_view, reference_view=profile_view)
     expected_columns = profile_view.get_columns()
@@ -77,6 +84,14 @@ def test_calculate_drift_values_result_format(profile_view):
         assert key in expected_columns
         for dict_value_key in dict_value.keys():
             assert dict_value_key in ["p_value", "test"]
+
+    statistic_dict = calculate_drift_values(target_view=profile_view, reference_view=profile_view, statistic=True)
+    for key, dict_value in statistic_dict.items():
+        if key == "animal":
+            assert not dict_value
+        if key in ["legs", "weight"]:
+            for dict_value_key in dict_value.keys():
+                assert dict_value_key in ["statistic", "algorithm"]
 
 
 def test_compute_chi_squared_test_p_value(reference_distribution):
