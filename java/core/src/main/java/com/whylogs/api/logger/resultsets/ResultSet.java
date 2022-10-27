@@ -31,15 +31,15 @@ public abstract class ResultSet {
 
   public void addMetric(String name, Metric<?> metric) throws Error {
     DatasetProfile profile =
-            this.profile()
-                    .orElseThrow(
-                            () ->
-                                    new Error(
-                                            "Cannot add "
-                                                    + name
-                                                    + " metric "
-                                                    + metric
-                                                    + " to a result set without a profile"));
+        this.profile()
+            .orElseThrow(
+                () ->
+                    new Error(
+                        "Cannot add "
+                            + name
+                            + " metric "
+                            + metric
+                            + " to a result set without a profile"));
     profile.addMetric(name, metric);
   }
 }
