@@ -210,4 +210,4 @@ class TimedRollingLogger(Logger):
         if not self._is_closed:
             self._scheduler.stop()
             self._do_rollover()
-        self._is_closed: bool = True
+        super(TimedRollingLogger, self).close()

@@ -85,7 +85,6 @@ class Logger(ABC):
 
         return ProfileResultSet(profiles[0])
 
-    @abstractmethod
     def close(self) -> None:
         self._is_closed = True
 
