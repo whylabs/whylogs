@@ -11,12 +11,10 @@ public class ViewResultSet extends ResultSet {
   @NonNull private final DatasetProfileView view;
 
   public ViewResultSet(@NonNull DatasetProfileView view) {
-    super();
     this.view = view;
   }
 
   public ViewResultSet(DatasetProfile profile) {
-    super();
     this.view = profile.view();
   }
 
