@@ -12,7 +12,7 @@ import lombok.NonNull;
 public class ProfileResultSet extends ResultSet {
   @NonNull private final DatasetProfile profile;
 
-  public ProfileResultSet(DatasetProfile profile) {
+  public ProfileResultSet(@NonNull DatasetProfile profile) {
     super();
     this.profile = profile;
   }
