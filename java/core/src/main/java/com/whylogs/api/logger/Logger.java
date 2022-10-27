@@ -1,7 +1,7 @@
 package com.whylogs.api.logger;
 
-import com.whylogs.api.logger.resultSets.ProfileResultSet;
-import com.whylogs.api.logger.resultSets.ResultSet;
+import com.whylogs.api.logger.resultsets.ProfileResultSet;
+import com.whylogs.api.logger.resultsets.ResultSet;
 import com.whylogs.api.writer.Writer;
 import com.whylogs.api.writer.WritersRegistry;
 import com.whylogs.core.DatasetProfile;
@@ -21,7 +21,7 @@ import java.util.Map;
 @ToString
 public abstract class Logger implements AutoCloseable {
     private boolean isClosed = false;
-    private DatasetSchema schema;
+    private DatasetSchema schema = new DatasetSchema();
     private ArrayList<Writer> writers = new ArrayList<>();
 
     public Logger(DatasetSchema schema) {
@@ -63,7 +63,7 @@ public abstract class Logger implements AutoCloseable {
         isClosed = true;
     }
 
-    public ResultSet log(HashMap<String, ?> data){
+    public ResultSet log(HashMap<String, Object> data){
         // What type of data is the object? Right now we don't process that in track.
         if(isClosed){
             throw new IllegalStateException("Logger is closed");

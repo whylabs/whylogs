@@ -4,7 +4,10 @@ import com.whylogs.api.logger.Logger;
 import com.whylogs.api.writer.Writer;
 import com.whylogs.core.DatasetProfile;
 import com.whylogs.core.schemas.DatasetSchema;
+import com.whylogs.core.views.DatasetProfileView;
+import org.apache.commons.lang3.NotImplementedException;
 
+import java.lang.reflect.Array;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Map;
@@ -12,8 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 
 public class TimedRollingLogger extends Logger implements AutoCloseable{
-    // A rolling logger that continously rotates files based on time
-
+    // A rolling logger that continuously rotates files based on time
     private DatasetSchema schema;
     private String baseName;
     private String fileExtension;
@@ -21,24 +23,24 @@ public class TimedRollingLogger extends Logger implements AutoCloseable{
     private Character when = 'H'; // TODO: Make the Literals of S M H D
     private boolean utc = false;
     private boolean align = true;
-    private boolean fork = false;
     private boolean skipEmpty = false;
     private String suffix;
 
     private DatasetProfile currentProfile;
-    private Callable<Writer> callback; // TODO: this isn't the write signatture
+    private Callable<Writer> callback; // TODO: this isn't the write signature
     private Scheduler scheduler;
     private int currentBatchTimestamp;
 
-
-
     // TODO: callback: Optional[Callable[[Writer, DatasetProfileView, str], None]]
-
     public TimedRollingLogger(DatasetSchema schema, String baseName, String fileExtension, int interval) {
-        this(schema, baseName, fileExtension, interval, 'H', false, true, false, false);
+        this(schema, baseName, fileExtension, interval, 'H', false, true, false);
     }
 
-    public TimedRollingLogger(DatasetSchema schema, String baseName, String fileExtension, int interval, Character when, boolean utc, boolean align, boolean fork, boolean skipEmpty) {
+    public TimedRollingLogger(DatasetSchema schema, String baseName, String fileExtension, int interval, Character when) {
+        this(schema, baseName, fileExtension, interval, when, false, true, false);
+    }
+
+    public TimedRollingLogger(DatasetSchema schema, String baseName, String fileExtension, int interval, Character when, boolean utc, boolean align, boolean skipEmpty) {
         super(schema);
 
         this.schema = schema;
@@ -48,7 +50,6 @@ public class TimedRollingLogger extends Logger implements AutoCloseable{
         this.when = Character.toUpperCase(when);
         this.utc = utc;
         this.align = align;
-        this.fork = fork;
         this.skipEmpty = skipEmpty;
 
         if(this.baseName == null || this.baseName.isEmpty()) {
@@ -84,7 +85,7 @@ public class TimedRollingLogger extends Logger implements AutoCloseable{
 
         Instant currentTime = Instant.now();
         this.currentBatchTimestamp = this.computeCurrentBatchTimestamp(currentTime.getEpochSecond());
-        this.currentProfile = new DatasetProfile(Optional.ofNullable(schema), Optional.of(currentTime), Optional.of(currentTime));
+        this.currentProfile = new DatasetProfile(schema, currentTime, currentTime);
         int initialRunAfter = (this.currentBatchTimestamp + this.interval) - (int) currentTime.getEpochSecond();
         if(initialRunAfter < 0) {
             // TODO: Add logging error as this shouldn't happen
@@ -94,13 +95,13 @@ public class TimedRollingLogger extends Logger implements AutoCloseable{
         this.scheduler = new Scheduler(initialRunAfter, this.interval, this::doRollover, null);
         this.scheduler.start();
 
-        // autoclosable closes at end
+        // autocloseable closes at end
     }
 
     private int computeCurrentBatchTimestamp(long nowEpoch) {
         int roundedNow = (int) nowEpoch;
         if(this.align){
-           return ((int) Math.floorDiv((roundedNow - 1), this.interval)) * this.interval + this.interval;
+           return (Math.floorDiv((roundedNow - 1), this.interval)) * this.interval + this.interval;
         }
         return roundedNow;
     }
@@ -109,14 +110,20 @@ public class TimedRollingLogger extends Logger implements AutoCloseable{
         writer.check_interval(this.interval);
     }
 
+    private ArrayList<DatasetProfile> getMatchingProfiles(){
+        ArrayList<DatasetProfile> matchingProfiles = new ArrayList<>();
+        matchingProfiles.add(this.currentProfile);
+        return matchingProfiles;
+    }
+
     @Override
     protected ArrayList<DatasetProfile> getMatchingProfiles(Object data) {
-        return null;
+        return this.getMatchingProfiles();
     }
 
     @Override
     protected <O> ArrayList<DatasetProfile> getMatchingProfiles(Map<String, O> data) {
-        return null;
+        return this.getMatchingProfiles();
     }
 
     private void doRollover() {
@@ -127,7 +134,7 @@ public class TimedRollingLogger extends Logger implements AutoCloseable{
         DatasetProfile oldProfile = this.currentProfile;
         Instant currentTime = Instant.now();
         this.currentBatchTimestamp = this.computeCurrentBatchTimestamp(currentTime.getEpochSecond());
-        this.currentProfile = new DatasetProfile(Optional.ofNullable(schema), Optional.of(currentTime), Optional.of(currentTime));
+        this.currentProfile = new DatasetProfile(schema, currentTime, currentTime);
 
         this.flush(oldProfile);
     }
@@ -140,30 +147,12 @@ public class TimedRollingLogger extends Logger implements AutoCloseable{
             return;
         }
 
+        // get time to get name
+        String timedFileName = this.baseName + "_" + this.currentBatchTimestamp + this.fileExtension;
 
-        // TODO: let's go ahead and rethink this whole section
-        int pid = 0;
-        if(this.fork) {
-            pid = 0; // TODO: get pid
-        }
-
-        if(pid > 0) {
-            // TODO: document with logger
-        } else {
-            if(this.fork) {
-                // TODO: document with logger
-            } else {
-                // TODO: document with logger
-            }
-
-            if(this.utc){
-                // TODO: figure out timeTuple of python time.getTime
-            } else {
-                //
-            }
-            // writers
-        }
-
+        // Sleep while the profile is active?
+        // TODO: this is where we call the store list.write
+        // TODO: go through through the writers
     }
 
     public void close() {

@@ -5,11 +5,8 @@ import com.whylogs.core.schemas.DatasetSchema;
 import lombok.*;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
 
 @NoArgsConstructor
 @Getter
@@ -33,13 +30,5 @@ public class TransientLogger extends Logger{
     protected <O> ArrayList<DatasetProfile> getMatchingProfiles(Map<String, O> data) {
         // In this case, we don't have any profiles to match against
         return getMatchingProfiles((Object) data);
-    }
-
-    public void flush(){
-        throw new NotImplementedException();
-    }
-
-    public void close(){
-        throw new NotImplementedException();
     }
 }
