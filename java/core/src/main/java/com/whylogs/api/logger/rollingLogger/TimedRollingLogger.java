@@ -82,7 +82,7 @@ public class TimedRollingLogger extends Logger implements AutoCloseable {
         this.suffix = "%Y-%m-%d";
         break;
       default:
-        throw new IllegalArgumentException("Invalid value for when: " + this.when);
+        throw new IllegalArgumentException("Invalid value for when: " + this.when + ". Must be S, M, H, or D");
     }
 
     this.interval = this.interval * interval; // / multiply by units requested
@@ -105,7 +105,7 @@ public class TimedRollingLogger extends Logger implements AutoCloseable {
   }
 
   private int computeCurrentBatchTimestamp(long nowEpoch) {
-    int roundedNow = (int) nowEpoch;
+    int roundedNow = (int) nowEpoch; // rounds by going from an long to a int (truncates)
     if (this.align) {
       return (Math.floorDiv((roundedNow - 1), this.interval)) * this.interval + this.interval;
     }
