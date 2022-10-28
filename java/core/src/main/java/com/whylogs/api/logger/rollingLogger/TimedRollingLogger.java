@@ -82,7 +82,8 @@ public class TimedRollingLogger extends Logger implements AutoCloseable {
         this.suffix = "%Y-%m-%d";
         break;
       default:
-        throw new IllegalArgumentException("Invalid value for when: " + this.when + ". Must be S, M, H, or D");
+        throw new IllegalArgumentException(
+            "Invalid value for when: " + this.when + ". Must be S, M, H, or D");
     }
 
     this.interval = this.interval * interval; // / multiply by units requested
