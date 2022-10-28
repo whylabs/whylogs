@@ -24,13 +24,13 @@ Welcome! In this section you will find examples on how to integrate `whylogs`' w
 
 | Integration                                                                                                               | Description                                                                  |
 | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| [Apache Spark](/spark-integration)                                                                                        | Profile data in an Apache Spark environment                                  |
+| [Apache Spark](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Pyspark_Profiling.ipynb)     | Profile data in an Apache Spark environment                                  |
 | [BigQuery](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/BigQuery_Example.ipynb) | Profile data queried from a Google BigQuery table                            |
 | [Dask](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Dask_Profiling.ipynb)       | Profile data in parallel with Dask                                           |
-| [Databricks](/integrations-databricks)                                                                                    | Learn how to configure and run whylogs on a Databricks cluster               |
+| [Databricks](https://docs.whylabs.ai/docs/integrations-databricks)                                                        | Learn how to configure and run whylogs on a Databricks cluster               |
 | [Fugue](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Fugue_Profiling.ipynb)     | Use Fugue to unify parallel whylogs profiling tasks                          |
-| [Kafka](/kafka-integration)                                                                                               | Learn how to consume and profile streaming data from an existing Kafka topic |
-| [Ray](/ray-integration)                                                                                                   | Profile Big Data in parallel with the Ray integration                        |
+| [Kafka](https://github.com/whylabs/whylogs/tree/mainline/python/examples/integrations/kafka-example)                      | Learn how to consume and profile streaming data from an existing Kafka topic |
+| [Ray](https://docs.whylabs.ai/docs/ray-integration)                                                                       | Profile Big Data in parallel with the Ray integration                        |
 
 ### Storage
 
@@ -43,12 +43,12 @@ Welcome! In this section you will find examples on how to integrate `whylogs`' w
 
 | Integration                                                                                                                              | Description                                                                              |
 | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| [Apache Airflow](/integration-airflow)                                                                                                   | Use Airflow Operators to create drift reports and run contraint validations on your data |
-| [Feast](/feast-integration)                                                                                                              | Learn how to log features from your Feature Store with Feast and whylogs                 |
+| [Apache Airflow](https://github.com/whylabs/airflow-provider-whylogs)                                                                    | Use Airflow Operators to create drift reports and run contraint validations on your data |
+| [Feast](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Feature_Stores_and_whylogs.ipynb)                  | Learn how to log features from your Feature Store with Feast and whylogs                 |
 | [Flask](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/flask_streaming/flask_with_whylogs.ipynb) | See how you can create a Flask app with this whylogs + WhyLabs integration               |
 | [Flyte](https://docs.flyte.org/projects/cookbook/en/stable/auto/integrations/flytekit_plugins/whylogs_examples/index.html)               | Learn how to use whylogs' DatasetProfileView type natively on your Flyte workflows       |
-| [Github Actions](/integration-github-actions)                                                                                            | Monitor your ML datasets as part of your GitOps CI/CD pipeline                           |
-| [MLflow](/mlflow-integration)                                                                                                            | Log your whylogs profiles to an MLflow experiment                                        |
+| [Github Actions](https://docs.whylabs.ai/docs/github-actions-integration)                                                                | Monitor your ML datasets as part of your GitOps CI/CD pipeline                           |
+| [MLflow](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Mlflow_Logging.ipynb)                             | Log your whylogs profiles to an MLflow experiment                                        |
 | [ZenML](https://blog.zenml.io/zero-six-zero-release/)                                                                                    | Combine different MLOps tools together with ZenML and whylogs!                           |
 
 ### Whylabs
@@ -64,10 +64,10 @@ You can monitor your profiles continuously with the WhyLabs Observability Platfo
 
 ### Others
 
-| Integration                                         | Description                                                                                   |
-| --------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| [whylogs Container](integrations-whylogs-container) | A low code solution to profile your data with a Docker container deployed to your environment |
-| [Java](/java-integration)                           | Profile data with whylogs with Java                                                           |
+| Integration                                                                 | Description                                                                                   |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [whylogs Container](https://whylabs.ai/docs/integrations-whylogs-container) | A low code solution to profile your data with a Docker container deployed to your environment |
+| [Java](https://whylabs.ai/docs/java-integration)                            | Profile data with whylogs with Java                                                           |
 
 ## 🧑🏼‍🔬 Advanced examples
 
