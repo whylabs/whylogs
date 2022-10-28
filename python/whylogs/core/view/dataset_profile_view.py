@@ -47,8 +47,8 @@ class DatasetProfileView(Writable):
         self,
         *,
         columns: Dict[str, ColumnProfileView],
-        dataset_timestamp: datetime,
-        creation_timestamp: datetime,
+        dataset_timestamp: Optional[datetime],
+        creation_timestamp: Optional[datetime],
         metrics: Optional[Dict[str, Any]] = None,
     ):
         self._columns = columns.copy()
@@ -57,11 +57,11 @@ class DatasetProfileView(Writable):
         self._metrics = metrics
 
     @property
-    def dataset_timestamp(self) -> datetime:
+    def dataset_timestamp(self) -> Optional[datetime]:
         return self._dataset_timestamp
 
     @property
-    def creation_timestamp(self) -> datetime:
+    def creation_timestamp(self) -> Optional[datetime]:
         return self._creation_timestamp
 
     @property
@@ -186,6 +186,10 @@ class DatasetProfileView(Writable):
         self._do_write(f)
         f.seek(0)
         return f.read()
+
+    @classmethod
+    def zero(cls) -> "DatasetProfileView":
+        return DatasetProfileView(columns=dict(), dataset_timestamp=None, creation_timestamp=None)
 
     @classmethod
     def deserialize(cls, data: bytes) -> "DatasetProfileView":
