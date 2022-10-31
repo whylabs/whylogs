@@ -520,8 +520,17 @@
             <span class="c1">#   but if we instead iterate over a new artifact contained in dataset profile: &quot;MetricProfiles&quot;, then</span>
             <span class="c1">#   each metric profile can specify which columns its tracks, and we can call like this:</span>
             <span class="c1">#   metric_profile.track(pandas)</span>
+            <span class="k">if</span> <span class="n">pandas</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;whylogs was passed an empty pandas DataFrame so nothing to profile in this call.&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">pandas</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">track_column</span><span class="p">(</span><span class="n">pandas</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+                <span class="n">column_values</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">column_values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;whylogs was passed a pandas DataFrame with key [</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">] but DataFrame.get(</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">) returned nothing!&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">track_column</span><span class="p">(</span><span class="n">column_values</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
