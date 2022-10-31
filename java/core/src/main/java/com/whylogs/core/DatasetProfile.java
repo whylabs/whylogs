@@ -69,7 +69,7 @@ public class DatasetProfile {
     }
   }
 
-  private void doTrack(HashMap<String, Object> row) {
+  private void doTrack(HashMap<String, ?> row) {
     boolean dirty = this.schema.resolve(row);
     if (dirty) {
       Set<String> schemaColumnNames = this.schema.getColNames();

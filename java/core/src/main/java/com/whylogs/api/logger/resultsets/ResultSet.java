@@ -28,7 +28,6 @@ public abstract class ResultSet {
   public abstract Optional<DatasetProfile> profile();
 
   // TODO: Come back for ModelPerformanceMetrics
-
   public void addMetric(String name, Metric<?> metric) throws Error {
     DatasetProfile profile =
         this.profile()

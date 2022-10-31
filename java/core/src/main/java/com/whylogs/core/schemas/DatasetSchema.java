@@ -23,6 +23,7 @@ public class DatasetSchema {
     this(Optional.empty(), Optional.empty());
   }
 
+  // TODO: Use overloading instead of optionals
   public DatasetSchema(Optional<MetricConfig> defaultConfig, Optional<Resolver> resolver) {
     this.columns = new HashMap<>();
     this.defaultConfig = defaultConfig.orElse(new MetricConfig());
