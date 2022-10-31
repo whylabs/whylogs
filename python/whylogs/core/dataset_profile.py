@@ -136,8 +136,17 @@ class DatasetProfile(Writable):
             #   but if we instead iterate over a new artifact contained in dataset profile: "MetricProfiles", then
             #   each metric profile can specify which columns its tracks, and we can call like this:
             #   metric_profile.track(pandas)
+            if pandas.empty:
+                logger.warning("whylogs was passed an empty pandas DataFrame so nothing to profile in this call.")
+                return
             for k in pandas.keys():
-                self._columns[k].track_column(pandas[k])
+                column_values = pandas.get(k)
+                if column_values is None:
+                    logger.error(
+                        f"whylogs was passed a pandas DataFrame with key [{k}] but DataFrame.get({k}) returned nothing!"
+                    )
+                else:
+                    self._columns[k].track_column(column_values)
             return
 
         if row is not None:
