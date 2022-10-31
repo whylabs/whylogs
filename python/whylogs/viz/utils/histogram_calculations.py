@@ -6,12 +6,14 @@ from whylogs_sketching import kll_doubles_sketch  # type: ignore
 
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView
+from whylogs.viz.configs import HistogramConfig
 from whylogs.viz.utils import _calculate_bins
 
 logger = getLogger(__name__)
 
-MAX_HIST_BUCKETS = 30
-HIST_AVG_NUMBER_PER_BUCKET = 4.0
+
+MAX_HIST_BUCKETS = HistogramConfig().max_hist_buckets
+HIST_AVG_NUMBER_PER_BUCKET = HistogramConfig().hist_avg_number_per_bucket
 
 
 class HistogramSummary(TypedDict):

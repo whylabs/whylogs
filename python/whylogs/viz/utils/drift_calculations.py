@@ -1,5 +1,5 @@
 import warnings
-from typing import Dict, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 from scipy import stats  # type: ignore
@@ -9,18 +9,13 @@ from whylogs_sketching import kll_doubles_sketch  # type: ignore
 
 from whylogs.core.view.column_profile_view import ColumnProfileView  # type: ignore
 from whylogs.core.view.dataset_profile_view import DatasetProfileView  # type: ignore
+from whylogs.viz.configs import HellingerConfig, KSTestConfig
+from whylogs.viz.utils import _calculate_bins
 from whylogs.viz.utils.frequent_items_calculations import (
     FrequentStats,
     get_frequent_stats,
     zero_padding_frequent_items,
 )
-from whylogs.viz.utils.histogram_calculations import (
-    HIST_AVG_NUMBER_PER_BUCKET,
-    MAX_HIST_BUCKETS,
-    _calculate_bins,
-)
-
-QUANTILES = list(np.linspace(0, 1, 100))
 
 
 class ColumnDriftValue(TypedDict):
@@ -61,6 +56,9 @@ def _compute_ks_test_p_value(
         kll_floats_sketch summaries
 
     """
+
+    QUANTILES = KSTestConfig().quantiles
+
     if reference_distribution.is_empty() or target_distribution.is_empty():
         return None
 
@@ -198,9 +196,32 @@ def _get_chi2_p_value(target_view_column, reference_view_column) -> Optional[Col
     return chi2_p_value
 
 
+def calculate_hellinger_distance(target_pmf: List[float], reference_pmf: List[float]) -> float:
+    """Calculates hellinger distance between two discrete probability distributions.
+
+    Parameters
+    ----------
+    target_pmf : List[float]
+        Target discrete probability distribution.
+    reference_pmf : List[float]
+        Reference discrete probability distribution.
+
+    Returns
+    -------
+    float
+        The hellinger distance between the two discrete probability distributions.
+        Between 0 (identical distributions) and 1 (completely different distributions).
+    """
+    # https://en.wikipedia.org/wiki/Hellinger_distance
+    distance = euclidean(np.sqrt(target_pmf), np.sqrt(reference_pmf)) / np.sqrt(2)
+    return distance
+
+
 def _get_hellinger_distance(
     target_view_column: ColumnProfileView, reference_view_column: ColumnProfileView, nbins=None
 ) -> Optional[ColumnDriftStatistic]:
+    MAX_HIST_BUCKETS = HellingerConfig().max_hist_buckets
+    HIST_AVG_NUMBER_PER_BUCKET = HellingerConfig().hist_avg_number_per_bucket
     if not nbins:
         nbins = MAX_HIST_BUCKETS
     target_dist_metric = target_view_column.get_metric("distribution")
@@ -224,8 +245,7 @@ def _get_hellinger_distance(
 
     target_pmf = target_kll_sketch.get_pmf(bins)
     ref_pmf = ref_kll_sketch.get_pmf(bins)
-
-    distance = euclidean(np.sqrt(target_pmf), np.sqrt(ref_pmf)) / np.sqrt(2)
+    distance = calculate_hellinger_distance(target_pmf=target_pmf, reference_pmf=ref_pmf)
     return {"statistic": distance, "algorithm": "hellinger"}
 
 
