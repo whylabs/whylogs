@@ -1,0 +1,55 @@
+:py:mod:`whylogs.viz.configs`
+=============================
+
+.. py:module:: whylogs.viz.configs
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.viz.configs.HistogramConfig
+   whylogs.viz.configs.KSTestConfig
+   whylogs.viz.configs.HellingerConfig
+
+
+
+
+.. py:class:: HistogramConfig
+
+   .. py:attribute:: max_hist_buckets
+      :annotation: :int = 30
+
+      
+
+   .. py:attribute:: hist_avg_number_per_bucket
+      :annotation: :int = 4
+
+      
+
+
+.. py:class:: KSTestConfig
+
+   .. py:attribute:: quantiles
+      :annotation: :List[float]
+
+      
+
+
+.. py:class:: HellingerConfig
+
+   .. py:attribute:: max_hist_buckets
+      :annotation: :int = 30
+
+      
+
+   .. py:attribute:: hist_avg_number_per_bucket
+      :annotation: :int = 4
+
+      
+
+

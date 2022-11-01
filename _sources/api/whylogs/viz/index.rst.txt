@@ -20,6 +20,7 @@ Submodules
    :titlesonly:
    :maxdepth: 1
 
+   configs/index.rst
    notebook_profile_viz/index.rst
 
 
