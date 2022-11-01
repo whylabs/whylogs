@@ -218,7 +218,7 @@ def calculate_hellinger_distance(target_pmf: List[float], reference_pmf: List[fl
 
 
 def _get_hellinger_distance(
-    target_view_column: ColumnProfileView, reference_view_column: ColumnProfileView, nbins=None
+    target_view_column: ColumnProfileView, reference_view_column: ColumnProfileView, nbins: Optional[int] = None
 ) -> Optional[ColumnDriftStatistic]:
     MAX_HIST_BUCKETS = HellingerConfig().max_hist_buckets
     HIST_AVG_NUMBER_PER_BUCKET = HellingerConfig().hist_avg_number_per_bucket
