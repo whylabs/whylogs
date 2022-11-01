@@ -33,7 +33,9 @@ class ColumnDriftStatistic(TypedDict):
 
 
 def _compute_ks_test_p_value(
-    target_distribution: kll_doubles_sketch, reference_distribution: kll_doubles_sketch
+    target_distribution: kll_doubles_sketch,
+    reference_distribution: kll_doubles_sketch,
+    quantiles: Optional[List[float]] = None,
 ) -> Optional[ColumnDriftValue]:
     """Compute the Kolmogorov-Smirnov test p-value of two continuous distributions.
 
@@ -48,6 +50,8 @@ def _compute_ks_test_p_value(
     reference_distribution : datasketches.kll_floats_sketch
         A kll_floats_sketch (quantiles sketch) from the reference (expected) distribution's values
         Can be generated from a theoretical distribution, or another sample for the same feature.
+    quantiles: Optional[List[float]], optional
+        Bucket of quantiles used to get the CDF's for both target and reference profiles.
 
     Returns
     -------
@@ -57,7 +61,10 @@ def _compute_ks_test_p_value(
 
     """
 
-    QUANTILES = KSTestConfig().quantiles
+    if not quantiles:
+        QUANTILES = KSTestConfig().quantiles
+    else:
+        QUANTILES = quantiles
 
     if reference_distribution.is_empty() or target_distribution.is_empty():
         return None
