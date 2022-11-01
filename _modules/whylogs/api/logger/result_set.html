@@ -519,7 +519,11 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No profile available. Can only view&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ViewResultSet.view"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ViewResultSet.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span></div>
+
+<div class="viewcode-block" id="ViewResultSet.zero"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ViewResultSet.zero">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">zero</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ViewResultSet&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ViewResultSet</span><span class="p">(</span><span class="n">DatasetProfileView</span><span class="o">.</span><span class="n">zero</span><span class="p">())</span></div></div>
 
 
 <div class="viewcode-block" id="ProfileResultSet"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ProfileResultSet">[docs]</a><span class="k">class</span> <span class="nc">ProfileResultSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
@@ -530,7 +534,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span></div>
 
 <div class="viewcode-block" id="ProfileResultSet.view"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ProfileResultSet.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ProfileResultSet.zero"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ProfileResultSet.zero">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">zero</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ProfileResultSet&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ProfileResultSet</span><span class="p">(</span><span class="n">DatasetProfile</span><span class="p">())</span></div></div>
 
 
 <div class="viewcode-block" id="SegmentedResultSet"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.SegmentedResultSet">[docs]</a><span class="k">class</span> <span class="nc">SegmentedResultSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
@@ -666,7 +674,11 @@
 <div class="viewcode-block" id="SegmentedResultSet.add_metrics_for_segment"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.SegmentedResultSet.add_metrics_for_segment">[docs]</a>    <span class="k">def</span> <span class="nf">add_metrics_for_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span> <span class="n">ModelPerformanceMetrics</span><span class="p">,</span> <span class="n">segment</span><span class="p">:</span> <span class="n">Segment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">parent_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segments</span><span class="p">:</span>
             <span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segments</span><span class="p">[</span><span class="n">segment</span><span class="o">.</span><span class="n">parent_id</span><span class="p">][</span><span class="n">segment</span><span class="p">]</span>
-            <span class="n">profile</span><span class="o">.</span><span class="n">add_model_performance_metrics</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span></div></div>
+            <span class="n">profile</span><span class="o">.</span><span class="n">add_model_performance_metrics</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SegmentedResultSet.zero"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.SegmentedResultSet.zero">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">zero</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;SegmentedResultSet&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SegmentedResultSet</span><span class="p">(</span><span class="n">segments</span><span class="o">=</span><span class="nb">dict</span><span class="p">())</span></div></div>
 </pre></div>
         </article>
       </div>

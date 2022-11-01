@@ -104,6 +104,10 @@ Functions
    .. py:method:: view() -> Optional[whylogs.core.DatasetProfileView]
 
 
+   .. py:method:: zero() -> ProfileResultSet
+      :staticmethod:
+
+
    .. py:method:: read(multi_profile_file: str) -> ResultSet
       :staticmethod:
 

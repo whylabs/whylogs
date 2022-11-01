@@ -50,9 +50,11 @@ Attributes
 
 
    .. py:property:: dataset_timestamp
+      :type: Optional[datetime.datetime]
 
 
    .. py:property:: creation_timestamp
+      :type: Optional[datetime.datetime]
 
 
    .. py:method:: get_default_path() -> str

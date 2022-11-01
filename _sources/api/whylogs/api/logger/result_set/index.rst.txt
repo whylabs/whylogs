@@ -134,6 +134,10 @@ Attributes
    .. py:method:: view() -> Optional[whylogs.core.DatasetProfileView]
 
 
+   .. py:method:: zero() -> ViewResultSet
+      :staticmethod:
+
+
    .. py:method:: read(multi_profile_file: str) -> ResultSet
       :staticmethod:
 
@@ -182,6 +186,10 @@ Attributes
 
 
    .. py:method:: view() -> Optional[whylogs.core.DatasetProfileView]
+
+
+   .. py:method:: zero() -> ProfileResultSet
+      :staticmethod:
 
 
    .. py:method:: read(multi_profile_file: str) -> ResultSet
@@ -254,6 +262,10 @@ Attributes
 
 
    .. py:method:: add_metrics_for_segment(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics, segment: whylogs.core.Segment) -> None
+
+
+   .. py:method:: zero() -> SegmentedResultSet
+      :staticmethod:
 
 
    .. py:method:: read(multi_profile_file: str) -> ResultSet

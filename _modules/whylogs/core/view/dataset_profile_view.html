@@ -431,8 +431,8 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">columns</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">],</span>
-        <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
-        <span class="n">creation_timestamp</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
+        <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
+        <span class="n">creation_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
         <span class="n">metrics</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">columns</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -441,11 +441,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span> <span class="o">=</span> <span class="n">metrics</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dataset_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">dataset_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">creation_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">creation_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_creation_timestamp</span>
 
     <span class="nd">@property</span>
@@ -570,6 +570,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_do_write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DatasetProfileView.zero"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.zero">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DatasetProfileView</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">creation_timestamp</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DatasetProfileView.deserialize"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.deserialize">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">:</span>
