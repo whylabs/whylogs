@@ -1,4 +1,5 @@
 import tempfile
+from datetime import datetime
 from logging import getLogger
 from typing import Any, Dict, Optional, Tuple
 
@@ -60,11 +61,11 @@ class SegmentedDatasetProfileView(Writable):
         return self._profile_view
 
     @property
-    def dataset_timestamp(self):
+    def dataset_timestamp(self) -> Optional[datetime]:
         return self.profile_view.dataset_timestamp
 
     @property
-    def creation_timestamp(self):
+    def creation_timestamp(self) -> Optional[datetime]:
         return self.profile_view.creation_timestamp
 
     def get_default_path(self) -> str:

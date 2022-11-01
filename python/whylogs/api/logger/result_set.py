@@ -137,6 +137,10 @@ class ViewResultSet(ResultSet):
     def view(self) -> Optional[DatasetProfileView]:
         return self._view
 
+    @staticmethod
+    def zero() -> "ViewResultSet":
+        return ViewResultSet(DatasetProfileView.zero())
+
 
 class ProfileResultSet(ResultSet):
     def __init__(self, profile: DatasetProfile) -> None:
@@ -147,6 +151,10 @@ class ProfileResultSet(ResultSet):
 
     def view(self) -> Optional[DatasetProfileView]:
         return self._profile.view()
+
+    @staticmethod
+    def zero() -> "ProfileResultSet":
+        return ProfileResultSet(DatasetProfile())
 
 
 class SegmentedResultSet(ResultSet):
@@ -283,3 +291,7 @@ class SegmentedResultSet(ResultSet):
         if segment.parent_id in self._segments:
             profile = self._segments[segment.parent_id][segment]
             profile.add_model_performance_metrics(metrics)
+
+    @staticmethod
+    def zero() -> "SegmentedResultSet":
+        return SegmentedResultSet(segments=dict())
