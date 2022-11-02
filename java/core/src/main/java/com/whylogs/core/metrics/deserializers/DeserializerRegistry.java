@@ -3,8 +3,8 @@ package com.whylogs.core.metrics.deserializers;
 import java.util.HashMap;
 
 public class DeserializerRegistry {
-  private final HashMap<String, IDeserialization> namedSerializer;
-  private final HashMap<Integer, IDeserialization> idSerializer;
+  private final HashMap<String, Deserializable> namedSerializer;
+  private final HashMap<Integer, Deserializable> idSerializer;
 
   private DeserializerRegistry() {
     this.namedSerializer = new HashMap<>();
@@ -20,7 +20,7 @@ public class DeserializerRegistry {
     return InstanceHolder.instance;
   }
 
-  public <T, A extends IDeserialization> void register(String name, A deserializer) {
+  public <T, A extends Deserializable> void register(String name, A deserializer) {
     namedSerializer.put(name, deserializer);
   }
 
@@ -28,11 +28,11 @@ public class DeserializerRegistry {
     idSerializer.put(typeId, deserializer);
   }
 
-  public IDeserialization get(int typeId) {
+  public Deserializable get(int typeId) {
     return idSerializer.get(typeId);
   }
 
-  public IDeserialization get(String typeName) {
+  public Deserializable get(String typeName) {
     return namedSerializer.get(typeName);
   }
 }

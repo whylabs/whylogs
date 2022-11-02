@@ -2,6 +2,7 @@ package com.whylogs.core.metrics.serializers;
 
 import com.whylogs.core.message.MetricComponentMessage;
 
+// TODO: add annotation support
 public class NumberSerializer implements Serializable<Number> {
 
   @Override
