@@ -2,7 +2,7 @@ package com.whylogs.core.metrics.serializers;
 
 import com.whylogs.core.message.MetricComponentMessage;
 
-public class NumberSerializer implements ISerialization<Number> {
+public class NumberSerializer implements Serializable<Number> {
 
   @Override
   public MetricComponentMessage serialize(Number value) {

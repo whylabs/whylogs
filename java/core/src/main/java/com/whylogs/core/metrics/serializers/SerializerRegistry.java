@@ -7,8 +7,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 
 public class SerializerRegistry {
-  private final HashMap<String, ISerialization> namedSerializer;
-  private final HashMap<Integer, ISerialization> idSerializer;
+  private final HashMap<String, Serializable<?>> namedSerializer;
+  private final HashMap<Integer, Serializable<?>> idSerializer;
 
   private SerializerRegistry() {
     this.namedSerializer = new HashMap<>();
@@ -24,19 +24,19 @@ public class SerializerRegistry {
     return InstanceHolder.instance;
   }
 
-  public <T, A extends ISerialization> void register(String name, A serializer) {
+  public <T, A extends Serializable<?>> void register(String name, A serializer) {
     namedSerializer.put(name, serializer);
   }
 
-  public <T, A extends ISerialization> void register(int typeId, A serializer) {
+  public <T, A extends Serializable<?>> void register(int typeId, A serializer) {
     idSerializer.put(typeId, serializer);
   }
 
-  public ISerialization get(int typeId) {
+  public Serializable<?> get(int typeId) {
     return idSerializer.get(typeId);
   }
 
-  public ISerialization get(String typeName) {
+  public Serializable<?> get(String typeName) {
     return namedSerializer.get(typeName);
   }
 
