@@ -1,5 +1,6 @@
 package com.whylogs.core;
 
+import com.whylogs.core.message.ColumnMessage;
 import com.whylogs.core.metrics.Metric;
 import com.whylogs.core.metrics.OperationResult;
 import com.whylogs.core.schemas.ColumnSchema;
@@ -14,6 +15,8 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class ColumnProfile<T> implements AutoCloseable {
+  // Question: Perhaps it would be good to use a builder pattern here? (Instead of the init method)
+
   // Required
   private final String name;
   private final ColumnSchema schema;
