@@ -1,5 +1,6 @@
 package com.whylogs.core.metrics.components;
 
+import com.whylogs.core.message.MetricComponentMessage;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = false)
@@ -23,4 +24,5 @@ public class IntegralComponent extends MetricComponent<Integer> {
   public IntegralComponent copy() {
     return new IntegralComponent(this.getValue());
   }
+
 }

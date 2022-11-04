@@ -48,7 +48,7 @@ class MetricComponent(Generic[T]):
         if hasattr(self, "mtype"):
             optional_mtype = self.mtype
         self._aggregator = get_aggregator(
-            mtype=optional_mtype, type_id=self.type_id, registry=registries.aggregatorRegistry
+                mtype=optional_mtype, type_id=self.type_id, registry=registries.aggregatorRegistry
         )
         self._serializer = get_serializer(
             mtype=optional_mtype, type_id=self.type_id, registry=registries.serializerRegistry

@@ -6,32 +6,36 @@ import com.whylogs.core.message.MetricComponentMessage;
 public class NumberSerializer implements Serializable<Number> {
 
   @Override
-  public MetricComponentMessage serialize(Number value) {
+  public MetricComponentMessage.Builder serialize(Number value) {
+    MetricComponentMessage.Builder builder = MetricComponentMessage.newBuilder();
+
     if (value instanceof Long) {
-      return MetricComponentMessage.newBuilder().setN((long) value).build();
+      return builder.setN((long) value);
     }
 
     if (value instanceof Integer) {
-      return MetricComponentMessage.newBuilder().setN((int) value).build();
+      return builder.setN((int) value);
     }
 
     if (value instanceof Short) {
-      return MetricComponentMessage.newBuilder().setN((short) value).build();
+      return builder.setN((short) value);
     }
 
     if (value instanceof Double) {
-      return MetricComponentMessage.newBuilder().setD((double) value).build();
+      return builder.setD((double) value);
     }
 
     if (value instanceof Float) {
-      return MetricComponentMessage.newBuilder().setD((float) value).build();
+      return builder.setD((float) value);
     }
 
     throw new IllegalArgumentException("Unsupported number type: " + value.getClass());
   }
 
+  // QUESTION: should this also return a builder so the type can be used?
+  // or return a builder and set the type like in serialize? Not sure the API here
   @Override
   public MetricComponentMessage apply(Number value) {
-    return this.serialize(value);
+    return this.serialize(value).build();
   }
 }
