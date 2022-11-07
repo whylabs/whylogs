@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Optional, Tuple
+from typing import IO, Any, Optional, Tuple
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore
@@ -196,16 +196,16 @@ class WhyLabsWriter(Writer):
 
         with tempfile.NamedTemporaryFile() as tmp_file:
             if has_segments:
-                view.write(path=tmp_file.name, use_v0=True)
+                view.write(file=tmp_file, use_v0=True)
             else:
-                view.write(path=tmp_file.name)
+                view.write(file=tmp_file)
             tmp_file.flush()
 
             dataset_timestamp = view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp_epoch = int(dataset_timestamp.timestamp() * 1000)
             response = self._do_upload(
                 dataset_timestamp=dataset_timestamp_epoch,
-                profile_path=tmp_file.name,
+                profile_file=tmp_file,
             )
         # TODO: retry
         return response
@@ -263,12 +263,22 @@ class WhyLabsWriter(Writer):
         else:
             return False, str(result)
 
+    def _copy_file(self, profile_file: IO[bytes], upload_url: str, dataset_timestamp: int, api_key_id: Optional[str]):
+        http_response = requests.put(upload_url, data=profile_file.read())
+        is_successful = False
+        if http_response.status_code == 200:
+            is_successful = True
+            logger.info(
+                f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
+            )
+        return is_successful, http_response.text
+
     def _do_upload(
-        self,
-        dataset_timestamp: int,
-        profile_path: str,
+        self, dataset_timestamp: int, profile_path: Optional[str] = None, profile_file: Optional[IO[bytes]] = None
     ) -> Tuple[bool, str]:
 
+        assert profile_path or profile_file, "Either a file or file path must be specified when uploading profiles"
         self._validate_org_and_dataset()
         self._validate_api_key()
 
@@ -276,22 +286,18 @@ class WhyLabsWriter(Writer):
         upload_url = self._get_upload_url(dataset_timestamp=dataset_timestamp)
         api_key_id = self._api_key[:10] if self._api_key else None
         try:
-            with open(profile_path, "rb") as f:
-                http_response = requests.put(upload_url, data=f.read())
-                is_successful = False
-                if http_response.status_code == 200:
-                    is_successful = True
-                    logger.info(
-                        f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                        f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
-                    )
-                return is_successful, http_response.text
+            if profile_file:
+                return self._copy_file(profile_file, upload_url, dataset_timestamp, api_key_id)
+            elif profile_path:
+                with open(profile_path, "rb") as f:
+                    return self._copy_file(f, upload_url, dataset_timestamp, api_key_id)
         except requests.RequestException as e:
             logger.info(
                 f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
                 + f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}. Error occurred: {e}"
             )
             return False, str(e)
+        return False, "Either a profile_file or profile_path must be specified when uploading profiles to WhyLabs!"
 
     def _get_or_create_feature_weights_client(self) -> FeatureWeightsApi:
         environment_api_key = os.environ.get(API_KEY_ENV)

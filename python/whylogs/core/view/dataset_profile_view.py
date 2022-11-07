@@ -104,18 +104,24 @@ class DatasetProfileView(Writable):
         return f"profile_{self.creation_timestamp}.bin"
 
     def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
-        path = path or self.get_default_path()
+        file_to_write = kwargs.get("file")
+        path = file_to_write.name if file_to_write else path or self.get_default_path()
         if self._metrics and _MODEL_PERFORMANCE in self._metrics:
             from whylogs.migration.converters import v1_to_dataset_profile_message_v0
 
             message_v0 = v1_to_dataset_profile_message_v0(self, None, None)
-            with open(path, "w+b") as out_f:
-                write_delimited_protobuf(out_f, message_v0)
+            if file_to_write:
+                write_delimited_protobuf(file_to_write, message_v0)
+            else:
+                with open(path, "w+b") as out_f:
+                    write_delimited_protobuf(out_f, message_v0)
 
             return True, path
-
-        with open(path, "w+b") as out_f:
-            self._do_write(out_f)
+        if file_to_write:
+            self._do_write(file_to_write)
+        else:
+            with open(path, "w+b") as out_f:
+                self._do_write(out_f)
         return True, path
 
     def _do_write(self, out_f: BinaryIO) -> Tuple[bool, str]:

@@ -1,7 +1,7 @@
 import tempfile
 from datetime import datetime
 from logging import getLogger
-from typing import Any, Dict, Optional, Tuple
+from typing import IO, Any, Dict, Optional, Tuple
 
 from whylogs.api.writer.writer import Writable
 from whylogs.core.proto import (
@@ -76,14 +76,43 @@ class SegmentedDatasetProfileView(Writable):
 
     def _write_as_v0_message(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         message_v0 = v1_to_dataset_profile_message_v0(self.profile_view, self.segment, self.partition)
-        path = path or self.get_default_path()
-        with open(path, "w+b") as out_f:
-            write_delimited_protobuf(out_f, message_v0)
+        file_to_write = kwargs.get("file")
+        path = file_to_write.name if file_to_write else path or self.get_default_path()
+        if file_to_write:
+            write_delimited_protobuf(file_to_write, message_v0)
+        else:
+            with open(path, "w+b") as out_f:
+                write_delimited_protobuf(out_f, message_v0)
         return True, path
+
+    def _copy_write(
+        self,
+        source_profile_file: IO[bytes],
+        output_file: IO[bytes],
+        total_len: int,
+        dataset_segment_header: DatasetSegmentHeader,
+        dataset_header: DatasetProfileHeader,
+    ):
+        output_file.write(WHYLOGS_MAGIC_HEADER_BYTES)
+        write_delimited_protobuf(output_file, dataset_segment_header)
+        logger.debug(
+            f"Writing segmented profile file: whylogs file and segment headers wrote {output_file.tell()} bytes"
+        )
+        write_delimited_protobuf(output_file, dataset_header)
+        logger.debug(
+            f"Writing segmented profile file: and with dataset header wrote a total of {output_file.tell()} bytes before writing the chunks."
+        )
+
+        source_profile_file.seek(0)
+        while source_profile_file.tell() < total_len:
+            buffer = source_profile_file.read(_BUFFER_CHUNK)
+            output_file.write(buffer)
+        logger.debug(f"Writing segmented profile file: complete! total of {output_file.tell()} bytes written.")
 
     def _write_v1(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         all_metric_component_names = set()
-        path = path or self.get_default_path()
+        file_to_write = kwargs.get("file")
+        path = file_to_write.name if file_to_write else path or self.get_default_path()
 
         # capture the list of all metric component paths
         for col in self.profile_view._columns.values():
@@ -97,6 +126,7 @@ class SegmentedDatasetProfileView(Writable):
             metric_index_to_name[i] = metric_name_list[i]
 
         column_chunk_offsets: Dict[str, ChunkOffsets] = {}
+
         with tempfile.TemporaryFile("w+b") as f:
             for col_name in sorted(self.profile_view._columns.keys()):
                 column_chunk_offsets[col_name] = ChunkOffsets(offsets=[f.tell()])
@@ -169,22 +199,11 @@ class SegmentedDatasetProfileView(Writable):
             # only single segment files at first.
             dataset_segment_header.segments.extend(segments_message_field)
 
-            with open(path, "w+b") as out_f:
-                out_f.write(WHYLOGS_MAGIC_HEADER_BYTES)
-                write_delimited_protobuf(out_f, dataset_segment_header)
-                logger.debug(
-                    f"Writing segmented profile file: whylogs file and segment headers wrote {out_f.tell()} bytes"
-                )
-                write_delimited_protobuf(out_f, dataset_header)
-                logger.debug(
-                    f"Writing segmented profile file: and with dataset header wrote a total of {out_f.tell()} bytes before writing the chunks."
-                )
-
-                f.seek(0)
-                while f.tell() < total_len:
-                    buffer = f.read(_BUFFER_CHUNK)
-                    out_f.write(buffer)
-                logger.debug(f"Writing segmented profile file: complete! total of {out_f.tell()} bytes written.")
+            if file_to_write:
+                self._copy_write(f, file_to_write, total_len, dataset_segment_header, dataset_header)
+            else:
+                with open(path, "w+b") as out_f:
+                    self._copy_write(f, out_f, total_len, dataset_segment_header, dataset_header)
         return True, path
 
     def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:

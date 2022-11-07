@@ -15,7 +15,8 @@ def reader():
 @pytest.fixture(scope="session")
 def file_path(profile_view):
     tmp_file = NamedTemporaryFile()
-    profile_view.write(path=tmp_file.name)
+    profile_view.write(file=tmp_file)
+    tmp_file.flush()
     yield tmp_file.name
     tmp_file.close()
 
