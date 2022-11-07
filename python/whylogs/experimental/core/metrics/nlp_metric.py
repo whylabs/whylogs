@@ -6,31 +6,24 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import scipy as sp
 
-from whylogs.api.logger.logger import Logger
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.datatypes import DataType
 from whylogs.core.metrics import StandardMetric
-from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.metrics.deserializers import deserializer
 from whylogs.core.metrics.metric_components import (
     FractionalComponent,
     IntegralComponent,
     MetricComponent,
 )
-from whylogs.core.metrics.metrics import (
-    DistributionMetric,
-    FrequentItemsMetric,
-    Metric,
-    MetricConfig,
-    OperationResult,
-)
+from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
+from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.metrics.serializers import serializer
 from whylogs.core.preprocessing import ListView, PreprocessedColumn
 from whylogs.core.proto import MetricComponentMessage, MetricMessage
 from whylogs.core.resolvers import Resolver, StandardResolver
-from whylogs.core.schema import ColumnSchema, DatasetSchema
+from whylogs.core.schema import ColumnSchema
 
 _SMALL = np.finfo(float).eps
 
@@ -176,7 +169,7 @@ class UpdatableSvdMetric(SvdMetric):
         assert U0.shape[0] == U1.shape[0]
 
         Q, R = np.linalg.qr(np.concatenate((decay * U0 * S0, U1 * S1), axis=1))
-        UR, S, VRT = sp.sparse.linalg.svds(R, k, return_singular_vectors = "u")
+        UR, S, VRT = sp.sparse.linalg.svds(R, k, return_singular_vectors="u")
         U = np.dot(Q, UR)
         return U, S
 
@@ -230,7 +223,7 @@ class NlpConfig(MetricConfig):
     """
 
     # The default will not allow updates or residual computation
-    svd: SvdMetric = field(default_factory = SvdMetric.zero)
+    svd: SvdMetric = field(default_factory=SvdMetric.zero)
 
 
 @dataclass
@@ -368,6 +361,7 @@ class LsiMetric(MultiMetric):
         result.submetrics = submetrics
         return result
 
+
 """
 TODO: kill these
 
@@ -434,21 +428,20 @@ class ResolverWrapper(Resolver):
 
 
 class NlpLogger:
-
     def __init__(
         self,
         svd_class: Optional[type] = None,  # TODO: maybe make this updatable: bool = False
         svd_config: Optional[SvdMetricConfig] = None,
         svd_state: Optional[MetricMessage] = None,
         schema: Optional[DatasetSchema] = None,
-        column_prefix: str = "nlp"
+        column_prefix: str = "nlp",
     ):
         if svd_class:
             svd_config = svd_config or SvdMetricConfig()
             if svd_state:
-                self._svd_metric = svd_class.from_protobuf(svd_state)
+                self._svd_metric = svd_class.from_protobuf(svd_state)  # type: ignore
             else:
-                self._svd_metric = svd_class.zero(svd_config)
+                self._svd_metric = svd_class.zero(svd_config)  # type: ignore
         else:
             self._svd_metric = SvdMetric.zero(svd_config or SvdMetricConfig())  # TODO: leave this None
 
@@ -462,35 +455,36 @@ class NlpLogger:
             schema.types.update(datatypes)
             orig_config = schema.default_configs
             schema.default_configs = NlpConfig(
-                hll_lg_k = orig_config.hll_lg_k,
-                kll_k = orig_config.kll_k,
-                fi_lg_max_k = orig_config.fi_lg_max_k,
-                fi_disabled = orig_config.fi_disabled,
-                track_unicode_ranges = orig_config.track_unicode_ranges,
-                large_kll_k = orig_config.large_kll_k,
-                unicode_ranges = orig_config.unicode_ranges,
-                lower_case = orig_config.lower_case,
-                normalize = orig_config.normalize,
-                svd = self._svd_metric,
+                hll_lg_k=orig_config.hll_lg_k,
+                kll_k=orig_config.kll_k,
+                fi_lg_max_k=orig_config.fi_lg_max_k,
+                fi_disabled=orig_config.fi_disabled,
+                track_unicode_ranges=orig_config.track_unicode_ranges,
+                large_kll_k=orig_config.large_kll_k,
+                unicode_ranges=orig_config.unicode_ranges,
+                lower_case=orig_config.lower_case,
+                normalize=orig_config.normalize,
+                svd=self._svd_metric,
             )
         else:
             schema = DatasetSchema(
                 types=datatypes,
                 default_configs=NlpConfig(svd=self._svd_metric),
-                resolvers=ResolverWrapper(StandardResolver())
+                resolvers=ResolverWrapper(StandardResolver()),
             )
 
         self._profile = DatasetProfile(schema=schema)
 
-    def log(self,
+    def log(
+        self,
         # TODO: will add obj, pandas, row here eventually
-        terms: Optional[List[str]] = None,    # bag of words
+        terms: Optional[List[str]] = None,  # bag of words
         vector: Optional[np.ndarray] = None,  # term vector representing document
     ) -> ResultSet:
         data = dict()
         if terms:
             data[f"{self._column_prefix}_bag_of_words"] = terms
-            
+
         if vector is not None and self._svd_metric:
             # TODO: if vector and not self._svd_metric: logger.warning("no vector space metric configured")
             objs = [vector]

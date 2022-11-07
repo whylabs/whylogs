@@ -4,9 +4,6 @@ from nltk.stem import PorterStemmer
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.experimental.core.metrics.nlp_metric import (
-    BagOfWordsMetric,
-    LsiMetric,
-    NlpConfig,
     NlpLogger,
     SvdMetric,
     SvdMetricConfig,
@@ -120,7 +117,7 @@ g = entropy(index)
 num_concepts = 10
 old_doc_decay_rate = 1.0
 svd_config = SvdMetricConfig(k=num_concepts, decay=old_doc_decay_rate)
-nlp_logger = NlpLogger(svd_class = UpdatableSvdMetric, svd_config = svd_config)
+nlp_logger = NlpLogger(svd_class=UpdatableSvdMetric, svd_config=svd_config)
 
 for fid in inaugural.fileids():
     stopped = [t.casefold() for t in inaugural.words(fid) if t.casefold() not in stop_words]
@@ -141,12 +138,12 @@ concepts = svd.U.value.transpose()
 for i in range(concepts.shape[0]):
     pos_idx = sorted(range(len(concepts[i])), key=lambda x: concepts[i][x])[-10:]
     neg_idx = sorted(range(len(concepts[i])), key=lambda x: -1 * concepts[i][x])[-5:]
-    print(", ".join([rev_map[j] for j in pos_idx])) # + [rev_map[j] for j in neg_idx]))
+    print(", ".join([rev_map[j] for j in pos_idx]))  # + [rev_map[j] for j in neg_idx]))
 print()
 
 # save reference profile locally
 send_me_to_whylabs = nlp_logger.get_profile()  # small--only has a few standard metrics (no SVD)
-svd_write_me = nlp_logger.get_svd_state()      # big--contains the SVD approximation & parameters
+svd_write_me = nlp_logger.get_svd_state()  # big--contains the SVD approximation & parameters
 
 
 # production tracking, no reference update
