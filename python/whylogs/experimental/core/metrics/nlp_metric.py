@@ -6,7 +6,11 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import scipy as sp
 
+from whylogs.api.logger.logger import Logger
+from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
+from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.configs import SummaryConfig
+from whylogs.core.datatypes import DataType
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.metrics.deserializers import deserializer
@@ -25,6 +29,8 @@ from whylogs.core.metrics.metrics import (
 from whylogs.core.metrics.serializers import serializer
 from whylogs.core.preprocessing import ListView, PreprocessedColumn
 from whylogs.core.proto import MetricComponentMessage, MetricMessage
+from whylogs.core.resolvers import Resolver, StandardResolver
+from whylogs.core.schema import ColumnSchema, DatasetSchema
 
 _SMALL = np.finfo(float).eps
 
@@ -228,12 +234,11 @@ class NlpConfig(MetricConfig):
 
 
 @dataclass
-class NlpMetric(MultiMetric):
+class BagOfWordsMetric(MultiMetric):
     """
-    Natural language processing metric
+    Natural language processing metric -- treat document as a bag of words
     """
 
-    svd: SvdMetric  # use an UpdatableSvdMetric to train while tracking, or SvdMetric if SVD is to be static
     fi_disabled: bool = False
 
     def __post_init__(self):
@@ -252,18 +257,6 @@ class NlpMetric(MultiMetric):
                 "cardinality": StandardMetric.cardinality.zero(),
                 "ints": StandardMetric.ints.zero(),
             },
-            "residual": {
-                "distribuion": StandardMetric.distribution.zero(),
-                "counts": StandardMetric.counts.zero(),
-                "types": StandardMetric.types.zero(),
-                "cardinality": StandardMetric.cardinality.zero(),
-            },
-            "frequent_terms": {
-                "frequent_items": StandardMetric.frequent_items.zero(),
-                "counts": StandardMetric.counts.zero(),
-                "types": StandardMetric.types.zero(),
-                "cardinality": StandardMetric.cardinality.zero(),
-            },
         }
         if not self.fi_disabled:
             submetrics["frequent_terms"] = {
@@ -275,26 +268,20 @@ class NlpMetric(MultiMetric):
             for key in ["doc_length", "term_length"]:
                 submetrics[key]["frequent_items"] = StandardMetric.frequent_items.zero()
 
-        super(NlpMetric, self).__init__(submetrics)
-        super(NlpMetric, self).__post_init__()
+        super(BagOfWordsMetric, self).__init__(submetrics)
+        super(BagOfWordsMetric, self).__post_init__()
 
     @property
     def namespace(self) -> str:
-        return "nlp"
-
-    def merge(self, other: "NlpMetric") -> "NlpMetric":
-        result = super(NlpMetric, self).merge(other)  # update all of our submetrics
-        result.svd = self.svd.merge(other.svd)  # update if self.svd is updatable, else no-op
-        return result
-
-    # MultiMetric {to,from}_protobuf(), to_summary_dict() -- you have to serialize NlpMetric.svd yourself if it updated
+        return "nlp_bow"
 
     def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
         for key in self.submetrics[submetric].keys():
             self.submetrics[submetric][key].columnar_update(data)
 
     # data.list.strings is the list of strings in a (single) document
-    # data.list.objs is as list of np.ndarray. Each ndarray represents one document's term vector.
+    # TODO: consider letting data.list.objs be a List[List[str]] representing a
+    #       batch of documents
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         terms = data.list.strings
@@ -303,8 +290,60 @@ class NlpMetric(MultiMetric):
             self._update_submetrics("term_length", PreprocessedColumn.apply(term_lengths))
             self._update_submetrics("doc_length", PreprocessedColumn.apply([len(terms)]))
             if not self.fi_disabled:
-                self._update_submetrics("frequent_terms", PreprocessedColumn.apply(terms))
+                self._update_submetrics("frequent_terms", data)
 
+        return OperationResult.ok(1)
+
+    @classmethod
+    def zero(cls, cfg: Optional[MetricConfig] = None) -> "BagOfWordsMetric":
+        cfg = cfg or MetricConfig()
+        return BagOfWordsMetric(cfg.fi_disabled)
+
+    @classmethod
+    def from_protobuf(cls, msg: MetricMessage) -> "BagOfWordsMetric":
+        submetrics = cls.submetrics_from_protobuf(msg)
+        result = BagOfWordsMetric()
+        result.submetrics = submetrics
+        return result
+
+
+@dataclass
+class LsiMetric(MultiMetric):
+    """
+    Natural language processing -- latent sematic indexing metric
+    """
+
+    svd: SvdMetric  # use an UpdatableSvdMetric to train while tracking, or SvdMetric if SVD is to be static
+
+    def __post_init__(self):
+        submetrics = {
+            "residual": {
+                "distribuion": StandardMetric.distribution.zero(),
+                "counts": StandardMetric.counts.zero(),
+                "types": StandardMetric.types.zero(),
+                "cardinality": StandardMetric.cardinality.zero(),
+            },
+        }
+        super(LsiMetric, self).__init__(submetrics)
+        super(LsiMetric, self).__post_init__()
+
+    @property
+    def namespace(self) -> str:
+        return "nlp_lsi"
+
+    def merge(self, other: "LsiMetric") -> "LsiMetric":
+        result = super(LsiMetric, self).merge(other)  # update all of our submetrics
+        result.svd = self.svd.merge(other.svd)  # update if self.svd is updatable, else no-op
+        return result
+
+    # MultiMetric {to,from}_protobuf(), to_summary_dict() -- you have to serialize LsiMetric.svd yourself if it updated
+
+    def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
+        for key in self.submetrics[submetric].keys():
+            self.submetrics[submetric][key].columnar_update(data)
+
+    # data.list.objs is as list of np.ndarray. Each ndarray represents one document's term vector.
+    def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         self.svd.columnar_update(data)  # no-op if SVD is not updating
         residuals: List[float] = []
         for vector in data.list.objs:  # TODO: batch these
@@ -312,23 +351,25 @@ class NlpMetric(MultiMetric):
             residuals.append(self.svd.residual(vector))
 
         self._update_submetrics("residual", PreprocessedColumn.apply(residuals))
-        return OperationResult.ok(1)
+        return OperationResult.ok(len(data.list.objs))
 
     @classmethod
-    def zero(cls, cfg: Optional[MetricConfig] = None) -> "NlpMetric":
+    def zero(cls, cfg: Optional[MetricConfig] = None) -> "LsiMetric":
         cfg = cfg or NlpConfig()
         if not isinstance(cfg, NlpConfig):
-            raise ValueError("NlpMetric.zero() requires an NlpConfig argument")
+            raise ValueError("LsiMetric.zero() requires an NlpConfig argument")
 
-        return NlpMetric(cfg.svd, cfg.fi_disabled)
+        return LsiMetric(cfg.svd)
 
     @classmethod
-    def from_protobuf(cls, msg: MetricMessage) -> "NlpMetric":
+    def from_protobuf(cls, msg: MetricMessage) -> "LsiMetric":
         submetrics = cls.submetrics_from_protobuf(msg)
-        result = NlpMetric(SvdMetric.zero(SvdMetricConfig(0, 1.0)))  # not updatable, can't compute residuals
+        result = LsiMetric(SvdMetric.zero(SvdMetricConfig(0, 1.0)))  # not updatable, can't compute residuals
         result.submetrics = submetrics
         return result
 
+"""
+TODO: kill these
 
 def _preprocessifier(terms: List[str], vector: np.ndarray) -> PreprocessedColumn:
     strings = terms
@@ -339,22 +380,131 @@ def _preprocessifier(terms: List[str], vector: np.ndarray) -> PreprocessedColumn
     return result
 
 
+_persistant_logger: Logger = None
+
 def log_nlp(
-    terms: Optional[List[str]] = None,
-    vector: Optional[np.ndarray] = None,
-    column_name: Optional[str] = None,
+    terms: Optional[List[str]] = None,    # bag of words
+    vector: Optional[np.ndarray] = None,  # term vector representing document
+    column_prefix: str = "nlp",
     schemas: Optional[DatasetSchema] = None,
 ) -> ResultSet:
-    column_name = column_name or "nlp"
 
     class NlpResolver(Resolver):
         def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-            return {NlpMetric.get_namespace(): ImageMetric.zero(column_schema.cfg)}
+            if name.endswith("please_resolve_to_bag_of_words"):
+                return {BagOfWordsMetric.get_namespace(): BagOfWordsMetric.zero(colum_schema.cfg)}
+            elif name.endswith("please_resolve_to_lsi"):
+                return {LsiMetric.get_namespace(): LsiMetric.zero(column_schema.cfg)}
+            return super(NlpResolver, self).resolve(name, why_type, column_schema)
 
-    schema = schema or DatasetSchema(
-        types={key: ImageType for key in images.keys()}, default_configs=ImageMetricConfig(), resolvers=ImageResolver()
-    )
-    if not isinstance(schema.default_configs, NlpConfig):
-        raise ValueError("log_nlp requires DatasetSchema with an NlpConfig as default_configs")
+    if _persistant_logger is None:
+        datatypes = {
+            f"{column_prefix}_please_resolve_to_bag_of_words": List[str],
+            f"{column_prefix}_please_resolve_to_lsi": np.ndarray,
+        }
+        schema = schema or DatasetSchema(
+            types=datatypes, default_configs=NlpConfig(), resolvers=NlpResolver()
+        )
+        if not isinstance(schema.default_configs, NlpConfig):
+            raise ValueError("log_nlp requires DatasetSchema with an NlpConfig as default_configs")
 
-    return why.log(row=images, schema=schema)
+        _persistant_logger = _persistant_logger or TransientLogger(schema=schema)
+
+    data: dict()
+    if terms:
+        data[f"{column_prefix}_please_resolve_to_bag_of_words"] = terms
+    if vector:
+        data[f"{column_prefix}_please_resolve_to_lsi"] = vector
+
+    return _persistant_logger.log(row=data)
+"""
+
+
+class ResolverWrapper(Resolver):
+    def __init__(self, resolver: Resolver):
+        self._resolver = resolver
+
+    def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        # TODO: make both metrics optional?
+        if name.endswith("_bag_of_words"):
+            return {BagOfWordsMetric.get_namespace(): BagOfWordsMetric.zero(column_schema.cfg)}
+        elif name.endswith("_lsi"):
+            return {LsiMetric.get_namespace(): LsiMetric.zero(column_schema.cfg)}
+        return self._resolver.resolve(name, why_type, column_schema)
+
+
+class NlpLogger:
+
+    def __init__(
+        self,
+        svd_class: Optional[type] = None,  # TODO: maybe make this updatable: bool = False
+        svd_config: Optional[SvdMetricConfig] = None,
+        svd_state: Optional[MetricMessage] = None,
+        schema: Optional[DatasetSchema] = None,
+        column_prefix: str = "nlp"
+    ):
+        if svd_class:
+            svd_config = svd_config or SvdMetricConfig()
+            if svd_state:
+                self._svd_metric = svd_class.from_protobuf(svd_state)
+            else:
+                self._svd_metric = svd_class.zero(svd_config)
+        else:
+            self._svd_metric = SvdMetric.zero(svd_config or SvdMetricConfig())  # TODO: leave this None
+
+        self._column_prefix = column_prefix
+        datatypes = {
+            f"{column_prefix}_bag_of_words": List[str],
+            f"{column_prefix}_lsi": np.ndarray,
+        }
+        if schema:
+            schema = deepcopy(schema)
+            schema.types.update(datatypes)
+            orig_config = schema.default_configs
+            schema.default_configs = NlpConfig(
+                hll_lg_k = orig_config.hll_lg_k,
+                kll_k = orig_config.kll_k,
+                fi_lg_max_k = orig_config.fi_lg_max_k,
+                fi_disabled = orig_config.fi_disabled,
+                track_unicode_ranges = orig_config.track_unicode_ranges,
+                large_kll_k = orig_config.large_kll_k,
+                unicode_ranges = orig_config.unicode_ranges,
+                lower_case = orig_config.lower_case,
+                normalize = orig_config.normalize,
+                svd = self._svd_metric,
+            )
+        else:
+            schema = DatasetSchema(
+                types=datatypes,
+                default_configs=NlpConfig(svd=self._svd_metric),
+                resolvers=ResolverWrapper(StandardResolver())
+            )
+
+        self._profile = DatasetProfile(schema=schema)
+
+    def log(self,
+        # TODO: will add obj, pandas, row here eventually
+        terms: Optional[List[str]] = None,    # bag of words
+        vector: Optional[np.ndarray] = None,  # term vector representing document
+    ) -> ResultSet:
+        data = dict()
+        if terms:
+            data[f"{self._column_prefix}_bag_of_words"] = terms
+            
+        if vector is not None and self._svd_metric:
+            # TODO: if vector and not self._svd_metric: logger.warning("no vector space metric configured")
+            objs = [vector]
+            list_view = ListView(objs=objs)
+            column_data = PreprocessedColumn()
+            column_data.list = list_view
+            lsi_metric = self._profile._columns[f"{self._column_prefix}_lsi"]._metrics[LsiMetric.get_namespace()]
+            lsi_metric.columnar_update(column_data)
+
+        self._profile.track(row=data)
+        return ProfileResultSet(self._profile)
+
+    def get_svd_state(self) -> MetricMessage:
+        return self._svd_metric.to_protobuf()
+
+    def get_profile(self) -> ResultSet:
+        return ProfileResultSet(self._profile)
