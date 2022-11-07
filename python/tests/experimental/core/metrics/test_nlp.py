@@ -3,9 +3,11 @@ from nltk.corpus import inaugural, stopwords
 from nltk.stem import PorterStemmer
 
 from whylogs.core.configs import SummaryConfig
-from whylogs.extras.nlp_metric import (
+from whylogs.experimental.core.metrics.nlp_metric import (
+    BagOfWordsMetric,
+    log_nlp,
+    LsiMetric,
     NlpConfig,
-    NlpMetric,
     SvdMetric,
     SvdMetricConfig,
     UpdatableSvdMetric,
@@ -127,7 +129,8 @@ svd_config = SvdMetricConfig(k=num_concepts, decay=old_doc_decay_rate)
 svd = UpdatableSvdMetric.zero(svd_config)
 
 nlp_config = NlpConfig(svd=svd)
-ref_nlp = NlpMetric.zero(nlp_config)
+ref_bow = BagOfWordsMetric.zero(nlp_config)
+ref_lsi = LsiMetric.zero(nlp_config)
 
 for fid in inaugural.fileids():
     stopped = [t.casefold() for t in inaugural.words(fid) if t.casefold() not in stop_words]
@@ -139,11 +142,12 @@ for fid in inaugural.fileids():
     for i in range(vocab_size):
         doc_vec[i] = g[i] * np.log(doc_vec[i] + 1.0)
 
-    ref_nlp.columnar_update(_preprocessifier(stemmed, doc_vec))  # update SVD & residual
+    ref_bow.columnar_update(_preprocessifier(stemmed, doc_vec))
+    ref_lsi.columnar_update(_preprocessifier(stemmed, doc_vec))  # update SVD & residual
 
 print(f"\nU: {svd.U.value}\nS: {svd.S.value}\n")
 assert svd.namespace == "updatable_svd"
-assert ref_nlp.svd.namespace == "updatable_svd"
+assert ref_lsi.svd.namespace == "updatable_svd"
 
 
 concepts = svd.U.value.transpose()
@@ -154,8 +158,8 @@ for i in range(concepts.shape[0]):
 print()
 
 # save reference profile locally
-write_me = ref_nlp.to_protobuf()  # small--only has 3 DistributionMetrics and a FrequentItemsMetric
-svd_write_me = ref_nlp.svd.to_protobuf()  # big--contains the SVD approximation & parameters
+write_me = ref_lsi.to_protobuf()  # small--only has 3 DistributionMetrics and a FrequentItemsMetric
+svd_write_me = ref_lsi.svd.to_protobuf()  # big--contains the SVD approximation & parameters
 
 
 # production tracking, no reference update
@@ -169,7 +173,7 @@ nlp_config = NlpConfig(svd=prod_svd)
 print(type(nlp_config.svd.U.value))
 
 #nlp_config = NlpConfig(svd)
-prod_nlp = NlpMetric.zero(cfg=nlp_config)
+prod_lsi = LsiMetric.zero(cfg=nlp_config)
 
 
 residuals = []
@@ -183,8 +187,8 @@ for fid in inaugural.fileids():
     for i in range(vocab_size):
         doc_vec[i] = g[i] * np.log(doc_vec[i] + 1.0)
 
-    residuals.append(prod_nlp.svd.residual(doc_vec))
-    prod_nlp.columnar_update(_preprocessifier(stemmed, doc_vec))  # update residual only, not SVD
+    residuals.append(prod_lsi.svd.residual(doc_vec))
+    prod_lsi.columnar_update(_preprocessifier(stemmed, doc_vec))  # update residual only, not SVD
 
 print(f"\nresiduals: {residuals}\n")
 
@@ -192,9 +196,9 @@ print(f"\nresiduals: {residuals}\n")
 # write_me = prod_nlp.svd.to_protobuf()
 
 # send to whylabs, no SVD state
-send_me = prod_nlp.to_protobuf()
+send_me = prod_lsi.to_protobuf()
 
 # get stats on doc length, term length, SVD "fit"
-view_me = prod_nlp.to_summary_dict(SummaryConfig())
+view_me = prod_lsi.to_summary_dict(SummaryConfig())
 # print(view_me)
 
