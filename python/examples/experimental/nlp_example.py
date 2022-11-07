@@ -5,13 +5,12 @@ from nltk.stem import PorterStemmer
 from whylogs.core.configs import SummaryConfig
 from whylogs.experimental.core.metrics.nlp_metric import (
     BagOfWordsMetric,
-    log_nlp,
     LsiMetric,
     NlpConfig,
+    NlpLogger,
     SvdMetric,
     SvdMetricConfig,
     UpdatableSvdMetric,
-    _preprocessifier,
 )
 
 # from nltk.tokenize import word_tokenize
@@ -70,7 +69,6 @@ stop_words = set(
         ".]",
         "' ",
         '" ',
-        "?",
         "? ",
         "-",
         "- ",
@@ -104,15 +102,11 @@ index = np.zeros((vocab_size, ndocs))
 for fid in inaugural.fileids():
     stopped = [t.casefold() for t in inaugural.words(fid) if t.casefold() not in stop_words]
     stemmed = [stemmer.stem(w) for w in stopped]
-#    print(f"{fid} : {stemmed}")
-#    print()
     doc_lengths.append(len(stemmed))
     for w in stemmed:
         index[vocab_map[w], doc] += 1
     doc += 1
 
-print(f"doc lenghts {doc_lengths}\nmean: {np.array(doc_lengths).mean()}\nstd: {np.std(doc_lengths)}\nmax: {max(doc_lengths)}\nmin: {min(doc_lengths)}\nnum docs: {len(doc_lengths)}\nnum terms: {vocab_size}")
-print()
 
 A = index.copy()
 log_entropy(A)
@@ -124,13 +118,9 @@ g = entropy(index)
 # build reference profile
 
 num_concepts = 10
-old_doc_decay_rate = 0.8
+old_doc_decay_rate = 1.0
 svd_config = SvdMetricConfig(k=num_concepts, decay=old_doc_decay_rate)
-svd = UpdatableSvdMetric.zero(svd_config)
-
-nlp_config = NlpConfig(svd=svd)
-ref_bow = BagOfWordsMetric.zero(nlp_config)
-ref_lsi = LsiMetric.zero(nlp_config)
+nlp_logger = NlpLogger(svd_class = UpdatableSvdMetric, svd_config = svd_config)
 
 for fid in inaugural.fileids():
     stopped = [t.casefold() for t in inaugural.words(fid) if t.casefold() not in stop_words]
@@ -142,12 +132,9 @@ for fid in inaugural.fileids():
     for i in range(vocab_size):
         doc_vec[i] = g[i] * np.log(doc_vec[i] + 1.0)
 
-    ref_bow.columnar_update(_preprocessifier(stemmed, doc_vec))
-    ref_lsi.columnar_update(_preprocessifier(stemmed, doc_vec))  # update SVD & residual
+    nlp_logger.log(stemmed, doc_vec)
 
-print(f"\nU: {svd.U.value}\nS: {svd.S.value}\n")
-assert svd.namespace == "updatable_svd"
-assert ref_lsi.svd.namespace == "updatable_svd"
+svd = nlp_logger._svd_metric
 
 
 concepts = svd.U.value.transpose()
@@ -158,23 +145,15 @@ for i in range(concepts.shape[0]):
 print()
 
 # save reference profile locally
-write_me = ref_lsi.to_protobuf()  # small--only has 3 DistributionMetrics and a FrequentItemsMetric
-svd_write_me = ref_lsi.svd.to_protobuf()  # big--contains the SVD approximation & parameters
+send_me_to_whylabs = nlp_logger.get_profile()  # small--only has a few standard metrics (no SVD)
+svd_write_me = nlp_logger.get_svd_state()      # big--contains the SVD approximation & parameters
 
 
 # production tracking, no reference update
 
-prod_svd = SvdMetric.from_protobuf(svd_write_me)  # use UpdatableSvdMetric to train in production
+prod_logger = NlpLogger(svd_class=SvdMetric, svd_state=svd_write_me)  # use UpdatableSvdMetric to train in production
 
-print(svd)
-print(prod_svd)
-
-nlp_config = NlpConfig(svd=prod_svd)
-print(type(nlp_config.svd.U.value))
-
-#nlp_config = NlpConfig(svd)
-prod_lsi = LsiMetric.zero(cfg=nlp_config)
-
+prod_svd = prod_logger._svd_metric
 
 residuals = []
 for fid in inaugural.fileids():
@@ -187,18 +166,17 @@ for fid in inaugural.fileids():
     for i in range(vocab_size):
         doc_vec[i] = g[i] * np.log(doc_vec[i] + 1.0)
 
-    residuals.append(prod_lsi.svd.residual(doc_vec))
-    prod_lsi.columnar_update(_preprocessifier(stemmed, doc_vec))  # update residual only, not SVD
+    residuals.append(prod_svd.residual(doc_vec))
+    prod_logger.log(stemmed, doc_vec)  # update residual only, not SVD
 
 print(f"\nresiduals: {residuals}\n")
 
 # if we trained with production data
-# write_me = prod_nlp.svd.to_protobuf()
+# svd_write_me = prod_logger.get_svd_state()
 
 # send to whylabs, no SVD state
-send_me = prod_lsi.to_protobuf()
+send_me = prod_logger.get_profile()
 
 # get stats on doc length, term length, SVD "fit"
-view_me = prod_lsi.to_summary_dict(SummaryConfig())
-# print(view_me)
-
+view_me = prod_svd.to_summary_dict(SummaryConfig())
+print(view_me)
