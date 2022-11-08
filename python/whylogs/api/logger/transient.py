@@ -10,6 +10,12 @@ class TransientLogger(Logger):
         super(TransientLogger, self).__init__(schema)
 
     def _get_matching_profiles(
-        self, obj: Any = None, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
+        self,
+        obj: Any = None,
+        *,
+        pandas: Optional[pd.DataFrame] = None,
+        row: Optional[Dict[str, Any]] = None,
+        schema: Optional[DatasetSchema] = None,
     ) -> List[DatasetProfile]:
-        return [DatasetProfile(schema=self._schema)]
+        active_schema = schema or self._schema
+        return [DatasetProfile(schema=active_schema)]
