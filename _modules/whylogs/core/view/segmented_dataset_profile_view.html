@@ -386,7 +386,7 @@
 <span></span><span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">IO</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.writer.writer</span> <span class="kn">import</span> <span class="n">Writable</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.proto</span> <span class="kn">import</span> <span class="p">(</span>
@@ -461,14 +461,43 @@
 
     <span class="k">def</span> <span class="nf">_write_as_v0_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="n">message_v0</span> <span class="o">=</span> <span class="n">v1_to_dataset_profile_message_v0</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_view</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">segment</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="p">)</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_path</span><span class="p">()</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_f</span><span class="p">:</span>
-            <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">out_f</span><span class="p">,</span> <span class="n">message_v0</span><span class="p">)</span>
+        <span class="n">file_to_write</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;file&quot;</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">file_to_write</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">file_to_write</span> <span class="k">else</span> <span class="n">path</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_path</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">file_to_write</span><span class="p">:</span>
+            <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">file_to_write</span><span class="p">,</span> <span class="n">message_v0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_f</span><span class="p">:</span>
+                <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">out_f</span><span class="p">,</span> <span class="n">message_v0</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">path</span>
+
+    <span class="k">def</span> <span class="nf">_copy_write</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">source_profile_file</span><span class="p">:</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">],</span>
+        <span class="n">output_file</span><span class="p">:</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">],</span>
+        <span class="n">total_len</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">dataset_segment_header</span><span class="p">:</span> <span class="n">DatasetSegmentHeader</span><span class="p">,</span>
+        <span class="n">dataset_header</span><span class="p">:</span> <span class="n">DatasetProfileHeader</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">output_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">WHYLOGS_MAGIC_HEADER_BYTES</span><span class="p">)</span>
+        <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">dataset_segment_header</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Writing segmented profile file: whylogs file and segment headers wrote </span><span class="si">{</span><span class="n">output_file</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span><span class="si">}</span><span class="s2"> bytes&quot;</span>
+        <span class="p">)</span>
+        <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">dataset_header</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Writing segmented profile file: and with dataset header wrote a total of </span><span class="si">{</span><span class="n">output_file</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span><span class="si">}</span><span class="s2"> bytes before writing the chunks.&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">source_profile_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">source_profile_file</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">total_len</span><span class="p">:</span>
+            <span class="n">buffer</span> <span class="o">=</span> <span class="n">source_profile_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">_BUFFER_CHUNK</span><span class="p">)</span>
+            <span class="n">output_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing segmented profile file: complete! total of </span><span class="si">{</span><span class="n">output_file</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span><span class="si">}</span><span class="s2"> bytes written.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_write_v1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="n">all_metric_component_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_path</span><span class="p">()</span>
+        <span class="n">file_to_write</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;file&quot;</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">file_to_write</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">file_to_write</span> <span class="k">else</span> <span class="n">path</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_path</span><span class="p">()</span>
 
         <span class="c1"># capture the list of all metric component paths</span>
         <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_view</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -482,6 +511,7 @@
             <span class="n">metric_index_to_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric_name_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
         <span class="n">column_chunk_offsets</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ChunkOffsets</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">(</span><span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_view</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
                 <span class="n">column_chunk_offsets</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ChunkOffsets</span><span class="p">(</span><span class="n">offsets</span><span class="o">=</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()])</span>
@@ -554,22 +584,11 @@
             <span class="c1"># only single segment files at first.</span>
             <span class="n">dataset_segment_header</span><span class="o">.</span><span class="n">segments</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">segments_message_field</span><span class="p">)</span>
 
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_f</span><span class="p">:</span>
-                <span class="n">out_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">WHYLOGS_MAGIC_HEADER_BYTES</span><span class="p">)</span>
-                <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">out_f</span><span class="p">,</span> <span class="n">dataset_segment_header</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Writing segmented profile file: whylogs file and segment headers wrote </span><span class="si">{</span><span class="n">out_f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span><span class="si">}</span><span class="s2"> bytes&quot;</span>
-                <span class="p">)</span>
-                <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">out_f</span><span class="p">,</span> <span class="n">dataset_header</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Writing segmented profile file: and with dataset header wrote a total of </span><span class="si">{</span><span class="n">out_f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span><span class="si">}</span><span class="s2"> bytes before writing the chunks.&quot;</span>
-                <span class="p">)</span>
-
-                <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-                <span class="k">while</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">total_len</span><span class="p">:</span>
-                    <span class="n">buffer</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">_BUFFER_CHUNK</span><span class="p">)</span>
-                    <span class="n">out_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing segmented profile file: complete! total of </span><span class="si">{</span><span class="n">out_f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span><span class="si">}</span><span class="s2"> bytes written.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">file_to_write</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_copy_write</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">file_to_write</span><span class="p">,</span> <span class="n">total_len</span><span class="p">,</span> <span class="n">dataset_segment_header</span><span class="p">,</span> <span class="n">dataset_header</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_f</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_copy_write</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">out_f</span><span class="p">,</span> <span class="n">total_len</span><span class="p">,</span> <span class="n">dataset_segment_header</span><span class="p">,</span> <span class="n">dataset_header</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">path</span>
 
 <div class="viewcode-block" id="SegmentedDatasetProfileView.write"><a class="viewcode-back" href="../../../../api/whylogs/core/view/segmented_dataset_profile_view/index.html#whylogs.core.view.segmented_dataset_profile_view.SegmentedDatasetProfileView.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>

@@ -489,18 +489,24 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;profile_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">creation_timestamp</span><span class="si">}</span><span class="s2">.bin&quot;</span></div>
 
 <div class="viewcode-block" id="DatasetProfileView.write"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_path</span><span class="p">()</span>
+        <span class="n">file_to_write</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;file&quot;</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">file_to_write</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">file_to_write</span> <span class="k">else</span> <span class="n">path</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_path</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span> <span class="ow">and</span> <span class="n">_MODEL_PERFORMANCE</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">whylogs.migration.converters</span> <span class="kn">import</span> <span class="n">v1_to_dataset_profile_message_v0</span>
 
             <span class="n">message_v0</span> <span class="o">=</span> <span class="n">v1_to_dataset_profile_message_v0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_f</span><span class="p">:</span>
-                <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">out_f</span><span class="p">,</span> <span class="n">message_v0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">file_to_write</span><span class="p">:</span>
+                <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">file_to_write</span><span class="p">,</span> <span class="n">message_v0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_f</span><span class="p">:</span>
+                    <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">out_f</span><span class="p">,</span> <span class="n">message_v0</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">path</span>
-
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_f</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_do_write</span><span class="p">(</span><span class="n">out_f</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">file_to_write</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_do_write</span><span class="p">(</span><span class="n">file_to_write</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_f</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_do_write</span><span class="p">(</span><span class="n">out_f</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">path</span></div>
 
     <span class="k">def</span> <span class="nf">_do_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_f</span><span class="p">:</span> <span class="n">BinaryIO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
