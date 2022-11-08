@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import List, Optional, Union
 
-from whylogs.api.store.query import DateQuery
+from whylogs.api.store.query import DateQuery, ProfileNameQuery
 from whylogs.core import DatasetProfileView
 
 
@@ -12,7 +12,7 @@ class ProfileStore(ABC):
         pass
 
     @abstractmethod
-    def get(self, query: DateQuery) -> DatasetProfileView:
+    def get(self, query: Union[DateQuery, ProfileNameQuery]) -> DatasetProfileView:
         pass
 
     @abstractmethod

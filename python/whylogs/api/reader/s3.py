@@ -2,6 +2,7 @@ from tempfile import NamedTemporaryFile
 from typing import Optional
 
 import boto3
+from botocore.client import BaseClient
 
 from whylogs import ResultSet
 from whylogs.api.reader.reader import Reader
@@ -34,8 +35,13 @@ class S3Reader(Reader):
     ```
     """
 
-    def __init__(self, object_name: Optional[str] = None, bucket_name: Optional[str] = None):
-        self.s3_client = boto3.client("s3")
+    def __init__(
+        self,
+        object_name: Optional[str] = None,
+        bucket_name: Optional[str] = None,
+        s3_client: Optional[BaseClient] = None,
+    ):
+        self.s3_client = s3_client or boto3.client("s3")
         self.object_name = object_name or None
         self.bucket_name = bucket_name or ""
 
@@ -46,8 +52,9 @@ class S3Reader(Reader):
             result_set = self.get_file_from_path(path=tmp_file.name)
         return result_set
 
-    def option(self, object_name: Optional[str] = None, bucket_name: Optional[str] = None) -> None:
+    def option(self, object_name: Optional[str] = None, bucket_name: Optional[str] = None) -> "S3Reader":
         if object_name is not None:
             self.object_name = object_name
         if bucket_name is not None:
             self.bucket_name = bucket_name
+        return self
