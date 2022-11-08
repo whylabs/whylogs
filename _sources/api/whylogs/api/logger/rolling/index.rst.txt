@@ -66,7 +66,7 @@ Attributes
    .. py:method:: append_store(store: whylogs.api.store.ProfileStore) -> None
 
 
-   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None) -> whylogs.api.logger.result_set.ResultSet
 
 
 
