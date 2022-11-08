@@ -13,6 +13,15 @@ public class SerializerRegistry {
   private SerializerRegistry() {
     this.namedSerializer = new HashMap<>();
     this.idSerializer = new HashMap<>();
+
+    // TODO: singleton the serializers? No need to make seperate instances
+    // Register Defaults
+    this.namedSerializer.put("int", new NumberSerializer());
+    this.namedSerializer.put("float", new NumberSerializer());
+
+    this.idSerializer.put(0, new NumberSerializer());
+    this.idSerializer.put(1, new NumberSerializer());
+    this.idSerializer.put(2, new NumberSerializer());
   }
 
   // Instance holder to avoid double-checking antipattern for singleton

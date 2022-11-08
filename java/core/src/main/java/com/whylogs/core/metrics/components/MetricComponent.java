@@ -22,14 +22,12 @@ import java.util.function.BiFunction;
 public class MetricComponent<T> {
   // Maybe don't look at this as final if serializer, double check
   private static int TYPE_ID = 0;
-
   @NonNull private final T value;
 
   private Registries registries;
   private Serializable<T> serializer;
   private Deserializable<?> deserializer;
-  private BiFunction aggregator;
-
+  private BiFunction<? extends Object, ? extends Object, ? extends Object> aggregator;
 
   public MetricComponent(@NonNull T value) {
     this.value = value;
@@ -37,7 +35,7 @@ public class MetricComponent<T> {
     this.registries = Registries.getInstance();
     this.serializer = registries.getSerializerRegistry().get(this.getTypeId());
     this.deserializer = registries.getDeserializerRegistry().get(this.getTypeId());
-    this.aggregator = registries.getAggregatorRegistry().get(this.getTypeId());
+    this.aggregator = registries.getAggregatorRegistry().get(this.getTypeName());
 
     if(this.serializer == null || this.deserializer == null) {
       throw new ValueException("Serializer and deserializer must be defined in pairs, but serializer is None");
@@ -65,7 +63,6 @@ public class MetricComponent<T> {
     throw new NotImplementedException();
   }
 
-
   public MetricComponentMessage toProtobuf(){
     if(this.serializer == null) {
       throw new ValueException("Serializer must be defined");
@@ -77,9 +74,26 @@ public class MetricComponent<T> {
   };
 
   // TODO from_protobuf
+  public static <T extends MetricComponent> T fromProtobuf(MetricComponentMessage message, Registries registries) {
+    if(registries == null) {
+      registries = Registries.getInstance();
+    }
+
+    Deserializable<?> deserializer = registries.getDeserializerRegistry().get(message.getTypeId());
+    if(deserializer == null) {
+      throw new ValueException("Deserializer must be defined");
+    }
+
+    // why does it take the different types in the last?
+    // hmmm why did they do the deserialized componenet. HOw can we not loos type info
+    // TODO: this is not correct fix it. Do we need the cursively recurisve pattern?
+
+    return null;
+  }
+
   // TODO: add a from_protobuf iwht registries passed in
-  public static <M extends MetricComponent> M from_protobuf(MetricComponentMessage message) {
+  public static <T extends MetricComponent> T fromProtobuf(MetricComponentMessage message) {
     // TODO: check that it's a MetricComponent dataclass
-    throw new NotImplementedException();
+    return MetricComponent.fromProtobuf(message, null);
   }
 }

@@ -9,6 +9,13 @@ public class DeserializerRegistry {
   private DeserializerRegistry() {
     this.namedSerializer = new HashMap<>();
     this.idSerializer = new HashMap<>();
+
+    // Register Defaults
+    this.namedSerializer.put("n", new IntDeserializer());
+    this.namedSerializer.put("d", new FloatDeserializer());
+    this.idSerializer.put(0, new IntDeserializer());
+    this.idSerializer.put(1, new IntDeserializer());
+    this.idSerializer.put(2, new IntDeserializer());
   }
 
   // Instance holder to avoid double-checking antipattern for singleton
