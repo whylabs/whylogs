@@ -20,6 +20,24 @@ DATETIME_TYPES = [np.datetime64, pd.Timestamp]
 TIMEDELTA_TYPES = ["timedelta64[s]", "timedelta64[ms]"]
 
 
+def test_basic_log_schema() -> None:
+    d = {"col1": [1, 2]}
+    df = pd.DataFrame(data=d)
+    logger = why.logger()
+    results = logger.log(df, schema=DatasetSchema())
+    profile = results.profile()
+    assert profile._columns["col1"]._schema.dtype == np.int64
+
+
+def test_basic_log_schem_constructor() -> None:
+    d = {"col1": [1, 2]}
+    df = pd.DataFrame(data=d)
+    logger = why.logger(schema=DatasetSchema())
+    results = logger.log(df)
+    profile = results.profile()
+    assert profile._columns["col1"]._schema.dtype == np.int64
+
+
 def test_basic_log() -> None:
     d = {"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]}
     df = pd.DataFrame(data=d)

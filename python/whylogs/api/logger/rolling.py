@@ -140,8 +140,18 @@ class TimedRollingLogger(Logger):
         return rounded_now
 
     def _get_matching_profiles(
-        self, obj: Any = None, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
+        self,
+        obj: Any = None,
+        *,
+        pandas: Optional[pd.DataFrame] = None,
+        row: Optional[Dict[str, Any]] = None,
+        schema: Optional[DatasetSchema] = None,
     ) -> List[DatasetProfile]:
+        if schema and schema is not self._schema:
+            raise ValueError(
+                "You cannot pass a DatasetSchema to an instance of TimedRollingLogger.log(),"
+                "because schema is set once when instantiated, please use TimedRollingLogger(schema) instead."
+            )
         return [self._current_profile]
 
     def _do_rollover(self) -> None:
