@@ -88,6 +88,8 @@ class PreprocessedColumn:
         self.pandas = PandasView()
         self.list = ListView()
         self.null_count = 0
+        self.nan_count = 0
+        self.inf_count = 0
         self.bool_count = 0
         self.bool_count_where_true = 0
         self.len = -1
@@ -108,18 +110,31 @@ class PreprocessedColumn:
         if pd.Series is None:
             return None
 
-        self.null_count = len(series[series.isnull()])
-
+        null_series = series[series.isnull()]
         non_null_series = series[series.notnull()]
+
+        self.null_count = len(null_series)
         if pdc.is_numeric_dtype(series.dtype) and not pdc.is_bool_dtype(series.dtype):
+            if series.hasnans:
+                nan_mask = null_series.apply(lambda x: pdc.is_number(x))
+                self.nan_count = len(null_series[nan_mask])
+
             if pdc.is_float_dtype(series.dtype):
                 floats = non_null_series.astype(float)
+                inf_mask = floats.apply(lambda x: np.isinf(x))
+                self.inf_count = len(floats[inf_mask])
                 self.numpy.floats = floats
                 return
             else:
                 ints = non_null_series.astype(int)
                 self.numpy.ints = ints
                 return
+
+        if series.hasnans:
+            na_number_mask = null_series.apply(lambda x: pdc.is_number(x))
+            if not null_series[na_number_mask].empty:
+                nan_floats = null_series[na_number_mask].astype(float)
+                self.nan_count = nan_floats.isna().sum()
 
         # if non_null_series is empty, then early exit.
         # this fixes a bug where empty columns produce masks of types other than bool
@@ -151,6 +166,8 @@ class PreprocessedColumn:
         # Fractional types e.g. decimal.Decimal only if there are values
         if not floats.empty:
             floats = floats.astype(float)
+            inf_mask = floats.apply(lambda x: np.isinf(x))
+            self.inf_count = len(floats[inf_mask])
         self.numpy = NumpyView(floats=floats, ints=ints)
         self.pandas.strings = strings
         self.pandas.objs = objs
