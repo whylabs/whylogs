@@ -18,6 +18,7 @@ class S3Store(ProfileStore):
         self.bucket_name = bucket_name
         self.s3_client = s3_client or client("s3")
         self.s3_reader = s3_reader or S3Reader(s3_client=self.s3_client)
+        logger.warning("S3Store is not yet implemented! Do not use it for production")
 
     def _list_objects(self) -> Iterator[str]:
         response = self.s3_client.list_objects_v2(Bucket=self.bucket_name, Prefix=BASE_PREFIX, Delimiter="/")
@@ -39,6 +40,7 @@ class S3Store(ProfileStore):
         return keys_list
 
     def get(self, query: Union[ProfileNameQuery, DateQuery]) -> DatasetProfileView:
+        # TODO accept DateQuery as parameter
         logger.debug("Fetching profiles with specified StoreQuery...")
         if isinstance(query, ProfileNameQuery):
             available_profiles = self.list()
@@ -60,4 +62,5 @@ class S3Store(ProfileStore):
                 logger.error("Queried profile does not exist!")
 
     def write(self):
+        # TODO implement write logic
         pass
