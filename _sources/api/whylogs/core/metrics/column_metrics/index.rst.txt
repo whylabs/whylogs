@@ -103,6 +103,16 @@ Classes
 
       
 
+   .. py:attribute:: nan
+      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+
+      
+
+   .. py:attribute:: inf
+      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+
+      
+
    .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 
 

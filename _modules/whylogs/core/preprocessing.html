@@ -473,6 +473,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pandas</span> <span class="o">=</span> <span class="n">PandasView</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="n">ListView</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">null_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nan_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inf_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bool_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bool_count_where_true</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">len</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
@@ -493,18 +495,31 @@
         <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">null_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="n">series</span><span class="o">.</span><span class="n">isnull</span><span class="p">()])</span>
-
+        <span class="n">null_series</span> <span class="o">=</span> <span class="n">series</span><span class="p">[</span><span class="n">series</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span>
         <span class="n">non_null_series</span> <span class="o">=</span> <span class="n">series</span><span class="p">[</span><span class="n">series</span><span class="o">.</span><span class="n">notnull</span><span class="p">()]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">null_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">null_series</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">pdc</span><span class="o">.</span><span class="n">is_numeric_dtype</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pdc</span><span class="o">.</span><span class="n">is_bool_dtype</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">dtype</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">series</span><span class="o">.</span><span class="n">hasnans</span><span class="p">:</span>
+                <span class="n">nan_mask</span> <span class="o">=</span> <span class="n">null_series</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pdc</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nan_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">null_series</span><span class="p">[</span><span class="n">nan_mask</span><span class="p">])</span>
+
             <span class="k">if</span> <span class="n">pdc</span><span class="o">.</span><span class="n">is_float_dtype</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">dtype</span><span class="p">):</span>
                 <span class="n">floats</span> <span class="o">=</span> <span class="n">non_null_series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="n">inf_mask</span> <span class="o">=</span> <span class="n">floats</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">inf_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">floats</span><span class="p">[</span><span class="n">inf_mask</span><span class="p">])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">numpy</span><span class="o">.</span><span class="n">floats</span> <span class="o">=</span> <span class="n">floats</span>
                 <span class="k">return</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">ints</span> <span class="o">=</span> <span class="n">non_null_series</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">numpy</span><span class="o">.</span><span class="n">ints</span> <span class="o">=</span> <span class="n">ints</span>
                 <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">series</span><span class="o">.</span><span class="n">hasnans</span><span class="p">:</span>
+            <span class="n">na_number_mask</span> <span class="o">=</span> <span class="n">null_series</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pdc</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">null_series</span><span class="p">[</span><span class="n">na_number_mask</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">nan_floats</span> <span class="o">=</span> <span class="n">null_series</span><span class="p">[</span><span class="n">na_number_mask</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nan_count</span> <span class="o">=</span> <span class="n">nan_floats</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 
         <span class="c1"># if non_null_series is empty, then early exit.</span>
         <span class="c1"># this fixes a bug where empty columns produce masks of types other than bool</span>
@@ -536,6 +551,8 @@
         <span class="c1"># Fractional types e.g. decimal.Decimal only if there are values</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">floats</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="n">floats</span> <span class="o">=</span> <span class="n">floats</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">inf_mask</span> <span class="o">=</span> <span class="n">floats</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inf_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">floats</span><span class="p">[</span><span class="n">inf_mask</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">numpy</span> <span class="o">=</span> <span class="n">NumpyView</span><span class="p">(</span><span class="n">floats</span><span class="o">=</span><span class="n">floats</span><span class="p">,</span> <span class="n">ints</span><span class="o">=</span><span class="n">ints</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pandas</span><span class="o">.</span><span class="n">strings</span> <span class="o">=</span> <span class="n">strings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pandas</span><span class="o">.</span><span class="n">objs</span> <span class="o">=</span> <span class="n">objs</span>

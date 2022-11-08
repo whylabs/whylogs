@@ -477,6 +477,8 @@
 <span class="k">class</span> <span class="nc">ColumnCountsMetric</span><span class="p">(</span><span class="n">Metric</span><span class="p">):</span>
     <span class="n">n</span><span class="p">:</span> <span class="n">IntegralComponent</span>
     <span class="n">null</span><span class="p">:</span> <span class="n">IntegralComponent</span>
+    <span class="n">nan</span><span class="p">:</span> <span class="n">IntegralComponent</span>
+    <span class="n">inf</span><span class="p">:</span> <span class="n">IntegralComponent</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -485,6 +487,9 @@
 <div class="viewcode-block" id="ColumnCountsMetric.columnar_update"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.column_metrics.ColumnCountsMetric.columnar_update">[docs]</a>    <span class="k">def</span> <span class="nf">columnar_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">PreprocessedColumn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OperationResult</span><span class="p">:</span>
         <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">value</span>
         <span class="n">null</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">null</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">nan</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nan</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">inf</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inf</span><span class="o">.</span><span class="n">value</span>
+
         <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">len</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">OperationResult</span><span class="o">.</span><span class="n">ok</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">n</span> <span class="o">+=</span> <span class="n">data</span><span class="o">.</span><span class="n">len</span>
@@ -492,14 +497,23 @@
 
         <span class="n">null</span> <span class="o">+=</span> <span class="n">data</span><span class="o">.</span><span class="n">null_count</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">null</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">null</span><span class="p">)</span>
+
+        <span class="n">nan</span> <span class="o">+=</span> <span class="n">data</span><span class="o">.</span><span class="n">nan_count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nan</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">nan</span><span class="p">)</span>
+
+        <span class="n">inf</span> <span class="o">+=</span> <span class="n">data</span><span class="o">.</span><span class="n">inf_count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">inf</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">OperationResult</span><span class="o">.</span><span class="n">ok</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">len</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ColumnCountsMetric.to_summary_dict"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.column_metrics.ColumnCountsMetric.to_summary_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_summary_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SummaryConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;null&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">null</span><span class="o">.</span><span class="n">value</span><span class="p">}</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;null&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">null</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;nan&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nan</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;inf&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">inf</span><span class="o">.</span><span class="n">value</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="ColumnCountsMetric.zero"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.column_metrics.ColumnCountsMetric.zero">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ColumnCountsMetric&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ColumnCountsMetric</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">null</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span></div></div>
+        <span class="k">return</span> <span class="n">ColumnCountsMetric</span><span class="p">(</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">null</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">nan</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">inf</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span></div></div>
 </pre></div>
         </article>
       </div>
