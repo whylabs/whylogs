@@ -11,12 +11,11 @@ from whylogs.core import DatasetProfileView
 class TestSqliteStore:
     @classmethod
     def setup_class(cls):
-        os.environ["SQLITE_STORE_LOCATION"] = "test_profile_store.db"
+        os.environ["SQLITE_STORE_LOCATION"] = ":memory:"
 
     @classmethod
     def teardown_class(cls):
         del os.environ["SQLITE_STORE_LOCATION"]
-        os.remove("test_profile_store.db")
 
     @pytest.fixture
     def store(self, profile_view):

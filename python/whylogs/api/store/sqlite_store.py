@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class SQLiteStore(ProfileStore):
     def __init__(self):
-        self._db_location = os.getenv("SQLITE_STORE_LOCATION") or "profile_store.db"
+        self._db_location = os.getenv("SQLITE_STORE_LOCATION") or ":memory:"
         self.conn = sqlite3.connect(database=self._db_location)
         self.cur = self.conn.cursor()
 
