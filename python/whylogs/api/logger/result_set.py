@@ -137,9 +137,13 @@ class ViewResultSet(ResultSet):
     def view(self) -> Optional[DatasetProfileView]:
         return self._view
 
+    def merge(self, other: "ViewResultSet") -> "ViewResultSet":
+        return ViewResultSet(self._view.merge(other.view()))
+
     @staticmethod
     def zero() -> "ViewResultSet":
         return ViewResultSet(DatasetProfileView.zero())
+
 
 
 class ProfileResultSet(ResultSet):
@@ -152,9 +156,14 @@ class ProfileResultSet(ResultSet):
     def view(self) -> Optional[DatasetProfileView]:
         return self._profile.view()
 
+    def merge(self, other: "ProfileResultSet") -> "ProfileResultSet":
+        return ProfileResultSet(self._profile.merge(other.profile()))
+
     @staticmethod
     def zero() -> "ProfileResultSet":
         return ProfileResultSet(DatasetProfile())
+
+    
 
 
 class SegmentedResultSet(ResultSet):
