@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timedelta
 
 import pytest
@@ -9,20 +8,13 @@ from whylogs.core import DatasetProfileView
 
 
 class TestSqliteStore:
-    @classmethod
-    def setup_class(cls):
-        os.environ["SQLITE_STORE_LOCATION"] = ":memory:"
-
-    @classmethod
-    def teardown_class(cls):
-        del os.environ["SQLITE_STORE_LOCATION"]
-
     @pytest.fixture
     def store(self, profile_view):
         store = SQLiteStore()
         store.write(profile_view=profile_view, profile_name="my_profile")
         store.write(profile_view=profile_view, profile_name="my_profile")
-        return store
+        yield store
+        del store
 
     def test_sqlite_list(self, store):
         assert store.list() == ["my_profile"]
