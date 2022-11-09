@@ -200,6 +200,7 @@ class WhyLabsWriter(Writer):
             else:
                 view.write(file=tmp_file)
             tmp_file.flush()
+            tmp_file.seek(0)
 
             dataset_timestamp = view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp_epoch = int(dataset_timestamp.timestamp() * 1000)
