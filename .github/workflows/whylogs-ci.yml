@@ -91,11 +91,12 @@ jobs:
           echo $(ls -a)
       - run: |
           echo $(ls -a)
+          cd sqlite-autoconf-3380500
           ./configure
           make
           sudo make install
           export PATH="/usr/local/lib:$PATH"
-        working-directory: sqlite-autoconf-3380500
+          cd ..
 
       - name: Run build, style, and lint checks
         run: make release
