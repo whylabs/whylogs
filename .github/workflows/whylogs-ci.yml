@@ -85,8 +85,20 @@ jobs:
       - name: Run pre-commit hooks
         run: make pre-commit
 
+      - run: |
+          wget https://sqlite.org/2022/sqlite-autoconf-3380500.tar.gz
+          tar -xvf sqlite-autoconf-3380500.tar.gz
+      - run: |
+          ./configure
+          make
+          sudo make install
+          export PATH="/usr/local/lib:$PATH"
+        working-directory: sqlite-autoconf-3380500
+
       - name: Run build, style, and lint checks
         run: make release
+        env:
+          LD_LIBRARY_PATH: "/usr/local/lib"
 
       - name: Smoke test wheel in client environment
         run: |
