@@ -28,7 +28,7 @@ class LocalWriter(Writer):
         full_path = os.path.join(self._base_dir, dest)
         has_segments = isinstance(file, SegmentedDatasetProfileView)
         if has_segments:
-            file.write(full_path, use_v0=True)
+            file.write(full_path)
         else:
             file.write(full_path)  # type: ignore
         return True, full_path

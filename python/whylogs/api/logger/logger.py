@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
+from whylogs.api.logger.segment_cache import SegmentCache
 from whylogs.api.logger.segment_processing import segment_processing
 from whylogs.api.store import ProfileStore
 from whylogs.api.writer import Writer, Writers
@@ -78,6 +79,15 @@ class Logger(ABC):
             raise LoggingError("log() was called without passing in any input!")
 
         active_schema = schema or self._schema
+
+        if active_schema and active_schema.segments:
+            if self._segment_cache is None:
+                self._segment_cache = SegmentCache(active_schema)
+            else:
+                if not self._segment_cache.is_compatible(active_schema):
+                    raise ValueError(
+                        "You cannot redefine a schema's segmentation while having previously defined a different segmentation schema in this logger."
+                    )
 
         # If segments are defined use segment_processing to return a SegmentedResultSet
         if active_schema and active_schema.segments:

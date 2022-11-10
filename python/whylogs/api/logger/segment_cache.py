@@ -1,7 +1,7 @@
 import logging
 import time
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict, Optional, Set
 
 from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.core.dataset_profile import DatasetProfile
@@ -22,6 +22,23 @@ class SegmentCache(object):
     def __init__(self, schema: DatasetSchema, segments: Optional[Dict[Segment, DatasetProfile]] = None):
         self._schema = schema
         self._cache = segments or dict()
+
+    @property
+    def partition_ids(self) -> Set[str]:
+        partition_ids: Set[str] = set()
+        if self._schema.segments:
+            for partition in self._schema.segments.values():
+                partition_ids.add(partition.id)
+        return partition_ids
+
+    def is_compatible(self, schema: DatasetSchema):
+        if schema is None or not schema.segments:
+            return False
+        schema_partition_ids: Set[str] = set()
+        for other_partition in schema.segments.values():
+            schema_partition_ids.add(other_partition.id)
+
+        return schema_partition_ids == self.partition_ids
 
     def get_or_create_matching_profile(self, segment_key: Segment) -> DatasetProfile:
         profile = self._cache.get(segment_key)
