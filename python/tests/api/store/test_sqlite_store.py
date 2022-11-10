@@ -1,3 +1,4 @@
+import sqlite3
 from datetime import datetime, timedelta
 
 import pytest
@@ -10,7 +11,8 @@ from whylogs.core import DatasetProfileView
 class TestSqliteStore:
     @pytest.fixture
     def store(self, profile_view):
-        store = SQLiteStore()
+        connection = sqlite3.connect(":memory:")
+        store = SQLiteStore(connection=connection)
         store.write(profile_view=profile_view, profile_name="my_profile")
         store.write(profile_view=profile_view, profile_name="my_profile")
         yield store

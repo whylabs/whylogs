@@ -2,7 +2,7 @@ import logging
 import os
 import sqlite3
 from datetime import datetime
-from typing import Union
+from typing import Optional, Union
 
 from whylogs.api.store import ProfileStore
 from whylogs.api.store.query import DateQuery, ProfileNameQuery
@@ -12,9 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class SQLiteStore(ProfileStore):
-    def __init__(self):
+    def __init__(self, connection: Optional[sqlite3.Connection] = None):
         self._db_location = os.getenv("SQLITE_STORE_LOCATION") or ":memory:"
-        self.conn = sqlite3.connect(database=self._db_location)
+        self.conn = connection or sqlite3.connect(database=self._db_location)
         self.cur = self.conn.cursor()
 
     def list(self):
