@@ -1,4 +1,5 @@
 import sqlite3
+from typing import List
 from datetime import datetime, timedelta
 
 import pytest
@@ -21,6 +22,13 @@ def store(profile_view, connection):
     store.write(profile_view=profile_view, profile_name="my_profile")
     yield store
     del store
+
+
+def test_sqlite_store_with_closes_connection(connection):
+    with SQLiteStore(connection=connection) as store:
+        assert isinstance(store.list(), List)
+    with pytest.raises(sqlite3.ProgrammingError):
+        store.cur.execute("SELECT * FROM sqlite_schema")
 
 
 def test_sqlite_list(store):

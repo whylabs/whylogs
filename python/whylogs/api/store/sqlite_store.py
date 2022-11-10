@@ -12,10 +12,25 @@ logger = logging.getLogger(__name__)
 
 
 class SQLiteStore(ProfileStore):
-    def __init__(self, connection: Optional[sqlite3.Connection] = None):
-        self._db_location = os.getenv("SQLITE_STORE_LOCATION") or ":memory:"
+    def __init__(self, connection: sqlite3.Connection):
+        self._db_location = os.getenv("SQLITE_STORE_LOCATION")
         self.conn = connection or sqlite3.connect(database=self._db_location)
         self.cur = self.conn.cursor()
+
+    def __exit__(self, exception_type, exception_value, traceback) -> None:
+        try:
+            self.cur.close()
+            self.conn.close()
+        except exception_type:
+            logger.error(traceback)
+            raise exception_value
+
+    def __del__(self) -> None:
+        try:
+            self.cur.close()
+            self.conn.close()
+        except Exception as e:
+            logger.debug(f"Connection not established. Error: {e}")
 
     def list(self):
         response = self.cur.execute("SELECT name FROM sqlite_schema WHERE type='table' ORDER BY name")
@@ -28,10 +43,12 @@ class SQLiteStore(ProfileStore):
             raise ValueError
         if isinstance(query, ProfileNameQuery):
             response = self.cur.execute(f"SELECT profile FROM {query.profile_name}")
-            profile_view = DatasetProfile().view()
         elif isinstance(query, DateQuery):
             sql_query = f"SELECT profile FROM '{query.profile_name}' WHERE date BETWEEN '{query.start_date}' AND '{query.end_date}';"
             response = self.cur.execute(sql_query)
+        else:
+            logger.error("Define a supported Query: Union[ProfileNameQuery, DateQuery]")
+            raise ValueError
         profile_view = DatasetProfile().view()
         for item in response.fetchall():
             profile_view.merge(DatasetProfileView.deserialize(item[0]))
@@ -55,11 +72,3 @@ class SQLiteStore(ProfileStore):
         )
         self.cur.execute(init_db_query)
         self._insert_blob(profile_name=profile_name, profile_view=profile_view.serialize())
-
-    def __del__(self):
-        try:
-            self.cur.close()
-            self.conn.close()
-        except Exception as e:
-            logger.debug(f"Connection not established. Error: {e}")
-            return True
