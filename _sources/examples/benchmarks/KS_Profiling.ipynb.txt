@@ -115,12 +115,12 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "%pip install \"matplotlib\"\n",
-    "%pip install \"numpy\"\n",
-    "%pip install \"seaborn==0.12.1\"\n",
-    "%pip install \"scipy==1.7.3\"\n",
-    "%pip install \"whylogs[viz]\"\t\n",
-    "%pip install \"typing_extensions\""
+    "%pip install 'matplotlib'\n",
+    "%pip install 'numpy'\n",
+    "%pip install 'seaborn==0.12.1'\n",
+    "%pip install 'scipy==1.7.3'\n",
+    "%pip install 'whylogs[viz]'\n",
+    "%pip install 'typing_extensions'"
    ]
   },
   {

@@ -658,36 +658,13 @@ div.rendered_html tbody tr:hover {
 <section id="Install-whylogs-with-Image-Logging-Support">
 <h2>Install whylogs with Image Logging Support<a class="headerlink" href="#Install-whylogs-with-Image-Logging-Support" title="Permalink to this headline">#</a></h2>
 <p>Whylogs uses <a class="reference external" href="https://python-pillow.org">Pillow</a> for working with images. To install whylogs with the optional image support enabled, use the following:</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="n">whylogs</span><span class="p">[</span><span class="n">image</span><span class="p">,</span><span class="n">whylabs</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install -q &#39;whylogs[image,whylabs]&#39;
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Looking in indexes: https://pypi.org/simple, https://us-python.pkg.dev/colab-wheels/public/simple/
-Requirement already satisfied: whylogs[image,whylabs] in /usr/local/lib/python3.7/dist-packages (1.1.4)
-Requirement already satisfied: protobuf&gt;=3.19.4 in /usr/local/lib/python3.7/dist-packages (from whylogs[image,whylabs]) (4.21.6)
-Requirement already satisfied: typing-extensions&gt;=3.10 in /usr/local/lib/python3.7/dist-packages (from whylogs[image,whylabs]) (4.1.1)
-Requirement already satisfied: whylogs-sketching&gt;=3.4.1.dev3 in /usr/local/lib/python3.7/dist-packages (from whylogs[image,whylabs]) (3.4.1.dev3)
-Requirement already satisfied: importlib-metadata&lt;4.3 in /usr/local/lib/python3.7/dist-packages (from whylogs[image,whylabs]) (4.2.0)
-Requirement already satisfied: requests&lt;3.0,&gt;=2.27 in /usr/local/lib/python3.7/dist-packages (from whylogs[image,whylabs]) (2.28.1)
-Requirement already satisfied: whylabs-client==0.4.0.dev0 in /usr/local/lib/python3.7/dist-packages (from whylogs[image,whylabs]) (0.4.0.dev0)
-Requirement already satisfied: Pillow&lt;10.0.0,&gt;=9.2.0 in /usr/local/lib/python3.7/dist-packages (from whylogs[image,whylabs]) (9.2.0)
-Requirement already satisfied: python-dateutil in /usr/local/lib/python3.7/dist-packages (from whylabs-client==0.4.0.dev0-&gt;whylogs[image,whylabs]) (2.8.2)
-Requirement already satisfied: urllib3&gt;=1.25.3 in /usr/local/lib/python3.7/dist-packages (from whylabs-client==0.4.0.dev0-&gt;whylogs[image,whylabs]) (1.26.12)
-Requirement already satisfied: zipp&gt;=0.5 in /usr/local/lib/python3.7/dist-packages (from importlib-metadata&lt;4.3-&gt;whylogs[image,whylabs]) (3.8.1)
-Requirement already satisfied: idna&lt;4,&gt;=2.5 in /usr/local/lib/python3.7/dist-packages (from requests&lt;3.0,&gt;=2.27-&gt;whylogs[image,whylabs]) (2.10)
-Requirement already satisfied: certifi&gt;=2017.4.17 in /usr/local/lib/python3.7/dist-packages (from requests&lt;3.0,&gt;=2.27-&gt;whylogs[image,whylabs]) (2022.6.15)
-Requirement already satisfied: charset-normalizer&lt;3,&gt;=2 in /usr/local/lib/python3.7/dist-packages (from requests&lt;3.0,&gt;=2.27-&gt;whylogs[image,whylabs]) (2.1.1)
-Requirement already satisfied: six&gt;=1.5 in /usr/local/lib/python3.7/dist-packages (from python-dateutil-&gt;whylabs-client==0.4.0.dev0-&gt;whylogs[image,whylabs]) (1.15.0)
-</pre></div></div>
 </div>
 <p>This will install all the dependencies whylogs needs to work with image data.</p>
 </section>
@@ -698,7 +675,7 @@ Requirement already satisfied: six&gt;=1.5 in /usr/local/lib/python3.7/dist-pack
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.extras.image_metric</span> <span class="kn">import</span> <span class="n">log_image</span>
 
@@ -740,7 +717,7 @@ Requirement already satisfied: six&gt;=1.5 in /usr/local/lib/python3.7/dist-pack
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">log_image</span><span class="p">([</span><span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">log_image</span><span class="p">([</span><span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()))</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="s2">&quot;image_1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">())</span>
 </pre></div>
@@ -760,7 +737,7 @@ Requirement already satisfied: six&gt;=1.5 in /usr/local/lib/python3.7/dist-pack
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">log_image</span><span class="p">([</span><span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">],</span> <span class="n">default_column_prefix</span><span class="o">=</span><span class="s2">&quot;awesome_image&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">log_image</span><span class="p">([</span><span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">],</span> <span class="n">default_column_prefix</span><span class="o">=</span><span class="s2">&quot;awesome_image&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()))</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="s2">&quot;awesome_image_0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">())</span>
 </pre></div>
@@ -780,7 +757,7 @@ Requirement already satisfied: six&gt;=1.5 in /usr/local/lib/python3.7/dist-pack
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">log_image</span><span class="p">({</span><span class="s2">&quot;left_camera&quot;</span><span class="p">:</span> <span class="n">img1</span><span class="p">,</span> <span class="s2">&quot;right_camera&quot;</span><span class="p">:</span> <span class="n">img2</span><span class="p">})</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">log_image</span><span class="p">({</span><span class="s2">&quot;left_camera&quot;</span><span class="p">:</span> <span class="n">img1</span><span class="p">,</span> <span class="s2">&quot;right_camera&quot;</span><span class="p">:</span> <span class="n">img2</span><span class="p">})</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="s2">&quot;right_camera&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -801,7 +778,7 @@ Requirement already satisfied: six&gt;=1.5 in /usr/local/lib/python3.7/dist-pack
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="n">piexif</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install piexif
 </pre></div>
 </div>
 </div>
@@ -821,7 +798,7 @@ Successfully installed piexif-1.1.3
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">piexif</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">piexif</span>
 <span class="n">zeroth_ifd</span> <span class="o">=</span> <span class="p">{</span>
   <span class="n">piexif</span><span class="o">.</span><span class="n">ImageIFD</span><span class="o">.</span><span class="n">Artist</span><span class="p">:</span> <span class="sa">u</span><span class="s2">&quot;someone&quot;</span><span class="p">,</span>
   <span class="n">piexif</span><span class="o">.</span><span class="n">ImageIFD</span><span class="o">.</span><span class="n">XResolution</span><span class="p">:</span> <span class="p">(</span><span class="mi">96</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
@@ -863,7 +840,7 @@ columns.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
 <span class="kn">from</span> <span class="nn">PIL.ImageStat</span> <span class="kn">import</span> <span class="n">Stat</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
@@ -908,7 +885,7 @@ of the tags are considered PII). In this example, we’ll exclude the <code clas
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">no_pii_config</span> <span class="o">=</span> <span class="n">ImageMetricConfig</span><span class="p">(</span><span class="n">forbidden_exif_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Artist&quot;</span><span class="p">})</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">no_pii_config</span> <span class="o">=</span> <span class="n">ImageMetricConfig</span><span class="p">(</span><span class="n">forbidden_exif_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Artist&quot;</span><span class="p">})</span>
 <span class="n">no_pii_schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">resolvers</span><span class="o">=</span><span class="n">ImageResolver</span><span class="p">(),</span> <span class="n">default_configs</span><span class="o">=</span><span class="n">no_pii_config</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">log_image</span><span class="p">(</span><span class="n">img3</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">no_pii_schema</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">())</span>
@@ -931,7 +908,7 @@ of the tags are considered PII). In this example, we’ll exclude the <code clas
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">getpass</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">getpass</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
