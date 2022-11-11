@@ -4,6 +4,8 @@ import com.whylogs.core.message.MetricComponentMessage;
 import com.whylogs.core.metrics.Registries;
 import com.whylogs.core.metrics.deserializers.Deserializable;
 import com.whylogs.core.metrics.serializers.Serializable;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiFunction;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import lombok.*;
@@ -84,10 +86,17 @@ public class MetricComponent<T> {
       throw new ValueException("Deserializer must be defined");
     }
 
+    // Yuck I don't like this using reflection
+    try {
+      return (MetricComponent<?>) registries.getComponentRegistry().get(message.getTypeId()).getConstructor(Integer.class).newInstance((Integer) deserializer.deserialize(message));
+    } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+      throw new ValueException("Failed to deserialize message");
+    }
+    /*
     // TODO: move this to a factory or registry for easier addition of new types
     switch (message.getTypeId()) {
       case 0:
-        return new IntegralComponent((Integer) deserializer.deserialize(message));
+        return new IntegralComponent(deserializer.deserialize(message));
       case 1:
         return new MinIntegralComponent((Integer) deserializer.deserialize(message));
       case 2:
@@ -95,10 +104,9 @@ public class MetricComponent<T> {
       default:
         // TODO: this may need the deserialize type
         throw new ValueException("Unknown type id " + message.getTypeId());
-    }
+    }*/
   }
 
-  // TODO: add a from_protobuf iwht registries passed in
   public static MetricComponent<?> fromProtobuf(MetricComponentMessage message) {
     // TODO: check that it's a MetricComponent dataclass
     return MetricComponent.fromProtobuf(message, null);
