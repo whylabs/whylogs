@@ -86,17 +86,11 @@ public class MetricComponent<T> {
       throw new ValueException("Deserializer must be defined");
     }
 
-    // Yuck I don't like this using reflection
-    try {
-      return (MetricComponent<?>) registries.getComponentRegistry().get(message.getTypeId()).getConstructor(Integer.class).newInstance((Integer) deserializer.deserialize(message));
-    } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-      throw new ValueException("Failed to deserialize message");
-    }
-    /*
+
     // TODO: move this to a factory or registry for easier addition of new types
     switch (message.getTypeId()) {
       case 0:
-        return new IntegralComponent(deserializer.deserialize(message));
+        return new IntegralComponent((Integer) deserializer.deserialize(message));
       case 1:
         return new MinIntegralComponent((Integer) deserializer.deserialize(message));
       case 2:
@@ -104,7 +98,7 @@ public class MetricComponent<T> {
       default:
         // TODO: this may need the deserialize type
         throw new ValueException("Unknown type id " + message.getTypeId());
-    }*/
+    }
   }
 
   public static MetricComponent<?> fromProtobuf(MetricComponentMessage message) {
