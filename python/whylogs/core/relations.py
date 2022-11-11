@@ -1,14 +1,14 @@
 import re
-from abc import ABC, abstractmethod, abstractclassmethod
+from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Callable, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Union
 
 
 class ValueGetter(ABC):
     @abstractmethod
     def __call__(self) -> Union[str, int, float]:
         raise NotImplementedError
-        
+
     @abstractmethod
     def serialize(self) -> str:
         raise NotImplementedError
@@ -41,6 +41,7 @@ class Relation(Enum):
     _not = 11
     _udf = 12
 
+
 _TOKEN = ["", "~", "~=", "==", "<", "<=", ">", ">=", "!=", "and", "or", "not", "udf"]
 
 
@@ -49,7 +50,7 @@ class Predicate:
         self,
         op: Relation,
         value: Union[str, int, float, ValueGetter] = 0,
-        udf: Optional[Callable[[Any],bool]] = None,
+        udf: Optional[Callable[[Any], bool]] = None,
         left: Optional["Predicate"] = None,
         right: Optional["Predicate"] = None,
     ):
@@ -63,7 +64,7 @@ class Predicate:
         if isinstance(value, (str, int, float)):
             self._value = LiteralGetter(value)
         else:
-            self._value = value
+            self._value = value  # type: ignore
 
         if op in {Relation._and, Relation._or}:
             if not left and right:
@@ -79,9 +80,9 @@ class Predicate:
     def __call__(self, x: Any) -> bool:
         op = self._op
         if op == Relation.match:
-            return isinstance(x, str) and self._re.match(x)
+            return isinstance(x, str) and bool(self._re.match(x))
         if op == Relation.fullmatch:
-            return isinstance(x, str) and self._re.fullmatch(x)
+            return isinstance(x, str) and bool(self._re.fullmatch(x))
 
         value = self._value()
         if op == Relation.equal:
@@ -97,13 +98,13 @@ class Predicate:
         if op == Relation.neq:
             return x != value
         if op == Relation._udf:
-            return self._udf(x)
+            return self._udf(x)  # type: ignore
         if op == Relation._and:
-            return self._left(x) and self._right(x)
+            return self._left(x) and self._right(x)  # type: ignore
         if op == Relation._or:
-            return self._left(x) or self._right(x)
+            return self._left(x) or self._right(x)  # type: ignore
         if op == Relation._not:
-            return not self._right(x)
+            return not self._right(x)  # type: ignore
 
         raise ValueError("Unknown ConditionCountMetric predicate")
 
@@ -114,7 +115,7 @@ class Predicate:
     @classmethod
     def fullmatch(cls, value: Union[str, int, float, ValueGetter]) -> "Predicate":
         return Predicate(Relation.fullmatch, value)
-    
+
     @classmethod
     def equals(cls, value: Union[str, int, float, ValueGetter]) -> "Predicate":
         return Predicate(Relation.equal, value)
@@ -140,10 +141,10 @@ class Predicate:
         return Predicate(Relation.neq, value)
 
     def and_(self, right: "Predicate") -> "Predicate":
-        return Predicate(Relation._and, left = self, right = right)
+        return Predicate(Relation._and, left=self, right=right)
 
     def or_(self, right: "Predicate") -> "Predicate":
-        return Predicate(Relation._or, left = self, right = right)
+        return Predicate(Relation._or, left=self, right=right)
 
     @classmethod
     def is_(cls, udf: Callable[[Any], bool]) -> "Predicate":
@@ -153,8 +154,8 @@ class Predicate:
         if not (self._left or self._right):
             return f"{_TOKEN[self._op.value]} x {self._value.serialize()}"
         if self._op == Relation._not:
-            return f"not {self._right.serialize()}"
-        return f"{_TOKEN[self._op.value]} {self._left.serialize()} {self._right.serialize()}"
+            return f"not {self._right.serialize()}"  # type: ignore
+        return f"{_TOKEN[self._op.value]} {self._left.serialize()} {self._right.serialize()}"  # type: ignore
 
     def __str__(self) -> str:
         if not (self._left or self._right):
@@ -162,6 +163,7 @@ class Predicate:
         if self._op == Relation._not:
             return f"not {str(self._right)}"
         return f"({str(self._left)}) {_TOKEN[self._op.value]} ({str(self._right)})"
+
 
 def Not(p: Predicate) -> Predicate:
     return Predicate(Relation._not, right=p)

@@ -36,6 +36,6 @@ class ProfileGetter(ValueGetter):
         if self._path not in summary:
             raise ValueError(f"{self._path} is not available in {self._column_name} profile")
         return summary[self._path]
-    
+
     def serialize(self) -> str:
         return f"{self._column_name}:{self._path}"

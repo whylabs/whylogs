@@ -306,22 +306,25 @@ def test_metric_getter() -> None:
     assert summary["above_min"] == len(data) - 1
 
 
-@pytest.mark.parametrize("predicate,serialized", [
-    (X.matches("[a-zA-Z]+"), '~ x "[a-zA-Z]+"'),
-    (X.fullmatch("[a-zA-Z]+"), '~= x "[a-zA-Z]+"'),
-    (X.equals("42"), '== x "42"'),
-    (X.equals(42), '== x 42'),
-    (X.equals(42.1), '== x 42.1'),
-    (X.equals(42.0), '== x 42.0'),
-    (X.less_than(42), '< x 42'),
-    (X.less_or_equals(42), '<= x 42'),
-    (X.greater_than(42), '> x 42'),
-    (X.greater_or_equals(42), '>= x 42'),
-    (X.not_equal(42), '!= x 42'),
-    # (X.is_(even)),
-    (X.greater_than(40).and_(X.less_than(44)), 'and > x 40 < x 44'),
-    (X.less_than(40).or_(X.greater_than(44)), 'or < x 40 > x 44'),
-    (Not(X.matches("[a-zA-Z]+")), 'not ~ x "[a-zA-Z]+"'),
-])
+@pytest.mark.parametrize(
+    "predicate,serialized",
+    [
+        (X.matches("[a-zA-Z]+"), '~ x "[a-zA-Z]+"'),
+        (X.fullmatch("[a-zA-Z]+"), '~= x "[a-zA-Z]+"'),
+        (X.equals("42"), '== x "42"'),
+        (X.equals(42), "== x 42"),
+        (X.equals(42.1), "== x 42.1"),
+        (X.equals(42.0), "== x 42.0"),
+        (X.less_than(42), "< x 42"),
+        (X.less_or_equals(42), "<= x 42"),
+        (X.greater_than(42), "> x 42"),
+        (X.greater_or_equals(42), ">= x 42"),
+        (X.not_equal(42), "!= x 42"),
+        # (X.is_(even)),
+        (X.greater_than(40).and_(X.less_than(44)), "and > x 40 < x 44"),
+        (X.less_than(40).or_(X.greater_than(44)), "or < x 40 > x 44"),
+        (Not(X.matches("[a-zA-Z]+")), 'not ~ x "[a-zA-Z]+"'),
+    ],
+)
 def test_serialization(predicate: X, serialized: str) -> None:
     assert predicate.serialize() == serialized
