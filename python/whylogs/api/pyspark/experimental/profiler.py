@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import reduce
 from logging import getLogger
 from typing import Dict, Iterable, Optional, Tuple
@@ -65,7 +65,7 @@ def collect_column_profile_views(input_df: SparkDataFrame) -> Dict[str, ColumnPr
 def collect_dataset_profile_view(
     input_df: SparkDataFrame, dataset_timestamp: Optional[int] = None, creation_timestamp: Optional[int] = None
 ) -> DatasetProfileView:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     _dataset_timestamp = dataset_timestamp or now
     _creation_timestamp = creation_timestamp or now
