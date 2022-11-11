@@ -4,11 +4,10 @@ import com.whylogs.core.message.MetricComponentMessage;
 import com.whylogs.core.metrics.Registries;
 import com.whylogs.core.metrics.deserializers.Deserializable;
 import com.whylogs.core.metrics.serializers.Serializable;
+import java.util.function.BiFunction;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import lombok.*;
 import org.apache.commons.lang3.NotImplementedException;
-
-import java.util.function.BiFunction;
 
 /**
  * * A metric component is the smallest unit for a metric.
@@ -27,7 +26,7 @@ public class MetricComponent<T> {
   private Registries registries;
   private Serializable<T> serializer;
   private Deserializable<?> deserializer;
-  private BiFunction<? extends Object, ? extends Object, ? extends Object> aggregator;
+  private BiFunction<?, ?, ?> aggregator;
 
   public MetricComponent(@NonNull T value) {
     this.value = value;
@@ -37,8 +36,9 @@ public class MetricComponent<T> {
     this.deserializer = registries.getDeserializerRegistry().get(this.getTypeId());
     this.aggregator = registries.getAggregatorRegistry().get(this.getTypeName());
 
-    if(this.serializer == null || this.deserializer == null) {
-      throw new ValueException("Serializer and deserializer must be defined in pairs, but serializer is None");
+    if (this.serializer == null || this.deserializer == null) {
+      throw new ValueException(
+          "Serializer and deserializer must be defined in pairs, but serializer is None");
     }
   }
 
@@ -55,7 +55,7 @@ public class MetricComponent<T> {
   }
 
   public MetricComponent<T> copy() {
-    return new MetricComponent<T>(value);
+    return new MetricComponent<>(value);
   }
 
   public MetricComponent<T> merge(MetricComponent<T> other) {
@@ -63,36 +63,43 @@ public class MetricComponent<T> {
     throw new NotImplementedException();
   }
 
-  public MetricComponentMessage toProtobuf(){
-    if(this.serializer == null) {
+  public MetricComponentMessage toProtobuf() {
+    if (this.serializer == null) {
       throw new ValueException("Serializer must be defined");
     }
 
-    MetricComponentMessage.Builder builder=  this.serializer.serialize(this.value);
+    MetricComponentMessage.Builder builder = this.serializer.serialize(this.value);
     builder.setTypeId(this.getTypeId());
     return builder.build();
-  };
+  }
 
-  // TODO from_protobuf
-  public static <T extends MetricComponent> T fromProtobuf(MetricComponentMessage message, Registries registries) {
-    if(registries == null) {
+  public static MetricComponent<?> fromProtobuf(
+      MetricComponentMessage message, Registries registries) {
+    if (registries == null) {
       registries = Registries.getInstance();
     }
 
     Deserializable<?> deserializer = registries.getDeserializerRegistry().get(message.getTypeId());
-    if(deserializer == null) {
+    if (deserializer == null) {
       throw new ValueException("Deserializer must be defined");
     }
 
-    // why does it take the different types in the last?
-    // hmmm why did they do the deserialized componenet. HOw can we not loos type info
-    // TODO: this is not correct fix it. Do we need the cursively recurisve pattern?
-
-    return null;
+    // TODO: move this to a factory or registry for easier addition of new types
+    switch (message.getTypeId()) {
+      case 0:
+        return new IntegralComponent((Integer) deserializer.deserialize(message));
+      case 1:
+        return new MinIntegralComponent((Integer) deserializer.deserialize(message));
+      case 2:
+        return new MaxIntegralComponent((Integer) deserializer.deserialize(message));
+      default:
+        // TODO: this may need the deserialize type
+        throw new ValueException("Unknown type id " + message.getTypeId());
+    }
   }
 
   // TODO: add a from_protobuf iwht registries passed in
-  public static <T extends MetricComponent> T fromProtobuf(MetricComponentMessage message) {
+  public static MetricComponent<?> fromProtobuf(MetricComponentMessage message) {
     // TODO: check that it's a MetricComponent dataclass
     return MetricComponent.fromProtobuf(message, null);
   }

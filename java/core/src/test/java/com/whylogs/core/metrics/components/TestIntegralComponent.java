@@ -35,8 +35,9 @@ public class TestIntegralComponent {
 
   @Test
   public void testFromProtobuf() {
-    MetricComponentMessage message = MetricComponentMessage.newBuilder().setTypeId(0).setN(10).build();
-    IntegralComponent component = IntegralComponent.fromProtobuf(message);
+    MetricComponentMessage message =
+        MetricComponentMessage.newBuilder().setTypeId(0).setN(10).build();
+    IntegralComponent component = (IntegralComponent) IntegralComponent.fromProtobuf(message);
     Assert.assertEquals((int) component.getValue(), 10);
   }
 }

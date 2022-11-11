@@ -1,6 +1,5 @@
 package com.whylogs.core.metrics.aggregators;
 
-import com.whylogs.core.metrics.components.IntegralComponent;
 import com.whylogs.core.metrics.components.MetricComponent;
 import java.util.HashMap;
 import java.util.function.BiFunction;
@@ -22,8 +21,6 @@ public class AggregatorRegistry {
     this.idAggregators.put(0, new NumberSumAggregator<Number>());
     this.idAggregators.put(1, new NumberSumAggregator<Integer>());
     this.idAggregators.put(2, new NumberSumAggregator<Integer>());
-
-
   }
 
   // Instance holder to avoid double checking anti-pattern for singlton

@@ -1,5 +1,6 @@
 package com.whylogs.core.metrics.components;
 
+import com.whylogs.core.message.MetricComponentMessage;
 import java.util.ArrayList;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -102,5 +103,33 @@ public class TestMinMaxComponents {
     MaxIntegralComponent max2 = max.copy();
     Assert.assertEquals(max2.getTypeId(), MAX_TYPE);
     Assert.assertEquals((int) max2.getValue(), expected);
+  }
+
+  @Test
+  public void testToProtobuf() {
+    MaxIntegralComponent component = new MaxIntegralComponent(10);
+    MetricComponentMessage message = component.toProtobuf();
+    Assert.assertEquals(message.getTypeId(), 2);
+    Assert.assertEquals(message.getN(), 10);
+
+    MinIntegralComponent min_com = new MinIntegralComponent(-10);
+    MetricComponentMessage min_message = min_com.toProtobuf();
+    Assert.assertEquals(min_message.getTypeId(), 1);
+    Assert.assertEquals(min_message.getN(), -10);
+  }
+
+  @Test
+  public void testFromProtobuf() {
+    MetricComponentMessage max_message =
+        MetricComponentMessage.newBuilder().setTypeId(2).setN(20).build();
+    MaxIntegralComponent max_component =
+        (MaxIntegralComponent) MetricComponent.fromProtobuf(max_message);
+    Assert.assertEquals((int) max_component.getValue(), 20);
+
+    MetricComponentMessage min_message =
+        MetricComponentMessage.newBuilder().setTypeId(1).setN(-10).build();
+    MinIntegralComponent min_component =
+        (MinIntegralComponent) MetricComponent.fromProtobuf(min_message);
+    Assert.assertEquals((int) min_component.getValue(), -10);
   }
 }

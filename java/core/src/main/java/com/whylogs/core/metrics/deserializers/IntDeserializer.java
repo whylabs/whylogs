@@ -2,14 +2,14 @@ package com.whylogs.core.metrics.deserializers;
 
 import com.whylogs.core.message.MetricComponentMessage;
 
-public class IntDeserializer implements Deserializable<Long> {
+public class IntDeserializer implements Deserializable<Integer> {
   @Override
-  public Long deserialize(MetricComponentMessage message) {
-    return message.getN();
+  public Integer deserialize(MetricComponentMessage message) {
+    return (int) message.getN();
   }
 
   @Override
-  public Long apply(MetricComponentMessage message) {
+  public Integer apply(MetricComponentMessage message) {
     return this.deserialize(message);
   }
 }
