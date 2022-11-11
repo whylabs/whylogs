@@ -468,8 +468,8 @@ from datetime import datetime, timedelta</p>
 query = DateQuery(</p>
 <blockquote>
 <div><p>profile_name=”my_model”,
-start_date = datetime.utcnow() - timedelta(days=7),
-end_date = datetime.utcnow()</p>
+start_date = datetime.now(timezone.utc) - timedelta(days=7),
+end_date = datetime.now(timezone.utc)</p>
 </div></blockquote>
 <p>)</p>
 <p>profile_view = store.get(query=query)

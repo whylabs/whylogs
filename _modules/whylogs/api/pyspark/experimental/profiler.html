@@ -383,7 +383,7 @@
         </div>
         <article role="main">
           <h1>Source code for whylogs.api.pyspark.experimental.profiler</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
 <span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
@@ -450,7 +450,7 @@
 <div class="viewcode-block" id="collect_dataset_profile_view"><a class="viewcode-back" href="../../../../../api/whylogs/api/pyspark/experimental/profiler/index.html#whylogs.api.pyspark.experimental.collect_dataset_profile_view">[docs]</a><span class="k">def</span> <span class="nf">collect_dataset_profile_view</span><span class="p">(</span>
     <span class="n">input_df</span><span class="p">:</span> <span class="n">SparkDataFrame</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">creation_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
-    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
 
     <span class="n">_dataset_timestamp</span> <span class="o">=</span> <span class="n">dataset_timestamp</span> <span class="ow">or</span> <span class="n">now</span>
     <span class="n">_creation_timestamp</span> <span class="o">=</span> <span class="n">creation_timestamp</span> <span class="ow">or</span> <span class="n">now</span>

@@ -433,7 +433,7 @@
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">()</span>
-        <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="o">=</span> <span class="n">dataset_timestamp</span> <span class="ow">or</span> <span class="n">now</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_creation_timestamp</span> <span class="o">=</span> <span class="n">creation_timestamp</span> <span class="ow">or</span> <span class="n">now</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">schema</span>
