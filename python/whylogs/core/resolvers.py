@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, TypeVar
+from collections import namedtuple
+from typing import Dict, List, TypeVar, Union
 
 from typing_extensions import TypeAlias
 
@@ -11,10 +12,43 @@ M = TypeVar("M", bound=Metric)
 ColumnSchema: TypeAlias = "ColumnSchema"  # type: ignore
 
 
+AdditionalMetric = namedtuple("AdditionalMetric", "metric column_names why_types")
+
+
 class Resolver(ABC):
     """A resolver maps from a column name and a data type to trackers.
 
     Note that the key of the result dictionaries defines the namespaces of the metrics in the serialized form."""
+
+    def __init__(self):
+        self.additional_metrics: List[AdditionalMetric] = []
+
+    def add_standard_metric(
+        self,
+        metric: StandardMetric,
+        column_names: List[String] = [],
+        why_types: List[Union[Fractional, Integral, String]] = [],
+    ):
+        if not column_names and not why_types:
+            raise ValueError("Either column names or why types must not be empty.")
+        if column_names and why_types:
+            raise ValueError("column_names or why_types should be defined, not both.")
+        if not isinstance(metric, StandardMetric):
+            raise ValueError("Metric must be of StandardMetric type.")
+        additional_metric = AdditionalMetric(metric=metric, column_names=column_names, why_types=why_types)
+        self.additional_metrics.append(additional_metric)
+
+    def resolve_additional_standard_metrics(
+        self, result: Dict[str, Metric], name: str, why_type: DataType, column_schema: ColumnSchema
+    ) -> Dict[str, Metric]:
+        for additional_metric in self.additional_metrics:
+            for column_name in additional_metric.column_names:
+                if column_name == name and additional_metric.metric.name not in result:
+                    result[additional_metric.metric.name] = additional_metric.metric.zero(column_schema.cfg)
+            for target_why_type in additional_metric.why_types:
+                if isinstance(target_why_type, type(why_type)) and additional_metric.metric.name not in result:
+                    result[additional_metric.metric.name] = additional_metric.metric.zero(column_schema.cfg)
+        return result
 
     @abstractmethod
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
@@ -49,6 +83,12 @@ class StandardResolver(Resolver):
         result: Dict[str, Metric] = {}
         for m in metrics:
             result[m.name] = m.zero(column_schema.cfg)
+
+        if self.additional_metrics:
+            result = self.resolve_additional_standard_metrics(
+                result=result, name=name, why_type=why_type, column_schema=column_schema
+            )
+
         return result
 
 
@@ -67,6 +107,12 @@ class LimitedTrackingResolver(Resolver):
         result: Dict[str, Metric] = {}
         for m in metrics:
             result[m.name] = m.zero(column_schema.cfg)
+
+        if self.additional_metrics:
+            result = self.resolve_additional_standard_metrics(
+                result=result, name=name, why_type=why_type, column_schema=column_schema
+            )
+
         return result
 
 
@@ -78,4 +124,10 @@ class HistogramCountingTrackingResolver(Resolver):
         result: Dict[str, Metric] = {}
         for m in metrics:
             result[m.name] = m.zero(column_schema.cfg)
+
+        if self.additional_metrics:
+            result = self.resolve_additional_standard_metrics(
+                result=result, name=name, why_type=why_type, column_schema=column_schema
+            )
+
         return result
