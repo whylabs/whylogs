@@ -1,13 +1,18 @@
-from whylogs.core import DatasetSchema
-from whylogs.core.resolvers import StandardResolver, HistogramCountingTrackingResolver
-import whylogs as why
-from whylogs.core.metrics.condition_count_metric import Condition, ConditionCountConfig, ConditionCountMetric
-from whylogs.core.metrics.condition_count_metric import relation as rel
-from whylogs.core.metrics.condition_count_metric import not_relation as not_rel
-from whylogs.core.metrics.condition_count_metric import Relation as Rel
-from whylogs.core.metrics import StandardMetric
-from whylogs.core.datatypes import String, Fractional
 import pytest
+
+import whylogs as why
+from whylogs.core import DatasetSchema
+from whylogs.core.datatypes import Fractional, String
+from whylogs.core.metrics import StandardMetric
+from whylogs.core.metrics.condition_count_metric import (
+    Condition,
+    ConditionCountConfig,
+    ConditionCountMetric,
+)
+from whylogs.core.metrics.condition_count_metric import Relation as Rel
+from whylogs.core.metrics.condition_count_metric import not_relation as not_rel
+from whylogs.core.metrics.condition_count_metric import relation as rel
+from whylogs.core.resolvers import HistogramCountingTrackingResolver, StandardResolver
 
 
 def test_standard_resolver(pandas_dataframe):
