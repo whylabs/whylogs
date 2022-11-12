@@ -87,7 +87,7 @@ public class MetricComponent<T> {
     }
 
 
-    // TODO: move this to a factory or registry for easier addition of new types
+    // TODO: Next iteration will refactor this to a factor with annotation for easier addition and custom
     switch (message.getTypeId()) {
       case 0:
         return new IntegralComponent((Integer) deserializer.deserialize(message));
