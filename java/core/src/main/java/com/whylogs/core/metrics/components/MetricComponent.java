@@ -4,8 +4,6 @@ import com.whylogs.core.message.MetricComponentMessage;
 import com.whylogs.core.metrics.Registries;
 import com.whylogs.core.metrics.deserializers.Deserializable;
 import com.whylogs.core.metrics.serializers.Serializable;
-
-import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiFunction;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import lombok.*;
@@ -86,8 +84,8 @@ public class MetricComponent<T> {
       throw new ValueException("Deserializer must be defined");
     }
 
-
-    // TODO: Next iteration will refactor this to a factor with annotation for easier addition and custom
+    // TODO: Next iteration will refactor this to a factor with annotation for easier addition and
+    // custom
     switch (message.getTypeId()) {
       case 0:
         return new IntegralComponent((Integer) deserializer.deserialize(message));

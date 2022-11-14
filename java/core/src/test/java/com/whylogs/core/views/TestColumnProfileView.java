@@ -120,12 +120,17 @@ public class TestColumnProfileView {
 
   // TODO: add protobuf tests
   @Test
-  public void testRoundTripProtobuf(){
+  public void testRoundTripProtobuf() {
     ColumnProfileView columnProfileView = getDefaultColumnProfile();
-    ColumnProfileView columnProfileView2 = ColumnProfileView.fromProtobuf(columnProfileView.toProtobuf());
+    ColumnProfileView columnProfileView2 =
+        ColumnProfileView.fromProtobuf(columnProfileView.toProtobuf());
     Assert.assertEquals(columnProfileView.getSuccesses(), columnProfileView2.getSuccesses());
     Assert.assertEquals(columnProfileView.getFailures(), columnProfileView2.getFailures());
-    Assert.assertEquals(columnProfileView.getMetric("ints").get().getClass(), columnProfileView2.getMetric("ints").get().getClass());
-    Assert.assertEquals(columnProfileView.getMetric("ints").get().getComponents().get("max"), columnProfileView2.getMetric("ints").get().getComponents().get("max"));
+    Assert.assertEquals(
+        columnProfileView.getMetric("ints").get().getClass(),
+        columnProfileView2.getMetric("ints").get().getClass());
+    Assert.assertEquals(
+        columnProfileView.getMetric("ints").get().getComponents().get("max"),
+        columnProfileView2.getMetric("ints").get().getComponents().get("max"));
   }
 }

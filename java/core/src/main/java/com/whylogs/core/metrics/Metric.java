@@ -2,7 +2,6 @@ package com.whylogs.core.metrics;
 
 import com.whylogs.core.PreprocessedColumn;
 import com.whylogs.core.SummaryConfig;
-import com.whylogs.core.message.MetricComponentMessage;
 import com.whylogs.core.message.MetricMessage;
 import com.whylogs.core.metrics.components.MetricComponent;
 import java.util.HashMap;
@@ -32,7 +31,7 @@ public abstract class Metric<TSubclass extends Metric> {
 
   // TODO: This needs to be moved to a factory
   public static Metric<?> fromProtobuf(MetricMessage message, String namespace) {
-    switch(namespace) {
+    switch (namespace) {
       case "ints":
         return IntegralMetric.fromProtobuf(message);
 
@@ -41,7 +40,7 @@ public abstract class Metric<TSubclass extends Metric> {
     }
   }
 
-  public MetricMessage toProtobuf(){
+  public MetricMessage toProtobuf() {
     MetricMessage.Builder builder = MetricMessage.newBuilder();
 
     for (String key : getComponents().keySet()) {
@@ -50,5 +49,4 @@ public abstract class Metric<TSubclass extends Metric> {
 
     return builder.build();
   }
-
 }
