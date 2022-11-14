@@ -25,7 +25,7 @@ class LocalWriter(Writer):
     ) -> Tuple[bool, str]:
         dest = dest or self._base_name or file.get_default_path()  # type: ignore
         full_path = os.path.join(self._base_dir, dest)
-        file.write(full_path)
+        file.write(full_path, **kwargs)
         return True, full_path
 
     def option(self, base_dir: Optional[str] = None, base_name: Optional[str] = None) -> "LocalWriter":  # type: ignore
