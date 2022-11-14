@@ -31,7 +31,15 @@ public abstract class Metric<TSubclass extends Metric> {
   }
 
   // TODO: This needs to be moved to a factory
-  public abstract TSubclass fromProtobuf(MetricMessage message);
+  public static Metric<?> fromProtobuf(MetricMessage message, String namespace) {
+    switch(namespace) {
+      case "ints":
+        return IntegralMetric.fromProtobuf(message);
+
+      default:
+        throw new IllegalArgumentException("Unknown metric namespace: " + namespace);
+    }
+  }
 
   public MetricMessage toProtobuf(){
     MetricMessage.Builder builder = MetricMessage.newBuilder();

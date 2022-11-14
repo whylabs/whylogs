@@ -113,19 +113,18 @@ public class IntegralMetric extends Metric<IntegralMetric> {
     return new IntegralMetric(new MaxIntegralComponent(max), new MinIntegralComponent(min));
   }
 
-  @Override
-  public IntegralMetric fromProtobuf(MetricMessage message){
+  public static IntegralMetric fromProtobuf(MetricMessage message){
     HashMap<String, MetricComponent<?>> components = new HashMap<>();
     for(MetricComponentMessage componentMessage: message.getMetricComponentsMap().values()){
         MetricComponent<?> component = MetricComponent.fromProtobuf(componentMessage);
         components.put(component.getTypeName(), component);
     }
 
-    MaxIntegralComponent max = (MaxIntegralComponent) components.get("max");
-    MinIntegralComponent min = (MinIntegralComponent) components.get("min");
+    MaxIntegralComponent max = (MaxIntegralComponent) components.get("MaxIntegralComponent");
+    MinIntegralComponent min = (MinIntegralComponent) components.get("MinIntegralComponent");
 
     if(max == null || min == null){
-        throw new IllegalArgumentException("IntegralMetric must have max and min components");
+      throw new IllegalArgumentException("IntegralMetric must have max and min components");
     }
 
     return new IntegralMetric(max, min);

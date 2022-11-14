@@ -25,7 +25,7 @@ public class TestDeserializer {
 
     MetricComponentMessage message =
         MetricComponentMessage.newBuilder().setTypeId(1).setN(20).build();
-    Assert.assertEquals(registry.get(1).deserialize(message), (long) 20);
+    Assert.assertEquals(registry.get(1).deserialize(message), 20);
   }
 
   @Test

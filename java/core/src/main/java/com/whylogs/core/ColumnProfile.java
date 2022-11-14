@@ -1,5 +1,8 @@
 package com.whylogs.core;
 
+import com.whylogs.core.message.ColumnMessage;
+import com.whylogs.core.message.MetricComponentMessage;
+import com.whylogs.core.message.MetricMessage;
 import com.whylogs.core.metrics.Metric;
 import com.whylogs.core.metrics.OperationResult;
 import com.whylogs.core.schemas.ColumnSchema;
@@ -89,5 +92,9 @@ public class ColumnProfile<T> implements AutoCloseable {
   @Override
   public void close() throws Exception {
     this.flush();
+  }
+
+  public ColumnMessage toProtobuf() {
+    return this.view().toProtobuf();
   }
 }

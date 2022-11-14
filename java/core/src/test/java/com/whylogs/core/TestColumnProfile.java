@@ -140,4 +140,20 @@ public class TestColumnProfile {
     IntegralMetric metric = (IntegralMetric) view.getMetrics().get("ints");
     Assert.assertEquals((int) metric.getMaxComponent().getValue(), 2);
   }
+
+  @Test
+  public void testProtobufRoundTrip(){
+    ColumnProfile<Integer> profile = getDefaultColumnProfile();
+    ArrayList<Integer> column = new ArrayList<>();
+    column.add(1);
+    column.add(2);
+    column.add(null);
+    profile.trackColumn(column);
+
+    ColumnProfileView view = ColumnProfileView.fromProtobuf(profile.toProtobuf());
+    Assert.assertEquals(view.getMetrics().size(), 1);
+    Assert.assertEquals(view.getMetrics().get("ints").getClass(), IntegralMetric.class);
+    IntegralMetric metric = (IntegralMetric) view.getMetrics().get("ints");
+    Assert.assertEquals((int) metric.getMaxComponent().getValue(), 2);
+  }
 }

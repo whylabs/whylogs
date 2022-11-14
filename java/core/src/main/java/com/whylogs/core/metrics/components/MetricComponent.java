@@ -22,7 +22,7 @@ import org.apache.commons.lang3.NotImplementedException;
 @EqualsAndHashCode(callSuper = false)
 public class MetricComponent<T> {
   // Maybe don't look at this as final if serializer, double check
-  private static int TYPE_ID = 0;
+  public static int TYPE_ID = 0;
   @NonNull private final T value;
 
   private Registries registries;
