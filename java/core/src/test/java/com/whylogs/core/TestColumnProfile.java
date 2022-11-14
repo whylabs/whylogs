@@ -142,7 +142,7 @@ public class TestColumnProfile {
   }
 
   @Test
-  public void testProtobufRoundTrip(){
+  public void testProtobufRoundTrip() {
     ColumnProfile<Integer> profile = getDefaultColumnProfile();
     ArrayList<Integer> column = new ArrayList<>();
     column.add(1);

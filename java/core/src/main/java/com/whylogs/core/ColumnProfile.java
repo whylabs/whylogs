@@ -1,8 +1,6 @@
 package com.whylogs.core;
 
 import com.whylogs.core.message.ColumnMessage;
-import com.whylogs.core.message.MetricComponentMessage;
-import com.whylogs.core.message.MetricMessage;
 import com.whylogs.core.metrics.Metric;
 import com.whylogs.core.metrics.OperationResult;
 import com.whylogs.core.schemas.ColumnSchema;
