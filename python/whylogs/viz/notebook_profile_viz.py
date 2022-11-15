@@ -361,7 +361,7 @@ class NotebookProfileVisualizer:
     def constraints_report(self, constraints: Constraints, cell_height: Optional[str] = None) -> HTML:
         page_spec = PageSpecEnum.CONSTRAINTS_REPORT.value
         template = _get_compiled_template(page_spec.html)
-        rendered_template = template({"constraints_report": json.dumps(constraints.report())})
+        rendered_template = template({"constraints_report": json.dumps(constraints.report(with_summary=True))})
         constraints_report = self._display(rendered_template, page_spec, cell_height)
         return constraints_report
 

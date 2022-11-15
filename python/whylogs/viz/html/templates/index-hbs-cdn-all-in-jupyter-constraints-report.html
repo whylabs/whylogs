@@ -76,6 +76,36 @@
         color: #444444;
       }
 
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
+
       .wl-compare-profile {
         position: relative;
         left: 0;
@@ -509,8 +539,7 @@
         }
       }
 
-      const alertListElement = (name, text, status) => {
-
+      const alertListElement = (name, text, status, summary) => {
         return (
           `<div
              data-inferred-type=${alertListItemStatus(status, "passed", "failed")}
@@ -530,11 +559,27 @@
               ${
                 alertListItemStatus(
                   status,
-                  `<div class="turquoise-background-color alert-tag">Passed</div>`,
-                  `<div class="bordeaux-background-color alert-tag">Failed</div>`
+                  `
+                  <div class="tooltip-full-number">
+                    <div class="turquoise-background-color alert-tag">Passed
+                      <span class="tooltiptext">
+                          <pre class="mb-1"> ${JSON.stringify(summary, null, 2)} </pre>
+                        </span>  
+                    </div>
+                  </div>`
+
+                  ,
+                  `
+                  <div class="tooltip-full-number">
+                    <div class="bordeaux-background-color alert-tag">Failed
+                      <span class="tooltiptext">
+                        <pre class="mb-1"> ${JSON.stringify(summary, null, 2)} </pre>
+                        </span>  
+                    </div>
+                  </div>`
                 )
               }
-          </div>`
+              </div>`
         )
       }
 
@@ -553,11 +598,11 @@
         let alertListItem = column.map((value) => {
           if (value[1][0]) {
             let alertListValue = value[1].map((cstr)=>{
-              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false))
+              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false), value[3])
             })
             return alertListValue.join(' ')
           } else {
-            return alertListElement('', value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
+            return alertListElement('', value[0], value[2] === 0 ||  (failedConstraints++, false), value[3])
           }
         })
          $(document).ready(() => {
