@@ -1,10 +1,14 @@
 import os.path
 import pickle
+import time
 
 import pandas as pd
 
 import whylogs as why
 from whylogs.core import DatasetProfile, DatasetProfileView
+from whylogs.core.model_performance_metrics.model_performance_metrics import (
+    ModelPerformanceMetrics,
+)
 
 
 def _assert_profiles_are_equal(profile_a: DatasetProfileView, profile_b: DatasetProfileView) -> None:
@@ -138,10 +142,44 @@ def test_to_pandas_empty() -> None:
     assert pdf.empty
 
 
-def test_empty_datasetprofile_timestamps() -> None:
+def test_default_datasetprofile_timestamps() -> None:
+    stamp0 = time.time()
     view = DatasetProfile().view()
-    view.creation_timestamp is None
-    view.dataset_timestamp is None
+    stamp1 = time.time()
+    assert view is not None
+    assert view.creation_timestamp is not None
+    assert view.dataset_timestamp is not None
+    assert stamp0 <= view.creation_timestamp.timestamp() <= stamp1
+    assert stamp0 <= view.dataset_timestamp.timestamp() <= stamp1
+
+
+def test_merge_takes_oldest_timestamps() -> None:
+    view1 = DatasetProfile().view()
+    view2 = DatasetProfile().view()
+    assert view1.dataset_timestamp < view2.dataset_timestamp
+    assert view1.creation_timestamp < view2.creation_timestamp
+    merged_view = view2.merge(view1)
+    assert merged_view.creation_timestamp == view1.creation_timestamp
+    assert merged_view.dataset_timestamp == view1.dataset_timestamp
+
+
+def test_datasetprofile_zero_timestamps() -> None:
+    view = DatasetProfileView.zero()
+    stamp = time.time()
+    assert view is not None
+    assert view.creation_timestamp is None
+    assert view.dataset_timestamp is None
+    view.dataset_timestamp = stamp
+    assert view.dataset_timestamp is not None
+    assert view.dataset_timestamp == stamp
+
+
+def test_datasetprofile_model_performance_metrics() -> None:
+    view = DatasetProfileView.zero()
+    assert view.model_performance_metrics is None
+    perf_metric = ModelPerformanceMetrics()
+    view.model_performance_metrics = perf_metric
+    assert view.model_performance_metrics is perf_metric
 
 
 def test_zero_and_merging() -> None:
