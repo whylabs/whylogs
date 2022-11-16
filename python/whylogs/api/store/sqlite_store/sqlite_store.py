@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 # TODO try prep queries over formatted strings
 # TODO build sqlite image onto CI
-# TODO lint fix
 # TODO create env var config file
 
 
@@ -21,7 +20,7 @@ class SQLiteStore(ProfileStore):
         self._db_location = os.getenv("SQLITE_STORE_LOCATION")
         if self._db_location is None:
             raise ValueError("You must define a store with the SQLITE_STORE_LOCATION env var")
-        self.conn = sqlite3.connect(database=self._db_location)
+        self.conn = sqlite3.connect(database=self._db_location, check_same_thread=False)
         self.cur = self.conn.cursor()
 
     def __enter__(self) -> "SQLiteStore":
