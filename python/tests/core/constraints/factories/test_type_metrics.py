@@ -1,7 +1,7 @@
 from whylogs.core.constraints.factories import (
-    column_is_nullable_integral,
     column_is_nullable_boolean,
     column_is_nullable_fractional,
+    column_is_nullable_integral,
     column_is_nullable_object,
     column_is_nullable_string,
 )

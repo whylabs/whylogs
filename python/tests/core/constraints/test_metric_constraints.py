@@ -6,12 +6,12 @@ from whylogs.core.constraints import (
     MetricConstraint,
     MetricsSelector,
 )
+from whylogs.core.constraints.factories.distribution_metrics import greater_than_number
 from whylogs.core.constraints.metric_constraints import ReportResult
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.constraints.factories.distribution_metrics import greater_than_number
 
 TEST_LOGGER = getLogger(__name__)
 
