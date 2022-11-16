@@ -540,6 +540,39 @@
       }
 
       const alertListElement = (name, text, status, summary) => {
+        if (summary == null){
+          return (
+          `<div
+             data-inferred-type=${alertListItemStatus(status, "passed", "failed")}
+             class="alert-list-item display-flex justify-content-space-between align-items-center mb-2"
+           >
+            <div class="alert-list-text">
+              ${
+                name &&
+                alertListItemStatus(
+                  status,
+                  `<mark class="blue-mark">${name}</mark>`,
+                  `<mark class="red-mark">${name}</mark>`
+                )
+              }
+              ${text}
+            </div>
+              ${
+                alertListItemStatus(
+                  status,
+                  `
+                  <div class="turquoise-background-color alert-tag">Passed</div>
+                  `
+                  ,
+                  `
+                  <div class="bordeaux-background-color alert-tag">Failed</div>
+                  `
+                )
+              }
+              </div>`
+        )
+
+        }
         return (
           `<div
              data-inferred-type=${alertListItemStatus(status, "passed", "failed")}
@@ -564,7 +597,7 @@
                     <div class="turquoise-background-color alert-tag">Passed
                       <span class="tooltiptext">
                           <pre class="mb-1"> ${JSON.stringify(summary, null, 2)} </pre>
-                        </span>  
+                        </span>
                     </div>
                   </div>`
 
@@ -574,7 +607,7 @@
                     <div class="bordeaux-background-color alert-tag">Failed
                       <span class="tooltiptext">
                         <pre class="mb-1"> ${JSON.stringify(summary, null, 2)} </pre>
-                        </span>  
+                        </span>
                     </div>
                   </div>`
                 )

@@ -15,12 +15,11 @@ from .frequent_items import (
     frequent_strings_in_reference_set,
     n_most_common_items_in_set,
 )
-
 from .types_metrics import (
-    column_is_nullable_integral,
     column_is_nullable_boolean,
     column_is_nullable_datatype,
     column_is_nullable_fractional,
+    column_is_nullable_integral,
     column_is_nullable_object,
     column_is_nullable_string,
 )

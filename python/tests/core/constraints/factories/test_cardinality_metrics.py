@@ -7,8 +7,9 @@ def test_distinct_number_in_range(builder):
     constraint = builder.build()
     assert not constraint.validate()
     assert constraint.report() == [
-        ("legs distinct values estimate between 0.0 and 4.0 (inclusive)", 1, 0),
-        ("legs distinct values estimate between 0.1 and 2.0 (inclusive)", 0, 1),
+        # ReportResult(name, passed, failed, summary)
+        ("legs distinct values estimate between 0.0 and 4.0 (inclusive)", 1, 0, None),
+        ("legs distinct values estimate between 0.1 and 2.0 (inclusive)", 0, 1, None),
     ]
 
 
@@ -18,6 +19,7 @@ def test_distinct_number_in_range_with_nans(nan_builder):
     constraint = nan_builder.build()
     assert not constraint.validate()
     assert constraint.report() == [
-        ("a distinct values estimate between 0 and 5.0 (inclusive)", 1, 0),
-        ("a distinct values estimate between 2.2 and 5.0 (inclusive)", 0, 1),
+        # ReportResult(name, passed, failed, summary)
+        ("a distinct values estimate between 0 and 5.0 (inclusive)", 1, 0, None),
+        ("a distinct values estimate between 2.2 and 5.0 (inclusive)", 0, 1, None),
     ]

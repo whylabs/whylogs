@@ -6,10 +6,12 @@ from whylogs.core.constraints import (
     MetricConstraint,
     MetricsSelector,
 )
+from whylogs.core.constraints.metric_constraints import ReportResult
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.constraints.factories.distribution_metrics import greater_than_number
 
 TEST_LOGGER = getLogger(__name__)
 
@@ -97,7 +99,8 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
     TEST_LOGGER.info(f"constraints report is: {report_results}")
     assert constraints_valid
     assert len(report_results) == 2
-    assert report_results[0] == ("legs less than 12", 1, 0)
+    # ReportResult(name, passed, failed, summary)
+    assert report_results[0] == ("legs less than 12", 1, 0, None)
 
 
 def test_same_constraint_on_multiple_columns(profile_view):
@@ -137,15 +140,32 @@ def test_same_constraint_on_multiple_columns(profile_view):
     constraints = builder.build()
     report = constraints.report()
     assert isinstance(report, list)
-
+    # ReportResult(name, passed, failed, summary)
     assert sorted(report) == sorted(
         [
-            ("not_null", 0, 1),
-            ("greater_than_zero", 1, 0),
-            ("greater_than_number", 0, 1),
-            ("greater_than_number", 0, 1),
-            ("not_null", 1, 0),
-            ("not_null", 1, 0),
-            ("greater_than_zero", 0, 1),
+            ("not_null", 0, 1, None),
+            ("greater_than_zero", 1, 0, None),
+            ("greater_than_number", 0, 1, None),
+            ("greater_than_number", 0, 1, None),
+            ("not_null", 1, 0, None),
+            ("not_null", 1, 0, None),
+            ("greater_than_zero", 0, 1, None),
         ]
     )
+
+
+def test_constraints_report(pandas_constraint_dataframe) -> None:
+    profile = DatasetProfile()
+    profile.track(pandas=pandas_constraint_dataframe)
+    view = profile.view()
+    builder = ConstraintsBuilder(dataset_profile_view=view)
+    builder.add_constraint(greater_than_number(column_name="legs", number=6, skip_missing=False))
+    constraints = builder.build()
+    report = constraints.report(with_summary=True)
+    assert isinstance(report[0], ReportResult)
+    assert len(report[0]) == 4
+    assert report[0].name == "legs greater than number 6"
+    assert report[0].passed == 0
+    assert report[0].failed == 1
+    assert report[0].summary["metric"] == "distribution"
+    assert report[0].summary["min"] == 0

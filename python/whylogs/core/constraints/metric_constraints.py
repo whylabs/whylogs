@@ -1,13 +1,17 @@
+from collections import namedtuple
 from copy import deepcopy
 from dataclasses import dataclass
 from logging import getLogger
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 logger = getLogger(__name__)
+
+
+ReportResult = namedtuple("ReportResult", "name passed failed summary")
 
 
 @dataclass
@@ -48,8 +52,8 @@ class MetricsSelector:
         return results
 
 
-def pretty_display(metric_name: str, summary: Dict[str, Any]):
-    pretty_summary = {"metric": metric_name}
+def pretty_display(metric_name: str, summary: Dict[str, Any]) -> Dict[str, Any]:
+    pretty_summary: Dict[str, Any] = {"metric": metric_name}
 
     for key, item in summary.items():
         if key != "frequent_strings":
@@ -72,13 +76,13 @@ class MetricConstraint:
                 return False
         return True
 
-    def _get_metric_summary(self, metrics: List[Metric]) -> Dict[str, Any]:
+    def _get_metric_summary(self, metrics: List[Metric]) -> Optional[Dict[str, Any]]:
         if len(metrics) == 1:  # Only returns a summary for single metrics.
             metric_summary = pretty_display(metrics[0].namespace, metrics[0].to_summary_dict())
             return metric_summary
         return None
 
-    def validate(self, dataset_profile: DatasetProfileView) -> Tuple[bool, Dict[str, Any]]:
+    def validate(self, dataset_profile: DatasetProfileView) -> Tuple[bool, Optional[Dict[str, Any]]]:
         # custom metric resolver allows empty metrics
         if self.metric_selector is None:
             raise ValueError("can't call validate with an empty metric selector")
@@ -169,25 +173,23 @@ class Constraints:
         metric_constraint: MetricConstraint,
         constraint_name: str,
         with_summary: bool,
-    ):
+    ) -> ReportResult:
         (result, metric_summary) = metric_constraint.validate(profile_view)
         if not result:
             if with_summary:
-                return (constraint_name, 0, 1, metric_summary)
+                return ReportResult(name=constraint_name, passed=0, failed=1, summary=metric_summary)
             else:
-                return (constraint_name, 0, 1)
+                return ReportResult(name=constraint_name, passed=0, failed=1, summary=None)
         else:
             if with_summary:
-                return (constraint_name, 1, 0, metric_summary)
+                return ReportResult(name=constraint_name, passed=1, failed=0, summary=metric_summary)
             else:
-                return (constraint_name, 1, 0)
+                return ReportResult(name=constraint_name, passed=1, failed=0, summary=None)
 
-    def report(
-        self, profile_view: Optional[DatasetProfileView] = None, with_summary=False
-    ) -> List[Tuple[str, int, int]]:
+    def report(self, profile_view: Optional[DatasetProfileView] = None, with_summary=False) -> List[ReportResult]:
         profile = self._resolve_profile_view(profile_view)
         column_names = self.column_constraints.keys()
-        results: Union[List[Tuple[str, int, int]], List[Tuple[str, int, int, Dict[str, Any]]]] = []
+        results: List[ReportResult] = []
         if len(column_names) == 0:
             logger.warning("report was called with empty set of constraints!")
             return results

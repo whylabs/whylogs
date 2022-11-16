@@ -14,11 +14,12 @@ def test_greater_than_number(builder, nan_builder):
     builder.add_constraint(greater_than_number(column_name="animal", number=0.5, skip_missing=False))
     constraint = builder.build()
     assert constraint.validate() is False
+    # ReportResult(name, passed, failed, summary)
     assert constraint.report() == [
-        ("weight greater than number 0.0", 1, 0),
-        ("legs greater than number 6", 0, 1),
-        ("animal greater than number 0.0", 1, 0),
-        ("animal greater than number 0.5", 0, 1),
+        ("weight greater than number 0.0", 1, 0, None),
+        ("legs greater than number 6", 0, 1, None),
+        ("animal greater than number 0.0", 1, 0, None),
+        ("animal greater than number 0.5", 0, 1, None),
     ]
 
     nan_builder.add_constraint(greater_than_number(column_name="a", number=2.2, skip_missing=False))
@@ -32,11 +33,12 @@ def test_smaller_than_number(builder, nan_builder):
     builder.add_constraint(smaller_than_number(column_name="animal", number=0.0, skip_missing=True))
     builder.add_constraint(smaller_than_number(column_name="animal", number=0.5, skip_missing=False))
     constraint = builder.build()
+    # ReportResult(name, passed, failed, summary)
     assert constraint.report() == [
-        ("legs smaller than number 6", 1, 0),
-        ("legs smaller than number 3.5", 0, 1),
-        ("animal smaller than number 0.0", 1, 0),
-        ("animal smaller than number 0.5", 0, 1),
+        ("legs smaller than number 6", 1, 0, None),
+        ("legs smaller than number 3.5", 0, 1, None),
+        ("animal smaller than number 0.0", 1, 0, None),
+        ("animal smaller than number 0.5", 0, 1, None),
     ]
 
     nan_builder.add_constraint(smaller_than_number(column_name="a", number=2.2, skip_missing=False))
@@ -50,11 +52,12 @@ def test_mean_between_range(builder, nan_builder):
     builder.add_constraint(mean_between_range(column_name="animal", lower=0.0, upper=1.0, skip_missing=True))
     builder.add_constraint(mean_between_range(column_name="animal", lower=0.0, upper=1.3, skip_missing=False))
     constraint = builder.build()
+    # ReportResult(name, passed, failed, summary)
     assert constraint.report() == [
-        ("legs mean between 0 and 20.0 (inclusive)", 1, 0),
-        ("legs mean between 0.0 and 1.0 (inclusive)", 0, 1),
-        ("animal mean between 0.0 and 1.0 (inclusive)", 1, 0),
-        ("animal mean between 0.0 and 1.3 (inclusive)", 0, 1),
+        ("legs mean between 0 and 20.0 (inclusive)", 1, 0, None),
+        ("legs mean between 0.0 and 1.0 (inclusive)", 0, 1, None),
+        ("animal mean between 0.0 and 1.0 (inclusive)", 1, 0, None),
+        ("animal mean between 0.0 and 1.3 (inclusive)", 0, 1, None),
     ]
 
     nan_builder.add_constraint(mean_between_range(column_name="a", lower=0.0, upper=1.3, skip_missing=False))
@@ -69,11 +72,12 @@ def test_stddev_between_range(builder, nan_builder):
     builder.add_constraint(stddev_between_range(column_name="animal", lower=0.0, upper=1.3, skip_missing=False))
     constraint = builder.build()
     assert not constraint.validate()
+    # ReportResult(name, passed, failed, summary)
     assert constraint.report() == [
-        ("legs standard deviation between 0.0 and 10.0 (inclusive)", 1, 0),
-        ("legs standard deviation between 0.0 and 0.5 (inclusive)", 0, 1),
-        ("animal standard deviation between 0.0 and 1.0 (inclusive)", 1, 0),
-        ("animal standard deviation between 0.0 and 1.3 (inclusive)", 0, 1),
+        ("legs standard deviation between 0.0 and 10.0 (inclusive)", 1, 0, None),
+        ("legs standard deviation between 0.0 and 0.5 (inclusive)", 0, 1, None),
+        ("animal standard deviation between 0.0 and 1.0 (inclusive)", 1, 0, None),
+        ("animal standard deviation between 0.0 and 1.3 (inclusive)", 0, 1, None),
     ]
 
     nan_builder.add_constraint(stddev_between_range(column_name="a", lower=0.0, upper=1.3, skip_missing=False))
@@ -96,11 +100,12 @@ def test_quantile_between_range(builder, nan_builder):
     )
 
     constraint = builder.build()
+    # ReportResult(name, passed, failed, summary)
     assert constraint.report() == [
-        ("legs 0.9-th quantile value between 0.0 and 4.0 (inclusive)", 1, 0),
-        ("legs 0.5-th quantile value between 0.0 and 1.2 (inclusive)", 0, 1),
-        ("animal 0.5-th quantile value between 0.0 and 5.2 (inclusive)", 1, 0),
-        ("animal 0.5-th quantile value between 0.0 and 5.0 (inclusive)", 0, 1),
+        ("legs 0.9-th quantile value between 0.0 and 4.0 (inclusive)", 1, 0, None),
+        ("legs 0.5-th quantile value between 0.0 and 1.2 (inclusive)", 0, 1, None),
+        ("animal 0.5-th quantile value between 0.0 and 5.2 (inclusive)", 1, 0, None),
+        ("animal 0.5-th quantile value between 0.0 and 5.0 (inclusive)", 0, 1, None),
     ]
 
     nan_builder.add_constraint(
