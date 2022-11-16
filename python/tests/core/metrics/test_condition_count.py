@@ -16,10 +16,11 @@ from whylogs.core.metrics.condition_count_metric import (
 from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.metrics.metrics import OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.relations import Not
-from whylogs.core.relations import Predicate as X
+from whylogs.core.relations import Not, Predicate
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
+
+X = Predicate()
 
 
 def test_condition_count_metric() -> None:
@@ -154,7 +155,7 @@ def test_condition_bool_ops() -> None:
     conditions = {
         "between": Condition(X.greater_than(40).and_(X.less_than(44))),
         "outside": Condition(X.less_than(40).or_(X.greater_than(44))),
-        "not_alpha": Condition(Not(X.matches("[a-zA-Z]+"))),
+        "not_alpha": Condition(X.not_.matches("[a-zA-Z]+")),  # or Condition(Not(X.matches("[a-zA-Z]+"))),
     }
     config = ConditionCountConfig(conditions=conditions)
     metric = ConditionCountMetric.zero(config)
@@ -323,7 +324,7 @@ def test_metric_getter() -> None:
         # (X.is_(even)),
         (X.greater_than(40).and_(X.less_than(44)), "and > x 40 < x 44"),
         (X.less_than(40).or_(X.greater_than(44)), "or < x 40 > x 44"),
-        (Not(X.matches("[a-zA-Z]+")), 'not ~ x "[a-zA-Z]+"'),
+        (X.not_.matches("[a-zA-Z]+"), 'not ~ x "[a-zA-Z]+"'),  # or Not(X.matches("[a-zA-Z]+"))
     ],
 )
 def test_serialization(predicate: X, serialized: str) -> None:

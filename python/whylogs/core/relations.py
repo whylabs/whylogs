@@ -49,7 +49,7 @@ _TOKEN = ["", "~", "~=", "==", "<", "<=", ">", ">=", "!=", "and", "or", "not", "
 class Predicate:
     def __init__(
         self,
-        op: Relation,
+        op: Relation = Relation.no_op,
         value: Union[str, int, float, ValueGetter] = 0,
         udf: Optional[Callable[[Any], bool]] = None,
         left: Optional["Predicate"] = None,
@@ -74,8 +74,6 @@ class Predicate:
         self._right = right
 
         if op == Relation._not:
-            if not right:
-                raise ValueError("negation operator requires a predicate to negate")
             self._right = right
 
     def __call__(self, x: Any) -> bool:
@@ -105,41 +103,41 @@ class Predicate:
         if op == Relation._or:
             return self._left(x) or self._right(x)  # type: ignore
         if op == Relation._not:
+            if not self._right:
+                raise ValueError("negation operator requires a predicate to negate")
             return not self._right(x)  # type: ignore
 
         raise ValueError("Unknown predicate")
 
-    @classmethod
-    def matches(cls, value: Union[str, int, float, ValueGetter]) -> "Predicate":
-        return Predicate(Relation.match, value)
+    def _maybe_not(self, op: Relation, value: Union[str, int, float, ValueGetter]) -> "Predicate":
+        pred = Predicate(op, value)
+        if self._op == Relation._not and self._right is None:
+            return Predicate(Relation._not, right=pred)
+        return pred
 
-    @classmethod
-    def fullmatch(cls, value: Union[str, int, float, ValueGetter]) -> "Predicate":
-        return Predicate(Relation.fullmatch, value)
+    def matches(self, value: Union[str, int, float, ValueGetter]) -> "Predicate":
+        return self._maybe_not(Relation.match, value)
 
-    @classmethod
-    def equals(cls, value: Union[str, int, float, ValueGetter]) -> "Predicate":
-        return Predicate(Relation.equal, value)
+    def fullmatch(self, value: Union[str, int, float, ValueGetter]) -> "Predicate":
+        return self._maybe_not(Relation.fullmatch, value)
 
-    @classmethod
-    def less_than(cls, value: Union[str, int, float, ValueGetter]) -> "Predicate":
-        return Predicate(Relation.less, value)
+    def equals(self, value: Union[str, int, float, ValueGetter]) -> "Predicate":
+        return self._maybe_not(Relation.equal, value)
 
-    @classmethod
-    def less_or_equals(cls, value: Union[str, int, float, ValueGetter]) -> "Predicate":
-        return Predicate(Relation.leq, value)
+    def less_than(self, value: Union[str, int, float, ValueGetter]) -> "Predicate":
+        return self._maybe_not(Relation.less, value)
 
-    @classmethod
-    def greater_than(cls, value: Union[str, int, float, ValueGetter]) -> "Predicate":
-        return Predicate(Relation.greater, value)
+    def less_or_equals(self, value: Union[str, int, float, ValueGetter]) -> "Predicate":
+        return self._maybe_not(Relation.leq, value)
 
-    @classmethod
-    def greater_or_equals(cls, value: Union[str, int, float, ValueGetter]) -> "Predicate":
-        return Predicate(Relation.geq, value)
+    def greater_than(self, value: Union[str, int, float, ValueGetter]) -> "Predicate":
+        return self._maybe_not(Relation.greater, value)
 
-    @classmethod
-    def not_equal(cls, value: Union[str, int, float, ValueGetter]) -> "Predicate":
-        return Predicate(Relation.neq, value)
+    def greater_or_equals(self, value: Union[str, int, float, ValueGetter]) -> "Predicate":
+        return self._maybe_not(Relation.geq, value)
+
+    def not_equal(self, value: Union[str, int, float, ValueGetter]) -> "Predicate":
+        return self._maybe_not(Relation.neq, value)
 
     def and_(self, right: "Predicate") -> "Predicate":
         return Predicate(Relation._and, left=self, right=right)
@@ -147,9 +145,15 @@ class Predicate:
     def or_(self, right: "Predicate") -> "Predicate":
         return Predicate(Relation._or, left=self, right=right)
 
-    @classmethod
-    def is_(cls, udf: Callable[[Any], bool]) -> "Predicate":
-        return Predicate(Relation._udf, udf=udf)
+    def is_(self, udf: Callable[[Any], bool]) -> "Predicate":
+        pred = Predicate(Relation._udf, udf=udf)
+        if self._op == Relation._not and self._right is None:
+            return Predicate(Relation._not, right=pred)
+        return pred
+
+    @property
+    def not_(self) -> "Predicate":
+        return Predicate(Relation._not)
 
     def serialize(self) -> str:
         if not (self._left or self._right):

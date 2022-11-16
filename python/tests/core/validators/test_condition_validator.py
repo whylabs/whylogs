@@ -6,13 +6,17 @@ import pytest
 
 import whylogs as why
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.relations import Not
-from whylogs.core.relations import Predicate as X
+from whylogs.core.relations import Not, Predicate
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.validators import ConditionValidator
 
+X = Predicate()
+
 TEST_LOGGER = getLogger(__name__)
-regex_conditions = {"noCreditCard": Not(X.matches(".*4[0-9]{12}(?:[0-9]{3})?"))}
+regex_conditions = {
+    "noCreditCard": X.not_.matches(".*4[0-9]{12}(?:[0-9]{3})?")
+}  # or Not(X.matches(".*4[0-9]{12}(?:[0-9]{3})?"))
+
 
 number_conditions = {
     "equals42": X.equals(42),

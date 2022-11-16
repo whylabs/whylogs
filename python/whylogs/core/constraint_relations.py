@@ -5,7 +5,7 @@ from typing import Any, Callable, Optional, Union
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.metrics import Metric
-from whylogs.core.relations import LiteralGetter, Relation, _TOKEN, ValueGetter
+from whylogs.core.relations import _TOKEN, LiteralGetter, Relation, ValueGetter
 
 
 class CnPredicate:
@@ -38,8 +38,6 @@ class CnPredicate:
         self._right = right
 
         if op == Relation._not:
-            if not right:
-                raise ValueError("negation operator requires a predicate to negate")
             self._right = right
 
     def __call__(self, m: Metric) -> bool:
@@ -49,6 +47,8 @@ class CnPredicate:
         if op == Relation._or:
             return self._left(m) or self._right(m)  # type: ignore
         if op == Relation._not:
+            if not self._right:
+                raise ValueError("negation operator requires a predicate to negate")
             return not self._right(m)  # type: ignore
         if op == Relation._udf:
             return self._udf(m)  # type: ignore
@@ -78,29 +78,35 @@ class CnPredicate:
 
         raise ValueError("Unknown predicate")
 
+    def _maybe_not(self, op: Relation, value: Union[str, int, float, ValueGetter]) -> "CnPredicate":
+        pred = CnPredicate(self._path, op, value)
+        if self._op == Relation._not and self._right is None:
+            return CnPredicate(self._path, Relation._not, right=pred)
+        return pred
+
     def matches(self, value: Union[str, int, float, ValueGetter]) -> "CnPredicate":
-        return CnPredicate(self._path, Relation.match, value)
+        return self._maybe_not(Relation.match, value)
 
     def fullmatch(self, value: Union[str, int, float, ValueGetter]) -> "CnPredicate":
-        return CnPredicate(self._path, Relation.fullmatch, value)
+        return self._maybe_not(Relation.fullmatch, value)
 
     def equals(self, value: Union[str, int, float, ValueGetter]) -> "CnPredicate":
-        return CnPredicate(self._path, Relation.equal, value)
+        return self._maybe_not(Relation.equal, value)
 
     def less_than(self, value: Union[str, int, float, ValueGetter]) -> "CnPredicate":
-        return CnPredicate(self._path, Relation.less, value)
+        return self._maybe_not(Relation.less, value)
 
     def less_or_equals(self, value: Union[str, int, float, ValueGetter]) -> "CnPredicate":
-        return CnPredicate(self._path, Relation.leq, value)
+        return self._maybe_not(Relation.leq, value)
 
     def greater_than(self, value: Union[str, int, float, ValueGetter]) -> "CnPredicate":
-        return CnPredicate(self._path, Relation.greater, value)
+        return self._maybe_not(Relation.greater, value)
 
     def greater_or_equals(self, value: Union[str, int, float, ValueGetter]) -> "CnPredicate":
-        return CnPredicate(self._path, Relation.geq, value)
+        return self._maybe_not(Relation.geq, value)
 
     def not_equal(self, value: Union[str, int, float, ValueGetter]) -> "CnPredicate":
-        return CnPredicate(self._path, Relation.neq, value)
+        return self._maybe_not(Relation.neq, value)
 
     def and_(self, right: "CnPredicate") -> "CnPredicate":
         return CnPredicate(self._path, Relation._and, left=self, right=right)
@@ -109,7 +115,14 @@ class CnPredicate:
         return CnPredicate(self._path, Relation._or, left=self, right=right)
 
     def is_(self, udf: Callable[[Metric], bool]) -> "CnPredicate":
-        return CnPredicate(self._path, Relation._udf, udf=udf)
+        right = CnPredicate(self._path, Relation._udf, udf=udf)
+        if self._op == Relation._not and self._right is None:
+            return CnPredicate(self._path, Relation._not, right=right)
+        return right
+
+    @property
+    def not_(self) -> "CnPredicate":
+        return CnPredicate(self._path, Relation._not)
 
     def serialize(self) -> str:
         if not (self._left or self._right):
