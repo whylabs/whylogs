@@ -28,6 +28,7 @@ class LiteralGetter(ValueGetter):
 
 
 class Relation(Enum):
+    no_op = 0
     match = 1
     fullmatch = 2
     equal = 3
@@ -106,7 +107,7 @@ class Predicate:
         if op == Relation._not:
             return not self._right(x)  # type: ignore
 
-        raise ValueError("Unknown ConditionCountMetric predicate")
+        raise ValueError("Unknown predicate")
 
     @classmethod
     def matches(cls, value: Union[str, int, float, ValueGetter]) -> "Predicate":
