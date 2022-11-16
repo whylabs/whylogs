@@ -5,6 +5,7 @@ from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from whylogs.core.metrics.metrics import Metric
+from whylogs.core.utils import deprecated
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
@@ -167,6 +168,35 @@ class Constraints:
                 return False
         return True
 
+    @deprecated(message="Please use generate_constraints_report()")
+    def report(self, profile_view: Optional[DatasetProfileView] = None) -> List[Tuple[str, int, int]]:
+        profile = self._resolve_profile_view(profile_view)
+        column_names = self.column_constraints.keys()
+        results: List[Tuple[str, int, int]] = []
+        if len(column_names) == 0:
+            logger.warning("report was called with empty set of constraints!")
+            return results
+
+        for column_name in column_names:
+            columnar_constraints = self.column_constraints[column_name]
+            for constraint_name, metric_constraint in columnar_constraints.items():
+                (result, _) = metric_constraint.validate(profile)
+                if not result:
+                    logger.info(f"{constraint_name} failed on column {column_name}")
+                    results.append((constraint_name, 0, 1))
+                else:
+                    results.append((constraint_name, 1, 0))
+        metric_names = self.dataset_constraints.keys()
+        for metric_name in metric_names:
+            metric_constraint = self.dataset_constraints[metric_name]
+            (result, _) = metric_constraint.validate(profile)
+            if not result:
+                logger.info(f"{metric_name} failed on dataset")
+                results.append((metric_name, 0, 1))
+            else:
+                results.append((metric_name, 1, 0))
+        return results
+
     def _generate_metric_report(
         self,
         profile_view: DatasetProfileView,
@@ -186,7 +216,9 @@ class Constraints:
             else:
                 return ReportResult(name=constraint_name, passed=1, failed=0, summary=None)
 
-    def report(self, profile_view: Optional[DatasetProfileView] = None, with_summary=False) -> List[ReportResult]:
+    def generate_constraints_report(
+        self, profile_view: Optional[DatasetProfileView] = None, with_summary=False
+    ) -> List[ReportResult]:
         profile = self._resolve_profile_view(profile_view)
         column_names = self.column_constraints.keys()
         results: List[ReportResult] = []
@@ -214,11 +246,11 @@ class Constraints:
             metric_report = self._generate_metric_report(
                 profile_view=profile,
                 metric_constraint=metric_constraint,
-                constraint_name=constraint_name,
+                constraint_name=metric_name,
                 with_summary=with_summary,
             )
             if metric_report[1] == 0:
-                logger.info(f"{constraint_name} failed on dataset.")
+                logger.info(f"{metric_name} failed on dataset.")
 
             results.append(metric_report)
 

@@ -92,15 +92,17 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
 
     constraints_builder.add_constraint(constraint=legs_less_than_12_constraint)
     constraints_builder.add_constraint(constraint=no_negative_numbers, ignore_missing=True)
-    contraints = constraints_builder.build()
-    TEST_LOGGER.info(f"constraints are: {contraints.column_constraints}")
-    constraints_valid = contraints.validate()
-    report_results = contraints.report()
+    constraints = constraints_builder.build()
+    TEST_LOGGER.info(f"constraints are: {constraints.column_constraints}")
+    constraints_valid = constraints.validate()
+    report_results = constraints.generate_constraints_report()
     TEST_LOGGER.info(f"constraints report is: {report_results}")
     assert constraints_valid
     assert len(report_results) == 2
     # ReportResult(name, passed, failed, summary)
     assert report_results[0] == ("legs less than 12", 1, 0, None)
+    for (x, y) in zip(constraints.report(), constraints.generate_constraints_report()):
+        assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
 
 
 def test_same_constraint_on_multiple_columns(profile_view):
@@ -138,7 +140,7 @@ def test_same_constraint_on_multiple_columns(profile_view):
     builder.add_constraint(greater_than_number(column_name="legs", number=20))
 
     constraints = builder.build()
-    report = constraints.report()
+    report = constraints.generate_constraints_report()
     assert isinstance(report, list)
     # ReportResult(name, passed, failed, summary)
     assert sorted(report) == sorted(
@@ -152,6 +154,8 @@ def test_same_constraint_on_multiple_columns(profile_view):
             ("greater_than_zero", 0, 1, None),
         ]
     )
+    for (x, y) in zip(constraints.report(), constraints.generate_constraints_report()):
+        assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
 
 
 def test_constraints_report(pandas_constraint_dataframe) -> None:
@@ -161,7 +165,7 @@ def test_constraints_report(pandas_constraint_dataframe) -> None:
     builder = ConstraintsBuilder(dataset_profile_view=view)
     builder.add_constraint(greater_than_number(column_name="legs", number=6, skip_missing=False))
     constraints = builder.build()
-    report = constraints.report(with_summary=True)
+    report = constraints.generate_constraints_report(with_summary=True)
     assert isinstance(report[0], ReportResult)
     assert len(report[0]) == 4
     assert report[0].name == "legs greater than number 6"
@@ -169,3 +173,5 @@ def test_constraints_report(pandas_constraint_dataframe) -> None:
     assert report[0].failed == 1
     assert report[0].summary["metric"] == "distribution"
     assert report[0].summary["min"] == 0
+    for (x, y) in zip(constraints.report(), constraints.generate_constraints_report()):
+        assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])

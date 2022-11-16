@@ -17,10 +17,12 @@ def test_is_nullable_type(builder):
     constraint = builder.build()
     assert not constraint.validate()
     # ReportResult(name, passed, failed, summary)
-    assert constraint.report() == [
+    assert constraint.generate_constraints_report() == [
         ("animal is nullable string", 1, 0, None),
         ("legs is nullable integral", 1, 0, None),
         ("weight is nullable fractional", 1, 0, None),
         ("weight is nullable boolean", 0, 1, None),
         ("weight is nullable object", 0, 1, None),
     ]
+    for (x, y) in zip(constraint.report(), constraint.generate_constraints_report()):
+        assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
