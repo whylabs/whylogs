@@ -1,6 +1,6 @@
 import os
 import shutil
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from glob import glob
 from pathlib import Path
 from typing import List
@@ -32,7 +32,7 @@ class TestLocalStore(object):
     def test_get_profile_timestamp(self):
         actual_timestamp = LocalStore._get_profile_filename()
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         assert isinstance(actual_timestamp, str)
         assert f"profile_{now.date()}_{now.hour}:{now.minute}" in actual_timestamp
@@ -69,7 +69,7 @@ class TestLocalStore(object):
         store.write(profile_view=profile_view, profile_name="test_name")
         store.write(profile_view=profile_view, profile_name="test_name")
 
-        query = DateQuery(start_date=datetime.utcnow(), profile_name="test_name")
+        query = DateQuery(start_date=datetime.now(timezone.utc), profile_name="test_name")
         read_profile = store.get(query=query)
 
         assert read_profile is not None
@@ -77,8 +77,8 @@ class TestLocalStore(object):
 
         query = DateQuery(
             profile_name="test_name",
-            start_date=datetime.utcnow() - timedelta(days=7),
-            end_date=datetime.utcnow(),
+            start_date=datetime.now(timezone.utc) - timedelta(days=7),
+            end_date=datetime.now(timezone.utc),
         )
         read_profile = store.get(query=query)
 
@@ -94,6 +94,6 @@ class TestLocalStore(object):
 
     def test_get_ignores_files_that_dont_match_pattern(self, store, profile_view):
         store.write(profile_view=profile_view, profile_name="test_name")
-        query = DateQuery(start_date=datetime.utcnow(), profile_name="test_name")
+        query = DateQuery(start_date=datetime.now(timezone.utc), profile_name="test_name")
         Path(os.path.join(store._default_path, query.profile_name, "profile_2022-02-01_23123.bin")).touch()
         assert store.get(query=query)

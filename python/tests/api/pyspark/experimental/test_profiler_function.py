@@ -11,7 +11,8 @@ from whylogs.api.pyspark.experimental import (
     column_profile_bytes_aggregator,
     whylogs_pandas_map_profiler,
 )
-from whylogs.core import ColumnProfileView
+from whylogs.core import ColumnProfileView, DatasetSchema, Resolver
+from whylogs.core.metrics import StandardMetric
 from whylogs.core.stubs import pd as pd
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
@@ -73,6 +74,23 @@ class TestPySpark(object):
         assert distribution_metric.stddev == 0.1
         assert distribution_metric.max == 0.2
         assert distribution_metric.min == 0.0
+
+    def test_collect_dataset_profile_view_with_schema(self, input_df):
+        class TestResolver(Resolver):
+            def resolve(self, name, why_type, column_schema):
+                metric_map = {"0": [StandardMetric.counts], "1": [], "2": [], "3": []}
+                return {metric.name: metric.zero(column_schema.cfg) for metric in metric_map[name]}
+
+        schema = DatasetSchema(resolvers=TestResolver())
+        profile_view = collect_dataset_profile_view(input_df=input_df, schema=schema)
+
+        assert isinstance(profile_view, DatasetProfileView)
+        assert len(profile_view.get_columns()) > 0
+        assert profile_view.get_column("0").get_metric_names() == ["counts"]
+        assert profile_view.get_column("0").get_metric("counts").n.value == 3
+        assert profile_view.get_column("1").get_metric_names() == []
+        assert profile_view.get_column("2").get_metric_names() == []
+        assert profile_view.get_column("3").get_metric_names() == []
 
     def test_collect_dataset_profile_view(self, input_df):
         profile_view = collect_dataset_profile_view(input_df=input_df)

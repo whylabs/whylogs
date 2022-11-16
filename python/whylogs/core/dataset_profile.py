@@ -48,7 +48,7 @@ class DatasetProfile(Writable):
     ):
         if schema is None:
             schema = DatasetSchema()
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         self._dataset_timestamp = dataset_timestamp or now
         self._creation_timestamp = creation_timestamp or now
         self._schema = schema

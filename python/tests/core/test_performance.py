@@ -10,6 +10,7 @@ import pandas as pd
 import pytest
 import whylogs_sketching as ds  # type: ignore
 
+import whylogs
 from whylogs.core import ColumnProfile, ColumnSchema
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metrics.metrics import MetricConfig
@@ -128,3 +129,36 @@ def test_track_baseline_benchmark() -> None:
             f"stats for baseline_benchmark (custom_metric.track) on df({num_rows},{num_columns}) "
             f"are\n{string_output_stream.getvalue()}"
         )
+
+
+@pytest.mark.load
+def test_rolling_logger_latency_benchmark() -> None:
+    number_of_iterations = 1000
+    TEST_LOGGER.info(f"Running latency test with {number_of_iterations} iterations")
+    test_log = whylogs.logger(mode="rolling", interval=60, when="S", fork=True)
+    test_log.append_writer("local")
+
+    profiler = cProfile.Profile()
+    string_output_stream = StringIO()
+    profiler.enable()
+    test_message = pd.DataFrame(
+        {
+            "jobtitle": ["software engineer"],
+            "employer": ["whylabs"],
+            "city": ["seattle"],
+            "state": ["washington"],
+            "country": ["united states"],
+            "date": ["2022-11-02"],
+            "optional_features": [0],
+            "debug": [True],
+        }
+    )
+
+    for _ in range(number_of_iterations):
+        test_log.log(test_message)
+
+    test_log.close()
+    profiler.disable()
+    stats = pstats.Stats(profiler, stream=string_output_stream).sort_stats("cumulative")
+    stats.print_stats(50)
+    TEST_LOGGER.info(f"stats for rolling latency benchmark are\n{string_output_stream.getvalue()}")

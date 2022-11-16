@@ -1,10 +1,11 @@
-from datetime import datetime
-from functools import reduce
+from datetime import datetime, timezone
+from functools import partial, reduce
 from logging import getLogger
 from typing import Dict, Iterable, Optional, Tuple
 
 import whylogs as why
 from whylogs.api.usage_stats import emit_usage
+from whylogs.core import DatasetSchema
 from whylogs.core.stubs import pd
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
@@ -23,9 +24,11 @@ COL_NAME_FIELD = "col_name"
 COL_PROFILE_FIELD = "col_profile"
 
 
-def whylogs_pandas_map_profiler(pdf_iterator: Iterable[pd.DataFrame]) -> Iterable[pd.DataFrame]:
+def whylogs_pandas_map_profiler(
+    pdf_iterator: Iterable[pd.DataFrame], schema: Optional[DatasetSchema] = None
+) -> Iterable[pd.DataFrame]:
     for input_df in pdf_iterator:
-        res = why.log(input_df)
+        res = why.log(input_df, schema=schema)
         res_df = pd.DataFrame(columns=[COL_NAME_FIELD, COL_PROFILE_FIELD])
         for col_name, col_profile in res.view().get_columns().items():
             d = {
@@ -47,12 +50,15 @@ def column_profile_bytes_aggregator(group_by_cols: Tuple[str], profiles_df: pd.D
     return pd.DataFrame([group_by_cols + (merged_profile.serialize(),)])
 
 
-def collect_column_profile_views(input_df: SparkDataFrame) -> Dict[str, ColumnProfileView]:
+def collect_column_profile_views(
+    input_df: SparkDataFrame, schema: Optional[DatasetSchema] = None
+) -> Dict[str, ColumnProfileView]:
     if SparkDataFrame is None:
         logger.warning("Unable to load pyspark; install pyspark to get whylogs profiling support in spark environment.")
 
     cp = f"{COL_NAME_FIELD} string, {COL_PROFILE_FIELD} binary"
-    profile_bytes_df = input_df.mapInPandas(whylogs_pandas_map_profiler, schema=cp)  # type: ignore
+    whylogs_pandas_map_profiler_with_schema = partial(whylogs_pandas_map_profiler, schema=schema)
+    profile_bytes_df = input_df.mapInPandas(whylogs_pandas_map_profiler_with_schema, schema=cp)  # type: ignore
     column_profiles = profile_bytes_df.groupby(COL_NAME_FIELD).applyInPandas(  # linebreak
         column_profile_bytes_aggregator, schema=cp
     )
@@ -63,14 +69,17 @@ def collect_column_profile_views(input_df: SparkDataFrame) -> Dict[str, ColumnPr
 
 
 def collect_dataset_profile_view(
-    input_df: SparkDataFrame, dataset_timestamp: Optional[int] = None, creation_timestamp: Optional[int] = None
+    input_df: SparkDataFrame,
+    dataset_timestamp: Optional[int] = None,
+    creation_timestamp: Optional[int] = None,
+    schema: Optional[DatasetSchema] = None,
 ) -> DatasetProfileView:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     _dataset_timestamp = dataset_timestamp or now
     _creation_timestamp = creation_timestamp or now
 
-    column_views_dict = collect_column_profile_views(input_df=input_df)
+    column_views_dict = collect_column_profile_views(input_df=input_df, schema=schema)
 
     profile_view = DatasetProfileView(
         columns=column_views_dict, dataset_timestamp=_dataset_timestamp, creation_timestamp=_creation_timestamp
