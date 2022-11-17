@@ -267,6 +267,7 @@
 <li class="toctree-l6"><a class="reference internal" href="count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="types_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.types_metrics</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="../metric_constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.metric_constraints</span></code></a></li>
@@ -402,6 +403,7 @@
 <li class="toctree-l1"><a class="reference internal" href="count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="types_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.types_metrics</span></code></a></li>
 </ul>
 </div>
 </section>
@@ -448,6 +450,24 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.n_most_common_items_in_set" title="whylogs.core.constraints.factories.n_most_common_items_in_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_most_common_items_in_set</span></code></a>(...)</p></td>
 <td><p>Validate if the top n most common items appear in the dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_boolean" title="whylogs.core.constraints.factories.column_is_nullable_boolean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_boolean</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_datatype" title="whylogs.core.constraints.factories.column_is_nullable_datatype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_datatype</span></code></a>(...)</p></td>
+<td><p>Check if column contains only records of specific datatype.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_fractional" title="whylogs.core.constraints.factories.column_is_nullable_fractional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_fractional</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_integral" title="whylogs.core.constraints.factories.column_is_nullable_integral"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_integral</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_object" title="whylogs.core.constraints.factories.column_is_nullable_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_object</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_string" title="whylogs.core.constraints.factories.column_is_nullable_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_string</span></code></a>(...)</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -666,6 +686,90 @@ Every item in frequent strings must be in defined reference set</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.factories.column_is_nullable_boolean">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.</span></span><span class="sig-name descname"><span class="pre">column_is_nullable_boolean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/factories/types_metrics.html#column_is_nullable_boolean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.column_is_nullable_boolean" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint">whylogs.core.constraints.metric_constraints.MetricConstraint</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.factories.column_is_nullable_datatype">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.</span></span><span class="sig-name descname"><span class="pre">column_is_nullable_datatype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">datatype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/factories/types_metrics.html#column_is_nullable_datatype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.column_is_nullable_datatype" title="Permalink to this definition">#</a></dt>
+<dd><p>Check if column contains only records of specific datatype.
+Datatypes can be: integral, fractional, boolean, string, object.</p>
+<p>Returns True if there is at least one record of type datatype and there is no records of remaining types.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Column the constraint is applied to</p></li>
+<li><p><strong>datatype</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint">whylogs.core.constraints.metric_constraints.MetricConstraint</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.factories.column_is_nullable_fractional">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.</span></span><span class="sig-name descname"><span class="pre">column_is_nullable_fractional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/factories/types_metrics.html#column_is_nullable_fractional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.column_is_nullable_fractional" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint">whylogs.core.constraints.metric_constraints.MetricConstraint</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.factories.column_is_nullable_integral">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.</span></span><span class="sig-name descname"><span class="pre">column_is_nullable_integral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/factories/types_metrics.html#column_is_nullable_integral"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.column_is_nullable_integral" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint">whylogs.core.constraints.metric_constraints.MetricConstraint</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.factories.column_is_nullable_object">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.</span></span><span class="sig-name descname"><span class="pre">column_is_nullable_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/factories/types_metrics.html#column_is_nullable_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.column_is_nullable_object" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint">whylogs.core.constraints.metric_constraints.MetricConstraint</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.factories.column_is_nullable_string">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.</span></span><span class="sig-name descname"><span class="pre">column_is_nullable_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/factories/types_metrics.html#column_is_nullable_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.column_is_nullable_string" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint">whylogs.core.constraints.metric_constraints.MetricConstraint</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py data">
 <dt class="sig sig-object py" id="whylogs.core.constraints.factories.ALL">
 <span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.</span></span><span class="sig-name descname"><span class="pre">ALL</span></span><a class="headerlink" href="#whylogs.core.constraints.factories.ALL" title="Permalink to this definition">#</a></dt>
@@ -773,6 +877,12 @@ Every item in frequent strings must be in defined reference set</p>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.stddev_between_range">stddev_between_range</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.frequent_strings_in_reference_set">frequent_strings_in_reference_set</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.n_most_common_items_in_set">n_most_common_items_in_set</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_boolean">column_is_nullable_boolean</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_datatype">column_is_nullable_datatype</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_fractional">column_is_nullable_fractional</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_integral">column_is_nullable_integral</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_object">column_is_nullable_object</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_string">column_is_nullable_string</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.ALL">ALL</a></li>
 </ul>
 </li>

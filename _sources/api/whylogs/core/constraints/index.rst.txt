@@ -61,6 +61,9 @@ Classes
    .. py:method:: report(profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None) -> List[Tuple[str, int, int]]
 
 
+   .. py:method:: generate_constraints_report(profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None, with_summary=False) -> List[ReportResult]
+
+
 
 .. py:class:: ConstraintsBuilder(dataset_profile_view: whylogs.core.view.dataset_profile_view.DatasetProfileView, constraints: Optional[Constraints] = None)
 
@@ -97,6 +100,9 @@ Classes
       
 
    .. py:method:: validate(dataset_profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> bool
+
+
+   .. py:method:: validate_profile(dataset_profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> Tuple[bool, Optional[Dict[str, Any]]]
 
 
 

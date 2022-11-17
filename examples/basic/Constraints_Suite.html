@@ -267,6 +267,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/types_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.types_metrics</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/constraints/metric_constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.metric_constraints</span></code></a></li>
@@ -658,7 +659,7 @@ div.rendered_html tbody tr:hover {
 <blockquote>
 <div><p>This is a <code class="docutils literal notranslate"><span class="pre">whylogs</span> <span class="pre">v1</span></code> example. For the analog feature in <code class="docutils literal notranslate"><span class="pre">v0</span></code>, please refer to <a class="reference external" href="https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/examples/Constraints_Suite.ipynb">this example</a></p>
 </div></blockquote>
-<p>In this example, we’ll show how to define a number of simple constraints and examples on how to use them. For the basics on how to build your own set of constraints, see the example - <a class="reference external" href="https://whylogs.readthedocs.io/en/stable/examples/basic/Metric_Constraints.html">Data Validation with Metric Constraints</a>.</p>
+<p>In this example, we’ll show how to define a number of simple constraints and examples on how to use them. For the basics on how to build your own set of constraints, see the example - <a class="reference external" href="https://whylogs.readthedocs.io/en/stable/examples/advanced/Metric_Constraints.html">Data Validation with Metric Constraints</a>.</p>
 <p>The constraints are listed according to the metric namespace used when defining them. For each category, we will create helper functions for simple and popular constraints. Each helper function has a brief explanation in its docstring. After defining the helper functions, we’ll show a simple example on how to build the constraints out of the functions and visualize them as a report with the visualization module.</p>
 <blockquote>
 <div><p>Note: The constraints shown here are still experimental and subject to further changes. Stay tuned for upgrades!</p>
@@ -708,7 +709,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>Then, let’s import the helper functions needed to define the constraints:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="n">ConstraintsBuilder</span>
@@ -725,7 +726,7 @@ div.rendered_html tbody tr:hover {
 <section id="Examples---Distribution-Metrics-Constraints">
 <h3>Examples - Distribution Metrics Constraints<a class="headerlink" href="#Examples---Distribution-Metrics-Constraints" title="Permalink to this headline">#</a></h3>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -742,7 +743,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
@@ -773,7 +774,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -854,6 +855,36 @@ div.rendered_html tbody tr:hover {
         font-weight: 700;
         color: #444444;
       }
+
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
 
       .wl-compare-profile {
         position: relative;
@@ -1288,8 +1319,40 @@ div.rendered_html tbody tr:hover {
         }
       }
 
-      const alertListElement = (name, text, status) =&gt; {
+      const alertListElement = (name, text, status, summary) =&gt; {
+        if (summary == null){
+          return (
+          `&lt;div
+             data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
+             class=&quot;alert-list-item display-flex justify-content-space-between align-items-center mb-2&quot;
+           &gt;
+            &lt;div class=&quot;alert-list-text&quot;&gt;
+              ${
+                name &amp;&amp;
+                alertListItemStatus(
+                  status,
+                  `&lt;mark class=&quot;blue-mark&quot;&gt;${name}&lt;/mark&gt;`,
+                  `&lt;mark class=&quot;red-mark&quot;&gt;${name}&lt;/mark&gt;`
+                )
+              }
+              ${text}
+            &lt;/div&gt;
+              ${
+                alertListItemStatus(
+                  status,
+                  `
+                  &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;
+                  `
+                  ,
+                  `
+                  &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;
+                  `
+                )
+              }
+              &lt;/div&gt;`
+        )
 
+        }
         return (
           `&lt;div
              data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
@@ -1309,11 +1372,27 @@ div.rendered_html tbody tr:hover {
               ${
                 alertListItemStatus(
                   status,
-                  `&lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;`,
-                  `&lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;`
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                          &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
+
+                  ,
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                        &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
                 )
               }
-          &lt;/div&gt;`
+              &lt;/div&gt;`
         )
       }
 
@@ -1332,11 +1411,11 @@ div.rendered_html tbody tr:hover {
         let alertListItem = column.map((value) =&gt; {
           if (value[1][0]) {
             let alertListValue = value[1].map((cstr)=&gt;{
-              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false))
+              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false), value[3])
             })
             return alertListValue.join(&#x27; &#x27;)
           } else {
-            return alertListElement(&#x27;&#x27;, value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
+            return alertListElement(&#x27;&#x27;, value[0], value[2] === 0 ||  (failedConstraints++, false), value[3])
           }
         })
          $(document).ready(() =&gt; {
@@ -1366,7 +1445,7 @@ div.rendered_html tbody tr:hover {
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;weight greater than number 0.14&quot;, 0, 1], [&quot;weight mean between 2 and 3 (inclusive)&quot;, 1, 0], [&quot;weight smaller than number 20.5&quot;, 1, 0], [&quot;weight standard deviation between 1 and 3 (inclusive)&quot;, 1, 0], [&quot;weight 0.5-th quantile value between 1.5 and 2.0 (inclusive)&quot;, 1, 0], [&quot;animal 0.5-th quantile value between 1.5 and 2.0 (inclusive)&quot;, 0, 1]];
+      const context = [[&quot;weight greater than number 0.14&quot;, 0, 1, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;weight mean between 2 and 3 (inclusive)&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;weight smaller than number 20.5&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;weight standard deviation between 1 and 3 (inclusive)&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;weight 0.5-th quantile value between 1.5 and 2.0 (inclusive)&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;animal 0.5-th quantile value between 1.5 and 2.0 (inclusive)&quot;, 0, 1, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 0.0, &quot;stddev&quot;: 0.0, &quot;n&quot;: 0, &quot;max&quot;: NaN, &quot;min&quot;: NaN, &quot;q_01&quot;: null, &quot;q_05&quot;: null, &quot;q_10&quot;: null, &quot;q_25&quot;: null, &quot;median&quot;: null, &quot;q_75&quot;: null, &quot;q_90&quot;: null, &quot;q_95&quot;: null, &quot;q_99&quot;: null}]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -1423,9 +1502,8 @@ div.rendered_html tbody tr:hover {
 
         for (let i = 0; i &lt; tableBodyChildren.length; i++) {
           const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
-          const name = $(tableBodyChildren[i].children[0]).find(&quot;mark&quot;).text().toLowerCase();
-
-          if (activeTypes[type] &amp;&amp; name.startsWith(searchString)) {
+          const name = $(tableBodyChildren[i].children[0]).html().toLowerCase();
+          if (activeTypes[type] &amp;&amp; name.includes(searchString)) {
             tableBodyChildren[i].style.display = &quot;&quot;;
           } else {
             tableBodyChildren[i].style.display = &quot;none&quot;;
@@ -1531,17 +1609,17 @@ div.rendered_html tbody tr:hover {
 <section id="Frequent-Items/Frequent-Strings-Constraints">
 <h2>Frequent Items/Frequent Strings Constraints<a class="headerlink" href="#Frequent-Items/Frequent-Strings-Constraints" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">n_most_common_items_in_set</span><span class="p">,</span> <span class="n">frequent_strings_in_reference_set</span>
-<br/></pre></div>
+</pre></div>
 </div>
 </div>
 <section id="Examples---Frequent-Items/Frequent-Strings-Constraints">
 <h3>Examples - Frequent Items/Frequent Strings Constraints<a class="headerlink" href="#Examples---Frequent-Items/Frequent-Strings-Constraints" title="Permalink to this headline">#</a></h3>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -1558,7 +1636,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
@@ -1575,7 +1653,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1656,6 +1734,36 @@ div.rendered_html tbody tr:hover {
         font-weight: 700;
         color: #444444;
       }
+
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
 
       .wl-compare-profile {
         position: relative;
@@ -2090,8 +2198,40 @@ div.rendered_html tbody tr:hover {
         }
       }
 
-      const alertListElement = (name, text, status) =&gt; {
+      const alertListElement = (name, text, status, summary) =&gt; {
+        if (summary == null){
+          return (
+          `&lt;div
+             data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
+             class=&quot;alert-list-item display-flex justify-content-space-between align-items-center mb-2&quot;
+           &gt;
+            &lt;div class=&quot;alert-list-text&quot;&gt;
+              ${
+                name &amp;&amp;
+                alertListItemStatus(
+                  status,
+                  `&lt;mark class=&quot;blue-mark&quot;&gt;${name}&lt;/mark&gt;`,
+                  `&lt;mark class=&quot;red-mark&quot;&gt;${name}&lt;/mark&gt;`
+                )
+              }
+              ${text}
+            &lt;/div&gt;
+              ${
+                alertListItemStatus(
+                  status,
+                  `
+                  &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;
+                  `
+                  ,
+                  `
+                  &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;
+                  `
+                )
+              }
+              &lt;/div&gt;`
+        )
 
+        }
         return (
           `&lt;div
              data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
@@ -2111,11 +2251,27 @@ div.rendered_html tbody tr:hover {
               ${
                 alertListItemStatus(
                   status,
-                  `&lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;`,
-                  `&lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;`
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                          &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
+
+                  ,
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                        &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
                 )
               }
-          &lt;/div&gt;`
+              &lt;/div&gt;`
         )
       }
 
@@ -2134,11 +2290,11 @@ div.rendered_html tbody tr:hover {
         let alertListItem = column.map((value) =&gt; {
           if (value[1][0]) {
             let alertListValue = value[1].map((cstr)=&gt;{
-              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false))
+              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false), value[3])
             })
             return alertListValue.join(&#x27; &#x27;)
           } else {
-            return alertListElement(&#x27;&#x27;, value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
+            return alertListElement(&#x27;&#x27;, value[0], value[2] === 0 ||  (failedConstraints++, false), value[3])
           }
         })
          $(document).ready(() =&gt; {
@@ -2168,7 +2324,7 @@ div.rendered_html tbody tr:hover {
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;animal values in set {&#x27;snake&#x27;, &#x27;cat&#x27;}&quot;, 0, 1], [&quot;animal 2-most common items in set {&#x27;snake&#x27;, &#x27;cat&#x27;}&quot;, 1, 0]];
+      const context = [[&quot;animal values in set {&#x27;cat&#x27;, &#x27;snake&#x27;}&quot;, 0, 1, {&quot;metric&quot;: &quot;frequent_items&quot;, &quot;frequent_strings_top_10&quot;: [&quot;cat:2&quot;, &quot;snake:2&quot;, &quot;mosquito:1&quot;]}], [&quot;animal 2-most common items in set {&#x27;cat&#x27;, &#x27;snake&#x27;}&quot;, 1, 0, {&quot;metric&quot;: &quot;frequent_items&quot;, &quot;frequent_strings_top_10&quot;: [&quot;cat:2&quot;, &quot;snake:2&quot;, &quot;mosquito:1&quot;]}]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -2225,9 +2381,8 @@ div.rendered_html tbody tr:hover {
 
         for (let i = 0; i &lt; tableBodyChildren.length; i++) {
           const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
-          const name = $(tableBodyChildren[i].children[0]).find(&quot;mark&quot;).text().toLowerCase();
-
-          if (activeTypes[type] &amp;&amp; name.startsWith(searchString)) {
+          const name = $(tableBodyChildren[i].children[0]).html().toLowerCase();
+          if (activeTypes[type] &amp;&amp; name.includes(searchString)) {
             tableBodyChildren[i].style.display = &quot;&quot;;
           } else {
             tableBodyChildren[i].style.display = &quot;none&quot;;
@@ -2333,7 +2488,7 @@ div.rendered_html tbody tr:hover {
 <section id="Counters-Constraints">
 <h2>Counters Constraints<a class="headerlink" href="#Counters-Constraints" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">count_below_number</span><span class="p">,</span> <span class="n">null_percentage_below_number</span>
@@ -2343,7 +2498,7 @@ div.rendered_html tbody tr:hover {
 <section id="Examples---Counters-Constraints">
 <h3>Examples - Counters Constraints<a class="headerlink" href="#Examples---Counters-Constraints" title="Permalink to this headline">#</a></h3>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -2360,7 +2515,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
@@ -2377,7 +2532,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -2458,6 +2613,36 @@ div.rendered_html tbody tr:hover {
         font-weight: 700;
         color: #444444;
       }
+
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
 
       .wl-compare-profile {
         position: relative;
@@ -2892,8 +3077,40 @@ div.rendered_html tbody tr:hover {
         }
       }
 
-      const alertListElement = (name, text, status) =&gt; {
+      const alertListElement = (name, text, status, summary) =&gt; {
+        if (summary == null){
+          return (
+          `&lt;div
+             data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
+             class=&quot;alert-list-item display-flex justify-content-space-between align-items-center mb-2&quot;
+           &gt;
+            &lt;div class=&quot;alert-list-text&quot;&gt;
+              ${
+                name &amp;&amp;
+                alertListItemStatus(
+                  status,
+                  `&lt;mark class=&quot;blue-mark&quot;&gt;${name}&lt;/mark&gt;`,
+                  `&lt;mark class=&quot;red-mark&quot;&gt;${name}&lt;/mark&gt;`
+                )
+              }
+              ${text}
+            &lt;/div&gt;
+              ${
+                alertListItemStatus(
+                  status,
+                  `
+                  &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;
+                  `
+                  ,
+                  `
+                  &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;
+                  `
+                )
+              }
+              &lt;/div&gt;`
+        )
 
+        }
         return (
           `&lt;div
              data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
@@ -2913,11 +3130,27 @@ div.rendered_html tbody tr:hover {
               ${
                 alertListItemStatus(
                   status,
-                  `&lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;`,
-                  `&lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;`
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                          &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
+
+                  ,
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                        &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
                 )
               }
-          &lt;/div&gt;`
+              &lt;/div&gt;`
         )
       }
 
@@ -2936,11 +3169,11 @@ div.rendered_html tbody tr:hover {
         let alertListItem = column.map((value) =&gt; {
           if (value[1][0]) {
             let alertListValue = value[1].map((cstr)=&gt;{
-              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false))
+              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false), value[3])
             })
             return alertListValue.join(&#x27; &#x27;)
           } else {
-            return alertListElement(&#x27;&#x27;, value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
+            return alertListElement(&#x27;&#x27;, value[0], value[2] === 0 ||  (failedConstraints++, false), value[3])
           }
         })
          $(document).ready(() =&gt; {
@@ -2970,7 +3203,7 @@ div.rendered_html tbody tr:hover {
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;count of legs lower than 10&quot;, 1, 0], [&quot;null percentage of legs lower than 0.05&quot;, 0, 1]];
+      const context = [[&quot;count of legs lower than 10&quot;, 1, 0, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 1, &quot;nan&quot;: 1, &quot;inf&quot;: 0}], [&quot;null percentage of legs lower than 0.05&quot;, 0, 1, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 1, &quot;nan&quot;: 1, &quot;inf&quot;: 0}]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -3027,9 +3260,8 @@ div.rendered_html tbody tr:hover {
 
         for (let i = 0; i &lt; tableBodyChildren.length; i++) {
           const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
-          const name = $(tableBodyChildren[i].children[0]).find(&quot;mark&quot;).text().toLowerCase();
-
-          if (activeTypes[type] &amp;&amp; name.startsWith(searchString)) {
+          const name = $(tableBodyChildren[i].children[0]).html().toLowerCase();
+          if (activeTypes[type] &amp;&amp; name.includes(searchString)) {
             tableBodyChildren[i].style.display = &quot;&quot;;
           } else {
             tableBodyChildren[i].style.display = &quot;none&quot;;
@@ -3135,7 +3367,7 @@ div.rendered_html tbody tr:hover {
 <section id="Cardinality-Constraints">
 <h2>Cardinality Constraints<a class="headerlink" href="#Cardinality-Constraints" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">distinct_number_in_range</span>
@@ -3145,7 +3377,7 @@ div.rendered_html tbody tr:hover {
 <section id="Examples---Cardinality-Constraints">
 <h3>Examples - Cardinality Constraints<a class="headerlink" href="#Examples---Cardinality-Constraints" title="Permalink to this headline">#</a></h3>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -3162,7 +3394,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
@@ -3178,7 +3410,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -3259,6 +3491,36 @@ div.rendered_html tbody tr:hover {
         font-weight: 700;
         color: #444444;
       }
+
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
 
       .wl-compare-profile {
         position: relative;
@@ -3693,8 +3955,40 @@ div.rendered_html tbody tr:hover {
         }
       }
 
-      const alertListElement = (name, text, status) =&gt; {
+      const alertListElement = (name, text, status, summary) =&gt; {
+        if (summary == null){
+          return (
+          `&lt;div
+             data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
+             class=&quot;alert-list-item display-flex justify-content-space-between align-items-center mb-2&quot;
+           &gt;
+            &lt;div class=&quot;alert-list-text&quot;&gt;
+              ${
+                name &amp;&amp;
+                alertListItemStatus(
+                  status,
+                  `&lt;mark class=&quot;blue-mark&quot;&gt;${name}&lt;/mark&gt;`,
+                  `&lt;mark class=&quot;red-mark&quot;&gt;${name}&lt;/mark&gt;`
+                )
+              }
+              ${text}
+            &lt;/div&gt;
+              ${
+                alertListItemStatus(
+                  status,
+                  `
+                  &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;
+                  `
+                  ,
+                  `
+                  &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;
+                  `
+                )
+              }
+              &lt;/div&gt;`
+        )
 
+        }
         return (
           `&lt;div
              data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
@@ -3714,11 +4008,27 @@ div.rendered_html tbody tr:hover {
               ${
                 alertListItemStatus(
                   status,
-                  `&lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;`,
-                  `&lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;`
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                          &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
+
+                  ,
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                        &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
                 )
               }
-          &lt;/div&gt;`
+              &lt;/div&gt;`
         )
       }
 
@@ -3737,11 +4047,11 @@ div.rendered_html tbody tr:hover {
         let alertListItem = column.map((value) =&gt; {
           if (value[1][0]) {
             let alertListValue = value[1].map((cstr)=&gt;{
-              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false))
+              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false), value[3])
             })
             return alertListValue.join(&#x27; &#x27;)
           } else {
-            return alertListElement(&#x27;&#x27;, value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
+            return alertListElement(&#x27;&#x27;, value[0], value[2] === 0 ||  (failedConstraints++, false), value[3])
           }
         })
          $(document).ready(() =&gt; {
@@ -3771,7 +4081,7 @@ div.rendered_html tbody tr:hover {
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;animal distinct values estimate between 3 and 6 (inclusive)&quot;, 1, 0]];
+      const context = [[&quot;animal distinct values estimate between 3 and 6 (inclusive)&quot;, 1, 0, {&quot;metric&quot;: &quot;cardinality&quot;, &quot;est&quot;: 3.000000014901161, &quot;upper_1&quot;: 3.0001498026537594, &quot;lower_1&quot;: 3.0}]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -3828,9 +4138,8 @@ div.rendered_html tbody tr:hover {
 
         for (let i = 0; i &lt; tableBodyChildren.length; i++) {
           const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
-          const name = $(tableBodyChildren[i].children[0]).find(&quot;mark&quot;).text().toLowerCase();
-
-          if (activeTypes[type] &amp;&amp; name.startsWith(searchString)) {
+          const name = $(tableBodyChildren[i].children[0]).html().toLowerCase();
+          if (activeTypes[type] &amp;&amp; name.includes(searchString)) {
             tableBodyChildren[i].style.display = &quot;&quot;;
           } else {
             tableBodyChildren[i].style.display = &quot;none&quot;;
@@ -3933,6 +4242,1807 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 </section>
+<section id="Types-Metrics">
+<h2>Types Metrics<a class="headerlink" href="#Types-Metrics" title="Permalink to this headline">#</a></h2>
+<section id="Examples---Types-Metrics">
+<h3>Examples - Types Metrics<a class="headerlink" href="#Examples---Types-Metrics" title="Permalink to this headline">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;animal&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;mosquito&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;legs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+    <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.3</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">4.1</span><span class="p">,</span> <span class="mf">5.5e-6</span><span class="p">],</span>
+    <span class="s2">&quot;flies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;False&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">],</span>
+    <span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span> <span class="kc">None</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">}]</span>
+<span class="p">}</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">profile_view</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<section id="Check-Nullable-Types">
+<h4>Check Nullable Types<a class="headerlink" href="#Check-Nullable-Types" title="Permalink to this headline">#</a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">column_is_nullable_integral</span><span class="p">,</span>
+    <span class="n">column_is_nullable_boolean</span><span class="p">,</span>
+    <span class="n">column_is_nullable_fractional</span><span class="p">,</span>
+    <span class="n">column_is_nullable_object</span><span class="p">,</span>
+    <span class="n">column_is_nullable_string</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="n">ConstraintsBuilder</span>
+
+
+<span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">column_is_nullable_string</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;animal&quot;</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">column_is_nullable_integral</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;legs&quot;</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">column_is_nullable_fractional</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">column_is_nullable_boolean</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;flies&quot;</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">column_is_nullable_object</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;obj&quot;</span><span class="p">))</span>
+
+<span class="n">constraints</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+<span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
+
+<span class="n">visualization</span> <span class="o">=</span> <span class="n">NotebookProfileVisualizer</span><span class="p">()</span>
+<span class="n">visualization</span><span class="o">.</span><span class="n">constraints_report</span><span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="n">cell_height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;&quot; /&gt;
+    &lt;meta name=&quot;author&quot; content=&quot;&quot; /&gt;
+
+    &lt;title&gt;Profile Visualizer | whylogs&lt;/title&gt;
+
+    &lt;link rel=&quot;icon&quot; href=&quot;images/whylabs-favicon.png&quot; type=&quot;image/png&quot; sizes=&quot;16x16&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin /&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; /&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css&quot; /&gt;
+
+    &lt;script
+      src=&quot;https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js&quot;
+      integrity=&quot;sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==&quot;
+      crossorigin=&quot;anonymous&quot;
+      referrerpolicy=&quot;no-referrer&quot;
+    &gt;&lt;/script&gt;
+
+    &lt;style type=&quot;text/css&quot;&gt;
+
+      /* Screen on smaller screens */
+      .no-responsive {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1031;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--tealBackground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      @media screen and (min-width: 1000px) {
+        .desktop-content {
+          display: block;
+        }
+        .no-responsive {
+          display: none;
+        }
+      }
+
+      .no-responsive__content {
+        max-width: 600px;
+        width: 100%;
+        padding: 0 24px;
+      }
+
+      .no-responsive__title {
+        font-size: 96px;
+        font-weight: 300;
+        color: var(--brandSecondary900);
+        line-height: 1.167;
+      }
+
+      .no-responsive__text {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--brandSecondary900);
+        line-height: 1.5;
+      }
+
+      .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #444444;
+      }
+
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
+
+      .wl-compare-profile {
+        position: relative;
+        left: 0;
+        padding: 30px;
+        margin-bottom: 20px;
+        background: var(--white);;
+        border-bottom: 1px solid #CED4DA;
+      }
+
+      .alert-list {
+        padding: 30px;
+        padding-top: 0;
+      }
+
+    .drift-detection {
+       justify-content: space-between;
+       align-items: center;
+     }
+
+     .drift-detection-info-circle {
+       width: 15px;
+       height: 15px;
+       border-radius: 50px;
+       display: inline-block;
+       margin-right: 8px;
+     }
+
+     .drift-detection-info-drifts-item {
+         padding-right: 20px;
+     }
+
+     .drift-detection-info-title {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 22px;
+       line-height: 130%;
+       color: #313B3D;
+     }
+
+     .drift-detection-info-drifts-item-count {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 14px;
+       line-height: 16px;
+       color: #000000;
+       padding-right: 8px;
+     }
+
+     .drift-detection-info-drifts-item-name {
+       font-family: Arial;
+       font-style: normal;
+       font-weight: normal;
+       font-size: 12px;
+       line-height: 14px;
+       color: #000000;
+     }
+
+     .drift-detection-search-input {
+       display: flex;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 170px;
+       padding-left: 10px;
+     }
+
+     .drift-detection-search-input img{
+       margin-right: 5px;
+     }
+
+     .drift-detection-search-input input::placeholder {
+       font-family: Arial;
+       font-weight: normal;
+       font-size: 13px;
+       line-height: 16px;
+       color: #313B3D;
+     }
+
+     .dropdown-container {
+       position: absolute;
+       right: 30px;
+       top: 80px;
+       z-index: 999;
+       background: #FFFFFF;
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+       border-radius: 4px;
+       padding: 10px !important;
+       border: none !important;
+     }
+
+     .filter-options-title {
+       width: 240px;
+     }
+
+     .filter-options-title p {
+       margin: 0;
+     }
+
+     .form-check-input:checked {
+       background-color: #0E7384;
+       border-color: #0E7384;
+     }
+
+     .form-check-input[type=checkbox] {
+       border-radius: 2px;
+     }
+
+     .search-input{
+       padding-top: 0 !important;
+       padding-bottom: 0 !important;
+     }
+
+     .search-input input{
+       border: none;
+       background: none;
+       outline: none;
+       height: 40px;
+       width: 100%;
+       font-size: 14px;
+     }
+
+     .search-input img{
+       height: 19px;
+       pointer-events: none;
+     }
+
+     input::placeholder {
+       color: var(--secondaryLight1000);
+     }
+
+      .statistics {
+        width: 100%;
+      }
+
+     .close-filter-button {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #369BAC;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 40px;
+       height: 40px;
+       cursor: pointer;
+       margin-left: 10px;
+     }
+
+      .statistic-number-title {
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 20px;
+        color: #6C757D;
+      }
+
+      .statistic-number {
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 140%;
+        display: flex;
+        align-items: center;
+        color: #4F595B;
+      }
+
+      .full-summary-statistics-wrap {
+        padding: 20px;
+      }
+
+      .statistics {
+        width: 100%;
+      }
+
+      .statistics-list {
+        width: 100% ;
+      }
+
+      mark {
+        padding: 5px;
+        border-radius: 4px;
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 140%;
+      }
+
+      .blue-mark {
+        background-color:  #369BAC1A;
+        color: #369BAC;
+      }
+
+      .red-mark {
+        background-color: #FFEFEE;
+        color: #F5473C;
+      }
+
+      .alert-tag {
+        height: 27px;
+        padding: 5px;
+        border-radius: 4px;
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 12px;
+        line-height: 140%;
+        color: #FFFFFF;
+      }
+
+      .turquoise-background-color {
+        background-color: #1DBB42;
+      }
+
+      .bordeaux-background-color {
+        background-color: #C6462A;
+      }
+
+      .border-solid-gray {
+        border: 1px solid #CED4DA;
+        border-radius: 4px;
+      }
+
+      .display-flex {
+        display: flex;
+      }
+
+      .justify-content-space-between {
+        justify-content: space-between;
+      }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .align-items-center {
+        align-items: center;
+      }
+
+      .align-items-flex-start {
+        align-items: flex-start;
+      }
+
+      .padding-right-30 {
+        padding-right: 30px;
+      }
+
+      .notif-circle-container{
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 3.3px;
+        border-radius: 50%;
+        background-color: #F2994A;
+      }
+
+      .alert-list-text {
+        width: 70%
+      }
+
+     @media screen and (min-width: 500px) {
+       .desktop-content {
+         display: block;
+       }
+       .no-responsive {
+         display: none;
+       }
+     }
+    &lt;/style&gt;
+  &lt;/head&gt;
+
+  &lt;body id=&quot;generated-html&quot;&gt;&lt;/body&gt;
+
+  &lt;script id=&quot;entry-template&quot; type=&quot;text/x-handlebars-template&quot;&gt;
+
+      &lt;div class=&quot;desktop-content&quot;&gt;
+        &lt;div class=&quot;full-summary-statistics-wrap&quot;&gt;
+          &lt;div class=&quot;full-summary-statistics&quot;&gt;
+            &lt;div&gt;
+              &lt;div class=&quot;display-flex justify-content-center&quot;&gt;
+                &lt;div class=&quot;statistics-list border-solid-gray&quot;&gt;
+                  &lt;div&gt;
+                    &lt;div class=&quot;wl-compare-profile&quot; id=&quot;compare-profile&quot;&gt;
+                        &lt;div class=&quot;drift-detection-wrap&quot;&gt;
+                          &lt;div class=&quot;drift-detection display-flex align-items-flex-start&quot;&gt;
+                            &lt;div class=&quot;drift-detection-info flex-direction-colum&quot;&gt;
+                              &lt;div class=&quot;drift-detection-info-title-wrap display-flex&quot;&gt;
+                                &lt;p class=&quot;drift-detection-info-title&quot;&gt;
+                                  Constraints Report
+                                &lt;/p&gt;
+                              &lt;/div&gt;
+
+                              &lt;!-- &lt;/div&gt; --&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;drift-detection-search-input-wrap display-flex&quot;&gt;
+                              &lt;div class=&quot;drift-detection-search-input search-input&quot;&gt;
+                                &lt;input type=&quot;text&quot; id=&quot;wl__feature-search&quot; placeholder=&quot;Quick search...&quot;/&gt;
+                                &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg==&quot;/&gt;
+                              &lt;/div&gt;
+                              &lt;div class=&quot;wl__dropdown_arrow-icon&quot;&gt;
+                                &lt;div onclick=&quot;openFilter()&quot; class=&quot;close-filter-button&quot;&gt;
+                                &lt;div class=&quot;display-flex close-filter-icon d-none&quot;&gt;
+                                  &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg==&quot;/&gt;
+                                &lt;/div&gt;
+                                &lt;div class=&quot;display-flex filter-icon&quot;&gt;
+                                  &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg==&quot;/&gt;
+                                &lt;/div&gt;
+                                &lt;/div&gt;
+                              &lt;span class=&quot;notif-circle-container&quot;&gt;
+                                &lt;span class=&quot;notif-circle&quot;&gt;&lt;/span&gt;
+                              &lt;/span&gt;
+                            &lt;/div&gt;
+                            &lt;/div&gt;
+                          &lt;/div&gt;
+                        &lt;/div&gt;
+                        &lt;div class=&quot;dropdown-container flex-direction-colum mb-2 d-none&quot; id=&quot;dropdown-container&quot;&gt;
+                          &lt;div class=&quot;filter-options&quot;&gt;
+                            &lt;div class=&quot;filter-options-title space-between dropdown&quot;&gt;
+                              &lt;p&gt;Select a view:&lt;/p&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;form-check mb-1 mt-2&quot;&gt;
+                              &lt;input
+                                class=&quot;form-check-input wl__feature-filter-input&quot;
+                                type=&quot;checkbox&quot;
+                                name=&quot;checkbox&quot;
+                                value=&quot;Discrete&quot;
+                                id=&quot;inferredDiscrete&quot;
+                                checked
+                              /&gt;
+                              &lt;label class=&quot;form-check-label&quot; for=&quot;inferredDiscrete&quot;&gt;
+                                Failed constraints (&lt;span class=&quot;wl__feature-count--discrete&quot;&gt;&lt;/span&gt;)
+                              &lt;/label&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;form-check mb-1&quot;&gt;
+                              &lt;input
+                                class=&quot;form-check-input wl__feature-filter-input&quot;
+                                type=&quot;checkbox&quot;
+                                name=&quot;checkbox&quot;
+                                value=&quot;Non-discrete&quot;
+                                id=&quot;inferredNonDiscrete&quot;
+                                checked
+                              /&gt;
+                              &lt;label class=&quot;form-check-label&quot; for=&quot;inferredNonDiscrete&quot;&gt;
+                                Passed constraints (&lt;span
+                                  class=&quot;wl__feature-count--non-discrete&quot;
+                                &gt;&lt;/span&gt;)
+                              &lt;/label&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;form-check mb-1&quot;&gt;
+                              &lt;input
+                                class=&quot;form-check-input wl__feature-filter-input&quot;
+                                type=&quot;checkbox&quot;
+                                name=&quot;checkbox&quot;
+                                value=&quot;Unknown&quot;
+                                id=&quot;inferredUnknown&quot;
+                                checked
+                              /&gt;
+                              &lt;label class=&quot;form-check-label&quot; for=&quot;inferredUnknown&quot;&gt;
+                                All constraints (&lt;span class=&quot;wl__feature-count--unknown&quot;&gt;&lt;/span&gt;)
+                              &lt;/label&gt;
+                            &lt;/div&gt;
+                          &lt;/div&gt;
+                        &lt;/div&gt;
+                      &lt;/div&gt;
+                    &lt;div class=&quot;alert-list&quot; id=&quot;alert-list&quot;&gt;
+                      {{{alertLIst this}}}
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;no-responsive&quot;&gt;
+        &lt;div class=&quot;no-responsive__content&quot;&gt;
+          &lt;h1 class=&quot;no-responsive__title&quot;&gt;Hold on! :)&lt;/h1&gt;
+          &lt;p class=&quot;no-responsive__text&quot;&gt;
+            It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+            best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+            are working on adding support for a larger variety of devices.
+          &lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+  &lt;/script&gt;
+
+  &lt;script src=&quot;https://code.jquery.com/jquery-3.6.0.min.js&quot; integrity=&quot;sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
+
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js&quot; integrity=&quot;sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot;&gt;&lt;/script&gt;
+
+  &lt;script&gt;
+    function registerHandlebarHelperFunctions() {
+      //helper fun
+      function formatLabelDate(timestamp) {
+        const date = new Date(timestamp);
+        const format = d3.timeFormat(&quot;%Y-%m-%d %I:%M:%S %p %Z&quot;);
+        return format(date);
+      }
+
+      function fixNumberTo(number, decimals = 3) {
+        return parseFloat(number).toFixed(decimals);
+      }
+
+      const randomNumbers = (range) =&gt; Math.floor(Math.random() * range)
+
+      const findFetureWithNumberSummary = (column) =&gt; {
+        const fetureIndex = Object.values(column.columns)
+              .findIndex((feture) =&gt; feture.numberSummary)
+
+        return Object.keys(column.columns)[fetureIndex]
+      }
+
+      const alertListItemStatus = (status, passedItem, failedItem) =&gt; {
+        if (status) {
+          return passedItem
+        } else {
+          return failedItem
+        }
+      }
+
+      const alertListElement = (name, text, status, summary) =&gt; {
+        if (summary == null){
+          return (
+          `&lt;div
+             data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
+             class=&quot;alert-list-item display-flex justify-content-space-between align-items-center mb-2&quot;
+           &gt;
+            &lt;div class=&quot;alert-list-text&quot;&gt;
+              ${
+                name &amp;&amp;
+                alertListItemStatus(
+                  status,
+                  `&lt;mark class=&quot;blue-mark&quot;&gt;${name}&lt;/mark&gt;`,
+                  `&lt;mark class=&quot;red-mark&quot;&gt;${name}&lt;/mark&gt;`
+                )
+              }
+              ${text}
+            &lt;/div&gt;
+              ${
+                alertListItemStatus(
+                  status,
+                  `
+                  &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;
+                  `
+                  ,
+                  `
+                  &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;
+                  `
+                )
+              }
+              &lt;/div&gt;`
+        )
+
+        }
+        return (
+          `&lt;div
+             data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
+             class=&quot;alert-list-item display-flex justify-content-space-between align-items-center mb-2&quot;
+           &gt;
+            &lt;div class=&quot;alert-list-text&quot;&gt;
+              ${
+                name &amp;&amp;
+                alertListItemStatus(
+                  status,
+                  `&lt;mark class=&quot;blue-mark&quot;&gt;${name}&lt;/mark&gt;`,
+                  `&lt;mark class=&quot;red-mark&quot;&gt;${name}&lt;/mark&gt;`
+                )
+              }
+              ${text}
+            &lt;/div&gt;
+              ${
+                alertListItemStatus(
+                  status,
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                          &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
+
+                  ,
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                        &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
+                )
+              }
+              &lt;/div&gt;`
+        )
+      }
+
+      let failedConstraints = 0;
+
+      Handlebars.registerHelper(&quot;getProfileTimeStamp&quot;, function (column) {
+        return formatLabelDate(+column.properties.dataTimestamp)
+      });
+
+      Handlebars.registerHelper(&quot;getProfileName&quot;, function (column) {
+        return column.properties.tags.name
+      });
+
+
+      Handlebars.registerHelper(&quot;alertLIst&quot;, function (column) {
+        let alertListItem = column.map((value) =&gt; {
+          if (value[1][0]) {
+            let alertListValue = value[1].map((cstr)=&gt;{
+              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false), value[3])
+            })
+            return alertListValue.join(&#x27; &#x27;)
+          } else {
+            return alertListElement(&#x27;&#x27;, value[0], value[2] === 0 ||  (failedConstraints++, false), value[3])
+          }
+        })
+         $(document).ready(() =&gt; {
+           $(&quot;.wl__feature-count--discrete&quot;).append(failedConstraints)
+           $(&quot;.wl__feature-count--non-discrete&quot;).append(column.length - failedConstraints)
+           $(&quot;.wl__feature-count--unknown&quot;).append(column.length)
+         })
+        return alertListItem.join(&#x27; &#x27;)
+      });
+
+    }
+
+    function openFilter() {
+      const $filterOptions = $(&quot;.dropdown-container&quot;);
+      const filterClass = $filterOptions.attr(&quot;class&quot;);
+
+      if (filterClass.indexOf(&quot;d-none&quot;) &gt; 0) {
+        $filterOptions.removeClass(&quot;d-none&quot;);
+        $(&quot;.filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.close-filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      } else {
+        $filterOptions.addClass(&quot;d-none&quot;);
+        $(&quot;.close-filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      }
+    }
+
+    function initHandlebarsTemplate() {
+      // Replace this context with JSON from .py file
+      const context = [[&quot;animal is nullable string&quot;, 1, 0, {&quot;metric&quot;: &quot;types&quot;, &quot;integral&quot;: 0, &quot;fractional&quot;: 0, &quot;boolean&quot;: 0, &quot;string&quot;: 5, &quot;object&quot;: 0}], [&quot;legs is nullable integral&quot;, 0, 1, {&quot;metric&quot;: &quot;types&quot;, &quot;integral&quot;: 0, &quot;fractional&quot;: 4, &quot;boolean&quot;: 0, &quot;string&quot;: 0, &quot;object&quot;: 0}], [&quot;weight is nullable fractional&quot;, 1, 0, {&quot;metric&quot;: &quot;types&quot;, &quot;integral&quot;: 0, &quot;fractional&quot;: 5, &quot;boolean&quot;: 0, &quot;string&quot;: 0, &quot;object&quot;: 0}], [&quot;flies is nullable boolean&quot;, 0, 1, {&quot;metric&quot;: &quot;types&quot;, &quot;integral&quot;: 0, &quot;fractional&quot;: 0, &quot;boolean&quot;: 4, &quot;string&quot;: 1, &quot;object&quot;: 0}], [&quot;obj is nullable object&quot;, 1, 0, {&quot;metric&quot;: &quot;types&quot;, &quot;integral&quot;: 0, &quot;fractional&quot;: 0, &quot;boolean&quot;: 0, &quot;string&quot;: 0, &quot;object&quot;: 4}]];
+      // Config handlebars and pass data to HBS template
+      const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
+      const template = Handlebars.compile(source);
+      const html = template(context);
+      const target = document.getElementById(&quot;generated-html&quot;);
+      target.innerHTML = html;
+    }
+
+    function initWebsiteScripts() {
+      const $featureSearch = document.getElementById(&quot;wl__feature-search&quot;);
+      const $alertList = document.getElementById(&quot;alert-list&quot;);
+      const $discrete = document.getElementById(&quot;inferredDiscrete&quot;);
+      const $nonDiscrete = document.getElementById(&quot;inferredNonDiscrete&quot;);
+      const $unknown = document.getElementById(&quot;inferredUnknown&quot;);
+
+      const activeTypes = {
+        passed: true,
+        failed: true
+      };
+
+      let searchString = &quot;&quot;;
+
+      function debounce(func, wait, immediate) {
+        let timeout;
+
+        return function () {
+          const context = this;
+          const args = arguments;
+          const later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          };
+
+          const callNow = immediate &amp;&amp; !timeout;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+          if (callNow) func.apply(context, args);
+        };
+      }
+
+      function filterNotification() {
+        const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+        const $boxes = $(&#x27;.wl_filter-options&gt;.form-check&gt;input[name=checkbox]:checked&#x27;);
+        const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
+        if (item === undefined) {
+          $notifCircleContainer.removeClass(&quot;d-none&quot;)
+        } else {
+          $notifCircleContainer.addClass(&quot;d-none&quot;)
+        }
+      }
+
+      function handleSearch() {
+        const tableBodyChildren = $alertList.children;
+
+        for (let i = 0; i &lt; tableBodyChildren.length; i++) {
+          const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
+          const name = $(tableBodyChildren[i].children[0]).html().toLowerCase();
+          if (activeTypes[type] &amp;&amp; name.includes(searchString)) {
+            tableBodyChildren[i].style.display = &quot;&quot;;
+          } else {
+            tableBodyChildren[i].style.display = &quot;none&quot;;
+          }
+        }
+      }
+
+      const checkedBoxes = () =&gt; {
+        if ($(&#x27;.form-check-input:checked&#x27;).length === $(&quot;.form-check-input&quot;).length - 1) {
+          $($(&quot;.form-check-input&quot;)[$(&quot;.form-check-input&quot;).length - 1]).prop( &quot;checked&quot;, true );
+        }
+      }
+
+      $featureSearch.addEventListener(
+        &quot;keyup&quot;,
+        debounce((event) =&gt; {
+          searchString = event.target.value.toLowerCase();
+          handleSearch();
+        }, 100),
+      );
+
+      $discrete.addEventListener(&quot;change&quot;, (event) =&gt; {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;failed&quot;] = true;
+          checkedBoxes();
+        } else {
+          activeTypes[&quot;failed&quot;] = false;
+          $($(&quot;.form-check-input&quot;)[$(&quot;.form-check-input&quot;).length - 1]).prop( &quot;checked&quot;, false );
+        }
+        handleSearch();
+      });
+
+      $nonDiscrete.addEventListener(&quot;change&quot;, (event) =&gt; {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;passed&quot;] = true;
+          checkedBoxes();
+        } else {
+          activeTypes[&quot;passed&quot;] = false;
+          $($(&quot;.form-check-input&quot;)[$(&quot;.form-check-input&quot;).length - 1]).prop( &quot;checked&quot;, false );
+        }
+        handleSearch();
+      });
+
+      $unknown.addEventListener(&quot;change&quot;, (event) =&gt; {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          $(&quot;.form-check-input&quot;).prop( &quot;checked&quot;, true );
+          activeTypes[&quot;passed&quot;] = true;
+          activeTypes[&quot;failed&quot;] = true;
+          checkedBoxes();
+        } else {
+          $(&quot;.form-check-input&quot;).prop( &quot;checked&quot;, false );
+          activeTypes[&quot;passed&quot;] = false;
+          activeTypes[&quot;failed&quot;] = false;
+        }
+        handleSearch();
+      });
+    }
+
+    function checkedBoxes() {
+      const $boxes = $(&#x27;input[name=checkbox]:checked&#x27;);
+      const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+
+      if ($boxes.length) {
+        $notifCircleContainer.removeClass(&quot;d-none&quot;)
+      }
+    }
+
+    function openFilter() {
+      const $filterOptions = $(&quot;.dropdown-container&quot;);
+      const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+      const filterClass = $filterOptions.attr(&quot;class&quot;);
+
+      if (filterClass.indexOf(&quot;d-none&quot;) &gt; 0) {
+        $notifCircleContainer.addClass(&quot;d-none&quot;)
+        $filterOptions.removeClass(&quot;d-none&quot;);
+        $(&quot;.filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.close-filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      } else {
+        $filterOptions.addClass(&quot;d-none&quot;);
+        $(&quot;.close-filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.filter-icon&quot;).removeClass(&quot;d-none&quot;)
+        checkedBoxes()
+      }
+    }
+
+    // Invoke functions -- keep in mind invokation order
+    registerHandlebarHelperFunctions();
+    initHandlebarsTemplate();
+    initWebsiteScripts();
+  &lt;/script&gt;
+&lt;/html&gt;
+" width=100% height=300
+        frameBorder=0></iframe></div>
+</div>
+<p>The constraints above will pass if all values are of a given type. Null values are accepted.</p>
+<p>Note that for <code class="docutils literal notranslate"><span class="pre">legs</span></code>, the constraints failed. That is because whylogs leverages <strong>pandas’ dtypes</strong> when it is available, and when a <code class="docutils literal notranslate"><span class="pre">None</span></code> is present, the column is considered to be <code class="docutils literal notranslate"><span class="pre">fractional</span></code>, even though the remaining values were originally integers.</p>
+</section>
+</section>
+</section>
+<section id="Combined-Metrics">
+<h2>Combined Metrics<a class="headerlink" href="#Combined-Metrics" title="Permalink to this headline">#</a></h2>
+<section id="Examples---Combined-Metrics">
+<h3>Examples - Combined Metrics<a class="headerlink" href="#Examples---Combined-Metrics" title="Permalink to this headline">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;animal&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;mosquito&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;legs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+    <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.3</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">4.1</span><span class="p">,</span> <span class="mf">5.5e-6</span><span class="p">],</span>
+    <span class="s2">&quot;flies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;False&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">],</span>
+    <span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span> <span class="kc">None</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">}]</span>
+<span class="p">}</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">profile_view</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<section id="Check-Non-nullable-Types">
+<h4>Check Non-nullable Types<a class="headerlink" href="#Check-Non-nullable-Types" title="Permalink to this headline">#</a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">column_is_nullable_integral</span><span class="p">,</span>
+    <span class="n">column_is_nullable_boolean</span><span class="p">,</span>
+    <span class="n">column_is_nullable_fractional</span><span class="p">,</span>
+    <span class="n">column_is_nullable_object</span><span class="p">,</span>
+    <span class="n">column_is_nullable_string</span><span class="p">,</span>
+    <span class="n">null_values_below_number</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="n">ConstraintsBuilder</span>
+
+
+<span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">column_is_nullable_string</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;animal&quot;</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">null_values_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;animal&quot;</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># The combination of these metrics makes a check of non-nullable integral</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">column_is_nullable_integral</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;legs&quot;</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">null_values_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;legs&quot;</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># The combination of these metrics makes a check of non-nullable fractional</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">column_is_nullable_fractional</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">null_values_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># The combination of these metrics makes a check of non-nullable boolean</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">column_is_nullable_boolean</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;flies&quot;</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">null_values_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;flies&quot;</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># The combination of these metrics makes a check of non-nullable object</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">column_is_nullable_object</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;obj&quot;</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">null_values_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;obj&quot;</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="n">constraints</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+<span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
+
+<span class="n">visualization</span> <span class="o">=</span> <span class="n">NotebookProfileVisualizer</span><span class="p">()</span>
+<span class="n">visualization</span><span class="o">.</span><span class="n">constraints_report</span><span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="n">cell_height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;&quot; /&gt;
+    &lt;meta name=&quot;author&quot; content=&quot;&quot; /&gt;
+
+    &lt;title&gt;Profile Visualizer | whylogs&lt;/title&gt;
+
+    &lt;link rel=&quot;icon&quot; href=&quot;images/whylabs-favicon.png&quot; type=&quot;image/png&quot; sizes=&quot;16x16&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin /&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; /&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css&quot; /&gt;
+
+    &lt;script
+      src=&quot;https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js&quot;
+      integrity=&quot;sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==&quot;
+      crossorigin=&quot;anonymous&quot;
+      referrerpolicy=&quot;no-referrer&quot;
+    &gt;&lt;/script&gt;
+
+    &lt;style type=&quot;text/css&quot;&gt;
+
+      /* Screen on smaller screens */
+      .no-responsive {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1031;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--tealBackground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      @media screen and (min-width: 1000px) {
+        .desktop-content {
+          display: block;
+        }
+        .no-responsive {
+          display: none;
+        }
+      }
+
+      .no-responsive__content {
+        max-width: 600px;
+        width: 100%;
+        padding: 0 24px;
+      }
+
+      .no-responsive__title {
+        font-size: 96px;
+        font-weight: 300;
+        color: var(--brandSecondary900);
+        line-height: 1.167;
+      }
+
+      .no-responsive__text {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--brandSecondary900);
+        line-height: 1.5;
+      }
+
+      .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #444444;
+      }
+
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
+
+      .wl-compare-profile {
+        position: relative;
+        left: 0;
+        padding: 30px;
+        margin-bottom: 20px;
+        background: var(--white);;
+        border-bottom: 1px solid #CED4DA;
+      }
+
+      .alert-list {
+        padding: 30px;
+        padding-top: 0;
+      }
+
+    .drift-detection {
+       justify-content: space-between;
+       align-items: center;
+     }
+
+     .drift-detection-info-circle {
+       width: 15px;
+       height: 15px;
+       border-radius: 50px;
+       display: inline-block;
+       margin-right: 8px;
+     }
+
+     .drift-detection-info-drifts-item {
+         padding-right: 20px;
+     }
+
+     .drift-detection-info-title {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 22px;
+       line-height: 130%;
+       color: #313B3D;
+     }
+
+     .drift-detection-info-drifts-item-count {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 14px;
+       line-height: 16px;
+       color: #000000;
+       padding-right: 8px;
+     }
+
+     .drift-detection-info-drifts-item-name {
+       font-family: Arial;
+       font-style: normal;
+       font-weight: normal;
+       font-size: 12px;
+       line-height: 14px;
+       color: #000000;
+     }
+
+     .drift-detection-search-input {
+       display: flex;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 170px;
+       padding-left: 10px;
+     }
+
+     .drift-detection-search-input img{
+       margin-right: 5px;
+     }
+
+     .drift-detection-search-input input::placeholder {
+       font-family: Arial;
+       font-weight: normal;
+       font-size: 13px;
+       line-height: 16px;
+       color: #313B3D;
+     }
+
+     .dropdown-container {
+       position: absolute;
+       right: 30px;
+       top: 80px;
+       z-index: 999;
+       background: #FFFFFF;
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+       border-radius: 4px;
+       padding: 10px !important;
+       border: none !important;
+     }
+
+     .filter-options-title {
+       width: 240px;
+     }
+
+     .filter-options-title p {
+       margin: 0;
+     }
+
+     .form-check-input:checked {
+       background-color: #0E7384;
+       border-color: #0E7384;
+     }
+
+     .form-check-input[type=checkbox] {
+       border-radius: 2px;
+     }
+
+     .search-input{
+       padding-top: 0 !important;
+       padding-bottom: 0 !important;
+     }
+
+     .search-input input{
+       border: none;
+       background: none;
+       outline: none;
+       height: 40px;
+       width: 100%;
+       font-size: 14px;
+     }
+
+     .search-input img{
+       height: 19px;
+       pointer-events: none;
+     }
+
+     input::placeholder {
+       color: var(--secondaryLight1000);
+     }
+
+      .statistics {
+        width: 100%;
+      }
+
+     .close-filter-button {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #369BAC;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 40px;
+       height: 40px;
+       cursor: pointer;
+       margin-left: 10px;
+     }
+
+      .statistic-number-title {
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 20px;
+        color: #6C757D;
+      }
+
+      .statistic-number {
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 140%;
+        display: flex;
+        align-items: center;
+        color: #4F595B;
+      }
+
+      .full-summary-statistics-wrap {
+        padding: 20px;
+      }
+
+      .statistics {
+        width: 100%;
+      }
+
+      .statistics-list {
+        width: 100% ;
+      }
+
+      mark {
+        padding: 5px;
+        border-radius: 4px;
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 140%;
+      }
+
+      .blue-mark {
+        background-color:  #369BAC1A;
+        color: #369BAC;
+      }
+
+      .red-mark {
+        background-color: #FFEFEE;
+        color: #F5473C;
+      }
+
+      .alert-tag {
+        height: 27px;
+        padding: 5px;
+        border-radius: 4px;
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 12px;
+        line-height: 140%;
+        color: #FFFFFF;
+      }
+
+      .turquoise-background-color {
+        background-color: #1DBB42;
+      }
+
+      .bordeaux-background-color {
+        background-color: #C6462A;
+      }
+
+      .border-solid-gray {
+        border: 1px solid #CED4DA;
+        border-radius: 4px;
+      }
+
+      .display-flex {
+        display: flex;
+      }
+
+      .justify-content-space-between {
+        justify-content: space-between;
+      }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .align-items-center {
+        align-items: center;
+      }
+
+      .align-items-flex-start {
+        align-items: flex-start;
+      }
+
+      .padding-right-30 {
+        padding-right: 30px;
+      }
+
+      .notif-circle-container{
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 3.3px;
+        border-radius: 50%;
+        background-color: #F2994A;
+      }
+
+      .alert-list-text {
+        width: 70%
+      }
+
+     @media screen and (min-width: 500px) {
+       .desktop-content {
+         display: block;
+       }
+       .no-responsive {
+         display: none;
+       }
+     }
+    &lt;/style&gt;
+  &lt;/head&gt;
+
+  &lt;body id=&quot;generated-html&quot;&gt;&lt;/body&gt;
+
+  &lt;script id=&quot;entry-template&quot; type=&quot;text/x-handlebars-template&quot;&gt;
+
+      &lt;div class=&quot;desktop-content&quot;&gt;
+        &lt;div class=&quot;full-summary-statistics-wrap&quot;&gt;
+          &lt;div class=&quot;full-summary-statistics&quot;&gt;
+            &lt;div&gt;
+              &lt;div class=&quot;display-flex justify-content-center&quot;&gt;
+                &lt;div class=&quot;statistics-list border-solid-gray&quot;&gt;
+                  &lt;div&gt;
+                    &lt;div class=&quot;wl-compare-profile&quot; id=&quot;compare-profile&quot;&gt;
+                        &lt;div class=&quot;drift-detection-wrap&quot;&gt;
+                          &lt;div class=&quot;drift-detection display-flex align-items-flex-start&quot;&gt;
+                            &lt;div class=&quot;drift-detection-info flex-direction-colum&quot;&gt;
+                              &lt;div class=&quot;drift-detection-info-title-wrap display-flex&quot;&gt;
+                                &lt;p class=&quot;drift-detection-info-title&quot;&gt;
+                                  Constraints Report
+                                &lt;/p&gt;
+                              &lt;/div&gt;
+
+                              &lt;!-- &lt;/div&gt; --&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;drift-detection-search-input-wrap display-flex&quot;&gt;
+                              &lt;div class=&quot;drift-detection-search-input search-input&quot;&gt;
+                                &lt;input type=&quot;text&quot; id=&quot;wl__feature-search&quot; placeholder=&quot;Quick search...&quot;/&gt;
+                                &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg==&quot;/&gt;
+                              &lt;/div&gt;
+                              &lt;div class=&quot;wl__dropdown_arrow-icon&quot;&gt;
+                                &lt;div onclick=&quot;openFilter()&quot; class=&quot;close-filter-button&quot;&gt;
+                                &lt;div class=&quot;display-flex close-filter-icon d-none&quot;&gt;
+                                  &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg==&quot;/&gt;
+                                &lt;/div&gt;
+                                &lt;div class=&quot;display-flex filter-icon&quot;&gt;
+                                  &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg==&quot;/&gt;
+                                &lt;/div&gt;
+                                &lt;/div&gt;
+                              &lt;span class=&quot;notif-circle-container&quot;&gt;
+                                &lt;span class=&quot;notif-circle&quot;&gt;&lt;/span&gt;
+                              &lt;/span&gt;
+                            &lt;/div&gt;
+                            &lt;/div&gt;
+                          &lt;/div&gt;
+                        &lt;/div&gt;
+                        &lt;div class=&quot;dropdown-container flex-direction-colum mb-2 d-none&quot; id=&quot;dropdown-container&quot;&gt;
+                          &lt;div class=&quot;filter-options&quot;&gt;
+                            &lt;div class=&quot;filter-options-title space-between dropdown&quot;&gt;
+                              &lt;p&gt;Select a view:&lt;/p&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;form-check mb-1 mt-2&quot;&gt;
+                              &lt;input
+                                class=&quot;form-check-input wl__feature-filter-input&quot;
+                                type=&quot;checkbox&quot;
+                                name=&quot;checkbox&quot;
+                                value=&quot;Discrete&quot;
+                                id=&quot;inferredDiscrete&quot;
+                                checked
+                              /&gt;
+                              &lt;label class=&quot;form-check-label&quot; for=&quot;inferredDiscrete&quot;&gt;
+                                Failed constraints (&lt;span class=&quot;wl__feature-count--discrete&quot;&gt;&lt;/span&gt;)
+                              &lt;/label&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;form-check mb-1&quot;&gt;
+                              &lt;input
+                                class=&quot;form-check-input wl__feature-filter-input&quot;
+                                type=&quot;checkbox&quot;
+                                name=&quot;checkbox&quot;
+                                value=&quot;Non-discrete&quot;
+                                id=&quot;inferredNonDiscrete&quot;
+                                checked
+                              /&gt;
+                              &lt;label class=&quot;form-check-label&quot; for=&quot;inferredNonDiscrete&quot;&gt;
+                                Passed constraints (&lt;span
+                                  class=&quot;wl__feature-count--non-discrete&quot;
+                                &gt;&lt;/span&gt;)
+                              &lt;/label&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;form-check mb-1&quot;&gt;
+                              &lt;input
+                                class=&quot;form-check-input wl__feature-filter-input&quot;
+                                type=&quot;checkbox&quot;
+                                name=&quot;checkbox&quot;
+                                value=&quot;Unknown&quot;
+                                id=&quot;inferredUnknown&quot;
+                                checked
+                              /&gt;
+                              &lt;label class=&quot;form-check-label&quot; for=&quot;inferredUnknown&quot;&gt;
+                                All constraints (&lt;span class=&quot;wl__feature-count--unknown&quot;&gt;&lt;/span&gt;)
+                              &lt;/label&gt;
+                            &lt;/div&gt;
+                          &lt;/div&gt;
+                        &lt;/div&gt;
+                      &lt;/div&gt;
+                    &lt;div class=&quot;alert-list&quot; id=&quot;alert-list&quot;&gt;
+                      {{{alertLIst this}}}
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;no-responsive&quot;&gt;
+        &lt;div class=&quot;no-responsive__content&quot;&gt;
+          &lt;h1 class=&quot;no-responsive__title&quot;&gt;Hold on! :)&lt;/h1&gt;
+          &lt;p class=&quot;no-responsive__text&quot;&gt;
+            It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+            best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+            are working on adding support for a larger variety of devices.
+          &lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+  &lt;/script&gt;
+
+  &lt;script src=&quot;https://code.jquery.com/jquery-3.6.0.min.js&quot; integrity=&quot;sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
+
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js&quot; integrity=&quot;sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot;&gt;&lt;/script&gt;
+
+  &lt;script&gt;
+    function registerHandlebarHelperFunctions() {
+      //helper fun
+      function formatLabelDate(timestamp) {
+        const date = new Date(timestamp);
+        const format = d3.timeFormat(&quot;%Y-%m-%d %I:%M:%S %p %Z&quot;);
+        return format(date);
+      }
+
+      function fixNumberTo(number, decimals = 3) {
+        return parseFloat(number).toFixed(decimals);
+      }
+
+      const randomNumbers = (range) =&gt; Math.floor(Math.random() * range)
+
+      const findFetureWithNumberSummary = (column) =&gt; {
+        const fetureIndex = Object.values(column.columns)
+              .findIndex((feture) =&gt; feture.numberSummary)
+
+        return Object.keys(column.columns)[fetureIndex]
+      }
+
+      const alertListItemStatus = (status, passedItem, failedItem) =&gt; {
+        if (status) {
+          return passedItem
+        } else {
+          return failedItem
+        }
+      }
+
+      const alertListElement = (name, text, status, summary) =&gt; {
+        if (summary == null){
+          return (
+          `&lt;div
+             data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
+             class=&quot;alert-list-item display-flex justify-content-space-between align-items-center mb-2&quot;
+           &gt;
+            &lt;div class=&quot;alert-list-text&quot;&gt;
+              ${
+                name &amp;&amp;
+                alertListItemStatus(
+                  status,
+                  `&lt;mark class=&quot;blue-mark&quot;&gt;${name}&lt;/mark&gt;`,
+                  `&lt;mark class=&quot;red-mark&quot;&gt;${name}&lt;/mark&gt;`
+                )
+              }
+              ${text}
+            &lt;/div&gt;
+              ${
+                alertListItemStatus(
+                  status,
+                  `
+                  &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;
+                  `
+                  ,
+                  `
+                  &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;
+                  `
+                )
+              }
+              &lt;/div&gt;`
+        )
+
+        }
+        return (
+          `&lt;div
+             data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
+             class=&quot;alert-list-item display-flex justify-content-space-between align-items-center mb-2&quot;
+           &gt;
+            &lt;div class=&quot;alert-list-text&quot;&gt;
+              ${
+                name &amp;&amp;
+                alertListItemStatus(
+                  status,
+                  `&lt;mark class=&quot;blue-mark&quot;&gt;${name}&lt;/mark&gt;`,
+                  `&lt;mark class=&quot;red-mark&quot;&gt;${name}&lt;/mark&gt;`
+                )
+              }
+              ${text}
+            &lt;/div&gt;
+              ${
+                alertListItemStatus(
+                  status,
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                          &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
+
+                  ,
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                        &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
+                )
+              }
+              &lt;/div&gt;`
+        )
+      }
+
+      let failedConstraints = 0;
+
+      Handlebars.registerHelper(&quot;getProfileTimeStamp&quot;, function (column) {
+        return formatLabelDate(+column.properties.dataTimestamp)
+      });
+
+      Handlebars.registerHelper(&quot;getProfileName&quot;, function (column) {
+        return column.properties.tags.name
+      });
+
+
+      Handlebars.registerHelper(&quot;alertLIst&quot;, function (column) {
+        let alertListItem = column.map((value) =&gt; {
+          if (value[1][0]) {
+            let alertListValue = value[1].map((cstr)=&gt;{
+              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false), value[3])
+            })
+            return alertListValue.join(&#x27; &#x27;)
+          } else {
+            return alertListElement(&#x27;&#x27;, value[0], value[2] === 0 ||  (failedConstraints++, false), value[3])
+          }
+        })
+         $(document).ready(() =&gt; {
+           $(&quot;.wl__feature-count--discrete&quot;).append(failedConstraints)
+           $(&quot;.wl__feature-count--non-discrete&quot;).append(column.length - failedConstraints)
+           $(&quot;.wl__feature-count--unknown&quot;).append(column.length)
+         })
+        return alertListItem.join(&#x27; &#x27;)
+      });
+
+    }
+
+    function openFilter() {
+      const $filterOptions = $(&quot;.dropdown-container&quot;);
+      const filterClass = $filterOptions.attr(&quot;class&quot;);
+
+      if (filterClass.indexOf(&quot;d-none&quot;) &gt; 0) {
+        $filterOptions.removeClass(&quot;d-none&quot;);
+        $(&quot;.filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.close-filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      } else {
+        $filterOptions.addClass(&quot;d-none&quot;);
+        $(&quot;.close-filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      }
+    }
+
+    function initHandlebarsTemplate() {
+      // Replace this context with JSON from .py file
+      const context = [[&quot;animal is nullable string&quot;, 1, 0, {&quot;metric&quot;: &quot;types&quot;, &quot;integral&quot;: 0, &quot;fractional&quot;: 0, &quot;boolean&quot;: 0, &quot;string&quot;: 5, &quot;object&quot;: 0}], [&quot;null values of animal lower than 1&quot;, 1, 0, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 0, &quot;nan&quot;: 0, &quot;inf&quot;: 0}], [&quot;legs is nullable integral&quot;, 0, 1, {&quot;metric&quot;: &quot;types&quot;, &quot;integral&quot;: 0, &quot;fractional&quot;: 4, &quot;boolean&quot;: 0, &quot;string&quot;: 0, &quot;object&quot;: 0}], [&quot;null values of legs lower than 1&quot;, 0, 1, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 1, &quot;nan&quot;: 1, &quot;inf&quot;: 0}], [&quot;weight is nullable fractional&quot;, 1, 0, {&quot;metric&quot;: &quot;types&quot;, &quot;integral&quot;: 0, &quot;fractional&quot;: 5, &quot;boolean&quot;: 0, &quot;string&quot;: 0, &quot;object&quot;: 0}], [&quot;null values of weight lower than 1&quot;, 1, 0, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 0, &quot;nan&quot;: 0, &quot;inf&quot;: 0}], [&quot;flies is nullable boolean&quot;, 0, 1, {&quot;metric&quot;: &quot;types&quot;, &quot;integral&quot;: 0, &quot;fractional&quot;: 0, &quot;boolean&quot;: 4, &quot;string&quot;: 1, &quot;object&quot;: 0}], [&quot;null values of flies lower than 1&quot;, 1, 0, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 0, &quot;nan&quot;: 0, &quot;inf&quot;: 0}], [&quot;obj is nullable object&quot;, 1, 0, {&quot;metric&quot;: &quot;types&quot;, &quot;integral&quot;: 0, &quot;fractional&quot;: 0, &quot;boolean&quot;: 0, &quot;string&quot;: 0, &quot;object&quot;: 4}], [&quot;null values of obj lower than 1&quot;, 0, 1, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 1, &quot;nan&quot;: 0, &quot;inf&quot;: 0}]];
+      // Config handlebars and pass data to HBS template
+      const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
+      const template = Handlebars.compile(source);
+      const html = template(context);
+      const target = document.getElementById(&quot;generated-html&quot;);
+      target.innerHTML = html;
+    }
+
+    function initWebsiteScripts() {
+      const $featureSearch = document.getElementById(&quot;wl__feature-search&quot;);
+      const $alertList = document.getElementById(&quot;alert-list&quot;);
+      const $discrete = document.getElementById(&quot;inferredDiscrete&quot;);
+      const $nonDiscrete = document.getElementById(&quot;inferredNonDiscrete&quot;);
+      const $unknown = document.getElementById(&quot;inferredUnknown&quot;);
+
+      const activeTypes = {
+        passed: true,
+        failed: true
+      };
+
+      let searchString = &quot;&quot;;
+
+      function debounce(func, wait, immediate) {
+        let timeout;
+
+        return function () {
+          const context = this;
+          const args = arguments;
+          const later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          };
+
+          const callNow = immediate &amp;&amp; !timeout;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+          if (callNow) func.apply(context, args);
+        };
+      }
+
+      function filterNotification() {
+        const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+        const $boxes = $(&#x27;.wl_filter-options&gt;.form-check&gt;input[name=checkbox]:checked&#x27;);
+        const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
+        if (item === undefined) {
+          $notifCircleContainer.removeClass(&quot;d-none&quot;)
+        } else {
+          $notifCircleContainer.addClass(&quot;d-none&quot;)
+        }
+      }
+
+      function handleSearch() {
+        const tableBodyChildren = $alertList.children;
+
+        for (let i = 0; i &lt; tableBodyChildren.length; i++) {
+          const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
+          const name = $(tableBodyChildren[i].children[0]).html().toLowerCase();
+          if (activeTypes[type] &amp;&amp; name.includes(searchString)) {
+            tableBodyChildren[i].style.display = &quot;&quot;;
+          } else {
+            tableBodyChildren[i].style.display = &quot;none&quot;;
+          }
+        }
+      }
+
+      const checkedBoxes = () =&gt; {
+        if ($(&#x27;.form-check-input:checked&#x27;).length === $(&quot;.form-check-input&quot;).length - 1) {
+          $($(&quot;.form-check-input&quot;)[$(&quot;.form-check-input&quot;).length - 1]).prop( &quot;checked&quot;, true );
+        }
+      }
+
+      $featureSearch.addEventListener(
+        &quot;keyup&quot;,
+        debounce((event) =&gt; {
+          searchString = event.target.value.toLowerCase();
+          handleSearch();
+        }, 100),
+      );
+
+      $discrete.addEventListener(&quot;change&quot;, (event) =&gt; {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;failed&quot;] = true;
+          checkedBoxes();
+        } else {
+          activeTypes[&quot;failed&quot;] = false;
+          $($(&quot;.form-check-input&quot;)[$(&quot;.form-check-input&quot;).length - 1]).prop( &quot;checked&quot;, false );
+        }
+        handleSearch();
+      });
+
+      $nonDiscrete.addEventListener(&quot;change&quot;, (event) =&gt; {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;passed&quot;] = true;
+          checkedBoxes();
+        } else {
+          activeTypes[&quot;passed&quot;] = false;
+          $($(&quot;.form-check-input&quot;)[$(&quot;.form-check-input&quot;).length - 1]).prop( &quot;checked&quot;, false );
+        }
+        handleSearch();
+      });
+
+      $unknown.addEventListener(&quot;change&quot;, (event) =&gt; {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          $(&quot;.form-check-input&quot;).prop( &quot;checked&quot;, true );
+          activeTypes[&quot;passed&quot;] = true;
+          activeTypes[&quot;failed&quot;] = true;
+          checkedBoxes();
+        } else {
+          $(&quot;.form-check-input&quot;).prop( &quot;checked&quot;, false );
+          activeTypes[&quot;passed&quot;] = false;
+          activeTypes[&quot;failed&quot;] = false;
+        }
+        handleSearch();
+      });
+    }
+
+    function checkedBoxes() {
+      const $boxes = $(&#x27;input[name=checkbox]:checked&#x27;);
+      const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+
+      if ($boxes.length) {
+        $notifCircleContainer.removeClass(&quot;d-none&quot;)
+      }
+    }
+
+    function openFilter() {
+      const $filterOptions = $(&quot;.dropdown-container&quot;);
+      const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+      const filterClass = $filterOptions.attr(&quot;class&quot;);
+
+      if (filterClass.indexOf(&quot;d-none&quot;) &gt; 0) {
+        $notifCircleContainer.addClass(&quot;d-none&quot;)
+        $filterOptions.removeClass(&quot;d-none&quot;);
+        $(&quot;.filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.close-filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      } else {
+        $filterOptions.addClass(&quot;d-none&quot;);
+        $(&quot;.close-filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.filter-icon&quot;).removeClass(&quot;d-none&quot;)
+        checkedBoxes()
+      }
+    }
+
+    // Invoke functions -- keep in mind invokation order
+    registerHandlebarHelperFunctions();
+    initHandlebarsTemplate();
+    initWebsiteScripts();
+  &lt;/script&gt;
+&lt;/html&gt;
+" width=100% height=300
+        frameBorder=0></iframe></div>
+</div>
+<p>To create a constraint that checks for a non-nullable type, we combine two separate constraints:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">column</span> <span class="pre">is</span> <span class="pre">nullable</span> <span class="pre">datatype</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">null</span> <span class="pre">values</span> <span class="pre">below</span> <span class="pre">1</span></code></p></li>
+</ul>
+</section>
+</section>
+</section>
 </section>
 
         </article>
@@ -4015,6 +6125,20 @@ div.rendered_html tbody tr:hover {
 </li>
 <li><a class="reference internal" href="#Cardinality-Constraints">Cardinality Constraints</a><ul>
 <li><a class="reference internal" href="#Examples---Cardinality-Constraints">Examples - Cardinality Constraints</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Types-Metrics">Types Metrics</a><ul>
+<li><a class="reference internal" href="#Examples---Types-Metrics">Examples - Types Metrics</a><ul>
+<li><a class="reference internal" href="#Check-Nullable-Types">Check Nullable Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Combined-Metrics">Combined Metrics</a><ul>
+<li><a class="reference internal" href="#Examples---Combined-Metrics">Examples - Combined Metrics</a><ul>
+<li><a class="reference internal" href="#Check-Non-nullable-Types">Check Non-nullable Types</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

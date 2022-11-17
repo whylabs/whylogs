@@ -267,6 +267,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/types_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.types_metrics</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/constraints/metric_constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.metric_constraints</span></code></a></li>
@@ -668,14 +669,12 @@ Constraints</a></p>
 </div>
 </div>
 <p>Starting with the basic pandas dataframe logging, consider the following input. We will generate whylogs profile view from this</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="n">why</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;animal&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;hawk&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;mosquito&quot;</span><span class="p">],</span>
@@ -688,17 +687,9 @@ Constraints</a></p>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-1.0.0rc3
-</pre></div></div>
-</div>
 <p>The profile view can be display as a pandas dataframe where the columns are metric/component paths</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
@@ -706,7 +697,7 @@ Constraints</a></p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -728,27 +719,27 @@ Constraints</a></p>
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>counts/n</th>
-      <th>counts/null</th>
-      <th>types/integral</th>
-      <th>types/fractional</th>
-      <th>types/boolean</th>
-      <th>types/string</th>
-      <th>types/object</th>
       <th>cardinality/est</th>
-      <th>cardinality/upper_1</th>
       <th>cardinality/lower_1</th>
-      <th>...</th>
-      <th>distribution/q_25</th>
+      <th>cardinality/upper_1</th>
+      <th>counts/inf</th>
+      <th>counts/n</th>
+      <th>counts/nan</th>
+      <th>counts/null</th>
+      <th>distribution/max</th>
+      <th>distribution/mean</th>
       <th>distribution/median</th>
-      <th>distribution/q_75</th>
-      <th>distribution/q_90</th>
-      <th>distribution/q_95</th>
-      <th>distribution/q_99</th>
+      <th>...</th>
+      <th>distribution/stddev</th>
+      <th>frequent_items/frequent_strings</th>
       <th>type</th>
+      <th>types/boolean</th>
+      <th>types/fractional</th>
+      <th>types/integral</th>
+      <th>types/object</th>
+      <th>types/string</th>
       <th>ints/max</th>
       <th>ints/min</th>
-      <th>frequent_items/frequent_strings</th>
     </tr>
     <tr>
       <th>column</th>
@@ -777,85 +768,85 @@ Constraints</a></p>
   </thead>
   <tbody>
     <tr>
-      <th>weight</th>
+      <th>animal</th>
+      <td>4.0</td>
+      <td>4.0</td>
+      <td>4.00020</td>
+      <td>0</td>
       <td>5</td>
       <td>0</td>
       <td>0</td>
-      <td>5</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>5.0</td>
-      <td>5.00025</td>
-      <td>5.0</td>
-      <td>...</td>
-      <td>1.3</td>
-      <td>1.8</td>
-      <td>4.1</td>
-      <td>4.3</td>
-      <td>4.3</td>
-      <td>4.3</td>
-      <td>SummaryType.COLUMN</td>
       <td>NaN</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='cat', est=2, upper=2, low...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>legs</th>
-      <td>5</td>
-      <td>0</td>
-      <td>5</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
+      <td>4.0</td>
       <td>4.0</td>
       <td>4.00020</td>
+      <td>0</td>
+      <td>5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>6.0</td>
+      <td>3.200000</td>
       <td>4.0</td>
       <td>...</td>
-      <td>2.0</td>
-      <td>4.0</td>
-      <td>4.0</td>
-      <td>6.0</td>
-      <td>6.0</td>
-      <td>6.0</td>
+      <td>2.280351</td>
+      <td>[FrequentItem(value='4', est=2, upper=2, lower...</td>
       <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+      <td>0</td>
+      <td>0</td>
       <td>6.0</td>
       <td>0.0</td>
-      <td>[FrequentItem(value='4.000000', est=2, upper=2...</td>
     </tr>
     <tr>
-      <th>animal</th>
+      <th>weight</th>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.00025</td>
+      <td>0</td>
       <td>5</td>
       <td>0</td>
       <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>5</td>
-      <td>0</td>
-      <td>4.0</td>
-      <td>4.00020</td>
-      <td>4.0</td>
+      <td>4.3</td>
+      <td>2.300001</td>
+      <td>1.8</td>
       <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
+      <td>1.856069</td>
       <td>NaN</td>
       <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>5</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>[FrequentItem(value='cat', est=2, upper=2, low...</td>
     </tr>
   </tbody>
 </table>
-<p>3 rows × 28 columns</p>
+<p>3 rows × 30 columns</p>
 </div></div>
 </div>
 <p>In the above output notice that we have a metrics on the number of legs these animals have in the “legs” column. Let’s say we want to define some constraints on the number of “legs” we expect for animals.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="n">Constraints</span><span class="p">,</span> <span class="n">ConstraintsBuilder</span><span class="p">,</span> <span class="n">MetricsSelector</span><span class="p">,</span> <span class="n">MetricConstraint</span>
@@ -889,13 +880,13 @@ Constraints</a></p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-columns: dict_keys([&#39;weight&#39;, &#39;legs&#39;, &#39;animal&#39;])
+columns: dict_keys([&#39;animal&#39;, &#39;legs&#39;, &#39;weight&#39;])
 metric names: [&#39;counts&#39;, &#39;types&#39;, &#39;distribution&#39;, &#39;ints&#39;, &#39;cardinality&#39;, &#39;frequent_items&#39;]
-here is selector at index 6: MetricsSelector(metric_name=&#39;distribution&#39;, column_name=&#39;legs&#39;, metrics_resolver=None) there are a total of 14
+here is selector at index 6: MetricsSelector(metric_name=&#39;types&#39;, column_name=&#39;legs&#39;, metrics_resolver=None) there are a total of 15
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Lets say we&#39;re interested in defining a constraint on the number of &quot;legs&quot;. From output above we see</span>
@@ -907,7 +898,7 @@ here is selector at index 6: MetricsSelector(metric_name=&#39;distribution&#39;,
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -930,7 +921,7 @@ here is selector at index 6: MetricsSelector(metric_name=&#39;distribution&#39;,
 </div>
 <p>Ok, let’s come back to how to use the ConstraintsBuilder to add a couple constraints</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># the constraints builder add_constraint() takes in a MetricConstraint, which requires three things to define it:</span>
@@ -956,7 +947,7 @@ here is selector at index 6: MetricsSelector(metric_name=&#39;distribution&#39;,
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># now that we have a legs_constraint defined we can add it to the builder:</span>
@@ -979,8 +970,8 @@ here is selector at index 6: MetricsSelector(metric_name=&#39;distribution&#39;,
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Constraints valid: </span><span class="si">{</span><span class="n">constraints_valid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># And a simple report of the [constraint name, pass, fail] can be generated like this:</span>
-<span class="n">constraints_report</span> <span class="o">=</span> <span class="n">constraints</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Constraints report [constraint name, pass, fail]: </span><span class="si">{</span><span class="n">constraints_report</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">constraints_report</span> <span class="o">=</span> <span class="n">constraints</span><span class="o">.</span><span class="n">generate_constraints_report</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Constraints report [constraint name, pass, fail, summary]: </span><span class="si">{</span><span class="n">constraints_report</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -990,12 +981,12 @@ here is selector at index 6: MetricsSelector(metric_name=&#39;distribution&#39;,
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Constraints valid: True
-Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0), (&#39;legs &gt;= 0&#39;, 1, 0)]
+Constraints report [constraint name, pass, fail, summary]: [ReportResult(name=&#39;legs &lt; 12&#39;, passed=1, failed=0, summary=None), ReportResult(name=&#39;legs &gt;= 0&#39;, passed=1, failed=0, summary=None)]
 </pre></div></div>
 </div>
 <p>Ok lets add a few more! and rebuild the constraints</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stddev_below_3</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">stddev</span> <span class="o">&lt;</span> <span class="mf">3.0</span>
@@ -1016,7 +1007,7 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 
 
 <span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">MetricConstraint</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;count &gt;= 1000&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;animal count &gt;= 1000&quot;</span><span class="p">,</span>
     <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">,</span>
     <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">metric_name</span><span class="o">=</span><span class="s1">&#39;counts&#39;</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="s1">&#39;animal&#39;</span><span class="p">)</span>
 <span class="p">))</span>
@@ -1026,7 +1017,7 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
@@ -1038,7 +1029,7 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1119,6 +1110,36 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
         font-weight: 700;
         color: #444444;
       }
+
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
 
       .wl-compare-profile {
         position: relative;
@@ -1553,8 +1574,40 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
         }
       }
 
-      const alertListElement = (name, text, status) =&gt; {
+      const alertListElement = (name, text, status, summary) =&gt; {
+        if (summary == null){
+          return (
+          `&lt;div
+             data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
+             class=&quot;alert-list-item display-flex justify-content-space-between align-items-center mb-2&quot;
+           &gt;
+            &lt;div class=&quot;alert-list-text&quot;&gt;
+              ${
+                name &amp;&amp;
+                alertListItemStatus(
+                  status,
+                  `&lt;mark class=&quot;blue-mark&quot;&gt;${name}&lt;/mark&gt;`,
+                  `&lt;mark class=&quot;red-mark&quot;&gt;${name}&lt;/mark&gt;`
+                )
+              }
+              ${text}
+            &lt;/div&gt;
+              ${
+                alertListItemStatus(
+                  status,
+                  `
+                  &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;
+                  `
+                  ,
+                  `
+                  &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;
+                  `
+                )
+              }
+              &lt;/div&gt;`
+        )
 
+        }
         return (
           `&lt;div
              data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
@@ -1574,11 +1627,27 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
               ${
                 alertListItemStatus(
                   status,
-                  `&lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;`,
-                  `&lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;`
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                          &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
+
+                  ,
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                        &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
                 )
               }
-          &lt;/div&gt;`
+              &lt;/div&gt;`
         )
       }
 
@@ -1597,11 +1666,11 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
         let alertListItem = column.map((value) =&gt; {
           if (value[1][0]) {
             let alertListValue = value[1].map((cstr)=&gt;{
-              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false))
+              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false), value[3])
             })
             return alertListValue.join(&#x27; &#x27;)
           } else {
-            return alertListElement(&#x27;&#x27;, value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
+            return alertListElement(&#x27;&#x27;, value[0], value[2] === 0 ||  (failedConstraints++, false), value[3])
           }
         })
          $(document).ready(() =&gt; {
@@ -1631,7 +1700,7 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;legs &lt; 12&quot;, 1, 0], [&quot;legs &gt;= 0&quot;, 1, 0]];
+      const context = [[&quot;legs &lt; 12&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 3.2, &quot;stddev&quot;: 2.280350850198276, &quot;n&quot;: 5, &quot;max&quot;: 6.0, &quot;min&quot;: 0.0, &quot;q_01&quot;: 0.0, &quot;q_05&quot;: 0.0, &quot;q_10&quot;: 0.0, &quot;q_25&quot;: 2.0, &quot;median&quot;: 4.0, &quot;q_75&quot;: 4.0, &quot;q_90&quot;: 6.0, &quot;q_95&quot;: 6.0, &quot;q_99&quot;: 6.0}], [&quot;legs &gt;= 0&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 3.2, &quot;stddev&quot;: 2.280350850198276, &quot;n&quot;: 5, &quot;max&quot;: 6.0, &quot;min&quot;: 0.0, &quot;q_01&quot;: 0.0, &quot;q_05&quot;: 0.0, &quot;q_10&quot;: 0.0, &quot;q_25&quot;: 2.0, &quot;median&quot;: 4.0, &quot;q_75&quot;: 4.0, &quot;q_90&quot;: 6.0, &quot;q_95&quot;: 6.0, &quot;q_99&quot;: 6.0}]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -1688,9 +1757,8 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 
         for (let i = 0; i &lt; tableBodyChildren.length; i++) {
           const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
-          const name = $(tableBodyChildren[i].children[0]).find(&quot;mark&quot;).text().toLowerCase();
-
-          if (activeTypes[type] &amp;&amp; name.startsWith(searchString)) {
+          const name = $(tableBodyChildren[i].children[0]).html().toLowerCase();
+          if (activeTypes[type] &amp;&amp; name.includes(searchString)) {
             tableBodyChildren[i].style.display = &quot;&quot;;
           } else {
             tableBodyChildren[i].style.display = &quot;none&quot;;
@@ -1791,8 +1859,10 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 " width=100% height=300
         frameBorder=0></iframe></div>
 </div>
+<p>If you hover on the <code class="docutils literal notranslate"><span class="pre">Passed/Fail</span></code> icons, you’ll be able to check the summary of the metric that was used to build the constraints. In this case, <code class="docutils literal notranslate"><span class="pre">legs&lt;12</span></code> passed because the <code class="docutils literal notranslate"><span class="pre">max</span></code> metric component is <strong>6</strong>, which is below the number <strong>12</strong>.</p>
+<p>Similarly, <code class="docutils literal notranslate"><span class="pre">legs</span> <span class="pre">&gt;=</span> <span class="pre">0</span></code> passed, because <code class="docutils literal notranslate"><span class="pre">min</span></code> is <strong>0</strong>, which is above or equal <strong>0</strong>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># a slightly more interesting report</span>
@@ -1801,7 +1871,7 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1882,6 +1952,36 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
         font-weight: 700;
         color: #444444;
       }
+
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
 
       .wl-compare-profile {
         position: relative;
@@ -2316,8 +2416,40 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
         }
       }
 
-      const alertListElement = (name, text, status) =&gt; {
+      const alertListElement = (name, text, status, summary) =&gt; {
+        if (summary == null){
+          return (
+          `&lt;div
+             data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
+             class=&quot;alert-list-item display-flex justify-content-space-between align-items-center mb-2&quot;
+           &gt;
+            &lt;div class=&quot;alert-list-text&quot;&gt;
+              ${
+                name &amp;&amp;
+                alertListItemStatus(
+                  status,
+                  `&lt;mark class=&quot;blue-mark&quot;&gt;${name}&lt;/mark&gt;`,
+                  `&lt;mark class=&quot;red-mark&quot;&gt;${name}&lt;/mark&gt;`
+                )
+              }
+              ${text}
+            &lt;/div&gt;
+              ${
+                alertListItemStatus(
+                  status,
+                  `
+                  &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;
+                  `
+                  ,
+                  `
+                  &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;
+                  `
+                )
+              }
+              &lt;/div&gt;`
+        )
 
+        }
         return (
           `&lt;div
              data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
@@ -2337,11 +2469,27 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
               ${
                 alertListItemStatus(
                   status,
-                  `&lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;`,
-                  `&lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;`
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                          &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
+
+                  ,
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                        &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
                 )
               }
-          &lt;/div&gt;`
+              &lt;/div&gt;`
         )
       }
 
@@ -2360,11 +2508,11 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
         let alertListItem = column.map((value) =&gt; {
           if (value[1][0]) {
             let alertListValue = value[1].map((cstr)=&gt;{
-              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false))
+              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false), value[3])
             })
             return alertListValue.join(&#x27; &#x27;)
           } else {
-            return alertListElement(&#x27;&#x27;, value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
+            return alertListElement(&#x27;&#x27;, value[0], value[2] === 0 ||  (failedConstraints++, false), value[3])
           }
         })
          $(document).ready(() =&gt; {
@@ -2394,7 +2542,7 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;legs &lt; 12&quot;, 1, 0], [&quot;legs &gt;= 0&quot;, 1, 0], [&quot;legs stddev &lt; 3.0&quot;, 1, 0], [&quot;weight &gt;= 0&quot;, 1, 0]];
+      const context = [[&quot;legs &lt; 12&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 3.2, &quot;stddev&quot;: 2.280350850198276, &quot;n&quot;: 5, &quot;max&quot;: 6.0, &quot;min&quot;: 0.0, &quot;q_01&quot;: 0.0, &quot;q_05&quot;: 0.0, &quot;q_10&quot;: 0.0, &quot;q_25&quot;: 2.0, &quot;median&quot;: 4.0, &quot;q_75&quot;: 4.0, &quot;q_90&quot;: 6.0, &quot;q_95&quot;: 6.0, &quot;q_99&quot;: 6.0}], [&quot;legs &gt;= 0&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 3.2, &quot;stddev&quot;: 2.280350850198276, &quot;n&quot;: 5, &quot;max&quot;: 6.0, &quot;min&quot;: 0.0, &quot;q_01&quot;: 0.0, &quot;q_05&quot;: 0.0, &quot;q_10&quot;: 0.0, &quot;q_25&quot;: 2.0, &quot;median&quot;: 4.0, &quot;q_75&quot;: 4.0, &quot;q_90&quot;: 6.0, &quot;q_95&quot;: 6.0, &quot;q_99&quot;: 6.0}], [&quot;legs stddev &lt; 3.0&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 3.2, &quot;stddev&quot;: 2.280350850198276, &quot;n&quot;: 5, &quot;max&quot;: 6.0, &quot;min&quot;: 0.0, &quot;q_01&quot;: 0.0, &quot;q_05&quot;: 0.0, &quot;q_10&quot;: 0.0, &quot;q_25&quot;: 2.0, &quot;median&quot;: 4.0, &quot;q_75&quot;: 4.0, &quot;q_90&quot;: 6.0, &quot;q_95&quot;: 6.0, &quot;q_99&quot;: 6.0}], [&quot;weight &gt;= 0&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -2451,9 +2599,8 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 
         for (let i = 0; i &lt; tableBodyChildren.length; i++) {
           const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
-          const name = $(tableBodyChildren[i].children[0]).find(&quot;mark&quot;).text().toLowerCase();
-
-          if (activeTypes[type] &amp;&amp; name.startsWith(searchString)) {
+          const name = $(tableBodyChildren[i].children[0]).html().toLowerCase();
+          if (activeTypes[type] &amp;&amp; name.includes(searchString)) {
             tableBodyChildren[i].style.display = &quot;&quot;;
           } else {
             tableBodyChildren[i].style.display = &quot;none&quot;;
@@ -2555,7 +2702,7 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
         frameBorder=0></iframe></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># a failing report (because we don&#39;t have enough animals!)</span>
@@ -2564,7 +2711,7 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -2645,6 +2792,36 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
         font-weight: 700;
         color: #444444;
       }
+
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
 
       .wl-compare-profile {
         position: relative;
@@ -3079,8 +3256,40 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
         }
       }
 
-      const alertListElement = (name, text, status) =&gt; {
+      const alertListElement = (name, text, status, summary) =&gt; {
+        if (summary == null){
+          return (
+          `&lt;div
+             data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
+             class=&quot;alert-list-item display-flex justify-content-space-between align-items-center mb-2&quot;
+           &gt;
+            &lt;div class=&quot;alert-list-text&quot;&gt;
+              ${
+                name &amp;&amp;
+                alertListItemStatus(
+                  status,
+                  `&lt;mark class=&quot;blue-mark&quot;&gt;${name}&lt;/mark&gt;`,
+                  `&lt;mark class=&quot;red-mark&quot;&gt;${name}&lt;/mark&gt;`
+                )
+              }
+              ${text}
+            &lt;/div&gt;
+              ${
+                alertListItemStatus(
+                  status,
+                  `
+                  &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;
+                  `
+                  ,
+                  `
+                  &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;
+                  `
+                )
+              }
+              &lt;/div&gt;`
+        )
 
+        }
         return (
           `&lt;div
              data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
@@ -3100,11 +3309,27 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
               ${
                 alertListItemStatus(
                   status,
-                  `&lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;`,
-                  `&lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;`
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                          &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
+
+                  ,
+                  `
+                  &lt;div class=&quot;tooltip-full-number&quot;&gt;
+                    &lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed
+                      &lt;span class=&quot;tooltiptext&quot;&gt;
+                        &lt;pre class=&quot;mb-1&quot;&gt; ${JSON.stringify(summary, null, 2)} &lt;/pre&gt;
+                        &lt;/span&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;`
                 )
               }
-          &lt;/div&gt;`
+              &lt;/div&gt;`
         )
       }
 
@@ -3123,11 +3348,11 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
         let alertListItem = column.map((value) =&gt; {
           if (value[1][0]) {
             let alertListValue = value[1].map((cstr)=&gt;{
-              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false))
+              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false), value[3])
             })
             return alertListValue.join(&#x27; &#x27;)
           } else {
-            return alertListElement(&#x27;&#x27;, value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
+            return alertListElement(&#x27;&#x27;, value[0], value[2] === 0 ||  (failedConstraints++, false), value[3])
           }
         })
          $(document).ready(() =&gt; {
@@ -3157,7 +3382,7 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;legs &lt; 12&quot;, 1, 0], [&quot;legs &gt;= 0&quot;, 1, 0], [&quot;legs stddev &lt; 3.0&quot;, 1, 0], [&quot;weight &gt;= 0&quot;, 1, 0], [&quot;count &gt;= 1000&quot;, 0, 1]];
+      const context = [[&quot;legs &lt; 12&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 3.2, &quot;stddev&quot;: 2.280350850198276, &quot;n&quot;: 5, &quot;max&quot;: 6.0, &quot;min&quot;: 0.0, &quot;q_01&quot;: 0.0, &quot;q_05&quot;: 0.0, &quot;q_10&quot;: 0.0, &quot;q_25&quot;: 2.0, &quot;median&quot;: 4.0, &quot;q_75&quot;: 4.0, &quot;q_90&quot;: 6.0, &quot;q_95&quot;: 6.0, &quot;q_99&quot;: 6.0}], [&quot;legs &gt;= 0&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 3.2, &quot;stddev&quot;: 2.280350850198276, &quot;n&quot;: 5, &quot;max&quot;: 6.0, &quot;min&quot;: 0.0, &quot;q_01&quot;: 0.0, &quot;q_05&quot;: 0.0, &quot;q_10&quot;: 0.0, &quot;q_25&quot;: 2.0, &quot;median&quot;: 4.0, &quot;q_75&quot;: 4.0, &quot;q_90&quot;: 6.0, &quot;q_95&quot;: 6.0, &quot;q_99&quot;: 6.0}], [&quot;legs stddev &lt; 3.0&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 3.2, &quot;stddev&quot;: 2.280350850198276, &quot;n&quot;: 5, &quot;max&quot;: 6.0, &quot;min&quot;: 0.0, &quot;q_01&quot;: 0.0, &quot;q_05&quot;: 0.0, &quot;q_10&quot;: 0.0, &quot;q_25&quot;: 2.0, &quot;median&quot;: 4.0, &quot;q_75&quot;: 4.0, &quot;q_90&quot;: 6.0, &quot;q_95&quot;: 6.0, &quot;q_99&quot;: 6.0}], [&quot;weight &gt;= 0&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;animal count &gt;= 1000&quot;, 0, 1, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 0, &quot;nan&quot;: 0, &quot;inf&quot;: 0}]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -3214,9 +3439,8 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 
         for (let i = 0; i &lt; tableBodyChildren.length; i++) {
           const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
-          const name = $(tableBodyChildren[i].children[0]).find(&quot;mark&quot;).text().toLowerCase();
-
-          if (activeTypes[type] &amp;&amp; name.startsWith(searchString)) {
+          const name = $(tableBodyChildren[i].children[0]).html().toLowerCase();
+          if (activeTypes[type] &amp;&amp; name.includes(searchString)) {
             tableBodyChildren[i].style.display = &quot;&quot;;
           } else {
             tableBodyChildren[i].style.display = &quot;none&quot;;

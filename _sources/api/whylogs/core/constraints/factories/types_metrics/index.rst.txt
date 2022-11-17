@@ -1,0 +1,50 @@
+:py:mod:`whylogs.core.constraints.factories.types_metrics`
+==========================================================
+
+.. py:module:: whylogs.core.constraints.factories.types_metrics
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.constraints.factories.types_metrics.column_is_nullable_integral
+   whylogs.core.constraints.factories.types_metrics.column_is_nullable_fractional
+   whylogs.core.constraints.factories.types_metrics.column_is_nullable_boolean
+   whylogs.core.constraints.factories.types_metrics.column_is_nullable_string
+   whylogs.core.constraints.factories.types_metrics.column_is_nullable_object
+   whylogs.core.constraints.factories.types_metrics.column_is_nullable_datatype
+
+
+
+.. py:function:: column_is_nullable_integral(column_name: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+
+.. py:function:: column_is_nullable_fractional(column_name: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+
+.. py:function:: column_is_nullable_boolean(column_name: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+
+.. py:function:: column_is_nullable_string(column_name: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+
+.. py:function:: column_is_nullable_object(column_name: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+
+.. py:function:: column_is_nullable_datatype(column_name: str, datatype: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Check if column contains only records of specific datatype.
+   Datatypes can be: integral, fractional, boolean, string, object.
+
+   Returns True if there is at least one record of type datatype and there is no records of remaining types.
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+
+
