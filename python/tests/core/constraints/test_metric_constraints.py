@@ -89,7 +89,10 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
         metric_selector=distribution_selector,
         require_column_existence=False,
     )
-
+    assert legs_less_than_12_constraint.validate_profile(view)[0] == legs_less_than_12_constraint.validate(view)
+    assert no_negative_numbers.validate_profile(view)[0] == no_negative_numbers.validate(view)
+    assert legs_less_than_12_constraint.validate_profile(view)[1]["metric"] == "distribution"
+    assert legs_less_than_12_constraint.validate_profile(view)[1]["mean"] == 3.2
     constraints_builder.add_constraint(constraint=legs_less_than_12_constraint)
     constraints_builder.add_constraint(constraint=no_negative_numbers, ignore_missing=True)
     constraints = constraints_builder.build()
