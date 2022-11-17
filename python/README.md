@@ -190,7 +190,7 @@ To learn more about constraints, check out: the [Constraints Example](https://bi
 
 In addition to being able to automatically get notified about potential issues in data, it’s also useful to be able to inspect your data manually. With the profile visualizer, you can generate interactive reports about your profiles (either a single profile or comparing profiles against each other) directly in your Jupyter notebook environment. This enables exploratory data analysis, data drift detection, and data observability.
 
-To access the profile visualizer, install the `[viz]` module of whylogs by running `pip install whylogs[viz]` in your terminal. One type of profile visualization that we can create is a drift report; here's a simple example of how to analyze the drift between two profiles:
+To access the profile visualizer, install the `[viz]` module of whylogs by running `pip install "whylogs[viz]"` in your terminal. One type of profile visualization that we can create is a drift report; here's a simple example of how to analyze the drift between two profiles:
 
 ```python
 import whylogs as why
