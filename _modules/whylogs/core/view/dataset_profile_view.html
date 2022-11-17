@@ -435,15 +435,22 @@
         <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
         <span class="n">creation_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
         <span class="n">metrics</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">columns</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="o">=</span> <span class="n">dataset_timestamp</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_creation_timestamp</span> <span class="o">=</span> <span class="n">creation_timestamp</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span> <span class="o">=</span> <span class="n">metrics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metadata</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dataset_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span>
+
+    <span class="nd">@dataset_timestamp</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">dataset_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="o">=</span> <span class="n">date</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">creation_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
@@ -455,10 +462,64 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_MODEL_PERFORMANCE</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="DatasetProfileView.merge"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">:</span>
-        <span class="n">all_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="nd">@model_performance_metrics</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">model_performance_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">performance_metrics</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="p">[</span><span class="n">_MODEL_PERFORMANCE</span><span class="p">]</span> <span class="o">=</span> <span class="n">performance_metrics</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span> <span class="o">=</span> <span class="p">{</span><span class="n">_MODEL_PERFORMANCE</span><span class="p">:</span> <span class="n">performance_metrics</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_min_datetime</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span> <span class="n">b</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">b</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">a</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">a</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">b</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="k">if</span> <span class="n">a</span> <span class="o">&lt;</span> <span class="n">b</span> <span class="k">else</span> <span class="n">b</span>
+
+    <span class="k">def</span> <span class="nf">_merge_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="n">dataset_level_metrics</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">_metrics</span><span class="p">:</span>
+                <span class="n">dataset_level_metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span>
+                <span class="k">for</span> <span class="n">metric_name</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">_metrics</span><span class="p">:</span>
+                    <span class="n">metric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">metric_name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">metric</span><span class="p">:</span>
+                        <span class="n">dataset_level_metrics</span><span class="p">[</span><span class="n">metric_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">_metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">metric_name</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">dataset_level_metrics</span><span class="p">[</span><span class="n">metric_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">metric_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dataset_level_metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dataset_level_metrics</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_metrics</span>
+        <span class="k">return</span> <span class="n">dataset_level_metrics</span>
+
+    <span class="k">def</span> <span class="nf">_merge_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span>
+                <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span>
+                <span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">_metadata</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_metadata</span>
+        <span class="k">return</span> <span class="n">metadata</span>
+
+    <span class="k">def</span> <span class="nf">_merge_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">_columns</span><span class="p">:</span>
+                <span class="n">all_column_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">all_column_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">_columns</span><span class="p">:</span>
+                <span class="n">all_column_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">all_column_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="n">merged_columns</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">all_names</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">all_column_names</span><span class="p">:</span>
             <span class="n">lhs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
             <span class="n">rhs</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 
@@ -469,11 +530,19 @@
                 <span class="n">res</span> <span class="o">=</span> <span class="n">lhs</span> <span class="o">+</span> <span class="n">rhs</span>
             <span class="k">assert</span> <span class="n">res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">merged_columns</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span>
+        <span class="k">return</span> <span class="n">merged_columns</span>
+
+<div class="viewcode-block" id="DatasetProfileView.merge"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">:</span>
+        <span class="n">merged_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merge_columns</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="n">dataset_level_metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merge_metrics</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merge_metadata</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">DatasetProfileView</span><span class="p">(</span>
-            <span class="n">columns</span><span class="o">=</span><span class="n">merged_columns</span><span class="p">,</span>
-            <span class="n">dataset_timestamp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="k">else</span> <span class="n">other</span><span class="o">.</span><span class="n">dataset_timestamp</span><span class="p">,</span>
-            <span class="n">creation_timestamp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_creation_timestamp</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_creation_timestamp</span> <span class="k">else</span> <span class="n">other</span><span class="o">.</span><span class="n">creation_timestamp</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">merged_columns</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">(),</span>
+            <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">DatasetProfileView</span><span class="o">.</span><span class="n">_min_datetime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">dataset_timestamp</span><span class="p">),</span>
+            <span class="n">creation_timestamp</span><span class="o">=</span><span class="n">DatasetProfileView</span><span class="o">.</span><span class="n">_min_datetime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_creation_timestamp</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">creation_timestamp</span><span class="p">),</span>
+            <span class="n">metrics</span><span class="o">=</span><span class="n">dataset_level_metrics</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="DatasetProfileView.get_column"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.get_column">[docs]</a>    <span class="k">def</span> <span class="nf">get_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ColumnProfileView</span><span class="p">]:</span>

@@ -157,7 +157,7 @@ Functions
 .. py:function:: write(profile: whylogs.core.DatasetProfile, base_dir: str) -> None
 
 
-.. py:class:: DatasetProfileView(*, columns: Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView], dataset_timestamp: Optional[datetime.datetime], creation_timestamp: Optional[datetime.datetime], metrics: Optional[Dict[str, Any]] = None)
+.. py:class:: DatasetProfileView(*, columns: Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView], dataset_timestamp: Optional[datetime.datetime], creation_timestamp: Optional[datetime.datetime], metrics: Optional[Dict[str, Any]] = None, metadata: Optional[Dict[str, str]] = None)
 
    Bases: :py:obj:`whylogs.api.writer.writer.Writable`
 
