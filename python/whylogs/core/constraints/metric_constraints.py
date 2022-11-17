@@ -1,13 +1,18 @@
+from collections import namedtuple
 from copy import deepcopy
 from dataclasses import dataclass
 from logging import getLogger
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from whylogs.core.metrics.metrics import Metric
+from whylogs.core.utils import deprecated
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 logger = getLogger(__name__)
+
+
+ReportResult = namedtuple("ReportResult", "name passed failed summary")
 
 
 @dataclass
@@ -48,6 +53,17 @@ class MetricsSelector:
         return results
 
 
+def pretty_display(metric_name: str, summary: Dict[str, Any]) -> Dict[str, Any]:
+    pretty_summary: Dict[str, Any] = {"metric": metric_name}
+
+    for key, item in summary.items():
+        if key != "frequent_strings":
+            pretty_summary[key] = item
+        else:
+            pretty_summary[f"{key}_top_10"] = [f"{x.value}:{x.est}" for x in item[:10]]
+    return pretty_summary
+
+
 @dataclass
 class MetricConstraint:
     condition: Callable[[Metric], bool]
@@ -61,6 +77,13 @@ class MetricConstraint:
                 return False
         return True
 
+    def _get_metric_summary(self, metrics: List[Metric]) -> Optional[Dict[str, Any]]:
+        if len(metrics) == 1:  # Only returns a summary for single metrics.
+            metric_summary = pretty_display(metrics[0].namespace, metrics[0].to_summary_dict())
+            return metric_summary
+        return None
+
+    @deprecated(message="Please use validate_profile()")
     def validate(self, dataset_profile: DatasetProfileView) -> bool:
         # custom metric resolver allows empty metrics
         if self.metric_selector is None:
@@ -102,6 +125,51 @@ class MetricConstraint:
                 return True
         return self._validate_metrics(metrics)
 
+    def validate_profile(self, dataset_profile: DatasetProfileView) -> Tuple[bool, Optional[Dict[str, Any]]]:
+        # custom metric resolver allows empty metrics
+        if self.metric_selector is None:
+            raise ValueError("can't call validate with an empty metric selector")
+        metric_selector: MetricsSelector = self.metric_selector
+        if metric_selector.metrics_resolver is not None:
+            metrics = metric_selector.apply(dataset_profile)
+            logger.info(f"validate using custom metric selector and found {metrics}")
+            validate_result = self._validate_metrics(metrics)
+            metric_summary = self._get_metric_summary(metrics)
+            return (validate_result, metric_summary)
+
+        # standard selector requires a column be resolved
+        column_profile = metric_selector.column_profile(dataset_profile)
+        if column_profile is None:
+            if self.require_column_existence:
+                raise ValueError(
+                    f"Could not get column {metric_selector.column_name}" f"from column {dataset_profile.get_columns()}"
+                )
+            else:
+                logger.info(
+                    f"validate could not find column {metric_selector.column_name} "
+                    "but require_column_existence is false so returning True"
+                )
+                return (True, None)
+        metrics = metric_selector.apply(dataset_profile)
+        if metrics is None or len(metrics) == 0:
+            if self.require_column_existence:
+                logger.info(
+                    f"validate could not get metric {metric_selector.metric_name} from column "
+                    f"{metric_selector.column_name} so returning False. Available metrics on column are: "
+                    f"{column_profile.get_metric_component_paths()}"
+                )
+                return (False, None)
+            else:
+                logger.info(
+                    f"validate could not get metric {metric_selector.metric_name} from column "
+                    f"{metric_selector.column_name} but require_column_existence is set so returning True. "
+                    f"Available metrics on column are: {column_profile.get_metric_component_paths()}"
+                )
+                return (True, None)
+        validate_result = self._validate_metrics(metrics)
+        metric_summary = self._get_metric_summary(metrics)
+        return (validate_result, metric_summary)
+
 
 class Constraints:
     column_constraints: Dict[str, Dict[str, MetricConstraint]]
@@ -129,19 +197,20 @@ class Constraints:
         for column_name in column_names:
             columnar_constraints = self.column_constraints[column_name]
             for constraint_name, metric_constraint in columnar_constraints.items():
-                result = metric_constraint.validate(profile)
+                (result, _) = metric_constraint.validate_profile(profile)
                 if not result:
                     logger.info(f"{constraint_name} failed on column {column_name}")
                     return False
         metric_names = self.dataset_constraints.keys()
         for metric_name in metric_names:
             metric_constraint = self.dataset_constraints[metric_name]
-            result = metric_constraint.validate(profile)
+            (result, _) = metric_constraint.validate_profile(profile)
             if not result:
                 logger.info(f"{metric_name} failed on dataset")
                 return False
         return True
 
+    @deprecated(message="Please use generate_constraints_report()")
     def report(self, profile_view: Optional[DatasetProfileView] = None) -> List[Tuple[str, int, int]]:
         profile = self._resolve_profile_view(profile_view)
         column_names = self.column_constraints.keys()
@@ -153,7 +222,7 @@ class Constraints:
         for column_name in column_names:
             columnar_constraints = self.column_constraints[column_name]
             for constraint_name, metric_constraint in columnar_constraints.items():
-                result = metric_constraint.validate(profile)
+                (result, _) = metric_constraint.validate_profile(profile)
                 if not result:
                     logger.info(f"{constraint_name} failed on column {column_name}")
                     results.append((constraint_name, 0, 1))
@@ -162,12 +231,71 @@ class Constraints:
         metric_names = self.dataset_constraints.keys()
         for metric_name in metric_names:
             metric_constraint = self.dataset_constraints[metric_name]
-            result = metric_constraint.validate(profile)
+            (result, _) = metric_constraint.validate_profile(profile)
             if not result:
                 logger.info(f"{metric_name} failed on dataset")
                 results.append((metric_name, 0, 1))
             else:
                 results.append((metric_name, 1, 0))
+        return results
+
+    def _generate_metric_report(
+        self,
+        profile_view: DatasetProfileView,
+        metric_constraint: MetricConstraint,
+        constraint_name: str,
+        with_summary: bool,
+    ) -> ReportResult:
+        (result, metric_summary) = metric_constraint.validate_profile(profile_view)
+        if not result:
+            if with_summary:
+                return ReportResult(name=constraint_name, passed=0, failed=1, summary=metric_summary)
+            else:
+                return ReportResult(name=constraint_name, passed=0, failed=1, summary=None)
+        else:
+            if with_summary:
+                return ReportResult(name=constraint_name, passed=1, failed=0, summary=metric_summary)
+            else:
+                return ReportResult(name=constraint_name, passed=1, failed=0, summary=None)
+
+    def generate_constraints_report(
+        self, profile_view: Optional[DatasetProfileView] = None, with_summary=False
+    ) -> List[ReportResult]:
+        profile = self._resolve_profile_view(profile_view)
+        column_names = self.column_constraints.keys()
+        results: List[ReportResult] = []
+        if len(column_names) == 0:
+            logger.warning("report was called with empty set of constraints!")
+            return results
+
+        for column_name in column_names:
+            columnar_constraints = self.column_constraints[column_name]
+            for constraint_name, metric_constraint in columnar_constraints.items():
+                metric_report = self._generate_metric_report(
+                    profile_view=profile,
+                    metric_constraint=metric_constraint,
+                    constraint_name=constraint_name,
+                    with_summary=with_summary,
+                )
+                if metric_report[1] == 0:
+                    logger.info(f"{constraint_name} failed on column {column_name}")
+
+                results.append(metric_report)
+
+        metric_names = self.dataset_constraints.keys()
+        for metric_name in metric_names:
+            metric_constraint = self.dataset_constraints[metric_name]
+            metric_report = self._generate_metric_report(
+                profile_view=profile,
+                metric_constraint=metric_constraint,
+                constraint_name=metric_name,
+                with_summary=with_summary,
+            )
+            if metric_report[1] == 0:
+                logger.info(f"{metric_name} failed on dataset.")
+
+            results.append(metric_report)
+
         return results
 
     def _resolve_profile_view(self, profile_view: Optional[DatasetProfileView]) -> DatasetProfileView:
