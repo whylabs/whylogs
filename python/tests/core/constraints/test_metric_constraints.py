@@ -1,7 +1,6 @@
 from logging import getLogger
 from typing import List
 
-from whylogs.core.relations import Not, Require
 from whylogs.core.constraints import (
     ConstraintsBuilder,
     MetricConstraint,
@@ -12,6 +11,7 @@ from whylogs.core.metric_getters import ProfileGetter
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.relations import Not, Require
 
 TEST_LOGGER = getLogger(__name__)
 
@@ -77,8 +77,8 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
 
     legs_less_than_12_constraint = MetricConstraint(
         name="legs less than 12",
-        condition=Require("max").not_.greater_or_equals(12),  # lambda x: not x.max >= 12,
-        # or condition=Not(Require("max").greater_or_equals(12)),
+        condition=Not(Require("max").greater_or_equals(12)),  # lambda x: not x.max >= 12,
+        # or condition=Require("max").not_.greater_or_equals(12),
         metric_selector=MetricsSelector(metric_name="distribution", column_name="legs"),
     )
 

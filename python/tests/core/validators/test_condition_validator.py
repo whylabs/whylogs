@@ -14,7 +14,7 @@ X = Predicate()
 
 TEST_LOGGER = getLogger(__name__)
 regex_conditions = {
-    "noCreditCard": X.not_.matches(".*4[0-9]{12}(?:[0-9]{3})?")
+    "noCreditCard": Not(X.matches(".*4[0-9]{12}(?:[0-9]{3})?"))
 }  # or Not(X.matches(".*4[0-9]{12}(?:[0-9]{3})?"))
 
 

@@ -125,9 +125,9 @@ class Predicate:
         raise ValueError("Unknown predicate")
 
     def _maybe_not(self, op: Relation, value: Union[str, int, float, ValueGetter]) -> "Predicate":
-        pred = Predicate(op, value, component = self._component)
+        pred = Predicate(op, value, component=self._component)
         if self._op == Relation._not and self._right is None:
-            return Predicate(Relation._not, right=pred, component = self._component)
+            return Predicate(Relation._not, right=pred, component=self._component)
         return pred
 
     def matches(self, value: Union[str, int, float, ValueGetter]) -> "Predicate":
@@ -155,10 +155,10 @@ class Predicate:
         return self._maybe_not(Relation.neq, value)
 
     def and_(self, right: "Predicate") -> "Predicate":
-        return Predicate(Relation._and, left=self, right=right, component = self._component)
+        return Predicate(Relation._and, left=self, right=right, component=self._component)
 
     def or_(self, right: "Predicate") -> "Predicate":
-        return Predicate(Relation._or, left=self, right=right, component = self._component)
+        return Predicate(Relation._or, left=self, right=right, component=self._component)
 
     def is_(self, udf: Callable[[Any], bool]) -> "Predicate":
         pred = Predicate(Relation._udf, udf=udf)
@@ -168,7 +168,7 @@ class Predicate:
 
     @property
     def not_(self) -> "Predicate":
-        return Predicate(Relation._not, component = self._component)
+        return Predicate(Relation._not, component=self._component)
 
     def serialize(self) -> str:
         if not (self._left or self._right):
@@ -186,7 +186,8 @@ class Predicate:
 
 
 def Not(p: Predicate) -> Predicate:
-    return Predicate(Relation._not, right=p, component = p._component)
+    return Predicate(Relation._not, right=p, component=p._component)
+
 
 def Require(component: Optional[str] = None) -> Predicate:
-    return Predicate(component = component)
+    return Predicate(component=component)
