@@ -1,11 +1,10 @@
 from .column_profile import ColumnProfile
-from .constraint_relations import CnNot, CnPredicate, Require
 from .dataset_profile import DatasetProfile
 from .datatypes import TypeMapper
 from .metric_getters import MetricGetter, ProfileGetter
 from .metrics import MetricConfig
 from .model_performance_metrics import ModelPerformanceMetrics
-from .relations import Not, Predicate
+from .relations import Not, Predicate, Require
 from .resolvers import Resolver
 from .schema import ColumnSchema, DatasetSchema
 from .segment import Segment
@@ -15,8 +14,6 @@ from .view import WHYLOGS_MAGIC_HEADER, ColumnProfileView, DatasetProfileView
 __ALL__ = [
     WHYLOGS_MAGIC_HEADER,
     # predicates
-    CnNot,
-    CnPredicate,
     Require,
     MetricGetter,
     ProfileGetter,

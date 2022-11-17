@@ -16,7 +16,7 @@ from whylogs.core.metrics.condition_count_metric import (
 from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.metrics.metrics import OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.relations import Not, Predicate
+from whylogs.core.relations import Not, Predicate, Require
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
 
@@ -27,16 +27,18 @@ def test_condition_count_metric() -> None:
     conditions = {
         "alpha": Condition(X.matches("[a-zA-Z]+")),
         "digit": Condition(X.matches("[0-9]+")),
+        "kwatz": Condition(X.equals("kwatz")),
     }
     metric = ConditionCountMetric(conditions, IntegralComponent(0))
     strings = ["abc", "123", "kwatz", "314159", "abc123"]
     metric.columnar_update(PreprocessedColumn.apply(strings))
     summary = metric.to_summary_dict(None)
 
-    assert set(summary.keys()) == {"total", "alpha", "digit"}
+    assert set(summary.keys()) == {"total", "alpha", "digit", "kwatz"}
     assert summary["total"] == len(strings)
     assert summary["alpha"] == 3  # "abc123" matches since it's not fullmatch
     assert summary["digit"] == 2
+    assert summary["kwatz"] == 1
 
 
 def test_throw_on_failure() -> None:
@@ -155,7 +157,8 @@ def test_condition_bool_ops() -> None:
     conditions = {
         "between": Condition(X.greater_than(40).and_(X.less_than(44))),
         "outside": Condition(X.less_than(40).or_(X.greater_than(44))),
-        "not_alpha": Condition(X.not_.matches("[a-zA-Z]+")),  # or Condition(Not(X.matches("[a-zA-Z]+"))),
+        "not_alpha": Condition(X.not_.matches("[a-zA-Z]+")),
+        "not_alpha2": Condition(Not(X.matches("[a-zA-Z]+"))),
     }
     config = ConditionCountConfig(conditions=conditions)
     metric = ConditionCountMetric.zero(config)
@@ -167,6 +170,7 @@ def test_condition_bool_ops() -> None:
     assert summary["between"] == 1
     assert summary["outside"] == 2
     assert summary["not_alpha"] == 4
+    assert summary["not_alpha2"] == 4
 
 
 def test_bad_condition_name() -> None:
@@ -324,7 +328,25 @@ def test_metric_getter() -> None:
         # (X.is_(even)),
         (X.greater_than(40).and_(X.less_than(44)), "and > x 40 < x 44"),
         (X.less_than(40).or_(X.greater_than(44)), "or < x 40 > x 44"),
-        (X.not_.matches("[a-zA-Z]+"), 'not ~ x "[a-zA-Z]+"'),  # or Not(X.matches("[a-zA-Z]+"))
+        (X.not_.matches("[a-zA-Z]+"), 'not ~ x "[a-zA-Z]+"'),
+        (Not(X.matches("[a-zA-Z]+")), 'not ~ x "[a-zA-Z]+"'),
+        #
+        (Require("mean").matches("[a-zA-Z]+"), '~ mean "[a-zA-Z]+"'),
+        (Require("mean").fullmatch("[a-zA-Z]+"), '~= mean "[a-zA-Z]+"'),
+        (Require("mean").equals("42"), '== mean "42"'),
+        (Require("mean").equals(42), "== mean 42"),
+        (Require("mean").equals(42.1), "== mean 42.1"),
+        (Require("mean").equals(42.0), "== mean 42.0"),
+        (Require("mean").less_than(42), "< mean 42"),
+        (Require("mean").less_or_equals(42), "<= mean 42"),
+        (Require("mean").greater_than(42), "> mean 42"),
+        (Require("mean").greater_or_equals(42), ">= mean 42"),
+        (Require("mean").not_equal(42), "!= mean 42"),
+        # (Require().is_(even)),
+        (Require("mean").greater_than(40).and_(Require("max").less_than(44)), "and > mean 40 < max 44"),
+        (Require("mean").less_than(40).or_(Require("min").greater_than(44)), "or < mean 40 > min 44"),
+        (Require("mean").not_.matches("[a-zA-Z]+"), 'not ~ mean "[a-zA-Z]+"'),
+        (Not(Require("mean").matches("[a-zA-Z]+")), 'not ~ mean "[a-zA-Z]+"'),
     ],
 )
 def test_serialization(predicate: X, serialized: str) -> None:

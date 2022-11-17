@@ -87,7 +87,8 @@ class ConditionCountMetric(Metric):
                     else:
                         failed_conditions.add(cond_name)
 
-                except:  # noqa
+                except Exception as e:  # noqa
+                    logger.debug(e)
                     failed_conditions.add(cond_name)
 
         self.total.set(self.total.value + count)

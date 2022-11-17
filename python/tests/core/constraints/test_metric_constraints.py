@@ -1,8 +1,7 @@
 from logging import getLogger
 from typing import List
 
-from whylogs.core.constraint_relations import CnNot as Not
-from whylogs.core.constraint_relations import Require
+from whylogs.core.relations import Not, Require
 from whylogs.core.constraints import (
     ConstraintsBuilder,
     MetricConstraint,
