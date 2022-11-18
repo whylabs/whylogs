@@ -164,6 +164,10 @@ def test_profile_write_top_level_api_classification(profile_inputs: bool):
     metrics: ModelPerformanceMetrics = results.performance_metrics
     assert metrics is not None
     assert metrics.confusion_matrix is not None
+    if profile_inputs:
+        assert results.view().get_column("col1") is not None
+    else:
+        assert results.view().get_column("col1") is None
 
 
 @pytest.mark.parametrize("profile_inputs", [True, False])
@@ -186,6 +190,10 @@ def test_profile_write_top_level_api_regression(profile_inputs):
     metrics: ModelPerformanceMetrics = results.performance_metrics
     assert metrics is not None
     assert metrics.regression_metrics is not None
+    if profile_inputs:
+        assert results.view().get_column(prediction_column) is not None
+    else:
+        assert results.view().get_column(prediction_column) is None
 
 
 def test_profile_write_top_level_api_back_compat():
@@ -210,3 +218,5 @@ def test_profile_write_top_level_api_back_compat():
     metrics2: ModelPerformanceMetrics = results2.performance_metrics
     assert metrics2 is not None
     assert metrics2.regression_metrics is not None
+    assert results1.view().get_column(prediction_column) is None
+    assert results2.view().get_column(prediction_column) is None
