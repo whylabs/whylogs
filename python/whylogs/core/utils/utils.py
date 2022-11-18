@@ -3,6 +3,19 @@ import warnings
 from typing import Any, Callable, Dict
 
 
+def deprecated(message):
+    def decorator_deprecated(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            func(*args, **kwargs)
+            warnings.warn(message, DeprecationWarning, stacklevel=2)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator_deprecated
+
+
 def deprecated_alias(**aliases: str) -> Callable:
     def deprecated_decorator(method: Callable):
         @functools.wraps(method)
