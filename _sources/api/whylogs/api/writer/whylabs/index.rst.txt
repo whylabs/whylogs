@@ -23,11 +23,29 @@ Attributes
 .. autoapisummary::
 
    whylogs.api.writer.whylabs.FIVE_MINUTES_IN_SECONDS
+   whylogs.api.writer.whylabs.DAY_IN_SECONDS
+   whylogs.api.writer.whylabs.WEEK_IN_SECONDS
+   whylogs.api.writer.whylabs.FIVE_YEARS_IN_SECONDS
    whylogs.api.writer.whylabs.logger
    whylogs.api.writer.whylabs.API_KEY_ENV
 
 
 .. py:data:: FIVE_MINUTES_IN_SECONDS
+   
+
+   
+
+.. py:data:: DAY_IN_SECONDS
+   
+
+   
+
+.. py:data:: WEEK_IN_SECONDS
+   
+
+   
+
+.. py:data:: FIVE_YEARS_IN_SECONDS
    
 
    
