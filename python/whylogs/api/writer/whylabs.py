@@ -32,6 +32,9 @@ from whylogs.migration.uncompound import (
 )
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
+DAY_IN_SECONDS = 60 * 60 * 24
+WEEK_IN_SECONDS = DAY_IN_SECONDS * 7
+FIVE_YEARS_IN_SECONDS = DAY_IN_SECONDS * 365 * 5
 logger = logging.getLogger(__name__)
 
 API_KEY_ENV = "WHYLABS_API_KEY"
@@ -201,9 +204,34 @@ class WhyLabsWriter(Writer):
                 view.write(file=tmp_file)
             tmp_file.flush()
             tmp_file.seek(0)
+            utc_now = datetime.datetime.now(datetime.timezone.utc)
+            dataset_timestamp = view.dataset_timestamp or utc_now
+            stamp = dataset_timestamp.timestamp()
+            time_delta_seconds = utc_now.timestamp() - stamp
+            if time_delta_seconds < 0:
+                logger.warning(
+                    f"About to upload a profile with a dataset_timestamp that is in the future: {time_delta_seconds}s old."
+                )
+            elif time_delta_seconds > WEEK_IN_SECONDS:
+                if time_delta_seconds > FIVE_YEARS_IN_SECONDS:
+                    logger.error(
+                        f"A profile being uploaded to WhyLabs has a dataset_timestamp of({dataset_timestamp}) "
+                        f"compared to current datetime: {utc_now}. Uploads of profiles older than 5 years "
+                        "might not be monitored in WhyLabs and may take up to 24 hours to show up."
+                    )
+                else:
+                    logger.warning(
+                        f"A profile being uploaded to WhyLabs has a dataset_timestamp of {dataset_timestamp} "
+                        "which is older than 7 days compared to {utc_now}. These profiles should be processed within 24 hours."
+                    )
 
-            dataset_timestamp = view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
-            dataset_timestamp_epoch = int(dataset_timestamp.timestamp() * 1000)
+            if stamp <= 0:
+                logger.error(
+                    f"Profiles should have timestamps greater than 0, but found a timestamp of {stamp}"
+                    f" and current timestamp is {utc_now.timestamp()}, this is likely an error."
+                )
+
+            dataset_timestamp_epoch = int(stamp * 1000)
             response = self._do_upload(
                 dataset_timestamp=dataset_timestamp_epoch,
                 profile_file=tmp_file,
