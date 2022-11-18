@@ -1,6 +1,7 @@
 from logging import getLogger
 
 import pandas as pd
+import pytest
 
 from whylogs import log_classification_metrics, log_regression_metrics
 from whylogs.core.model_performance_metrics import ModelPerformanceMetrics
@@ -142,8 +143,9 @@ def test_output_field_set():
     assert isinstance(roundtrip.output_fields, list)
 
 
-def test_profile_write_top_level_api_classification():
-    input_rows = 100
+@pytest.mark.parametrize("profile_inputs", [True, False])
+def test_profile_write_top_level_api_classification(profile_inputs: bool):
+    input_rows = 20
     prediction_column = "col3"
     target_column = "col3.ground_truth"
     number_of_classes = 2
@@ -155,15 +157,18 @@ def test_profile_write_top_level_api_classification():
     }
 
     df = pd.DataFrame(data=d)
-    results = log_classification_metrics(df, target_column=target_column, prediction_column=prediction_column)
+    results = log_classification_metrics(
+        df, target_column=target_column, prediction_column=prediction_column, log_full_data=profile_inputs
+    )
 
     metrics: ModelPerformanceMetrics = results.performance_metrics
     assert metrics is not None
     assert metrics.confusion_matrix is not None
 
 
-def test_profile_write_top_level_api_regression():
-    input_rows = 10
+@pytest.mark.parametrize("profile_inputs", [True, False])
+def test_profile_write_top_level_api_regression(profile_inputs):
+    input_rows = 20
     prediction_column = "col1"
     target_column = "col1.ground_truth"
 
@@ -174,8 +179,34 @@ def test_profile_write_top_level_api_regression():
 
     df = pd.DataFrame(data=d)
 
-    results = log_regression_metrics(df, target_column=target_column, prediction_column=prediction_column)
+    results = log_regression_metrics(
+        df, target_column=target_column, prediction_column=prediction_column, log_full_data=profile_inputs
+    )
 
     metrics: ModelPerformanceMetrics = results.performance_metrics
     assert metrics is not None
     assert metrics.regression_metrics is not None
+
+
+def test_profile_write_top_level_api_back_compat():
+    input_rows = 2
+    prediction_column = "col3"
+    target_column = "col3.ground_truth"
+    number_of_classes = 2
+    d = {
+        "col1": [i for i in range(input_rows)],
+        "col2": [i * i * 1.1 for i in range(input_rows)],
+        prediction_column: [f"x{str(i%number_of_classes)}" for i in range(input_rows)],
+        target_column: [f"x{str((i+1)%number_of_classes)}" for i in range(input_rows)],
+    }
+
+    df = pd.DataFrame(data=d)
+    results1 = log_classification_metrics(df, target_column=target_column, prediction_column=prediction_column)
+    results2 = log_regression_metrics(df, target_column="col1", prediction_column="col2")
+
+    metrics1: ModelPerformanceMetrics = results1.performance_metrics
+    assert metrics1 is not None
+    assert metrics1.confusion_matrix is not None
+    metrics2: ModelPerformanceMetrics = results2.performance_metrics
+    assert metrics2 is not None
+    assert metrics2.regression_metrics is not None
