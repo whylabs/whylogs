@@ -128,7 +128,7 @@ class SvdMetric(Metric):
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         # non-updating!
-        return OperationResult.ok(1)
+        return OperationResult.ok(0)
 
     @classmethod
     def zero(cls, cfg: Optional[MetricConfig] = None) -> "SvdMetric":
@@ -179,6 +179,8 @@ class UpdatableSvdMetric(SvdMetric):
         return UpdatableSvdMetric(self.k, self.decay, VectorComponent(new_U), VectorComponent(new_S))
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
+        if not data.list.objs:
+            return OperationResult.ok(0)
         k = self.k.value
         decay = self.decay.value
         vectors_processed = 0
@@ -339,6 +341,8 @@ class LsiMetric(MultiMetric):
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         self.svd.columnar_update(data)  # no-op if SVD is not updating
         residuals: List[float] = []
+        if not data.list.objs:
+            return OperationResult.ok(0)
         for vector in data.list.objs:  # TODO: batch these
             assert isinstance(vector, np.ndarray)
             residuals.append(self.svd.residual(vector))
