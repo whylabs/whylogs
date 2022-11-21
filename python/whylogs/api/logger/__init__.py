@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, Optional
 
 from typing_extensions import Literal
@@ -12,6 +13,8 @@ from whylogs.core.model_performance_metrics.model_performance_metrics import (
 )
 from whylogs.core.stubs import pd
 
+diagnostic_logger = logging.getLogger(__name__)
+
 
 def log(
     obj: Any = None,
@@ -23,12 +26,27 @@ def log(
     return TransientLogger(schema=schema).log(obj, pandas=pandas, row=row)
 
 
+def _log_with_metrics(
+    data: pd.DataFrame,
+    metrics: ModelPerformanceMetrics,
+    schema: Optional[DatasetSchema],
+    include_data: bool,
+) -> ResultSet:
+    if include_data:
+        results = log(pandas=data, schema=schema)
+    else:
+        results = ProfileResultSet(DatasetProfile(schema=schema))
+    results.add_model_performance_metrics(metrics)
+    return results
+
+
 def log_classification_metrics(
     data: pd.DataFrame,
     target_column: str,
     prediction_column: str,
     score_column: Optional[str] = None,
     schema: Optional[DatasetSchema] = None,
+    log_full_data: bool = False,
 ) -> ProfileResultSet:
     """
     Function to track metrics based on validation data.
@@ -44,6 +62,12 @@ def log_classification_metrics(
         assocaited scores for each inferred, all values set to 1 if not
         passed
     """
+
+    if schema and schema.segments:
+        diagnostic_logger.warning(
+            "Model performance metrics do not yet support segmentation, unsegmented metrics will be computed"
+        )
+
     model_performance_metrics = ModelPerformanceMetrics()
     model_performance_metrics.compute_confusion_matrix(
         predictions=data[prediction_column].to_list(),
@@ -51,9 +75,7 @@ def log_classification_metrics(
         scores=data[score_column].to_list() if score_column else None,
     )
 
-    results = log(pandas=data, schema=schema)
-    results.add_model_performance_metrics(model_performance_metrics)
-    return results
+    return _log_with_metrics(data=data, metrics=model_performance_metrics, schema=schema, include_data=log_full_data)
 
 
 def log_regression_metrics(
@@ -61,6 +83,7 @@ def log_regression_metrics(
     target_column: str,
     prediction_column: str,
     schema: Optional[DatasetSchema] = None,
+    log_full_data: bool = False,
 ) -> ProfileResultSet:
     """
     Function to track regression metrics based on validation data.
@@ -76,15 +99,19 @@ def log_regression_metrics(
         assocaited scores for each inferred, all values set to 1 if not
         passed
     """
+
+    if schema and schema.segments:
+        diagnostic_logger.warning(
+            "Model performance metrics do not yet support segmentation, unsegmented metrics will be computed"
+        )
+
     model_performance_metrics = ModelPerformanceMetrics()
     model_performance_metrics.compute_regression_metrics(
         predictions=data[prediction_column].to_list(),
         targets=data[target_column].to_list(),
     )
 
-    results = log(pandas=data, schema=schema)
-    results.add_model_performance_metrics(model_performance_metrics)
-    return results
+    return _log_with_metrics(data=data, metrics=model_performance_metrics, schema=schema, include_data=log_full_data)
 
 
 def read(path: str) -> ResultSet:
