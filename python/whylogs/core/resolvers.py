@@ -41,14 +41,15 @@ class Resolver(ABC):
     def resolve_additional_standard_metrics(
         self, result: Dict[str, Metric], name: str, why_type: DataType, column_schema: ColumnSchema
     ) -> Dict[str, Metric]:
+        additional_result = {}
         for additional_metric in self.additional_metrics:
             for column_name in additional_metric.column_names:
                 if column_name == name and additional_metric.metric.name not in result:
-                    result[additional_metric.metric.name] = additional_metric.metric.zero(column_schema.cfg)
+                    additional_result[additional_metric.metric.name] = additional_metric.metric.zero(column_schema.cfg)
             for target_why_type in additional_metric.why_types:
                 if isinstance(target_why_type, type(why_type)) and additional_metric.metric.name not in result:
-                    result[additional_metric.metric.name] = additional_metric.metric.zero(column_schema.cfg)
-        return result
+                    additional_result[additional_metric.metric.name] = additional_metric.metric.zero(column_schema.cfg)
+        return additional_result
 
     @abstractmethod
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
@@ -85,9 +86,11 @@ class StandardResolver(Resolver):
             result[m.name] = m.zero(column_schema.cfg)
 
         if self.additional_metrics:
-            result = self.resolve_additional_standard_metrics(
+            additional_metrics_result = self.resolve_additional_standard_metrics(
                 result=result, name=name, why_type=why_type, column_schema=column_schema
             )
+            for key in additional_metrics_result.keys():
+                result[key] = additional_metrics_result[key]
 
         return result
 
@@ -109,9 +112,11 @@ class LimitedTrackingResolver(Resolver):
             result[m.name] = m.zero(column_schema.cfg)
 
         if self.additional_metrics:
-            result = self.resolve_additional_standard_metrics(
+            additional_metrics_result = self.resolve_additional_standard_metrics(
                 result=result, name=name, why_type=why_type, column_schema=column_schema
             )
+            for key in additional_metrics_result.keys():
+                result[key] = additional_metrics_result[key]
 
         return result
 
@@ -126,8 +131,10 @@ class HistogramCountingTrackingResolver(Resolver):
             result[m.name] = m.zero(column_schema.cfg)
 
         if self.additional_metrics:
-            result = self.resolve_additional_standard_metrics(
+            additional_metrics_result = self.resolve_additional_standard_metrics(
                 result=result, name=name, why_type=why_type, column_schema=column_schema
             )
+            for key in additional_metrics_result.keys():
+                result[key] = additional_metrics_result[key]
 
         return result
