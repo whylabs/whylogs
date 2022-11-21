@@ -61,6 +61,7 @@ You can monitor your profiles continuously with the WhyLabs Observability Platfo
 | [Reference Profile](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Reference_Profiles_to_WhyLabs.ipynb)                      | Send profiles as Reference (Static) Profiles to WhyLabs                   |
 | [Regression Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Regression_Performance_Metrics_to_WhyLabs.ipynb)         | Monitor Regression Model Performance Metrics with whylogs and WhyLabs     |
 | [Classification Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Classification_Performance_Metrics_to_WhyLabs.ipynb) | Monitor Classification Model Performance Metrics with whylogs and WhyLabs |
+| [Writing Feature Weights](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Feature_Weights_to_WhyLabs.ipynb) | Send Feature Weights / Feature Importance information to your WhyLabs Dashboard |
 
 ### Others
 
