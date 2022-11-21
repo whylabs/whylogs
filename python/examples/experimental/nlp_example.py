@@ -131,6 +131,10 @@ for fid in inaugural.fileids():
 
     nlp_logger.log(stemmed, doc_vec)
 
+sum = nlp_logger.get_profile().view().get_column("nlp_bag_of_words").get_metric("nlp_bow").to_summary_dict()
+for k,v in sum.items():
+    print(f"  {k}: {v}")
+
 svd = nlp_logger._svd_metric
 
 

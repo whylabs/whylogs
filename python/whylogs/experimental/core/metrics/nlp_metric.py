@@ -260,8 +260,8 @@ class BagOfWordsMetric(MultiMetric):
                 "types": StandardMetric.types.zero(),
                 "cardinality": StandardMetric.cardinality.zero(),
             }
-            for key in ["doc_length", "term_length"]:
-                submetrics[key]["frequent_items"] = StandardMetric.frequent_items.zero()
+            #for key in ["doc_length", "term_length"]:
+            #    submetrics[key]["frequent_items"] = StandardMetric.frequent_items.zero()
 
         super(BagOfWordsMetric, self).__init__(submetrics)
         super(BagOfWordsMetric, self).__post_init__()
@@ -279,7 +279,10 @@ class BagOfWordsMetric(MultiMetric):
     #       batch of documents
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
-        terms = data.list.strings
+        terms = (
+            data.pandas.strings.to_list() if data.pandas.strings is not None and not data.pandas.strings.empty else []
+        )
+        terms = (terms + data.list.strings) if data.list.strings else terms
         if terms:
             term_lengths = [len(term) for term in terms]
             self._update_submetrics("term_length", PreprocessedColumn.apply(term_lengths))
@@ -485,9 +488,12 @@ class NlpLogger:
         terms: Optional[List[str]] = None,  # bag of words
         vector: Optional[np.ndarray] = None,  # term vector representing document
     ) -> ResultSet:
-        data = dict()
         if terms:
-            data[f"{self._column_prefix}_bag_of_words"] = terms
+            list_view = ListView(strings=terms)
+            column_data = PreprocessedColumn()
+            column_data.list = list_view
+            bow_metric = self._profile._columns[f"{self._column_prefix}_bag_of_words"]._metrics[BagOfWordsMetric.get_namespace()]
+            bow_metric.columnar_update(column_data)
 
         if vector is not None and self._svd_metric:
             # TODO: if vector and not self._svd_metric: logger.warning("no vector space metric configured")
@@ -498,7 +504,7 @@ class NlpLogger:
             lsi_metric = self._profile._columns[f"{self._column_prefix}_lsi"]._metrics[LsiMetric.get_namespace()]
             lsi_metric.columnar_update(column_data)
 
-        self._profile.track(row=data)
+        #self._profile.track(row=data)
         return ProfileResultSet(self._profile)
 
     def get_svd_state(self) -> MetricMessage:
