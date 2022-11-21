@@ -4,17 +4,17 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<meta property="og:title" content="Writing Reference Profiles to WhyLabs" />
+<meta property="og:title" content="Feature Importance with WhyLabs" />
   
 <meta property="og:type" content="website" />
   
-<meta property="og:url" content="https://whylogs.readthedocs.io/examples/integrations/writers/Writing_Reference_Profiles_to_WhyLabs.html" />
+<meta property="og:url" content="https://whylogs.readthedocs.io/examples/integrations/writers/Writing_Feature_Weights_to_WhyLabs.html" />
   
 <meta property="og:description" content="🚩 Create a free WhyLabs account to get more value out of whylogs! Did you know you can store, visualize, and monitor whylogs profiles with the WhyLabs Observability Platform? Sign up for a free Why..." />
   <link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
-        <title>Writing Reference Profiles to WhyLabs - whylogs v1.1.13</title>
+        <title>Feature Importance with WhyLabs - whylogs v1.1.13</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
@@ -651,35 +651,83 @@ div.rendered_html tbody tr:hover {
 </style>
 <blockquote>
 <div><p class="rubric" id="create-a-free-whylabs-account-to-get-more-value-out-of-whylogs">🚩 <em>Create a free WhyLabs account to get more value out of whylogs!</em></p>
-<p><em>Did you know you can store, visualize, and monitor whylogs profiles with the</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=Writing_Reference_Profiles_to_WhyLabs">WhyLabs Observability Platform</a><em>? Sign up for a</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=Writing_Reference_Profiles_to_WhyLabs">free WhyLabs account</a> <em>to leverage the power of whylogs and WhyLabs
+<p><em>Did you know you can store, visualize, and monitor whylogs profiles with the</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=Writing_Feature_Weights_to_WhyLabs">WhyLabs Observability Platform</a><em>? Sign up for a</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=Writing_Feature_Weights_to_WhyLabs">free WhyLabs account</a> <em>to leverage the power of whylogs and WhyLabs
 together!</em></p>
 </div></blockquote>
-<section id="Writing-Reference-Profiles-to-WhyLabs">
-<h1>Writing Reference Profiles to WhyLabs<a class="headerlink" href="#Writing-Reference-Profiles-to-WhyLabs" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Reference_Profiles_to_WhyLabs.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
-<p>When monitoring your data, in many cases you’ll be interested in comparing data from your production pipeline with a reference, or baseline, profile. This is helpful when inspecting for data drift, or assessing the quality of your data in general.</p>
-<p>In this example, we’ll show how to send a profile logged with whylogs to your monitoring dashboard at WhyLabs Platform as a Reference Profile. When uploading a Reference Profile, you’ll be able to use it for visualization and comparison purposes on your monitoring dashboard.</p>
-<blockquote>
-<div><p>If you want to log your profiles as regular profiles (<em>Batch Profiles</em>), as opposed to <em>Reference Profiles</em>, please check the <a class="reference external" href="https://whylogs.readthedocs.io/en/stable/examples/integrations/writers/Writing_to_WhyLabs.html">Writing to WhyLabs</a> example.</p>
-</div></blockquote>
-<p>We will:</p>
+<section id="Feature-Importance-with-WhyLabs">
+<h1>Feature Importance with WhyLabs<a class="headerlink" href="#Feature-Importance-with-WhyLabs" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Feature_Weights_to_WhyLabs.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<p>Feature Importance consists of a class of techniques that indicates the relative importance of each feature for a given prediction model. This is done by calculating and assigning a score, or weight, to each feature. Tracking the feature weights of a model can be useful for different reasons, such as:</p>
 <ul class="simple">
-<li><p>Define environment variables with the appropriate Credentials and IDs</p></li>
-<li><p>Log data into a profile</p></li>
-<li><p>Use the WhyLabs Writer to send the profile as a Reference Profile to your Project at WhyLabs</p></li>
+<li><p>Data Insights: By determining which features are more or less important to your task, a domain expert can make informed decisions, such as gathering more data or adding/removing different features.</p></li>
+<li><p>Model Interpretability: Feature weights can provide insights into which features your model considers more or less relevant, improving the model’s interpretability.</p></li>
+<li><p>Model Upgrading: Feature weights can be the basis of further feature selection processes, removing unnecessary features, improving the maintainability and performance of your model.</p></li>
 </ul>
-<section id="Installing-whylogs">
-<h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
-<p>First, let’s install <strong>whylogs</strong>. Since we want to write to WhyLabs, we’ll also install the <strong>whylabs</strong> extra.</p>
-<p>If you don’t have it installed already, uncomment the line below:</p>
+<p>WhyLabs supports feature weight tracking and visualization at your monitoring dashboard. The most straightforward way to send and receive feature weights to WhyLabs is through whylogs, and that’s exactly what we’ll show in this example.</p>
+<p>In this example, we will:</p>
+<ul class="simple">
+<li><p>Calculate simple feature weights with Linear Regression</p></li>
+<li><p>Send feature weights to your dashboard at WhyLabs</p></li>
+<li><p>Get latest version of feature weights from your dashboard</p></li>
+</ul>
+<section id="Installing-dependencies">
+<h2>Installing dependencies<a class="headerlink" href="#Installing-dependencies" title="Permalink to this headline">#</a></h2>
+<p>First, let’s make sure you have the required packages installed:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install &#39;whylogs[whylabs]&#39;
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install whylogs[whylabs]
+<span class="o">%</span><span class="k">pip</span> install scikit-learn==1.0.2
 </pre></div>
 </div>
 </div>
+</section>
+<section id="Calculating-Feature-Weights">
+<h2>Calculating Feature Weights<a class="headerlink" href="#Calculating-Feature-Weights" title="Permalink to this headline">#</a></h2>
+<p>There are several different ways of calculating feature importance. One such way is calculating the model coefficients of a linear regression model, which can be interpreted as a feature importance score. That’s the method we’ll use for this demonstration. We’ll create 5 informative features and 5 random ones.</p>
+<p>The code below was based on the article <a class="reference external" href="https://machinelearningmastery.com/calculate-feature-importance-with-python/">How to Calculate Feature Importance With Python</a>, by Jason Brownlee. I definitely recommend it if you are interested in other ways of calculating feature importance.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_regression</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="c1"># define dataset</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_regression</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">n_informative</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># define the model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span>
+<span class="c1"># fit the model</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="c1"># get importance</span>
+<span class="n">importance</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">coef_</span>
+<span class="c1"># summarize feature importance</span>
+
+<span class="n">weights</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Feature_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">):</span> <span class="n">value</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">importance</span><span class="p">)}</span>
+
+<span class="n">weights</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;Feature_0&#39;: -3.330399790430435e-15,
+ &#39;Feature_1&#39;: 12.44482785538977,
+ &#39;Feature_2&#39;: -4.393883142916863e-14,
+ &#39;Feature_3&#39;: -2.7047779443616894e-14,
+ &#39;Feature_4&#39;: 93.32225450776932,
+ &#39;Feature_5&#39;: 86.50810998606804,
+ &#39;Feature_6&#39;: 26.746066698034504,
+ &#39;Feature_7&#39;: 3.285346398262185,
+ &#39;Feature_8&#39;: -2.7795267559640957e-14,
+ &#39;Feature_9&#39;: 3.430594380756143e-14}
+</pre></div></div>
+</div>
+<p>We end up with a dictionary with the features as keys and the respective scores as values. This is an example of <em>global</em> feature importance, as opposed to <em>local</em> feature importance, which would show the contribution of features for a specific prediction. Currently, WhyLabs and whylogs support only global feature importance. Therefore, this is the structure we’ll use to later send the Feature Weights to WhyLabs.</p>
 </section>
 <section id="✔️-Setting-the-Environment-Variables">
 <h2>✔️ Setting the Environment Variables<a class="headerlink" href="#✔️-Setting-the-Environment-Variables" title="Permalink to this headline">#</a></h2>
@@ -690,10 +738,10 @@ together!</em></p>
 <li><p>Organization ID</p></li>
 <li><p>Dataset ID (or model-id)</p></li>
 </ul>
-<p>Go to <a class="reference external" href="https://whylabs.ai/free">https://whylabs.ai/free</a> and grab a free account. You can follow along with the examples if you wish, but if you’re interested in only following this demonstration, you can go ahead and skip the quick start instructions.</p>
+<p>First, grab a <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=Writing_Feature_Weights_to_WhyLabs">free WhyLabs account</a> if you haven’t already. You can follow along with the examples if you wish, but if you’re interested in only following this demonstration, you can go ahead and skip the quick start instructions.</p>
 <p>After that, you’ll be prompted to create an API token. Once you create it, copy and store it locally. The second important information here is your org ID. Take note of it as well. After you get your API Token and Org ID, you can go to <a class="reference external" href="https://hub.whylabsapp.com/models">https://hub.whylabsapp.com/models</a> to see your projects dashboard. You can create a new project and take note of it’s ID (if it’s a model project it will look like <code class="docutils literal notranslate"><span class="pre">model-xxxx</span></code>).</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">getpass</span>
@@ -715,209 +763,93 @@ together!</em></p>
 </pre></div>
 </div>
 </div>
+</section>
+<section id="Writing-Feature-Weights-to-WhyLabs">
+<h2>Writing Feature Weights to WhyLabs<a class="headerlink" href="#Writing-Feature-Weights-to-WhyLabs" title="Permalink to this headline">#</a></h2>
+<p>Once the feature weights are calculated, sending them to WhyLabs is very simple.</p>
+<p>We first need to wrap the dictionary into a <code class="docutils literal notranslate"><span class="pre">FeatureWeights</span></code> object:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.feature_weights</span> <span class="kn">import</span> <span class="n">FeatureWeights</span>
+<span class="n">feature_weights</span> <span class="o">=</span> <span class="n">FeatureWeights</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>And then use the <code class="docutils literal notranslate"><span class="pre">WhyLabsWriter</span></code> to write it, provided your environment variables are properly set:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">feature_weights</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;whylabs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+
+<span class="n">result</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(True, &#39;200&#39;)
+</pre></div></div>
+</div>
+<p>Another way of doing the exact same thing is by instantiating the Writer itself, and then calling <code class="docutils literal notranslate"><span class="pre">write</span></code>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">WhyLabsWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">feature_weights</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(True, &#39;200&#39;)
+</pre></div></div>
+</div>
+</section>
+<section id="Getting-Feature-Weights-from-WhyLabs">
+<h2>Getting Feature Weights from WhyLabs<a class="headerlink" href="#Getting-Feature-Weights-from-WhyLabs" title="Permalink to this headline">#</a></h2>
+<p>You can also get the feature weights from WhyLabs with <code class="docutils literal notranslate"><span class="pre">get_feature_weights()</span></code>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">WhyLabsWriter</span><span class="p">()</span><span class="o">.</span><span class="n">get_feature_weights</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Enter your WhyLabs Org ID
-Enter your WhyLabs Dataset ID
-Enter your WhyLabs API key
-Using API Key ID:  ygG04qE3gQ
+{&#39;Feature_4&#39;: 93.32225450776932, &#39;Feature_5&#39;: 86.50810998606804, &#39;Feature_6&#39;: 26.746066698034504, &#39;Feature_1&#39;: 12.44482785538977, &#39;Feature_7&#39;: 3.285346398262185, &#39;Feature_2&#39;: -4.393883142916863e-14, &#39;Feature_9&#39;: 3.430594380756143e-14, &#39;Feature_8&#39;: -2.7795267559640957e-14, &#39;Feature_3&#39;: -2.7047779443616894e-14, &#39;Feature_0&#39;: -3.330399790430435e-15}
+{&#39;version&#39;: 28, &#39;updatedTimestamp&#39;: 1664373654215, &#39;author&#39;: &#39;system&#39;}
 </pre></div></div>
 </div>
+<p>As you can see, the result will contain the set of weights in <code class="docutils literal notranslate"><span class="pre">result.weights</span></code>, along with additional metadata in <code class="docutils literal notranslate"><span class="pre">result.metadata</span></code>.</p>
+<p>If you write multiple set of weights to the same model at WhyLabs, the content will be overwritten. When using <code class="docutils literal notranslate"><span class="pre">get_feature_weights()</span></code>, you’ll get the latest version, that is, the last set of weights you sent. You’re able to see which version it is in the metadata, along with the timestamp of creation.</p>
 </section>
-<section id="Fetching-the-Data">
-<h2>Fetching the Data<a class="headerlink" href="#Fetching-the-Data" title="Permalink to this headline">#</a></h2>
-<p>For demonstration, let’s use data for transactions from a small retail business:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-
-<span class="n">csv_url</span> <span class="o">=</span> <span class="s2">&quot;https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv&quot;</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_url</span><span class="p">)</span>
-
-<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Transaction ID</th>
-      <th>Customer ID</th>
-      <th>Quantity</th>
-      <th>Item Price</th>
-      <th>Total Tax</th>
-      <th>Total Amount</th>
-      <th>Store Type</th>
-      <th>Product Category</th>
-      <th>Product Subcategory</th>
-      <th>Gender</th>
-      <th>Transaction Type</th>
-      <th>Age</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>T14259136777</td>
-      <td>C274477</td>
-      <td>1</td>
-      <td>148.9</td>
-      <td>15.6345</td>
-      <td>164.5345</td>
-      <td>TeleShop</td>
-      <td>Electronics</td>
-      <td>Audio and video</td>
-      <td>F</td>
-      <td>Purchase</td>
-      <td>37.0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>T7313351894</td>
-      <td>C267568</td>
-      <td>4</td>
-      <td>48.1</td>
-      <td>20.2020</td>
-      <td>212.6020</td>
-      <td>Flagship store</td>
-      <td>Home and kitchen</td>
-      <td>Furnishing</td>
-      <td>M</td>
-      <td>Purchase</td>
-      <td>25.0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>T37745642681</td>
-      <td>C267098</td>
-      <td>1</td>
-      <td>10.9</td>
-      <td>1.1445</td>
-      <td>12.0445</td>
-      <td>Flagship store</td>
-      <td>Footwear</td>
-      <td>Mens</td>
-      <td>F</td>
-      <td>Purchase</td>
-      <td>42.0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>T13861409908</td>
-      <td>C271608</td>
-      <td>2</td>
-      <td>135.2</td>
-      <td>28.3920</td>
-      <td>298.7920</td>
-      <td>MBR</td>
-      <td>Footwear</td>
-      <td>Mens</td>
-      <td>F</td>
-      <td>Purchase</td>
-      <td>43.0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>T58956348529</td>
-      <td>C272484</td>
-      <td>4</td>
-      <td>144.3</td>
-      <td>60.6060</td>
-      <td>637.8060</td>
-      <td>TeleShop</td>
-      <td>Clothing</td>
-      <td>Mens</td>
-      <td>F</td>
-      <td>Purchase</td>
-      <td>39.0</td>
-    </tr>
-  </tbody>
-</table>
-</div></div>
-</div>
-</section>
-<section id="📊-Profiling-the-Data">
-<h2>📊 Profiling the Data<a class="headerlink" href="#📊-Profiling-the-Data" title="Permalink to this headline">#</a></h2>
-<p>Let’s profile the data with whylogs:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
-<span class="n">current_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
-<span class="n">profile</span><span class="o">.</span><span class="n">set_dataset_timestamp</span><span class="p">(</span><span class="n">current_date</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>We’re also setting the profile’s dataset timestamp as the current datetime. If this is not set, the Writer would simply assign the current datetime automatically to the profile.</p>
-</section>
-<section id="✍️-The-WhyLabs-Writer">
-<h2>✍️ The WhyLabs Writer<a class="headerlink" href="#✍️-The-WhyLabs-Writer" title="Permalink to this headline">#</a></h2>
-<p>Now, you can simply create a WhyLabsWriter object and use it to send your profiles. The process is very similar to sending a regular profile. The only difference is you should the <code class="docutils literal notranslate"><span class="pre">option</span></code> method in order to pass <code class="docutils literal notranslate"><span class="pre">reference_profile_name</span></code> to indicate and name this profile as a static Reference Profile:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span>
-
-<span class="n">writer</span> <span class="o">=</span> <span class="n">WhyLabsWriter</span><span class="p">()</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">reference_profile_name</span><span class="o">=</span><span class="s2">&quot;my_reference_profile&quot;</span><span class="p">)</span>
-<span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">())</span>
-</pre></div>
-</div>
-</div>
-<blockquote>
-<div><p>Another way of setting <code class="docutils literal notranslate"><span class="pre">reference_profile_name</span></code> is to define the environment variable <code class="docutils literal notranslate"><span class="pre">WHYLABS_REFERENCE_PROFILE_NAME</span></code></p>
-</div></blockquote>
-<p>A <code class="docutils literal notranslate"><span class="pre">200</span></code> response should mean that it went through successfully.</p>
-<p>The writer expects a <strong>Profile View</strong> as parameter.</p>
-<section id="Option-#2:-Profile-Result-writer">
-<h3>Option #2: Profile Result writer<a class="headerlink" href="#Option-#2:-Profile-Result-writer" title="Permalink to this headline">#</a></h3>
-<p>A second way to write to WhyLabs is by directly using the <code class="docutils literal notranslate"><span class="pre">writer</span></code> method of a <strong>Profile Result</strong> set.</p>
-<p>Again, this is very much alike sending regular profiles to WhyLabs. The only difference is using the <code class="docutils literal notranslate"><span class="pre">option</span></code> method just as before:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;whylabs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">reference_profile_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<p>In this case, we passed an empty string as the reference profile name. This will still make the profile to be considered a Static Profile, but its name will be set to the datetime it was created, something like: <code class="docutils literal notranslate"><span class="pre">ref-2022-08-16T17:53:49.041</span></code></p>
-</section>
-</section>
-<section id="🔍-A-Look-on-the-Other-Side">
-<h2>🔍 A Look on the Other Side<a class="headerlink" href="#🔍-A-Look-on-the-Other-Side" title="Permalink to this headline">#</a></h2>
-<p>Now, check your dashboard to verify everything went ok. At the <strong>Profile</strong> tab, you should see something like this:</p>
-<img alt="alt text" src="../../../_images/whylabs.png" />
-<p>In the image above, we’re comparing both reference profiles sent previously. Usually, we’d be interested in comparing a reference profile with a batch profile obtained in the production pipeline, which is, of course, also possible.</p>
+<section id="Reference">
+<h2>Reference<a class="headerlink" href="#Reference" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://towardsdatascience.com/understanding-feature-importance-and-how-to-implement-it-in-python-ff0287b20285">Understanding Feature Importance and How to Implement it in Python</a></p></li>
+<li><p><a class="reference external" href="https://machinelearningmastery.com/calculate-feature-importance-with-python/">How to Calculate Feature Importance With Python</a></p></li>
+<li><p><a class="reference external" href="https://medium.com/bigdatarepublic/feature-importance-whats-in-a-name-79532e59eea3">Feature importance — what’s in a name?</a></p></li>
+</ul>
 </section>
 </section>
 
@@ -985,16 +917,13 @@ Using API Key ID:  ygG04qE3gQ
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Writing Reference Profiles to WhyLabs</a><ul>
-<li><a class="reference internal" href="#Installing-whylogs">Installing whylogs</a></li>
+<li><a class="reference internal" href="#">Feature Importance with WhyLabs</a><ul>
+<li><a class="reference internal" href="#Installing-dependencies">Installing dependencies</a></li>
+<li><a class="reference internal" href="#Calculating-Feature-Weights">Calculating Feature Weights</a></li>
 <li><a class="reference internal" href="#✔️-Setting-the-Environment-Variables">✔️ Setting the Environment Variables</a></li>
-<li><a class="reference internal" href="#Fetching-the-Data">Fetching the Data</a></li>
-<li><a class="reference internal" href="#📊-Profiling-the-Data">📊 Profiling the Data</a></li>
-<li><a class="reference internal" href="#✍️-The-WhyLabs-Writer">✍️ The WhyLabs Writer</a><ul>
-<li><a class="reference internal" href="#Option-#2:-Profile-Result-writer">Option #2: Profile Result writer</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#🔍-A-Look-on-the-Other-Side">🔍 A Look on the Other Side</a></li>
+<li><a class="reference internal" href="#Writing-Feature-Weights-to-WhyLabs">Writing Feature Weights to WhyLabs</a></li>
+<li><a class="reference internal" href="#Getting-Feature-Weights-from-WhyLabs">Getting Feature Weights from WhyLabs</a></li>
+<li><a class="reference internal" href="#Reference">Reference</a></li>
 </ul>
 </li>
 </ul>
