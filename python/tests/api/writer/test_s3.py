@@ -28,7 +28,7 @@ class TestS3Writer(object):
 
     def test_s3_writer_response(self, tmp_path, profile_view):
         writer = S3Writer()
-        writer.option(bucket_name=BUCKET_NAME, object_name=tmp_path.name)
+        writer = writer.option(bucket_name=BUCKET_NAME, object_name=tmp_path.name)
         response = writer.write(profile=profile_view, dest=tmp_path.name)
         assert response[0] is True
 

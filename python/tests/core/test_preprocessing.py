@@ -1,3 +1,4 @@
+import math
 import unittest
 from logging import getLogger
 from typing import Any, List, Optional, Union
@@ -32,6 +33,49 @@ class TestListElements(object):
         assert res.pandas.strings.tolist() == ["str"]  # type: ignore
         assert_zero_len(res.pandas.objs)  # type: ignore
         assert res.null_count == 1
+
+    def test_none_and_math_nan(self) -> None:
+        mixed = pd.Series([None, math.nan, "hi"])
+
+        res = PreprocessedColumn.apply(mixed)
+        assert_zero_len(res.pandas.objs)  # type: ignore
+        assert res.null_count == 2
+        assert res.nan_count == 1
+
+    def test_none_and_math_inf(self) -> None:
+        mixed = pd.Series([math.inf, None])  # when all types are numeric None->NaN
+
+        res = PreprocessedColumn.apply(mixed)
+        assert_zero_len(res.pandas.objs)  # type: ignore
+        assert res.null_count == 1
+        assert res.nan_count == 1
+        assert res.inf_count == 1
+
+    def test_none_and_np_nan(self) -> None:
+        mixed = pd.Series([np.nan, None, "test"])
+
+        res = PreprocessedColumn.apply(mixed)
+        assert_zero_len(res.pandas.objs)  # type: ignore
+        assert res.null_count == 2
+        assert res.nan_count == 1
+
+    def test_none_and_np_inf_mixed(self) -> None:
+        mixed = pd.Series([np.inf, None, "t"])
+
+        res = PreprocessedColumn.apply(mixed)
+        assert_zero_len(res.pandas.objs)  # type: ignore
+        assert res.null_count == 1
+        assert res.nan_count == 0
+        assert res.inf_count == 1
+
+    def test_none_and_np_inf_and_nan(self) -> None:
+        mixed = pd.Series([np.inf, None, float("nan"), "t"])
+
+        res = PreprocessedColumn.apply(mixed)
+        assert_zero_len(res.pandas.objs)  # type: ignore
+        assert res.null_count == 2
+        assert res.nan_count == 1
+        assert res.inf_count == 1
 
     def test_bools_and_ints(self) -> None:
         mixed = pd.Series([True, True, False, 2, 1, 0])

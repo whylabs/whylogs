@@ -47,21 +47,28 @@ class DatasetProfileView(Writable):
         self,
         *,
         columns: Dict[str, ColumnProfileView],
-        dataset_timestamp: datetime,
-        creation_timestamp: datetime,
+        dataset_timestamp: Optional[datetime],
+        creation_timestamp: Optional[datetime],
         metrics: Optional[Dict[str, Any]] = None,
+        metadata: Optional[Dict[str, str]] = None,
     ):
         self._columns = columns.copy()
         self._dataset_timestamp = dataset_timestamp
         self._creation_timestamp = creation_timestamp
         self._metrics = metrics
+        self._metadata = metadata
 
     @property
-    def dataset_timestamp(self) -> datetime:
+    def dataset_timestamp(self) -> Optional[datetime]:
         return self._dataset_timestamp
 
+    @dataset_timestamp.setter
+    def dataset_timestamp(self, date: datetime) -> "DatasetProfileView":
+        self._dataset_timestamp = date
+        return self
+
     @property
-    def creation_timestamp(self) -> datetime:
+    def creation_timestamp(self) -> Optional[datetime]:
         return self._creation_timestamp
 
     @property
@@ -70,10 +77,64 @@ class DatasetProfileView(Writable):
             return self._metrics.get(_MODEL_PERFORMANCE)
         return None
 
-    def merge(self, other: "DatasetProfileView") -> "DatasetProfileView":
-        all_names = set(self._columns.keys()).union(other._columns.keys())
+    @model_performance_metrics.setter
+    def model_performance_metrics(self, performance_metrics: Any) -> "DatasetProfileView":
+        if self._metrics:
+            self._metrics[_MODEL_PERFORMANCE] = performance_metrics
+        else:
+            self._metrics = {_MODEL_PERFORMANCE: performance_metrics}
+        return self
+
+    @staticmethod
+    def _min_datetime(a: Optional[datetime], b: Optional[datetime]) -> Optional[datetime]:
+        if not b:
+            return a
+        if not a:
+            return b
+        return a if a < b else b
+
+    def _merge_metrics(self, other: "DatasetProfileView") -> Optional[Dict[str, Any]]:
+        dataset_level_metrics: Optional[Dict[str, Any]] = None
+        if self._metrics:
+            if other._metrics:
+                dataset_level_metrics = self._metrics
+                for metric_name in other._metrics:
+                    metric = self._metrics.get(metric_name)
+                    if metric:
+                        dataset_level_metrics[metric_name] = metric.merge(other._metrics.get(metric_name))
+                    else:
+                        dataset_level_metrics[metric_name] = other._metrics.get(metric_name)
+            else:
+                dataset_level_metrics = self._metrics
+        else:
+            dataset_level_metrics = other._metrics
+        return dataset_level_metrics
+
+    def _merge_metadata(self, other: "DatasetProfileView") -> Optional[Dict[str, str]]:
+        metadata: Optional[Dict[str, str]] = None
+        if self._metadata:
+            if other._metadata:
+                metadata = self._metadata
+                metadata.update(other._metadata)
+            else:
+                metadata = self._metadata
+        else:
+            metadata = other._metadata
+        return metadata
+
+    def _merge_columns(self, other: "DatasetProfileView") -> Optional[Dict[str, ColumnProfileView]]:
+        if self._columns:
+            if other._columns:
+                all_column_names = set(self._columns.keys()).union(other._columns.keys())
+            else:
+                all_column_names = set(self._columns.keys())
+        else:
+            if other._columns:
+                all_column_names = set(other._columns.keys())
+            else:
+                all_column_names = set()
         merged_columns: Dict[str, ColumnProfileView] = {}
-        for n in all_names:
+        for n in all_column_names:
             lhs = self._columns.get(n)
             rhs = other._columns.get(n)
 
@@ -84,11 +145,19 @@ class DatasetProfileView(Writable):
                 res = lhs + rhs
             assert res is not None
             merged_columns[n] = res
+        return merged_columns
+
+    def merge(self, other: "DatasetProfileView") -> "DatasetProfileView":
+        merged_columns = self._merge_columns(other)
+        dataset_level_metrics = self._merge_metrics(other)
+        metadata = self._merge_metadata(other)
 
         return DatasetProfileView(
-            columns=merged_columns,
-            dataset_timestamp=self._dataset_timestamp if self._dataset_timestamp else other.dataset_timestamp,
-            creation_timestamp=self._creation_timestamp if self._creation_timestamp else other.creation_timestamp,
+            columns=merged_columns or dict(),
+            dataset_timestamp=DatasetProfileView._min_datetime(self._dataset_timestamp, other.dataset_timestamp),
+            creation_timestamp=DatasetProfileView._min_datetime(self._creation_timestamp, other.creation_timestamp),
+            metrics=dataset_level_metrics,
+            metadata=metadata,
         )
 
     def get_column(self, col_name: str) -> Optional[ColumnProfileView]:
@@ -104,18 +173,24 @@ class DatasetProfileView(Writable):
         return f"profile_{self.creation_timestamp}.bin"
 
     def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
-        path = path or self.get_default_path()
+        file_to_write = kwargs.get("file")
+        path = file_to_write.name if file_to_write else path or self.get_default_path()
         if self._metrics and _MODEL_PERFORMANCE in self._metrics:
             from whylogs.migration.converters import v1_to_dataset_profile_message_v0
 
             message_v0 = v1_to_dataset_profile_message_v0(self, None, None)
-            with open(path, "w+b") as out_f:
-                write_delimited_protobuf(out_f, message_v0)
+            if file_to_write:
+                write_delimited_protobuf(file_to_write, message_v0)
+            else:
+                with open(path, "w+b") as out_f:
+                    write_delimited_protobuf(out_f, message_v0)
 
             return True, path
-
-        with open(path, "w+b") as out_f:
-            self._do_write(out_f)
+        if file_to_write:
+            self._do_write(file_to_write)
+        else:
+            with open(path, "w+b") as out_f:
+                self._do_write(out_f)
         return True, path
 
     def _do_write(self, out_f: BinaryIO) -> Tuple[bool, str]:
@@ -186,6 +261,10 @@ class DatasetProfileView(Writable):
         self._do_write(f)
         f.seek(0)
         return f.read()
+
+    @classmethod
+    def zero(cls) -> "DatasetProfileView":
+        return DatasetProfileView(columns=dict(), dataset_timestamp=None, creation_timestamp=None)
 
     @classmethod
     def deserialize(cls, data: bytes) -> "DatasetProfileView":

@@ -5,22 +5,20 @@ import pandas as pd
 import pytest
 
 import whylogs as why
-from whylogs.core.metrics.condition_count_metric import Condition
-from whylogs.core.metrics.condition_count_metric import Relation as Rel
-from whylogs.core.metrics.condition_count_metric import not_relation as not_rel
-from whylogs.core.metrics.condition_count_metric import relation as rel
 from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.relations import Not
+from whylogs.core.relations import Predicate as X
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.validators import ConditionValidator
 
 TEST_LOGGER = getLogger(__name__)
-regex_conditions = {"noCreditCard": Condition(not_rel(rel(Rel.match, ".*4[0-9]{12}(?:[0-9]{3})?")))}
+regex_conditions = {"noCreditCard": Not(X.matches(".*4[0-9]{12}(?:[0-9]{3})?"))}
 
 number_conditions = {
-    "equals42": Condition(rel(Rel.equal, 42)),
-    "equals42.2": Condition(rel(Rel.equal, 42.2)),
-    "lessthan5": Condition(rel(Rel.less, 5)),
-    "morethan40": Condition(rel(Rel.greater, 40)),
+    "equals42": X.equals(42),
+    "equals42.2": X.equals(42.2),
+    "lessthan5": X.less_than(5),
+    "morethan40": X.greater_than(40),
 }
 
 
@@ -55,12 +53,12 @@ def number_validator():
     )
 
 
-def is_even(x: Any) -> bool:
+def even(x: Any) -> bool:
     return x % 2 == 0
 
 
 is_even_conditions = {
-    "isEven": Condition(is_even),
+    "isEven": X.is_(even),
 }
 
 

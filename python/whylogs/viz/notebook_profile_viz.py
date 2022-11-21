@@ -7,10 +7,10 @@ from typing import Any, Dict, Optional
 from IPython.core.display import HTML  # type: ignore
 
 from whylogs.api.usage_stats import emit_usage
-from whylogs.api.writer.whylabs import _uncompound_dataset_profile
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.constraints import Constraints
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.migration.uncompound import _uncompound_dataset_profile
 from whylogs.viz.enums.enums import PageSpec, PageSpecEnum
 from whylogs.viz.utils.frequent_items_calculations import zero_padding_frequent_items
 from whylogs.viz.utils.html_template_utils import _get_compiled_template
@@ -361,7 +361,9 @@ class NotebookProfileVisualizer:
     def constraints_report(self, constraints: Constraints, cell_height: Optional[str] = None) -> HTML:
         page_spec = PageSpecEnum.CONSTRAINTS_REPORT.value
         template = _get_compiled_template(page_spec.html)
-        rendered_template = template({"constraints_report": json.dumps(constraints.report())})
+        rendered_template = template(
+            {"constraints_report": json.dumps(constraints.generate_constraints_report(with_summary=True))}
+        )
         constraints_report = self._display(rendered_template, page_spec, cell_height)
         return constraints_report
 

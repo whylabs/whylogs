@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "1.1.2"
+version = "1.1.13"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -21,6 +21,7 @@ typing-extensions = {version = ">=3.10", markers = "python_version < \"3.11\""}
 pybars3 = { version = "^0.9", optional = true }
 ipython = { version = "*", optional = true }
 scipy = { version = ">=1.5", python = "<3.11", optional = true }
+numpy = { version = "*", optional = true }
 
 # datasets module.
 pandas = { version = "*", optional = true}
@@ -40,9 +41,9 @@ nbconvert = {version = "^7.0.0", optional = true}
 
 # Integrations dependencies
 boto3 = {version = "^1.22.13", optional = true }
-whylabs-client = {version = "0.4.0.dev0", optional = true}
+whylabs-client = {version = "0.4.0", optional = true}
 mlflow-skinny = {version = "^1.26.1", optional = true}
-
+google-cloud-storage = {version = "^2.5.0", optional = true}
 
 # Pyspark related dependencies
 pyarrow = {version = "^8.0.0", optional = true}
@@ -52,7 +53,7 @@ pyspark = {version = "^3.0.0", optional = true}
 Pillow = {version = "^9.2.0", optional = true}
 
 # Fugue related dependencies
-fugue = {version = "^0.7.2", optional = true}
+fugue = {version = "^0.7.3", optional = true}
 requests = "^2.27"
 
 [tool.poetry.dev-dependencies]
@@ -77,6 +78,7 @@ ipykernel = ">=6.11" # for developing in Jupyter notebook
 types-python-dateutil = "^2.8.12"
 moto = "^3.1.9"
 twine = "^4.0.1"
+gcp-storage-emulator = "^2022.6.11"
 
 [tool.poetry.extras]
 docs = [
@@ -97,7 +99,11 @@ docs = [
 viz = [
     "ipython",
     "pybars3",
+    "numpy",
     "scipy",
+    "Pillow",
+    "whylabs-client",
+    "requests",
 ]
 spark = [
     "pyarrow",
@@ -105,6 +111,9 @@ spark = [
 ]
 datasets = [
   "pandas",
+]
+gcs = [
+  "google-cloud-storage",
 ]
 s3 = [
   "boto3"

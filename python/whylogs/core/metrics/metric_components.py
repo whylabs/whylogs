@@ -111,6 +111,9 @@ class MetricComponent(Generic[T]):
             type_id = msg.type_id
             registries = _registries
 
+            def __deepcopy__(self, memo) -> "DeserializedComponent":
+                return DeserializedComponent.from_protobuf(self.to_protobuf())
+
         component = DeserializedComponent(value=None)  # type: ignore
         if component._deserializer is not None:
             component._value = component._deserializer(msg=msg)

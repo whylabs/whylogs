@@ -8,7 +8,8 @@
   <h3 align="center">
    <a href="https://whylogs.readthedocs.io/"><b>Documentation</b></a> &bull;
    <a href="https://bit.ly/whylogsslack"><b>Slack Community</b></a> &bull;
-   <a href="https://github.com/whylabs/whylogs#python-quickstart"><b>Python Quickstart</b></a>
+   <a href="https://github.com/whylabs/whylogs#python-quickstart"><b>Python Quickstart</b></a> &bull;
+   <a href="https://whylogs.readthedocs.io/en/latest/examples/integrations/writers/Writing_to_WhyLabs.html"><b>WhyLabs Quickstart</b></a>
  </h3>
 
 <p align="center">
@@ -51,7 +52,9 @@ These three functionalities enable a variety of use cases for data scientists, m
 - Standardize data documentation practices across the organization
 - And more
 
-whylogs can be run in Python or [Apache Spark](https://docs.whylabs.ai/docs/spark-integration) (both PySpark and Scala) environments on a variety of [data types](#data-types). We [integrate](#integrations) with lots of other tools including Pandas, [AWS Sagemaker](https://aws.amazon.com/blogs/startups/preventing-amazon-sagemaker-model-degradation-with-whylabs/), [MLflow](https://docs.whylabs.ai/docs/mlflow-integration), [Flask](https://whylabs.ai/blog/posts/deploy-and-monitor-your-ml-application-with-flask-and-whylabs), [Ray](https://docs.whylabs.ai/docs/ray-integration), [RAPIDS](https://whylabs.ai/blog/posts/monitoring-high-performance-machine-learning-models-with-rapids-and-whylogs), [Apache Kafka](https://docs.whylabs.ai/docs/kafka-integration), and more.
+<a href="https://hub.whylabsapp.com/signup" target="_blank">
+    <img src="https://user-images.githubusercontent.com/7946482/193939278-66a36574-2f2c-482a-9811-ad4479f0aafe.png" alt="WhyLabs Signup">
+</a>
 
 If you have any questions, comments, or just want to hang out with us, please join [our Slack Community](https://bit.ly/rsqrd-slack). In addition to joining the Slack Community, you can also help this project by giving us a ⭐ in the upper right corner of this page.
 
@@ -70,7 +73,7 @@ df = pd.read_csv("path/to/file.csv")
 results = why.log(df)
 ```
 
-And voila, you now have a whylogs profile. To learn more about about a whylogs profile is and what you can do with it, read on.
+And voilà, you now have a whylogs profile. To learn more about about a whylogs profile is and what you can do with it, read on.
 
 ## Table of Contents
 
@@ -139,6 +142,29 @@ In your local Python environment, you can set data constraints or visualize your
 
 In addition, you can send whylogs profiles to the SaaS ML monitoring and AI observability platform [WhyLabs](https://whylabs.ai). With WhyLabs, you can automatically set up monitoring for your machine learning models, getting notified on both data quality and data change issues (such as data drift). If you’re interested in trying out WhyLabs, check out the always free [Starter edition](https://whylabs.ai/free), which allows you to experience the entire platform’s capabilities with no credit card required.
 
+## WhyLabs<a name="whylabs" />
+
+WhyLabs is a managed service offering built for helping users make the most of their whylogs profiles. With WhyLabs, users can ingest profiles and set up automated monitoring as well as gain full observability into their data and ML systems. With WhyLabs, users can ensure the reliability of their data and models, and debug any problems that arise with them.
+
+Ingesting whylogs profiles into WhyLabs is easy. After obtaining your access credentials from the platform, you’ll need to set them in your Python environment, log a dataset, and write it to WhyLabs, like so:
+
+```python
+import whylogs as why
+import os
+
+os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-0" # ORG-ID is case-sensitive
+os.environ["WHYLABS_API_KEY"] = "YOUR-API-KEY"
+os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "model-0" # The selected model project "MODEL-NAME" is "model-0"
+
+results = why.log(df)
+
+results.writer("whylabs").write()
+```
+
+![image](<https://github.com/whylabs/whylogs/blob/assets/images/chrome-capture-2022-9-4%20(1).gif>)
+
+If you’re interested in trying out WhyLabs, check out the always free [Starter edition](https://hub.whylabsapp.com/signup), which allows you to experience the entire platform’s capabilities with no credit card required.
+
 ## Data Constraints<a name="data-constraints" />
 
 Constraints are a powerful feature built on top of whylogs profiles that enable you to quickly and easily validate that your data looks the way that it should. There are numerous types of constraints that you can set on your data (that numerical data will always fall within a certain range, that text data will always be in a JSON format, etc) and, if your dataset fails to satisfy a constraint, you can fail your unit tests or your CI/CD pipeline.
@@ -147,17 +173,14 @@ A simple example of setting and testing a constraint is:
 
 ```python
 import whylogs as why
-from whylogs.core.constraints import Constraints, ConstraintsBuilder, MetricsSelector, MetricConstraint
+from whylogs.core.constraints import Constraints, ConstraintsBuilder
+from whylogs.core.constraints.factories import greater_than_number
 
 profile_view = why.log(df).view()
 builder = ConstraintsBuilder(profile_view)
+builder.add_constraint(greater_than_number(column_name="col_name", number=0.15))
 
-builder.add_constraint(MetricConstraint(
-    name="col_name >= 0",
-    condition=lambda x: x.min >= 0,
-    metric_selector=MetricsSelector(metric_name='distribution', column_name='col_name')
-))
-constraints: Constraints = builder.build()
+constraints = builder.build()
 constraints.report()
 ```
 
@@ -167,7 +190,7 @@ To learn more about constraints, check out: the [Constraints Example](https://bi
 
 In addition to being able to automatically get notified about potential issues in data, it’s also useful to be able to inspect your data manually. With the profile visualizer, you can generate interactive reports about your profiles (either a single profile or comparing profiles against each other) directly in your Jupyter notebook environment. This enables exploratory data analysis, data drift detection, and data observability.
 
-To access the profile visualizer, install the `[viz]` module of whylogs by running `pip install whylogs[viz]` in your terminal. One type of profile visualization that we can create is a drift report; here's a simple example of how to analyze the drift between two profiles:
+To access the profile visualizer, install the `[viz]` module of whylogs by running `pip install "whylogs[viz]"` in your terminal. One type of profile visualization that we can create is a drift report; here's a simple example of how to analyze the drift between two profiles:
 
 ```python
 import whylogs as why
@@ -205,22 +228,18 @@ whylogs supports both structured and unstructured data, specifically:
 ## Integrations
 
 ![current integration](https://user-images.githubusercontent.com/7946482/171062942-01c420f2-7768-4b7c-88b5-e3f291e1b7d8.png)
-| Integration | Features | Resources |
-| --- | --- | --- |
-| Spark | Run whylogs in Apache Spark environment| <ul><li>[Code Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Pyspark_Profiling.ipynb)</li></ul> |
-| Pandas | Log and monitor any pandas dataframe | <ul><li>[Notebook Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/basic/Getting_Started.ipynb)</li><li>[whylogs: Embrace Data Logging](https://whylabs.ai/blog/posts/whylogs-embrace-data-logging)</li></ul> |
-| MLflow | Enhance MLflow metrics with whylogs: | <ul><li>[Notebook Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Mlflow_Logging.ipynb)</li><li>[Streamlining data monitoring with whylogs and MLflow](https://whylabs.ai/blog/posts/on-model-lifecycle-and-monitoring)</li></ul> |
-| Java | Run whylogs in Java environment| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/java/demo1/src/main/java/com/whylogs/examples/WhyLogsDemo.java)</li></ul> |
-| Docker | Run whylogs as in Docker | <ul><li>[Rest Container](https://docs.whylabs.ai/docs/integrations-rest-container)</li></ul>|
-| AWS S3 | Store whylogs profiles in S3 | <ul><li>[S3 example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Profiles.ipynb)</li></ul>
-| Flask | Integrate whylogs with your Flask Application| <ul><li>[Code Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/flask_streaming/flask_with_whylogs.ipynb)</li></ul> |
-| Feast | Log features from your Feature Store with feast and whylogs| <ul><li>[Code Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Feature_Stores_and_whylogs.ipynb)</li></ul> |
-| BigQuery | Profile data queried from a Google BigQuery table| <ul><li>[Code Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/BigQuery_Example.ipynb)</li></ul> |
-| WhyLabs | Monitor your profiles continuously with the WhyLabs Observability Platform| <ul><li>[Code Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_to_WhyLabs.ipynb)</li></ul> |
 
-<!--| Kafka | Log and monitor Kafka topics with whylogs| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Kafka.ipynb)</li><li> [Integrating whylogs into your Kafka ML Pipeline](https://whylabs.ai/blog/posts/integrating-whylogs-into-your-kafka-ml-pipeline) </li></ul>|-->
-<!--| Github actions | Unit test data with whylogs and github actions| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/tree/mainline/github-actions)</li></ul> |-->
-<!--| RAPIDS | Use whylogs in RAPIDS environment | <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/RAPIDS%20GPU%20Integration%20Example.ipynb)</li><li>[Monitoring High-Performance Machine Learning Models with RAPIDS and whylogs](https://whylabs.ai/blog/posts/monitoring-high-performance-machine-learning-models-with-rapids-and-whylogs)</li></ul> |-->
+whylogs can seamslessly interact with different tooling along your Data and ML pipelines. We have currently built integrations with:
+
+- AWS S3
+- Apache Airflow
+- Apache Spark
+- Mlflow
+- GCS
+
+and much more!
+
+If you want to check out our complete list, please refer to our [integrations examples](https://github.com/whylabs/whylogs/tree/mainline/python/examples/integrations) page.
 
 ## Examples
 

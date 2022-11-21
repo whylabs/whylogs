@@ -84,9 +84,7 @@ class ColumnProfileView(object):
     def to_summary_dict(
         self, *, column_metric: Optional[str] = None, cfg: Optional[SummaryConfig] = None
     ) -> Dict[str, Any]:
-        if cfg is None:
-            cfg = SummaryConfig()
-
+        cfg = cfg or SummaryConfig()
         res = {}
         for metric_name, metric in self._metrics.items():
             if column_metric is not None and metric_name != column_metric:

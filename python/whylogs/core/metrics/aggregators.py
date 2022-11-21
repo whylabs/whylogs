@@ -102,7 +102,15 @@ class AggregatorRegistry:
         return result
 
 
-_STANDARD_REGISTRY = AggregatorRegistry()
+_STANDARD_REGISTRY = None
+
+
+def _get_or_create_registry() -> AggregatorRegistry:
+    global _STANDARD_REGISTRY
+    if _STANDARD_REGISTRY is None:
+        _STANDARD_REGISTRY = AggregatorRegistry()
+
+    return _STANDARD_REGISTRY
 
 
 def aggregator(*, type_id: int, registry: Optional[AggregatorRegistry] = None):  # type: ignore
@@ -110,7 +118,7 @@ def aggregator(*, type_id: int, registry: Optional[AggregatorRegistry] = None): 
         raise ValueError("Custom aggregator identifier must be equal or greater than 100")
 
     if registry is None:
-        registry = _STANDARD_REGISTRY
+        registry = _get_or_create_registry()
 
     decorated = _decorate_func(key=type_id, name=f"custom.{type_id}", wrapper_dict=registry._id_aggs, clazz=_Aggregator)
 
@@ -121,6 +129,6 @@ def get_aggregator(
     *, type_id: int = 0, mtype: Optional[type] = None, registry: Optional[AggregatorRegistry] = None  # force kwargs
 ) -> Optional[_Aggregator]:
     if registry is None:
-        registry = _STANDARD_REGISTRY
+        registry = _get_or_create_registry()
 
     return registry.get(type_id=type_id, mtype=mtype)

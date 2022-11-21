@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
 from whylogs.api.logger.segment_processing import segment_processing
+from whylogs.api.store import ProfileStore
 from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.errors import LoggingError
@@ -30,6 +31,8 @@ class Logger(ABC):
         self._schema = schema
         self._writers: List[Writer] = []
         atexit.register(self.close)
+        self._store_list: List[ProfileStore] = []
+        self._segment_cache = None
 
     def check_writer(self, _: Writer) -> None:
         """Checks if a writer is configured correctly for this class"""
@@ -46,6 +49,9 @@ class Logger(ABC):
         self.check_writer(writer)
         self._writers.append(writer)
 
+    def append_store(self, store: ProfileStore) -> None:
+        self._store_list.append(store)
+
     @abstractmethod
     def _get_matching_profiles(
         self,
@@ -53,6 +59,7 @@ class Logger(ABC):
         *,
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Dict[str, Any]] = None,
+        schema: Optional[DatasetSchema] = None,
     ) -> List[DatasetProfile]:
         pass
 
@@ -62,6 +69,7 @@ class Logger(ABC):
         *,
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Dict[str, Any]] = None,
+        schema: Optional[DatasetSchema] = None,
     ) -> ResultSet:
         if self._is_closed:
             raise LoggingError("Cannot log to a closed logger")
@@ -69,18 +77,19 @@ class Logger(ABC):
             # TODO: check for shell environment and emit more verbose error string to let user know how to correct.
             raise LoggingError("log() was called without passing in any input!")
 
-        # If segments are defined use segment_processing to return a SegmentedResultSet
-        if self._schema and self._schema.segments:
-            return segment_processing(self._schema, obj, pandas, row)
+        active_schema = schema or self._schema
 
-        profiles = self._get_matching_profiles(obj, pandas=pandas, row=row)
+        # If segments are defined use segment_processing to return a SegmentedResultSet
+        if active_schema and active_schema.segments:
+            return segment_processing(active_schema, obj, pandas, row, self._segment_cache)
+
+        profiles = self._get_matching_profiles(obj, pandas=pandas, row=row, schema=active_schema)
 
         for prof in profiles:
             prof.track(obj, pandas=pandas, row=row)
 
         return ProfileResultSet(profiles[0])
 
-    @abstractmethod
     def close(self) -> None:
         self._is_closed = True
 

@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Dict, Optional, Tuple
+from typing import IO, Any, Optional, Tuple
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore
@@ -20,105 +20,24 @@ from whylabs_client.rest import ForbiddenException  # type: ignore
 from whylogs import __version__ as _version
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
-from whylogs.core import ColumnProfileView, DatasetProfileView
+from whylogs.core import DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.errors import BadConfigError
 from whylogs.core.feature_weights import FeatureWeights
-from whylogs.core.metrics import Metric
-from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.utils import deprecated_alias
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
-
-try:
-    from PIL.Image import Image as ImageType  # noqa trigger ImportError if unavailable
-
-    from whylogs.extras.image_metric import ImageMetric
-except ImportError:
-    # dummy ImageMetric class so nothing will be an instance of it
-    class ImageMetric:  # type: ignore[no-redef]
-        pass
-
+from whylogs.migration.uncompound import (
+    _uncompound_dataset_profile,
+    _uncompound_metric_feature_flag,
+)
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
+DAY_IN_SECONDS = 60 * 60 * 24
+WEEK_IN_SECONDS = DAY_IN_SECONDS * 7
+FIVE_YEARS_IN_SECONDS = DAY_IN_SECONDS * 365 * 5
 logger = logging.getLogger(__name__)
 
 API_KEY_ENV = "WHYLABS_API_KEY"
-
-
-def _uncompound_metric_feature_flag() -> bool:
-    """
-    v0 whylabs doesn't understand compound metrics. If this is True, turn
-    each submetric in a compound metric into its own column in the profile
-    so that v0 whylabs will only see metrics it understands.
-    """
-    return True
-
-
-def _v0_compatible_image_feature_flag() -> bool:
-    """
-    v0 whylogs only supported logging a single image in a profile.
-    v1 supports multiple image in a profile by giving each image "channel"
-    a unique name. If this returns True, use the old V0 column naming
-    convention that only supports a single image.
-    """
-    return False
-
-
-def _uncompounded_column_name(column_name: str, metric_name: str, submetric_name: str, metric: Metric) -> str:
-    if isinstance(metric, ImageMetric) and _v0_compatible_image_feature_flag():
-        return submetric_name
-    return f"{column_name}.{metric_name}.{submetric_name}"
-
-
-def _uncompound_image_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
-    """
-    Special handling to turn ImageMetric into a V0 whylabs-compatible profile
-    by grouping the expected metrics into a column for each image attribute.
-    """
-    result: Dict[str, ColumnProfileView] = dict()
-    for attribute in metric._attribute_names:
-        metrics: Dict[str, Metric] = dict()
-        for prefix in metric._submetric_schema.prefixes():
-            key = f"{prefix}_{attribute}"
-            if key in metric.submetrics:
-                metrics[metric.submetrics[key].namespace] = metric.submetrics[key]
-        if metrics:
-            new_col_name = f"{col_name}.{attribute}" if not _v0_compatible_image_feature_flag() else attribute
-            result[new_col_name] = ColumnProfileView(metrics)
-
-    return result
-
-
-def _uncompound_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
-    if isinstance(metric, ImageMetric):
-        return _uncompound_image_metric(col_name, metric_name, metric)
-
-    result: Dict[str, ColumnProfileView] = dict()
-    for submetric_name, submetric in metric.submetrics.items():
-        new_col_name = _uncompounded_column_name(col_name, metric_name, submetric_name, metric)
-        result[new_col_name] = ColumnProfileView({submetric.namespace: submetric})
-    return result
-
-
-def _uncompound_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
-    """
-    v0 whylabs doesn't understand compound metrics. This creates a new column for
-    each submetric in a compound metric so that whylabs only sees metrics it understands.
-    """
-    new_prof = DatasetProfileView(
-        columns=prof._columns,
-        dataset_timestamp=prof._dataset_timestamp,
-        creation_timestamp=prof._creation_timestamp,
-        metrics=prof._metrics,
-    )
-    new_columns: Dict[str, ColumnProfileView] = dict()
-    for col_name, col_prof in new_prof._columns.items():
-        for metric_name, metric in col_prof._metrics.items():
-            if isinstance(metric, CompoundMetric):
-                new_columns.update(_uncompound_metric(col_name, metric_name, metric))
-
-    new_prof._columns.update(new_columns)
-    return new_prof
 
 
 class WhyLabsWriter(Writer):
@@ -280,17 +199,44 @@ class WhyLabsWriter(Writer):
 
         with tempfile.NamedTemporaryFile() as tmp_file:
             if has_segments:
-                view.write(path=tmp_file.name, use_v0=True)
+                view.write(file=tmp_file, use_v0=True)
             else:
-                view.write(path=tmp_file.name)
+                view.write(file=tmp_file)
             tmp_file.flush()
+            tmp_file.seek(0)
+            utc_now = datetime.datetime.now(datetime.timezone.utc)
+            dataset_timestamp = view.dataset_timestamp or utc_now
+            stamp = dataset_timestamp.timestamp()
+            time_delta_seconds = utc_now.timestamp() - stamp
+            if time_delta_seconds < 0:
+                logger.warning(
+                    f"About to upload a profile with a dataset_timestamp that is in the future: {time_delta_seconds}s old."
+                )
+            elif time_delta_seconds > WEEK_IN_SECONDS:
+                if time_delta_seconds > FIVE_YEARS_IN_SECONDS:
+                    logger.error(
+                        f"A profile being uploaded to WhyLabs has a dataset_timestamp of({dataset_timestamp}) "
+                        f"compared to current datetime: {utc_now}. Uploads of profiles older than 5 years "
+                        "might not be monitored in WhyLabs and may take up to 24 hours to show up."
+                    )
+                else:
+                    logger.warning(
+                        f"A profile being uploaded to WhyLabs has a dataset_timestamp of {dataset_timestamp} "
+                        "which is older than 7 days compared to {utc_now}. These profiles should be processed within 24 hours."
+                    )
 
-            dataset_timestamp = view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
-            dataset_timestamp_epoch = int(dataset_timestamp.timestamp() * 1000)
+            if stamp <= 0:
+                logger.error(
+                    f"Profiles should have timestamps greater than 0, but found a timestamp of {stamp}"
+                    f" and current timestamp is {utc_now.timestamp()}, this is likely an error."
+                )
+
+            dataset_timestamp_epoch = int(stamp * 1000)
             response = self._do_upload(
                 dataset_timestamp=dataset_timestamp_epoch,
-                profile_path=tmp_file.name,
+                profile_file=tmp_file,
             )
+        # TODO: retry
         return response
 
     def _validate_api_key(self) -> None:
@@ -346,12 +292,22 @@ class WhyLabsWriter(Writer):
         else:
             return False, str(result)
 
+    def _copy_file(self, profile_file: IO[bytes], upload_url: str, dataset_timestamp: int, api_key_id: Optional[str]):
+        http_response = requests.put(upload_url, data=profile_file.read())
+        is_successful = False
+        if http_response.status_code == 200:
+            is_successful = True
+            logger.info(
+                f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
+            )
+        return is_successful, http_response.text
+
     def _do_upload(
-        self,
-        dataset_timestamp: int,
-        profile_path: str,
+        self, dataset_timestamp: int, profile_path: Optional[str] = None, profile_file: Optional[IO[bytes]] = None
     ) -> Tuple[bool, str]:
 
+        assert profile_path or profile_file, "Either a file or file path must be specified when uploading profiles"
         self._validate_org_and_dataset()
         self._validate_api_key()
 
@@ -359,22 +315,18 @@ class WhyLabsWriter(Writer):
         upload_url = self._get_upload_url(dataset_timestamp=dataset_timestamp)
         api_key_id = self._api_key[:10] if self._api_key else None
         try:
-            with open(profile_path, "rb") as f:
-                http_response = requests.put(upload_url, data=f.read())
-                is_successful = False
-                if http_response.status_code == 200:
-                    is_successful = True
-                    logger.info(
-                        f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                        f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
-                    )
-                return is_successful, http_response.text
+            if profile_file:
+                return self._copy_file(profile_file, upload_url, dataset_timestamp, api_key_id)
+            elif profile_path:
+                with open(profile_path, "rb") as f:
+                    return self._copy_file(f, upload_url, dataset_timestamp, api_key_id)
         except requests.RequestException as e:
             logger.info(
                 f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
                 + f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}. Error occurred: {e}"
             )
             return False, str(e)
+        return False, "Either a profile_file or profile_path must be specified when uploading profiles to WhyLabs!"
 
     def _get_or_create_feature_weights_client(self) -> FeatureWeightsApi:
         environment_api_key = os.environ.get(API_KEY_ENV)

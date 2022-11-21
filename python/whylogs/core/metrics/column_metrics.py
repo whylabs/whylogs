@@ -19,7 +19,7 @@ class TypeCountersMetric(Metric):
     def namespace(self) -> str:
         return "types"
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         return {
             "integral": self.integral.value,
             "fractional": self.fractional.value,
@@ -92,6 +92,8 @@ class TypeCountersMetric(Metric):
 class ColumnCountsMetric(Metric):
     n: IntegralComponent
     null: IntegralComponent
+    nan: IntegralComponent
+    inf: IntegralComponent
 
     @property
     def namespace(self) -> str:
@@ -100,6 +102,9 @@ class ColumnCountsMetric(Metric):
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         n: int = self.n.value
         null: int = self.null.value
+        nan: int = self.nan.value
+        inf: int = self.inf.value
+
         if data.len <= 0:
             return OperationResult.ok(0)
         n += data.len
@@ -107,11 +112,20 @@ class ColumnCountsMetric(Metric):
 
         null += data.null_count
         self.null.set(null)
+
+        nan += data.nan_count
+        self.nan.set(nan)
+
+        inf += data.inf_count
+        self.inf.set(inf)
+
         return OperationResult.ok(data.len)
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
-        return {"n": self.n.value, "null": self.null.value}
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
+        return {"n": self.n.value, "null": self.null.value, "nan": self.nan.value, "inf": self.inf.value}
 
     @classmethod
     def zero(cls, config: Optional[MetricConfig] = None) -> "ColumnCountsMetric":
-        return ColumnCountsMetric(n=IntegralComponent(0), null=IntegralComponent(0))
+        return ColumnCountsMetric(
+            n=IntegralComponent(0), null=IntegralComponent(0), nan=IntegralComponent(0), inf=IntegralComponent(0)
+        )

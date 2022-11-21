@@ -2,12 +2,15 @@ import unicodedata
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
-from whylogs.core.metrics.compound_metric import CompoundMetric
+from whylogs.core.metrics.column_metrics import ColumnCountsMetric, TypeCountersMetric
 from whylogs.core.metrics.metrics import (
+    CardinalityMetric,
     DistributionMetric,
+    IntsMetric,
     MetricConfig,
     OperationResult,
 )
+from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
 
@@ -15,7 +18,7 @@ _STRING_LENGTH = "string_length"
 
 
 @dataclass
-class UnicodeRangeMetric(CompoundMetric):
+class UnicodeRangeMetric(MultiMetric):
     """
     For string values, maintains a DistributionMetric for the counts of
     characters that fall within user-defined codepoint ranges.
@@ -47,10 +50,18 @@ class UnicodeRangeMetric(CompoundMetric):
         if _STRING_LENGTH in self.range_definitions:
             raise ValueError("STRING_LENGTH cannot be used as a range name")
 
+        keys = set(self.range_definitions.keys())
+        keys.add(_STRING_LENGTH)
         submetrics = {
-            key: DistributionMetric.zero(MetricConfig(large_kll_k=False)) for key in self.range_definitions.keys()
+            key: {
+                CardinalityMetric.get_namespace(): CardinalityMetric.zero(),
+                ColumnCountsMetric.get_namespace(): ColumnCountsMetric.zero(),
+                DistributionMetric.get_namespace(): DistributionMetric.zero(MetricConfig(large_kll_k=False)),
+                IntsMetric.get_namespace(): IntsMetric.zero(),
+                TypeCountersMetric.get_namespace(): TypeCountersMetric.zero(),
+            }
+            for key in keys
         }
-        submetrics[_STRING_LENGTH] = DistributionMetric.zero(MetricConfig(large_kll_k=False))
         super(type(self), self).__init__(submetrics)  # type: ignore
 
     @property
@@ -90,10 +101,14 @@ class UnicodeRangeMetric(CompoundMetric):
 
         submetric_col = PreprocessedColumn()
         submetric_col.list.ints = lengths
-        self.submetrics[_STRING_LENGTH].columnar_update(submetric_col)
+        for metric in self.submetrics[_STRING_LENGTH].values():
+            metric.columnar_update(submetric_col)
+
         for range_name, range_list in range_data.items():
             submetric_col.list.ints = range_list
-            self.submetrics[range_name].columnar_update(submetric_col)
+            for metric in self.submetrics[range_name].values():
+                metric.columnar_update(submetric_col)
+
         return OperationResult.ok(len(data))
 
     @classmethod

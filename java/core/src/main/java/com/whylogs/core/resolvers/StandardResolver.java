@@ -14,8 +14,8 @@ public class StandardResolver extends Resolver {
 
   // TODO: the rest of the metrics need implmeented
   @Override
-  public HashMap<String, Metric> resolve(ColumnSchema schema) {
-    HashMap<String, Metric> resolvedMetrics = new HashMap<>();
+  public HashMap<String, Metric<?>> resolve(ColumnSchema schema) {
+    HashMap<String, Metric<?>> resolvedMetrics = new HashMap<>();
 
     if (DataTypes.Integral.includes(schema.getType())) {
       resolvedMetrics.put(IntegralMetric.NAMESPACE, IntegralMetric.zero(schema.getConfig()));

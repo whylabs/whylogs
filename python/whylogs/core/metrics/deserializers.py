@@ -126,14 +126,22 @@ class DeserializerRegistry:
         return result
 
 
-_STANDARD_REGISTRY = DeserializerRegistry()
+_STANDARD_REGISTRY = None
+
+
+def _get_or_create_registry() -> DeserializerRegistry:
+    global _STANDARD_REGISTRY
+    if _STANDARD_REGISTRY is None:
+        _STANDARD_REGISTRY = DeserializerRegistry()
+
+    return _STANDARD_REGISTRY
 
 
 def get_deserializer(
     *, mtype: Optional[type] = None, type_id: int = 0, registry: Optional[DeserializerRegistry] = None
 ) -> Optional[_Deserializer]:
     if registry is None:
-        registry = _STANDARD_REGISTRY
+        registry = _get_or_create_registry()
     return registry.get(mtype=mtype, type_id=type_id)
 
 
@@ -141,7 +149,7 @@ def deserializer(*, type_id: int, registry: Optional[DeserializerRegistry] = Non
     if type_id < _MAX_BUILT_IN_ID:
         raise ValueError("Custom aggregator ID must be equal or greater than 100")
     if registry is None:
-        registry = _STANDARD_REGISTRY
+        registry = _get_or_create_registry()
 
     return _decorate_func(
         key=type_id, name=f"custom.{type_id}", wrapper_dict=registry._id_deserializer, clazz=_Deserializer

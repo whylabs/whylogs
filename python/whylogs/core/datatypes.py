@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import Any, Generic, List, Optional, Type, TypeVar, Union
 
-from whylogs.core.stubs import np
+from whylogs.core.stubs import is_not_stub, np
 
 try:
     from pandas.core.api import CategoricalDtype
@@ -54,8 +54,8 @@ class Integral(DataType[int]):
         if not isinstance(dtype_or_type, type):
             return False
 
-        if issubclass(dtype_or_type, (bool, int, np.number)):
-            if np.issubdtype and np.issubdtype(dtype_or_type, np.floating):
+        if issubclass(dtype_or_type, (bool, int, np.number, np.bool_)):
+            if is_not_stub(np.issubdtype) and np.issubdtype(dtype_or_type, np.floating):
                 return False
             if issubclass(dtype_or_type, (np.datetime64, np.timedelta64)):
                 return False
