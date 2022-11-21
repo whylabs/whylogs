@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import reduce
 from typing import Any, Dict, Iterable, List, Optional
 
@@ -67,7 +67,7 @@ class _FugueProfiler:
         creation_timestamp: Optional[datetime] = None,
         profile_field: str = DF_PROFILE_FIELD,
     ):
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         self._dataset_timestamp = dataset_timestamp or now
         self._creation_timestamp = creation_timestamp or now

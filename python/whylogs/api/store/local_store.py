@@ -1,7 +1,7 @@
 import logging
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import reduce
 from glob import glob
 from typing import List, Optional, Union
@@ -49,8 +49,8 @@ class LocalStore(ProfileStore):
     store = LocalStore()
     query = DateQuery(
         profile_name="my_model",
-        start_date = datetime.utcnow() - timedelta(days=7),
-        end_date = datetime.utcnow()
+        start_date = datetime.now(timezone.utc) - timedelta(days=7),
+        end_date = datetime.now(timezone.utc)
     )
 
     profile_view = store.get(query=query)
@@ -82,7 +82,7 @@ class LocalStore(ProfileStore):
 
     @staticmethod
     def _get_profile_filename() -> str:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         return f"profile_{now.date()}_{now.hour}:{now.minute}:{now.second}_{uuid.uuid4()}.bin"
 
     def list(self) -> List[str]:
