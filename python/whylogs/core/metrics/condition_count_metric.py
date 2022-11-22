@@ -1,22 +1,56 @@
 import logging
+import re
 from copy import copy
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.metric_components import IntegralComponent, MetricComponent
 from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
-from whylogs.core.relations import Predicate
+from whylogs.core.relations import Relation
 
 logger = logging.getLogger(__name__)
 
 
+# relation() is annoying, use Predicate instead
+def relation(op: Relation, value: Union[str, int, float]) -> Callable[[Any], bool]:
+    if op == Relation.match:
+        return lambda x: re.compile(value).match(x)  # type: ignore
+    if op == Relation.fullmatch:
+        return lambda x: re.compile(value).fullmatch(x)  # type: ignore
+    if op == Relation.equal:
+        return lambda x: x == value  # type: ignore
+    if op == Relation.less:
+        return lambda x: x < value  # type: ignore
+    if op == Relation.leq:
+        return lambda x: x <= value  # type: ignore
+    if op == Relation.greater:
+        return lambda x: x > value  # type: ignore
+    if op == Relation.geq:
+        return lambda x: x >= value  # type: ignore
+    if op == Relation.neq:
+        return lambda x: x != value  # type: ignore
+    raise ValueError("Unknown ConditionCountMetric predicate")
+
+
+def and_relations(left: Callable[[Any], bool], right: Callable[[Any], bool]) -> Callable[[Any], bool]:
+    return lambda x: left(x) and right(x)
+
+
+def or_relations(left: Callable[[Any], bool], right: Callable[[Any], bool]) -> Callable[[Any], bool]:
+    return lambda x: left(x) or right(x)
+
+
+def not_relation(relation: Callable[[Any], bool]) -> Callable[[Any], bool]:
+    return lambda x: not relation(x)
+
+
 @dataclass(frozen=True)
 class Condition:
-    relation: Predicate
+    relation: Callable[[Any], bool]
     throw_on_failure: bool = False
     log_on_failure: bool = False
 
