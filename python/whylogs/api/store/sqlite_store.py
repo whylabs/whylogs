@@ -66,14 +66,14 @@ class SQLiteStore(ProfileStore):
             logger.error("Define a supported Query: Union[ProfileNameQuery, DateQuery]")
             raise ValueError
 
-        profile_view = DatasetProfileView.zero()
+        profile_view = DatasetProfile().view()
         for item in response:
             profile_view = profile_view.merge(DatasetProfileView.deserialize(item[0]))
         return profile_view
 
     def _insert_blob(self, profile_view: DatasetProfileView, profile_name: str):
         try:
-            profile_date = profile_view.creation_timestamp.strftime("%Y-%m-%d %H:%M:%s")
+            profile_date = profile_view.creation_timestamp
             serialized_profile = profile_view.serialize()
             query = "INSERT INTO profile_store (id, date, profile) VALUES (?, ?, ?);"
             values_tuple = (profile_name, profile_date, serialized_profile)
