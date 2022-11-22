@@ -10,7 +10,6 @@ from whylogs.core import DatasetProfile, DatasetProfileView
 
 logger = logging.getLogger(__name__)
 
-# TODO try prep queries over formatted strings
 # TODO build sqlite image onto CI
 
 

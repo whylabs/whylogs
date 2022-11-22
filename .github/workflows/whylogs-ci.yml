@@ -20,7 +20,7 @@ env:
 
 jobs:
   python-ci:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest]
@@ -85,21 +85,21 @@ jobs:
       - name: Run pre-commit hooks
         run: make pre-commit
 
-      - run: |
-          wget https://sqlite.org/2022/sqlite-autoconf-3380500.tar.gz
-          tar -xvf sqlite-autoconf-3380500.tar.gz
-      - run: |
-          cd sqlite-autoconf-3380500
-          ./configure
-          make
-          sudo make install
-          export PATH="/usr/local/lib:$PATH"
-          cd ..
+      # - run: |
+      #     wget https://sqlite.org/2022/sqlite-autoconf-3380500.tar.gz
+      #     tar -xvf sqlite-autoconf-3380500.tar.gz
+      # - run: |
+      #     cd sqlite-autoconf-3380500
+      #     ./configure
+      #     make
+      #     sudo make install
+      #     export PATH="/usr/local/lib:$PATH"
+      #     cd ..
 
       - name: Run build, style, and lint checks
         run: make release
-        env:
-          LD_LIBRARY_PATH: "/usr/local/lib"
+        # env:
+        #   LD_LIBRARY_PATH: "/usr/local/lib"
 
       - name: Smoke test wheel in client environment
         run: |
