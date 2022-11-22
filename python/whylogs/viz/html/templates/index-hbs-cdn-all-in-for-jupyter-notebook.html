@@ -583,7 +583,7 @@
         text-align: start;
         padding: 3px;
         position: absolute;
-        z-index: 1;
+        z-index: 1002;
         top: 0;
         left: 100%;
         margin-left: 5px;
@@ -664,8 +664,16 @@
               </div>
               <div class="display-flex statistics">
                   <div class="padding-right-30">
-                    <div class="statistic-number-title">Observations</div>
+                    <div class="statistic-number-title">Observations
+                    <div class="tooltip-full-number">
+                      <span class="question-mark">?</span>
+                    <span class="tooltiptext">
+                     <div class="mb-1">The sum of counts for each feature. For a single dataframe, it is equal to the number of cells, i.e., rows * columns.</div>
+                    </span>
+                    </div>
+                    </div>
                     <div class="statistic-number">{{{observations this}}}</div>
+
                   </div>
                   <div class="padding-right-30">
                     <div class="statistic-number-title">Missing Cells</div>
