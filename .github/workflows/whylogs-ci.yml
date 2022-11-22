@@ -95,7 +95,6 @@ jobs:
       #     sudo make install
       #     export PATH="/usr/local/lib:$PATH"
       #     cd ..
-
       - name: Run build, style, and lint checks
         run: make release
         # env:
