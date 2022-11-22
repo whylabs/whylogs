@@ -63,7 +63,7 @@ class TestSQLiteStore:
         name_query = ProfileNameQuery(profile_name="doesnt_exist")
         expected_profile = store.get(query=name_query)
         assert isinstance(expected_profile, DatasetProfileView)
-        assert DatasetProfile().view() == expected_profile
+        assert expected_profile.get_columns() == {}
 
     def test_write_to_sqlite(self, store, profile_view):
         store.write(profile_view=profile_view, profile_name="test_profile")

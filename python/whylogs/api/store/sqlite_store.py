@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 # TODO try prep queries over formatted strings
 # TODO build sqlite image onto CI
-# TODO create env var config file
 
 
 class SQLiteStore(ProfileStore):
