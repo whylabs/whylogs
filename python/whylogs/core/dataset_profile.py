@@ -48,7 +48,7 @@ class DatasetProfile(Writable):
     ):
         if schema is None:
             schema = DatasetSchema()
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         self._dataset_timestamp = dataset_timestamp or now
         self._creation_timestamp = creation_timestamp or now
         self._schema = schema
@@ -156,15 +156,7 @@ class DatasetProfile(Writable):
 
         raise NotImplementedError
 
-    def _track_classification_metrics(
-        self,
-        targets,
-        predictions,
-        scores=None,
-        target_field=None,
-        prediction_field=None,
-        score_field=None,
-    ) -> None:
+    def _track_classification_metrics(self, targets, predictions, scores=None) -> None:
         """
         Function to track metrics based on validation data.
         user may also pass the associated attribute names associated with
@@ -190,24 +182,9 @@ class DatasetProfile(Writable):
         """
         if not self.model_performance_metrics:
             self.add_model_performance_metrics(ModelPerformanceMetrics())
-        self.model_performance_metrics.compute_confusion_matrix(
-            predictions=predictions,
-            targets=targets,
-            scores=scores,
-            target_field=target_field,
-            prediction_field=prediction_field,
-            score_field=score_field,
-        )
+        self.model_performance_metrics.compute_confusion_matrix(predictions=predictions, targets=targets, scores=scores)
 
-    def _track_regression_metrics(
-        self,
-        targets,
-        predictions,
-        scores=None,
-        target_field=None,
-        prediction_field=None,
-        score_field=None,
-    ) -> None:
+    def _track_regression_metrics(self, targets, predictions, scores=None) -> None:
         """
         Function to track regression metrics based on validation data.
         user may also pass the associated attribute names associated with
@@ -234,12 +211,7 @@ class DatasetProfile(Writable):
         if not self.model_performance_metrics:
             self.add_model_performance_metrics(ModelPerformanceMetrics())
         self.model_performance_metrics.compute_regression_metrics(
-            predictions=predictions,
-            targets=targets,
-            scores=scores,
-            target_field=target_field,
-            prediction_field=prediction_field,
-            score_field=score_field,
+            predictions=predictions, targets=targets, scores=scores
         )
 
     def _initialize_new_columns(self, new_cols: tuple) -> None:
