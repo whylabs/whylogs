@@ -1,4 +1,5 @@
 from .cardinality_metrics import distinct_number_in_range
+from .condition_counts import condition_meets
 from .count_metrics import (
     count_below_number,
     null_percentage_below_number,
@@ -42,4 +43,5 @@ ALL = [
     column_is_nullable_fractional,
     column_is_nullable_object,
     column_is_nullable_string,
+    condition_meets,
 ]
