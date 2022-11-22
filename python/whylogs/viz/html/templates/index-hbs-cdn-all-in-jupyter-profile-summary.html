@@ -1119,6 +1119,7 @@
       Handlebars.registerHelper("mean", function (column) {
         if (column.featureStats?.descriptive_statistics) {
           if (isNaN(column.featureStats.descriptive_statistics.mean)){return "-"}
+          if (column.featureStats.descriptive_statistics.mean==null){return "-"}
           return fixNumberTo(column.featureStats.descriptive_statistics.mean);
         }
         return "-";
