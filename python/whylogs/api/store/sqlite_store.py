@@ -10,8 +10,6 @@ from whylogs.core import DatasetProfile, DatasetProfileView
 
 logger = logging.getLogger(__name__)
 
-# TODO build sqlite image onto CI
-
 
 class SQLiteStore(ProfileStore):
     def __init__(self):
