@@ -53,6 +53,7 @@ def test_throw_on_failure() -> None:
 action_1_count = 0
 action_2_count = 0
 
+
 def action_1(val_name: str, cond_name: str, value: Any) -> None:
     global action_1_count
     action_1_count += 1
@@ -71,7 +72,6 @@ def test_actions() -> None:
     metric = ConditionCountMetric(conditions, IntegralComponent(0))
     strings = ["abc", "123", "kwatz", "314159", "abc123"]
     metric.columnar_update(PreprocessedColumn.apply(strings))
-    summary = metric.to_summary_dict(None)
 
     global action_1_count, action_2_count
     assert action_1_count == 5  # 3 don't start with digits, 2 don't start with digits
