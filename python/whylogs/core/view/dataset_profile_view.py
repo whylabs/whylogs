@@ -1,7 +1,7 @@
 import io
 import logging
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, BinaryIO, Dict, List, Optional, Tuple
 
@@ -300,8 +300,12 @@ class DatasetProfileView(Writable):
         dataset_profile_header = read_delimited_protobuf(f, DatasetProfileHeader)
         if dataset_profile_header.ByteSize() == 0:
             raise DeserializationError("Missing valid dataset profile header")
-        dataset_timestamp = datetime.fromtimestamp(dataset_profile_header.properties.dataset_timestamp / 1000.0)
-        creation_timestamp = datetime.fromtimestamp(dataset_profile_header.properties.creation_timestamp / 1000.0)
+        dataset_timestamp = datetime.fromtimestamp(
+            dataset_profile_header.properties.dataset_timestamp / 1000.0, tz=timezone.utc
+        )
+        creation_timestamp = datetime.fromtimestamp(
+            dataset_profile_header.properties.creation_timestamp / 1000.0, tz=timezone.utc
+        )
         indexed_metric_paths = dataset_profile_header.indexed_metric_paths
         if len(indexed_metric_paths) < 1:
             logger.warning("Name index in the header is empty. Possible data corruption")

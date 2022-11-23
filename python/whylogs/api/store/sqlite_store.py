@@ -1,7 +1,7 @@
 import logging
 import os
 import sqlite3
-from datetime import timedelta
+from datetime import timedelta, timezone
 from typing import Union
 
 from whylogs.api.store import ProfileStore
@@ -58,15 +58,15 @@ class SQLiteStore(ProfileStore):
             data_tuple = (query.profile_name,)
             response = self.cur.execute(sql_query, data_tuple).fetchall()
         elif isinstance(query, DateQuery):
-            start_date = query.start_date.replace(minute=0)
-            end_date = query.end_date + timedelta(minutes=1)
+            start_date = query.start_date.replace(minute=0).astimezone(tz=timezone.utc)
+            end_date = query.end_date.astimezone(tz=timezone.utc) + timedelta(minutes=1)
             sql_query = f"SELECT profile FROM profile_store WHERE id = '{query.profile_name}' AND date BETWEEN '{start_date}' AND '{end_date}';"
             response = self.cur.execute(sql_query).fetchall()
         else:
             logger.error("Define a supported Query: Union[ProfileNameQuery, DateQuery]")
             raise ValueError
 
-        profile_view = DatasetProfile().view()
+        profile_view = DatasetProfileView.zero()
         for item in response:
             profile_view = profile_view.merge(DatasetProfileView.deserialize(item[0]))
         return profile_view

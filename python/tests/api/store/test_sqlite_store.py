@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List
 
 import pytest
@@ -47,14 +47,14 @@ class TestSQLiteStore:
         assert isinstance(profile, DatasetProfileView)
 
     def test_sqlite_get_by_date_range(self, store):
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         one_week_ago = now - timedelta(days=7)
         date_query = DateQuery(profile_name="my_profile", start_date=one_week_ago, end_date=now)
         profile = store.get(query=date_query)
         assert isinstance(profile, DatasetProfileView)
 
     def test_sqlite_get_by_start_date_only(self, store):
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         date_query = DateQuery(profile_name="my_profile", start_date=now)
         profile = store.get(query=date_query)
         assert isinstance(profile, DatasetProfileView)
