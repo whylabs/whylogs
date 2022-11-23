@@ -32,11 +32,10 @@ class TestSQLiteStore:
         del store
 
     def test_sqlite_store_with_closes_connection(self):
-        test_query = "SELECT * FROM sqlite_schema"
         with SQLiteStore() as store:
-            store.cur.execute(test_query)
+            store.cur
         with pytest.raises(sqlite3.ProgrammingError):
-            store.cur.execute(test_query)
+            store.conn.cursor()
 
     def test_sqlite_list(self, store):
         assert store.list() == ["my_profile"]
