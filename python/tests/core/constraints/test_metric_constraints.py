@@ -6,6 +6,8 @@ from whylogs.core.constraints import (
     MetricConstraint,
     MetricsSelector,
 )
+from whylogs.core.constraints.factories.distribution_metrics import greater_than_number
+from whylogs.core.constraints.metric_constraints import ReportResult
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig
@@ -87,17 +89,23 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
         metric_selector=distribution_selector,
         require_column_existence=False,
     )
-
+    assert legs_less_than_12_constraint.validate_profile(view)[0] == legs_less_than_12_constraint.validate(view)
+    assert no_negative_numbers.validate_profile(view)[0] == no_negative_numbers.validate(view)
+    assert legs_less_than_12_constraint.validate_profile(view)[1]["metric"] == "distribution"
+    assert legs_less_than_12_constraint.validate_profile(view)[1]["mean"] == 3.2
     constraints_builder.add_constraint(constraint=legs_less_than_12_constraint)
     constraints_builder.add_constraint(constraint=no_negative_numbers, ignore_missing=True)
-    contraints = constraints_builder.build()
-    TEST_LOGGER.info(f"constraints are: {contraints.column_constraints}")
-    constraints_valid = contraints.validate()
-    report_results = contraints.report()
+    constraints = constraints_builder.build()
+    TEST_LOGGER.info(f"constraints are: {constraints.column_constraints}")
+    constraints_valid = constraints.validate()
+    report_results = constraints.generate_constraints_report()
     TEST_LOGGER.info(f"constraints report is: {report_results}")
     assert constraints_valid
     assert len(report_results) == 2
-    assert report_results[0] == ("legs less than 12", 1, 0)
+    # ReportResult(name, passed, failed, summary)
+    assert report_results[0] == ("legs less than 12", 1, 0, None)
+    for (x, y) in zip(constraints.report(), constraints.generate_constraints_report()):
+        assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
 
 
 def test_same_constraint_on_multiple_columns(profile_view):
@@ -135,17 +143,38 @@ def test_same_constraint_on_multiple_columns(profile_view):
     builder.add_constraint(greater_than_number(column_name="legs", number=20))
 
     constraints = builder.build()
-    report = constraints.report()
+    report = constraints.generate_constraints_report()
     assert isinstance(report, list)
-
+    # ReportResult(name, passed, failed, summary)
     assert sorted(report) == sorted(
         [
-            ("not_null", 0, 1),
-            ("greater_than_zero", 1, 0),
-            ("greater_than_number", 0, 1),
-            ("greater_than_number", 0, 1),
-            ("not_null", 1, 0),
-            ("not_null", 1, 0),
-            ("greater_than_zero", 0, 1),
+            ("not_null", 0, 1, None),
+            ("greater_than_zero", 1, 0, None),
+            ("greater_than_number", 0, 1, None),
+            ("greater_than_number", 0, 1, None),
+            ("not_null", 1, 0, None),
+            ("not_null", 1, 0, None),
+            ("greater_than_zero", 0, 1, None),
         ]
     )
+    for (x, y) in zip(constraints.report(), constraints.generate_constraints_report()):
+        assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
+
+
+def test_constraints_report(pandas_constraint_dataframe) -> None:
+    profile = DatasetProfile()
+    profile.track(pandas=pandas_constraint_dataframe)
+    view = profile.view()
+    builder = ConstraintsBuilder(dataset_profile_view=view)
+    builder.add_constraint(greater_than_number(column_name="legs", number=6, skip_missing=False))
+    constraints = builder.build()
+    report = constraints.generate_constraints_report(with_summary=True)
+    assert isinstance(report[0], ReportResult)
+    assert len(report[0]) == 4
+    assert report[0].name == "legs greater than number 6"
+    assert report[0].passed == 0
+    assert report[0].failed == 1
+    assert report[0].summary["metric"] == "distribution"
+    assert report[0].summary["min"] == 0
+    for (x, y) in zip(constraints.report(), constraints.generate_constraints_report()):
+        assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])

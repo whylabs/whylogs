@@ -1,3 +1,4 @@
+import datetime
 from logging import getLogger
 
 import numpy as np
@@ -84,3 +85,16 @@ def test_track_with_custom_schema() -> None:
     df = pd.DataFrame({"col1": ["foo"], "col2": np.array([1], dtype=np.int32), "col3": ["bar"]})
     prof.track(pandas=df)
     assert prof._columns.keys() == prof._schema._columns.keys()
+
+
+def test_default_dataset_timestamp() -> None:
+    prof = DatasetProfile()
+    t1 = datetime.datetime.now(datetime.timezone.utc)
+    assert prof.dataset_timestamp is not None
+    assert prof.dataset_timestamp.tzinfo
+    timestamp_delta = t1.timestamp() - prof.dataset_timestamp.timestamp()
+
+    assert timestamp_delta >= 0  # no default timestamps in the future!
+
+    # the time in seconds between DatasetProfile creation and t1 assignment should be relatively small
+    assert timestamp_delta < 30
