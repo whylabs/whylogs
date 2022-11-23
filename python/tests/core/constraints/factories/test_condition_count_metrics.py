@@ -48,5 +48,5 @@ def test_condition_count_constrain(pandas_dataframe):
     constraints = builder.build()
     rp = constraints.generate_constraints_report()
     assert rp[0].name == "legs meets condition not_4" and rp[0].failed == 1
-    assert rp[1].name == "animal meets condition not_4" and rp[0].failed == 0
-    assert rp[2].name == "weight meets condition not_4" and rp[0].failed == 0
+    assert rp[1].name == "animal meets condition not_4" and rp[1].failed == 0
+    assert rp[2].name == "weight meets condition not_4" and rp[2].failed == 0
