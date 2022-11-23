@@ -1,4 +1,6 @@
 import os
+import pickle
+import tempfile
 from glob import glob
 from typing import Any
 
@@ -7,7 +9,11 @@ import pandas as pd
 import pytest
 
 import whylogs as why
-from whylogs.api.logger.result_set import SegmentedResultSet
+from whylogs.api.logger.result_set import (
+    ProfileResultSet,
+    SegmentedResultSet,
+    ViewResultSet,
+)
 from whylogs.core.metrics.metrics import CardinalityMetric, DistributionMetric
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.segment import Segment
@@ -286,3 +292,65 @@ def test_multi_column_segment_serialization_roundtrip_v0(tmp_path: Any) -> None:
     post_columns = post_deserialization_view.get_columns()
     assert "A" in post_columns.keys()
     assert "B" in post_columns.keys()
+
+
+def test_merge_view() -> None:
+    df = pd.DataFrame(data={"col1": [1, 2]})
+    logger = why.logger()
+    results = logger.log(df)
+    merged_results = results.merge(ViewResultSet.zero())
+    view = merged_results.view()
+    assert view._columns["col1"]._metrics["types"].integral.value == 2
+
+
+def test_merge_profile() -> None:
+    df = pd.DataFrame(data={"col1": [1, 2]})
+    logger = why.logger()
+    results = logger.log(df)
+    merged_results = results.merge(ProfileResultSet.zero())
+    view = merged_results.view()
+    assert view._columns["col1"]._metrics["types"].integral.value == 2
+
+
+def test_pickle_load_merge_profile_view() -> None:
+    df = pd.DataFrame(data={"col1": [1, 2]})
+    logger = why.logger()
+    results = logger.log(df)
+    view2 = logger.log({"col1": 3}).view()
+    pickle_loaded_view = None
+    with tempfile.NamedTemporaryFile() as tmp_file:
+        pickle.dump(results.view(), tmp_file)
+        tmp_file.flush()
+        tmp_file.seek(0)
+        pickle_loaded_view = pickle.load(tmp_file)
+
+    assert pickle_loaded_view is not None
+    assert isinstance(pickle_loaded_view, DatasetProfileView)
+
+    merged_view = view2.merge(pickle_loaded_view)
+    assert merged_view._columns["col1"]._metrics["types"].integral.value == 3
+
+
+def test_segment_merge_different_columns() -> None:
+    input_rows = 35
+    d = {
+        "A": [i % 7 for i in range(input_rows)],
+        "B": [f"x{str(i%5)}" for i in range(input_rows)],
+    }
+    input_rows2 = 27
+    d2 = {
+        "A": [i % 4 for i in range(input_rows2)],
+        "B": [f"x{str(i%7)}" for i in range(input_rows2)],
+        "C": [bool(i % 2) for i in range(input_rows2)],
+    }
+
+    df = pd.DataFrame(data=d)
+    df2 = pd.DataFrame(data=d2)
+    segmentation_partition = SegmentationPartition(name="A,B", mapper=ColumnMapperFunction(col_names=["A", "B"]))
+    test_segments = {segmentation_partition.name: segmentation_partition}
+    segmented_schema = DatasetSchema(segments=test_segments)
+    results: SegmentedResultSet = why.log(df, schema=segmented_schema)
+    results2: SegmentedResultSet = why.log(df2, schema=segmented_schema)
+    merged_results = results.merge(results2)
+
+    assert merged_results.count == 42
