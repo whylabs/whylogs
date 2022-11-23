@@ -20,10 +20,10 @@ env:
 
 jobs:
   python-ci:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        os: [ubuntu-22.04, macOS-12]
+        os: [ubuntu-20.04, macOS-12]
         python-version: ["3.7", "3.8", "3.9", "3.10"]
 
     steps:
