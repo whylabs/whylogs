@@ -58,6 +58,27 @@ def test_binary_classification_should_be_correct():
     assert matrix[(1, 0)].n == 1
     assert matrix[(1, 1)].n == 3
 
+def test_multiclass_classification_should_be_correct():
+    confusion_matrix = ConfusionMatrix(labels=["cat", "dog", "pig"])
+    targets_1 = ["cat", "dog", "dog", "pig"]
+    predictions_1 = ["cat", "dog", "dog", "dog"]
+    scores_1 = [[0.6, 0.3, 0.1], [0.25, 0.4, 0.35], [0.1, 0.8, 0.1], [0.2, 0.6, 0.2]]
+
+    confusion_matrix.add(predictions=predictions_1, targets=targets_1, scores=scores_1)
+
+    matrix = confusion_matrix.confusion_matrix
+    assert len(matrix) == 3
+    print(confusion_matrix.labels)
+    print([f"{k}: {v.n}" for k, v in matrix.items()])
+
+    # Result matrix
+    # [1, 0, 0]
+    # [0, 2, 1]
+    # [0, 0, 0]
+    assert matrix[(0, 0)].n == 1
+    assert matrix[(1, 1)].n == 2
+    assert matrix[(1, 2)].n == 1
+
 
 def test_binary_classification_compute_confusion_matrix():
     import cProfile
@@ -128,6 +149,26 @@ def test_model_performance_metrics_regression():
         == mod_prof.regression_metrics.mean_absolute_error()
     )
     TEST_LOGGER.info(f"regression metrics are: {mod_prof.regression_metrics.to_protobuf()}")
+
+
+def test_multiclass_model_performance_metrics_basic():
+    targets_1 = ["cat", "dog", "pig"]
+    predictions_1 = ["cat", "dog", "dog"]
+    scores_cat = [0.6, 0.25, 0.2]
+    scores_dog = [0.3, 0.4, 0.6]
+    scores_pig = [0.1, 0.35, 0.2]
+
+    mod_prof = ModelPerformanceMetrics()
+    mod_prof.compute_confusion_matrix(targets=targets_1, predictions=predictions_1, scores=[scores_cat, scores_dog, scores_pig])
+    assert mod_prof.output_fields is None
+    assert mod_prof.regression_metrics is None
+    assert mod_prof.confusion_matrix is not None
+    message = mod_prof.to_protobuf()
+    deserialized_model_perf = ModelPerformanceMetrics.from_protobuf(message)
+    assert deserialized_model_perf is not None
+    assert deserialized_model_perf.confusion_matrix is not None
+    assert deserialized_model_perf.confusion_matrix.labels is not None
+    assert deserialized_model_perf.confusion_matrix.labels == mod_prof.confusion_matrix.labels
 
 
 def test_output_field_set():

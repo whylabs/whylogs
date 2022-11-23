@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import Literal
 
@@ -11,7 +11,7 @@ from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
 )
-from whylogs.core.stubs import pd
+from whylogs.core.stubs import np, pd
 
 diagnostic_logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ def log(
 
 
 def _log_with_metrics(
-    data: pd.DataFrame,
+    data: Optional[pd.DataFrame],
     metrics: ModelPerformanceMetrics,
     schema: Optional[DatasetSchema],
     include_data: bool,
@@ -49,8 +49,8 @@ def log_classification_metrics(
     log_full_data: bool = False,
 ) -> ProfileResultSet:
     """
-    Function to track metrics based on validation data.
-    user may also pass the associated attribute names associated with
+    Function to track model performance metrics based on ground truth data.
+    User may also pass the associated attribute names associated with
     target, prediction, and/or score.
     Parameters
     ----------
@@ -59,7 +59,7 @@ def log_classification_metrics(
     predictions : List[Union[str, bool, float, int]]
         inferred/predicted values
     scores : List[float], optional
-        assocaited scores for each inferred, all values set to 1 if not
+        associated scores for the positive class, all values set to 1 if not
         passed
     """
 
@@ -76,6 +76,51 @@ def log_classification_metrics(
     )
 
     return _log_with_metrics(data=data, metrics=model_performance_metrics, schema=schema, include_data=log_full_data)
+
+
+def log_multi_classification_metrics(
+    data: pd.DataFrame,
+    target_columns: List[str],
+    prediction_columns: List[str],
+    score_columns: List[str],
+    labels: Optional[List[Union[str, bool, float, int]]] = None,
+    schema: Optional[DatasetSchema] = None,
+    log_full_data: bool = False,
+) -> ProfileResultSet:
+    if data is not None:
+        if targets is None:
+            targets = data.loc[:, target_columns].values.tolist()
+        if predictions is None:
+            predictions = data.loc[:, prediction_columns].values.tolist()
+        if scores is None:
+            scores = data.loc[:, score_columns].values.tolist()
+
+    model_performance_metrics = ModelPerformanceMetrics()
+    model_performance_metrics.compute_confusion_matrix(
+        predictions=predictions,
+        targets=targets,
+        scores=scores,
+        labels=labels,
+    )
+
+    return _log_with_metrics(data=data, metrics=model_performance_metrics, schema=schema, include_data=log_full_data)
+
+
+def log_multi_classification_metrics_raw(
+    targets: Union[np.ndarray, List[Union[str, bool, float, int]]],
+    predictions: Union[np.ndarray, List[Union[str, bool, float, int]]],
+    scores: Union[np.ndarray, List[Union[str, bool, float, int]]],
+    labels: Optional[List[Union[str, bool, float, int]]] = None,
+) -> ProfileResultSet:
+    model_performance_metrics = ModelPerformanceMetrics()
+    model_performance_metrics.compute_confusion_matrix(
+        predictions=predictions,
+        targets=targets,
+        scores=scores,
+        labels=labels,
+    )
+
+    return _log_with_metrics(data=None, metrics=model_performance_metrics, schema=None, include_data=False)
 
 
 def log_regression_metrics(

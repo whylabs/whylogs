@@ -92,11 +92,54 @@ class ConfusionMatrix:
         if not isinstance(predictions, list):
             predictions = [predictions]
 
-        if scores is None:
-            scores = [1.0 for _ in range(len(targets))]
-
         if len(targets) != len(predictions):
             raise ValueError("both targets and predictions need to have the same length")
+
+        if len(self.labels) > 2:
+            _multiclass = True
+        else:
+            _multiclass = False
+
+        if scores is None:
+            if _multiclass:
+                score_row = [1.0] * len(self.labels)
+                scores = [score_row] * len(targets)
+            else:
+                scores = [1.0] * len(targets)
+
+        if _multiclass:
+            if isinstance(scores[0], list):
+                print("received multidimensional scores object")
+                if any(length != len(self.labels) for length in [len(row) for row in scores]):
+                    raise ValueError("scores shape must be (n, d) for n rows and d unique labels")
+                # TODO: Until capable of handling new message format, convert scores
+                # to a single list with only predicted class. This will not result in
+                # the correct ROC and score-related values, but confusion matrix accurate.
+                scores = [row[row.index(max(row))] for row in scores]
+            else:
+                _logger.warning(
+                    "Scores for multiclass classification should be (n, d) with n rows and "
+                    + "d unique labels. For backwards compatibility, will accept (n,) array, "
+                    + "but will produce inaccurate ROC and precision-recall curves."
+                )
+
+            if isinstance(targets[0], list):
+                if any(length != len(self.label) for length in [len(row) for row in targets]):
+                    raise ValueError("targets shape must be (n,) or (n, l) for n rows and d unique labels")
+                if all(all(val in [0, 1] for val in row) and sum(row) == 1 for row in targets):
+                    # condense long-form multiclass to single list
+                    targets = [self.labels[row.index(1)] for row in targets]
+                else:
+                    raise NotImplementedError("multilabel model performance metrics not available")
+
+            if isinstance(predictions[0], list):
+                if any(length != len(self.label) for length in [len(row) for row in predictions]):
+                    raise ValueError("predictions shape must be (n,) or (n, d) for n rows and d unique labels")
+                if all(all(val in [0, 1] for val in row) and sum(row) == 1 for row in predictions):
+                    # condense long-form multiclass to single list
+                    predictions = [self.labels[row.index(1)] for row in predictions]
+                else:
+                    raise NotImplementedError("multilabel model performance metrics not available")
 
         targets_indx = _encode_to_integers(targets, self.labels)
         prediction_indx = _encode_to_integers(predictions, self.labels)
@@ -106,6 +149,7 @@ class ConfusionMatrix:
         length_of_targets = len(targets)
         for index in range(length_of_targets):
             entry_key = prediction_indx[index], targets_indx[index]
+            # TODO: on model perf metric message change, add non-prediction scores to sketches
             if entry_key in batches:
                 batches[entry_key].append(scores[index])
             else:

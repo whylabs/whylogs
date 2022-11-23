@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Set, Union
 
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.proto.v0 import ModelMetricsMessage, ModelProfileMessage, ModelType
+from whylogs.core.stubs import np
 
 from .confusion_matrix import ConfusionMatrix
 from .regression_metrics import RegressionMetrics
@@ -82,6 +83,7 @@ class ModelPerformanceMetrics:
         predictions: List[Union[str, int, bool, float]],
         targets: List[Union[str, int, bool, float]],
         scores: List[float] = None,
+        labels: Optional[List[Union[str, int, bool, float]]] = None,
     ):
         """
         computes the confusion_matrix, if one is already present merges to old one.
@@ -91,7 +93,8 @@ class ModelPerformanceMetrics:
             targets (List[Union[str, int, bool]]):
             scores (List[float], optional):
         """
-        labels = sorted(list(set(targets + predictions)))
+        if labels is None:
+            labels = sorted(list(set(targets + predictions)))
         confusion_matrix = ConfusionMatrix(labels=labels)
         confusion_matrix.add(predictions, targets, scores)
 
