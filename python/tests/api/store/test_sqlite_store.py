@@ -5,7 +5,7 @@ from typing import List
 
 import pytest
 
-from whylogs.api.store.query import DateQuery, ProfileNameQuery
+from whylogs.api.store.query import DatasetIdQuery, DateQuery
 from whylogs.api.store.sqlite_store import SQLiteStore
 from whylogs.core import DatasetProfile, DatasetProfileView
 
@@ -41,31 +41,31 @@ class TestSQLiteStore:
         assert store.list() == ["my_profile"]
 
     def test_sqlite_get_by_name(self, store):
-        name_query = ProfileNameQuery(profile_name="my_profile")
+        name_query = DatasetIdQuery(dataset_id="my_profile")
         profile = store.get(query=name_query)
         assert isinstance(profile, DatasetProfileView)
 
     def test_sqlite_get_by_date_range(self, store):
         now = datetime.now(timezone.utc)
         one_week_ago = now - timedelta(days=7)
-        date_query = DateQuery(profile_name="my_profile", start_date=one_week_ago, end_date=now)
+        date_query = DateQuery(dataset_id="my_profile", start_date=one_week_ago, end_date=now)
         profile = store.get(query=date_query)
         assert isinstance(profile, DatasetProfileView)
 
     def test_sqlite_get_by_start_date_only(self, store):
         now = datetime.now(timezone.utc)
-        date_query = DateQuery(profile_name="my_profile", start_date=now)
+        date_query = DateQuery(dataset_id="my_profile", start_date=now)
         profile = store.get(query=date_query)
         assert isinstance(profile, DatasetProfileView)
 
     def test_gets_an_empty_profile_if_does_not_exist(self, store):
-        name_query = ProfileNameQuery(profile_name="doesnt_exist")
+        name_query = DatasetIdQuery(dataset_id="doesnt_exist")
         expected_profile = store.get(query=name_query)
         assert isinstance(expected_profile, DatasetProfileView)
         assert expected_profile.get_columns() == {}
 
     def test_write_to_sqlite(self, store, profile_view):
-        store.write(profile_view=profile_view, profile_name="test_profile")
+        store.write(profile_view=profile_view, dataset_id="test_profile")
 
         sql_query = "SELECT * FROM profile_store WHERE id = 'test_profile'"
         actual = store.cur.execute(sql_query).fetchall()
@@ -75,30 +75,30 @@ class TestSQLiteStore:
         assert DatasetProfileView.deserialize(actual[0][2])
 
     def test_check_if_profile_exists(self, store, profile_view):
-        profile_name = "test_profile"
-        empty = store._check_if_profile_exists(profile_view=profile_view, profile_name=profile_name)
+        dataset_id = "test_profile"
+        empty = store._check_if_profile_exists(profile_view=profile_view, dataset_id=dataset_id)
 
         assert empty.get_columns() == {}
 
         query = "INSERT INTO profile_store (id, date, profile) VALUES (?, ?, ?);"
         values_tuple = (
-            profile_name,
+            dataset_id,
             profile_view.creation_timestamp.strftime("%Y-%m-%d %H:%M:%s"),
             profile_view.serialize(),
         )
         store.cur.execute(query, values_tuple)
         store.conn.commit()
 
-        res = store.cur.execute("SELECT * FROM profile_store WHERE id = ?", (profile_name,))
+        res = store.cur.execute("SELECT * FROM profile_store WHERE id = ?", (dataset_id,))
         assert len(res.fetchall()) > 0
 
-        not_empty = store._check_if_profile_exists(profile_view=profile_view, profile_name=profile_name)
+        not_empty = store._check_if_profile_exists(profile_view=profile_view, dataset_id=dataset_id)
 
         assert not not_empty.get_columns() == {}
 
     def test_merge_if_profile_already_exists(self, store, profile_view):
-        store.write(profile_view=profile_view, profile_name="merged_profile")
-        store.write(profile_view=profile_view, profile_name="merged_profile")
+        store.write(profile_view=profile_view, dataset_id="merged_profile")
+        store.write(profile_view=profile_view, dataset_id="merged_profile")
 
         sql_query = "SELECT * FROM profile_store WHERE id = 'merged_profile'"
         result = store.cur.execute(sql_query).fetchall()
@@ -121,8 +121,8 @@ class TestSQLiteStore:
         view1 = DatasetProfile(creation_timestamp=ts1).view()
         view2 = DatasetProfile(creation_timestamp=ts2).view()
 
-        store.write(profile_view=view1, profile_name="test_not_merge")
-        store.write(profile_view=view2, profile_name="test_not_merge")
+        store.write(profile_view=view1, dataset_id="test_not_merge")
+        store.write(profile_view=view2, dataset_id="test_not_merge")
 
         sql_query = "SELECT * FROM profile_store WHERE id = 'test_not_merge'"
         result = store.cur.execute(sql_query).fetchall()

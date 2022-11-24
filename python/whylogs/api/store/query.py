@@ -5,9 +5,10 @@ from typing import Optional
 
 @dataclass
 class DateQuery:
-    profile_name: str
+    dataset_id: str
     start_date: datetime
     end_date: Optional[datetime] = field(default=None)
+    segment_tag: Optional[str] = field(default=None)
 
     def __post_init__(self):
         if self.end_date is None:
@@ -17,5 +18,6 @@ class DateQuery:
 
 
 @dataclass
-class ProfileNameQuery:
-    profile_name: str
+class DatasetIdQuery:
+    dataset_id: str
+    segment_tag: Optional[str] = field(default=None)
