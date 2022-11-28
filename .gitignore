@@ -203,4 +203,3 @@ python/examples/integrations/*.png
 
 # profile store
 profile_store/*
-mypy.ini
