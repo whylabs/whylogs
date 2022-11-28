@@ -254,6 +254,7 @@
 <li class="toctree-l4 has-children"><a class="reference internal" href="api/whylogs/core/constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5 has-children"><a class="reference internal" href="api/whylogs/core/constraints/factories/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l6"><a class="reference internal" href="api/whylogs/core/constraints/factories/cardinality_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.cardinality_metrics</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/whylogs/core/constraints/factories/condition_counts/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.condition_counts</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="api/whylogs/core/constraints/factories/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="api/whylogs/core/constraints/factories/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="api/whylogs/core/constraints/factories/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
@@ -907,14 +908,14 @@
           <li><a href="api/whylogs/core/validators/validator/index.html#whylogs.core.validators.validator.Validator.columnar_validate">(whylogs.core.validators.validator.Validator method)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ColumnCountsMetric">ColumnCountsMetric (class in whylogs.core.metrics)</a>
 
         <ul>
           <li><a href="api/whylogs/core/metrics/column_metrics/index.html#whylogs.core.metrics.column_metrics.ColumnCountsMetric">(class in whylogs.core.metrics.column_metrics)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/segmentation_partition/index.html#whylogs.core.segmentation_partition.ColumnMapperFunction">ColumnMapperFunction (class in whylogs.core.segmentation_partition)</a>
 </li>
         <li><a href="api/whylogs/core/proto/index.html#whylogs.core.proto.ColumnMessage">ColumnMessage (in module whylogs.core.proto)</a>
@@ -999,6 +1000,12 @@
         </ul></li>
         <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.StandardMetric.condition_count">condition_count (whylogs.core.metrics.StandardMetric attribute)</a>
 </li>
+        <li><a href="api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.condition_meets">condition_meets() (in module whylogs.core.constraints.factories)</a>
+
+        <ul>
+          <li><a href="api/whylogs/core/constraints/factories/condition_counts/index.html#whylogs.core.constraints.factories.condition_counts.condition_meets">(in module whylogs.core.constraints.factories.condition_counts)</a>
+</li>
+        </ul></li>
         <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig">ConditionCountConfig (class in whylogs.core.metrics.condition_count_metric)</a>
 </li>
         <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric">ConditionCountMetric (class in whylogs.core.metrics)</a>
@@ -3101,14 +3108,14 @@
           <li><a href="api/whylogs/index.html#whylogs.DatasetProfileView.model_performance_metrics">(whylogs.DatasetProfileView property)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.ModelMetricsMessage">ModelMetricsMessage (in module whylogs.core.proto.v0)</a>
 
         <ul>
           <li><a href="api/whylogs/core/proto/v0/v0_messages_pb2/index.html#whylogs.core.proto.v0.v0_messages_pb2.ModelMetricsMessage">(in module whylogs.core.proto.v0.v0_messages_pb2)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.ModelPerformanceMetrics">ModelPerformanceMetrics (class in whylogs.api.logger)</a>
 
         <ul>
@@ -3216,6 +3223,8 @@
           <li><a href="api/whylogs/core/constraints/factories/index.html#module-whylogs.core.constraints.factories">whylogs.core.constraints.factories</a>
 </li>
           <li><a href="api/whylogs/core/constraints/factories/cardinality_metrics/index.html#module-whylogs.core.constraints.factories.cardinality_metrics">whylogs.core.constraints.factories.cardinality_metrics</a>
+</li>
+          <li><a href="api/whylogs/core/constraints/factories/condition_counts/index.html#module-whylogs.core.constraints.factories.condition_counts">whylogs.core.constraints.factories.condition_counts</a>
 </li>
           <li><a href="api/whylogs/core/constraints/factories/count_metrics/index.html#module-whylogs.core.constraints.factories.count_metrics">whylogs.core.constraints.factories.count_metrics</a>
 </li>
@@ -5352,6 +5361,13 @@
 
         <ul>
           <li><a href="api/whylogs/core/constraints/factories/cardinality_metrics/index.html#module-whylogs.core.constraints.factories.cardinality_metrics">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.core.constraints.factories.condition_counts
+
+        <ul>
+          <li><a href="api/whylogs/core/constraints/factories/condition_counts/index.html#module-whylogs.core.constraints.factories.condition_counts">module</a>
 </li>
         </ul></li>
         <li>

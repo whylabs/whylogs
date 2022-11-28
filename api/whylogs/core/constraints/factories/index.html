@@ -10,7 +10,7 @@
   
 <meta property="og:url" content="https://whylogs.readthedocs.io/api/whylogs/core/constraints/factories/index.html" />
   
-<meta property="og:description" content="Submodules: whylogs.core.constraints.factories.cardinality_metrics, whylogs.core.constraints.factories.count_metrics, whylogs.core.constraints.factories.distribution_metrics, whylogs.core.constrain..." />
+<meta property="og:description" content="Submodules: whylogs.core.constraints.factories.cardinality_metrics, whylogs.core.constraints.factories.condition_counts, whylogs.core.constraints.factories.count_metrics, whylogs.core.constraints.f..." />
   <link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" /><link rel="next" title="whylogs.core.constraints.factories.cardinality_metrics" href="cardinality_metrics/index.html" /><link rel="prev" title="whylogs.core.constraints" href="../index.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
@@ -264,6 +264,7 @@
 <li class="toctree-l4 current has-children"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l5 current has-children current-page"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l6"><a class="reference internal" href="cardinality_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.cardinality_metrics</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="condition_counts/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.condition_counts</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
@@ -400,6 +401,7 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="cardinality_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.cardinality_metrics</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="condition_counts/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.condition_counts</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
@@ -421,52 +423,55 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.distinct_number_in_range" title="whylogs.core.constraints.factories.distinct_number_in_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distinct_number_in_range</span></code></a>(...)</p></td>
 <td><p>Number of distinct categories must be between lower and upper values (inclusive).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.count_below_number" title="whylogs.core.constraints.factories.count_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count_below_number</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.condition_meets" title="whylogs.core.constraints.factories.condition_meets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">condition_meets</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.count_below_number" title="whylogs.core.constraints.factories.count_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count_below_number</span></code></a>(...)</p></td>
 <td><p>Number of elements in a column must be below given number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.null_percentage_below_number" title="whylogs.core.constraints.factories.null_percentage_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_percentage_below_number</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.null_percentage_below_number" title="whylogs.core.constraints.factories.null_percentage_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_percentage_below_number</span></code></a>(...)</p></td>
 <td><p>Percentage of null values must be below given number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.null_values_below_number" title="whylogs.core.constraints.factories.null_values_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_values_below_number</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.null_values_below_number" title="whylogs.core.constraints.factories.null_values_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_values_below_number</span></code></a>(...)</p></td>
 <td><p>Number of null values must be below given number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.greater_than_number" title="whylogs.core.constraints.factories.greater_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">greater_than_number</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.greater_than_number" title="whylogs.core.constraints.factories.greater_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">greater_than_number</span></code></a>(...)</p></td>
 <td><p>Minimum value of given column must be above defined number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.mean_between_range" title="whylogs.core.constraints.factories.mean_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_between_range</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.mean_between_range" title="whylogs.core.constraints.factories.mean_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_between_range</span></code></a>(...)</p></td>
 <td><p>Estimated mean must be between range defined by lower and upper bounds.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.quantile_between_range" title="whylogs.core.constraints.factories.quantile_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantile_between_range</span></code></a>(column_name, quantile, lower, upper)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.quantile_between_range" title="whylogs.core.constraints.factories.quantile_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantile_between_range</span></code></a>(column_name, quantile, lower, upper)</p></td>
 <td><p>Q-th quantile value must be withing the range defined by lower and upper boundaries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.smaller_than_number" title="whylogs.core.constraints.factories.smaller_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smaller_than_number</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.smaller_than_number" title="whylogs.core.constraints.factories.smaller_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smaller_than_number</span></code></a>(...)</p></td>
 <td><p>Maximum value of given column must be below defined number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.stddev_between_range" title="whylogs.core.constraints.factories.stddev_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stddev_between_range</span></code></a>(column_name, lower, upper[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.stddev_between_range" title="whylogs.core.constraints.factories.stddev_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stddev_between_range</span></code></a>(column_name, lower, upper[, ...])</p></td>
 <td><p>Estimated standard deviation must be between range defined by lower and upper bounds.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.frequent_strings_in_reference_set" title="whylogs.core.constraints.factories.frequent_strings_in_reference_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequent_strings_in_reference_set</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.frequent_strings_in_reference_set" title="whylogs.core.constraints.factories.frequent_strings_in_reference_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequent_strings_in_reference_set</span></code></a>(...)</p></td>
 <td><p>Determine whether a set of variables appear in the frequent strings for a string column.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.n_most_common_items_in_set" title="whylogs.core.constraints.factories.n_most_common_items_in_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_most_common_items_in_set</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.n_most_common_items_in_set" title="whylogs.core.constraints.factories.n_most_common_items_in_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_most_common_items_in_set</span></code></a>(...)</p></td>
 <td><p>Validate if the top n most common items appear in the dataset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_boolean" title="whylogs.core.constraints.factories.column_is_nullable_boolean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_boolean</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_boolean" title="whylogs.core.constraints.factories.column_is_nullable_boolean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_boolean</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_datatype" title="whylogs.core.constraints.factories.column_is_nullable_datatype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_datatype</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_datatype" title="whylogs.core.constraints.factories.column_is_nullable_datatype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_datatype</span></code></a>(...)</p></td>
 <td><p>Check if column contains only records of specific datatype.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_fractional" title="whylogs.core.constraints.factories.column_is_nullable_fractional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_fractional</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_fractional" title="whylogs.core.constraints.factories.column_is_nullable_fractional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_fractional</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_integral" title="whylogs.core.constraints.factories.column_is_nullable_integral"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_integral</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_integral" title="whylogs.core.constraints.factories.column_is_nullable_integral"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_integral</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_object" title="whylogs.core.constraints.factories.column_is_nullable_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_object</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_object" title="whylogs.core.constraints.factories.column_is_nullable_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_object</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_string" title="whylogs.core.constraints.factories.column_is_nullable_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_string</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_string" title="whylogs.core.constraints.factories.column_is_nullable_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_string</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -498,6 +503,22 @@
 <li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Column the constraint is applied to</p></li>
 <li><p><strong>lower</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Lower bound of defined range</p></li>
 <li><p><strong>upper</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Upper bound of the value range</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint">whylogs.core.constraints.metric_constraints.MetricConstraint</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.factories.condition_meets">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.</span></span><span class="sig-name descname"><span class="pre">condition_meets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">condition_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/factories/condition_counts.html#condition_meets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.condition_meets" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>condition_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -867,6 +888,7 @@ Datatypes can be: integral, fractional, boolean, string, object.</p>
 <li><a class="reference internal" href="#functions">Functions</a></li>
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.distinct_number_in_range">distinct_number_in_range</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.factories.condition_meets">condition_meets</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.count_below_number">count_below_number</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.null_percentage_below_number">null_percentage_below_number</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.null_values_below_number">null_values_below_number</a></li>
