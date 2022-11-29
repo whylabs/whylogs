@@ -656,6 +656,7 @@ div.rendered_html tbody tr:hover {
 </div></blockquote>
 <section id="Benchmark---KS-Test">
 <h1>Benchmark - KS Test<a class="headerlink" href="#Benchmark---KS-Test" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/benchmarks/KS_Profiling.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <blockquote>
 <div><p>This notebook is a complement to the blog post “<em>Drift Detection meets Data Profiling - Experiments on KS Test for profiled data</em>”*.</p>
 <p>Please refer to the blog post for additional context.</p>
@@ -698,15 +699,11 @@ div.rendered_html tbody tr:hover {
 <section id="Installing-the-required-packages">
 <h2>Installing the required packages<a class="headerlink" href="#Installing-the-required-packages" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install &#39;matplotlib&#39;
-<span class="o">%</span><span class="k">pip</span> install &#39;numpy&#39;
-<span class="o">%</span><span class="k">pip</span> install &#39;seaborn==0.12.1&#39;
-<span class="o">%</span><span class="k">pip</span> install &#39;scipy==1.7.3&#39;
-<span class="o">%</span><span class="k">pip</span> install &#39;whylogs[viz]&#39;
-<span class="o">%</span><span class="k">pip</span> install &#39;typing_extensions&#39;
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install -q &#39;matplotlib&#39; &#39;numpy&#39; &#39;seaborn==0.12.1&#39;
+<span class="o">%</span><span class="k">pip</span> install -q &#39;scipy==1.7.3&#39; &#39;whylogs[viz]&#39; &#39;typing_extensions&#39;
 </pre></div>
 </div>
 </div>
@@ -729,6 +726,10 @@ div.rendered_html tbody tr:hover {
 
 <span class="c1"># no drift, small drift, medium drift and large drift</span>
 <span class="n">drift_magnitudes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.75</span><span class="p">]</span>
+
+<span class="n">sample_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">500</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="mi">5000</span><span class="p">,</span><span class="mi">10000</span><span class="p">,</span><span class="mi">50000</span><span class="p">]</span>
+<span class="n">sample_sizes_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;500&#39;</span><span class="p">,</span><span class="s1">&#39;1k&#39;</span><span class="p">,</span> <span class="s1">&#39;5k&#39;</span><span class="p">,</span><span class="s1">&#39;10k&#39;</span><span class="p">,</span><span class="s1">&#39;50k&#39;</span><span class="p">]</span>
+<span class="n">random_seed</span> <span class="o">=</span> <span class="mi">22</span>
 </pre></div>
 </div>
 </div>
@@ -794,7 +795,8 @@ div.rendered_html tbody tr:hover {
 <span class="sd">        Dictionary with statistics such as pvalues for whylogs and scipy&#39;s implementation, mean absolute errors,</span>
 <span class="sd">        and error ranges (minimum and maximum) for whylogs KS test.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">size_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">50000</span><span class="p">,</span> <span class="mi">100000</span><span class="p">]</span>
+    <span class="c1"># size_list = [1000, 5000, 10000, 50000, 100000]</span>
+    <span class="n">size_list</span> <span class="o">=</span> <span class="n">sample_sizes</span>
     <span class="n">experiment_results</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">quant_i</span><span class="p">,</span><span class="n">QUANTILES</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">quantile_list</span><span class="p">):</span>
         <span class="n">bars1</span> <span class="o">=</span> <span class="p">[]</span>
@@ -803,12 +805,12 @@ div.rendered_html tbody tr:hover {
         <span class="n">pv_ranges</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">pv_truths</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">sample_size</span> <span class="ow">in</span> <span class="n">size_list</span><span class="p">:</span>
-            <span class="n">rng</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">PCG64</span><span class="p">(</span><span class="mi">42</span><span class="p">))</span>
+            <span class="n">rng</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">PCG64</span><span class="p">(</span><span class="n">random_seed</span><span class="p">))</span>
             <span class="n">ref</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(),</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
             <span class="n">ref</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">generate_data</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="n">distribution</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="n">drift_magnitude</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
             <span class="n">target</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">generate_data</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="n">distribution</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="n">drift_magnitude</span><span class="o">=</span><span class="n">drift_magnitude</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
-            <span class="n">scipy_res</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">ks_2samp</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">],</span> <span class="n">target</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">])</span>
-            <span class="n">scipy_pvalue</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">scipy_res</span><span class="o">.</span><span class="n">pvalue</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">scipy_res</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">ks_2samp</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">],</span> <span class="n">target</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;asymp&#39;</span><span class="p">)</span>
+            <span class="n">scipy_pvalue</span> <span class="o">=</span> <span class="n">scipy_res</span><span class="o">.</span><span class="n">pvalue</span>
             <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">pvalues</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
@@ -819,14 +821,15 @@ div.rendered_html tbody tr:hover {
                 <span class="n">target_dist</span> <span class="o">=</span> <span class="n">target_profile</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">_metrics</span><span class="p">[</span><span class="s2">&quot;distribution&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span>
 
                 <span class="n">res</span> <span class="o">=</span> <span class="n">_compute_ks_test_p_value</span><span class="p">(</span><span class="n">reference_distribution</span><span class="o">=</span><span class="n">ref_dist</span><span class="p">,</span> <span class="n">target_distribution</span><span class="o">=</span><span class="n">target_dist</span><span class="p">,</span> <span class="n">quantiles</span><span class="o">=</span><span class="n">QUANTILES</span><span class="p">)</span>
-                <span class="n">pv</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;p_value&quot;</span><span class="p">],</span><span class="mi">5</span><span class="p">)</span>
-                <span class="n">error</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;p_value&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">scipy_pvalue</span><span class="p">),</span><span class="mi">5</span><span class="p">)</span>
+                <span class="n">pv</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;p_value&quot;</span><span class="p">]</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;p_value&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">scipy_pvalue</span><span class="p">)</span>
                 <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
                 <span class="n">pvalues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pv</span><span class="p">)</span>
-            <span class="n">mean</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">),</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">mean</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
             <span class="n">mean_pv</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">pvalues</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">pvalues</span><span class="p">)</span>
 
-            <span class="n">range_pv</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">mean_pv</span><span class="o">-</span><span class="nb">min</span><span class="p">(</span><span class="n">pvalues</span><span class="p">)),</span><span class="mi">5</span><span class="p">),</span><span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">mean_pv</span><span class="o">-</span><span class="nb">max</span><span class="p">(</span><span class="n">pvalues</span><span class="p">)),</span><span class="mi">5</span><span class="p">)]</span>
+            <span class="n">range_pv</span> <span class="o">=</span> <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">mean_pv</span><span class="o">-</span><span class="nb">min</span><span class="p">(</span><span class="n">pvalues</span><span class="p">)),</span><span class="nb">abs</span><span class="p">(</span><span class="n">mean_pv</span><span class="o">-</span><span class="nb">max</span><span class="p">(</span><span class="n">pvalues</span><span class="p">))]</span>
+
             <span class="n">error</span> <span class="o">=</span> <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">mean</span><span class="o">-</span><span class="nb">min</span><span class="p">(</span><span class="n">errors</span><span class="p">)),</span><span class="nb">abs</span><span class="p">(</span><span class="n">mean</span><span class="o">-</span><span class="nb">max</span><span class="p">(</span><span class="n">errors</span><span class="p">))]</span>
 
             <span class="n">pv_truth</span> <span class="o">=</span> <span class="n">scipy_pvalue</span>
@@ -872,13 +875,13 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-
+<span class="kn">import</span> <span class="nn">matplotlib</span>
 <span class="k">def</span> <span class="nf">plot_drift</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="n">magnitudes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.75</span><span class="p">],</span> <span class="n">sample_size</span> <span class="o">=</span> <span class="mi">100000</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Plots 4 histograms in a 2x2 matrix for different drift magnitudes, for the given distribution type</span>
 <span class="sd">    and number of samples.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">rng</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">PCG64</span><span class="p">(</span><span class="mi">42</span><span class="p">))</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">PCG64</span><span class="p">(</span><span class="n">random_seed</span><span class="p">))</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">ix</span><span class="p">,</span><span class="n">drift_magnitude</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">magnitudes</span><span class="p">):</span>
@@ -919,6 +922,7 @@ div.rendered_html tbody tr:hover {
 <span class="sd">    quant_bars_per_drift : dict</span>
 <span class="sd">        Statistics previously collected by KS experiment.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">matplotlib</span><span class="o">.</span><span class="n">rc_file_defaults</span><span class="p">()</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 
@@ -933,8 +937,7 @@ div.rendered_html tbody tr:hover {
 
 
         <span class="n">r1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pv_means</span><span class="p">))</span>
-        <span class="c1"># r2 = [x+ix*barWidth for x in r1]</span>
-        <span class="n">axs</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">quant_bars</span><span class="p">[</span><span class="n">quant_index</span><span class="p">][</span><span class="s1">&#39;bar&#39;</span><span class="p">]))],</span> <span class="p">[</span><span class="s1">&#39;1k&#39;</span><span class="p">,</span> <span class="s1">&#39;5k&#39;</span><span class="p">,</span> <span class="s1">&#39;10k&#39;</span><span class="p">,</span><span class="s1">&#39;50k&#39;</span><span class="p">,</span><span class="s1">&#39;100k&#39;</span><span class="p">])</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">quant_bars</span><span class="p">[</span><span class="n">quant_index</span><span class="p">][</span><span class="s1">&#39;bar&#39;</span><span class="p">]))],</span> <span class="n">sample_sizes_labels</span><span class="p">)</span>
         <span class="n">axs</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">r1</span><span class="p">,</span> <span class="n">pv_means</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">pv_range</span><span class="p">,</span> <span class="n">capsize</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;whylogs&quot;</span><span class="p">)</span>
         <span class="n">axs</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;pvalue&#39;</span><span class="p">)</span>
         <span class="n">axs</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r1</span><span class="p">,</span><span class="n">pv_truth</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;scipy&quot;</span><span class="p">)</span>
@@ -967,7 +970,7 @@ div.rendered_html tbody tr:hover {
 <span class="sd">    quant_bars_per_drift : dict</span>
 <span class="sd">        Statistics previously collected by KS experiment.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
+    <span class="n">matplotlib</span><span class="o">.</span><span class="n">rc_file_defaults</span><span class="p">()</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
     <span class="n">barWidth</span> <span class="o">=</span> <span class="mf">0.17</span>
@@ -985,7 +988,7 @@ div.rendered_html tbody tr:hover {
 
         <span class="c1"># general layout</span>
         <span class="n">axs</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-        <span class="n">axs</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="n">r</span><span class="o">+</span><span class="mf">1.5</span><span class="o">*</span><span class="n">barWidth</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">quant_bars</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;bar&#39;</span><span class="p">]))],</span> <span class="p">[</span><span class="s1">&#39;1k&#39;</span><span class="p">,</span> <span class="s1">&#39;5k&#39;</span><span class="p">,</span> <span class="s1">&#39;10k&#39;</span><span class="p">,</span><span class="s1">&#39;50k&#39;</span><span class="p">,</span><span class="s1">&#39;100k&#39;</span><span class="p">])</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="n">r</span><span class="o">+</span><span class="mf">1.5</span><span class="o">*</span><span class="n">barWidth</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">quant_bars</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;bar&#39;</span><span class="p">]))],</span> <span class="n">sample_sizes_labels</span><span class="p">)</span>
         <span class="n">axs</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
             <span class="n">axs</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">})</span>
@@ -1120,7 +1123,7 @@ div.rendered_html tbody tr:hover {
     <span class="n">sample_size</span> <span class="o">=</span> <span class="mi">100000</span>
     <span class="n">kll_bars</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">drift_magnitude</span> <span class="ow">in</span> <span class="n">magnitudes</span><span class="p">:</span>
-        <span class="n">rng</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">PCG64</span><span class="p">(</span><span class="mi">42</span><span class="p">))</span>
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">PCG64</span><span class="p">(</span><span class="n">random_seed</span><span class="p">))</span>
         <span class="n">kll_bars</span><span class="p">[</span><span class="n">drift_magnitude</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">ref</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(),</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="n">ref</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">generate_data</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="n">distribution</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="n">drift_magnitude</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
@@ -1128,8 +1131,9 @@ div.rendered_html tbody tr:hover {
 
         <span class="k">for</span> <span class="n">kll_val</span> <span class="ow">in</span> <span class="n">kll_list</span><span class="p">:</span>
             <span class="n">kll_bars</span><span class="p">[</span><span class="n">drift_magnitude</span><span class="p">][</span><span class="n">kll_val</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">scipy_res</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">ks_2samp</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">],</span> <span class="n">target</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">])</span>
-            <span class="n">scipy_pvalue</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">scipy_res</span><span class="o">.</span><span class="n">pvalue</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">scipy_res</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">ks_2samp</span><span class="p">(</span><span class="n">ref</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">],</span> <span class="n">target</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;asymp&#39;</span><span class="p">)</span>
+            <span class="n">scipy_pvalue</span> <span class="o">=</span> <span class="n">scipy_res</span><span class="o">.</span><span class="n">pvalue</span>
+
             <span class="n">profiled_pvalues</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">sampled_pvalues</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
@@ -1139,12 +1143,12 @@ div.rendered_html tbody tr:hover {
                 <span class="n">target_profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">DatasetSchema</span><span class="p">(</span><span class="n">default_configs</span><span class="o">=</span><span class="n">MetricConfig</span><span class="p">(</span><span class="n">kll_k_large</span><span class="o">=</span><span class="n">kll_val</span><span class="p">),</span><span class="n">resolvers</span><span class="o">=</span><span class="n">MyCustomResolver</span><span class="p">()))</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
                 <span class="n">target_view</span> <span class="o">=</span> <span class="n">target_profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
 
-                <span class="n">profiled_pvalue</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">calculate_drift_values</span><span class="p">(</span><span class="n">target_view</span><span class="o">=</span><span class="n">target_view</span><span class="p">,</span> <span class="n">reference_view</span><span class="o">=</span><span class="n">ref_view</span><span class="p">)[</span><span class="s1">&#39;col&#39;</span><span class="p">][</span><span class="s1">&#39;p_value&#39;</span><span class="p">],</span><span class="mi">5</span><span class="p">)</span>
+                <span class="n">profiled_pvalue</span> <span class="o">=</span> <span class="n">calculate_drift_values</span><span class="p">(</span><span class="n">target_view</span><span class="o">=</span><span class="n">target_view</span><span class="p">,</span> <span class="n">reference_view</span><span class="o">=</span><span class="n">ref_view</span><span class="p">)[</span><span class="s1">&#39;col&#39;</span><span class="p">][</span><span class="s1">&#39;p_value&#39;</span><span class="p">]</span>
 
                 <span class="n">ref_sampled</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="n">kllSizeMap</span><span class="p">[</span><span class="n">kll_val</span><span class="p">][</span><span class="s1">&#39;sample_frac&#39;</span><span class="p">])</span>
                 <span class="n">target_sampled</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="n">kllSizeMap</span><span class="p">[</span><span class="n">kll_val</span><span class="p">][</span><span class="s1">&#39;sample_frac&#39;</span><span class="p">])</span>
 
-                <span class="n">sampled_pvalue</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">ks_2samp</span><span class="p">(</span><span class="n">ref_sampled</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">],</span> <span class="n">target_sampled</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">pvalue</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+                <span class="n">sampled_pvalue</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">ks_2samp</span><span class="p">(</span><span class="n">ref_sampled</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">],</span> <span class="n">target_sampled</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">],</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;asymp&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">pvalue</span>
 
                 <span class="n">profiled_pvalues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">profiled_pvalue</span><span class="p">)</span>
                 <span class="n">sampled_pvalues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sampled_pvalue</span><span class="p">)</span>
@@ -1186,6 +1190,7 @@ div.rendered_html tbody tr:hover {
 <span class="sd">    include_sampling : bool, optional</span>
 <span class="sd">        If false, plots only errors for the profiling case, by default True</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">matplotlib</span><span class="o">.</span><span class="n">rc_file_defaults</span><span class="p">()</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
     <span class="n">barWidth</span> <span class="o">=</span> <span class="mf">0.17</span>
@@ -1242,7 +1247,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_benchmarks_KS_Profiling_25_0.png" src="../../_images/examples_benchmarks_KS_Profiling_25_0.png" />
+<img alt="../../_images/examples_benchmarks_KS_Profiling_26_0.png" src="../../_images/examples_benchmarks_KS_Profiling_26_0.png" />
 </div>
 </div>
 </section>
@@ -1271,7 +1276,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_benchmarks_KS_Profiling_29_0.png" src="../../_images/examples_benchmarks_KS_Profiling_29_0.png" />
+<img alt="../../_images/examples_benchmarks_KS_Profiling_30_0.png" src="../../_images/examples_benchmarks_KS_Profiling_30_0.png" />
 </div>
 </div>
 </section>
@@ -1289,7 +1294,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_benchmarks_KS_Profiling_31_0.png" src="../../_images/examples_benchmarks_KS_Profiling_31_0.png" />
+<img alt="../../_images/examples_benchmarks_KS_Profiling_32_0.png" src="../../_images/examples_benchmarks_KS_Profiling_32_0.png" />
 </div>
 </div>
 <ul class="simple">
@@ -1322,7 +1327,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_benchmarks_KS_Profiling_35_0.png" src="../../_images/examples_benchmarks_KS_Profiling_35_0.png" />
+<img alt="../../_images/examples_benchmarks_KS_Profiling_36_0.png" src="../../_images/examples_benchmarks_KS_Profiling_36_0.png" />
 </div>
 </div>
 <ul class="simple">
@@ -1345,7 +1350,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_benchmarks_KS_Profiling_38_0.png" src="../../_images/examples_benchmarks_KS_Profiling_38_0.png" />
+<img alt="../../_images/examples_benchmarks_KS_Profiling_39_0.png" src="../../_images/examples_benchmarks_KS_Profiling_39_0.png" />
 </div>
 </div>
 <section id="Running-the-Experiments">
@@ -1373,7 +1378,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_benchmarks_KS_Profiling_42_0.png" src="../../_images/examples_benchmarks_KS_Profiling_42_0.png" />
+<img alt="../../_images/examples_benchmarks_KS_Profiling_43_0.png" src="../../_images/examples_benchmarks_KS_Profiling_43_0.png" />
 </div>
 </div>
 </section>
@@ -1391,7 +1396,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_benchmarks_KS_Profiling_44_0.png" src="../../_images/examples_benchmarks_KS_Profiling_44_0.png" />
+<img alt="../../_images/examples_benchmarks_KS_Profiling_45_0.png" src="../../_images/examples_benchmarks_KS_Profiling_45_0.png" />
 </div>
 </div>
 </section>
@@ -1417,7 +1422,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_benchmarks_KS_Profiling_47_0.png" src="../../_images/examples_benchmarks_KS_Profiling_47_0.png" />
+<img alt="../../_images/examples_benchmarks_KS_Profiling_48_0.png" src="../../_images/examples_benchmarks_KS_Profiling_48_0.png" />
 </div>
 </div>
 </section>
@@ -1436,7 +1441,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_benchmarks_KS_Profiling_49_0.png" src="../../_images/examples_benchmarks_KS_Profiling_49_0.png" />
+<img alt="../../_images/examples_benchmarks_KS_Profiling_50_0.png" src="../../_images/examples_benchmarks_KS_Profiling_50_0.png" />
 </div>
 </div>
 <section id="id5">
@@ -1450,9 +1455,8 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 </section>
-</section>
 <section id="id6">
-<h2>Experiment #1 - Data Volume<a class="headerlink" href="#id6" title="Permalink to this headline">#</a></h2>
+<h3>Experiment #1 - Data Volume<a class="headerlink" href="#id6" title="Permalink to this headline">#</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
@@ -1465,9 +1469,10 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_benchmarks_KS_Profiling_53_0.png" src="../../_images/examples_benchmarks_KS_Profiling_53_0.png" />
+<img alt="../../_images/examples_benchmarks_KS_Profiling_54_0.png" src="../../_images/examples_benchmarks_KS_Profiling_54_0.png" />
 </div>
 </div>
+</section>
 <section id="Experiment-#2---No. of-buckets">
 <h3>Experiment #2 - No. of buckets<a class="headerlink" href="#Experiment-#2---No. of-buckets" title="Permalink to this headline">#</a></h3>
 <div class="nbinput docutils container">
@@ -1482,7 +1487,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_benchmarks_KS_Profiling_55_0.png" src="../../_images/examples_benchmarks_KS_Profiling_55_0.png" />
+<img alt="../../_images/examples_benchmarks_KS_Profiling_56_0.png" src="../../_images/examples_benchmarks_KS_Profiling_56_0.png" />
 </div>
 </div>
 </section>
@@ -1508,7 +1513,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_benchmarks_KS_Profiling_58_0.png" src="../../_images/examples_benchmarks_KS_Profiling_58_0.png" />
+<img alt="../../_images/examples_benchmarks_KS_Profiling_59_0.png" src="../../_images/examples_benchmarks_KS_Profiling_59_0.png" />
 </div>
 </div>
 </section>
@@ -1605,9 +1610,7 @@ div.rendered_html tbody tr:hover {
 </li>
 <li><a class="reference internal" href="#Uniform-Distribution">Uniform Distribution</a><ul>
 <li><a class="reference internal" href="#id5">Running the Experiment</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id6">Experiment #1 - Data Volume</a><ul>
+<li><a class="reference internal" href="#id6">Experiment #1 - Data Volume</a></li>
 <li><a class="reference internal" href="#Experiment-#2---No. of-buckets">Experiment #2 - No. of buckets</a></li>
 <li><a class="reference internal" href="#id8">Experiment #3 - Profile Size</a></li>
 </ul>
