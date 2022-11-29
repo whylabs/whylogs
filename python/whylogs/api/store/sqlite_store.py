@@ -2,10 +2,9 @@ import logging
 import os
 import sqlite3
 from datetime import timedelta, timezone
-from typing import Union
 
 from whylogs.api.store import ProfileStore
-from whylogs.api.store.query import DatasetIdQuery, DateQuery
+from whylogs.api.store.query import BaseQuery, DatasetIdQuery, DateQuery
 from whylogs.core import DatasetProfile, DatasetProfileView
 
 logger = logging.getLogger(__name__)
@@ -47,7 +46,7 @@ class SQLiteStore(ProfileStore):
         response = self.cur.execute(sql_query)
         return [item[0] for item in response]
 
-    def get(self, query: Union[DatasetIdQuery, DateQuery]) -> DatasetProfileView:
+    def get(self, query: BaseQuery) -> DatasetProfileView:
         available_profiles = self.list()
         if query.dataset_id not in available_profiles:
             return DatasetProfile().view()
@@ -61,7 +60,7 @@ class SQLiteStore(ProfileStore):
             sql_query = f"SELECT profile FROM profile_store WHERE id = '{query.dataset_id}' AND date BETWEEN '{start_date}' AND '{end_date}';"
             response = self.cur.execute(sql_query).fetchall()
         else:
-            logger.error("Define a supported Query: Union[ProfileNameQuery, DateQuery]")
+            logger.error("Define a supported Query object")
             raise ValueError
 
         profile_view = DatasetProfileView.zero()
