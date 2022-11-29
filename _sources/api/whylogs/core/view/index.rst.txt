@@ -103,6 +103,9 @@ Attributes
       :type: Any
 
 
+   .. py:method:: add_model_performance_metrics(metric: Any) -> None
+
+
    .. py:method:: merge(other: DatasetProfileView) -> DatasetProfileView
 
 

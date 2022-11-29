@@ -388,7 +388,7 @@
 <span></span><span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
@@ -466,11 +466,14 @@
 
     <span class="nd">@model_performance_metrics</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">model_performance_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">performance_metrics</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="p">[</span><span class="n">_MODEL_PERFORMANCE</span><span class="p">]</span> <span class="o">=</span> <span class="n">performance_metrics</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span> <span class="o">=</span> <span class="p">{</span><span class="n">_MODEL_PERFORMANCE</span><span class="p">:</span> <span class="n">performance_metrics</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_performance_metrics</span><span class="p">(</span><span class="n">performance_metrics</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="DatasetProfileView.add_model_performance_metrics"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.add_model_performance_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">add_model_performance_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="p">[</span><span class="n">_MODEL_PERFORMANCE</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span> <span class="o">=</span> <span class="p">{</span><span class="n">_MODEL_PERFORMANCE</span><span class="p">:</span> <span class="n">metric</span><span class="p">}</span></div>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_min_datetime</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span> <span class="n">b</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
@@ -687,8 +690,12 @@
         <span class="n">dataset_profile_header</span> <span class="o">=</span> <span class="n">read_delimited_protobuf</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">DatasetProfileHeader</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">ByteSize</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="s2">&quot;Missing valid dataset profile header&quot;</span><span class="p">)</span>
-        <span class="n">dataset_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">dataset_timestamp</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span>
-        <span class="n">creation_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">creation_timestamp</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span>
+        <span class="n">dataset_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span>
+            <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">dataset_timestamp</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span>
+        <span class="p">)</span>
+        <span class="n">creation_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span>
+            <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">creation_timestamp</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span>
+        <span class="p">)</span>
         <span class="n">indexed_metric_paths</span> <span class="o">=</span> <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">indexed_metric_paths</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indexed_metric_paths</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Name index in the header is empty. Possible data corruption&quot;</span><span class="p">)</span>
@@ -745,6 +752,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">_dataset_timestamp</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_creation_timestamp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">_creation_timestamp</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">_metrics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">_metadata</span>
 
 <div class="viewcode-block" id="DatasetProfileView.to_pandas"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.to_pandas">[docs]</a>    <span class="k">def</span> <span class="nf">to_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_metric</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SummaryConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
         <span class="n">all_dicts</span> <span class="o">=</span> <span class="p">[]</span>
