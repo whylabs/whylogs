@@ -17,6 +17,7 @@ class SQLiteStore(ProfileStore):
             raise ValueError("You must define a store with the SQLITE_STORE_LOCATION env var")
         self.conn = sqlite3.connect(database=self._db_location, check_same_thread=False)
         self.cur = self.conn.cursor()
+        self._init_db()
 
     def __enter__(self) -> "SQLiteStore":
         return self
@@ -41,7 +42,6 @@ class SQLiteStore(ProfileStore):
         self.cur.execute(init_db_query)
 
     def list(self):
-        self._init_db()
         sql_query = "SELECT DISTINCT id FROM profile_store;"
         response = self.cur.execute(sql_query)
         return [item[0] for item in response]
@@ -116,8 +116,6 @@ class SQLiteStore(ProfileStore):
             logger.error(f"Error: {e}")
 
     def write(self, profile_view: DatasetProfileView, dataset_id: str):
-        self._init_db()
-
         existing_profile = self._check_if_profile_exists(profile_view=profile_view, dataset_id=dataset_id)
         if existing_profile.get_columns() == {}:
             self._insert_blob(profile_view=profile_view, dataset_id=dataset_id)
