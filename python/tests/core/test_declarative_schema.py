@@ -3,6 +3,7 @@ import pytest
 import whylogs as why
 from whylogs.core.datatypes import String
 from whylogs.core.declarative_schema import (
+    STANDARD_RESOLVER,
     DeclarativeResolver,
     DeclarativeSchema,
     MetricSpec,
@@ -82,3 +83,16 @@ def test_declarative_schema() -> None:
 def test_invalid_config(spec, msg) -> None:
     with pytest.raises(ValueError, match=msg):
         DeclarativeResolver([spec])
+
+
+def test_standard_resolver() -> None:
+    data = {"column_1": 3.14, "column_2": "lmno", "column_3": 42, "column_4": ResolverSpec("foo")}
+    standard_results = why.log(row=data).view()
+
+    declarative_standard_schema = DeclarativeSchema(resolvers=STANDARD_RESOLVER)
+    declarative_results = why.log(row=data, schema=declarative_standard_schema).view()
+
+    for column in ["column_1", "column_2", "column_3", "column_4"]:
+        standard_metrics = set(standard_results.get_column(column).get_metric_names())
+        declarative_metrics = set(declarative_results.get_column(column).get_metric_names())
+        assert standard_metrics == declarative_metrics

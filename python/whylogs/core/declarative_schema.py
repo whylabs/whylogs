@@ -2,7 +2,15 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-from whylogs.core.datatypes import DataType, TypeMapper
+from whylogs.core.datatypes import (
+    AnyType,
+    DataType,
+    Fractional,
+    Integral,
+    String,
+    TypeMapper,
+)
+from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
@@ -13,15 +21,59 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class MetricSpec:
-    metric: Any  # Should be a Metric class
+    metric: Any  # Should be <: Metric
     config: Optional[MetricConfig] = None
 
 
 @dataclass
 class ResolverSpec:
     column_name: Optional[str] = None  # TODO: maybe make this a regex
-    column_type: Optional[Any] = None  # TODO: must be <: DataType
+    column_type: Optional[Any] = None
     metrics: List[MetricSpec] = field(default_factory=list)
+
+
+COLUMN_METRICS = [MetricSpec(StandardMetric.counts.value), MetricSpec(StandardMetric.types.value)]
+
+STANDARD_RESOLVER = [  # TODO: maybe move this to unit test?
+    ResolverSpec(
+        column_type=Integral,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.ints.value),
+            MetricSpec(StandardMetric.cardinality.value),
+            MetricSpec(StandardMetric.frequent_items.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=Fractional,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=String,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.unicode_range.value),
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
+            MetricSpec(StandardMetric.frequent_items.value),
+        ],
+    ),
+    ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
+]
+
+
+def _allowed_metric(config: MetricConfig, metric: Metric) -> bool:
+    namespace = metric.get_namespace()
+    if config.fi_disabled and namespace == "frequent_items":
+        return False
+    if (not config.track_unicode_ranges) and namespace == "unicode_range":
+        return False
+    return True
 
 
 class DeclarativeResolver(Resolver):
@@ -41,7 +93,6 @@ class DeclarativeResolver(Resolver):
             for metric_spec in spec.metrics:
                 if not issubclass(metric_spec.metric, Metric):
                     raise ValueError("DeclarativeSchema: must supply a Metric subclass to MetricSpec")
-            # TODO: should we allow metric list to be empty?
 
         self._resolvers = resolvers
 
@@ -51,8 +102,10 @@ class DeclarativeResolver(Resolver):
             col_name, col_type = resolver_spec.column_name, resolver_spec.column_type
             if (col_name and col_name == name) or (col_name is None and isinstance(why_type, col_type)):  # type: ignore
                 for spec in resolver_spec.metrics:
-                    result[spec.metric.get_namespace()] = spec.metric.zero(spec.config or column_schema.cfg)
-        # TODO: complain if result is empty
+                    config = spec.config or column_schema.cfg
+                    if _allowed_metric(config, spec.metric):
+                        result[spec.metric.get_namespace()] = spec.metric.zero(config)
+
         return result
 
 
@@ -68,7 +121,7 @@ class DeclarativeSchema(DatasetSchema):
         segments: Optional[Dict[str, SegmentationPartition]] = None,
     ) -> None:
         if not resolvers:
-            logger.error("No columns specified in DeclarativeSchema")
+            logger.warning("No columns specified in DeclarativeSchema")
         resolver = DeclarativeResolver(resolvers, default_config)
         super().__init__(
             types=types,
