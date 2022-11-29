@@ -50,6 +50,34 @@ def test_throw_on_failure() -> None:
         metric.columnar_update(PreprocessedColumn.apply(strings))
 
 
+action_1_count = 0
+action_2_count = 0
+
+
+def action_1(val_name: str, cond_name: str, value: Any) -> None:
+    global action_1_count
+    action_1_count += 1
+
+
+def action_2(val_name: str, cond_name: str, value: Any) -> None:
+    global action_2_count
+    action_2_count += 1
+
+
+def test_actions() -> None:
+    conditions = {
+        "alpha": Condition(rel(Rel.match, "[a-zA-Z]+"), actions=[action_1]),
+        "digit": Condition(rel(Rel.match, "[0-9]+"), actions=[action_1, action_2]),
+    }
+    metric = ConditionCountMetric(conditions, IntegralComponent(0))
+    strings = ["abc", "123", "kwatz", "314159", "abc123"]
+    metric.columnar_update(PreprocessedColumn.apply(strings))
+
+    global action_1_count, action_2_count
+    assert action_1_count == 5  # 3 don't start with digits, 2 don't start with digits
+    assert action_2_count == 3  # 3 don't start with digits
+
+
 def test_condition_count_merge() -> None:
     conditions = {
         "alpha": Condition(rel(Rel.match, "[a-zA-Z]+")),
