@@ -132,6 +132,11 @@ Attributes
 
       
 
+   .. py:attribute:: actions
+      :annotation: :List[Callable[[str, str, Any], None]]
+
+      
+
 
 .. py:class:: ConditionCountConfig
 
