@@ -53,6 +53,7 @@ class Condition:
     relation: Callable[[Any], bool]
     throw_on_failure: bool = False
     log_on_failure: bool = False
+    actions: List[Callable[[str, str, Any], None]] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -120,16 +121,21 @@ class ConditionCountMetric(Metric):
                         self.matches[cond_name].set(self.matches[cond_name].value + 1)
                     else:
                         failed_conditions.add(cond_name)
+                        for action in condition.actions:
+                            action(self.namespace, cond_name, x)
 
                 except Exception as e:  # noqa
                     logger.debug(e)
                     failed_conditions.add(cond_name)
 
         self.total.set(self.total.value + count)
-        if failed_conditions and condition.log_on_failure:
-            logger.warning(f"Condition(s) {', '.join(failed_conditions)} failed")
-        if failed_conditions and condition.throw_on_failure:
-            raise ValueError(f"Condition(s) {', '.join(failed_conditions)} failed")
+        if failed_conditions:
+            if condition.log_on_failure:
+                logger.warning(f"Condition(s) {', '.join(failed_conditions)} failed")
+
+            if condition.throw_on_failure:
+                raise ValueError(f"Condition(s) {', '.join(failed_conditions)} failed")
+
         return OperationResult.ok(count)
 
     @classmethod
