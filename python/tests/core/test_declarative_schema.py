@@ -20,6 +20,10 @@ from whylogs.core.metrics.condition_count_metric import relation as rel
 
 
 def test_declarative_schema() -> None:
+    """
+    Exercise basic schema -- column matching by name and type, per-column
+    metric configuration
+    """
 
     schema = DeclarativeSchema(
         [
@@ -81,15 +85,25 @@ def test_declarative_schema() -> None:
     ],
 )
 def test_invalid_config(spec, msg) -> None:
+    """
+    Verify error checking
+    """
     with pytest.raises(ValueError, match=msg):
         DeclarativeResolver([spec])
 
 
 def test_standard_resolver() -> None:
-    data = {"column_1": 3.14, "column_2": "lmno", "column_3": 42, "column_4": ResolverSpec("foo")}
+    """
+    Verify DeclarativeSchema(STANDARD_RESOLVER) is equivalent to DatasetSchema()
+    """
+
+    class UnknownType:
+        pass
+
+    data = {"column_1": 3.14, "column_2": "lmno", "column_3": 42, "column_4": UnknownType()}
     standard_results = why.log(row=data).view()
 
-    declarative_standard_schema = DeclarativeSchema(resolvers=STANDARD_RESOLVER)
+    declarative_standard_schema = DeclarativeSchema(STANDARD_RESOLVER)
     declarative_results = why.log(row=data, schema=declarative_standard_schema).view()
 
     for column in ["column_1", "column_2", "column_3", "column_4"]:

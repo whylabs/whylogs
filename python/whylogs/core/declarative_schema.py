@@ -19,21 +19,49 @@ from whylogs.core.segmentation_partition import SegmentationPartition
 logger = logging.getLogger(__name__)
 
 
+"""
+The DeclarativeSchema allows one to customize the set of metrics
+tracked for each column in a data set. Pass its constructor a list
+of ResolverSpecs, which specify the column name or data type to
+match and the list of MetricSpecs to instantiate for matching columns.
+Each MetricSpec specifies the Metric class and MetricConfig to
+instantiate. Omit the MetricSpec::config to use the default MetricConfig.
+
+For example, DeclarativeResolver(resolvers=STANDARD_RESOLVER) implements
+the same schema as DatasetSchema(), i.e., using the default MetricConfig,
+StandardTypeMapper, StandardResolver, etc.
+"""
+
+
 @dataclass
 class MetricSpec:
-    metric: Any  # Should be <: Metric
-    config: Optional[MetricConfig] = None
+    """
+    Specify a Metric to instantiate.
+    """
+
+    metric: Any  # Should be a subclass of Metric, it should be the class, not an instance
+    config: Optional[MetricConfig] = None  # omit to use default MetricConfig
 
 
 @dataclass
 class ResolverSpec:
+    """
+    Specify the metrics to instantiate for matching columns. column_name
+    takes precedence over column_type. column_type should be a subclass
+    of DataType, i.e., AnyType, Frational, Integral, or String. Pass the
+    class, not an instance.
+    """
+
     column_name: Optional[str] = None  # TODO: maybe make this a regex
     column_type: Optional[Any] = None
     metrics: List[MetricSpec] = field(default_factory=list)
 
 
+# whylabs expects COLUMN_METRICS to be present for every column.
 COLUMN_METRICS = [MetricSpec(StandardMetric.counts.value), MetricSpec(StandardMetric.types.value)]
 
+
+# STANDARD_RESOLVER matches the default DatasetSchema/StandardResolver behavior
 STANDARD_RESOLVER = [  # TODO: maybe move this to unit test?
     ResolverSpec(
         column_type=Integral,
@@ -68,6 +96,8 @@ STANDARD_RESOLVER = [  # TODO: maybe move this to unit test?
 
 
 def _allowed_metric(config: MetricConfig, metric: Metric) -> bool:
+    """Return False for any metrics turned off in the config"""
+
     namespace = metric.get_namespace()
     if config.fi_disabled and namespace == "frequent_items":
         return False
@@ -77,6 +107,11 @@ def _allowed_metric(config: MetricConfig, metric: Metric) -> bool:
 
 
 class DeclarativeResolver(Resolver):
+    """
+    Implements the declarative resolution logic by interpreting a "program"
+    of ResolverSpecs
+    """
+
     def __init__(self, resolvers: List[ResolverSpec], default_config: Optional[MetricConfig] = None) -> None:
         # Validate resolvers -- must have name xor type, MetricSpec metrcis must <: Metric
         for spec in resolvers:
@@ -110,6 +145,10 @@ class DeclarativeResolver(Resolver):
 
 
 class DeclarativeSchema(DatasetSchema):
+    """
+    Easily customizable DatasetSchema that implements schema defined by declarative ResolverSpec
+    """
+
     def __init__(
         self,
         resolvers: List[ResolverSpec],
