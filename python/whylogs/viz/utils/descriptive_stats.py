@@ -33,7 +33,7 @@ def _get_dist_metrics_from_column_view(
     column_view: ColumnProfileView,
 ) -> Union[Tuple[None, None, None], Tuple[float, float, float]]:
     distribution_metric: Optional[DistributionMetric] = column_view.get_metric("distribution")
-    if distribution_metric is None:
+    if distribution_metric is None or distribution_metric.kll.value.is_empty():
         return None, None, None
     stddev = distribution_metric.stddev
     mean = distribution_metric.mean.value

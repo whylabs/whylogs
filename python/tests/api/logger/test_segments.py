@@ -1,9 +1,12 @@
 import os
+import pickle
+import tempfile
 from glob import glob
 from typing import Any
 
 import numpy as np
 import pandas as pd
+import pytest
 
 import whylogs as why
 from whylogs.api.logger.result_set import SegmentedResultSet
@@ -156,7 +159,8 @@ def test_filtered_single_column_segment() -> None:
     assert count == 10
 
 
-def test_segment_write(tmp_path: Any) -> None:
+@pytest.mark.parametrize("v0", [True, False])
+def test_segment_write_roundtrip_versions(tmp_path: Any, v0) -> None:
     input_rows = 10
     segment_column = "col3"
     number_of_segments = 2
@@ -192,12 +196,15 @@ def test_segment_write(tmp_path: Any) -> None:
     assert count is not None
     assert count == values_per_segment
 
-    results.writer().option(base_dir=tmp_path).write()
+    results.writer().option(base_dir=tmp_path).write(use_v0=v0)
     paths = glob(os.path.join(tmp_path) + "/*x0.bin")
     assert len(paths) == 1
     roundtrip_profiles = []
     for file_path in paths:
-        roundtrip_profiles.append(read_v0_to_view(file_path))
+        if v0:
+            roundtrip_profiles.append(read_v0_to_view(path=file_path))
+        else:
+            roundtrip_profiles.append(why.read(path=file_path).view())
     assert len(roundtrip_profiles) == 1
     post_deserialization_first_view = roundtrip_profiles[0]
     assert post_deserialization_first_view is not None
@@ -252,7 +259,7 @@ def test_multi_column_segment() -> None:
     assert count == 1
 
 
-def test_multi_column_segment_serialization_roundtrip(tmp_path: Any) -> None:
+def test_multi_column_segment_serialization_roundtrip_v0(tmp_path: Any) -> None:
     input_rows = 35
     d = {
         "A": [i % 7 for i in range(input_rows)],
@@ -263,7 +270,7 @@ def test_multi_column_segment_serialization_roundtrip(tmp_path: Any) -> None:
     segmentation_partition = SegmentationPartition(name="A,B", mapper=ColumnMapperFunction(col_names=["A", "B"]))
     test_segments = {segmentation_partition.name: segmentation_partition}
     results: SegmentedResultSet = why.log(df, schema=DatasetSchema(segments=test_segments))
-    results.writer().option(base_dir=tmp_path).write()
+    results.writer().option(base_dir=tmp_path).write(use_v0=True)
 
     paths = glob(os.path.join(tmp_path) + "/*.bin")
     assert len(paths) == input_rows
@@ -281,3 +288,22 @@ def test_multi_column_segment_serialization_roundtrip(tmp_path: Any) -> None:
     post_columns = post_deserialization_view.get_columns()
     assert "A" in post_columns.keys()
     assert "B" in post_columns.keys()
+
+
+def test_pickle_load_merge_profile_view() -> None:
+    df = pd.DataFrame(data={"col1": [1, 2]})
+    logger = why.logger()
+    results = logger.log(df)
+    view2 = logger.log({"col1": 3}).view()
+    pickle_loaded_view = None
+    with tempfile.NamedTemporaryFile() as tmp_file:
+        pickle.dump(results.view(), tmp_file)
+        tmp_file.flush()
+        tmp_file.seek(0)
+        pickle_loaded_view = pickle.load(tmp_file)
+
+    assert pickle_loaded_view is not None
+    assert isinstance(pickle_loaded_view, DatasetProfileView)
+
+    merged_view = view2.merge(pickle_loaded_view)
+    assert merged_view._columns["col1"]._metrics["types"].integral.value == 3

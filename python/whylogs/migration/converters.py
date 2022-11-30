@@ -211,7 +211,12 @@ def _extract_schema_message_v0(col_prof: ColumnProfileView) -> SchemaMessageV0:
 def _extract_col_counts(msg: ColumnMessageV0) -> ColumnCountsMetric:
     count_n = msg.counters.count
     count_null = msg.counters.null_count
-    return ColumnCountsMetric(n=IntegralComponent(count_n or 0), null=IntegralComponent(count_null.value or 0))
+    return ColumnCountsMetric(
+        n=IntegralComponent(count_n or 0),
+        null=IntegralComponent(count_null.value or 0),
+        inf=IntegralComponent(0),
+        nan=IntegralComponent(0),
+    )
 
 
 def _extract_counters_v0(col_prof: ColumnProfileView) -> CountersV0:

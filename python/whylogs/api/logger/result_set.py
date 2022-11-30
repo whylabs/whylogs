@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 from logging import getLogger
 from typing import Any, Dict, List, Optional
 
@@ -90,6 +91,20 @@ class ResultSet(ABC):
     def get_writables(self) -> Optional[List[Writable]]:
         return [self.view()]
 
+    def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
+        profile = self.profile()
+        if profile is None:
+            raise ValueError("Cannot set timestamp on a result set without a profile!")
+        else:
+            profile.set_dataset_timestamp(dataset_timestamp)
+
+    @property
+    def count(self) -> int:
+        result = 0
+        if self.view() is not None:
+            result = 1
+        return result
+
     @property
     def performance_metrics(self) -> Optional[ModelPerformanceMetrics]:
         profile = self.profile()
@@ -104,7 +119,7 @@ class ResultSet(ABC):
         else:
             raise ValueError("Cannot add performance metrics to a result set with no profile!")
 
-    def add_metrics(self, name: str, metric: Metric) -> None:
+    def add_metric(self, name: str, metric: Metric) -> None:
         profile = self.profile()
         if profile:
             profile.add_dataset_metric(name, metric)
@@ -122,6 +137,10 @@ class ViewResultSet(ResultSet):
     def view(self) -> Optional[DatasetProfileView]:
         return self._view
 
+    @staticmethod
+    def zero() -> "ViewResultSet":
+        return ViewResultSet(DatasetProfileView.zero())
+
 
 class ProfileResultSet(ResultSet):
     def __init__(self, profile: DatasetProfile) -> None:
@@ -132,6 +151,10 @@ class ProfileResultSet(ResultSet):
 
     def view(self) -> Optional[DatasetProfileView]:
         return self._profile.view()
+
+    @staticmethod
+    def zero() -> "ProfileResultSet":
+        return ProfileResultSet(DatasetProfile())
 
 
 class SegmentedResultSet(ResultSet):
@@ -167,6 +190,16 @@ class SegmentedResultSet(ResultSet):
     @property
     def partitions(self) -> Optional[List[SegmentationPartition]]:
         return self._partitions
+
+    def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
+        # TODO: pull dataset_timestamp up into a result set scoped property
+        segment_keys = self.segments()
+        if not segment_keys:
+            return
+        for key in segment_keys:
+            profile = self.profile(segment=key)
+            if profile:
+                profile.set_dataset_timestamp(dataset_timestamp)
 
     def segments(self, restrict_to_parition_id: Optional[str] = None) -> Optional[List[Segment]]:
         result: Optional[List[Segment]] = None
@@ -258,3 +291,7 @@ class SegmentedResultSet(ResultSet):
         if segment.parent_id in self._segments:
             profile = self._segments[segment.parent_id][segment]
             profile.add_model_performance_metrics(metrics)
+
+    @staticmethod
+    def zero() -> "SegmentedResultSet":
+        return SegmentedResultSet(segments=dict())

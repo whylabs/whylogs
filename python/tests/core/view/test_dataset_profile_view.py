@@ -1,10 +1,35 @@
 import os.path
 import pickle
+import time
 
 import pandas as pd
 
 import whylogs as why
 from whylogs.core import DatasetProfile, DatasetProfileView
+from whylogs.core.model_performance_metrics.model_performance_metrics import (
+    ModelPerformanceMetrics,
+)
+
+
+def _assert_profiles_are_equal(profile_a: DatasetProfileView, profile_b: DatasetProfileView) -> None:
+    if profile_a is None and profile_b is None:
+        return
+    if profile_a is None or profile_b is None:
+        assert profile_a == profile_b
+
+    columns_in_a = profile_a.get_columns()
+    columns_in_b = profile_b.get_columns()
+    if not columns_in_b:
+        assert columns_in_a == columns_in_b
+
+    assert columns_in_a.keys() == columns_in_b.keys()
+
+    for col_name in columns_in_a:
+        assert col_name in columns_in_b
+        assert (col_name, columns_in_a[col_name].to_protobuf()) == (col_name, columns_in_b[col_name].to_protobuf())
+
+    assert profile_a.creation_timestamp == profile_b.creation_timestamp
+    assert profile_a.dataset_timestamp == profile_b.dataset_timestamp
 
 
 def test_view_serde_roundtrip(tmp_path: str) -> None:
@@ -115,3 +140,75 @@ def test_to_pandas_empty() -> None:
     pdf: pd.DataFrame = profile.to_pandas()
     assert pdf is not None
     assert pdf.empty
+
+
+def test_default_datasetprofile_timestamps() -> None:
+    stamp0 = time.time()
+    view = DatasetProfile().view()
+    stamp1 = time.time()
+    assert view is not None
+    assert view.creation_timestamp is not None
+    assert view.dataset_timestamp is not None
+    assert stamp0 <= view.creation_timestamp.timestamp() <= stamp1
+    assert stamp0 <= view.dataset_timestamp.timestamp() <= stamp1
+
+
+def test_merge_takes_oldest_timestamps() -> None:
+    view1 = DatasetProfile().view()
+    view2 = DatasetProfile().view()
+    assert view1.dataset_timestamp < view2.dataset_timestamp
+    assert view1.creation_timestamp < view2.creation_timestamp
+    merged_view = view2.merge(view1)
+    assert merged_view.creation_timestamp == view1.creation_timestamp
+    assert merged_view.dataset_timestamp == view1.dataset_timestamp
+
+
+def test_datasetprofile_zero_timestamps() -> None:
+    view = DatasetProfileView.zero()
+    stamp = time.time()
+    assert view is not None
+    assert view.creation_timestamp is None
+    assert view.dataset_timestamp is None
+    view.dataset_timestamp = stamp
+    assert view.dataset_timestamp is not None
+    assert view.dataset_timestamp == stamp
+
+
+def test_datasetprofile_model_performance_metrics() -> None:
+    view = DatasetProfileView.zero()
+    assert view.model_performance_metrics is None
+    perf_metric = ModelPerformanceMetrics()
+    view.model_performance_metrics = perf_metric
+    assert view.model_performance_metrics is perf_metric
+
+
+def test_zero_and_merging() -> None:
+    view_zero = DatasetProfileView.zero()
+    data1 = {
+        "animal": ["cat", "hawk", "snake", "cat"],
+        "legs": [4, 2, 0, 4],
+        "weight": [4.3, 1.8, 1.3, 4.1],
+    }
+
+    data2 = {
+        "animal": ["dog", "horse"],
+        "legs": [4, 4],
+        "weight": [35.6, 670],
+    }
+
+    view1 = why.log(pd.DataFrame(data1)).view()
+    view2 = why.log(pd.DataFrame(data2)).view()
+
+    merged_zero_1 = view_zero.merge(view1)
+    merged_zero_2 = view_zero.merge(view2)
+    merged_zero_1_2 = merged_zero_1.merge(merged_zero_2)
+    merged1_2 = view1.merge(view2)
+
+    # manually check one of the metric component values
+    max1 = merged_zero_1_2.get_column("weight").get_metric("distribution").max
+    max2 = merged1_2.get_column("weight").get_metric("distribution").max
+    assert max1 == max2
+
+    _assert_profiles_are_equal(view1, merged_zero_1)
+    _assert_profiles_are_equal(view2, merged_zero_2)
+    _assert_profiles_are_equal(merged1_2, merged_zero_1_2)

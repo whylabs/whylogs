@@ -307,91 +307,111 @@
       Handlebars.registerHelper("variance", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.descriptive_statistics && feature.descriptive_statistics.variance) {
+        if (feature.descriptive_statistics && typeof feature.descriptive_statistics.variance === 'number') {
+          if (isNaN(feature.descriptive_statistics.variance)){return "-"}
+          if (feature.descriptive_statistics.variance==null){return "-"}
           return fixNumberTo(feature.descriptive_statistics.variance,2);
         }
-        return "0";
+        return "-";
       });
 
       Handlebars.registerHelper("coefficientOfVariation", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.descriptive_statistics && feature.descriptive_statistics.coefficient_of_variation) {
+        if (feature.descriptive_statistics && typeof feature.descriptive_statistics.coefficient_of_variation === 'number') {
+          if (isNaN(feature.descriptive_statistics.coefficient_of_variation)){return "-"}
+          if (feature.descriptive_statistics.coefficient_of_variation==null){return "-"}
           return fixNumberTo(feature.descriptive_statistics.coefficient_of_variation,2);
         }
-        return "0";
+        return "-";
       });
 
       Handlebars.registerHelper("median", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.quantile_statistics && feature.quantile_statistics.median) {
+        if (feature.quantile_statistics && typeof feature.quantile_statistics.median === 'number') {
+          if (isNaN(feature.quantile_statistics.median)){return "-"}
+          if (feature.quantile_statistics.median==null){return "-"}
           return fixNumberTo(feature.quantile_statistics.median);
         }
-        return "0";
+        return "-";
       });
 
       Handlebars.registerHelper("fifthPercentile", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.quantile_statistics && feature.quantile_statistics.fifth_percentile) {
+        if (feature.quantile_statistics && typeof feature.quantile_statistics.fifth_percentile === 'number') {
+          if (isNaN(feature.quantile_statistics.fifth_percentile)){return "-"}
+          if (feature.quantile_statistics.fifth_percentile==null){return "-"}
           return fixNumberTo(feature.quantile_statistics.fifth_percentile);
         }
-        return "0";
+        return "-";
       });
 
       Handlebars.registerHelper("ninetyFifthPercentile", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.quantile_statistics && feature.quantile_statistics.ninety_fifth_percentile) {
+        if (feature.quantile_statistics && typeof feature.quantile_statistics.ninety_fifth_percentile === 'number') {
+          if (isNaN(feature.quantile_statistics.ninety_fifth_percentile)){return "-"}
+          if (feature.quantile_statistics.ninety_fifth_percentile==null){return "-"}
           return fixNumberTo(feature.quantile_statistics.ninety_fifth_percentile);
         }
-        return "0";
+        return "-";
       });
 
       Handlebars.registerHelper("range", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.range) {
+        if (feature.range && typeof feature.range === 'number') {
+          if (isNaN(feature.range)){return "-"}
+          if (feature.range==null){return "-"}
           return fixNumberTo(feature.range);
         }
-        return "0";
+        return "-";
       });
 
       Handlebars.registerHelper("q3", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.quantile_statistics && feature.quantile_statistics.q3) {
+        if (feature.quantile_statistics && typeof feature.quantile_statistics.q3 === 'number') {
+          if (isNaN(feature.quantile_statistics.q3)){return "-"}
+          if (feature.quantile_statistics.q3==null){return "-"}
           return fixNumberTo(feature.quantile_statistics.q3);
         }
-        return "0";
+        return "-";
       });
 
       Handlebars.registerHelper("q1", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.quantile_statistics && feature.quantile_statistics.q1) {
+        if (feature.quantile_statistics && typeof feature.quantile_statistics.q1 === 'number') {
+          if (isNaN(feature.quantile_statistics.q1)){return "-"}
+          if (feature.quantile_statistics.q1==null){return "-"}
           return fixNumberTo(feature.quantile_statistics.q1);
         }
-        return "0";
+        return "-";
       });
 
       Handlebars.registerHelper("getSum", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.descriptive_statistics && feature.descriptive_statistics.sum) {
+        if (feature.descriptive_statistics && typeof feature.descriptive_statistics.sum === 'number') {
+          if (isNaN(feature.descriptive_statistics.sum)){return "-"}
+          if (feature.descriptive_statistics.sum==null){return "-"}
           return fixNumberTo(feature.descriptive_statistics.sum,2);
         }
-        return "0";
+        return "-";
       });
 
       Handlebars.registerHelper("iqr", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.quantile_statistics && feature.quantile_statistics.iqr) {
+        if (feature.quantile_statistics && typeof feature.quantile_statistics.iqr === 'number' ) {
+          if (isNaN(feature.quantile_statistics.iqr)){return "-"}
+          if (feature.quantile_statistics.iqr==null){return "-"}
           return fixNumberTo(feature.quantile_statistics.iqr);
         }
-        return "0";
+        return "-";
       });
 
 
@@ -413,37 +433,44 @@
       Handlebars.registerHelper("mean", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.descriptive_statistics && feature.descriptive_statistics.mean) {
+        if (feature.descriptive_statistics && typeof feature.descriptive_statistics.mean === 'number') {
+          if (isNaN(feature.descriptive_statistics.mean)){return "-"}
+          if (feature.descriptive_statistics.mean==null){return "-"}
           return fixNumberTo(feature.descriptive_statistics.mean);
         }
-        return "0";
+        return "-";
       });
 
       Handlebars.registerHelper("stddev", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.descriptive_statistics && feature.descriptive_statistics.stddev) {
+        if (feature.descriptive_statistics && typeof feature.descriptive_statistics.stddev === 'number') {
+          if (isNaN(feature.descriptive_statistics.stddev)){return "-"}
+          if (feature.descriptive_statistics.stddev==null){return "-"}
           return fixNumberTo(feature.descriptive_statistics.stddev);
         }
-        return "0";
+        return "-";
       });
 
       Handlebars.registerHelper("minimum", function (column) {
         const feature = Object.values(column)[0]
-
-        if (feature.min) {
+        if (typeof feature.min === 'number') {
+          if (isNaN(feature.min)){return "-"}
+          if (feature.min==null){return "-"}
           return fixNumberTo(feature.min);
         }
-        return "0";
+        return "-";
       });
 
       Handlebars.registerHelper("maximum", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.max) {
+        if (typeof feature.max === 'number') {
+          if (isNaN(feature.max)){return "-"}
+          if (feature.max==null){return "-"}
           return fixNumberTo(feature.max);
         }
-        return "0";
+        return "-";
       });
 
       // Handlebars.registerHelper("getProfileTimeStamp", function (column) {

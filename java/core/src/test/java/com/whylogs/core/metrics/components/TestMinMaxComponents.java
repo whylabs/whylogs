@@ -73,6 +73,10 @@ public class TestMinMaxComponents {
 
     Assert.assertEquals((int) min.getValue(), expected);
     Assert.assertEquals(min.getTypeId(), MIN_TYPE);
+
+    MinIntegralComponent min2 = min.copy();
+    Assert.assertEquals(min2.getTypeId(), MIN_TYPE);
+    Assert.assertEquals((int) min2.getValue(), expected);
   }
 
   @Test(dataProvider = "max-data-provider")
@@ -94,5 +98,9 @@ public class TestMinMaxComponents {
 
     Assert.assertEquals((int) max.getValue(), expected);
     Assert.assertEquals(max.getTypeId(), MAX_TYPE);
+
+    MaxIntegralComponent max2 = max.copy();
+    Assert.assertEquals(max2.getTypeId(), MAX_TYPE);
+    Assert.assertEquals((int) max2.getValue(), expected);
   }
 }

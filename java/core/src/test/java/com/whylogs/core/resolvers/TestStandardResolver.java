@@ -15,7 +15,7 @@ public class TestStandardResolver {
   public void test_integralInput() {
     StandardResolver resolver = new StandardResolver();
     ColumnSchema columnSchema = new ColumnSchema(Integer.class, new MetricConfig(), resolver);
-    HashMap<String, Metric> metrics = resolver.resolve(columnSchema);
+    HashMap<String, Metric<?>> metrics = resolver.resolve(columnSchema);
     Assert.assertEquals(metrics.get("ints").getClass(), IntegralMetric.class);
   }
 
