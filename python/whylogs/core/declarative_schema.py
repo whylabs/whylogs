@@ -27,7 +27,7 @@ match and the list of MetricSpecs to instantiate for matching columns.
 Each MetricSpec specifies the Metric class and MetricConfig to
 instantiate. Omit the MetricSpec::config to use the default MetricConfig.
 
-For example, DeclarativeResolver(resolvers=STANDARD_RESOLVER) implements
+For example, DeclarativeSchema(resolvers=STANDARD_RESOLVER) implements
 the same schema as DatasetSchema(), i.e., using the default MetricConfig,
 StandardTypeMapper, StandardResolver, etc.
 """
