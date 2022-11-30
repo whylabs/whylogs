@@ -79,11 +79,14 @@ class DatasetProfileView(Writable):
 
     @model_performance_metrics.setter
     def model_performance_metrics(self, performance_metrics: Any) -> "DatasetProfileView":
-        if self._metrics:
-            self._metrics[_MODEL_PERFORMANCE] = performance_metrics
-        else:
-            self._metrics = {_MODEL_PERFORMANCE: performance_metrics}
+        self.add_model_performance_metrics(performance_metrics)
         return self
+
+    def add_model_performance_metrics(self, metric: Any) -> None:
+        if self._metrics:
+            self._metrics[_MODEL_PERFORMANCE] = metric
+        else:
+            self._metrics = {_MODEL_PERFORMANCE: metric}
 
     @staticmethod
     def _min_datetime(a: Optional[datetime], b: Optional[datetime]) -> Optional[datetime]:
@@ -362,6 +365,7 @@ class DatasetProfileView(Writable):
         self._dataset_timestamp = copy._dataset_timestamp
         self._creation_timestamp = copy._creation_timestamp
         self._metrics = copy._metrics
+        self._metadata = copy._metadata
 
     def to_pandas(self, column_metric: Optional[str] = None, cfg: Optional[SummaryConfig] = None) -> pd.DataFrame:
         all_dicts = []
