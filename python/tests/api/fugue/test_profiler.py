@@ -1,5 +1,5 @@
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
@@ -33,8 +33,8 @@ def _is_testable_version():
 @pytest.mark.skipif(not _is_testable_version(), reason="not a testable python version")
 def test_no_partition(_test_df):
     for engine in [None, "spark"]:
-        t1 = datetime(2020, 1, 1)
-        t2 = datetime(2020, 1, 2)
+        t1 = datetime(2020, 1, 1, tzinfo=timezone.utc)
+        t2 = datetime(2020, 1, 2, tzinfo=timezone.utc)
         v = fugue_profile(
             _test_df,
             dataset_timestamp=t1,

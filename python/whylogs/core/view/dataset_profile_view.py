@@ -1,7 +1,7 @@
 import io
 import logging
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, BinaryIO, Dict, List, Optional, Tuple
 
@@ -79,11 +79,14 @@ class DatasetProfileView(Writable):
 
     @model_performance_metrics.setter
     def model_performance_metrics(self, performance_metrics: Any) -> "DatasetProfileView":
-        if self._metrics:
-            self._metrics[_MODEL_PERFORMANCE] = performance_metrics
-        else:
-            self._metrics = {_MODEL_PERFORMANCE: performance_metrics}
+        self.add_model_performance_metrics(performance_metrics)
         return self
+
+    def add_model_performance_metrics(self, metric: Any) -> None:
+        if self._metrics:
+            self._metrics[_MODEL_PERFORMANCE] = metric
+        else:
+            self._metrics = {_MODEL_PERFORMANCE: metric}
 
     @staticmethod
     def _min_datetime(a: Optional[datetime], b: Optional[datetime]) -> Optional[datetime]:
@@ -300,8 +303,12 @@ class DatasetProfileView(Writable):
         dataset_profile_header = read_delimited_protobuf(f, DatasetProfileHeader)
         if dataset_profile_header.ByteSize() == 0:
             raise DeserializationError("Missing valid dataset profile header")
-        dataset_timestamp = datetime.fromtimestamp(dataset_profile_header.properties.dataset_timestamp / 1000.0)
-        creation_timestamp = datetime.fromtimestamp(dataset_profile_header.properties.creation_timestamp / 1000.0)
+        dataset_timestamp = datetime.fromtimestamp(
+            dataset_profile_header.properties.dataset_timestamp / 1000.0, tz=timezone.utc
+        )
+        creation_timestamp = datetime.fromtimestamp(
+            dataset_profile_header.properties.creation_timestamp / 1000.0, tz=timezone.utc
+        )
         indexed_metric_paths = dataset_profile_header.indexed_metric_paths
         if len(indexed_metric_paths) < 1:
             logger.warning("Name index in the header is empty. Possible data corruption")
@@ -358,6 +365,7 @@ class DatasetProfileView(Writable):
         self._dataset_timestamp = copy._dataset_timestamp
         self._creation_timestamp = copy._creation_timestamp
         self._metrics = copy._metrics
+        self._metadata = copy._metadata
 
     def to_pandas(self, column_metric: Optional[str] = None, cfg: Optional[SummaryConfig] = None) -> pd.DataFrame:
         all_dicts = []
