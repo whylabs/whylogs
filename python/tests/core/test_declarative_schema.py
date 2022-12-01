@@ -19,7 +19,7 @@ from whylogs.core.resolvers import (
 from whylogs.core.schema import DeclarativeSchema
 
 # STANDARD_RESOLVER matches the default DatasetSchema/StandardResolver behavior
-STANDARD_RESOLVER = [  # TODO: maybe move this to unit test?
+STANDARD_RESOLVER = [
     ResolverSpec(
         column_type=Integral,
         metrics=COLUMN_METRICS
