@@ -60,16 +60,6 @@ def deserialize(msg: MetricComponentMessage) -> np.ndarray:
     return _deserialize_ndarray(msg.serialized_bytes)
 
 
-"""
-    def to_protobuf(self) -> MetricComponentMessage:
-        return MetricComponentMessage(type_id=self.type_id, serialized_bytes=_serialize_ndarray(self.value))
-
-    @classmethod
-    def from_protobuf(cls, msg: MetricComponentMessage, registries: Optional[Registries] = None) -> "VectorComponent":
-        return VectorComponent(value=_deserialize_ndarray(msg.serialized_bytes))
-"""
-
-
 @dataclass(frozen=True)
 class SvdMetricConfig(MetricConfig):
     k: int = 100
@@ -369,58 +359,6 @@ class LsiMetric(MultiMetric):
         return result
 
 
-"""
-TODO: kill these
-
-def _preprocessifier(terms: List[str], vector: np.ndarray) -> PreprocessedColumn:
-    strings = terms
-    objs = [vector]
-    list_view = ListView(strings=strings, objs=objs)
-    result = PreprocessedColumn()
-    result.list = list_view
-    return result
-
-
-_persistant_logger: Logger = None
-
-def log_nlp(
-    terms: Optional[List[str]] = None,    # bag of words
-    vector: Optional[np.ndarray] = None,  # term vector representing document
-    column_prefix: str = "nlp",
-    schemas: Optional[DatasetSchema] = None,
-) -> ResultSet:
-
-    class NlpResolver(Resolver):
-        def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-            if name.endswith("please_resolve_to_bag_of_words"):
-                return {BagOfWordsMetric.get_namespace(): BagOfWordsMetric.zero(colum_schema.cfg)}
-            elif name.endswith("please_resolve_to_lsi"):
-                return {LsiMetric.get_namespace(): LsiMetric.zero(column_schema.cfg)}
-            return super(NlpResolver, self).resolve(name, why_type, column_schema)
-
-    if _persistant_logger is None:
-        datatypes = {
-            f"{column_prefix}_please_resolve_to_bag_of_words": List[str],
-            f"{column_prefix}_please_resolve_to_lsi": np.ndarray,
-        }
-        schema = schema or DatasetSchema(
-            types=datatypes, default_configs=NlpConfig(), resolvers=NlpResolver()
-        )
-        if not isinstance(schema.default_configs, NlpConfig):
-            raise ValueError("log_nlp requires DatasetSchema with an NlpConfig as default_configs")
-
-        _persistant_logger = _persistant_logger or TransientLogger(schema=schema)
-
-    data: dict()
-    if terms:
-        data[f"{column_prefix}_please_resolve_to_bag_of_words"] = terms
-    if vector:
-        data[f"{column_prefix}_please_resolve_to_lsi"] = vector
-
-    return _persistant_logger.log(row=data)
-"""
-
-
 class ResolverWrapper(Resolver):
     def __init__(self, resolver: Resolver):
         self._resolver = resolver
@@ -506,7 +444,6 @@ class NlpLogger:
             lsi_metric = self._profile._columns[f"{self._column_prefix}_lsi"]._metrics[LsiMetric.get_namespace()]
             lsi_metric.columnar_update(column_data)
 
-        # self._profile.track(row=data)
         return ProfileResultSet(self._profile)
 
     def get_svd_state(self) -> MetricMessage:
