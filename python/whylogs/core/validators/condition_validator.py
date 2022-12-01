@@ -1,10 +1,10 @@
 import logging
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Union
 
+from whylogs.core.metrics.condition_count_metric import Condition
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.relations import Predicate
 from whylogs.core.validators.validator import Validator
 
 logger = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ConditionValidator(Validator):
-    conditions: Dict[str, Predicate]
+    conditions: Dict[str, Union[Condition, Callable[[Any], bool]]]
     actions: List[Callable[[str, str, Any], None]]
     name: str
     total: int = 0
@@ -30,7 +30,10 @@ class ConditionValidator(Validator):
             count += 1
             for cond_name, condition in self.conditions.items():
                 try:
-                    valid = condition(x)
+                    if isinstance(condition, Condition):
+                        valid = condition.relation(x)
+                    else:
+                        valid = condition(x)
                 except Exception as e:
                     valid = False
                     logger.exception(e)
