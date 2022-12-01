@@ -260,7 +260,7 @@ class BagOfWordsMetric(MultiMetric):
                 "types": StandardMetric.types.zero(),
                 "cardinality": StandardMetric.cardinality.zero(),
             }
-            #for key in ["doc_length", "term_length"]:
+            # for key in ["doc_length", "term_length"]:
             #    submetrics[key]["frequent_items"] = StandardMetric.frequent_items.zero()
 
         super(BagOfWordsMetric, self).__init__(submetrics)
@@ -492,7 +492,9 @@ class NlpLogger:
             list_view = ListView(strings=terms)
             column_data = PreprocessedColumn()
             column_data.list = list_view
-            bow_metric = self._profile._columns[f"{self._column_prefix}_bag_of_words"]._metrics[BagOfWordsMetric.get_namespace()]
+            bow_metric = self._profile._columns[f"{self._column_prefix}_bag_of_words"]._metrics[
+                BagOfWordsMetric.get_namespace()
+            ]
             bow_metric.columnar_update(column_data)
 
         if vector is not None and self._svd_metric:
@@ -504,7 +506,7 @@ class NlpLogger:
             lsi_metric = self._profile._columns[f"{self._column_prefix}_lsi"]._metrics[LsiMetric.get_namespace()]
             lsi_metric.columnar_update(column_data)
 
-        #self._profile.track(row=data)
+        # self._profile.track(row=data)
         return ProfileResultSet(self._profile)
 
     def get_svd_state(self) -> MetricMessage:
