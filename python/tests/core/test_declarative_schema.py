@@ -1,14 +1,7 @@
 import pytest
 
 import whylogs as why
-from whylogs.core.datatypes import String
-from whylogs.core.declarative_schema import (
-    STANDARD_RESOLVER,
-    DeclarativeResolver,
-    DeclarativeSchema,
-    MetricSpec,
-    ResolverSpec,
-)
+from whylogs.core.datatypes import AnyType, Fractional, Integral, String
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.condition_count_metric import (
     Condition,
@@ -17,6 +10,46 @@ from whylogs.core.metrics.condition_count_metric import (
 )
 from whylogs.core.metrics.condition_count_metric import Relation as Rel
 from whylogs.core.metrics.condition_count_metric import relation as rel
+from whylogs.core.resolvers import (
+    COLUMN_METRICS,
+    DeclarativeResolver,
+    MetricSpec,
+    ResolverSpec,
+)
+from whylogs.core.schema import DeclarativeSchema
+
+# STANDARD_RESOLVER matches the default DatasetSchema/StandardResolver behavior
+STANDARD_RESOLVER = [  # TODO: maybe move this to unit test?
+    ResolverSpec(
+        column_type=Integral,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.ints.value),
+            MetricSpec(StandardMetric.cardinality.value),
+            MetricSpec(StandardMetric.frequent_items.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=Fractional,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=String,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.unicode_range.value),
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
+            MetricSpec(StandardMetric.frequent_items.value),
+        ],
+    ),
+    ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
+]
 
 
 def test_declarative_schema() -> None:
