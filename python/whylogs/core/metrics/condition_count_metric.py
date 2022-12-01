@@ -10,28 +10,31 @@ from whylogs.core.metrics.metric_components import IntegralComponent, MetricComp
 from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
-from whylogs.core.relations import Relation
+from whylogs.core.relations import Relation as Rel
 
 logger = logging.getLogger(__name__)
 
+# For backward compatability
+Relation = Rel  # type: ignore
+
 
 # relation() is annoying, use Predicate instead
-def relation(op: Relation, value: Union[str, int, float]) -> Callable[[Any], bool]:
-    if op == Relation.match:
+def relation(op: Relation, value: Union[str, int, float]) -> Callable[[Any], bool]:  # type: ignore
+    if op == Relation.match:  # type: ignore
         return lambda x: re.compile(value).match(x)  # type: ignore
-    if op == Relation.fullmatch:
+    if op == Relation.fullmatch:  # type: ignore
         return lambda x: re.compile(value).fullmatch(x)  # type: ignore
-    if op == Relation.equal:
+    if op == Relation.equal:  # type: ignore
         return lambda x: x == value  # type: ignore
-    if op == Relation.less:
+    if op == Relation.less:  # type: ignore
         return lambda x: x < value  # type: ignore
-    if op == Relation.leq:
+    if op == Relation.leq:  # type: ignore
         return lambda x: x <= value  # type: ignore
-    if op == Relation.greater:
+    if op == Relation.greater:  # type: ignore
         return lambda x: x > value  # type: ignore
-    if op == Relation.geq:
+    if op == Relation.geq:  # type: ignore
         return lambda x: x >= value  # type: ignore
-    if op == Relation.neq:
+    if op == Relation.neq:  # type: ignore
         return lambda x: x != value  # type: ignore
     raise ValueError("Unknown ConditionCountMetric predicate")
 
@@ -122,7 +125,7 @@ class ConditionCountMetric(Metric):
                     else:
                         failed_conditions.add(cond_name)
                         for action in condition.actions:
-                            action(self.namespace, cond_name, x)
+                            action(self.namespace, cond_name, datum)
 
                 except Exception as e:  # noqa
                     logger.debug(e)

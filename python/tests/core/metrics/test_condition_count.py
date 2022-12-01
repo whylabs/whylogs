@@ -13,6 +13,8 @@ from whylogs.core.metrics.condition_count_metric import (
     ConditionCountConfig,
     ConditionCountMetric,
 )
+from whylogs.core.metrics.condition_count_metric import Relation as Rel
+from whylogs.core.metrics.condition_count_metric import relation as rel
 from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.metrics.metrics import OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
@@ -77,7 +79,6 @@ def test_actions() -> None:
     strings = ["abc", "123", "kwatz", "314159", "abc123"]
     metric.columnar_update(PreprocessedColumn.apply(strings))
 
-    global action_1_count, action_2_count
     assert action_1_count == 5  # 3 don't start with digits, 2 don't start with digits
     assert action_2_count == 3  # 3 don't start with digits
 
