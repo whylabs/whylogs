@@ -59,6 +59,14 @@ class SegmentationPartition:
                 return self.filter.query_string
         return ""
 
+    def __eq__(self, other) -> bool:
+        if isinstance(other, SegmentationPartition):
+            return self.id == other.id
+        return False
+
+    def __hash__(self):
+        return hash(self.id)
+
 
 def segment_on_column(column_name: str) -> Mapping[str, SegmentationPartition]:
     return {column_name: SegmentationPartition(name=column_name, mapper=ColumnMapperFunction(col_names=[column_name]))}
