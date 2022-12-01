@@ -15,8 +15,8 @@ class SQLiteStore(ProfileStore):
         self._db_location = os.getenv("SQLITE_STORE_LOCATION")
         if self._db_location is None:
             raise ValueError("You must define a store with the SQLITE_STORE_LOCATION env var")
-        self.conn = sqlite3.connect(database=self._db_location, check_same_thread=False)
-        self.cur = self.conn.cursor()
+        self.__conn = sqlite3.connect(database=self._db_location, check_same_thread=False)
+        self.__cur = self.__conn.cursor()
         self._init_db()
 
     def __enter__(self) -> "SQLiteStore":
@@ -24,26 +24,26 @@ class SQLiteStore(ProfileStore):
 
     def __exit__(self, exception_type, exception_value, traceback) -> None:
         try:
-            self.cur.close()
-            self.conn.close()
+            self.__cur.close()
+            self.__conn.close()
         except exception_type:
             logger.error(traceback)
             raise exception_value
 
     def __del__(self) -> None:
         try:
-            self.cur.close()
-            self.conn.close()
+            self.__cur.close()
+            self.__conn.close()
         except Exception as e:
             logger.debug(f"Connection not established. Error: {e}")
 
     def _init_db(self):
         init_db_query = "CREATE TABLE IF NOT EXISTS profile_store(id string, date datetime, profile blob);"
-        self.cur.execute(init_db_query)
+        self.__cur.execute(init_db_query)
 
     def list(self):
         sql_query = "SELECT DISTINCT id FROM profile_store;"
-        response = self.cur.execute(sql_query)
+        response = self.__cur.execute(sql_query)
         return [item[0] for item in response]
 
     def get(self, query: BaseQuery) -> DatasetProfileView:
@@ -53,12 +53,12 @@ class SQLiteStore(ProfileStore):
         if isinstance(query, DatasetIdQuery):
             sql_query = "SELECT profile FROM profile_store WHERE id = ?"
             data_tuple = (query.dataset_id,)
-            response = self.cur.execute(sql_query, data_tuple).fetchall()
+            response = self.__cur.execute(sql_query, data_tuple).fetchall()
         elif isinstance(query, DateQuery):
             start_date = query.start_date.replace(minute=0).astimezone(tz=timezone.utc)
             end_date = query.end_date.astimezone(tz=timezone.utc) + timedelta(minutes=1)
             sql_query = f"SELECT profile FROM profile_store WHERE id = '{query.dataset_id}' AND date BETWEEN '{start_date}' AND '{end_date}';"
-            response = self.cur.execute(sql_query).fetchall()
+            response = self.__cur.execute(sql_query).fetchall()
         else:
             logger.error("Define a supported Query object")
             raise ValueError
@@ -74,13 +74,14 @@ class SQLiteStore(ProfileStore):
             serialized_profile = profile_view.serialize()
             query = "INSERT INTO profile_store (id, date, profile) VALUES (?, ?, ?);"
             values_tuple = (dataset_id, profile_date, serialized_profile)
-            self.cur.execute(query, values_tuple)
-            self.conn.commit()
+            self.__cur.execute(query, values_tuple)
+            self.__conn.commit()
             logger.debug(f"Profile {dataset_id} successfully written to the Store!")
         except sqlite3.Error as e:
             logger.error(f"Error: {e}")
 
-    def _get_merge_period(self) -> int:
+    @staticmethod
+    def _get_merge_period() -> int:
         merge_period = os.getenv("MERGE_PROFILE_PERIOD_HOURS")
         if not merge_period:
             raise ValueError("You must define a MERGE_PROFILE_PERIOD_HOURS env var")
@@ -111,7 +112,7 @@ class SQLiteStore(ProfileStore):
             AND date BETWEEN ? AND ?
         """
         try:
-            self.cur.execute(update_query, update_values)
+            self.__cur.execute(update_query, update_values)
         except sqlite3.Error as e:
             logger.error(f"Error: {e}")
 
