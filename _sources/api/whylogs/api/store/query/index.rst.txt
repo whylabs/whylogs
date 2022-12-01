@@ -13,14 +13,22 @@ Classes
 .. autoapisummary::
 
    whylogs.api.store.query.DateQuery
-   whylogs.api.store.query.ProfileNameQuery
+   whylogs.api.store.query.DatasetIdQuery
 
 
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.store.query.BaseQuery
 
 
 .. py:class:: DateQuery
 
-   .. py:attribute:: profile_name
+   .. py:attribute:: dataset_id
       :annotation: :str
 
       
@@ -35,12 +43,27 @@ Classes
 
       
 
+   .. py:attribute:: segment_tag
+      :annotation: :Optional[str]
 
-.. py:class:: ProfileNameQuery
+      
 
-   .. py:attribute:: profile_name
+
+.. py:class:: DatasetIdQuery
+
+   .. py:attribute:: dataset_id
       :annotation: :str
 
       
 
+   .. py:attribute:: segment_tag
+      :annotation: :Optional[str]
+
+      
+
+
+.. py:data:: BaseQuery
+   
+
+   
 

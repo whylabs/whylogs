@@ -234,7 +234,7 @@
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/store/local_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.local_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/store/profile_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.profile_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/store/query/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.query</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/store/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.s3</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/store/sqlite_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.sqlite_store</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
@@ -644,6 +644,8 @@
           <li><a href="api/whylogs/datasets/weather/index.html#whylogs.datasets.weather.Weather.baseline_timestamp">(whylogs.datasets.weather.Weather attribute)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/store/query/index.html#whylogs.api.store.query.BaseQuery">BaseQuery (in module whylogs.api.store.query)</a>
+</li>
         <li><a href="api/whylogs/api/logger/logger/index.html#whylogs.api.logger.logger.BasicCache">BasicCache (class in whylogs.api.logger.logger)</a>
 </li>
         <li><a href="api/whylogs/datasets/base/index.html#whylogs.datasets.base.Batch">Batch (class in whylogs.datasets.base)</a>
@@ -1202,6 +1204,16 @@
           <li><a href="api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.metric_constraints.Constraints.dataset_constraints">(whylogs.core.constraints.metric_constraints.Constraints attribute)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.DatasetIdQuery.dataset_id">dataset_id (whylogs.api.store.DatasetIdQuery attribute)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.DateQuery.dataset_id">(whylogs.api.store.DateQuery attribute)</a>
+</li>
+          <li><a href="api/whylogs/api/store/query/index.html#whylogs.api.store.query.DatasetIdQuery.dataset_id">(whylogs.api.store.query.DatasetIdQuery attribute)</a>
+</li>
+          <li><a href="api/whylogs/api/store/query/index.html#whylogs.api.store.query.DateQuery.dataset_id">(whylogs.api.store.query.DateQuery attribute)</a>
+</li>
+        </ul></li>
         <li><a href="api/whylogs/core/constraints/index.html#whylogs.core.constraints.Constraints.dataset_profile_view">dataset_profile_view (whylogs.core.constraints.Constraints attribute)</a>
 
         <ul>
@@ -1232,6 +1244,12 @@
 
         <ul>
           <li><a href="api/whylogs/core/proto/v0/v0_constraints_pb2/index.html#whylogs.core.proto.v0.v0_constraints_pb2.DatasetConstraintMsg">(in module whylogs.core.proto.v0.v0_constraints_pb2)</a>
+</li>
+        </ul></li>
+        <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.DatasetIdQuery">DatasetIdQuery (class in whylogs.api.store)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/store/query/index.html#whylogs.api.store.query.DatasetIdQuery">(class in whylogs.api.store.query)</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.DatasetMetadataSegment">DatasetMetadataSegment (in module whylogs.core.proto.v0)</a>
@@ -1336,6 +1354,8 @@
         </ul></li>
         <li><a href="api/whylogs/api/store/local_store/index.html#whylogs.api.store.local_store.DEFAULT_DIR">DEFAULT_DIR (in module whylogs.api.store.local_store)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.DEFAULT_IMAGE_FEATURES">DEFAULT_IMAGE_FEATURES (in module whylogs.extras.image_metric)</a>
 </li>
         <li><a href="api/whylogs/datasets/base/index.html#whylogs.datasets.base.Dataset.describe">describe() (whylogs.datasets.base.Dataset class method)</a>
@@ -1350,8 +1370,6 @@
           <li><a href="api/whylogs/datasets/weather/index.html#whylogs.datasets.weather.Weather.describe">(whylogs.datasets.weather.Weather class method)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/datasets/base/index.html#whylogs.datasets.base.Dataset.describe_versions">describe_versions() (whylogs.datasets.base.Dataset class method)</a>
 
         <ul>
@@ -1919,7 +1937,9 @@
 </li>
           <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.ProfileStore.get">(whylogs.api.store.ProfileStore method)</a>
 </li>
-          <li><a href="api/whylogs/api/store/s3/index.html#whylogs.api.store.s3.S3Store.get">(whylogs.api.store.s3.S3Store method)</a>
+          <li><a href="api/whylogs/api/store/sqlite_store/index.html#whylogs.api.store.sqlite_store.SQLiteStore.get">(whylogs.api.store.sqlite_store.SQLiteStore method)</a>
+</li>
+          <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.SQLiteStore.get">(whylogs.api.store.SQLiteStore method)</a>
 </li>
           <li><a href="api/whylogs/api/writer/index.html#whylogs.api.writer.Writers.get">(whylogs.api.writer.Writers static method)</a>
 </li>
@@ -2605,7 +2625,9 @@
 </li>
           <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.ProfileStore.list">(whylogs.api.store.ProfileStore method)</a>
 </li>
-          <li><a href="api/whylogs/api/store/s3/index.html#whylogs.api.store.s3.S3Store.list">(whylogs.api.store.s3.S3Store method)</a>
+          <li><a href="api/whylogs/api/store/sqlite_store/index.html#whylogs.api.store.sqlite_store.SQLiteStore.list">(whylogs.api.store.sqlite_store.SQLiteStore method)</a>
+</li>
+          <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.SQLiteStore.list">(whylogs.api.store.SQLiteStore method)</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/core/preprocessing/index.html#whylogs.core.preprocessing.ListView">ListView (class in whylogs.core.preprocessing)</a>
@@ -2682,6 +2704,8 @@
           <li><a href="api/whylogs/api/pyspark/experimental/profiler/index.html#whylogs.api.pyspark.experimental.profiler.logger">(in module whylogs.api.pyspark.experimental.profiler)</a>
 </li>
           <li><a href="api/whylogs/api/store/local_store/index.html#whylogs.api.store.local_store.logger">(in module whylogs.api.store.local_store)</a>
+</li>
+          <li><a href="api/whylogs/api/store/sqlite_store/index.html#whylogs.api.store.sqlite_store.logger">(in module whylogs.api.store.sqlite_store)</a>
 </li>
           <li><a href="api/whylogs/api/usage_stats/index.html#whylogs.api.usage_stats.logger">(in module whylogs.api.usage_stats)</a>
 </li>
@@ -3202,7 +3226,7 @@
 </li>
           <li><a href="api/whylogs/api/store/query/index.html#module-whylogs.api.store.query">whylogs.api.store.query</a>
 </li>
-          <li><a href="api/whylogs/api/store/s3/index.html#module-whylogs.api.store.s3">whylogs.api.store.s3</a>
+          <li><a href="api/whylogs/api/store/sqlite_store/index.html#module-whylogs.api.store.sqlite_store">whylogs.api.store.sqlite_store</a>
 </li>
           <li><a href="api/whylogs/api/usage_stats/index.html#module-whylogs.api.usage_stats">whylogs.api.usage_stats</a>
 </li>
@@ -3803,10 +3827,10 @@
           <li><a href="api/whylogs/datasets/configs/index.html#whylogs.datasets.configs.WeatherConfig.prediction_columns">(whylogs.datasets.configs.WeatherConfig attribute)</a>
 </li>
         </ul></li>
-        <li><a href="api/whylogs/core/preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn">PreprocessedColumn (class in whylogs.core.preprocessing)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/whylogs/core/preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn">PreprocessedColumn (class in whylogs.core.preprocessing)</a>
+</li>
         <li><a href="api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.metric_constraints.pretty_display">pretty_display() (in module whylogs.core.constraints.metric_constraints)</a>
 </li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.ProfileResultSet.profile">profile() (whylogs.api.logger.ProfileResultSet method)</a>
@@ -3827,16 +3851,6 @@
           <li><a href="api/whylogs/index.html#whylogs.ResultSet.profile">(whylogs.ResultSet method)</a>
 </li>
         </ul></li>
-        <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.DateQuery.profile_name">profile_name (whylogs.api.store.DateQuery attribute)</a>
-
-        <ul>
-          <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.ProfileNameQuery.profile_name">(whylogs.api.store.ProfileNameQuery attribute)</a>
-</li>
-          <li><a href="api/whylogs/api/store/query/index.html#whylogs.api.store.query.DateQuery.profile_name">(whylogs.api.store.query.DateQuery attribute)</a>
-</li>
-          <li><a href="api/whylogs/api/store/query/index.html#whylogs.api.store.query.ProfileNameQuery.profile_name">(whylogs.api.store.query.ProfileNameQuery attribute)</a>
-</li>
-        </ul></li>
         <li><a href="api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpecEnum.PROFILE_SUMMARY">PROFILE_SUMMARY (whylogs.viz.enums.enums.PageSpecEnum attribute)</a>
 </li>
         <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.profile_summary">profile_summary() (whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer method)</a>
@@ -3847,12 +3861,6 @@
         </ul></li>
         <li><a href="api/whylogs/core/view/segmented_dataset_profile_view/index.html#whylogs.core.view.segmented_dataset_profile_view.SegmentedDatasetProfileView.profile_view">profile_view (whylogs.core.view.segmented_dataset_profile_view.SegmentedDatasetProfileView property)</a>
 </li>
-        <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.ProfileNameQuery">ProfileNameQuery (class in whylogs.api.store)</a>
-
-        <ul>
-          <li><a href="api/whylogs/api/store/query/index.html#whylogs.api.store.query.ProfileNameQuery">(class in whylogs.api.store.query)</a>
-</li>
-        </ul></li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.ProfileResultSet">ProfileResultSet (class in whylogs.api.logger)</a>
 
         <ul>
@@ -4253,8 +4261,6 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/api/reader/s3/index.html#whylogs.api.reader.s3.S3Reader">S3Reader (class in whylogs.api.reader.s3)</a>
 </li>
-        <li><a href="api/whylogs/api/store/s3/index.html#whylogs.api.store.s3.S3Store">S3Store (class in whylogs.api.store.s3)</a>
-</li>
         <li><a href="api/whylogs/api/writer/s3/index.html#whylogs.api.writer.s3.S3Writer">S3Writer (class in whylogs.api.writer.s3)</a>
 </li>
         <li><a href="api/whylogs/api/logger/rolling/index.html#whylogs.api.logger.rolling.Scheduler">Scheduler (class in whylogs.api.logger.rolling)</a>
@@ -4297,6 +4303,16 @@
 </li>
         <li><a href="api/whylogs/api/logger/segment_processing/index.html#whylogs.api.logger.segment_processing.segment_processing">segment_processing() (in module whylogs.api.logger.segment_processing)</a>
 </li>
+        <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.DatasetIdQuery.segment_tag">segment_tag (whylogs.api.store.DatasetIdQuery attribute)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.DateQuery.segment_tag">(whylogs.api.store.DateQuery attribute)</a>
+</li>
+          <li><a href="api/whylogs/api/store/query/index.html#whylogs.api.store.query.DatasetIdQuery.segment_tag">(whylogs.api.store.query.DatasetIdQuery attribute)</a>
+</li>
+          <li><a href="api/whylogs/api/store/query/index.html#whylogs.api.store.query.DateQuery.segment_tag">(whylogs.api.store.query.DateQuery attribute)</a>
+</li>
+        </ul></li>
         <li><a href="api/whylogs/core/index.html#whylogs.core.SegmentationPartition">SegmentationPartition (class in whylogs.core)</a>
 
         <ul>
@@ -4439,6 +4455,12 @@
 </li>
         <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.splitlines">splitlines() (whylogs.core.view.dataset_profile_view.SummaryType method)</a>
 </li>
+        <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.SQLiteStore">SQLiteStore (class in whylogs.api.store)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/store/sqlite_store/index.html#whylogs.api.store.sqlite_store.SQLiteStore">(class in whylogs.api.store.sqlite_store)</a>
+</li>
+        </ul></li>
         <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.StandardMetric">StandardMetric (class in whylogs.core.metrics)</a>
 </li>
         <li><a href="api/whylogs/core/resolvers/index.html#whylogs.core.resolvers.StandardResolver">StandardResolver (class in whylogs.core.resolvers)</a>
@@ -5262,10 +5284,10 @@
 </li>
         </ul></li>
         <li>
-    whylogs.api.store.s3
+    whylogs.api.store.sqlite_store
 
         <ul>
-          <li><a href="api/whylogs/api/store/s3/index.html#module-whylogs.api.store.s3">module</a>
+          <li><a href="api/whylogs/api/store/sqlite_store/index.html#module-whylogs.api.store.sqlite_store">module</a>
 </li>
         </ul></li>
         <li>
@@ -5911,7 +5933,9 @@
 </li>
           <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.ProfileStore.write">(whylogs.api.store.ProfileStore method)</a>
 </li>
-          <li><a href="api/whylogs/api/store/s3/index.html#whylogs.api.store.s3.S3Store.write">(whylogs.api.store.s3.S3Store method)</a>
+          <li><a href="api/whylogs/api/store/sqlite_store/index.html#whylogs.api.store.sqlite_store.SQLiteStore.write">(whylogs.api.store.sqlite_store.SQLiteStore method)</a>
+</li>
+          <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.SQLiteStore.write">(whylogs.api.store.SQLiteStore method)</a>
 </li>
           <li><a href="api/whylogs/api/writer/gcs/index.html#whylogs.api.writer.gcs.GCSWriter.write">(whylogs.api.writer.gcs.GCSWriter method)</a>
 </li>

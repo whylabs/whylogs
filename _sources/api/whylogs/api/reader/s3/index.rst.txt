@@ -17,7 +17,7 @@ Classes
 
 
 
-.. py:class:: S3Reader(object_name: Optional[str] = None, bucket_name: Optional[str] = None)
+.. py:class:: S3Reader(object_name: Optional[str] = None, bucket_name: Optional[str] = None, s3_client: Optional[botocore.client.BaseClient] = None)
 
    Bases: :py:obj:`whylogs.api.reader.reader.Reader`
 
@@ -49,7 +49,7 @@ Classes
       how to fetch files from their locations to a local temp dir
 
 
-   .. py:method:: option(object_name: Optional[str] = None, bucket_name: Optional[str] = None) -> None
+   .. py:method:: option(object_name: Optional[str] = None, bucket_name: Optional[str] = None) -> S3Reader
 
 
    .. py:method:: get_file_from_path(path) -> whylogs.ResultSet

@@ -235,7 +235,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/local_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.local_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/profile_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.profile_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/query/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.query</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.s3</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/sqlite_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.sqlite_store</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
@@ -389,6 +389,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">boto3</span>
+<span class="kn">from</span> <span class="nn">botocore.client</span> <span class="kn">import</span> <span class="n">BaseClient</span>
 
 <span class="kn">from</span> <span class="nn">whylogs</span> <span class="kn">import</span> <span class="n">ResultSet</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.reader.reader</span> <span class="kn">import</span> <span class="n">Reader</span>
@@ -421,8 +422,13 @@
 <span class="sd">    ```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">bucket_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">s3_client</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">object_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bucket_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">s3_client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseClient</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s3_client</span> <span class="o">=</span> <span class="n">s3_client</span> <span class="ow">or</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">object_name</span> <span class="o">=</span> <span class="n">object_name</span> <span class="ow">or</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span> <span class="o">=</span> <span class="n">bucket_name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
 
@@ -433,11 +439,12 @@
             <span class="n">result_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_file_from_path</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">tmp_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result_set</span></div>
 
-<div class="viewcode-block" id="S3Reader.option"><a class="viewcode-back" href="../../../../api/whylogs/api/reader/s3/index.html#whylogs.api.reader.s3.S3Reader.option">[docs]</a>    <span class="k">def</span> <span class="nf">option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">bucket_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="S3Reader.option"><a class="viewcode-back" href="../../../../api/whylogs/api/reader/s3/index.html#whylogs.api.reader.s3.S3Reader.option">[docs]</a>    <span class="k">def</span> <span class="nf">option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">bucket_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;S3Reader&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">object_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">object_name</span> <span class="o">=</span> <span class="n">object_name</span>
         <span class="k">if</span> <span class="n">bucket_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span> <span class="o">=</span> <span class="n">bucket_name</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bucket_name</span> <span class="o">=</span> <span class="n">bucket_name</span>
+        <span class="k">return</span> <span class="bp">self</span></div></div>
 </pre></div>
         </article>
       </div>

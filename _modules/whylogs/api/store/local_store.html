@@ -235,7 +235,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/local_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.local_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/profile_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.profile_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/query/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.query</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.s3</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/sqlite_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.sqlite_store</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
@@ -395,7 +395,7 @@
 
 <span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.store.profile_store</span> <span class="kn">import</span> <span class="n">ProfileStore</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.store.query</span> <span class="kn">import</span> <span class="n">DateQuery</span><span class="p">,</span> <span class="n">ProfileNameQuery</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.store.query</span> <span class="kn">import</span> <span class="n">DatasetIdQuery</span><span class="p">,</span> <span class="n">DateQuery</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer.local</span> <span class="kn">import</span> <span class="n">LocalWriter</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfileView</span>
 
@@ -408,7 +408,7 @@
 <span class="sd">    The LocalStore is the implementation of the base :class:ProfileStore</span>
 <span class="sd">    that will manage reading and writing profiles on the local file system.</span>
 
-<span class="sd">    In order to instantiate the object, you will need to define a profile_name,</span>
+<span class="sd">    In order to instantiate the object, you will need to define a dataset_id,</span>
 <span class="sd">    which is related to the name of the model or dataset you&#39;re profiling.</span>
 <span class="sd">    To properly use the LocalStore to generate files, you should append it</span>
 <span class="sd">    to your existing Rolling Logger, as the below example demonstrates.</span>
@@ -435,7 +435,7 @@
 
 <span class="sd">    store = LocalStore()</span>
 <span class="sd">    query = DateQuery(</span>
-<span class="sd">        profile_name=&quot;my_model&quot;,</span>
+<span class="sd">        dataset_id=&quot;my_model&quot;,</span>
 <span class="sd">        start_date = datetime.now(timezone.utc) - timedelta(days=7),</span>
 <span class="sd">        end_date = datetime.now(timezone.utc)</span>
 <span class="sd">    )</span>
@@ -453,9 +453,9 @@
 <span class="sd">    store.list()</span>
 <span class="sd">    ```</span>
 
-<span class="sd">    &gt;**NOTE**: The parameter `profile_name` should always use the snake_case pattern,</span>
+<span class="sd">    &gt;**NOTE**: The parameter `dataset_id` should always use the snake_case pattern,</span>
 <span class="sd">    and it must also be **unique** to your existing dataset/ML model.</span>
-<span class="sd">    If you use the same `profile_name` to store different profiles,</span>
+<span class="sd">    If you use the same `dataset_id` to store different profiles,</span>
 <span class="sd">    you will end up mixing those profiles and not being able to fetch and get</span>
 <span class="sd">    them properly again.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -475,15 +475,15 @@
 <div class="viewcode-block" id="LocalStore.list"><a class="viewcode-back" href="../../../../api/whylogs/api/store/local_store/index.html#whylogs.api.store.LocalStore.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">listed_file</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">listed_file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">listed_file</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()]</span></div>
 
-<div class="viewcode-block" id="LocalStore.get"><a class="viewcode-back" href="../../../../api/whylogs/api/store/local_store/index.html#whylogs.api.store.LocalStore.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DateQuery</span><span class="p">,</span> <span class="n">ProfileNameQuery</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]:</span>
+<div class="viewcode-block" id="LocalStore.get"><a class="viewcode-back" href="../../../../api/whylogs/api/store/local_store/index.html#whylogs.api.store.LocalStore.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DateQuery</span><span class="p">,</span> <span class="n">DatasetIdQuery</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Fetching profiles with specified StoreQuery...&quot;</span><span class="p">)</span>
         <span class="n">files_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">base_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_path</span><span class="p">,</span> <span class="n">query</span><span class="o">.</span><span class="n">profile_name</span><span class="p">)</span>
+        <span class="n">base_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_path</span><span class="p">,</span> <span class="n">query</span><span class="o">.</span><span class="n">dataset_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">DateQuery</span><span class="p">):</span>
             <span class="n">dates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dates</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">:</span>
                 <span class="n">files_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_directory</span><span class="si">}</span><span class="s2">/profile_</span><span class="si">{</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">*.bin&quot;</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">ProfileNameQuery</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">DatasetIdQuery</span><span class="p">):</span>
             <span class="n">files_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_directory</span><span class="si">}</span><span class="s2">/profile_*bin&quot;</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;You must define a proper Query object&quot;</span><span class="p">)</span>
@@ -494,12 +494,12 @@
         <span class="n">merged_profile</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">profiles_list</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">merged_profile</span></div>
 
-<div class="viewcode-block" id="LocalStore.write"><a class="viewcode-back" href="../../../../api/whylogs/api/store/local_store/index.html#whylogs.api.store.LocalStore.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile_view</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">profile_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_path</span><span class="p">,</span> <span class="n">profile_name</span><span class="p">)):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating directory for </span><span class="si">{</span><span class="n">profile_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_path</span><span class="p">,</span> <span class="n">profile_name</span><span class="p">))</span>
+<div class="viewcode-block" id="LocalStore.write"><a class="viewcode-back" href="../../../../api/whylogs/api/store/local_store/index.html#whylogs.api.store.LocalStore.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile_view</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_path</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">)):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating directory for </span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_path</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">))</span>
 
-        <span class="n">profile_dest</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_path</span><span class="p">,</span> <span class="n">profile_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_profile_filename</span><span class="p">())</span>
+        <span class="n">profile_dest</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_path</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_profile_filename</span><span class="p">())</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Writing to profile to default store destination...&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">profile_view</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">profile_dest</span><span class="p">)</span></div></div>
 </pre></div>

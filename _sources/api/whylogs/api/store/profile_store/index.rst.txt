@@ -28,11 +28,11 @@ Classes
       :abstractmethod:
 
 
-   .. py:method:: get(query: whylogs.api.store.query.DateQuery) -> whylogs.core.DatasetProfileView
+   .. py:method:: get(query: whylogs.api.store.query.BaseQuery) -> whylogs.core.DatasetProfileView
       :abstractmethod:
 
 
-   .. py:method:: write(profile_view: Optional[whylogs.core.DatasetProfileView], profile_name: str) -> None
+   .. py:method:: write(profile_view: whylogs.core.DatasetProfileView, profile_name: str) -> None
       :abstractmethod:
 
 

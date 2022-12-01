@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
-        <title>whylogs.api.store.s3 - whylogs v1.1.15</title>
+        <title>whylogs.api.store.sqlite_store - whylogs v1.1.15</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
@@ -235,7 +235,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/local_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.local_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/profile_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.profile_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/query/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.query</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.s3</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/sqlite_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.sqlite_store</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
@@ -384,12 +384,132 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for whylogs.api.store.s3</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">whylogs.api.store.profile_store</span> <span class="kn">import</span> <span class="n">ProfileStore</span>
+          <h1>Source code for whylogs.api.store.sqlite_store</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
+
+<span class="kn">from</span> <span class="nn">whylogs.api.store</span> <span class="kn">import</span> <span class="n">ProfileStore</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.store.query</span> <span class="kn">import</span> <span class="n">BaseQuery</span><span class="p">,</span> <span class="n">DatasetIdQuery</span><span class="p">,</span> <span class="n">DateQuery</span>
+<span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetProfileView</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="S3Store"><a class="viewcode-back" href="../../../../api/whylogs/api/store/s3/index.html#whylogs.api.store.s3.S3Store">[docs]</a><span class="k">class</span> <span class="nc">S3Store</span><span class="p">(</span><span class="n">ProfileStore</span><span class="p">):</span>
-    <span class="k">pass</span></div>
+<div class="viewcode-block" id="SQLiteStore"><a class="viewcode-back" href="../../../../api/whylogs/api/store/sqlite_store/index.html#whylogs.api.store.SQLiteStore">[docs]</a><span class="k">class</span> <span class="nc">SQLiteStore</span><span class="p">(</span><span class="n">ProfileStore</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_location</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SQLITE_STORE_LOCATION&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_location</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You must define a store with the SQLITE_STORE_LOCATION env var&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">database</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_location</span><span class="p">,</span> <span class="n">check_same_thread</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__cur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_db</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SQLiteStore&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception_type</span><span class="p">,</span> <span class="n">exception_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">exception_type</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">traceback</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">exception_value</span>
+
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connection not established. Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_init_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">init_db_query</span> <span class="o">=</span> <span class="s2">&quot;CREATE TABLE IF NOT EXISTS profile_store(id string, date datetime, profile blob);&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">init_db_query</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SQLiteStore.list"><a class="viewcode-back" href="../../../../api/whylogs/api/store/sqlite_store/index.html#whylogs.api.store.SQLiteStore.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sql_query</span> <span class="o">=</span> <span class="s2">&quot;SELECT DISTINCT id FROM profile_store;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">response</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SQLiteStore.get"><a class="viewcode-back" href="../../../../api/whylogs/api/store/sqlite_store/index.html#whylogs.api.store.SQLiteStore.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="n">BaseQuery</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
+        <span class="n">available_profiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">dataset_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_profiles</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DatasetProfile</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">DatasetIdQuery</span><span class="p">):</span>
+            <span class="n">sql_query</span> <span class="o">=</span> <span class="s2">&quot;SELECT profile FROM profile_store WHERE id = ?&quot;</span>
+            <span class="n">data_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">dataset_id</span><span class="p">,)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_query</span><span class="p">,</span> <span class="n">data_tuple</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">DateQuery</span><span class="p">):</span>
+            <span class="n">start_date</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">minute</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+            <span class="n">end_date</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">end_date</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">sql_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT profile FROM profile_store WHERE id = &#39;</span><span class="si">{</span><span class="n">query</span><span class="o">.</span><span class="n">dataset_id</span><span class="si">}</span><span class="s2">&#39; AND date BETWEEN &#39;</span><span class="si">{</span><span class="n">start_date</span><span class="si">}</span><span class="s2">&#39; AND &#39;</span><span class="si">{</span><span class="n">end_date</span><span class="si">}</span><span class="s2">&#39;;&quot;</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_query</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Define a supported Query object&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+
+        <span class="n">profile_view</span> <span class="o">=</span> <span class="n">DatasetProfileView</span><span class="o">.</span><span class="n">zero</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+            <span class="n">profile_view</span> <span class="o">=</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">DatasetProfileView</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">profile_view</span></div>
+
+    <span class="k">def</span> <span class="nf">_insert_blob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile_view</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">profile_date</span> <span class="o">=</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">creation_timestamp</span>
+            <span class="n">serialized_profile</span> <span class="o">=</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;INSERT INTO profile_store (id, date, profile) VALUES (?, ?, ?);&quot;</span>
+            <span class="n">values_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">dataset_id</span><span class="p">,</span> <span class="n">profile_date</span><span class="p">,</span> <span class="n">serialized_profile</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">values_tuple</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Profile </span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s2"> successfully written to the Store!&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_merge_period</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">merge_period</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MERGE_PROFILE_PERIOD_HOURS&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">merge_period</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You must define a MERGE_PROFILE_PERIOD_HOURS env var&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">merge_period</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_if_profile_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile_view</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
+        <span class="n">merge_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_merge_period</span><span class="p">()</span>
+
+        <span class="n">start_date</span> <span class="o">=</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">creation_timestamp</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">merge_period</span><span class="p">)</span>
+        <span class="n">end_date</span> <span class="o">=</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">creation_timestamp</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">date_query</span> <span class="o">=</span> <span class="n">DateQuery</span><span class="p">(</span><span class="n">dataset_id</span><span class="o">=</span><span class="n">dataset_id</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">)</span>
+
+        <span class="n">existing_profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">date_query</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">existing_profile</span>
+
+    <span class="k">def</span> <span class="nf">_update_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile_view</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">merge_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_merge_period</span><span class="p">()</span>
+
+        <span class="n">serialized_profile</span> <span class="o">=</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span>
+        <span class="n">start_date</span> <span class="o">=</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">creation_timestamp</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">merge_period</span><span class="p">)</span>
+        <span class="n">end_date</span> <span class="o">=</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">creation_timestamp</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">update_values</span> <span class="o">=</span> <span class="p">(</span><span class="n">serialized_profile</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
+        <span class="n">update_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            UPDATE profile_store</span>
+<span class="s2">            SET profile = ?</span>
+<span class="s2">            WHERE id = ?</span>
+<span class="s2">            AND date BETWEEN ? AND ?</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">update_query</span><span class="p">,</span> <span class="n">update_values</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SQLiteStore.write"><a class="viewcode-back" href="../../../../api/whylogs/api/store/sqlite_store/index.html#whylogs.api.store.SQLiteStore.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile_view</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">existing_profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_if_profile_exists</span><span class="p">(</span><span class="n">profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">,</span> <span class="n">dataset_id</span><span class="o">=</span><span class="n">dataset_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">existing_profile</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span> <span class="o">==</span> <span class="p">{}:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_insert_blob</span><span class="p">(</span><span class="n">profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">,</span> <span class="n">dataset_id</span><span class="o">=</span><span class="n">dataset_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">merged_profile</span> <span class="o">=</span> <span class="n">existing_profile</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">profile_view</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_profile</span><span class="p">(</span><span class="n">profile_view</span><span class="o">=</span><span class="n">merged_profile</span><span class="p">,</span> <span class="n">dataset_id</span><span class="o">=</span><span class="n">dataset_id</span><span class="p">)</span></div></div>
 </pre></div>
         </article>
       </div>

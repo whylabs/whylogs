@@ -244,7 +244,7 @@
 <li class="toctree-l5 current current-page"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.local_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../profile_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.profile_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../query/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.query</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="../s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.s3</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../sqlite_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.sqlite_store</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
@@ -448,7 +448,7 @@
 <dd><p>Bases: <a class="reference internal" href="../profile_store/index.html#whylogs.api.store.profile_store.ProfileStore" title="whylogs.api.store.profile_store.ProfileStore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.api.store.profile_store.ProfileStore</span></code></a></p>
 <p>The LocalStore is the implementation of the base :class:ProfileStore
 that will manage reading and writing profiles on the local file system.</p>
-<p>In order to instantiate the object, you will need to define a profile_name,
+<p>In order to instantiate the object, you will need to define a dataset_id,
 which is related to the name of the model or dataset you’re profiling.
 To properly use the LocalStore to generate files, you should append it
 to your existing Rolling Logger, as the below example demonstrates.</p>
@@ -469,7 +469,7 @@ from datetime import datetime, timedelta</p>
 <p>store = LocalStore()
 query = DateQuery(</p>
 <blockquote>
-<div><p>profile_name=”my_model”,
+<div><p>dataset_id=”my_model”,
 start_date = datetime.now(timezone.utc) - timedelta(days=7),
 end_date = datetime.now(timezone.utc)</p>
 </div></blockquote>
@@ -483,9 +483,9 @@ end_date = datetime.now(timezone.utc)</p>
 <span class="pre">store</span> <span class="pre">=</span> <span class="pre">LocalStore()</span>
 <span class="pre">store.list()</span>
 <span class="pre">`</span></code></p>
-<p>&gt;**NOTE**: The parameter <cite>profile_name</cite> should always use the snake_case pattern,
+<p>&gt;**NOTE**: The parameter <cite>dataset_id</cite> should always use the snake_case pattern,
 and it must also be <strong>unique</strong> to your existing dataset/ML model.
-If you use the same <cite>profile_name</cite> to store different profiles,
+If you use the same <cite>dataset_id</cite> to store different profiles,
 you will end up mixing those profiles and not being able to fetch and get
 them properly again.</p>
 <dl class="py method">
@@ -500,10 +500,10 @@ them properly again.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.store.local_store.LocalStore.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../query/index.html#whylogs.api.store.query.DateQuery" title="whylogs.api.store.query.DateQuery"><span class="pre">whylogs.api.store.query.DateQuery</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../query/index.html#whylogs.api.store.query.ProfileNameQuery" title="whylogs.api.store.query.ProfileNameQuery"><span class="pre">whylogs.api.store.query.ProfileNameQuery</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><span class="pre">whylogs.core.DatasetProfileView</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/store/local_store.html#LocalStore.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.store.local_store.LocalStore.get" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../query/index.html#whylogs.api.store.query.DateQuery" title="whylogs.api.store.query.DateQuery"><span class="pre">whylogs.api.store.query.DateQuery</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../query/index.html#whylogs.api.store.query.DatasetIdQuery" title="whylogs.api.store.query.DatasetIdQuery"><span class="pre">whylogs.api.store.query.DatasetIdQuery</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><span class="pre">whylogs.core.DatasetProfileView</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/store/local_store.html#LocalStore.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.store.local_store.LocalStore.get" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>query</strong> (<em>Union</em><em>[</em><a class="reference internal" href="../query/index.html#whylogs.api.store.query.DateQuery" title="whylogs.api.store.query.DateQuery"><em>whylogs.api.store.query.DateQuery</em></a><em>, </em><a class="reference internal" href="../query/index.html#whylogs.api.store.query.ProfileNameQuery" title="whylogs.api.store.query.ProfileNameQuery"><em>whylogs.api.store.query.ProfileNameQuery</em></a><em>]</em>) – </p>
+<dd class="field-odd"><p><strong>query</strong> (<em>Union</em><em>[</em><a class="reference internal" href="../query/index.html#whylogs.api.store.query.DateQuery" title="whylogs.api.store.query.DateQuery"><em>whylogs.api.store.query.DateQuery</em></a><em>, </em><a class="reference internal" href="../query/index.html#whylogs.api.store.query.DatasetIdQuery" title="whylogs.api.store.query.DatasetIdQuery"><em>whylogs.api.store.query.DatasetIdQuery</em></a><em>]</em>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>Optional[<a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView">whylogs.core.DatasetProfileView</a>]</p>
@@ -513,12 +513,12 @@ them properly again.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.store.local_store.LocalStore.write">
-<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile_view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><span class="pre">whylogs.core.DatasetProfileView</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/store/local_store.html#LocalStore.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.store.local_store.LocalStore.write" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile_view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><span class="pre">whylogs.core.DatasetProfileView</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/store/local_store.html#LocalStore.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.store.local_store.LocalStore.write" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>profile_view</strong> (<a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><em>whylogs.core.DatasetProfileView</em></a>) – </p></li>
-<li><p><strong>profile_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>dataset_id</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>

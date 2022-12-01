@@ -235,7 +235,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/local_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.local_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/profile_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.profile_store</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/query/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.query</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.s3</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/sqlite_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.sqlite_store</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
@@ -629,7 +629,7 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing profile </span><span class="si">{</span><span class="n">profile_count</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">number_of_profiles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">store</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_store_list</span><span class="p">:</span>
-                    <span class="n">store</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile_view</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span> <span class="n">profile_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_name</span><span class="p">)</span>
+                    <span class="n">store</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile_view</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span> <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_name</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="p">:</span>
                     <span class="n">w</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">timed_filename</span><span class="p">)</span>

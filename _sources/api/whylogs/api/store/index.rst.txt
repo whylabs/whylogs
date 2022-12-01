@@ -13,7 +13,7 @@ Submodules
    local_store/index.rst
    profile_store/index.rst
    query/index.rst
-   s3/index.rst
+   sqlite_store/index.rst
 
 
 Package Contents
@@ -26,8 +26,9 @@ Classes
 
    whylogs.api.store.LocalStore
    whylogs.api.store.ProfileStore
+   whylogs.api.store.DatasetIdQuery
    whylogs.api.store.DateQuery
-   whylogs.api.store.ProfileNameQuery
+   whylogs.api.store.SQLiteStore
 
 
 
@@ -39,7 +40,7 @@ Classes
    The LocalStore is the implementation of the base :class:ProfileStore
    that will manage reading and writing profiles on the local file system.
 
-   In order to instantiate the object, you will need to define a profile_name,
+   In order to instantiate the object, you will need to define a dataset_id,
    which is related to the name of the model or dataset you're profiling.
    To properly use the LocalStore to generate files, you should append it
    to your existing Rolling Logger, as the below example demonstrates.
@@ -66,7 +67,7 @@ Classes
 
    store = LocalStore()
    query = DateQuery(
-       profile_name="my_model",
+       dataset_id="my_model",
        start_date = datetime.now(timezone.utc) - timedelta(days=7),
        end_date = datetime.now(timezone.utc)
    )
@@ -84,19 +85,19 @@ Classes
    store.list()
    ```
 
-   >**NOTE**: The parameter `profile_name` should always use the snake_case pattern,
+   >**NOTE**: The parameter `dataset_id` should always use the snake_case pattern,
    and it must also be **unique** to your existing dataset/ML model.
-   If you use the same `profile_name` to store different profiles,
+   If you use the same `dataset_id` to store different profiles,
    you will end up mixing those profiles and not being able to fetch and get
    them properly again.
 
    .. py:method:: list() -> List[str]
 
 
-   .. py:method:: get(query: Union[whylogs.api.store.query.DateQuery, whylogs.api.store.query.ProfileNameQuery]) -> Optional[whylogs.core.DatasetProfileView]
+   .. py:method:: get(query: Union[whylogs.api.store.query.DateQuery, whylogs.api.store.query.DatasetIdQuery]) -> Optional[whylogs.core.DatasetProfileView]
 
 
-   .. py:method:: write(profile_view: whylogs.core.DatasetProfileView, profile_name: str) -> None
+   .. py:method:: write(profile_view: whylogs.core.DatasetProfileView, dataset_id: str) -> None
 
 
 
@@ -111,18 +112,31 @@ Classes
       :abstractmethod:
 
 
-   .. py:method:: get(query: whylogs.api.store.query.DateQuery) -> whylogs.core.DatasetProfileView
+   .. py:method:: get(query: whylogs.api.store.query.BaseQuery) -> whylogs.core.DatasetProfileView
       :abstractmethod:
 
 
-   .. py:method:: write(profile_view: Optional[whylogs.core.DatasetProfileView], profile_name: str) -> None
+   .. py:method:: write(profile_view: whylogs.core.DatasetProfileView, profile_name: str) -> None
       :abstractmethod:
 
+
+
+.. py:class:: DatasetIdQuery
+
+   .. py:attribute:: dataset_id
+      :annotation: :str
+
+      
+
+   .. py:attribute:: segment_tag
+      :annotation: :Optional[str]
+
+      
 
 
 .. py:class:: DateQuery
 
-   .. py:attribute:: profile_name
+   .. py:attribute:: dataset_id
       :annotation: :str
 
       
@@ -137,12 +151,26 @@ Classes
 
       
 
-
-.. py:class:: ProfileNameQuery
-
-   .. py:attribute:: profile_name
-      :annotation: :str
+   .. py:attribute:: segment_tag
+      :annotation: :Optional[str]
 
       
+
+
+.. py:class:: SQLiteStore
+
+   Bases: :py:obj:`whylogs.api.store.ProfileStore`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: list()
+
+
+   .. py:method:: get(query: whylogs.api.store.query.BaseQuery) -> whylogs.core.DatasetProfileView
+
+
+   .. py:method:: write(profile_view: whylogs.core.DatasetProfileView, dataset_id: str)
+
 
 

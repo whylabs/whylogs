@@ -43,7 +43,7 @@ Attributes
    The LocalStore is the implementation of the base :class:ProfileStore
    that will manage reading and writing profiles on the local file system.
 
-   In order to instantiate the object, you will need to define a profile_name,
+   In order to instantiate the object, you will need to define a dataset_id,
    which is related to the name of the model or dataset you're profiling.
    To properly use the LocalStore to generate files, you should append it
    to your existing Rolling Logger, as the below example demonstrates.
@@ -70,7 +70,7 @@ Attributes
 
    store = LocalStore()
    query = DateQuery(
-       profile_name="my_model",
+       dataset_id="my_model",
        start_date = datetime.now(timezone.utc) - timedelta(days=7),
        end_date = datetime.now(timezone.utc)
    )
@@ -88,19 +88,19 @@ Attributes
    store.list()
    ```
 
-   >**NOTE**: The parameter `profile_name` should always use the snake_case pattern,
+   >**NOTE**: The parameter `dataset_id` should always use the snake_case pattern,
    and it must also be **unique** to your existing dataset/ML model.
-   If you use the same `profile_name` to store different profiles,
+   If you use the same `dataset_id` to store different profiles,
    you will end up mixing those profiles and not being able to fetch and get
    them properly again.
 
    .. py:method:: list() -> List[str]
 
 
-   .. py:method:: get(query: Union[whylogs.api.store.query.DateQuery, whylogs.api.store.query.ProfileNameQuery]) -> Optional[whylogs.core.DatasetProfileView]
+   .. py:method:: get(query: Union[whylogs.api.store.query.DateQuery, whylogs.api.store.query.DatasetIdQuery]) -> Optional[whylogs.core.DatasetProfileView]
 
 
-   .. py:method:: write(profile_view: whylogs.core.DatasetProfileView, profile_name: str) -> None
+   .. py:method:: write(profile_view: whylogs.core.DatasetProfileView, dataset_id: str) -> None
 
 
 
