@@ -8,7 +8,7 @@ from typing import List, Optional, Union
 
 import whylogs as why
 from whylogs.api.store.profile_store import ProfileStore
-from whylogs.api.store.query import DateQuery, ProfileNameQuery
+from whylogs.api.store.query import DatasetIdQuery, DateQuery
 from whylogs.api.writer.local import LocalWriter
 from whylogs.core import DatasetProfileView
 
@@ -21,7 +21,7 @@ class LocalStore(ProfileStore):
     The LocalStore is the implementation of the base :class:ProfileStore
     that will manage reading and writing profiles on the local file system.
 
-    In order to instantiate the object, you will need to define a profile_name,
+    In order to instantiate the object, you will need to define a dataset_id,
     which is related to the name of the model or dataset you're profiling.
     To properly use the LocalStore to generate files, you should append it
     to your existing Rolling Logger, as the below example demonstrates.
@@ -48,7 +48,7 @@ class LocalStore(ProfileStore):
 
     store = LocalStore()
     query = DateQuery(
-        profile_name="my_model",
+        dataset_id="my_model",
         start_date = datetime.now(timezone.utc) - timedelta(days=7),
         end_date = datetime.now(timezone.utc)
     )
@@ -66,9 +66,9 @@ class LocalStore(ProfileStore):
     store.list()
     ```
 
-    >**NOTE**: The parameter `profile_name` should always use the snake_case pattern,
+    >**NOTE**: The parameter `dataset_id` should always use the snake_case pattern,
     and it must also be **unique** to your existing dataset/ML model.
-    If you use the same `profile_name` to store different profiles,
+    If you use the same `dataset_id` to store different profiles,
     you will end up mixing those profiles and not being able to fetch and get
     them properly again.
     """
@@ -88,15 +88,15 @@ class LocalStore(ProfileStore):
     def list(self) -> List[str]:
         return [listed_file.name for listed_file in os.scandir(self._default_path) if listed_file.is_dir()]
 
-    def get(self, query: Union[DateQuery, ProfileNameQuery]) -> Optional[DatasetProfileView]:
+    def get(self, query: Union[DateQuery, DatasetIdQuery]) -> Optional[DatasetProfileView]:
         logger.debug("Fetching profiles with specified StoreQuery...")
         files_list = []
-        base_directory = os.path.join(self._default_path, query.profile_name)
+        base_directory = os.path.join(self._default_path, query.dataset_id)
         if isinstance(query, DateQuery):
             dates = self._get_dates(query=query)
             for date in dates:
                 files_list.extend(glob(f"{base_directory}/profile_{date.strftime('%Y-%m-%d')}*.bin"))
-        elif isinstance(query, ProfileNameQuery):
+        elif isinstance(query, DatasetIdQuery):
             files_list.extend(glob(f"{base_directory}/profile_*bin"))
         else:
             logger.warning("You must define a proper Query object")
@@ -107,11 +107,11 @@ class LocalStore(ProfileStore):
         merged_profile = reduce(lambda x, y: x.merge(y), profiles_list)
         return merged_profile
 
-    def write(self, profile_view: DatasetProfileView, profile_name: str) -> None:
-        if not os.path.isdir(os.path.join(self._default_path, profile_name)):
-            logger.debug(f"Creating directory for {profile_name}")
-            os.makedirs(os.path.join(self._default_path, profile_name))
+    def write(self, profile_view: DatasetProfileView, dataset_id: str) -> None:
+        if not os.path.isdir(os.path.join(self._default_path, dataset_id)):
+            logger.debug(f"Creating directory for {dataset_id}")
+            os.makedirs(os.path.join(self._default_path, dataset_id))
 
-        profile_dest = os.path.join(self._default_path, profile_name, self._get_profile_filename())
+        profile_dest = os.path.join(self._default_path, dataset_id, self._get_profile_filename())
         logger.debug("Writing to profile to default store destination...")
         self._writer.write(file=profile_view, dest=profile_dest)

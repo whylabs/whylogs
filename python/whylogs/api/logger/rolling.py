@@ -242,7 +242,7 @@ class TimedRollingLogger(Logger):
                 logger.debug(f"Writing profile {profile_count} of {number_of_profiles}")
 
                 for store in self._store_list:
-                    store.write(profile_view=profile, profile_name=self.base_name)
+                    store.write(profile_view=profile, dataset_id=self.base_name)
 
                 for w in self._writers:
                     w.write(file=profile, dest=timed_filename)
