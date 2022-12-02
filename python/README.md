@@ -245,6 +245,43 @@ If you want to check out our complete list, please refer to our [integrations ex
 
 For a full set of our examples, please check out the [examples folder](https://github.com/whylabs/whylogs/tree/mainline/python/examples).
 
+## Benchmarks of whylogs
+
+### whylogs speed and efficiency
+
+WhyLabs integrates with customer data and ML infrastructure using whylogs, the open standard for data logging. The benefit of using whylogs is that it doesn't involve duplicating raw data for post-processing in another environment. Instead, statistics are computed in the customer environment and then sent to WhyLabs for analysis, monitoring, and visualization. This approach means that the raw data doesn't leave the customers’ environment. By design, whylogs run directly in the data pipeline or in a sidecar container and use highly scalable streaming algorithms to compute statistics.
+
+Since data logging with whylogs happens in the same infrastructure where the raw data is being processed, it’s important to think about the compute overhead. For the majority of use cases, the overhead is minimal, usually under 1%. For very large data volumes with thousands of features and 10M+ QPS it can add ~5% overhead. However, for large data volumes, customers are typically in a distributed environment, such as Ray or Apache Spark. This means they benefit from whylogs parallelization—and the map-reducible property of the whylogs profiles keeping the compute overhead to a minimum.
+
+Below are benchmarks to demonstrate how efficient whylogs is at processing tabular data with default configurations (tracking distributions, missing values, counts, cardinality, and schema). Two important advantages of this approach are that parallelization speeds up the calculation and whylogs scales with the number of features, rather than the number of rows. Learn more about how whylogs scales here.
+
+| DATA VOLUME                    |       TOTAL COST OF RUNNING WHYLOGS        |                        INSTANCE TYPE                         | CLUSTER SIZE |                                                  PROCESSING TIME |
+| ------------------------------ | :----------------------------------------: | :----------------------------------------------------------: | -----------: | ---------------------------------------------------------------: |
+| 10 GB ~34M rows x 43 columns   |    ~ $ 0.026 per 10 GB, or $2.45 per TB    | c5a.2xlarge, 8 CPU 16GB RAM, $0.308 on demand price per hour |  2 instances | 2.6 minutes of profiling time per instance (running in parallel) |
+| 10 GB, ~34M rows x 43 columns  | ~ $0.016 per 10 GB, estimated $1.60 per TB | c6g.2xlarge, 8 CPU 16GB RAM, $0.272 on demand price per hour |  2 instances | 1.7 minutes of profiling time per instance (running in parallel) |
+| 10 GB ~34M rows x 43 columns   |            ~ $ 0.045 per 10 GB             | c5a.2xlarge, 8 CPU 16GB RAM, $0.308 on demand price per hour | 16 instances |  33 seconds of profiling time per instance (running in parallel) |
+| 80 GB, 83M rows x 119 columns  |             ~ $0.139 per 80 GB             | c5a.2xlarge, 8 CPU 16GB RAM, $0.308 on demand price per hour | 16 instances | 1.7 minutes of profiling time per instance (running in parallel) |
+| 100 GB, 290M rows x 43 columns |            ~ $0.221 per 100 GB             | c5a.2xlarge, 8 CPU 16GB RAM, $0.308 on demand price per hour | 16 instances | 2.7 minutes of profiling time per instance (running in parallel) |
+
+### Advantages of this approach
+
+**No expensive data duplication.** Never duplicate data in order to run monitoring. Data duplication presents privacy concerns and requires expensive infrastructure.
+
+- **Infrastructure:** Our customers don’t have to worry about the infrastructure and resources required to duplicate, store, and process the data that’s being monitored. Solutions that require post-processing, typically deploy in a VPC oron on premises. This means that your IT team is responsible for making sure their application has a sufficient cluster and is scaled properly.
+- **Security:** With WhyLabs, the only software you run in your data center or VPC is open source. Meaning you never have to give IAM permissions to outside parties or worry about your data touching proprietary software. With vendors that have a platform into the customer VPC, you have to grant IAM permissions to provision the infrastructure necessary to run their software in your VPC. This process increases the risk of a potential attack vector if their systems are ever compromised.
+
+**Massive scalability.** Never be limited by the scale of data in order to run monitoring. Monitoring costs should not grow in proportion to the volume of data.
+
+- **Reusing existing infrastructure:** Processing happens on the fly as data passes through both batch and streaming systems, without the need for dedicated infrastructure to perform data monitoring. Users can reuse their already-scalable infrastructure for whylogs with minimal overhead (see performance benchmark). This allows whylogs to scale along with your infrastructure and data.
+- **Monitoring solution that doesn’t penalize scale:** Vendors who post-process customer data need to scale their pricing with the volume of data being monitored. With WhyLabs, pricing scales with the number of features and segments that are being monitored. As the throughput of your model increases, the cost of monitoring is not affected.
+- **Infrastructure that doesn’t need babysitting:** ML models are data-hungry and the more successful the ML application is in production, the more the prediction volume tends to grow. Unlike WhyLabs, solutions requiring data post-processing are hosted on the customer perimeter. As the volume of data grows, the solution requires more compute and storage. This means that the customer needs to add capacity to the cluster, and as the data volume increases and data distributions change, the sampling technique needs to be revisited. With whylogs, little maintenance is required and the rest of the WhyLabs platform is a SaaS, so there is never the need to worry about capacity planning. This approach has been adopted by all major Application Performance Monitoring companies like Datadog, NewRelic, Splunk, etc.
+
+**No need for sampling:** With WhyLabs you monitor 100% of your data and never have sample. Vendors who require post-processing to compute metrics, have to sample a subset of data to avoid the infrastructure costs of data duplication. Statistics such as data distributions and quantile ranges calculated from sampled data have errors. And the size of these errors depends on the sampling methodology and the size of the sample. Errors in the statistics result in the distribution of the sampled data not being accurate, which in turn results in inaccurate monitoring. (See our blog with sampling vs profiling benchmarks). Inaccurate monitoring is as bad as, or even worse than, no monitoring. Data sampling poses many challenges:
+
+- **False positives:** Sampling causes false positives and subsequently unhelpful alerts are raised which cause users to start ignoring and eventually muting their alert notifications. This is as bad as not monitoring at all because when a true alert comes through, it gets lost in the noise. Sampling causes false positives because the original reference or baseline sample may not be representative of the data in production. This causes extraneous alerts for new data that looks “out of distribution” compared to the sampled original data.
+- **False negatives:** Sampling causes monitoring systems to miss a lot of true anomalies, especially when data is distributed in a long-tailed distribution. Because sampling can only approximate the distribution of new data coming into the system, it will often miss important outliers in the new data.
+- **Maintanence**: Sampling strategies (stratified sampling) are cumbersome to maintain. You have to configure the proportions of the data, typically based on one feature that you want to see in the sample. When distributions drift, so does your sampling proportion. This creates additional false positives alerts.
+
 ## Usage Statistics<a name="whylogs-profiles" />
 
 Starting with whylogs v1.0.0, whylogs by default collects anonymous information about a user’s environment. These usage statistics do not include any information about the user or the data that they are profiling, only the environment that the user in which the user is running whylogs.
