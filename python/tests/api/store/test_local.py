@@ -8,7 +8,7 @@ from typing import List
 import pytest
 
 from whylogs.api.store.local_store import LocalStore
-from whylogs.api.store.query import DateQuery, ProfileNameQuery
+from whylogs.api.store.query import DatasetIdQuery, DateQuery
 from whylogs.core import DatasetProfile, DatasetProfileView
 
 DEFAULT_PATH = os.path.join(os.getcwd(), "profile_store")
@@ -39,7 +39,7 @@ class TestLocalStore(object):
 
     def test_write(self, store, profile_view):
         assert not os.path.isdir(os.path.join(DEFAULT_PATH, "test_name"))
-        store.write(profile_view=profile_view, profile_name="test_name")
+        store.write(profile_view=profile_view, dataset_id="test_name")
 
         base_dir = os.path.join(DEFAULT_PATH, "test_name")
         profile_list = glob(f"{base_dir}/profile_*.bin")
@@ -49,14 +49,14 @@ class TestLocalStore(object):
         assert len(profile_list) == 1
 
     def test_list(self, store, profile_view):
-        store.write(profile_view=profile_view, profile_name="test_name")
+        store.write(profile_view=profile_view, dataset_id="test_name")
         result = store.list()
         assert isinstance(result, List)
         assert "test_name" in result
 
     def test_write_doesnt_overwrite_same_timestamp(self, store, profile_view):
-        store.write(profile_view=profile_view, profile_name="test_name")
-        store.write(profile_view=profile_view, profile_name="test_name")
+        store.write(profile_view=profile_view, dataset_id="test_name")
+        store.write(profile_view=profile_view, dataset_id="test_name")
 
         base_dir = os.path.join(DEFAULT_PATH, "test_name")
         profile_list = glob(f"{base_dir}/profile_*.bin")
@@ -66,17 +66,17 @@ class TestLocalStore(object):
         assert len(profile_list) >= 2
 
     def test_get_by_date(self, store, profile_view):
-        store.write(profile_view=profile_view, profile_name="test_name")
-        store.write(profile_view=profile_view, profile_name="test_name")
+        store.write(profile_view=profile_view, dataset_id="test_name")
+        store.write(profile_view=profile_view, dataset_id="test_name")
 
-        query = DateQuery(start_date=datetime.now(timezone.utc), profile_name="test_name")
+        query = DateQuery(start_date=datetime.now(timezone.utc), dataset_id="test_name")
         read_profile = store.get(query=query)
 
         assert read_profile is not None
         assert isinstance(read_profile, DatasetProfileView)
 
         query = DateQuery(
-            profile_name="test_name",
+            dataset_id="test_name",
             start_date=datetime.now(timezone.utc) - timedelta(days=7),
             end_date=datetime.now(timezone.utc),
         )
@@ -85,15 +85,15 @@ class TestLocalStore(object):
         assert read_profile is not None
         assert isinstance(read_profile, DatasetProfileView)
 
-    def test_get_by_profile_name(self, store, profile_view):
-        store.write(profile_view=profile_view, profile_name="test_name")
-        query = ProfileNameQuery(profile_name="test_name")
+    def test_get_by_dataset_id(self, store, profile_view):
+        store.write(profile_view=profile_view, dataset_id="test_name")
+        query = DatasetIdQuery(dataset_id="test_name")
         result = store.get(query=query)
         assert result is not None
         assert isinstance(result, DatasetProfileView)
 
     def test_get_ignores_files_that_dont_match_pattern(self, store, profile_view):
-        store.write(profile_view=profile_view, profile_name="test_name")
-        query = DateQuery(start_date=datetime.now(timezone.utc), profile_name="test_name")
-        Path(os.path.join(store._default_path, query.profile_name, "profile_2022-02-01_23123.bin")).touch()
+        store.write(profile_view=profile_view, dataset_id="test_name")
+        query = DateQuery(start_date=datetime.now(timezone.utc), dataset_id="test_name")
+        Path(os.path.join(store._default_path, query.dataset_id, "profile_2022-02-01_23123.bin")).touch()
         assert store.get(query=query)
