@@ -4,6 +4,7 @@ from whylogs.core.configs import SummaryConfig
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.relations import ValueGetter
+from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 
 class MetricGetter(ValueGetter):
@@ -23,13 +24,14 @@ class MetricGetter(ValueGetter):
 
 
 class ProfileGetter(ValueGetter):
-    def __init__(self, profile: DatasetProfile, column_name: str, path: str) -> None:
+    def __init__(self, profile: Union[DatasetProfile, DatasetProfileView], column_name: str, path: str) -> None:
         self._profile = profile
         self._column_name = column_name
         self._path = path
 
     def __call__(self) -> Union[str, int, float]:
-        col_prof = self._profile.view().get_column(self._column_name)
+        view = self._profile if isinstance(self._profile, DatasetProfileView) else self._profile.view()
+        col_prof = view.get_column(self._column_name)
         if not col_prof:
             raise ValueError(f"Column {self._column_name} not found in profile")
         summary = col_prof.to_summary_dict()

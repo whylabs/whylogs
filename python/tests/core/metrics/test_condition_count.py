@@ -311,6 +311,20 @@ def _build_profile(data: List[int]) -> DatasetProfile:
     return prof
 
 
+def test_profile_view_getter() -> None:
+    data = [1, 2, 3, 4, 5]
+    prof = _build_profile(data)
+    conditions = {
+        "above_min": Condition(X.greater_than(ProfileGetter(prof.view(), "col1", "distribution/min"))),
+    }  # compare each logged value against profile's min
+    config = ConditionCountConfig(conditions=conditions)
+    metric = ConditionCountMetric.zero(config)
+    metric.columnar_update(PreprocessedColumn.apply(data))
+    summary = metric.to_summary_dict(None)
+    assert summary["total"] == len(data)
+    assert summary["above_min"] == len(data) - 1
+
+
 def test_profile_getter() -> None:
     data = [1, 2, 3, 4, 5]
     prof = _build_profile(data)
