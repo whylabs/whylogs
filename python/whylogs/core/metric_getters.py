@@ -19,7 +19,7 @@ class MetricGetter(ValueGetter):
         return summary[self._path]
 
     def serialize(self) -> str:
-        return f"{self._metric.namespace}/{self._path}"
+        return f"::{self._metric.namespace}/{self._path}"
 
 
 class ProfileGetter(ValueGetter):
@@ -38,4 +38,4 @@ class ProfileGetter(ValueGetter):
         return summary[self._path]
 
     def serialize(self) -> str:
-        return f"{self._column_name}:{self._path}"
+        return f":{self._column_name}:{self._path}"

@@ -17,6 +17,7 @@ from whylogs.core.metrics.condition_count_metric import Relation as Rel
 from whylogs.core.metrics.condition_count_metric import relation as rel
 from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.metrics.metrics import OperationResult
+from whylogs.core.predicate_parser import parse_predicate
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.relations import Not, Predicate, Require
 from whylogs.core.resolvers import Resolver
@@ -323,6 +324,9 @@ def test_profile_getter() -> None:
     assert summary["total"] == len(data)
     assert summary["above_min"] == len(data) - 1
 
+    assert conditions["above_min"].relation.serialize() == "> x :col1:distribution/min"
+    assert parse_predicate("> x :col1:distribution/min", profile=prof).serialize() == "> x :col1:distribution/min"
+
 
 def test_metric_getter() -> None:
     data = [1, 2, 3, 4, 5]
@@ -338,6 +342,9 @@ def test_metric_getter() -> None:
     summary = cond_metric.to_summary_dict(None)
     assert summary["total"] == len(data)
     assert summary["above_min"] == len(data) - 1
+
+    assert conditions["above_min"].relation.serialize() == "> x ::distribution/min"
+    assert parse_predicate("> x ::distribution/min", metric = dist_metric).serialize() == "> x ::distribution/min"
 
 
 @pytest.mark.parametrize(
@@ -380,3 +387,46 @@ def test_metric_getter() -> None:
 )
 def test_serialization(predicate: X, serialized: str) -> None:
     assert predicate.serialize() == serialized
+
+
+@pytest.mark.parametrize(
+    "predicate",
+    [
+        (X.matches("[a-zA-Z]+")),
+        (X.fullmatch("[a-zA-Z]+")),
+        (X.equals("42")),
+        (X.equals(42)),
+        (X.equals(42.1)),
+        (X.equals(42.0)),
+        (X.less_than(42)),
+        (X.less_or_equals(42)),
+        (X.greater_than(42)),
+        (X.greater_or_equals(42)),
+        (X.not_equal(42)),
+        # (X.is_(even)),
+        (X.greater_than(40).and_(X.less_than(44))),
+        (X.less_than(40).or_(X.greater_than(44))),
+        (X.not_.matches("[a-zA-Z]+")),
+        (Not(X.matches("[a-zA-Z]+"))),
+        #
+        (Require("mean").matches("[a-zA-Z]+")),
+        (Require("mean").fullmatch("[a-zA-Z]+")),
+        (Require("mean").equals("42")),
+        (Require("mean").equals(42)),
+        (Require("mean").equals(42.1)),
+        (Require("mean").equals(42.0)),
+        (Require("mean").less_than(42)),
+        (Require("mean").less_or_equals(42)),
+        (Require("mean").greater_than(42)),
+        (Require("mean").greater_or_equals(42)),
+        (Require("mean").not_equal(42)),
+        # (Require().is_(even)),
+        (Require("mean").greater_than(40).and_(Require("max").less_than(44))),
+        (Require("mean").less_than(40).or_(Require("min").greater_than(44))),
+        (Require("mean").not_.matches("[a-zA-Z]+")),
+        (Not(Require("mean").matches("[a-zA-Z]+"))),
+    ]
+)
+def test_deserialization(predicate: X) -> None:
+    serialized = predicate.serialize()
+    assert parse_predicate(serialized).serialize() == serialized
