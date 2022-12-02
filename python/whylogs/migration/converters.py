@@ -17,6 +17,7 @@ from whylogs.core.metrics import (
 from whylogs.core.metrics.metric_components import (
     FractionalComponent,
     FrequentStringsComponent,
+    HllComponent,
     IntegralComponent,
     KllComponent,
     MaxIntegralComponent,
@@ -125,6 +126,7 @@ def v0_to_v1_view(msg: DatasetProfileMessageV0) -> DatasetProfileView:
         fi_metric = FrequentItemsMetric(frequent_strings=fs)
         count_metrics = _extract_col_counts(col_msg)
         type_counters_metric = _extract_type_counts_metric(col_msg)
+        cardinality_metric = _extract_cardinality_metric(col_msg)
         int_metric = _extract_ints_metric(col_msg)
 
         columns[col_name] = ColumnProfileView(
@@ -133,7 +135,7 @@ def v0_to_v1_view(msg: DatasetProfileMessageV0) -> DatasetProfileView:
                 StandardMetric.frequent_items.name: fi_metric,
                 StandardMetric.counts.name: count_metrics,
                 StandardMetric.types.name: type_counters_metric,
-                StandardMetric.cardinality.name: type_counters_metric,
+                StandardMetric.cardinality.name: cardinality_metric,
                 StandardMetric.ints.name: int_metric,
             }
         )
@@ -187,6 +189,16 @@ def _extract_type_counts_metric(msg: ColumnMessageV0) -> TypeCountersMetric:
         string=IntegralComponent(string_count or 0),
         object=IntegralComponent(obj_count or 0),
     )
+
+
+def _extract_cardinality_metric(msg: ColumnMessageV0) -> CardinalityMetric:
+    sketch_message = msg.cardinality_tracker
+    if sketch_message:
+        hll_bytes = sketch_message.sketch
+        hll = HllComponent(ds.hll_sketch.deserialize(hll_bytes))
+        return CardinalityMetric(hll=hll)
+    else:
+        return CardinalityMetric.zero()
 
 
 def _extract_schema_message_v0(col_prof: ColumnProfileView) -> SchemaMessageV0:
