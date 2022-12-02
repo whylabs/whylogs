@@ -11,7 +11,7 @@ import pytest
 
 import whylogs as why
 from whylogs.api.store.local_store import LocalStore
-from whylogs.api.store.query import ProfileNameQuery
+from whylogs.api.store.query import DatasetIdQuery
 from whylogs.core.errors import BadConfigError
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.segmentation_partition import segment_on_column
@@ -130,7 +130,7 @@ def test_rolling_with_local_store_writes() -> None:
         time.sleep(1)
         assert len(store.list()) == 1
 
-        query = ProfileNameQuery(profile_name="test_base_name")
+        query = DatasetIdQuery(dataset_id="test_base_name")
         assert store.get(query=query)
 
 
