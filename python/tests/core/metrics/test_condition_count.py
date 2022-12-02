@@ -344,7 +344,7 @@ def test_metric_getter() -> None:
     assert summary["above_min"] == len(data) - 1
 
     assert conditions["above_min"].relation.serialize() == "> x ::distribution/min"
-    assert parse_predicate("> x ::distribution/min", metric = dist_metric).serialize() == "> x ::distribution/min"
+    assert parse_predicate("> x ::distribution/min", metric=dist_metric).serialize() == "> x ::distribution/min"
 
 
 @pytest.mark.parametrize(
@@ -425,7 +425,7 @@ def test_serialization(predicate: X, serialized: str) -> None:
         (Require("mean").less_than(40).or_(Require("min").greater_than(44))),
         (Require("mean").not_.matches("[a-zA-Z]+")),
         (Not(Require("mean").matches("[a-zA-Z]+"))),
-    ]
+    ],
 )
 def test_deserialization(predicate: X) -> None:
     serialized = predicate.serialize()
