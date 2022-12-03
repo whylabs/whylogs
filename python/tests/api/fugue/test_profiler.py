@@ -6,6 +6,8 @@ import pandas as pd
 import pytest
 
 from whylogs.api.fugue import fugue_profile
+from whylogs.core import DatasetSchema, Resolver
+from whylogs.core.metrics import StandardMetric
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 
@@ -20,6 +22,18 @@ def _test_df():
             "_1": np.random.random(n),
             "d e": np.random.choice(["xy", "z"], n),
         }
+    )
+
+
+@pytest.fixture()
+def _test_df2():
+    return pd.DataFrame(
+        [
+            [0.0, 1.0, 2.0, 3.0],
+            [0.1, 1.1, 2.1, 3.1],
+            [0.2, 1.3, 2.3, 3.3],
+        ],
+        columns=["0", "1", "2", "3"],
     )
 
 
@@ -86,3 +100,21 @@ def test_with_partition(_test_df):
         )
         df["pct"] = df.x.apply(lambda x: len(DatasetProfileView.deserialize(x).to_pandas()))
         assert all(df.pct == 2)
+
+
+def test_collect_dataset_profile_view_with_schema(_test_df2):
+    class TestResolver(Resolver):
+        def resolve(self, name, why_type, column_schema):
+            metric_map = {"0": [StandardMetric.counts], "1": [], "2": [], "3": []}
+            return {metric.name: metric.zero(column_schema.cfg) for metric in metric_map[name]}
+
+    schema = DatasetSchema(resolvers=TestResolver())
+    profile_view = fugue_profile(_test_df2, schema=schema)
+
+    assert isinstance(profile_view, DatasetProfileView)
+    assert len(profile_view.get_columns()) > 0
+    assert profile_view.get_column("0").get_metric_names() == ["counts"]
+    assert profile_view.get_column("0").get_metric("counts").n.value == 3
+    assert profile_view.get_column("1").get_metric_names() == []
+    assert profile_view.get_column("2").get_metric_names() == []
+    assert profile_view.get_column("3").get_metric_names() == []
