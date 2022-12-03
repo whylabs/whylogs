@@ -102,6 +102,7 @@ def test_with_partition(_test_df):
         assert all(df.pct == 2)
 
 
+@pytest.mark.skipif(not _is_testable_version(), reason="not a testable python version")
 def test_collect_dataset_profile_view_with_schema(_test_df2):
     class TestResolver(Resolver):
         def resolve(self, name, why_type, column_schema):
