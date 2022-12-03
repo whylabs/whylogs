@@ -45,8 +45,8 @@ def _is_testable_version():
 
 
 @pytest.mark.skipif(not _is_testable_version(), reason="not a testable python version")
-def test_no_partition(_test_df):
-    for engine in [None, "spark"]:
+def test_no_partition(_test_df, spark_session):
+    for engine in [None, spark_session]:
         t1 = datetime(2020, 1, 1, tzinfo=timezone.utc)
         t2 = datetime(2020, 1, 2, tzinfo=timezone.utc)
         v = fugue_profile(
@@ -72,8 +72,8 @@ def test_no_partition(_test_df):
 
 
 @pytest.mark.skipif(not _is_testable_version(), reason="not a testable python version")
-def test_with_partition(_test_df):
-    for engine in [None, "spark"]:
+def test_with_partition(_test_df, spark_session):
+    for engine in [None, spark_session]:
         part_keys = [_test_df.columns[0], _test_df.columns[1]]
         profile_cols = [_test_df.columns[2], _test_df.columns[3]]
         df = fugue_profile(
@@ -103,19 +103,21 @@ def test_with_partition(_test_df):
 
 
 @pytest.mark.skipif(not _is_testable_version(), reason="not a testable python version")
-def test_collect_dataset_profile_view_with_schema(_test_df2):
+def test_collect_dataset_profile_view_with_schema(_test_df2, spark_session):
     class TestResolver(Resolver):
         def resolve(self, name, why_type, column_schema):
             metric_map = {"0": [StandardMetric.counts], "1": [], "2": [], "3": []}
             return {metric.name: metric.zero(column_schema.cfg) for metric in metric_map[name]}
 
     schema = DatasetSchema(resolvers=TestResolver())
-    profile_view = fugue_profile(_test_df2, schema=schema)
 
-    assert isinstance(profile_view, DatasetProfileView)
-    assert len(profile_view.get_columns()) > 0
-    assert profile_view.get_column("0").get_metric_names() == ["counts"]
-    assert profile_view.get_column("0").get_metric("counts").n.value == 3
-    assert profile_view.get_column("1").get_metric_names() == []
-    assert profile_view.get_column("2").get_metric_names() == []
-    assert profile_view.get_column("3").get_metric_names() == []
+    for engine in [None, spark_session]:
+        profile_view = fugue_profile(_test_df2, schema=schema, engine=engine)
+
+        assert isinstance(profile_view, DatasetProfileView)
+        assert len(profile_view.get_columns()) > 0
+        assert profile_view.get_column("0").get_metric_names() == ["counts"]
+        assert profile_view.get_column("0").get_metric("counts").n.value == 3
+        assert profile_view.get_column("1").get_metric_names() == []
+        assert profile_view.get_column("2").get_metric_names() == []
+        assert profile_view.get_column("3").get_metric_names() == []

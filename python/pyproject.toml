@@ -67,6 +67,7 @@ pre-commit = "^2.8"
 pytest = "^6.2"
 pytest-cov = "^3"
 pytest-mock = "^3.3"
+pytest-spark = ">=0.6.0"
 mistune = ">=2.0.4"
 papermill = "^2.4.0"
 autoflake = "^1.4"
@@ -182,6 +183,16 @@ exclude = '''
 addopts = "-q"
 minversion = "6.0"
 testpaths = ["tests"]
+spark_options = '''
+  spark.master: local[*]
+  spark.sql.catalogImplementation: in-memory
+  spark.sql.shuffle.partitions: 4
+  spark.default.parallelism: 4
+  spark.executor.cores: 4
+  spark.sql.execution.arrow.pyspark.enabled: true
+  spark.sql.execution.arrow.enabled: false
+  spark.sql.adaptive.enabled: false
+'''
 
 [tool.black]
 line-length = 120
