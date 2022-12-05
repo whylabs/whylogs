@@ -631,6 +631,55 @@ For images, replace `df` with `image="path/to/image.png"`. Similarly, you can pr
 <h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">#</a></h1>
 <p>For a full set of our examples, please check out the <a class="reference external" href="https://github.com/whylabs/whylogs/tree/mainline/python/examples">examples folder</a>.</p>
 </section>
+<section id="benchmarks-of-whylogs">
+<h1>Benchmarks of whylogs<a class="headerlink" href="#benchmarks-of-whylogs" title="Permalink to this headline">#</a></h1>
+<p>By design, whylogs run directly in the data pipeline or in a sidecar container and use highly scalable streaming algorithms to compute statistics. Since data logging with whylogs happens in the same infrastructure where the raw data is being processed, it’s important to think about the compute overhead. For the majority of use cases, the overhead is minimal, usually under 1%. For very large data volumes with thousands of features and 10M+ QPS it can add ~5% overhead. However, for large data volumes, customers are typically in a distributed environment, such as Ray or Apache Spark. This means they benefit from whylogs parallelization—and the map-reducible property of the whylogs profiles keeping the compute overhead to a minimum.
+Below are benchmarks to demonstrate how efficient whylogs is at processing tabular data with default configurations (tracking distributions, missing values, counts, cardinality, and schema). Two important advantages of this approach are that parallelization speeds up the calculation and whylogs scales with the number of features, rather than the number of rows. Learn more about how whylogs scales here.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>DATA VOLUME</p></th>
+<th class="text-center head"><p>TOTAL COST OF RUNNING WHYLOGS</p></th>
+<th class="text-center head"><p>INSTANCE TYPE</p></th>
+<th class="text-right head"><p>CLUSTER SIZE</p></th>
+<th class="text-right head"><p>PROCESSING TIME</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>10 GB ~34M rows x 43 columns</p></td>
+<td class="text-center"><p>~ <span class="math notranslate nohighlight">\( 0.026 per 10 GB, or \)</span>2.45 per TB</p></td>
+<td class="text-center"><p>c5a.2xlarge, 8 CPU 16GB RAM, $0.308 on demand price per hour</p></td>
+<td class="text-right"><p>2 instances</p></td>
+<td class="text-right"><p>2.6 minutes of profiling time per instance (running in parallel)</p></td>
+</tr>
+<tr class="row-odd"><td><p>10 GB, ~34M rows x 43 columns</p></td>
+<td class="text-center"><p>~ <span class="math notranslate nohighlight">\(0.016 per 10 GB, estimated \)</span>1.60 per TB</p></td>
+<td class="text-center"><p>c6g.2xlarge, 8 CPU 16GB RAM, $0.272 on demand price per hour</p></td>
+<td class="text-right"><p>2 instances</p></td>
+<td class="text-right"><p>1.7 minutes of profiling time per instance (running in parallel)</p></td>
+</tr>
+<tr class="row-even"><td><p>10 GB ~34M rows x 43 columns</p></td>
+<td class="text-center"><p>~ $ 0.045 per 10 GB</p></td>
+<td class="text-center"><p>c5a.2xlarge, 8 CPU 16GB RAM, $0.308 on demand price per hour</p></td>
+<td class="text-right"><p>16 instances</p></td>
+<td class="text-right"><p>33 seconds of profiling time per instance (running in parallel)</p></td>
+</tr>
+<tr class="row-odd"><td><p>80 GB, 83M rows x 119 columns</p></td>
+<td class="text-center"><p>~ $0.139 per 80 GB</p></td>
+<td class="text-center"><p>c5a.2xlarge, 8 CPU 16GB RAM, $0.308 on demand price per hour</p></td>
+<td class="text-right"><p>16 instances</p></td>
+<td class="text-right"><p>1.7 minutes of profiling time per instance (running in parallel)</p></td>
+</tr>
+<tr class="row-even"><td><p>100 GB, 290M rows x 43 columns</p></td>
+<td class="text-center"><p>~ $0.221 per 100 GB</p></td>
+<td class="text-center"><p>c5a.2xlarge, 8 CPU 16GB RAM, $0.308 on demand price per hour</p></td>
+<td class="text-right"><p>16 instances</p></td>
+<td class="text-right"><p>2.7 minutes of profiling time per instance (running in parallel)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="usage-statistics-a-name-whylogs-profiles">
 <h1>Usage Statistics<a name="whylogs-profiles" /><a class="headerlink" href="#usage-statistics-a-name-whylogs-profiles" title="Permalink to this headline">#</a></h1>
 <p>Starting with whylogs v1.0.0, whylogs by default collects anonymous information about a user’s environment. These usage statistics do not include any information about the user or the data that they are profiling, only the environment that the user in which the user is running whylogs.</p>
@@ -752,5 +801,7 @@ For images, replace `df` with `image="path/to/image.png"`. Similarly, you can pr
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     </body>
 </html>
