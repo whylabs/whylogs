@@ -30,6 +30,7 @@ Functions
 .. autoapisummary::
 
    whylogs.core.metrics.metrics.custom_metric
+   whylogs.core.metrics.metrics.register_metric
 
 
 
@@ -117,7 +118,7 @@ Attributes
       
 
 
-.. py:function:: custom_metric(metric: Type[METRIC], config: MetricConfig = MetricConfig()) -> Type[METRIC]
+.. py:function:: custom_metric(metric: Type[METRIC]) -> Type[METRIC]
 
 
 .. py:class:: OperationResult
@@ -182,6 +183,9 @@ Attributes
    .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> METRIC
       :classmethod:
 
+
+
+.. py:function:: register_metric(metrics: Union[Metric, Type[METRIC], List[Metric], List[Type[METRIC]]]) -> None
 
 
 .. py:class:: IntsMetric
@@ -501,7 +505,8 @@ Attributes
    the supplied or custom MetricComponents. Subclasses must be decorated with
    @dataclass. All fields not prefixed with an underscore will be included
    in the summary and will be [de]serialized. Such subclasses will need to
-   implement the namespace, merge, and zero methods.
+   implement the namespace, merge, and zero methods. They should be registered
+   by calling register_metric()
 
    .. py:property:: namespace
       :type: str

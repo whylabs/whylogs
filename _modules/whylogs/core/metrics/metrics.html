@@ -449,9 +449,9 @@
 <span class="n">_METRIC_DESERIALIZER_REGISTRY</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">METRIC</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># type: ignore</span>
 
 
-<div class="viewcode-block" id="custom_metric"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.custom_metric">[docs]</a><span class="k">def</span> <span class="nf">custom_metric</span><span class="p">(</span><span class="n">metric</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">METRIC</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span> <span class="o">=</span> <span class="n">MetricConfig</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">METRIC</span><span class="p">]:</span>  <span class="c1"># type: ignore</span>
+<div class="viewcode-block" id="custom_metric"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.custom_metric">[docs]</a><span class="k">def</span> <span class="nf">custom_metric</span><span class="p">(</span><span class="n">metric</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">METRIC</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">METRIC</span><span class="p">]:</span>  <span class="c1"># type: ignore</span>
     <span class="k">global</span> <span class="n">_METRIC_DESERIALIZER_REGISTRY</span>
-    <span class="n">_METRIC_DESERIALIZER_REGISTRY</span><span class="p">[</span><span class="n">metric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">(</span><span class="n">config</span><span class="p">)]</span> <span class="o">=</span> <span class="n">metric</span>
+    <span class="n">_METRIC_DESERIALIZER_REGISTRY</span><span class="p">[</span><span class="n">metric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">()]</span> <span class="o">=</span> <span class="n">metric</span>
     <span class="k">return</span> <span class="n">metric</span></div>
 
 
@@ -485,10 +485,6 @@
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">global</span> <span class="n">_METRIC_DESERIALIZER_REGISTRY</span>
-        <span class="n">_METRIC_DESERIALIZER_REGISTRY</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
 
     <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">METRIC</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">METRIC</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">METRIC</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
@@ -545,6 +541,15 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">components</span><span class="p">)</span></div></div>
 
 
+<div class="viewcode-block" id="register_metric"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.register_metric">[docs]</a><span class="k">def</span> <span class="nf">register_metric</span><span class="p">(</span><span class="n">metrics</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Metric</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">METRIC</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Metric</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">METRIC</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">_METRIC_DESERIALIZER_REGISTRY</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="n">metrics</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+
+    <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+        <span class="n">_METRIC_DESERIALIZER_REGISTRY</span><span class="p">[</span><span class="n">metric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">()]</span> <span class="o">=</span> <span class="n">metric</span>  <span class="c1"># type: ignore</span></div>
+
+
 <div class="viewcode-block" id="IntsMetric"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.IntsMetric">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">IntsMetric</span><span class="p">(</span><span class="n">Metric</span><span class="p">):</span>
     <span class="nb">max</span><span class="p">:</span> <span class="n">MaxIntegralComponent</span>
@@ -592,6 +597,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">minimum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="o">.</span><span class="n">value</span></div>
+
+
+<span class="n">register_metric</span><span class="p">(</span><span class="n">IntsMetric</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="DistributionMetric"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.DistributionMetric">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -811,6 +819,9 @@
         <span class="p">)</span></div></div>
 
 
+<span class="n">register_metric</span><span class="p">(</span><span class="n">DistributionMetric</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="FrequentItem"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.FrequentItem">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">FrequentItem</span><span class="p">:</span>
     <span class="n">value</span><span class="p">:</span> <span class="nb">str</span>
@@ -883,6 +894,9 @@
         <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">MetricConfig</span><span class="p">()</span>
         <span class="n">sk</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">frequent_strings_sketch</span><span class="p">(</span><span class="n">lg_max_k</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">fi_lg_max_k</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">FrequentItemsMetric</span><span class="p">(</span><span class="n">frequent_strings</span><span class="o">=</span><span class="n">FrequentStringsComponent</span><span class="p">(</span><span class="n">sk</span><span class="p">))</span></div></div>
+
+
+<span class="n">register_metric</span><span class="p">(</span><span class="n">FrequentItemsMetric</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="CardinalityMetric"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.CardinalityMetric">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -971,6 +985,9 @@
         <span class="k">return</span> <span class="n">CardinalityMetric</span><span class="p">(</span><span class="n">hll</span><span class="o">=</span><span class="n">HllComponent</span><span class="p">(</span><span class="n">sk</span><span class="p">))</span></div></div>
 
 
+<span class="n">register_metric</span><span class="p">(</span><span class="n">CardinalityMetric</span><span class="p">)</span>
+
+
 <span class="k">def</span> <span class="nf">_drop_private_fields</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
     <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)}</span>
 
@@ -984,7 +1001,8 @@
 <span class="sd">    the supplied or custom MetricComponents. Subclasses must be decorated with</span>
 <span class="sd">    @dataclass. All fields not prefixed with an underscore will be included</span>
 <span class="sd">    in the summary and will be [de]serialized. Such subclasses will need to</span>
-<span class="sd">    implement the namespace, merge, and zero methods.</span>
+<span class="sd">    implement the namespace, merge, and zero methods. They should be registered</span>
+<span class="sd">    by calling register_metric()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="CustomMetricBase.get_component_paths"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.CustomMetricBase.get_component_paths">[docs]</a>    <span class="k">def</span> <span class="nf">get_component_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>

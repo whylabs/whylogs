@@ -424,8 +424,8 @@
 <span class="sd">    of one or more metrics. It is handy when you need to do some</span>
 <span class="sd">    processing of the logged values and track several metrics on</span>
 <span class="sd">    the results. The sub-metrics must either be a StandardMetric, or tagged</span>
-<span class="sd">    as a @custom_metric or @dataclass. Note that MultiMetric is neither, so it</span>
-<span class="sd">    cannot be nested.</span>
+<span class="sd">    as a @custom_metric or registered via register_metric(). Note that</span>
+<span class="sd">    MultiMetric is neither, so it cannot be nested.</span>
 
 <span class="sd">    Typically you will need to override namespace(); columnar_update(), calling</span>
 <span class="sd">    it on the submetrics as needed; and the zero() method to return an</span>

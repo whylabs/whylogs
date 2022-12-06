@@ -442,8 +442,8 @@
 of one or more metrics. It is handy when you need to do some
 processing of the logged values and track serveral metrics on
 the results. The sub-metrics must either be a StandardMetric, or tagged
-as a &#64;custom_metric or &#64;dataclass. Note that CompoundMetric is neither, so it
-cannot be nested.</p>
+as a &#64;custom_metric or registered via register_metric(). Note that
+CompoundMetric is neither, so it cannot be nested.</p>
 <p>Typically you will need to override namespace(); columnar_update(), calling
 it on the submetrics as needed; and the zero() method to return an
 appropriate “empty” instance of your metric. You will need to override from_protobuf()

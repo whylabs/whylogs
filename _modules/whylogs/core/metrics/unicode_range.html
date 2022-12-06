@@ -396,6 +396,7 @@
     <span class="n">IntsMetric</span><span class="p">,</span>
     <span class="n">MetricConfig</span><span class="p">,</span>
     <span class="n">OperationResult</span><span class="p">,</span>
+    <span class="n">register_metric</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.multimetric</span> <span class="kn">import</span> <span class="n">MultiMetric</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">PreprocessedColumn</span>
@@ -425,7 +426,6 @@
     <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__post_init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">range_definitions</span><span class="p">[</span><span class="s2">&quot;UNKNOWN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># catchall for characters not in a defined range</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="nb">range</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_definitions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
@@ -513,6 +513,10 @@
         <span class="n">result</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">ranges</span><span class="p">)</span>
         <span class="n">result</span><span class="o">.</span><span class="n">submetrics</span> <span class="o">=</span> <span class="n">submetrics</span>
         <span class="k">return</span> <span class="n">result</span></div></div>
+
+
+<span class="c1"># Register it so Multimetric and ProfileView can deserialize</span>
+<span class="n">register_metric</span><span class="p">(</span><span class="n">UnicodeRangeMetric</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>

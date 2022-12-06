@@ -447,7 +447,10 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.metrics.custom_metric" title="whylogs.core.metrics.metrics.custom_metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">custom_metric</span></code></a>() → Type[METRIC])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.metrics.custom_metric" title="whylogs.core.metrics.metrics.custom_metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">custom_metric</span></code></a>(→ Type[METRIC])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.metrics.metrics.register_metric" title="whylogs.core.metrics.metrics.register_metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register_metric</span></code></a>(→ None)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -555,13 +558,10 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="whylogs.core.metrics.metrics.custom_metric">
-<span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">custom_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.metrics.metrics.METRIC" title="whylogs.core.metrics.metrics.METRIC"><span class="pre">METRIC</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><span class="pre">MetricConfig</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">MetricConfig()</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.metrics.metrics.METRIC" title="whylogs.core.metrics.metrics.METRIC"><span class="pre">METRIC</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/metrics.html#custom_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.metrics.custom_metric" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">custom_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.metrics.metrics.METRIC" title="whylogs.core.metrics.metrics.METRIC"><span class="pre">METRIC</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.metrics.metrics.METRIC" title="whylogs.core.metrics.metrics.METRIC"><span class="pre">METRIC</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/metrics.html#custom_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.metrics.custom_metric" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>metric</strong> (<em>Type</em><em>[</em><em>METRIC</em><em>]</em>) – </p></li>
-<li><p><strong>config</strong> (<a class="reference internal" href="#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><em>MetricConfig</em></a>) – </p></li>
-</ul>
+<dd class="field-odd"><p><strong>metric</strong> (<em>Type</em><em>[</em><em>METRIC</em><em>]</em>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>Type[METRIC]</p>
@@ -724,6 +724,19 @@ inheritance.</p>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.metrics.metrics.register_metric">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">register_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><span class="pre">Metric</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.metrics.metrics.METRIC" title="whylogs.core.metrics.metrics.METRIC"><span class="pre">METRIC</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><span class="pre">Metric</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.metrics.metrics.METRIC" title="whylogs.core.metrics.metrics.METRIC"><span class="pre">METRIC</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/metrics.html#register_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.metrics.register_metric" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>metrics</strong> (<em>Union</em><em>[</em><a class="reference internal" href="#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><em>Metric</em></a><em>, </em><em>Type</em><em>[</em><em>METRIC</em><em>]</em><em>, </em><em>List</em><em>[</em><a class="reference internal" href="#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><em>Metric</em></a><em>]</em><em>, </em><em>List</em><em>[</em><em>Type</em><em>[</em><em>METRIC</em><em>]</em><em>]</em><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
@@ -1475,7 +1488,8 @@ inheritance.</p>
 the supplied or custom MetricComponents. Subclasses must be decorated with
 &#64;dataclass. All fields not prefixed with an underscore will be included
 in the summary and will be [de]serialized. Such subclasses will need to
-implement the namespace, merge, and zero methods.</p>
+implement the namespace, merge, and zero methods. They should be registered
+by calling register_metric()</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="whylogs.core.metrics.metrics.CustomMetricBase.namespace">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.core.metrics.metrics.CustomMetricBase.namespace" title="Permalink to this definition">#</a></dt>
@@ -1714,6 +1728,7 @@ implement the namespace, merge, and zero methods.</p>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.Metric.from_protobuf">from_protobuf</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#whylogs.core.metrics.metrics.register_metric">register_metric</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.IntsMetric">IntsMetric</a><ul>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.IntsMetric.namespace">namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.IntsMetric.maximum">maximum</a></li>

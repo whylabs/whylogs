@@ -395,7 +395,12 @@
 
 <span class="kn">from</span> <span class="nn">whylogs.core.configs</span> <span class="kn">import</span> <span class="n">SummaryConfig</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metric_components</span> <span class="kn">import</span> <span class="n">IntegralComponent</span><span class="p">,</span> <span class="n">MetricComponent</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">MetricConfig</span><span class="p">,</span> <span class="n">OperationResult</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Metric</span><span class="p">,</span>
+    <span class="n">MetricConfig</span><span class="p">,</span>
+    <span class="n">OperationResult</span><span class="p">,</span>
+    <span class="n">register_metric</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">PreprocessedColumn</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.proto</span> <span class="kn">import</span> <span class="n">MetricMessage</span>
 
@@ -469,7 +474,6 @@
         <span class="k">return</span> <span class="s2">&quot;condition_count&quot;</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__post_init__</span><span class="p">()</span>
         <span class="k">if</span> <span class="s2">&quot;total&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Condition cannot be named &#39;total&#39;&quot;</span><span class="p">)</span>
 
@@ -574,6 +578,10 @@
             <span class="n">total</span><span class="p">,</span>
             <span class="n">matches</span><span class="p">,</span>
         <span class="p">)</span></div></div>
+
+
+<span class="c1"># Register it so Multimetric and ProfileView can deserialize</span>
+<span class="n">register_metric</span><span class="p">(</span><span class="n">ConditionCountMetric</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>

@@ -403,7 +403,12 @@
     <span class="n">TypeMapper</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics</span> <span class="kn">import</span> <span class="n">StandardMetric</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">MetricConfig</span><span class="p">,</span> <span class="n">OperationResult</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Metric</span><span class="p">,</span>
+    <span class="n">MetricConfig</span><span class="p">,</span>
+    <span class="n">OperationResult</span><span class="p">,</span>
+    <span class="n">register_metric</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.multimetric</span> <span class="kn">import</span> <span class="n">MultiMetric</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">PreprocessedColumn</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span>
@@ -663,6 +668,10 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;log_image requires DatasetSchema with an ImageMetricConfig as default_configs&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">images</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span></div>
+
+
+<span class="c1"># Register it so Multimetric and ProfileView can deserialize</span>
+<span class="n">register_metric</span><span class="p">(</span><span class="n">ImageMetric</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>
