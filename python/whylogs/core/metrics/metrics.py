@@ -154,6 +154,15 @@ class Metric(ABC):
         return cls(**components)
 
 
+def register_metric(metrics: Union[Metric, Type[METRIC], List[Metric], List[Type[METRIC]]]) -> None:
+    global _METRIC_DESERIALIZER_REGISTRY
+    if not isinstance(metrics, list):
+        metrics = [metrics]  # type: ignore
+
+    for metric in metrics:  # type: ignore
+        _METRIC_DESERIALIZER_REGISTRY[metric.get_namespace()] = metric  # type: ignore
+
+
 @dataclass(frozen=True)
 class IntsMetric(Metric):
     max: MaxIntegralComponent
@@ -203,7 +212,7 @@ class IntsMetric(Metric):
         return self.min.value
 
 
-custom_metric(IntsMetric)
+register_metric(IntsMetric)
 
 
 @dataclass(frozen=True)
@@ -423,7 +432,7 @@ class DistributionMetric(Metric):
         )
 
 
-custom_metric(DistributionMetric)
+register_metric(DistributionMetric)
 
 
 @dataclass(frozen=True)
@@ -500,7 +509,7 @@ class FrequentItemsMetric(Metric):
         return FrequentItemsMetric(frequent_strings=FrequentStringsComponent(sk))
 
 
-custom_metric(FrequentItemsMetric)
+register_metric(FrequentItemsMetric)
 
 
 @dataclass(frozen=True)
@@ -589,7 +598,7 @@ class CardinalityMetric(Metric):
         return CardinalityMetric(hll=HllComponent(sk))
 
 
-custom_metric(CardinalityMetric)
+register_metric(CardinalityMetric)
 
 
 def _drop_private_fields(data: List[Tuple[str, Any]]) -> Dict[str, Any]:
@@ -606,7 +615,7 @@ class CustomMetricBase(Metric, ABC):
     @dataclass. All fields not prefixed with an underscore will be included
     in the summary and will be [de]serialized. Such subclasses will need to
     implement the namespace, merge, and zero methods. They should be registered
-    by calling custmom_metric()
+    by calling register_metric()
     """
 
     def get_component_paths(self) -> List[str]:

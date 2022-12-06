@@ -7,7 +7,7 @@ from whylogs.core.metrics.metrics import (
     Metric,
     MetricConfig,
     OperationResult,
-    custom_metric,
+    register_metric,
 )
 from whylogs.core.preprocessing import PreprocessedColumn
 
@@ -93,9 +93,6 @@ class TypeCountersMetric(Metric):
         )
 
 
-custom_metric(TypeCountersMetric)
-
-
 @dataclass(frozen=True)
 class ColumnCountsMetric(Metric):
     n: IntegralComponent
@@ -139,4 +136,4 @@ class ColumnCountsMetric(Metric):
         )
 
 
-custom_metric(ColumnCountsMetric)
+register_metric([TypeCountersMetric, ColumnCountsMetric])

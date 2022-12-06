@@ -9,7 +9,7 @@ from whylogs.core.metrics.metrics import (
     IntsMetric,
     MetricConfig,
     OperationResult,
-    custom_metric,
+    register_metric,
 )
 from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.preprocessing import PreprocessedColumn
@@ -129,4 +129,4 @@ class UnicodeRangeMetric(MultiMetric):
 
 
 # Register it so Multimetric and ProfileView can deserialize
-custom_metric(UnicodeRangeMetric)
+register_metric(UnicodeRangeMetric)

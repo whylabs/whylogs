@@ -12,7 +12,7 @@ from whylogs.core.metrics.metrics import (
     Metric,
     MetricConfig,
     OperationResult,
-    custom_metric,
+    register_metric,
 )
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
@@ -194,4 +194,4 @@ class ConditionCountMetric(Metric):
 
 
 # Register it so Multimetric and ProfileView can deserialize
-custom_metric(ConditionCountMetric)
+register_metric(ConditionCountMetric)
