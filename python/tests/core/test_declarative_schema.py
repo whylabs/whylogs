@@ -2,7 +2,7 @@ import pytest
 
 import whylogs as why
 from whylogs.core.datatypes import AnyType, Fractional, Integral, String
-from whylogs.core.metrics import StandardMetric
+from whylogs.core.metrics import MetricConfig, StandardMetric
 from whylogs.core.metrics.condition_count_metric import (
     Condition,
     ConditionCountConfig,
@@ -104,6 +104,17 @@ def test_declarative_schema() -> None:
     assert col2_metrics == {"frequent_items", "condition_count"}
     col2_conditions = set(results.get_column("column_2").get_metric("condition_count").conditions.keys())
     assert col2_conditions == {"alpha", "digit"}
+
+
+@pytest.mark.parametrize("fi_disabled,unicode_enabled", [(False, False), (False, True), (True, False), (True, True)])
+def test_enabled_metrics(fi_disabled: bool, unicode_enabled: bool) -> None:
+    config = MetricConfig(fi_disabled=fi_disabled, track_unicode_ranges=unicode_enabled)
+    schema = DeclarativeSchema(STANDARD_RESOLVER, default_config=config)
+    data = {"col1": "foo"}
+    results = why.log(row=data, schema=schema).view()
+    col1_metrics = set(results.get_column("col1").get_metric_names())
+    assert fi_disabled == ("frequent_items" not in col1_metrics)
+    assert unicode_enabled == ("unicode_range" in col1_metrics)
 
 
 @pytest.mark.parametrize(
