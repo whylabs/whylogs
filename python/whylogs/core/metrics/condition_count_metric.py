@@ -8,7 +8,12 @@ from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.metric_components import IntegralComponent, MetricComponent
-from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
+from whylogs.core.metrics.metrics import (
+    Metric,
+    MetricConfig,
+    OperationResult,
+    register_metric,
+)
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
 
@@ -82,7 +87,6 @@ class ConditionCountMetric(Metric):
         return "condition_count"
 
     def __post_init__(self) -> None:
-        super(type(self), self).__post_init__()
         if "total" in self.conditions.keys():
             raise ValueError("Condition cannot be named 'total'")
 
@@ -187,3 +191,7 @@ class ConditionCountMetric(Metric):
             total,
             matches,
         )
+
+
+# Register it so Multimetric and ProfileView can deserialize
+register_metric(ConditionCountMetric)

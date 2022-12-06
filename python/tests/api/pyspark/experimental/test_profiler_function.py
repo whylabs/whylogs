@@ -3,7 +3,6 @@ from logging import getLogger
 from typing import Dict
 
 import pytest
-from pyspark.sql import SparkSession
 
 from whylogs.api.pyspark.experimental import (
     collect_column_profile_views,
@@ -20,21 +19,13 @@ TEST_LOGGER = getLogger(__name__)
 
 
 class TestPySpark(object):
-    @classmethod
-    def setup_class(cls):
-        cls.spark = SparkSession.builder.master("local[1]").getOrCreate()
-
-    @classmethod
-    def teardown_class(cls):
-        cls.spark.stop()
-
     @pytest.fixture()
     def test_columns(self):
         return ["0", "1", "2", "3"]
 
     @pytest.fixture()
-    def input_df(self, test_columns):
-        input_df = self.spark.createDataFrame(
+    def input_df(self, test_columns, spark_session):
+        input_df = spark_session.createDataFrame(
             data=[
                 [0.0, 1.0, 2.0, 3.0],
                 [0.1, 1.1, 2.1, 3.1],
@@ -101,13 +92,13 @@ class TestPySpark(object):
         assert profile_view.get_column("0").get_metric("distribution").max == 0.2
         assert profile_view.get_column("0").get_metric("distribution").min == 0.0
 
-    def test_decimals_are_fractional(self):
+    def test_decimals_are_fractional(self, spark_session):
         decimal_data = [
             [Decimal(8.4), Decimal(13.8)],
             [Decimal(2.9), Decimal(7.2)],
         ]
         pandas_decimals = pd.DataFrame({"wine": [Decimal(8.4), Decimal(13.8)], "beer": [Decimal(2.9), Decimal(7.2)]})
-        decimals_df = self.spark.createDataFrame(decimal_data, schema=["wine", "beer"])
+        decimals_df = spark_session.createDataFrame(decimal_data, schema=["wine", "beer"])
         dataset_profile_view = collect_dataset_profile_view(decimals_df)
         type_counts = dataset_profile_view.get_column("wine").get_metric("types")
         assert type_counts.integral.value == 0

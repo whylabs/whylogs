@@ -17,6 +17,7 @@ from fugue.dataframe.utils import (
 )
 
 import whylogs as why
+from whylogs.core import DatasetSchema
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
@@ -31,6 +32,7 @@ def fugue_profile(
     creation_timestamp: Optional[datetime] = None,
     partition: Any = None,
     profile_cols: Optional[List[str]] = None,
+    schema: Optional[DatasetSchema] = None,
     as_local: bool = True,
     profile_field: str = DF_PROFILE_FIELD,
     engine: Any = None,
@@ -47,6 +49,7 @@ def fugue_profile(
         renames=renames,
         dataset_timestamp=dataset_timestamp,
         creation_timestamp=creation_timestamp,
+        schema=schema,
         profile_field=profile_field,
     )
     if len(profiler._by) == 0:
@@ -65,6 +68,7 @@ class _FugueProfiler:
         renames: Dict[str, Any],
         dataset_timestamp: Optional[datetime] = None,
         creation_timestamp: Optional[datetime] = None,
+        schema: Optional[DatasetSchema] = None,
         profile_field: str = DF_PROFILE_FIELD,
     ):
         now = datetime.now(timezone.utc)
@@ -80,11 +84,12 @@ class _FugueProfiler:
         self._cols = cols
         self._profile_field = profile_field
         self._profile_schema = Schema([(profile_field, bytes)])
+        self._schema = schema
 
     def to_col_profiles(self, df: pd.DataFrame) -> Iterable[Dict[str, Any]]:
         if len(self._cols_to_orig) > 0:
             df = df.rename(columns=self._cols_to_orig)
-        res = why.log(df[self._cols] if self._cols is not None else df)
+        res = why.log(df[self._cols] if self._cols is not None else df, schema=self._schema)
         for col_name, col_profile in res.view().get_columns().items():
             yield {_COL_NAME_FIELD: col_name, _COL_PROFILE_FIELD: col_profile.serialize()}
 
@@ -109,7 +114,7 @@ class _FugueProfiler:
             pdf = df.rename(columns=self._cols_to_orig)
         else:
             pdf = df
-        res = why.log(pdf[self._cols] if self._cols is not None else pdf).view().serialize()
+        res = why.log(pdf[self._cols] if self._cols is not None else pdf, schema=self._schema).view().serialize()
         return df.head(1)[self._by].assign(**{self._profile_field: res})  # type: ignore
 
     # ---------------- Starting Fugue related logic

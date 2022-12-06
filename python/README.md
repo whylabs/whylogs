@@ -245,6 +245,19 @@ If you want to check out our complete list, please refer to our [integrations ex
 
 For a full set of our examples, please check out the [examples folder](https://github.com/whylabs/whylogs/tree/mainline/python/examples).
 
+## Benchmarks of whylogs
+
+By design, whylogs run directly in the data pipeline or in a sidecar container and use highly scalable streaming algorithms to compute statistics. Since data logging with whylogs happens in the same infrastructure where the raw data is being processed, it's important to think about the compute overhead. For the majority of use cases, the overhead is minimal, usually under 1%. For very large data volumes with thousands of features and 10M+ QPS it can add ~5% overhead. However, for large data volumes, customers are typically in a distributed environment, such as Ray or Apache Spark. This means they benefit from whylogs parallelization—and the map-reducible property of the whylogs profiles keeping the compute overhead to a minimum.
+Below are benchmarks to demonstrate how efficient whylogs is at processing tabular data with default configurations (tracking distributions, missing values, counts, cardinality, and schema). Two important advantages of this approach are that parallelization speeds up the calculation and whylogs scales with the number of features, rather than the number of rows. Learn more about how whylogs scales here.
+
+| DATA VOLUME                    |       TOTAL COST OF RUNNING WHYLOGS        |                        INSTANCE TYPE                         | CLUSTER SIZE |                                                  PROCESSING TIME |
+| ------------------------------ | :----------------------------------------: | :----------------------------------------------------------: | -----------: | ---------------------------------------------------------------: |
+| 10 GB ~34M rows x 43 columns   |    ~ $ 0.026 per 10 GB, or $2.45 per TB    | c5a.2xlarge, 8 CPU 16GB RAM, $0.308 on demand price per hour |  2 instances | 2.6 minutes of profiling time per instance (running in parallel) |
+| 10 GB, ~34M rows x 43 columns  | ~ $0.016 per 10 GB, estimated $1.60 per TB | c6g.2xlarge, 8 CPU 16GB RAM, $0.272 on demand price per hour |  2 instances | 1.7 minutes of profiling time per instance (running in parallel) |
+| 10 GB ~34M rows x 43 columns   |            ~ $ 0.045 per 10 GB             | c5a.2xlarge, 8 CPU 16GB RAM, $0.308 on demand price per hour | 16 instances |  33 seconds of profiling time per instance (running in parallel) |
+| 80 GB, 83M rows x 119 columns  |             ~ $0.139 per 80 GB             | c5a.2xlarge, 8 CPU 16GB RAM, $0.308 on demand price per hour | 16 instances | 1.7 minutes of profiling time per instance (running in parallel) |
+| 100 GB, 290M rows x 43 columns |            ~ $0.221 per 100 GB             | c5a.2xlarge, 8 CPU 16GB RAM, $0.308 on demand price per hour | 16 instances | 2.7 minutes of profiling time per instance (running in parallel) |
+
 ## Usage Statistics<a name="whylogs-profiles" />
 
 Starting with whylogs v1.0.0, whylogs by default collects anonymous information about a user’s environment. These usage statistics do not include any information about the user or the data that they are profiling, only the environment that the user in which the user is running whylogs.

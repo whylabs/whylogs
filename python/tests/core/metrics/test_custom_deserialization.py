@@ -1,16 +1,17 @@
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import DataType
 from whylogs.core.metrics.metric_components import MaxIntegralComponent
-from whylogs.core.metrics.metrics import Metric, OperationResult
+from whylogs.core.metrics.metrics import Metric, OperationResult, custom_metric
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
 
 
+@custom_metric
 @dataclass(frozen=True)
 class TestMetric(Metric):
     max: MaxIntegralComponent
@@ -42,7 +43,7 @@ class TestMetric(Metric):
         return OperationResult.ok(successes)
 
     @classmethod
-    def zero(cls, schema: ColumnSchema) -> "TestMetric":
+    def zero(cls, schema: Optional[ColumnSchema] = None) -> "TestMetric":
         return cls(max=MaxIntegralComponent(0))
 
 
