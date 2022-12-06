@@ -87,7 +87,6 @@ class ConditionCountMetric(Metric):
         return "condition_count"
 
     def __post_init__(self) -> None:
-        super(type(self), self).__post_init__()
         if "total" in self.conditions.keys():
             raise ValueError("Condition cannot be named 'total'")
 

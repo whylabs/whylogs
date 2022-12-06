@@ -100,10 +100,6 @@ class Metric(ABC):
     def namespace(self) -> str:
         raise NotImplementedError
 
-    def __post_init__(self):
-        global _METRIC_DESERIALIZER_REGISTRY
-        _METRIC_DESERIALIZER_REGISTRY[self.namespace] = self.__class__
-
     def __add__(self: METRIC, other: METRIC) -> METRIC:
         return self.merge(other)
 
@@ -206,6 +202,9 @@ class IntsMetric(Metric):
     @property
     def minimum(self) -> float:
         return self.min.value
+
+
+custom_metric(IntsMetric)
 
 
 @dataclass(frozen=True)
@@ -425,6 +424,9 @@ class DistributionMetric(Metric):
         )
 
 
+custom_metric(DistributionMetric)
+
+
 @dataclass(frozen=True)
 class FrequentItem:
     value: str
@@ -497,6 +499,9 @@ class FrequentItemsMetric(Metric):
         config = config or MetricConfig()
         sk = ds.frequent_strings_sketch(lg_max_k=config.fi_lg_max_k)
         return FrequentItemsMetric(frequent_strings=FrequentStringsComponent(sk))
+
+
+custom_metric(FrequentItemsMetric)
 
 
 @dataclass(frozen=True)
@@ -585,6 +590,9 @@ class CardinalityMetric(Metric):
         return CardinalityMetric(hll=HllComponent(sk))
 
 
+custom_metric(CardinalityMetric)
+
+
 def _drop_private_fields(data: List[Tuple[str, Any]]) -> Dict[str, Any]:
     return {k: v for k, v in data if not k.startswith("_")}
 
@@ -598,7 +606,8 @@ class CustomMetricBase(Metric, ABC):
     the supplied or custom MetricComponents. Subclasses must be decorated with
     @dataclass. All fields not prefixed with an underscore will be included
     in the summary and will be [de]serialized. Such subclasses will need to
-    implement the namespace, merge, and zero methods.
+    implement the namespace, merge, and zero methods. They should be registered
+    by calling custmom_metric()
     """
 
     def get_component_paths(self) -> List[str]:

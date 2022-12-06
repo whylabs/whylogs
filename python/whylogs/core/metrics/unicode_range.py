@@ -39,7 +39,6 @@ class UnicodeRangeMetric(MultiMetric):
     normalize: bool = True
 
     def __post_init__(self):
-        super().__post_init__()
         self.range_definitions["UNKNOWN"] = (0, 0)  # catchall for characters not in a defined range
         for key, range in self.range_definitions.items():
             if range[0] > range[1]:
