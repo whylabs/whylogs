@@ -16,7 +16,12 @@ from whylogs.core.datatypes import (
     TypeMapper,
 )
 from whylogs.core.metrics import StandardMetric
-from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
+from whylogs.core.metrics.metrics import (
+    Metric,
+    MetricConfig,
+    OperationResult,
+    custom_metric,
+)
 from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import Resolver
@@ -276,3 +281,7 @@ def log_image(
         raise ValueError("log_image requires DatasetSchema with an ImageMetricConfig as default_configs")
 
     return why.log(row=images, schema=schema)
+
+
+# Register it so Multimetric and ProfileView can deserialize
+custom_metric(ImageMetric)

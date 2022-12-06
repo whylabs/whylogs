@@ -62,9 +62,10 @@ class MetricConfig:
 _METRIC_DESERIALIZER_REGISTRY: Dict[str, Type[METRIC]] = {}  # type: ignore
 
 
-def custom_metric(metric: Type[METRIC], config: MetricConfig = MetricConfig()) -> Type[METRIC]:  # type: ignore
+def custom_metric(metric: Type[METRIC]) -> Type[METRIC]:  # type: ignore
     global _METRIC_DESERIALIZER_REGISTRY
-    _METRIC_DESERIALIZER_REGISTRY[metric.get_namespace(config)] = metric
+    _METRIC_DESERIALIZER_REGISTRY[metric.get_namespace()] = metric
+    print(f"REGISTERED {metric.get_namespace()}")
     return metric
 
 

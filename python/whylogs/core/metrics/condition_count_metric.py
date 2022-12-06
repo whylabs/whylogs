@@ -8,7 +8,12 @@ from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.metric_components import IntegralComponent, MetricComponent
-from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
+from whylogs.core.metrics.metrics import (
+    Metric,
+    MetricConfig,
+    OperationResult,
+    custom_metric,
+)
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
 
@@ -187,3 +192,7 @@ class ConditionCountMetric(Metric):
             total,
             matches,
         )
+
+
+# Register it so Multimetric and ProfileView can deserialize
+custom_metric(ConditionCountMetric)

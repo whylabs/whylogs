@@ -9,6 +9,7 @@ from whylogs.core.metrics.metrics import (
     IntsMetric,
     MetricConfig,
     OperationResult,
+    custom_metric,
 )
 from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.preprocessing import PreprocessedColumn
@@ -38,7 +39,7 @@ class UnicodeRangeMetric(MultiMetric):
     normalize: bool = True
 
     def __post_init__(self):
-        super(type(self), self).__post_init__()
+        super().__post_init__()
         self.range_definitions["UNKNOWN"] = (0, 0)  # catchall for characters not in a defined range
         for key, range in self.range_definitions.items():
             if range[0] > range[1]:
@@ -126,3 +127,7 @@ class UnicodeRangeMetric(MultiMetric):
         result = cls(ranges)
         result.submetrics = submetrics
         return result
+
+
+# Register it so Multimetric and ProfileView can deserialize
+custom_metric(UnicodeRangeMetric)

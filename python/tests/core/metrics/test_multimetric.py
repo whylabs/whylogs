@@ -3,8 +3,12 @@ from typing import Optional
 import numpy as np
 import pytest
 
+import whylogs.core.metrics  # noqa: F401
+import whylogs.extras.image_metric  # noqa: F401
 from whylogs.core.metrics.column_metrics import ColumnCountsMetric, TypeCountersMetric
+from whylogs.core.metrics.metrics import Metric  # noqa: F401
 from whylogs.core.metrics.metrics import (
+    _METRIC_DESERIALIZER_REGISTRY,
     CardinalityMetric,
     DistributionMetric,
     FrequentItemsMetric,
@@ -265,3 +269,21 @@ def test_compound_metric_merge() -> None:
     assert merged.submetrics["Metric2"]["distribution"].kll.value.get_n() == d_merged.kll.value.get_n()
     assert merged.submetrics["Metric2"]["distribution"].mean.value == d_merged.mean.value
     assert merged.submetrics["Metric2"]["distribution"].stddev == d_merged.stddev
+
+
+@pytest.mark.parametrize(
+    "metric",
+    [
+        ("condition_count"),
+        ("unicode_range"),
+        ("cardinality"),
+        ("counts"),
+        ("distribution"),
+        ("ints"),
+        ("types"),
+        ("image"),
+        ("frequent_items"),
+    ],
+)
+def test_complex_metric_registration(metric: str) -> None:
+    assert metric in _METRIC_DESERIALIZER_REGISTRY
