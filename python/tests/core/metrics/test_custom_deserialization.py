@@ -11,6 +11,7 @@ from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
 
 
+@custom_metric
 @dataclass(frozen=True)
 class TestMetric(Metric):
     max: MaxIntegralComponent
@@ -44,9 +45,6 @@ class TestMetric(Metric):
     @classmethod
     def zero(cls, schema: Optional[ColumnSchema] = None) -> "TestMetric":
         return cls(max=MaxIntegralComponent(0))
-
-
-custom_metric(TestMetric)
 
 
 class TestResolver(Resolver):
