@@ -180,12 +180,12 @@ class IntsMetric(Metric):
 
         max_ = self.max.value
         min_ = self.min.value
-        if data.numpy.ints is not None:
+        if data.numpy.ints is not None and len(data.numpy.ints) > 0:
             max_ = max([max_, data.numpy.ints.max()])
             min_ = min([min_, data.numpy.ints.min()])
             successes += len(data.numpy.ints)
 
-        if data.list.ints is not None:
+        if data.list.ints is not None and len(data.list.ints) > 0:
             l_max = max(data.list.ints)
             l_min = min(data.list.ints)
             max_ = max([max_, l_max])

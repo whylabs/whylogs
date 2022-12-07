@@ -3,7 +3,7 @@ import pstats
 from dataclasses import dataclass, field
 from io import StringIO
 from logging import getLogger
-from typing import Any
+from typing import Any, Dict
 
 import numpy as np
 import pandas as pd
@@ -131,7 +131,24 @@ def test_track_baseline_benchmark() -> None:
         )
 
 
-@pytest.mark.load
+def _gen_test_row_message(i: int) -> Dict[str, Any]:
+    test_message = {
+        "jobtitle": "software engineer",
+        "employer": "whylabs",
+        "city": "seattle",
+        "state": "washington",
+        "country": "united states",
+        "date": "2022-11-02",
+        "optional_features": 0,
+        "int_feature": i % 100,
+        "nan_feature": float("nan") if i % 13 == 0 else float(i) / 3.3,
+        "None_feature": None if i % 3 == 0 else {"a": 1},
+        "float_feature": i * 1.1,
+        "debug": True,
+    }
+    return test_message
+
+
 def test_rolling_logger_latency_benchmark() -> None:
     number_of_iterations = 1000
     TEST_LOGGER.info(f"Running latency test with {number_of_iterations} iterations")
@@ -141,24 +158,12 @@ def test_rolling_logger_latency_benchmark() -> None:
     profiler = cProfile.Profile()
     string_output_stream = StringIO()
     profiler.enable()
-    test_message = pd.DataFrame(
-        {
-            "jobtitle": ["software engineer"],
-            "employer": ["whylabs"],
-            "city": ["seattle"],
-            "state": ["washington"],
-            "country": ["united states"],
-            "date": ["2022-11-02"],
-            "optional_features": [0],
-            "debug": [True],
-        }
-    )
 
-    for _ in range(number_of_iterations):
-        test_log.log(test_message)
+    for i in range(number_of_iterations):
+        test_log.log(_gen_test_row_message(i))
 
     test_log.close()
     profiler.disable()
     stats = pstats.Stats(profiler, stream=string_output_stream).sort_stats("cumulative")
-    stats.print_stats(50)
+    stats.print_stats(20)
     TEST_LOGGER.info(f"stats for rolling latency benchmark are\n{string_output_stream.getvalue()}")
