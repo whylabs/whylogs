@@ -1,5 +1,6 @@
 import cProfile
 import pstats
+import random
 from dataclasses import dataclass, field
 from io import StringIO
 from logging import getLogger
@@ -132,6 +133,7 @@ def test_track_baseline_benchmark() -> None:
 
 
 def _gen_test_row_message(i: int) -> Dict[str, Any]:
+    additional_fields = 40
     test_message = {
         "jobtitle": "software engineer",
         "employer": "whylabs",
@@ -139,17 +141,25 @@ def _gen_test_row_message(i: int) -> Dict[str, Any]:
         "state": "washington",
         "country": "united states",
         "date": "2022-11-02",
-        "optional_features": 0,
-        "int_feature": i % 100,
+        "optional_features": i % 100,
         "nan_feature": float("nan") if i % 13 == 0 else float(i) / 3.3,
         "None_feature": None if i % 3 == 0 else {"a": 1},
-        "float_feature": i * 1.1,
         "debug": True,
     }
+    for i in range(additional_fields):
+        test_message[f"field_{i}"] = random.random()
     return test_message
 
 
-def test_rolling_logger_latency_benchmark() -> None:
+def _gen_test_df() -> pd.DataFrame:
+    num_rows = 1
+    num_columns = 50
+    full_df = pd.DataFrame(np.random.random(size=(num_rows, num_columns)), columns=[str(i) for i in range(num_columns)])
+    return full_df
+
+
+@pytest.mark.load
+def test_rolling_logger_latency_row_benchmark() -> None:
     number_of_iterations = 1000
     TEST_LOGGER.info(f"Running latency test with {number_of_iterations} iterations")
     test_log = whylogs.logger(mode="rolling", interval=60, when="S", fork=True)
@@ -160,10 +170,44 @@ def test_rolling_logger_latency_benchmark() -> None:
     profiler.enable()
 
     for i in range(number_of_iterations):
-        test_log.log(_gen_test_row_message(i))
+        msg = _gen_test_row_message(i)
+        test_log.log(msg)
 
     test_log.close()
     profiler.disable()
     stats = pstats.Stats(profiler, stream=string_output_stream).sort_stats("cumulative")
     stats.print_stats(20)
     TEST_LOGGER.info(f"stats for rolling latency benchmark are\n{string_output_stream.getvalue()}")
+
+
+@pytest.mark.load
+@pytest.mark.parametrize("mode", ["pandas_to_row", "row", "pandas"])
+def test_rolling_logger_latency_benchmark(mode) -> None:
+    number_of_iterations = 1000
+    TEST_LOGGER.info(f"Running latency test with {number_of_iterations} iterations")
+    test_log = whylogs.logger(mode="rolling", interval=60, when="S", fork=True)
+    test_log.append_writer("local")
+
+    profiler = cProfile.Profile()
+    string_output_stream = StringIO()
+    profiler.enable()
+
+    for i in range(number_of_iterations):
+        data = None
+        if mode == "pandas":
+            data = _gen_test_df()
+        elif mode == "row":
+            data = _gen_test_row_message(i)
+        elif mode == "pandas_to_row":
+            df = _gen_test_df()
+            records = df.to_dict("records")
+            data = records[0]
+        else:
+            raise ValueError(f"Mode: ({mode}) not supported, must be 'row', 'pandas'...")
+        test_log.log(data)
+
+    test_log.close()
+    profiler.disable()
+    stats = pstats.Stats(profiler, stream=string_output_stream).sort_stats("cumulative")
+    stats.print_stats(20)
+    TEST_LOGGER.info(f"stats for rolling latency [{mode}]based benchmark are\n{string_output_stream.getvalue()}")
