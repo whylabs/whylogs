@@ -5,7 +5,12 @@ from typing import Any, Dict, List, Mapping, Optional, TypeVar
 
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
-from whylogs.core.resolvers import Resolver, StandardResolver
+from whylogs.core.resolvers import (
+    DeclarativeResolver,
+    Resolver,
+    ResolverSpec,
+    StandardResolver,
+)
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
 from whylogs.core.validators.validator import Validator
@@ -186,3 +191,42 @@ class ColumnSchema:
         if self.validators:
             return self.validators.get(name, [])
         return []
+
+
+class DeclarativeSchema(DatasetSchema):
+    """
+    The DeclarativeSchema allows one to customize the set of metrics
+    tracked for each column in a data set. Pass its constructor a list
+    of ResolverSpecs, which specify the column name or data type to
+    match and the list of MetricSpecs to instantiate for matching columns.
+    Each MetricSpec specifies the Metric class and MetricConfig to
+    instantiate. Omit the MetricSpec::config to use the default MetricConfig.
+
+    For example, DeclarativeSchema(resolvers=STANDARD_RESOLVER) implements
+    the same schema as DatasetSchema(), i.e., using the default MetricConfig,
+    StandardTypeMapper, StandardResolver, etc.  STANDARD_RESOLVER is defined
+    in whylogs/python/tests/core/test_declarative_schema.py
+    """
+
+    def __init__(
+        self,
+        resolvers: List[ResolverSpec],
+        types: Optional[Dict[str, Any]] = None,
+        default_config: Optional[MetricConfig] = None,
+        type_mapper: Optional[TypeMapper] = None,
+        cache_size: int = 1024,
+        schema_based_automerge: bool = False,
+        segments: Optional[Dict[str, SegmentationPartition]] = None,
+    ) -> None:
+        if not resolvers:
+            logger.warning("No columns specified in DeclarativeSchema")
+        resolver = DeclarativeResolver(resolvers, default_config)
+        super().__init__(
+            types=types,
+            default_configs=default_config,
+            type_mapper=type_mapper,
+            resolvers=resolver,
+            cache_size=cache_size,
+            schema_based_automerge=schema_based_automerge,
+            segments=segments,
+        )
