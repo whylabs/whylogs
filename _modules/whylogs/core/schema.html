@@ -392,7 +392,12 @@
 
 <span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">StandardTypeMapper</span><span class="p">,</span> <span class="n">TypeMapper</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">MetricConfig</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span><span class="p">,</span> <span class="n">StandardResolver</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DeclarativeResolver</span><span class="p">,</span>
+    <span class="n">Resolver</span><span class="p">,</span>
+    <span class="n">ResolverSpec</span><span class="p">,</span>
+    <span class="n">StandardResolver</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">SegmentationPartition</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.validators.validator</span> <span class="kn">import</span> <span class="n">Validator</span>
@@ -573,6 +578,45 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validators</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validators</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">[])</span>
         <span class="k">return</span> <span class="p">[]</span></div></div>
+
+
+<div class="viewcode-block" id="DeclarativeSchema"><a class="viewcode-back" href="../../../api/whylogs/core/schema/index.html#whylogs.api.logger.DeclarativeSchema">[docs]</a><span class="k">class</span> <span class="nc">DeclarativeSchema</span><span class="p">(</span><span class="n">DatasetSchema</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The DeclarativeSchema allows one to customize the set of metrics</span>
+<span class="sd">    tracked for each column in a data set. Pass its constructor a list</span>
+<span class="sd">    of ResolverSpecs, which specify the column name or data type to</span>
+<span class="sd">    match and the list of MetricSpecs to instantiate for matching columns.</span>
+<span class="sd">    Each MetricSpec specifies the Metric class and MetricConfig to</span>
+<span class="sd">    instantiate. Omit the MetricSpec::config to use the default MetricConfig.</span>
+
+<span class="sd">    For example, DeclarativeSchema(resolvers=STANDARD_RESOLVER) implements</span>
+<span class="sd">    the same schema as DatasetSchema(), i.e., using the default MetricConfig,</span>
+<span class="sd">    StandardTypeMapper, StandardResolver, etc.  STANDARD_RESOLVER is defined</span>
+<span class="sd">    in whylogs/python/tests/core/test_declarative_schema.py</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">resolvers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">],</span>
+        <span class="n">types</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">default_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">type_mapper</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TypeMapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cache_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+        <span class="n">schema_based_automerge</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">segments</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SegmentationPartition</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">resolvers</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No columns specified in DeclarativeSchema&quot;</span><span class="p">)</span>
+        <span class="n">resolver</span> <span class="o">=</span> <span class="n">DeclarativeResolver</span><span class="p">(</span><span class="n">resolvers</span><span class="p">,</span> <span class="n">default_config</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">types</span><span class="o">=</span><span class="n">types</span><span class="p">,</span>
+            <span class="n">default_configs</span><span class="o">=</span><span class="n">default_config</span><span class="p">,</span>
+            <span class="n">type_mapper</span><span class="o">=</span><span class="n">type_mapper</span><span class="p">,</span>
+            <span class="n">resolvers</span><span class="o">=</span><span class="n">resolver</span><span class="p">,</span>
+            <span class="n">cache_size</span><span class="o">=</span><span class="n">cache_size</span><span class="p">,</span>
+            <span class="n">schema_based_automerge</span><span class="o">=</span><span class="n">schema_based_automerge</span><span class="p">,</span>
+            <span class="n">segments</span><span class="o">=</span><span class="n">segments</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </pre></div>
         </article>
       </div>

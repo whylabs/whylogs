@@ -419,6 +419,15 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.resolvers.HistogramCountingTrackingResolver" title="whylogs.core.resolvers.HistogramCountingTrackingResolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HistogramCountingTrackingResolver</span></code></a></p></td>
 <td><p>Resolver that only adds distribution tracker.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.resolvers.MetricSpec" title="whylogs.core.resolvers.MetricSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MetricSpec</span></code></a></p></td>
+<td><p>Specify a Metric to instantiate.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResolverSpec</span></code></a></p></td>
+<td><p>Specify the metrics to instantiate for matching columns. column_name</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.resolvers.DeclarativeResolver" title="whylogs.core.resolvers.DeclarativeResolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeclarativeResolver</span></code></a></p></td>
+<td><p>Implements the declarative resolution logic by interpreting a &quot;program&quot;</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -432,15 +441,26 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.resolvers.M" title="whylogs.core.resolvers.M"><code class="xref py py-obj docutils literal notranslate"><span class="pre">M</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.resolvers.logger" title="whylogs.core.resolvers.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.resolvers.ColumnSchema" title="whylogs.core.resolvers.ColumnSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnSchema</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.resolvers.M" title="whylogs.core.resolvers.M"><code class="xref py py-obj docutils literal notranslate"><span class="pre">M</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.resolvers.ColumnSchema" title="whylogs.core.resolvers.ColumnSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnSchema</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.resolvers.COLUMN_METRICS" title="whylogs.core.resolvers.COLUMN_METRICS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">COLUMN_METRICS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<dl class="py data">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.logger">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#whylogs.core.resolvers.logger" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py data">
 <dt class="sig sig-object py" id="whylogs.core.resolvers.M">
 <span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">M</span></span><a class="headerlink" href="#whylogs.core.resolvers.M" title="Permalink to this definition">#</a></dt>
@@ -548,6 +568,84 @@
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.MetricSpec">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">MetricSpec</span></span><a class="reference internal" href="../../../../_modules/whylogs/core/resolvers.html#MetricSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.resolvers.MetricSpec" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify a Metric to instantiate.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.MetricSpec.metric">
+<span class="sig-name descname"><span class="pre">metric</span></span><em class="property"><span class="w"> </span><span class="pre">:Any</span></em><a class="headerlink" href="#whylogs.core.resolvers.MetricSpec.metric" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.MetricSpec.config">
+<span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="w"> </span><span class="pre">:Optional[whylogs.core.metrics.metrics.MetricConfig]</span></em><a class="headerlink" href="#whylogs.core.resolvers.MetricSpec.config" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.ResolverSpec">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">ResolverSpec</span></span><a class="reference internal" href="../../../../_modules/whylogs/core/resolvers.html#ResolverSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.resolvers.ResolverSpec" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify the metrics to instantiate for matching columns. column_name
+takes precedence over column_type. column_type should be a subclass
+of DataType, i.e., AnyType, Frational, Integral, or String. Pass the
+class, not an instance.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.ResolverSpec.column_name">
+<span class="sig-name descname"><span class="pre">column_name</span></span><em class="property"><span class="w"> </span><span class="pre">:Optional[str]</span></em><a class="headerlink" href="#whylogs.core.resolvers.ResolverSpec.column_name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.ResolverSpec.column_type">
+<span class="sig-name descname"><span class="pre">column_type</span></span><em class="property"><span class="w"> </span><span class="pre">:Optional[Any]</span></em><a class="headerlink" href="#whylogs.core.resolvers.ResolverSpec.column_type" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.ResolverSpec.metrics">
+<span class="sig-name descname"><span class="pre">metrics</span></span><em class="property"><span class="w"> </span><span class="pre">:List[MetricSpec]</span></em><a class="headerlink" href="#whylogs.core.resolvers.ResolverSpec.metrics" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.COLUMN_METRICS">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">COLUMN_METRICS</span></span><a class="headerlink" href="#whylogs.core.resolvers.COLUMN_METRICS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.DeclarativeResolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">DeclarativeResolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolvers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><span class="pre">ResolverSpec</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><span class="pre">whylogs.core.metrics.metrics.MetricConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/whylogs/core/resolvers.html#DeclarativeResolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.resolvers.DeclarativeResolver" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#whylogs.core.resolvers.Resolver" title="whylogs.core.resolvers.Resolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Resolver</span></code></a></p>
+<p>Implements the declarative resolution logic by interpreting a “program”
+of ResolverSpecs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resolvers</strong> (<em>List</em><em>[</em><a class="reference internal" href="#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><em>ResolverSpec</em></a><em>]</em>) – </p></li>
+<li><p><strong>default_config</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><em>whylogs.core.metrics.metrics.MetricConfig</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.DeclarativeResolver.resolve">
+<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">why_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../datatypes/index.html#whylogs.core.datatypes.DataType" title="whylogs.core.datatypes.DataType"><span class="pre">whylogs.core.datatypes.DataType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.core.resolvers.ColumnSchema" title="whylogs.core.resolvers.ColumnSchema"><span class="pre">ColumnSchema</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><span class="pre">whylogs.core.metrics.metrics.Metric</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/resolvers.html#DeclarativeResolver.resolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.resolvers.DeclarativeResolver.resolve" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>why_type</strong> (<a class="reference internal" href="../datatypes/index.html#whylogs.core.datatypes.DataType" title="whylogs.core.datatypes.DataType"><em>whylogs.core.datatypes.DataType</em></a>) – </p></li>
+<li><p><strong>column_schema</strong> (<a class="reference internal" href="../index.html#whylogs.core.ColumnSchema" title="whylogs.core.ColumnSchema"><em>ColumnSchema</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference internal" href="../metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric">whylogs.core.metrics.metrics.Metric</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 </section>
@@ -638,6 +736,7 @@
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#classes">Classes</a></li>
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
+<li><a class="reference internal" href="#whylogs.core.resolvers.logger">logger</a></li>
 <li><a class="reference internal" href="#whylogs.core.resolvers.M">M</a></li>
 <li><a class="reference internal" href="#whylogs.core.resolvers.ColumnSchema">ColumnSchema</a></li>
 <li><a class="reference internal" href="#whylogs.core.resolvers.Resolver">Resolver</a><ul>
@@ -654,6 +753,22 @@
 </li>
 <li><a class="reference internal" href="#whylogs.core.resolvers.HistogramCountingTrackingResolver">HistogramCountingTrackingResolver</a><ul>
 <li><a class="reference internal" href="#whylogs.core.resolvers.HistogramCountingTrackingResolver.resolve">resolve</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#whylogs.core.resolvers.MetricSpec">MetricSpec</a><ul>
+<li><a class="reference internal" href="#whylogs.core.resolvers.MetricSpec.metric">metric</a></li>
+<li><a class="reference internal" href="#whylogs.core.resolvers.MetricSpec.config">config</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#whylogs.core.resolvers.ResolverSpec">ResolverSpec</a><ul>
+<li><a class="reference internal" href="#whylogs.core.resolvers.ResolverSpec.column_name">column_name</a></li>
+<li><a class="reference internal" href="#whylogs.core.resolvers.ResolverSpec.column_type">column_type</a></li>
+<li><a class="reference internal" href="#whylogs.core.resolvers.ResolverSpec.metrics">metrics</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#whylogs.core.resolvers.COLUMN_METRICS">COLUMN_METRICS</a></li>
+<li><a class="reference internal" href="#whylogs.core.resolvers.DeclarativeResolver">DeclarativeResolver</a><ul>
+<li><a class="reference internal" href="#whylogs.core.resolvers.DeclarativeResolver.resolve">resolve</a></li>
 </ul>
 </li>
 </ul>

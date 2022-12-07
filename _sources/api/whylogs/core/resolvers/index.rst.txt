@@ -16,6 +16,9 @@ Classes
    whylogs.core.resolvers.StandardResolver
    whylogs.core.resolvers.LimitedTrackingResolver
    whylogs.core.resolvers.HistogramCountingTrackingResolver
+   whylogs.core.resolvers.MetricSpec
+   whylogs.core.resolvers.ResolverSpec
+   whylogs.core.resolvers.DeclarativeResolver
 
 
 
@@ -25,9 +28,16 @@ Attributes
 
 .. autoapisummary::
 
+   whylogs.core.resolvers.logger
    whylogs.core.resolvers.M
    whylogs.core.resolvers.ColumnSchema
+   whylogs.core.resolvers.COLUMN_METRICS
 
+
+.. py:data:: logger
+   
+
+   
 
 .. py:data:: M
    
@@ -77,6 +87,60 @@ Attributes
    Bases: :py:obj:`Resolver`
 
    Resolver that only adds distribution tracker.
+
+   .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+
+
+
+.. py:class:: MetricSpec
+
+   Specify a Metric to instantiate.
+
+   .. py:attribute:: metric
+      :annotation: :Any
+
+      
+
+   .. py:attribute:: config
+      :annotation: :Optional[whylogs.core.metrics.metrics.MetricConfig]
+
+      
+
+
+.. py:class:: ResolverSpec
+
+   Specify the metrics to instantiate for matching columns. column_name
+   takes precedence over column_type. column_type should be a subclass
+   of DataType, i.e., AnyType, Frational, Integral, or String. Pass the
+   class, not an instance.
+
+   .. py:attribute:: column_name
+      :annotation: :Optional[str]
+
+      
+
+   .. py:attribute:: column_type
+      :annotation: :Optional[Any]
+
+      
+
+   .. py:attribute:: metrics
+      :annotation: :List[MetricSpec]
+
+      
+
+
+.. py:data:: COLUMN_METRICS
+   
+
+   
+
+.. py:class:: DeclarativeResolver(resolvers: List[ResolverSpec], default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None)
+
+   Bases: :py:obj:`Resolver`
+
+   Implements the declarative resolution logic by interpreting a "program"
+   of ResolverSpecs
 
    .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
 
