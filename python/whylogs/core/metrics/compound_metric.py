@@ -18,8 +18,8 @@ class CompoundMetric(Metric, ABC):
     of one or more metrics. It is handy when you need to do some
     processing of the logged values and track serveral metrics on
     the results. The sub-metrics must either be a StandardMetric, or tagged
-    as a @custom_metric or @dataclass. Note that CompoundMetric is neither, so it
-    cannot be nested.
+    as a @custom_metric or registered via register_metric(). Note that
+    CompoundMetric is neither, so it cannot be nested.
 
     Typically you will need to override namespace(); columnar_update(), calling
     it on the submetrics as needed; and the zero() method to return an

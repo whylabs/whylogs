@@ -47,7 +47,7 @@ Welcome! In this section you will find examples on how to integrate `whylogs`' w
 | [Feast](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Feature_Stores_and_whylogs.ipynb)                  | Learn how to log features from your Feature Store with Feast and whylogs                 |
 | [Flask](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/flask_streaming/flask_with_whylogs.ipynb) | See how you can create a Flask app with this whylogs + WhyLabs integration               |
 | [Flyte](https://docs.flyte.org/projects/cookbook/en/stable/auto/integrations/flytekit_plugins/whylogs_examples/index.html)               | Learn how to use whylogs' DatasetProfileView type natively on your Flyte workflows       |
-| [Github Actions](https://docs.whylabs.ai/docs/github-actions-integration)                                                                | Monitor your ML datasets as part of your GitOps CI/CD pipeline                           |
+| [Github Actions](https://docs.whylabs.ai/docs/integration-github-actions)                                                                | Monitor your ML datasets as part of your GitOps CI/CD pipeline                           |
 | [MLflow](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Mlflow_Logging.ipynb)                             | Log your whylogs profiles to an MLflow experiment                                        |
 | [ZenML](https://blog.zenml.io/zero-six-zero-release/)                                                                                    | Combine different MLOps tools together with ZenML and whylogs!                           |
 
@@ -55,19 +55,20 @@ Welcome! In this section you will find examples on how to integrate `whylogs`' w
 
 You can monitor your profiles continuously with the WhyLabs Observability Platform, and have a single view of your different projects, data and ML models. To learn more how you can combine whylogs with WhyLabs and send over different profiles, refer to these following integration examples:
 
-| Integration                                                                                                                                                                          | Description                                                               |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
-| [Writing profiles](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_to_WhyLabs.ipynb)                                          | Send profiles to your WhyLabs Dashboard                                   |
-| [Reference Profile](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Reference_Profiles_to_WhyLabs.ipynb)                      | Send profiles as Reference (Static) Profiles to WhyLabs                   |
-| [Regression Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Regression_Performance_Metrics_to_WhyLabs.ipynb)         | Monitor Regression Model Performance Metrics with whylogs and WhyLabs     |
-| [Classification Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Classification_Performance_Metrics_to_WhyLabs.ipynb) | Monitor Classification Model Performance Metrics with whylogs and WhyLabs |
+| Integration                                                                                                                                                                          | Description                                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| [Writing profiles](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_to_WhyLabs.ipynb)                                          | Send profiles to your WhyLabs Dashboard                                         |
+| [Reference Profile](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Reference_Profiles_to_WhyLabs.ipynb)                      | Send profiles as Reference (Static) Profiles to WhyLabs                         |
+| [Regression Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Regression_Performance_Metrics_to_WhyLabs.ipynb)         | Monitor Regression Model Performance Metrics with whylogs and WhyLabs           |
+| [Classification Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Classification_Performance_Metrics_to_WhyLabs.ipynb) | Monitor Classification Model Performance Metrics with whylogs and WhyLabs       |
+| [Writing Feature Weights](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Feature_Weights_to_WhyLabs.ipynb)                   | Send Feature Weights / Feature Importance information to your WhyLabs Dashboard |
 
 ### Others
 
-| Integration                                                                 | Description                                                                                   |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| [whylogs Container](https://whylabs.ai/docs/integrations-whylogs-container) | A low code solution to profile your data with a Docker container deployed to your environment |
-| [Java](https://whylabs.ai/docs/java-integration)                            | Profile data with whylogs with Java                                                           |
+| Integration                                                                       | Description                                                                                   |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [whylogs Container](https://docs.whylabs.ai/docs/integrations-whylogs-container/) | A low code solution to profile your data with a Docker container deployed to your environment |
+| [Java](https://docs.whylabs.ai/docs/java-integration/)                            | Profile data with whylogs with Java                                                           |
 
 ## 🧑🏼‍🔬 Advanced examples
 

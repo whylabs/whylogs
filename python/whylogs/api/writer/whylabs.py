@@ -222,7 +222,7 @@ class WhyLabsWriter(Writer):
                 else:
                     logger.warning(
                         f"A profile being uploaded to WhyLabs has a dataset_timestamp of {dataset_timestamp} "
-                        "which is older than 7 days compared to {utc_now}. These profiles should be processed within 24 hours."
+                        f"which is older than 7 days compared to {utc_now}. These profiles should be processed within 24 hours."
                     )
 
             if stamp <= 0:

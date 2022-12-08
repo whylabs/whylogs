@@ -4,6 +4,7 @@ from typing import Dict
 
 import whylogs as why
 from whylogs.api.writer.whylabs import _uncompound_dataset_profile
+from whylogs.core import DatasetProfileView
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.datatypes import DataType
 from whylogs.core.metrics import Metric
@@ -161,3 +162,15 @@ def test_uncompound_profile() -> None:
 
     for metric in ["counts", "types", "cardinality", "frequent_items"]:
         assert metric in uncompounded._columns["image_column.Software"]._metrics
+
+
+def test_deserialize_profile() -> None:
+    image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
+    img = image_loader(image_path)
+    profile_view = log_image(img, "image_column").view()
+    profile_view.write(path="test.bin")
+    deserialized_view = DatasetProfileView.read("test.bin")
+    assert (
+        profile_view.get_column("image_column").to_summary_dict()
+        == deserialized_view.get_column("image_column").to_summary_dict()
+    )

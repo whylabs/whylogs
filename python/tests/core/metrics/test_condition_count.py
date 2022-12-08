@@ -1,59 +1,93 @@
 import re
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import pandas as pd
 import pytest
 
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import DataType
-from whylogs.core.metrics import Metric
+from whylogs.core.metric_getters import MetricGetter, ProfileGetter
+from whylogs.core.metrics import DistributionMetric, Metric, MetricConfig
 from whylogs.core.metrics.condition_count_metric import (
     Condition,
     ConditionCountConfig,
     ConditionCountMetric,
 )
 from whylogs.core.metrics.condition_count_metric import Relation as Rel
-from whylogs.core.metrics.condition_count_metric import and_relations as and_rel
-from whylogs.core.metrics.condition_count_metric import not_relation as not_rel
-from whylogs.core.metrics.condition_count_metric import or_relations as or_rel
 from whylogs.core.metrics.condition_count_metric import relation as rel
 from whylogs.core.metrics.metric_components import IntegralComponent
+from whylogs.core.metrics.metrics import OperationResult
+from whylogs.core.predicate_parser import parse_predicate
 from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.relations import Not, Predicate, Require
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
+
+X = Predicate()
 
 
 def test_condition_count_metric() -> None:
     conditions = {
-        "alpha": Condition(rel(Rel.match, "[a-zA-Z]+")),
-        "digit": Condition(rel(Rel.match, "[0-9]+")),
+        "alpha": Condition(X.matches("[a-zA-Z]+")),
+        "digit": Condition(X.matches("[0-9]+")),
+        "kwatz": Condition(X.equals("kwatz")),
     }
     metric = ConditionCountMetric(conditions, IntegralComponent(0))
     strings = ["abc", "123", "kwatz", "314159", "abc123"]
     metric.columnar_update(PreprocessedColumn.apply(strings))
     summary = metric.to_summary_dict(None)
 
-    assert set(summary.keys()) == {"total", "alpha", "digit"}
+    assert set(summary.keys()) == {"total", "alpha", "digit", "kwatz"}
     assert summary["total"] == len(strings)
     assert summary["alpha"] == 3  # "abc123" matches since it's not fullmatch
     assert summary["digit"] == 2
+    assert summary["kwatz"] == 1
 
 
 def test_throw_on_failure() -> None:
     conditions = {
-        "alpha": Condition(rel(Rel.match, "[a-zA-Z]+"), throw_on_failure=True),
-        "beta": Condition(rel(Rel.less, "blah"), throw_on_failure=True),
+        "alpha": Condition(X.matches("[a-zA-Z]+"), throw_on_failure=True),
+        "beta": Condition(X.less_than("blah"), throw_on_failure=True),
     }
     metric = ConditionCountMetric(conditions, IntegralComponent(0))
     strings = ["abc", "123", "kwatz", "314159", "abc123"]
     with pytest.raises(ValueError):
         metric.columnar_update(PreprocessedColumn.apply(strings))
+    strings = ["b", "bl", "bla"]
+    assert metric.columnar_update(PreprocessedColumn.apply(strings)) == OperationResult(0, len(strings))
+
+
+action_1_count = 0
+action_2_count = 0
+
+
+def action_1(val_name: str, cond_name: str, value: Any) -> None:
+    global action_1_count
+    action_1_count += 1
+
+
+def action_2(val_name: str, cond_name: str, value: Any) -> None:
+    global action_2_count
+    action_2_count += 1
+
+
+def test_actions() -> None:
+    conditions = {
+        "alpha": Condition(rel(Rel.match, "[a-zA-Z]+"), actions=[action_1]),
+        "digit": Condition(rel(Rel.match, "[0-9]+"), actions=[action_1, action_2]),
+    }
+    metric = ConditionCountMetric(conditions, IntegralComponent(0))
+    strings = ["abc", "123", "kwatz", "314159", "abc123"]
+    metric.columnar_update(PreprocessedColumn.apply(strings))
+
+    assert action_1_count == 5  # 3 don't start with digits, 2 don't start with digits
+    assert action_2_count == 3  # 3 don't start with digits
 
 
 def test_condition_count_merge() -> None:
     conditions = {
-        "alpha": Condition(rel(Rel.match, "[a-zA-Z]+")),
-        "digit": Condition(rel(Rel.match, "[0-9]+")),
+        "alpha": Condition(X.matches("[a-zA-Z]+")),
+        "digit": Condition(X.matches("[0-9]+")),
     }
     metric1 = ConditionCountMetric(conditions, IntegralComponent(0))
     metric2 = ConditionCountMetric(conditions, IntegralComponent(0))
@@ -71,14 +105,14 @@ def test_condition_count_merge() -> None:
 
 def test_condition_count_bad_merge() -> None:
     conditions1 = {
-        "alpha": Condition(rel(Rel.match, "[a-zA-Z]+")),
-        "digit": Condition(rel(Rel.match, "[0-9]+")),
+        "alpha": Condition(X.matches("[a-zA-Z]+")),
+        "digit": Condition(X.matches("[0-9]+")),
     }
     metric1 = ConditionCountMetric(conditions1, IntegralComponent(0))
     conditions2 = {
-        "alpha": Condition(rel(Rel.match, "[a-zA-Z]+")),
-        "digit": Condition(rel(Rel.match, "[0-9]+")),
-        "alnum": Condition(rel(Rel.match, "[a-zA-Z0-9]+")),
+        "alpha": Condition(X.matches("[a-zA-Z]+")),
+        "digit": Condition(X.matches("[0-9]+")),
+        "alnum": Condition(X.matches("[a-zA-Z0-9]+")),
     }
     metric2 = ConditionCountMetric(conditions2, IntegralComponent(0))
     strings = ["abc", "123", "kwatz", "314159", "abc123"]
@@ -95,12 +129,12 @@ def test_condition_count_bad_merge() -> None:
 
 def test_add_conditions_to_metric() -> None:
     conditions = {
-        "alpha": Condition(rel(Rel.match, "[a-zA-Z]+")),
+        "alpha": Condition(X.matches("[a-zA-Z]+")),
     }
     metric = ConditionCountMetric(conditions, IntegralComponent(0))
     strings = ["abc", "123", "kwatz", "314159", "abc123"]
     metric.columnar_update(PreprocessedColumn.apply(strings))
-    metric.add_conditions({"digit": Condition(rel(Rel.match, "[0-9]+"))})
+    metric.add_conditions({"digit": Condition(X.matches("[0-9]+"))})
     metric.columnar_update(PreprocessedColumn.apply(strings))
     summary = metric.to_summary_dict(None)
 
@@ -115,18 +149,18 @@ def test_condition_predicates() -> None:
         return x % 2 == 0
 
     conditions = {
-        "match": Condition(rel(Rel.match, "[a-zA-Z]+")),
-        "fullmatch": Condition(rel(Rel.fullmatch, "[a-zA-Z]+")),
-        "equal_str": Condition(rel(Rel.equal, "42")),
-        "equal_int": Condition(rel(Rel.equal, 42)),
-        "equal_flt": Condition(rel(Rel.equal, 42.1)),
-        "equal_flt42": Condition(rel(Rel.equal, 42.0)),
-        "less": Condition(rel(Rel.less, 42)),
-        "leq": Condition(rel(Rel.leq, 42)),
-        "greater": Condition(rel(Rel.greater, 42)),
-        "geq": Condition(rel(Rel.geq, 42)),
-        "neq": Condition(rel(Rel.neq, 42)),
-        "udf": Condition(even),
+        "match": Condition(X.matches("[a-zA-Z]+")),
+        "fullmatch": Condition(X.fullmatch("[a-zA-Z]+")),
+        "equal_str": Condition(X.equals("42")),
+        "equal_int": Condition(X.equals(42)),
+        "equal_flt": Condition(X.equals(42.1)),
+        "equal_flt42": Condition(X.equals(42.0)),
+        "less": Condition(X.less_than(42)),
+        "leq": Condition(X.less_or_equals(42)),
+        "greater": Condition(X.greater_than(42)),
+        "geq": Condition(X.greater_or_equals(42)),
+        "neq": Condition(X.not_equal(42)),
+        "udf": Condition(X.is_(even)),
     }
     config = ConditionCountConfig(conditions=conditions)
     metric = ConditionCountMetric.zero(config)
@@ -151,9 +185,10 @@ def test_condition_predicates() -> None:
 
 def test_condition_bool_ops() -> None:
     conditions = {
-        "between": Condition(and_rel(rel(Rel.greater, 40), rel(Rel.less, 44))),
-        "outside": Condition(or_rel(rel(Rel.less, 40), rel(Rel.greater, 44))),
-        "not_alpha": Condition(not_rel(rel(Rel.match, "[a-zA-Z]+"))),
+        "between": Condition(X.greater_than(40).and_(X.less_than(44))),
+        "outside": Condition(X.less_than(40).or_(X.greater_than(44))),
+        "not_alpha": Condition(X.not_.matches("[a-zA-Z]+")),
+        "not_alpha2": Condition(Not(X.matches("[a-zA-Z]+"))),
     }
     config = ConditionCountConfig(conditions=conditions)
     metric = ConditionCountMetric.zero(config)
@@ -164,12 +199,13 @@ def test_condition_bool_ops() -> None:
     assert summary["total"] == len(data)
     assert summary["between"] == 1
     assert summary["outside"] == 2
-    assert summary["not_alpha"] == 1  # numbers cause type error and don't count
+    assert summary["not_alpha"] == 4
+    assert summary["not_alpha2"] == 4
 
 
 def test_bad_condition_name() -> None:
     conditions = {
-        "total": Condition(rel(Rel.match, "")),
+        "total": Condition(X.matches("")),
     }
     with pytest.raises(ValueError):
         ConditionCountMetric(conditions, IntegralComponent(0))
@@ -185,8 +221,8 @@ def test_condition_count_in_profile() -> None:
             return {"condition_count": ConditionCountMetric.zero(column_schema.cfg)}
 
     conditions = {
-        "alpha": Condition(rel(Rel.match, "[a-zA-Z]+")),
-        "digit": Condition(rel(Rel.match, "[0-9]+")),
+        "alpha": Condition(X.matches("[a-zA-Z]+")),
+        "digit": Condition(X.matches("[0-9]+")),
     }
     config = ConditionCountConfig(conditions=conditions)
     resolver = TestResolver()
@@ -218,8 +254,8 @@ def test_condition_count_in_profile() -> None:
 
 def test_condition_count_in_column_profile() -> None:
     conditions = {
-        "alpha": Condition(rel(Rel.match, "[a-zA-Z]+")),
-        "digit": Condition(rel(Rel.match, "[0-9]+")),
+        "alpha": Condition(X.matches("[a-zA-Z]+")),
+        "digit": Condition(X.matches("[0-9]+")),
     }
     config = ConditionCountConfig(conditions=conditions)
     metric = ConditionCountMetric.zero(config)
@@ -243,8 +279,8 @@ def test_condition_count_in_column_profile() -> None:
 
 def test_condition_count_in_dataset_profile() -> None:
     conditions = {
-        "alpha": Condition(rel(Rel.match, "[a-zA-Z]+")),
-        "digit": Condition(rel(Rel.match, "[0-9]+")),
+        "alpha": Condition(X.matches("[a-zA-Z]+")),
+        "digit": Condition(X.matches("[0-9]+")),
     }
     config = ConditionCountConfig(conditions=conditions)
     metric = ConditionCountMetric.zero(config)
@@ -262,3 +298,149 @@ def test_condition_count_in_dataset_profile() -> None:
     assert summary["condition_count/total"] > 0
     assert summary["condition_count/alpha"] > 0
     assert summary["condition_count/digit"] > 0
+
+
+def _build_profile(data: List[int]) -> DatasetProfile:
+    """build up a "reference profile" to compare against"""
+    row = {"col1": data}
+    frame = pd.DataFrame(data=row)
+    prof = DatasetProfile()
+    prof.track(pandas=frame)  # track once to discover columns
+    prof.add_metric("col1", DistributionMetric.zero(MetricConfig()))
+    prof.track(pandas=frame)  # track again to populate the metric
+    return prof
+
+
+def test_profile_view_getter() -> None:
+    data = [1, 2, 3, 4, 5]
+    prof = _build_profile(data)
+    conditions = {
+        "above_min": Condition(X.greater_than(ProfileGetter(prof.view(), "col1", "distribution/min"))),
+    }  # compare each logged value against profile's min
+    config = ConditionCountConfig(conditions=conditions)
+    metric = ConditionCountMetric.zero(config)
+    metric.columnar_update(PreprocessedColumn.apply(data))
+    summary = metric.to_summary_dict(None)
+    assert summary["total"] == len(data)
+    assert summary["above_min"] == len(data) - 1
+
+
+def test_profile_getter() -> None:
+    data = [1, 2, 3, 4, 5]
+    prof = _build_profile(data)
+    conditions = {
+        "above_min": Condition(X.greater_than(ProfileGetter(prof, "col1", "distribution/min"))),
+    }  # compare each logged value against profile's min
+    config = ConditionCountConfig(conditions=conditions)
+    metric = ConditionCountMetric.zero(config)
+    metric.columnar_update(PreprocessedColumn.apply(data))
+    summary = metric.to_summary_dict(None)
+    assert summary["total"] == len(data)
+    assert summary["above_min"] == len(data) - 1
+
+    assert conditions["above_min"].relation.serialize() == "> x :col1:distribution/min"
+    assert parse_predicate("> x :col1:distribution/min", profile=prof).serialize() == "> x :col1:distribution/min"
+
+
+def test_metric_getter() -> None:
+    data = [1, 2, 3, 4, 5]
+    dist_metric = DistributionMetric.zero(MetricConfig())
+    dist_metric.columnar_update(PreprocessedColumn.apply(data))
+
+    conditions = {
+        "above_min": Condition(X.greater_than(MetricGetter(dist_metric, "min"))),
+    }  # compare each logged value against dist_metric's min
+    config = ConditionCountConfig(conditions=conditions)
+    cond_metric = ConditionCountMetric.zero(config)
+    cond_metric.columnar_update(PreprocessedColumn.apply(data))
+    summary = cond_metric.to_summary_dict(None)
+    assert summary["total"] == len(data)
+    assert summary["above_min"] == len(data) - 1
+
+    assert conditions["above_min"].relation.serialize() == "> x ::distribution/min"
+    assert parse_predicate("> x ::distribution/min", metric=dist_metric).serialize() == "> x ::distribution/min"
+
+
+@pytest.mark.parametrize(
+    "predicate,serialized",
+    [
+        (X.matches("[a-zA-Z]+"), '~ x "[a-zA-Z]+"'),
+        (X.fullmatch("[a-zA-Z]+"), '~= x "[a-zA-Z]+"'),
+        (X.equals("42"), '== x "42"'),
+        (X.equals(42), "== x 42"),
+        (X.equals(42.1), "== x 42.1"),
+        (X.equals(42.0), "== x 42.0"),
+        (X.less_than(42), "< x 42"),
+        (X.less_or_equals(42), "<= x 42"),
+        (X.greater_than(42), "> x 42"),
+        (X.greater_or_equals(42), ">= x 42"),
+        (X.not_equal(42), "!= x 42"),
+        # (X.is_(even)),
+        (X.greater_than(40).and_(X.less_than(44)), "and > x 40 < x 44"),
+        (X.less_than(40).or_(X.greater_than(44)), "or < x 40 > x 44"),
+        (X.not_.matches("[a-zA-Z]+"), 'not ~ x "[a-zA-Z]+"'),
+        (Not(X.matches("[a-zA-Z]+")), 'not ~ x "[a-zA-Z]+"'),
+        #
+        (Require("mean").matches("[a-zA-Z]+"), '~ mean "[a-zA-Z]+"'),
+        (Require("mean").fullmatch("[a-zA-Z]+"), '~= mean "[a-zA-Z]+"'),
+        (Require("mean").equals("42"), '== mean "42"'),
+        (Require("mean").equals(42), "== mean 42"),
+        (Require("mean").equals(42.1), "== mean 42.1"),
+        (Require("mean").equals(42.0), "== mean 42.0"),
+        (Require("mean").less_than(42), "< mean 42"),
+        (Require("mean").less_or_equals(42), "<= mean 42"),
+        (Require("mean").greater_than(42), "> mean 42"),
+        (Require("mean").greater_or_equals(42), ">= mean 42"),
+        (Require("mean").not_equal(42), "!= mean 42"),
+        # (Require().is_(even)),
+        (Require("mean").greater_than(40).and_(Require("max").less_than(44)), "and > mean 40 < max 44"),
+        (Require("mean").less_than(40).or_(Require("min").greater_than(44)), "or < mean 40 > min 44"),
+        (Require("mean").not_.matches("[a-zA-Z]+"), 'not ~ mean "[a-zA-Z]+"'),
+        (Not(Require("mean").matches("[a-zA-Z]+")), 'not ~ mean "[a-zA-Z]+"'),
+    ],
+)
+def test_serialization(predicate: X, serialized: str) -> None:
+    assert predicate.serialize() == serialized
+
+
+@pytest.mark.parametrize(
+    "predicate",
+    [
+        (X.matches("[a-zA-Z]+")),
+        (X.fullmatch("[a-zA-Z]+")),
+        (X.equals("42")),
+        (X.equals(42)),
+        (X.equals(42.1)),
+        (X.equals(42.0)),
+        (X.less_than(42)),
+        (X.less_or_equals(42)),
+        (X.greater_than(42)),
+        (X.greater_or_equals(42)),
+        (X.not_equal(42)),
+        # (X.is_(even)),
+        (X.greater_than(40).and_(X.less_than(44))),
+        (X.less_than(40).or_(X.greater_than(44))),
+        (X.not_.matches("[a-zA-Z]+")),
+        (Not(X.matches("[a-zA-Z]+"))),
+        #
+        (Require("mean").matches("[a-zA-Z]+")),
+        (Require("mean").fullmatch("[a-zA-Z]+")),
+        (Require("mean").equals("42")),
+        (Require("mean").equals(42)),
+        (Require("mean").equals(42.1)),
+        (Require("mean").equals(42.0)),
+        (Require("mean").less_than(42)),
+        (Require("mean").less_or_equals(42)),
+        (Require("mean").greater_than(42)),
+        (Require("mean").greater_or_equals(42)),
+        (Require("mean").not_equal(42)),
+        # (Require().is_(even)),
+        (Require("mean").greater_than(40).and_(Require("max").less_than(44))),
+        (Require("mean").less_than(40).or_(Require("min").greater_than(44))),
+        (Require("mean").not_.matches("[a-zA-Z]+")),
+        (Not(Require("mean").matches("[a-zA-Z]+"))),
+    ],
+)
+def test_deserialization(predicate: X) -> None:
+    serialized = predicate.serialize()
+    assert parse_predicate(serialized).serialize() == serialized
