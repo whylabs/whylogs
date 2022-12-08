@@ -325,8 +325,11 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/feature_weights/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.feature_weights</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/input_resolver/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.input_resolver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/metric_getters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metric_getters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/predicate_parser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.predicate_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/relations/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.relations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.resolvers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/segment/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segment</span></code></a></li>
@@ -678,7 +681,7 @@ are free to customize your actions as well as the conditions that trigger those 
 </ul>
 <p>We’ll use the following sample dataframe to evaluate on:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -710,18 +713,16 @@ are free to customize your actions as well as the conditions that trigger those 
 <div><p>Our conditions are usually expected to evaluate to <code class="docutils literal notranslate"><span class="pre">True</span></code>. When something goes wrong, the condition should evaluate to <code class="docutils literal notranslate"><span class="pre">False</span></code>, triggering a certain action in the process. This is why we negate the first condition (because matching the pattern is bad) and do a match for the second one (because not finding an email is bad)</p>
 </div></blockquote>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">Condition</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">Relation</span> <span class="k">as</span> <span class="n">Rel</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">relation</span> <span class="k">as</span> <span class="n">rel</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">not_relation</span> <span class="k">as</span> <span class="n">not_rel</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Not</span><span class="p">,</span> <span class="n">Predicate</span>
 
+<span class="n">X</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">()</span>
 
-<span class="n">credit_card_conditions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;noCreditCard&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">not_rel</span><span class="p">(</span><span class="n">rel</span><span class="p">(</span><span class="n">Rel</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;.*4[0-9]</span><span class="si">{12}</span><span class="s2">(?:[0-9]</span><span class="si">{3}</span><span class="s2">)?&quot;</span><span class="p">)))}</span>
+<span class="n">credit_card_conditions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;noCreditCard&quot;</span><span class="p">:</span> <span class="n">Not</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;.*4[0-9]</span><span class="si">{12}</span><span class="s2">(?:[0-9]</span><span class="si">{3}</span><span class="s2">)?&quot;</span><span class="p">))}</span>
 
-<span class="n">email_conditions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;hasEmail&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">rel</span><span class="p">(</span><span class="n">Rel</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">,</span> <span class="s2">&quot;[\w.]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}&quot;</span><span class="p">))}</span>
+<span class="n">email_conditions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;hasEmail&quot;</span><span class="p">:</span> <span class="n">X</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="s2">&quot;[\w.]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}&quot;</span><span class="p">)}</span>
 </pre></div>
 </div>
 </div>
@@ -734,7 +735,7 @@ are free to customize your actions as well as the conditions that trigger those 
 <p>The action to be triggered when a contidion fails is created by simply defining a regular function.</p>
 <p>We should just remember to define the arguments: <code class="docutils literal notranslate"><span class="pre">validator_name</span></code>, <code class="docutils literal notranslate"><span class="pre">condition_name</span></code> and <code class="docutils literal notranslate"><span class="pre">value</span></code>. You can use these values to help with logging and debugging the failures.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
@@ -754,7 +755,7 @@ are free to customize your actions as well as the conditions that trigger those 
 <div><p>Note that for a single validator, we could have multiple conditions defined and also multiple actions to be triggered.</p>
 </div></blockquote>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.validators</span> <span class="kn">import</span> <span class="n">ConditionValidator</span>
@@ -781,7 +782,7 @@ are free to customize your actions as well as the conditions that trigger those 
 <p>Assigning an instance to multiple columns will lead to an undefined behavior.</p>
 <p>In our case, we have only one validator for each of the columns:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">validators</span> <span class="o">=</span> <span class="p">{</span>
@@ -796,7 +797,7 @@ are free to customize your actions as well as the conditions that trigger those 
 <p>Now, we only need to pass our set of validators to our DatasetSchema.</p>
 <p>This will make the validators to be applied while data is being logged. The actions will be triggered immediately when the conditions fail, and not only when the logging is done.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DatasetSchema</span>
@@ -826,7 +827,7 @@ Validator: no_credit_cards
 <p>The <code class="docutils literal notranslate"><span class="pre">no_credit_cards</span></code> validator failed once, because the pattern was found once.</p>
 <p>We can also access a simple summary with the total number of evaluations, the number of total failures and the number of failures per condition present in the validator:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">email_validator</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">()</span>
@@ -834,8 +835,7 @@ Validator: no_credit_cards
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
@@ -843,7 +843,7 @@ Validator: no_credit_cards
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">credit_card_validator</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">()</span>
@@ -851,8 +851,7 @@ Validator: no_credit_cards
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>

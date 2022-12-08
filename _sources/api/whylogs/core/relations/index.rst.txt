@@ -1,0 +1,167 @@
+:py:mod:`whylogs.core.relations`
+================================
+
+.. py:module:: whylogs.core.relations
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.relations.ValueGetter
+   whylogs.core.relations.LiteralGetter
+   whylogs.core.relations.Relation
+   whylogs.core.relations.Predicate
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.relations.Not
+   whylogs.core.relations.Require
+
+
+
+.. py:class:: ValueGetter
+
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: serialize() -> str
+      :abstractmethod:
+
+
+
+.. py:class:: LiteralGetter(value: Union[str, int, float])
+
+   Bases: :py:obj:`ValueGetter`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: serialize() -> str
+
+
+
+.. py:class:: Relation
+
+   Bases: :py:obj:`enum.Enum`
+
+   Generic enumeration.
+
+   Derive from this class to define new enumerations.
+
+   .. py:attribute:: no_op
+      :annotation: = 0
+
+      
+
+   .. py:attribute:: match
+      :annotation: = 1
+
+      
+
+   .. py:attribute:: fullmatch
+      :annotation: = 2
+
+      
+
+   .. py:attribute:: equal
+      :annotation: = 3
+
+      
+
+   .. py:attribute:: less
+      :annotation: = 4
+
+      
+
+   .. py:attribute:: leq
+      :annotation: = 5
+
+      
+
+   .. py:attribute:: greater
+      :annotation: = 6
+
+      
+
+   .. py:attribute:: geq
+      :annotation: = 7
+
+      
+
+   .. py:attribute:: neq
+      :annotation: = 8
+
+      
+
+   .. py:method:: name()
+
+      The name of the Enum member.
+
+
+   .. py:method:: value()
+
+      The value of the Enum member.
+
+
+
+.. py:class:: Predicate(op: Relation = Relation.no_op, value: Union[str, int, float, ValueGetter] = 0, udf: Optional[Callable[[Any], bool]] = None, left: Optional[Predicate] = None, right: Optional[Predicate] = None, component: Optional[str] = None)
+
+   .. py:property:: not_
+      :type: Predicate
+
+
+   .. py:method:: matches(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: fullmatch(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: equals(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: less_than(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: less_or_equals(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: greater_than(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: greater_or_equals(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: not_equal(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: and_(right: Predicate) -> Predicate
+
+
+   .. py:method:: or_(right: Predicate) -> Predicate
+
+
+   .. py:method:: is_(udf: Callable[[Any], bool]) -> Predicate
+
+
+   .. py:method:: serialize() -> str
+
+
+
+.. py:function:: Not(p: Predicate) -> Predicate
+
+
+.. py:function:: Require(component: Optional[str] = None) -> Predicate
+
+

@@ -325,8 +325,11 @@
 <li class="toctree-l4"><a class="reference internal" href="../errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../feature_weights/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.feature_weights</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../input_resolver/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.input_resolver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metric_getters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metric_getters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../predicate_parser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.predicate_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../relations/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.relations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.resolvers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../segment/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segment</span></code></a></li>
@@ -430,7 +433,7 @@
 inheritance.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.validators.ConditionValidator.conditions">
-<span class="sig-name descname"><span class="pre">conditions</span></span><em class="property"><span class="w"> </span><span class="pre">:Dict[str,</span> <span class="pre">whylogs.core.metrics.condition_count_metric.Condition]</span></em><a class="headerlink" href="#whylogs.core.validators.ConditionValidator.conditions" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">conditions</span></span><em class="property"><span class="w"> </span><span class="pre">:Dict[str,</span> <span class="pre">Union[whylogs.core.metrics.condition_count_metric.Condition,</span> <span class="pre">Callable[[Any],</span> <span class="pre">bool]]]</span></em><a class="headerlink" href="#whylogs.core.validators.ConditionValidator.conditions" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">

@@ -316,8 +316,11 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/feature_weights/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.feature_weights</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/input_resolver/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.input_resolver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/metric_getters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metric_getters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/predicate_parser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.predicate_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/relations/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.relations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.resolvers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/segment/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segment</span></code></a></li>
@@ -389,7 +392,6 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Union</span>
 
@@ -403,37 +405,31 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">PreprocessedColumn</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.proto</span> <span class="kn">import</span> <span class="n">MetricMessage</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Relation</span> <span class="k">as</span> <span class="n">Rel</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="Relation"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Relation">[docs]</a><span class="k">class</span> <span class="nc">Relation</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">match</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">fullmatch</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="n">equal</span> <span class="o">=</span> <span class="mi">3</span>
-    <span class="n">less</span> <span class="o">=</span> <span class="mi">4</span>
-    <span class="n">leq</span> <span class="o">=</span> <span class="mi">5</span>
-    <span class="n">greater</span> <span class="o">=</span> <span class="mi">6</span>
-    <span class="n">geq</span> <span class="o">=</span> <span class="mi">7</span>
-    <span class="n">neq</span> <span class="o">=</span> <span class="mi">8</span></div>
+<span class="c1"># For backward compatability</span>
+<span class="n">Relation</span> <span class="o">=</span> <span class="n">Rel</span>  <span class="c1"># type: ignore</span>
 
 
-<div class="viewcode-block" id="relation"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.relation">[docs]</a><span class="k">def</span> <span class="nf">relation</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">Relation</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
-    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">match</span><span class="p">:</span>
+<span class="c1"># relation() is annoying, use Predicate instead</span>
+<div class="viewcode-block" id="relation"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.relation">[docs]</a><span class="k">def</span> <span class="nf">relation</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">Relation</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>  <span class="c1"># type: ignore</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">match</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
         <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
         <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">equal</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">equal</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
         <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">value</span>  <span class="c1"># type: ignore</span>
-    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">less</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">less</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
         <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">value</span>  <span class="c1"># type: ignore</span>
-    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">leq</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">leq</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
         <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">value</span>  <span class="c1"># type: ignore</span>
-    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">greater</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">greater</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
         <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">value</span>  <span class="c1"># type: ignore</span>
-    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">geq</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">geq</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
         <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">value</span>  <span class="c1"># type: ignore</span>
-    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">neq</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">neq</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
         <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">value</span>  <span class="c1"># type: ignore</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown ConditionCountMetric predicate&quot;</span><span class="p">)</span></div>
 
@@ -514,19 +510,20 @@
 
         <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">failed_conditions</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">raw_iterator</span><span class="p">())):</span>
+        <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">raw_iterator</span><span class="p">())):</span>
             <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">for</span> <span class="n">cond_name</span><span class="p">,</span> <span class="n">condition</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">condition</span><span class="o">.</span><span class="n">relation</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">condition</span><span class="o">.</span><span class="n">relation</span><span class="p">(</span><span class="n">datum</span><span class="p">):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="p">[</span><span class="n">cond_name</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="p">[</span><span class="n">cond_name</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">failed_conditions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cond_name</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">condition</span><span class="o">.</span><span class="n">actions</span><span class="p">:</span>
-                            <span class="n">action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">cond_name</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+                            <span class="n">action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">cond_name</span><span class="p">,</span> <span class="n">datum</span><span class="p">)</span>
 
-                <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
-                    <span class="k">pass</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="n">failed_conditions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cond_name</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">count</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">failed_conditions</span><span class="p">:</span>

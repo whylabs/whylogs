@@ -1,0 +1,22 @@
+:py:mod:`whylogs.core.predicate_parser`
+=======================================
+
+.. py:module:: whylogs.core.predicate_parser
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.predicate_parser.parse_predicate
+
+
+
+.. py:function:: parse_predicate(expression: str, metric: Optional[whylogs.core.metrics.metrics.Metric] = None, profile: Optional[whylogs.core.dataset_profile.DatasetProfile] = None) -> whylogs.core.relations.Predicate
+
+

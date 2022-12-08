@@ -32,8 +32,11 @@ Submodules
    errors/index.rst
    feature_weights/index.rst
    input_resolver/index.rst
+   metric_getters/index.rst
+   predicate_parser/index.rst
    preprocessing/index.rst
    projectors/index.rst
+   relations/index.rst
    resolvers/index.rst
    schema/index.rst
    segment/index.rst
@@ -51,8 +54,11 @@ Classes
    whylogs.core.ColumnProfile
    whylogs.core.DatasetProfile
    whylogs.core.TypeMapper
+   whylogs.core.MetricGetter
+   whylogs.core.ProfileGetter
    whylogs.core.MetricConfig
    whylogs.core.ModelPerformanceMetrics
+   whylogs.core.Predicate
    whylogs.core.Resolver
    whylogs.core.ColumnSchema
    whylogs.core.DatasetSchema
@@ -61,6 +67,15 @@ Classes
    whylogs.core.ColumnProfileView
    whylogs.core.DatasetProfileView
 
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.Not
+   whylogs.core.Require
 
 
 
@@ -176,6 +191,28 @@ Attributes
    inheritance.
 
 
+.. py:class:: MetricGetter(metric: whylogs.core.metrics.metrics.Metric, path: str)
+
+   Bases: :py:obj:`whylogs.core.relations.ValueGetter`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: serialize() -> str
+
+
+
+.. py:class:: ProfileGetter(profile: Union[whylogs.core.dataset_profile.DatasetProfile, whylogs.core.view.dataset_profile_view.DatasetProfileView], column_name: str, path: str)
+
+   Bases: :py:obj:`whylogs.core.relations.ValueGetter`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: serialize() -> str
+
+
+
 .. py:class:: MetricConfig
 
    .. py:attribute:: hll_lg_k
@@ -281,6 +318,55 @@ Attributes
 
       :type other: ModelMetrics
 
+
+
+.. py:function:: Not(p: Predicate) -> Predicate
+
+
+.. py:class:: Predicate(op: Relation = Relation.no_op, value: Union[str, int, float, ValueGetter] = 0, udf: Optional[Callable[[Any], bool]] = None, left: Optional[Predicate] = None, right: Optional[Predicate] = None, component: Optional[str] = None)
+
+   .. py:property:: not_
+      :type: Predicate
+
+
+   .. py:method:: matches(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: fullmatch(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: equals(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: less_than(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: less_or_equals(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: greater_than(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: greater_or_equals(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: not_equal(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
+   .. py:method:: and_(right: Predicate) -> Predicate
+
+
+   .. py:method:: or_(right: Predicate) -> Predicate
+
+
+   .. py:method:: is_(udf: Callable[[Any], bool]) -> Predicate
+
+
+   .. py:method:: serialize() -> str
+
+
+
+.. py:function:: Require(component: Optional[str] = None) -> Predicate
 
 
 .. py:class:: Resolver

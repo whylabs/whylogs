@@ -325,8 +325,11 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/feature_weights/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.feature_weights</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/input_resolver/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.input_resolver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/metric_getters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metric_getters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/predicate_parser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.predicate_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/relations/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.relations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.resolvers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/segment/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segment</span></code></a></li>
@@ -657,7 +660,7 @@ div.rendered_html tbody tr:hover {
 <h2>Setting up<a class="headerlink" href="#Setting-up" title="Permalink to this headline">#</a></h2>
 <p>The first thing you’ll need to do to start using the <code class="docutils literal notranslate"><span class="pre">LocalStore</span></code> is instantiate the object and check if any profiles were written with the <code class="docutils literal notranslate"><span class="pre">list</span></code> method.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.store</span> <span class="kn">import</span> <span class="n">LocalStore</span>
@@ -668,8 +671,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
@@ -678,7 +680,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>And since we have an empty list returned, it means that we haven’t used the profile store in this location so far. But we can already check that a new directory called <code class="docutils literal notranslate"><span class="pre">profile_store</span></code> was created on our working directory:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
@@ -687,8 +689,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
@@ -701,7 +702,7 @@ True
 <p>Now that we have our <code class="docutils literal notranslate"><span class="pre">LocalStore</span></code> configured, let’s write some data to it. In order to emulate a real use-case but also maintain this notebook less complex, we will instantiate a rolling logger instance and run it for 2 minutes. The interval in which we choose to roll, the logger will rotate and persist a merged profile to the <code class="docutils literal notranslate"><span class="pre">LocalStore</span></code>. And then we will ingest the same pandas DataFrame in order to emulate multiple log calls not in sync with the rotation schedule. This tries to bring to
 light a real streaming case, where there is a long-living logging application that receives multiple requests and rotates the profiles to the LocalStore with a certain time-range.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -711,7 +712,7 @@ light a real streaming case, where there is a long-living logging application th
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
@@ -728,7 +729,7 @@ light a real streaming case, where there is a long-living logging application th
 </div>
 <p>And then you should see new profiles created on your LocalStore. Let’s investigate if that is actually the case:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_id</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">list</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
@@ -737,8 +738,7 @@ light a real streaming case, where there is a long-living logging application th
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
@@ -751,7 +751,7 @@ light a real streaming case, where there is a long-living logging application th
 <h2>Read profiles from the store<a class="headerlink" href="#Read-profiles-from-the-store" title="Permalink to this headline">#</a></h2>
 <p>Another step in learning how to use the <code class="docutils literal notranslate"><span class="pre">LocalStore</span></code> is the ability to fetch back profiles. You can either do that by passing in a <code class="docutils literal notranslate"><span class="pre">DatasetIdQuery</span></code>, which will fetch all existing profiles within that dataset_id, or a <code class="docutils literal notranslate"><span class="pre">DateQuery</span></code>, that will get all written profiles for a specific datetime range.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.store</span> <span class="kn">import</span> <span class="n">DateQuery</span><span class="p">,</span> <span class="n">DatasetIdQuery</span>
@@ -763,7 +763,7 @@ light a real streaming case, where there is a long-living logging application th
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
@@ -771,8 +771,7 @@ light a real streaming case, where there is a long-living logging application th
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
@@ -920,7 +919,7 @@ light a real streaming case, where there is a long-living logging application th
 </div>
 <p>The second approach is to get from a certain date range. Since we have written only two profiles for the same minute, we will end up with the same result from before. The nice thing about this is that it will allow users to fetch profiles for a moving window of reference, as we will demonstrate below:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
@@ -937,7 +936,7 @@ light a real streaming case, where there is a long-living logging application th
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">timed_profile_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
@@ -945,8 +944,7 @@ light a real streaming case, where there is a long-living logging application th
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
@@ -1102,22 +1100,20 @@ Slack</a>.</p>
 <h2>Validating profiles with the Local Store<a class="headerlink" href="#Validating-profiles-with-the-Local-Store" title="Permalink to this headline">#</a></h2>
 <p>Now let’s use this new functionality to validate incoming profiles! This will be useful to trigger some actions when receiving incoming data, for example. In order to do that, we will need a set of fixed rules for the Validator, as well as a well-defined set of Constraints, so we can do comparisons while profiling and also after profiling. So let’s get to it.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">Condition</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">Relation</span> <span class="k">as</span> <span class="n">Rel</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">relation</span> <span class="k">as</span> <span class="n">rel</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">not_relation</span> <span class="k">as</span> <span class="n">not_rel</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span>  <span class="n">Not</span><span class="p">,</span> <span class="n">Predicate</span>
 
+<span class="n">X</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">()</span>
 
-<span class="n">name_condition</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;is_not_value&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">not_rel</span><span class="p">(</span><span class="n">rel</span><span class="p">(</span><span class="n">Rel</span><span class="o">.</span><span class="n">equal</span><span class="p">,</span> <span class="s2">&quot;John&quot;</span><span class="p">)))}</span>
+<span class="n">name_condition</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;is_not_value&quot;</span><span class="p">:</span> <span class="n">Not</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;John&quot;</span><span class="p">))}</span>
 </pre></div>
 </div>
 </div>
 <p>After defining the conditions that we wish to validate, we need to set the callback that will be triggered when this condition is met. We will simply print something to the screen for this example, but in a real usage scenario, you could possibly stop your processes and trigger an alert to your central communications channel, for example :)</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
@@ -1129,7 +1125,7 @@ Slack</a>.</p>
 </div>
 <p>Lastly, we need to create the validator, that will take in the condition that we set along with the callback function.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.validators</span> <span class="kn">import</span> <span class="n">ConditionValidator</span>
@@ -1145,7 +1141,7 @@ Slack</a>.</p>
 </div>
 <p>And now we will map the condition to specific columns:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">validators</span> <span class="o">=</span> <span class="p">{</span>
@@ -1156,7 +1152,7 @@ Slack</a>.</p>
 </div>
 <p>Finally, we can again log incoming data. For this example, we will log data for approximately 2 minutes, which will dump 2 new profiles to our <code class="docutils literal notranslate"><span class="pre">LocalStore</span></code>. Then, we will introduce data that won’t match the validator condition, and we will see the callback being executed while logging! Please note that both DataFrames follow the <strong>same schema</strong>, only invalid data is being brought to the second one.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DatasetSchema</span>
@@ -1186,7 +1182,7 @@ Validator no_one_named_john failed! Condition name is_not_value failed for value
 </div>
 <p>And as we can see, the validation failed, since we introduced a DataFrame with an invalid data point! Let’s check how does the stored profile look like:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">name_query</span> <span class="o">=</span> <span class="n">DatasetIdQuery</span><span class="p">(</span><span class="n">dataset_id</span><span class="o">=</span><span class="s2">&quot;base_model_name&quot;</span><span class="p">)</span>
@@ -1196,8 +1192,7 @@ Validator no_one_named_john failed! Condition name is_not_value failed for value
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
@@ -1348,7 +1343,7 @@ Validator no_one_named_john failed! Condition name is_not_value failed for value
 <h2>Comparing profiles with the Profile Store<a class="headerlink" href="#Comparing-profiles-with-the-Profile-Store" title="Permalink to this headline">#</a></h2>
 <p>Last thing we wanted to demonstrate is the ability to fetch ever-moving reference profiles from the <code class="docutils literal notranslate"><span class="pre">LocalStore</span></code> and use them to compare to recently profile data. We will use whylogs’ Constraints module along with the <code class="docutils literal notranslate"><span class="pre">LocalStore</span></code> and we will see how users might benefit from it in the future. In order to do that, we will make two queries to the store, one of them will be our reference, and the other one will aggregate only today’s worth of data.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">store</span> <span class="o">=</span> <span class="n">LocalStore</span><span class="p">()</span>
@@ -1363,7 +1358,7 @@ Validator no_one_named_john failed! Condition name is_not_value failed for value
 </div>
 <p>With both profiles read, now what we need to do is define our constraints suite. For demonstration purposes, we will check if the column values are <strong>not</strong> greater than the average of the reference.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="n">ConstraintsBuilder</span>
@@ -1393,7 +1388,7 @@ False
 <p>So we have just validated our recently read profile against the reference, which has 7 days worth of profiles. We can also mix the reference profile checks with other ones just for the newest. Hopefully this short demonstration notebook can bring some of the features that the <code class="docutils literal notranslate"><span class="pre">LocalStore</span></code> brings to help you make the most out of whylogs and make your data and ML pipelines more robust and responsible. To learn more, check out our <a class="reference external" href="https://github.com/whylabs/whylogs/tree/mainline/python/examples">other
 examples</a>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># cleaning up</span>

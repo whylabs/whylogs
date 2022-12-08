@@ -1,0 +1,42 @@
+:py:mod:`whylogs.core.metric_getters`
+=====================================
+
+.. py:module:: whylogs.core.metric_getters
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.metric_getters.MetricGetter
+   whylogs.core.metric_getters.ProfileGetter
+
+
+
+
+.. py:class:: MetricGetter(metric: whylogs.core.metrics.metrics.Metric, path: str)
+
+   Bases: :py:obj:`whylogs.core.relations.ValueGetter`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: serialize() -> str
+
+
+
+.. py:class:: ProfileGetter(profile: Union[whylogs.core.dataset_profile.DatasetProfile, whylogs.core.view.dataset_profile_view.DatasetProfileView], column_name: str, path: str)
+
+   Bases: :py:obj:`whylogs.core.relations.ValueGetter`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: serialize() -> str
+
+
+

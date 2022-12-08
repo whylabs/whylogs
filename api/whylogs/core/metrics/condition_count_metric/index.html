@@ -325,8 +325,11 @@
 <li class="toctree-l4"><a class="reference internal" href="../../errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../feature_weights/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.feature_weights</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../input_resolver/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.input_resolver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metric_getters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metric_getters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../predicate_parser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.predicate_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../relations/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.relations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.resolvers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../segment/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segment</span></code></a></li>
@@ -407,16 +410,13 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation" title="whylogs.core.metrics.condition_count_metric.Relation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Relation</span></code></a></p></td>
-<td><p>Generic enumeration.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Condition" title="whylogs.core.metrics.condition_count_metric.Condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Condition</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Condition" title="whylogs.core.metrics.condition_count_metric.Condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Condition</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountConfig" title="whylogs.core.metrics.condition_count_metric.ConditionCountConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConditionCountConfig</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountConfig" title="whylogs.core.metrics.condition_count_metric.ConditionCountConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConditionCountConfig</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric" title="whylogs.core.metrics.condition_count_metric.ConditionCountMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConditionCountMetric</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric" title="whylogs.core.metrics.condition_count_metric.ConditionCountMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConditionCountMetric</span></code></a></p></td>
 <td><p>Helper class that provides a standard way to create an ABC using</p></td>
 </tr>
 </tbody>
@@ -460,6 +460,9 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.logger" title="whylogs.core.metrics.condition_count_metric.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation" title="whylogs.core.metrics.condition_count_metric.Relation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Relation</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -468,65 +471,10 @@
 <span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.condition_count_metric.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.logger" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py class">
+<dl class="py data">
 <dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.Relation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.condition_count_metric.</span></span><span class="sig-name descname"><span class="pre">Relation</span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/condition_count_metric.html#Relation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Relation" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/enum.html#enum.Enum" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
-<p>Generic enumeration.</p>
-<p>Derive from this class to define new enumerations.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.Relation.match">
-<span class="sig-name descname"><span class="pre">match</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Relation.match" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.condition_count_metric.</span></span><span class="sig-name descname"><span class="pre">Relation</span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/relations.html#Relation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Relation" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.Relation.fullmatch">
-<span class="sig-name descname"><span class="pre">fullmatch</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Relation.fullmatch" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.Relation.equal">
-<span class="sig-name descname"><span class="pre">equal</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Relation.equal" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.Relation.less">
-<span class="sig-name descname"><span class="pre">less</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Relation.less" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.Relation.leq">
-<span class="sig-name descname"><span class="pre">leq</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">5</span></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Relation.leq" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.Relation.greater">
-<span class="sig-name descname"><span class="pre">greater</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">6</span></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Relation.greater" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.Relation.geq">
-<span class="sig-name descname"><span class="pre">geq</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">7</span></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Relation.geq" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.Relation.neq">
-<span class="sig-name descname"><span class="pre">neq</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">8</span></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Relation.neq" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.Relation.name">
-<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Relation.name" title="Permalink to this definition">#</a></dt>
-<dd><p>The name of the Enum member.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.Relation.value">
-<span class="sig-name descname"><span class="pre">value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Relation.value" title="Permalink to this definition">#</a></dt>
-<dd><p>The value of the Enum member.</p>
-</dd></dl>
-
-</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.relation">
@@ -534,7 +482,7 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>op</strong> (<a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation" title="whylogs.core.metrics.condition_count_metric.Relation"><em>Relation</em></a>) – </p></li>
+<li><p><strong>op</strong> (<a class="reference internal" href="../../relations/index.html#whylogs.core.relations.Relation" title="whylogs.core.relations.Relation"><em>Relation</em></a>) – </p></li>
 <li><p><strong>value</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -911,19 +859,7 @@ inheritance.</p>
 <li><a class="reference internal" href="#functions">Functions</a></li>
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.logger">logger</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation">Relation</a><ul>
-<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation.match">match</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation.fullmatch">fullmatch</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation.equal">equal</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation.less">less</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation.leq">leq</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation.greater">greater</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation.geq">geq</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation.neq">neq</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation.name">name</a></li>
-<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation.value">value</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Relation">Relation</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.relation">relation</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.and_relations">and_relations</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.or_relations">or_relations</a></li>

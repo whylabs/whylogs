@@ -10,7 +10,7 @@
   
 <meta property="og:url" content="https://whylogs.readthedocs.io/api/whylogs/core/validators/condition_validator/index.html" />
   
-<meta property="og:description" content="Module Contents: Classes:" />
+<meta property="og:description" content="Module Contents: Classes: Attributes:" />
   <link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" /><link rel="next" title="whylogs.core.validators.validator" href="../validator/index.html" /><link rel="prev" title="whylogs.core.validators" href="../index.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
@@ -325,8 +325,11 @@
 <li class="toctree-l4"><a class="reference internal" href="../../errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../feature_weights/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.feature_weights</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../input_resolver/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.input_resolver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metric_getters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metric_getters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../predicate_parser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.predicate_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../relations/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.relations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.resolvers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../segment/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segment</span></code></a></li>
@@ -413,6 +416,27 @@
 </tbody>
 </table>
 </div>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">#</a></h3>
+<div class="table-wrapper longtable docutils container">
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.validators.condition_validator.logger" title="whylogs.core.validators.condition_validator.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py data">
+<dt class="sig sig-object py" id="whylogs.core.validators.condition_validator.logger">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.validators.condition_validator.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#whylogs.core.validators.condition_validator.logger" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.validators.condition_validator.ConditionValidator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.validators.condition_validator.</span></span><span class="sig-name descname"><span class="pre">ConditionValidator</span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/validators/condition_validator.html#ConditionValidator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.validators.condition_validator.ConditionValidator" title="Permalink to this definition">#</a></dt>
@@ -421,7 +445,7 @@
 inheritance.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.validators.condition_validator.ConditionValidator.conditions">
-<span class="sig-name descname"><span class="pre">conditions</span></span><em class="property"><span class="w"> </span><span class="pre">:Dict[str,</span> <span class="pre">whylogs.core.metrics.condition_count_metric.Condition]</span></em><a class="headerlink" href="#whylogs.core.validators.condition_validator.ConditionValidator.conditions" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">conditions</span></span><em class="property"><span class="w"> </span><span class="pre">:Dict[str,</span> <span class="pre">Union[whylogs.core.metrics.condition_count_metric.Condition,</span> <span class="pre">Callable[[Any],</span> <span class="pre">bool]]]</span></em><a class="headerlink" href="#whylogs.core.validators.condition_validator.ConditionValidator.conditions" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -557,7 +581,9 @@ inheritance.</p>
             <ul>
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.validators.condition_validator</span></code></a><ul>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
-<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#attributes">Attributes</a><ul>
+<li><a class="reference internal" href="#whylogs.core.validators.condition_validator.logger">logger</a></li>
 <li><a class="reference internal" href="#whylogs.core.validators.condition_validator.ConditionValidator">ConditionValidator</a><ul>
 <li><a class="reference internal" href="#whylogs.core.validators.condition_validator.ConditionValidator.conditions">conditions</a></li>
 <li><a class="reference internal" href="#whylogs.core.validators.condition_validator.ConditionValidator.actions">actions</a></li>

@@ -17,6 +17,19 @@ Classes
 
 
 
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.validators.condition_validator.logger
+
+
+.. py:data:: logger
+   
+
+   
+
 .. py:class:: ConditionValidator
 
    Bases: :py:obj:`whylogs.core.validators.validator.Validator`
@@ -25,7 +38,7 @@ Classes
    inheritance.
 
    .. py:attribute:: conditions
-      :annotation: :Dict[str, whylogs.core.metrics.condition_count_metric.Condition]
+      :annotation: :Dict[str, Union[whylogs.core.metrics.condition_count_metric.Condition, Callable[[Any], bool]]]
 
       
 

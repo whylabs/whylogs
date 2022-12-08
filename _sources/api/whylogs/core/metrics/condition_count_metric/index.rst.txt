@@ -12,7 +12,6 @@ Classes
 
 .. autoapisummary::
 
-   whylogs.core.metrics.condition_count_metric.Relation
    whylogs.core.metrics.condition_count_metric.Condition
    whylogs.core.metrics.condition_count_metric.ConditionCountConfig
    whylogs.core.metrics.condition_count_metric.ConditionCountMetric
@@ -37,6 +36,7 @@ Attributes
 .. autoapisummary::
 
    whylogs.core.metrics.condition_count_metric.logger
+   whylogs.core.metrics.condition_count_metric.Relation
 
 
 .. py:data:: logger
@@ -44,64 +44,10 @@ Attributes
 
    
 
-.. py:class:: Relation
+.. py:data:: Relation
+   
 
-   Bases: :py:obj:`enum.Enum`
-
-   Generic enumeration.
-
-   Derive from this class to define new enumerations.
-
-   .. py:attribute:: match
-      :annotation: = 1
-
-      
-
-   .. py:attribute:: fullmatch
-      :annotation: = 2
-
-      
-
-   .. py:attribute:: equal
-      :annotation: = 3
-
-      
-
-   .. py:attribute:: less
-      :annotation: = 4
-
-      
-
-   .. py:attribute:: leq
-      :annotation: = 5
-
-      
-
-   .. py:attribute:: greater
-      :annotation: = 6
-
-      
-
-   .. py:attribute:: geq
-      :annotation: = 7
-
-      
-
-   .. py:attribute:: neq
-      :annotation: = 8
-
-      
-
-   .. py:method:: name()
-
-      The name of the Enum member.
-
-
-   .. py:method:: value()
-
-      The value of the Enum member.
-
-
+   
 
 .. py:function:: relation(op: Relation, value: Union[str, int, float]) -> Callable[[Any], bool]
 

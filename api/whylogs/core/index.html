@@ -325,8 +325,11 @@
 <li class="toctree-l4"><a class="reference internal" href="errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="feature_weights/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.feature_weights</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="input_resolver/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.input_resolver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="metric_getters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metric_getters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="predicate_parser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.predicate_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="relations/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.relations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.resolvers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="segment/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segment</span></code></a></li>
@@ -471,8 +474,11 @@
 <li class="toctree-l1"><a class="reference internal" href="errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="feature_weights/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.feature_weights</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="input_resolver/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.input_resolver</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="metric_getters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metric_getters</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="predicate_parser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.predicate_parser</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="relations/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.relations</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.resolvers</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="segment/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segment</span></code></a></li>
@@ -500,32 +506,60 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.TypeMapper" title="whylogs.core.TypeMapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TypeMapper</span></code></a></p></td>
 <td><p>Helper class that provides a standard way to create an ABC using</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.MetricGetter" title="whylogs.core.MetricGetter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MetricGetter</span></code></a></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.ProfileGetter" title="whylogs.core.ProfileGetter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProfileGetter</span></code></a></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.MetricConfig" title="whylogs.core.MetricConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MetricConfig</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.ModelPerformanceMetrics" title="whylogs.core.ModelPerformanceMetrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelPerformanceMetrics</span></code></a></p></td>
 <td><p>Container class for various model-related performance metrics</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.Resolver" title="whylogs.core.Resolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Resolver</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Predicate</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.Resolver" title="whylogs.core.Resolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Resolver</span></code></a></p></td>
 <td><p>A resolver maps from a column name and a data type to trackers.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.ColumnSchema" title="whylogs.core.ColumnSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnSchema</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.ColumnSchema" title="whylogs.core.ColumnSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnSchema</span></code></a></p></td>
 <td><p>Schema of a column.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.DatasetSchema" title="whylogs.core.DatasetSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetSchema</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.DatasetSchema" title="whylogs.core.DatasetSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetSchema</span></code></a></p></td>
 <td><p>Defines the schema for tracking metrics in whylogs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.Segment" title="whylogs.core.Segment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Segment</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.Segment" title="whylogs.core.Segment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Segment</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.SegmentationPartition" title="whylogs.core.SegmentationPartition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SegmentationPartition</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.SegmentationPartition" title="whylogs.core.SegmentationPartition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SegmentationPartition</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.ColumnProfileView" title="whylogs.core.ColumnProfileView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnProfileView</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.ColumnProfileView" title="whylogs.core.ColumnProfileView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnProfileView</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetProfileView</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetProfileView</span></code></a></p></td>
 <td><p>Helper class that provides a standard way to create an ABC using</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">#</a></h3>
+<div class="table-wrapper longtable docutils container">
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.Not" title="whylogs.core.Not"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Not</span></code></a>(→ Predicate)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.Require" title="whylogs.core.Require"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Require</span></code></a>(→ Predicate)</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -849,6 +883,59 @@ inheritance.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.MetricGetter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.</span></span><span class="sig-name descname"><span class="pre">MetricGetter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><span class="pre">whylogs.core.metrics.metrics.Metric</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/whylogs/core/metric_getters.html#MetricGetter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.MetricGetter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="relations/index.html#whylogs.core.relations.ValueGetter" title="whylogs.core.relations.ValueGetter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.core.relations.ValueGetter</span></code></a></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metric</strong> (<a class="reference internal" href="metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><em>whylogs.core.metrics.metrics.Metric</em></a>) – </p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.MetricGetter.serialize">
+<span class="sig-name descname"><span class="pre">serialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/metric_getters.html#MetricGetter.serialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.MetricGetter.serialize" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.ProfileGetter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.</span></span><span class="sig-name descname"><span class="pre">ProfileGetter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dataset_profile/index.html#whylogs.core.dataset_profile.DatasetProfile" title="whylogs.core.dataset_profile.DatasetProfile"><span class="pre">whylogs.core.dataset_profile.DatasetProfile</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView" title="whylogs.core.view.dataset_profile_view.DatasetProfileView"><span class="pre">whylogs.core.view.dataset_profile_view.DatasetProfileView</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/whylogs/core/metric_getters.html#ProfileGetter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.ProfileGetter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="relations/index.html#whylogs.core.relations.ValueGetter" title="whylogs.core.relations.ValueGetter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.core.relations.ValueGetter</span></code></a></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>profile</strong> (<em>Union</em><em>[</em><a class="reference internal" href="dataset_profile/index.html#whylogs.core.dataset_profile.DatasetProfile" title="whylogs.core.dataset_profile.DatasetProfile"><em>whylogs.core.dataset_profile.DatasetProfile</em></a><em>, </em><a class="reference internal" href="view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView" title="whylogs.core.view.dataset_profile_view.DatasetProfileView"><em>whylogs.core.view.dataset_profile_view.DatasetProfileView</em></a><em>]</em>) – </p></li>
+<li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.ProfileGetter.serialize">
+<span class="sig-name descname"><span class="pre">serialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/metric_getters.html#ProfileGetter.serialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.ProfileGetter.serialize" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.MetricConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.</span></span><span class="sig-name descname"><span class="pre">MetricConfig</span></span><a class="reference internal" href="../../../_modules/whylogs/core/metrics/metrics.html#MetricConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.MetricConfig" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py attribute">
@@ -1036,6 +1123,212 @@ inheritance.</p>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.Not">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.</span></span><span class="sig-name descname"><span class="pre">Not</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Not"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Not" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> (<a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><em>Predicate</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.Predicate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.</span></span><span class="sig-name descname"><span class="pre">Predicate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Relation</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Relation.no_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ValueGetter</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">udf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Predicate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Predicate" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>op</strong> (<a class="reference internal" href="relations/index.html#whylogs.core.relations.Relation" title="whylogs.core.relations.Relation"><em>Relation</em></a>) – </p></li>
+<li><p><strong>value</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><a class="reference internal" href="relations/index.html#whylogs.core.relations.ValueGetter" title="whylogs.core.relations.ValueGetter"><em>ValueGetter</em></a><em>]</em>) – </p></li>
+<li><p><strong>udf</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>left</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><em>Predicate</em></a><em>]</em>) – </p></li>
+<li><p><strong>right</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><em>Predicate</em></a><em>]</em>) – </p></li>
+<li><p><strong>component</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.Predicate.not_">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">not_</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></em><a class="headerlink" href="#whylogs.core.Predicate.not_" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.Predicate.matches">
+<span class="sig-name descname"><span class="pre">matches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ValueGetter</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Predicate.matches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Predicate.matches" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><a class="reference internal" href="relations/index.html#whylogs.core.relations.ValueGetter" title="whylogs.core.relations.ValueGetter"><em>ValueGetter</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.Predicate.fullmatch">
+<span class="sig-name descname"><span class="pre">fullmatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ValueGetter</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Predicate.fullmatch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Predicate.fullmatch" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><a class="reference internal" href="relations/index.html#whylogs.core.relations.ValueGetter" title="whylogs.core.relations.ValueGetter"><em>ValueGetter</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.Predicate.equals">
+<span class="sig-name descname"><span class="pre">equals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ValueGetter</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Predicate.equals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Predicate.equals" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><a class="reference internal" href="relations/index.html#whylogs.core.relations.ValueGetter" title="whylogs.core.relations.ValueGetter"><em>ValueGetter</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.Predicate.less_than">
+<span class="sig-name descname"><span class="pre">less_than</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ValueGetter</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Predicate.less_than"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Predicate.less_than" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><a class="reference internal" href="relations/index.html#whylogs.core.relations.ValueGetter" title="whylogs.core.relations.ValueGetter"><em>ValueGetter</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.Predicate.less_or_equals">
+<span class="sig-name descname"><span class="pre">less_or_equals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ValueGetter</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Predicate.less_or_equals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Predicate.less_or_equals" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><a class="reference internal" href="relations/index.html#whylogs.core.relations.ValueGetter" title="whylogs.core.relations.ValueGetter"><em>ValueGetter</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.Predicate.greater_than">
+<span class="sig-name descname"><span class="pre">greater_than</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ValueGetter</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Predicate.greater_than"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Predicate.greater_than" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><a class="reference internal" href="relations/index.html#whylogs.core.relations.ValueGetter" title="whylogs.core.relations.ValueGetter"><em>ValueGetter</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.Predicate.greater_or_equals">
+<span class="sig-name descname"><span class="pre">greater_or_equals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ValueGetter</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Predicate.greater_or_equals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Predicate.greater_or_equals" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><a class="reference internal" href="relations/index.html#whylogs.core.relations.ValueGetter" title="whylogs.core.relations.ValueGetter"><em>ValueGetter</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.Predicate.not_equal">
+<span class="sig-name descname"><span class="pre">not_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ValueGetter</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Predicate.not_equal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Predicate.not_equal" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><a class="reference internal" href="relations/index.html#whylogs.core.relations.ValueGetter" title="whylogs.core.relations.ValueGetter"><em>ValueGetter</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.Predicate.and_">
+<span class="sig-name descname"><span class="pre">and_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">right</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Predicate.and_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Predicate.and_" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>right</strong> (<a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><em>Predicate</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.Predicate.or_">
+<span class="sig-name descname"><span class="pre">or_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">right</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Predicate.or_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Predicate.or_" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>right</strong> (<a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><em>Predicate</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.Predicate.is_">
+<span class="sig-name descname"><span class="pre">is_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">udf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Predicate.is_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Predicate.is_" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>udf</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.Predicate.serialize">
+<span class="sig-name descname"><span class="pre">serialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Predicate.serialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Predicate.serialize" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.Require">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.</span></span><span class="sig-name descname"><span class="pre">Require</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate"><span class="pre">Predicate</span></a></span></span><a class="reference internal" href="../../../_modules/whylogs/core/relations.html#Require"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Require" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>component</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.Predicate" title="whylogs.core.Predicate">Predicate</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
@@ -1737,6 +2030,7 @@ inheritance.</p>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#package-contents">Package Contents</a><ul>
 <li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
 <li><a class="reference internal" href="#whylogs.core.ColumnProfile">ColumnProfile</a><ul>
 <li><a class="reference internal" href="#whylogs.core.ColumnProfile.add_metric">add_metric</a></li>
@@ -1766,6 +2060,14 @@ inheritance.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.TypeMapper">TypeMapper</a></li>
+<li><a class="reference internal" href="#whylogs.core.MetricGetter">MetricGetter</a><ul>
+<li><a class="reference internal" href="#whylogs.core.MetricGetter.serialize">serialize</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#whylogs.core.ProfileGetter">ProfileGetter</a><ul>
+<li><a class="reference internal" href="#whylogs.core.ProfileGetter.serialize">serialize</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#whylogs.core.MetricConfig">MetricConfig</a><ul>
 <li><a class="reference internal" href="#whylogs.core.MetricConfig.hll_lg_k">hll_lg_k</a></li>
 <li><a class="reference internal" href="#whylogs.core.MetricConfig.kll_k">kll_k</a></li>
@@ -1792,6 +2094,24 @@ inheritance.</p>
 <li><a class="reference internal" href="#whylogs.core.ModelPerformanceMetrics.merge">merge</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#whylogs.core.Not">Not</a></li>
+<li><a class="reference internal" href="#whylogs.core.Predicate">Predicate</a><ul>
+<li><a class="reference internal" href="#whylogs.core.Predicate.not_">not_</a></li>
+<li><a class="reference internal" href="#whylogs.core.Predicate.matches">matches</a></li>
+<li><a class="reference internal" href="#whylogs.core.Predicate.fullmatch">fullmatch</a></li>
+<li><a class="reference internal" href="#whylogs.core.Predicate.equals">equals</a></li>
+<li><a class="reference internal" href="#whylogs.core.Predicate.less_than">less_than</a></li>
+<li><a class="reference internal" href="#whylogs.core.Predicate.less_or_equals">less_or_equals</a></li>
+<li><a class="reference internal" href="#whylogs.core.Predicate.greater_than">greater_than</a></li>
+<li><a class="reference internal" href="#whylogs.core.Predicate.greater_or_equals">greater_or_equals</a></li>
+<li><a class="reference internal" href="#whylogs.core.Predicate.not_equal">not_equal</a></li>
+<li><a class="reference internal" href="#whylogs.core.Predicate.and_">and_</a></li>
+<li><a class="reference internal" href="#whylogs.core.Predicate.or_">or_</a></li>
+<li><a class="reference internal" href="#whylogs.core.Predicate.is_">is_</a></li>
+<li><a class="reference internal" href="#whylogs.core.Predicate.serialize">serialize</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#whylogs.core.Require">Require</a></li>
 <li><a class="reference internal" href="#whylogs.core.Resolver">Resolver</a><ul>
 <li><a class="reference internal" href="#whylogs.core.Resolver.resolve">resolve</a></li>
 </ul>

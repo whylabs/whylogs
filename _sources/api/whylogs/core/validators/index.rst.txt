@@ -35,7 +35,7 @@ Classes
    inheritance.
 
    .. py:attribute:: conditions
-      :annotation: :Dict[str, whylogs.core.metrics.condition_count_metric.Condition]
+      :annotation: :Dict[str, Union[whylogs.core.metrics.condition_count_metric.Condition, Callable[[Any], bool]]]
 
       
 
