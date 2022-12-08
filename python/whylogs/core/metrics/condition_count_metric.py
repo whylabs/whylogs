@@ -2,7 +2,6 @@ import logging
 import re
 from copy import copy
 from dataclasses import dataclass, field
-from enum import Enum
 from itertools import chain
 from typing import Any, Callable, Dict, List, Optional, Set, Union
 
@@ -16,37 +15,31 @@ from whylogs.core.metrics.metrics import (
 )
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
+from whylogs.core.relations import Relation as Rel
 
 logger = logging.getLogger(__name__)
 
-
-class Relation(Enum):
-    match = 1
-    fullmatch = 2
-    equal = 3
-    less = 4
-    leq = 5
-    greater = 6
-    geq = 7
-    neq = 8
+# For backward compatability
+Relation = Rel  # type: ignore
 
 
-def relation(op: Relation, value: Union[str, int, float]) -> Callable[[Any], bool]:
-    if op == Relation.match:
+# relation() is annoying, use Predicate instead
+def relation(op: Relation, value: Union[str, int, float]) -> Callable[[Any], bool]:  # type: ignore
+    if op == Relation.match:  # type: ignore
         return lambda x: re.compile(value).match(x)  # type: ignore
-    if op == Relation.fullmatch:
+    if op == Relation.fullmatch:  # type: ignore
         return lambda x: re.compile(value).fullmatch(x)  # type: ignore
-    if op == Relation.equal:
+    if op == Relation.equal:  # type: ignore
         return lambda x: x == value  # type: ignore
-    if op == Relation.less:
+    if op == Relation.less:  # type: ignore
         return lambda x: x < value  # type: ignore
-    if op == Relation.leq:
+    if op == Relation.leq:  # type: ignore
         return lambda x: x <= value  # type: ignore
-    if op == Relation.greater:
+    if op == Relation.greater:  # type: ignore
         return lambda x: x > value  # type: ignore
-    if op == Relation.geq:
+    if op == Relation.geq:  # type: ignore
         return lambda x: x >= value  # type: ignore
-    if op == Relation.neq:
+    if op == Relation.neq:  # type: ignore
         return lambda x: x != value  # type: ignore
     raise ValueError("Unknown ConditionCountMetric predicate")
 
@@ -127,19 +120,20 @@ class ConditionCountMetric(Metric):
 
         count = 0
         failed_conditions: Set[str] = set()
-        for x in list(chain.from_iterable(data.raw_iterator())):
+        for datum in list(chain.from_iterable(data.raw_iterator())):
             count += 1
             for cond_name, condition in self.conditions.items():
                 try:
-                    if condition.relation(x):
+                    if condition.relation(datum):
                         self.matches[cond_name].set(self.matches[cond_name].value + 1)
                     else:
                         failed_conditions.add(cond_name)
                         for action in condition.actions:
-                            action(self.namespace, cond_name, x)
+                            action(self.namespace, cond_name, datum)
 
-                except:  # noqa
-                    pass
+                except Exception as e:  # noqa
+                    logger.debug(e)
+                    failed_conditions.add(cond_name)
 
         self.total.set(self.total.value + count)
         if failed_conditions:

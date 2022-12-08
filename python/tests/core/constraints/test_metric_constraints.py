@@ -9,9 +9,11 @@ from whylogs.core.constraints import (
 from whylogs.core.constraints.factories.distribution_metrics import greater_than_number
 from whylogs.core.constraints.metric_constraints import ReportResult
 from whylogs.core.dataset_profile import DatasetProfile
+from whylogs.core.metric_getters import ProfileGetter
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.relations import Not, Require
 
 TEST_LOGGER = getLogger(__name__)
 
@@ -48,7 +50,9 @@ def test_metric_constraint_callable() -> None:
         return c1 or c2
 
     distribution_stddev_gt_avg = MetricConstraint(
-        name="stddev_gt_avg", condition=custom_function, metric_selector=MetricsSelector(metric_name="custom_metric")
+        name="stddev_gt_avg",
+        condition=Require().is_(custom_function),
+        metric_selector=MetricsSelector(metric_name="custom_metric"),
     )
     TEST_LOGGER.info(f"distribution is {distribution_metric.to_summary_dict()}")
     TEST_LOGGER.info(f"empy distribution is {empty_distribution.to_summary_dict()}")
@@ -75,7 +79,8 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
 
     legs_less_than_12_constraint = MetricConstraint(
         name="legs less than 12",
-        condition=lambda x: not x.max >= 12,
+        condition=Not(Require("max").greater_or_equals(12)),  # lambda x: not x.max >= 12,
+        # or condition=Require("max").not_.greater_or_equals(12),
         metric_selector=MetricsSelector(metric_name="distribution", column_name="legs"),
     )
 
@@ -85,7 +90,8 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
     )
     no_negative_numbers = MetricConstraint(
         name="no negative numbers",
-        condition=lambda x: not x.min < 0,
+        condition=Require("min").not_.less_than(0),  # lambda x: not x.min < 0,
+        # or condition=Not(Require("min").less_than(0)),
         metric_selector=distribution_selector,
         require_column_existence=False,
     )
@@ -108,11 +114,46 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
 
 
+def test_multicolumn_constraints(caplog, pandas_constraint_dataframe) -> None:
+    profile = DatasetProfile()
+    profile.track(pandas=pandas_constraint_dataframe)
+    view = profile.view()
+    constraints_builder = ConstraintsBuilder(dataset_profile_view=view)
+    selectors = constraints_builder.get_metric_selectors()
+    TEST_LOGGER.info(f"selectors are: {selectors}")
+
+    def metric_resolver(profile_view) -> List[Metric]:
+        column_profiles = profile_view.get_columns()
+        distribution_metrics = []
+        for column_name in column_profiles:
+            metric = column_profiles[column_name].get_metric("distribution")
+            if metric is not None:
+                distribution_metrics.append(metric)
+        return distribution_metrics
+
+    min_legs_less_than_max_weight = MetricConstraint(
+        name="legs less than weight",
+        condition=Require("min").less_than(ProfileGetter(profile, column_name="weight", path="distribution/max")),
+        metric_selector=MetricsSelector(metric_name="distribution", column_name="legs"),
+    )
+    TEST_LOGGER.info(f"cn: {str(min_legs_less_than_max_weight.condition)}")
+
+    constraints_builder.add_constraint(constraint=min_legs_less_than_max_weight)
+    contraints = constraints_builder.build()
+    TEST_LOGGER.info(f"constraints are: {contraints.column_constraints}")
+    constraints_valid = contraints.validate()
+    report_results = contraints.report()
+    TEST_LOGGER.info(f"constraints report is: {report_results}")
+    assert constraints_valid
+    assert len(report_results) == 1
+    assert report_results[0] == ("legs less than weight", 1, 0)
+
+
 def test_same_constraint_on_multiple_columns(profile_view):
     def not_null(column_name):
         constraint = MetricConstraint(
             name="not_null",
-            condition=lambda x: x.null.value == 0,
+            condition=Require("null").equals(0),  # lambda x: x.null.value == 0,
             metric_selector=MetricsSelector(column_name=column_name, metric_name="counts"),
         )
         return constraint
@@ -120,7 +161,7 @@ def test_same_constraint_on_multiple_columns(profile_view):
     def greater_than_zero(column_name):
         constraint = MetricConstraint(
             name="greater_than_zero",
-            condition=lambda x: x.min > 0,
+            condition=Require("min").greater_than(0),  # lambda x: x.min > 0,
             metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         )
         return constraint
@@ -128,7 +169,7 @@ def test_same_constraint_on_multiple_columns(profile_view):
     def greater_than_number(column_name, number):
         constraint = MetricConstraint(
             name="greater_than_number",
-            condition=lambda x: x.min > number,
+            condition=Require("min").greater_than(number),  # lambda x: x.min > number,
             metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         )
         return constraint
