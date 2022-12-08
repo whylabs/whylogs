@@ -2,7 +2,7 @@ import pytest
 
 import whylogs as why
 from whylogs.core import DatasetSchema
-from whylogs.core.datatypes import Fractional
+from whylogs.core.datatypes import Fractional, Integral, String
 from whylogs.core.metrics.column_metrics import ColumnCountsMetric
 from whylogs.core.metrics.condition_count_metric import (
     Condition,
@@ -13,7 +13,9 @@ from whylogs.core.metrics.condition_count_metric import Relation as Rel
 from whylogs.core.metrics.condition_count_metric import not_relation as not_rel
 from whylogs.core.metrics.condition_count_metric import relation as rel
 from whylogs.core.metrics.metric_components import IntegralComponent
+from whylogs.core.metrics.metrics import DistributionMetric
 from whylogs.core.resolvers import (
+    EmptyResolver,
     HistogramCountingTrackingResolver,
     MetricSpec,
     ResolverSpec,
@@ -128,3 +130,24 @@ def test_histogram_resolver(pandas_dataframe):
     schema = DatasetSchema(resolvers=resolver)
     prof_view = why.log(pandas_dataframe, schema=schema).profile().view()
     assert "counts" in prof_view._columns["animal"]._metrics.keys()
+
+
+def test_empty_resolver(pandas_dataframe):
+    resolver = EmptyResolver()
+    schema = DatasetSchema(resolvers=resolver)
+    prof_view = why.log(pandas_dataframe, schema=schema).profile().view()
+    assert all([len(x[1]._metrics) == 0 for x in prof_view._columns.items()])
+    assert len(prof_view.to_pandas().columns) == 1  # SummaryType.COLUMN
+    for why_type in [Fractional, Integral, String]:
+
+        count_resolver_spec = ResolverSpec(column_type=why_type, metrics=[MetricSpec(metric=ColumnCountsMetric)])
+
+        if why_type == Fractional:
+            distribution_spec = ResolverSpec(column_type=why_type, metrics=[MetricSpec(metric=DistributionMetric)])
+            resolver.add_resolver_spec(distribution_spec)
+
+        resolver.add_resolver_spec(count_resolver_spec)
+    schema = DatasetSchema(resolvers=resolver)
+    prof_view = why.log(pandas_dataframe, schema=schema).profile().view()
+    metrics = list(prof_view.to_pandas().columns)
+    assert all([x.startswith(("counts", "type", "distribution")) for x in metrics])

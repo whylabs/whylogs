@@ -181,6 +181,20 @@ class HistogramCountingTrackingResolver(Resolver):
         return result
 
 
+class EmptyResolver(Resolver):
+    """Resolver that has no trackers. Meant to be used by calling add_resolver_spec once it's instantiated."""
+
+    def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        result: Dict[str, Metric] = {}
+
+        if self.additional_specs:
+            additional_metrics_result = self.resolve_additional_specs(
+                result=result, name=name, why_type=why_type, column_schema=column_schema
+            )
+            result.update(additional_metrics_result)
+        return result
+
+
 # whylabs expects COLUMN_METRICS to be present for every column.
 COLUMN_METRICS = [MetricSpec(StandardMetric.counts.value), MetricSpec(StandardMetric.types.value)]
 
