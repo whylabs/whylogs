@@ -1,6 +1,5 @@
 import logging
 from abc import ABC, abstractmethod
-from collections import namedtuple
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, TypeVar
 
@@ -17,7 +16,28 @@ M = TypeVar("M", bound=Metric)
 ColumnSchema: TypeAlias = "ColumnSchema"  # type: ignore
 
 
-AdditionalMetric = namedtuple("AdditionalMetric", "metric column_names why_types")
+@dataclass
+class MetricSpec:
+    """
+    Specify a Metric to instantiate.
+    """
+
+    metric: Any  # Should be a subclass of Metric, it should be the class, not an instance
+    config: Optional[MetricConfig] = None  # omit to use default MetricConfig
+
+
+@dataclass
+class ResolverSpec:
+    """
+    Specify the metrics to instantiate for matching columns. column_name
+    takes precedence over column_type. column_type should be a subclass
+    of DataType, i.e., AnyType, Frational, Integral, or String. Pass the
+    class, not an instance.
+    """
+
+    column_name: Optional[str] = None  # TODO: maybe make this a regex
+    column_type: Optional[Any] = None
+    metrics: List[MetricSpec] = field(default_factory=list)
 
 
 class Resolver(ABC):
@@ -26,34 +46,53 @@ class Resolver(ABC):
     Note that the key of the result dictionaries defines the namespaces of the metrics in the serialized form."""
 
     def __init__(self):
-        self.additional_metrics: List[AdditionalMetric] = []
+        self.additional_specs: List[ResolverSpec] = []
 
-    def add_standard_metric(
-        self,
-        metric: StandardMetric,
-        column_names: List[String] = [],
-        why_types: List[Union[Fractional, Integral, String]] = [],
-    ):
-        if not column_names and not why_types:
-            raise ValueError("Either column names or why types must not be empty.")
-        if column_names and why_types:
-            raise ValueError("column_names or why_types should be defined, not both.")
-        if not isinstance(metric, StandardMetric):
-            raise ValueError("Metric must be of StandardMetric type.")
-        additional_metric = AdditionalMetric(metric=metric, column_names=column_names, why_types=why_types)
-        self.additional_metrics.append(additional_metric)
+    def add_resolver_spec(self, resolver_spec: ResolverSpec):
+        """Add resolver specification to existing resolver instance.
 
-    def resolve_additional_standard_metrics(
+        Parameters
+        ----------
+        resolver_spec : ResolverSpec
+            Resolver specification that define the metrics to instantiate for matching columns.
+        """
+        if resolver_spec.column_name and resolver_spec.column_type:
+            logger.warning(
+                f"Resolver Spec: column {resolver_spec.column_name} also specified type, name takes precedence"
+            )
+        if not (resolver_spec.column_name or resolver_spec.column_type):
+            raise ValueError("Resolver Spec: resolver specification must supply name or type")
+        for metric_spec in resolver_spec.metrics:
+            if not issubclass(metric_spec.metric, Metric):
+                raise ValueError("Resolver Spec: must supply a Metric subclass to MetricSpec")
+        self.additional_specs.append(resolver_spec)
+
+    def resolve_additional_specs(
         self, result: Dict[str, Metric], name: str, why_type: DataType, column_schema: ColumnSchema
     ) -> Dict[str, Metric]:
+        """Resolves resolver specifications added by add_resolver_spec
+
+        Parameters
+        ----------
+        result : Dict[str, Metric]
+            Dictionary of metrics of the resolver before resolving additional specs.
+        name : str
+
+        Returns
+        -------
+        Dict[str, Metric]
+            Dictionary of metrics related to the additional resolver specificiations.
+        """
         additional_result = {}
-        for additional_metric in self.additional_metrics:
-            for column_name in additional_metric.column_names:
-                if column_name == name and additional_metric.metric.name not in result:
-                    additional_result[additional_metric.metric.name] = additional_metric.metric.zero(column_schema.cfg)
-            for target_why_type in additional_metric.why_types:
-                if isinstance(target_why_type, type(why_type)) and additional_metric.metric.name not in result:
-                    additional_result[additional_metric.metric.name] = additional_metric.metric.zero(column_schema.cfg)
+        for resolver_spec in self.additional_specs:
+            col_name, col_type = resolver_spec.column_name, resolver_spec.column_type
+
+            if (col_name and col_name == name) or (col_name is None and isinstance(why_type, col_type)):  # type: ignore
+                for spec in resolver_spec.metrics:
+                    if spec.metric not in result:
+                        additional_result[spec.metric.get_namespace()] = spec.metric.zero(
+                            spec.config or column_schema.cfg
+                        )
         return additional_result
 
     @abstractmethod
@@ -90,12 +129,11 @@ class StandardResolver(Resolver):
         for m in metrics:
             result[m.name] = m.zero(column_schema.cfg)
 
-        if self.additional_metrics:
-            additional_metrics_result = self.resolve_additional_standard_metrics(
+        if self.additional_specs:
+            additional_metrics_result = self.resolve_additional_specs(
                 result=result, name=name, why_type=why_type, column_schema=column_schema
             )
-            for key in additional_metrics_result.keys():
-                result[key] = additional_metrics_result[key]
+            result.update(additional_metrics_result)
 
         return result
 
@@ -116,12 +154,11 @@ class LimitedTrackingResolver(Resolver):
         for m in metrics:
             result[m.name] = m.zero(column_schema.cfg)
 
-        if self.additional_metrics:
-            additional_metrics_result = self.resolve_additional_standard_metrics(
+        if self.additional_specs:
+            additional_metrics_result = self.resolve_additional_specs(
                 result=result, name=name, why_type=why_type, column_schema=column_schema
             )
-            for key in additional_metrics_result.keys():
-                result[key] = additional_metrics_result[key]
+            result.update(additional_metrics_result)
 
         return result
 
@@ -135,38 +172,13 @@ class HistogramCountingTrackingResolver(Resolver):
         for m in metrics:
             result[m.name] = m.zero(column_schema.cfg)
 
-        if self.additional_metrics:
-            additional_metrics_result = self.resolve_additional_standard_metrics(
+        if self.additional_specs:
+            additional_metrics_result = self.resolve_additional_specs(
                 result=result, name=name, why_type=why_type, column_schema=column_schema
             )
-            for key in additional_metrics_result.keys():
-                result[key] = additional_metrics_result[key]
+            result.update(additional_metrics_result)
 
         return result
-
-
-@dataclass
-class MetricSpec:
-    """
-    Specify a Metric to instantiate.
-    """
-
-    metric: Any  # Should be a subclass of Metric, it should be the class, not an instance
-    config: Optional[MetricConfig] = None  # omit to use default MetricConfig
-
-
-@dataclass
-class ResolverSpec:
-    """
-    Specify the metrics to instantiate for matching columns. column_name
-    takes precedence over column_type. column_type should be a subclass
-    of DataType, i.e., AnyType, Frational, Integral, or String. Pass the
-    class, not an instance.
-    """
-
-    column_name: Optional[str] = None  # TODO: maybe make this a regex
-    column_type: Optional[Any] = None
-    metrics: List[MetricSpec] = field(default_factory=list)
 
 
 # whylabs expects COLUMN_METRICS to be present for every column.
