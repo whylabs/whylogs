@@ -87,7 +87,7 @@ def test_additional_metrics_invalid_params(pandas_dataframe):
     schema = DatasetSchema(resolvers=resolver)
 
     with pytest.raises(ValueError) as e:
-        prof_view = why.log(pandas_dataframe, schema=schema).profile().view()
+        why.log(pandas_dataframe, schema=schema).profile().view()
         assert e.value.args[0] == "DeclarativeSchema: resolver specification must supply name or type"
 
     count_spec = ResolverSpec(
@@ -102,7 +102,7 @@ def test_additional_metrics_invalid_params(pandas_dataframe):
     schema = DatasetSchema(resolvers=resolver)
 
     with pytest.raises(ValueError) as e:
-        prof_view = why.log(pandas_dataframe, schema=schema).profile().view()
+        why.log(pandas_dataframe, schema=schema).profile().view()
         assert e.value.args[0] == "DeclarativeSchema: must supply a Metric subclass to MetricSpec"
 
 
