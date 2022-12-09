@@ -83,10 +83,12 @@ def test_additional_metrics_invalid_params(pandas_dataframe):
         ],
     )
     resolver = HistogramCountingTrackingResolver()
+    resolver.add_resolver_spec(count_spec)
+    schema = DatasetSchema(resolvers=resolver)
 
     with pytest.raises(ValueError) as e:
-        resolver.add_resolver_spec(count_spec)
-        assert e.value.args[0] == "Resolver Spec: resolver specification must supply name or type"
+        prof_view = why.log(pandas_dataframe, schema=schema).profile().view()
+        assert e.value.args[0] == "DeclarativeSchema: resolver specification must supply name or type"
 
     count_spec = ResolverSpec(
         column_name="legs",
@@ -95,9 +97,13 @@ def test_additional_metrics_invalid_params(pandas_dataframe):
         ],
     )
 
+    resolver = HistogramCountingTrackingResolver()
+    resolver.add_resolver_spec(count_spec)
+    schema = DatasetSchema(resolvers=resolver)
+
     with pytest.raises(ValueError) as e:
-        resolver.add_resolver_spec(count_spec)
-        assert e.value.args[0] == "Resolver Spec: must supply a Metric subclass to MetricSpec"
+        prof_view = why.log(pandas_dataframe, schema=schema).profile().view()
+        assert e.value.args[0] == "DeclarativeSchema: must supply a Metric subclass to MetricSpec"
 
 
 def test_additional_metrics_nonexistent(pandas_dataframe):

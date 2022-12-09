@@ -56,44 +56,17 @@ class Resolver(ABC):
         resolver_spec : ResolverSpec
             Resolver specification that define the metrics to instantiate for matching columns.
         """
-        if resolver_spec.column_name and resolver_spec.column_type:
-            logger.warning(
-                f"Resolver Spec: column {resolver_spec.column_name} also specified type, name takes precedence"
-            )
-        if not (resolver_spec.column_name or resolver_spec.column_type):
-            raise ValueError("Resolver Spec: resolver specification must supply name or type")
-        for metric_spec in resolver_spec.metrics:
-            if not issubclass(metric_spec.metric, Metric):
-                raise ValueError("Resolver Spec: must supply a Metric subclass to MetricSpec")
         self.additional_specs.append(resolver_spec)
 
-    def resolve_additional_specs(
-        self, result: Dict[str, Metric], name: str, why_type: DataType, column_schema: ColumnSchema
-    ) -> Dict[str, Metric]:
-        """Resolves resolver specifications added by add_resolver_spec
+    @abstractmethod
+    def resolve_additional_specs(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        """Resolve additional metrics from a column name or data type.
 
-        Parameters
-        ----------
-        result : Dict[str, Metric]
-            Dictionary of metrics of the resolver before resolving additional specs.
-        name : str
-
-        Returns
-        -------
-        Dict[str, Metric]
-            Dictionary of metrics related to the additional resolver specificiations.
+        Additional metrics are resolved using a `DeclarativeResolver` by passing a list of `ResolverSpec` objects obtained from `add_resolver_spec`.
+        The resolved metrics are returned as a dictionary mapping metric names to `Metric` objects.
         """
-        additional_result = {}
-        for resolver_spec in self.additional_specs:
-            col_name, col_type = resolver_spec.column_name, resolver_spec.column_type
 
-            if (col_name and col_name == name) or (col_name is None and isinstance(why_type, col_type)):  # type: ignore
-                for spec in resolver_spec.metrics:
-                    if spec.metric not in result:
-                        additional_result[spec.metric.get_namespace()] = spec.metric.zero(
-                            spec.config or column_schema.cfg
-                        )
-        return additional_result
+        raise NotImplementedError
 
     @abstractmethod
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
@@ -102,6 +75,14 @@ class Resolver(ABC):
 
 class StandardResolver(Resolver):
     """Standard metric resolution with builtin types."""
+
+    def resolve_additional_specs(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        additional_result: Dict[str, Metric] = {}
+        if self.additional_specs:
+            additional_result = DeclarativeResolver(self.additional_specs).resolve(
+                name=name, why_type=why_type, column_schema=column_schema
+            )
+        return additional_result
 
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
 
@@ -129,17 +110,21 @@ class StandardResolver(Resolver):
         for m in metrics:
             result[m.name] = m.zero(column_schema.cfg)
 
-        if self.additional_specs:
-            additional_metrics_result = self.resolve_additional_specs(
-                result=result, name=name, why_type=why_type, column_schema=column_schema
-            )
-            result.update(additional_metrics_result)
+        result.update(self.resolve_additional_specs(name=name, why_type=why_type, column_schema=column_schema))
 
         return result
 
 
 class LimitedTrackingResolver(Resolver):
     """Resolver that skips frequent item and cardinality trackers."""
+
+    def resolve_additional_specs(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        additional_result: Dict[str, Metric] = {}
+        if self.additional_specs:
+            additional_result = DeclarativeResolver(self.additional_specs).resolve(
+                name=name, why_type=why_type, column_schema=column_schema
+            )
+        return additional_result
 
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
         metrics: List[StandardMetric] = [StandardMetric.counts, StandardMetric.types]
@@ -154,11 +139,7 @@ class LimitedTrackingResolver(Resolver):
         for m in metrics:
             result[m.name] = m.zero(column_schema.cfg)
 
-        if self.additional_specs:
-            additional_metrics_result = self.resolve_additional_specs(
-                result=result, name=name, why_type=why_type, column_schema=column_schema
-            )
-            result.update(additional_metrics_result)
+        result.update(self.resolve_additional_specs(name=name, why_type=why_type, column_schema=column_schema))
 
         return result
 
@@ -166,17 +147,21 @@ class LimitedTrackingResolver(Resolver):
 class HistogramCountingTrackingResolver(Resolver):
     """Resolver that only adds distribution tracker."""
 
+    def resolve_additional_specs(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        additional_result: Dict[str, Metric] = {}
+        if self.additional_specs:
+            additional_result = DeclarativeResolver(self.additional_specs).resolve(
+                name=name, why_type=why_type, column_schema=column_schema
+            )
+        return additional_result
+
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
         metrics: List[StandardMetric] = [StandardMetric.distribution]
         result: Dict[str, Metric] = {}
         for m in metrics:
             result[m.name] = m.zero(column_schema.cfg)
 
-        if self.additional_specs:
-            additional_metrics_result = self.resolve_additional_specs(
-                result=result, name=name, why_type=why_type, column_schema=column_schema
-            )
-            result.update(additional_metrics_result)
+        result.update(self.resolve_additional_specs(name=name, why_type=why_type, column_schema=column_schema))
 
         return result
 
@@ -184,14 +169,17 @@ class HistogramCountingTrackingResolver(Resolver):
 class EmptyResolver(Resolver):
     """Resolver that has no trackers. Meant to be used by calling add_resolver_spec once it's instantiated."""
 
+    def resolve_additional_specs(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        additional_result: Dict[str, Metric] = {}
+        if self.additional_specs:
+            additional_result = DeclarativeResolver(self.additional_specs).resolve(
+                name=name, why_type=why_type, column_schema=column_schema
+            )
+        return additional_result
+
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
         result: Dict[str, Metric] = {}
-
-        if self.additional_specs:
-            additional_metrics_result = self.resolve_additional_specs(
-                result=result, name=name, why_type=why_type, column_schema=column_schema
-            )
-            result.update(additional_metrics_result)
+        result.update(self.resolve_additional_specs(name=name, why_type=why_type, column_schema=column_schema))
         return result
 
 
@@ -215,6 +203,9 @@ class DeclarativeResolver(Resolver):
     Implements the declarative resolution logic by interpreting a "program"
     of ResolverSpecs
     """
+
+    def resolve_additional_specs(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        pass
 
     def __init__(self, resolvers: List[ResolverSpec], default_config: Optional[MetricConfig] = None) -> None:
         # Validate resolvers -- must have name xor type, MetricSpec metrcis must <: Metric
