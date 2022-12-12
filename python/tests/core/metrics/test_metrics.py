@@ -155,7 +155,9 @@ def test_frequent_items_handling_int_as_string() -> None:
     df = pd.DataFrame({"int": [1, 1, 1]})
 
     res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
-    assert res.array[0][0].value == "1"  # type: ignore
+    fi_tuple = res.array[0][0]
+    assert fi_tuple.value == "1"  # type: ignore
+    assert fi_tuple.lower <= fi_tuple.est <= fi_tuple.upper
 
 
 def test_cardinality_metric_booleans() -> None:
