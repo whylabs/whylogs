@@ -38,11 +38,17 @@ def split_data(data, segment_columns, continuous_numerical_columns, discrete_num
     
     for seg_col in segment_columns:
         data = pd.concat([data,
-            data[(data["day"] == np.random.randint(6)) & (data["is_correct"] == True) & (data[seg_col] == np.random.choice(data[seg_col].unique()))].sample(frac=np.random.uniform(0.25, 0.5)),
-            data[(data["day"] == np.random.randint(6)) & (data["is_correct"] == False) & (data[seg_col] == np.random.choice(data[seg_col].unique()))].sample(frac=np.random.uniform(0.25, 0.5))]
+            data[(data["day"] == np.random.randint(6)) & (data["is_correct"] == True) & (data[seg_col] == np.random.choice(data[seg_col].unique()))].sample(frac=np.random.uniform(0.8, 1)),
+            data[(data["day"] == np.random.randint(6)) & (data["is_correct"] == False) & (data[seg_col] == np.random.choice(data[seg_col].unique()))].sample(frac=np.random.uniform(0.8, 1))]
         )
-    
+
     return data
+
+
+def inject_more_error(x, prediction_column, data):
+    if np.random.random() > 0.85:
+        return np.random.choice(data[prediction_column].unique())
+
 
 def lookup_typed_key(grouped_pdata, key: str):
     typed_keys = set(grouped_pdata.indices.keys())
