@@ -36,10 +36,11 @@ def split_data(data, segment_columns, continuous_numerical_columns, discrete_num
                                 size=len(data), 
                                 p=split_vol_probs)
     
-    data = pd.concat([data,
-    data[data["day"] == 2][data["is_correct"] == True][data["category"] == np.random.choice(data["category"].unique())].sample(frac=0.5),
-    data[data["day"] == 6][data["is_correct"] == False][data["category"] == np.random.choice(data["category"].unique())].sample(frac=0.5)]
-)
+    for seg_col in segment_columns:
+        data = pd.concat([data,
+            data[(data["day"] == np.random.randint(6)) & (data["is_correct"] == True) & (data[seg_col] == np.random.choice(data[seg_col].unique()))].sample(frac=np.random.uniform(0.25, 0.5)),
+            data[(data["day"] == np.random.randint(6)) & (data["is_correct"] == False) & (data[seg_col] == np.random.choice(data[seg_col].unique()))].sample(frac=np.random.uniform(0.25, 0.5))]
+        )
     
     return data
 
@@ -119,7 +120,7 @@ def upload_columnar_segmented_performance_for_past_n_days(
             add_performance_to_segments(grouped_pdf, "temp_prediction", "temp_target", score_column, results)
             results.set_dataset_timestamp(dt)
             print(f"    Uploading profiles for {column_name} on {dt}, this may take a while...")
-            #results.writer("whylabs").write()
+            results.writer("whylabs").write()
             print(f"    Done uploading profiles for {column_name} on {dt}")
             result_profiles.append(results)
     print(f"** Done uploading profiles!")
