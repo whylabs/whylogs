@@ -158,7 +158,6 @@ def test_frequent_items_handling_int_as_string() -> None:
 
     res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
     fi_tuple = res.array[0][0]
-    assert fi_tuple.value == "1"  # type: ignore
     assert fi_tuple.lower <= fi_tuple.est <= fi_tuple.upper
 
 
