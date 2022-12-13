@@ -12,10 +12,10 @@ def _pandas_or_dict(
         if row is not None:
             raise ValueError("Cannot pass both obj and row params")
 
-        if pd.DataFrame is not None and isinstance(obj, pd.DataFrame):
-            pandas = obj
-        elif isinstance(obj, (dict, Dict, Mapping)):
+        if isinstance(obj, (dict, Dict, Mapping)):
             row = obj
+        elif pd.DataFrame is not None and isinstance(obj, pd.DataFrame):
+            pandas = obj
 
     if pandas is not None and row is not None:
         raise ValueError("Cannot pass both pandas and row params")

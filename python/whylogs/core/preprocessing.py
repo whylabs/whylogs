@@ -1,7 +1,9 @@
 import itertools
 import logging
 from dataclasses import dataclass
-from typing import Any, Iterable, Iterator, List, Optional
+from decimal import Decimal
+from math import isinf, isnan
+from typing import Any, Iterable, Iterator, List, Optional, Union
 
 from whylogs.core.stubs import is_not_stub, np, pd
 
@@ -16,7 +18,7 @@ except:  # noqa
 @dataclass
 class ListView:
     ints: Optional[List[int]] = None
-    floats: Optional[List[float]] = None
+    floats: Optional[List[Union[float, Decimal]]] = None
     strings: Optional[List[str]] = None
     objs: Optional[List[Any]] = None
 
@@ -183,6 +185,50 @@ class PreprocessedColumn:
         return itertools.chain(iterables)
 
     @staticmethod
+    def _process_scalar_value(value: Any) -> "PreprocessedColumn":
+        result = PreprocessedColumn()
+        result.len = 1
+        int_list = []
+        float_list = []
+        string_list = []
+        obj_list = []
+        if isinstance(value, int):
+            if isinstance(value, bool):
+                result.bool_count = 1
+                if value:
+                    result.bool_count_where_true = 1
+            else:
+                int_list.append(value)
+        elif isinstance(value, (float, Decimal)):
+            if isinf(value):
+                result.inf_count = 1
+            elif isnan(value):
+                result.nan_count = 1
+                result.null_count = 1
+            float_list.append(value)
+        elif isinstance(value, str):
+            string_list.append(value)
+        elif value is not None:
+            obj_list.append(value)
+        else:
+            result.null_count = 1
+
+        if is_not_stub(np.ndarray):
+            ints = np.asarray(int_list, dtype=int)
+            floats = np.asarray(float_list, dtype=float)
+            if isinstance(value, np.bool_):
+                result.bool_count = 1
+                if value:
+                    result.bool_count_where_true = 1
+
+            result.numpy = NumpyView(ints=ints, floats=floats)
+            result.list = ListView(strings=string_list, objs=obj_list)
+        else:
+            result.list = ListView(ints=int_list, floats=float_list, strings=string_list, objs=obj_list)
+
+        return result
+
+    @staticmethod
     def apply(data: Any) -> "PreprocessedColumn":
         result = PreprocessedColumn()
         result.original = data
@@ -208,7 +254,7 @@ class PreprocessedColumn:
                 return PreprocessedColumn.apply(pd.Series(data, dtype="object"))
 
             int_list = []
-            float_list = []
+            float_list: List[Union[float, Decimal]] = []
             string_list = []
             obj_list = []
             null_count = 0
