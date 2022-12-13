@@ -155,7 +155,7 @@ def test_frequent_items_handling_int_as_string() -> None:
     df = pd.DataFrame({"int": [1, 1, 1]})
 
     res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
-    fi_tuple = res.array[0][0]
+    assert res.array[0][0].value == "1"  # type: ignore
 
 
 def test_frequent_items_bounds_order() -> None:

@@ -492,7 +492,8 @@ class FrequentItemsMetric(Metric):
             limited_freq_items = all_freq_items[: cfg.frequent_items_limit]
         else:
             limited_freq_items = all_freq_items
-        items = [FrequentItem(value=x[0], est=x[1], lower=x[2], upper=x[3]) for x in limited_freq_items]
+        items = [FrequentItem(value=x[0], est=x[1], lower=x[3], upper=x[2]) for x in limited_freq_items]
+        # items = [FrequentItem(value=x[0], est=x[1], lower=x[2], upper=x[3]) for x in limited_freq_items]
         return {"frequent_strings": items}
 
     @property
