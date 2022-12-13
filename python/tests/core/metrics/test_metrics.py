@@ -158,6 +158,16 @@ def test_frequent_items_handling_int_as_string() -> None:
     assert res.array[0][0].value == "1"  # type: ignore
 
 
+def test_frequent_items_bounds_order() -> None:
+    df_gamma = pd.DataFrame({"feature1": np.random.gamma(1, 2, 1000).astype(int)})
+    df_rand = pd.DataFrame({"feature1": np.random.randint(10000, size=9000)})
+    df = df_gamma.append(df_rand)
+
+    res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
+    fi_tuple = res.array[0][0]
+    assert fi_tuple.lower <= fi_tuple.est <= fi_tuple.upper
+
+
 def test_cardinality_metric_booleans() -> None:
     cardinality = CardinalityMetric.zero(MetricConfig())
     data = pd.Series([True, False, True, True])
