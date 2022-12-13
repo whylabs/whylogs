@@ -521,7 +521,11 @@
             <span class="n">new_cols</span> <span class="o">=</span> <span class="p">(</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">schema_col_keys</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_new_columns</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">new_cols</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">pandas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">_track_datum</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="n">pandas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># TODO: iterating over each column in order assumes single column metrics</span>
             <span class="c1">#   but if we instead iterate over a new artifact contained in dataset profile: &quot;MetricProfiles&quot;, then</span>
             <span class="c1">#   each metric profile can specify which columns its tracks, and we can call like this:</span>
@@ -537,11 +541,6 @@
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">track_column</span><span class="p">(</span><span class="n">column_values</span><span class="p">)</span>
-            <span class="k">return</span>
-
-        <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">track_column</span><span class="p">([</span><span class="n">row</span><span class="p">[</span><span class="n">k</span><span class="p">]])</span>
             <span class="k">return</span>
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>

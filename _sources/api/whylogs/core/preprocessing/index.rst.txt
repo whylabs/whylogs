@@ -41,7 +41,7 @@ Attributes
       
 
    .. py:attribute:: floats
-      :annotation: :Optional[List[float]]
+      :annotation: :Optional[List[Union[float, decimal.Decimal]]]
 
       
 
