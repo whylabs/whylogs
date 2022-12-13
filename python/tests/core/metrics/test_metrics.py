@@ -153,7 +153,7 @@ def test_merge_two_profiles_mean(lending_club_df: pd.DataFrame) -> None:
 
 def test_frequent_items_handling_int_as_string() -> None:
     df_gamma = pd.DataFrame({"feature1": np.random.gamma(1, 2, 1000).astype(int)})
-    df_rand =  pd.DataFrame({"feature1": np.random.randint(10000, size=9000)})
+    df_rand = pd.DataFrame({"feature1": np.random.randint(10000, size=9000)})
     df = df_gamma.append(df_rand)
 
     res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
