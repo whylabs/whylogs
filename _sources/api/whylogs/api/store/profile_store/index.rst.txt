@@ -32,7 +32,7 @@ Classes
       :abstractmethod:
 
 
-   .. py:method:: write(profile_view: whylogs.core.DatasetProfileView, profile_name: str) -> None
+   .. py:method:: write(profile_view: whylogs.core.DatasetProfileView, dataset_id: str) -> None
       :abstractmethod:
 
 
