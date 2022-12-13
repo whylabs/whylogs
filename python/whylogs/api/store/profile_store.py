@@ -16,7 +16,7 @@ class ProfileStore(ABC):
         pass
 
     @abstractmethod
-    def write(self, profile_view: DatasetProfileView, profile_name: str) -> None:
+    def write(self, profile_view: DatasetProfileView, dataset_id: str) -> None:
         pass
 
     @staticmethod
