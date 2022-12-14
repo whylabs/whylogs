@@ -427,9 +427,7 @@ class NlpLogger:
         vector: Optional[np.ndarray] = None,  # term vector representing document
     ) -> ResultSet:
         if terms:
-            list_view = ListView(strings=terms)
-            column_data = PreprocessedColumn()
-            column_data.list = list_view
+            column_data = PreprocessedColumn.apply(terms)
             bow_metric = self._profile._columns[f"{self._column_prefix}_bag_of_words"]._metrics[
                 BagOfWordsMetric.get_namespace()
             ]
