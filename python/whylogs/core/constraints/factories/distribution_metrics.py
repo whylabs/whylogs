@@ -2,6 +2,7 @@ from typing import Union
 
 from whylogs.core.constraints import MetricConstraint, MetricsSelector
 from whylogs.core.metrics import DistributionMetric
+from whylogs.core.relations import Require
 
 
 def greater_than_number(column_name: str, number: Union[float, int], skip_missing: bool = True) -> MetricConstraint:
@@ -55,6 +56,53 @@ def smaller_than_number(column_name: str, number: float, skip_missing: bool = Tr
     constraint = MetricConstraint(
         name=f"{column_name} smaller than number {number}",
         condition=is_smaller,
+        metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
+    )
+    return constraint
+
+
+def is_non_negative(column_name: str, skip_missing: bool = True) -> MetricConstraint:
+    """Checks if a column is non negative
+
+    Parameters
+    ----------
+    column_name : str
+        Column the constraint is applied to
+    skip_missing: bool
+        If skip_missing is True, missing distribution metrics will make the check pass.
+        If False, the check will fail on missing metrics
+    """
+    constraint = MetricConstraint(
+        name=f"{column_name} is non negative",
+        condition=Require("min").greater_or_equals(0),
+        metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
+    )
+    return constraint
+
+
+def is_in_range(
+    column_name: str, lower: Union[float, int], upper: Union[float, int], skip_missing: bool = True
+) -> MetricConstraint:
+    """Checks that all of column's values are in defined range (inclusive).
+
+    For the constraint to pass, the column's minimum value should be higher or equal than `lower` and maximum value should be less than or equal to `upper`.
+
+    Parameters
+    ----------
+    column_name : str
+        Column the constraint is applied to
+    lower : float
+        lower bound of defined range
+    upper : float
+        upper bound of defined range
+    skip_missing: bool
+        If skip_missing is True, missing distribution metrics will make the check pass.
+        If False, the check will fail on missing metrics
+    """
+
+    constraint = MetricConstraint(
+        name=f"{column_name} is in range [{lower},{upper}]",
+        condition=Require("min").greater_or_equals(lower).and_(Require("max").less_or_equals(upper)),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
     )
     return constraint
