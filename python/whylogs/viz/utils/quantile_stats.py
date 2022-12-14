@@ -48,16 +48,17 @@ def _calculate_quantile_statistics(column_view: Union[ColumnProfileView, None]) 
 
 def _resize_bins(start: float, end: float, min_interval: float, width: float, n_buckets: int) -> Tuple[int, float]:
     new_buckets = math.floor((end - start) / min_interval)
+    new_buckets = max(new_buckets, 1)
     logger.warning(
         f"A bin width of {width} won't work with values in range of [{start}, {end}] "
         f"because numbers closer to each other than {int(min_interval)} might not be distinct "
         "when passed as float32: avoiding bin edge collisions by resizing from: "
         f"{n_buckets} to: {new_buckets} histogram buckets in summary."
     )
-    n_buckets = max(new_buckets, 1)
-    width = (end - start) / n_buckets
-    logger.info(f"New bin width is: {width} across {n_buckets} buckets")
-    return n_buckets, width
+
+    width = (end - start) / new_buckets
+    logger.info(f"New bin width is: {width} across {new_buckets} buckets")
+    return new_buckets, width
 
 
 def _get_min_interval(abs_start: float, abs_end: float) -> float:
@@ -73,15 +74,16 @@ def _get_min_interval(abs_start: float, abs_end: float) -> float:
 
 
 def _calculate_bins(
-    end: float, start: float, n: int, avg_per_bucket: float, max_buckets: int
+    end: float, start: float, n: int, avg_per_bucket: float, max_buckets: int, min_n_buckets: int = 2
 ) -> Tuple[List[float], float]:
     # Include the max value in the right-most bin
-    end += abs(end) * 1e-7
+    end += abs(end) * 1e-7 if end != 0 else 1e-7
     abs_end = abs(end)
     abs_start = abs(start)
 
     # Include the right edge in the bin edges
     n_buckets = min(math.ceil(n / avg_per_bucket), max_buckets)
+    n_buckets = max(n_buckets, min_n_buckets)
     width = (end - start) / n_buckets
 
     min_interval = _get_min_interval(abs_start, abs_end)
