@@ -281,8 +281,7 @@ def test_warning_when_logging_a_vector(caplog):
     with caplog.at_level(logging.WARNING):
         why.log({"a": 1.2, "b": [2.2]})
         assert (
-            """It looks like you are logging a vector which isn't directly profiled in whylogs,
-            try logging as a dataframe to get batch logging of individual rows or log the rows individually
-            """
+            "It looks like you are logging a vector which isn't directly profiled in whylogs,"
+            "try logging as a dataframe to get batch logging of individual rows or log the rows individually"
             in caplog.text
         )

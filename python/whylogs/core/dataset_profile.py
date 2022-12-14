@@ -134,9 +134,8 @@ class DatasetProfile(Writable):
         if row is not None:
             if any(isinstance(v, list) for v in row.values()):
                 logger.warn(
-                    """It looks like you are logging a vector which isn't directly profiled in whylogs,
-                    try logging as a dataframe to get batch logging of individual rows or log the rows individually
-                    """
+                    "It looks like you are logging a vector which isn't directly profiled in whylogs,"
+                    "try logging as a dataframe to get batch logging of individual rows or log the rows individually"
                 )
             for k in row.keys():
                 self._columns[k]._track_datum(row[k])
