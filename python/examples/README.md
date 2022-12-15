@@ -88,10 +88,9 @@ Here you will find more advanced use-cases for `whylogs`, and you will learn how
 
 Here you will find experiments to benchmark different aspect of the whylogs package, such as computational performance and different statistical algorithms.
 
-| Example                                                                                                                                                                                       | Description                                                                               |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| [Understanding Kolmogorov-Smirnov (KS) Tests for Data Drift on Profiled Data](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/benchmarks/KS_Profiling.ipynb) | Experiments comparing between Kolmogorov-Smirnov whylogs' implementation on profiled data and traditional implementation on complete data                    |
-
+| Example                                                                                                                                                                                | Description                                                                                                                               |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| [Understanding Kolmogorov-Smirnov (KS) Tests for Data Drift on Profiled Data](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/benchmarks/KS_Profiling.ipynb) | Experiments comparing between Kolmogorov-Smirnov whylogs' implementation on profiled data and traditional implementation on complete data |
 
 ## Get in touch
 
