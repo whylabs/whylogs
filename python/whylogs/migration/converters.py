@@ -202,16 +202,21 @@ def _extract_cardinality_metric(msg: ColumnMessageV0) -> CardinalityMetric:
 
 
 def _extract_schema_message_v0(col_prof: ColumnProfileView) -> SchemaMessageV0:
-    metric: TypeCountersMetric = col_prof.get_metric(TypeCountersMetric.get_namespace())
-    if metric is None:
-        return SchemaMessageV0()
+    types: TypeCountersMetric = col_prof.get_metric(TypeCountersMetric.get_namespace())
+    counts: ColumnCountsMetric = col_prof.get_metric(ColumnCountsMetric.get_namespace())
+    if types is None:
+        types = TypeCountersMetric.zero()
+
+    if counts is None:
+        counts = ColumnCountsMetric.zero()
 
     type_counts: Dict[int, int] = {}
-    type_counts[InferredType.INTEGRAL] = metric.integral.value
-    type_counts[InferredType.BOOLEAN] = metric.boolean.value
-    type_counts[InferredType.FRACTIONAL] = metric.fractional.value
-    type_counts[InferredType.STRING] = metric.string.value
-    type_counts[InferredType.UNKNOWN] = metric.object.value
+    type_counts[InferredType.INTEGRAL] = types.integral.value
+    type_counts[InferredType.BOOLEAN] = types.boolean.value
+    type_counts[InferredType.FRACTIONAL] = types.fractional.value
+    type_counts[InferredType.STRING] = types.string.value
+    type_counts[InferredType.UNKNOWN] = types.object.value
+    type_counts[InferredType.NULL] = counts.null.value
 
     msg_v0 = SchemaMessageV0(
         typeCounts=type_counts,
