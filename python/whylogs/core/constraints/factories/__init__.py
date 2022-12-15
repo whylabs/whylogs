@@ -1,8 +1,8 @@
 from .cardinality_metrics import distinct_number_in_range
 from .condition_counts import condition_meets
 from .count_metrics import (
-    is_complete,
     count_below_number,
+    is_complete,
     null_percentage_below_number,
     null_values_below_number,
 )
@@ -16,8 +16,8 @@ from .distribution_metrics import (
     stddev_between_range,
 )
 from .frequent_items import (
-    is_unique,
     frequent_strings_in_reference_set,
+    is_unique,
     n_most_common_items_in_set,
 )
 from .types_metrics import (

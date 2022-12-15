@@ -1,10 +1,43 @@
+import pandas as pd
+
+import whylogs as why
+from whylogs.core.constraints import ConstraintsBuilder
 from whylogs.core.constraints.factories.distribution_metrics import (
     greater_than_number,
+    is_in_range,
+    is_non_negative,
     mean_between_range,
     quantile_between_range,
     smaller_than_number,
     stddev_between_range,
 )
+
+
+def test_is_in_range(builder, nan_builder):
+    builder.add_constraint(is_in_range(column_name="weight", lower=1.1, upper=3.2, skip_missing=False))
+    builder.add_constraint(is_in_range(column_name="legs", lower=0, upper=6, skip_missing=False))
+    constraint = builder.build()
+    report = constraint.generate_constraints_report()
+    assert report[0].name == "weight is in range [1.1,3.2]" and report[0].passed == 0
+    assert report[1].name == "legs is in range [0,6]" and report[1].passed == 1
+
+
+def test_is_non_negative():
+    data = {
+        "animal": ["cat", "hawk", "snake", "cat", "mosquito"],
+        "legs": [4, 2, 0, 4, 6],
+        "weight": [4.3, -1.8, 1.3, 4.1, 5.5e-6],
+    }
+
+    view = why.log(pd.DataFrame(data)).profile().view()
+    builder = ConstraintsBuilder(dataset_profile_view=view)
+
+    builder.add_constraint(is_non_negative(column_name="weight"))
+    builder.add_constraint(is_non_negative(column_name="legs"))
+    constraint = builder.build()
+    report = constraint.generate_constraints_report()
+    assert report[0].name == "weight is non negative" and report[0].passed == 0 and report[0].failed == 1
+    assert report[1].name == "legs is non negative" and report[1].passed == 1 and report[1].failed == 0
 
 
 def test_greater_than_number(builder, nan_builder):

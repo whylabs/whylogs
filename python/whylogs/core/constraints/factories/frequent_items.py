@@ -1,7 +1,7 @@
 from whylogs.core.configs import SummaryConfig
-from typing import Any
-from ..metric_constraints import MetricConstraint, MetricsSelector
 from whylogs.core.relations import Require
+
+from ..metric_constraints import MetricConstraint, MetricsSelector
 
 
 def is_unique(column_name: str) -> MetricConstraint:

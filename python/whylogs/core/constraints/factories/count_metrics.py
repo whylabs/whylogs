@@ -1,5 +1,6 @@
-from ..metric_constraints import MetricConstraint, MetricsSelector
 from whylogs.core.relations import Require
+
+from ..metric_constraints import MetricConstraint, MetricsSelector
 
 # TODO implement skip_missing for all methods
 
