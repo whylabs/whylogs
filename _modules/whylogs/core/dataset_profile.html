@@ -522,6 +522,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_new_columns</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">new_cols</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;It looks like you are logging a vector which isn&#39;t directly profiled in whylogs,&quot;</span>
+                    <span class="s2">&quot;try logging as a dataframe to get batch logging of individual rows or log the rows individually&quot;</span>
+                <span class="p">)</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">_track_datum</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
             <span class="k">return</span>
