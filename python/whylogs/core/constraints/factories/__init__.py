@@ -2,7 +2,7 @@ from .cardinality_metrics import distinct_number_in_range
 from .condition_counts import condition_meets
 from .count_metrics import (
     count_below_number,
-    is_complete,
+    no_missing_values,
     null_percentage_below_number,
     null_values_below_number,
 )
@@ -37,7 +37,7 @@ ALL = [
     mean_between_range,
     stddev_between_range,
     quantile_between_range,
-    is_complete,
+    no_missing_values,
     count_below_number,
     null_values_below_number,
     null_percentage_below_number,

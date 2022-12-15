@@ -1,19 +1,19 @@
 from whylogs.core.constraints.factories import (
     count_below_number,
-    is_complete,
+    no_missing_values,
     null_percentage_below_number,
     null_values_below_number,
 )
 
 
-def test_is_complete(builder):
-    builder.add_constraint(is_complete(column_name="animal"))
-    builder.add_constraint(is_complete(column_name="weight"))
+def test_no_missing_values(builder):
+    builder.add_constraint(no_missing_values(column_name="animal"))
+    builder.add_constraint(no_missing_values(column_name="weight"))
     constraint = builder.build()
     assert constraint.validate() is False
     report = constraint.generate_constraints_report()
-    assert report[0].name == "animal is complete" and report[0].passed == 1
-    assert report[1].name == "weight is complete" and report[1].passed == 0
+    assert report[0].name == "animal has no missing values" and report[0].passed == 1
+    assert report[1].name == "weight has no missing values" and report[1].passed == 0
 
 
 def test_count_below_number(builder, nan_builder):
