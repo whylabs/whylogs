@@ -84,6 +84,15 @@ Here you will find more advanced use-cases for `whylogs`, and you will learn how
 | [String Tracking](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/String_Tracking.ipynb)                                                                   | Track unicode ranges and character length distribution metrics for your textual features. |
 | [Segments](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Segments.ipynb)                                                                                 | Segment your data to improve visibility to the sub-group level                            |
 
+## 📓 Benchmarks
+
+Here you will find experiments to benchmark different aspect of the whylogs package, such as computational performance and different statistical algorithms.
+
+| Example                                                                                                                                                                                       | Description                                                                               |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [Understanding Kolmogorov-Smirnov (KS) Tests for Data Drift on Profiled Data](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/benchmarks/KS_Profiling.ipynb) | Experiments comparing between Kolmogorov-Smirnov whylogs' implementation on profiled data and traditional implementation on complete data                    |
+
+
 ## Get in touch
 
 If you want to get more involved with whylogs adn interact with other practitioners, make sure to [join our community Slack](http://join.slack.whylabs.ai/)
