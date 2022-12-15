@@ -407,6 +407,7 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metric_components</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">FractionalComponent</span><span class="p">,</span>
     <span class="n">FrequentStringsComponent</span><span class="p">,</span>
+    <span class="n">HllComponent</span><span class="p">,</span>
     <span class="n">IntegralComponent</span><span class="p">,</span>
     <span class="n">KllComponent</span><span class="p">,</span>
     <span class="n">MaxIntegralComponent</span><span class="p">,</span>
@@ -515,6 +516,7 @@
         <span class="n">fi_metric</span> <span class="o">=</span> <span class="n">FrequentItemsMetric</span><span class="p">(</span><span class="n">frequent_strings</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
         <span class="n">count_metrics</span> <span class="o">=</span> <span class="n">_extract_col_counts</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
         <span class="n">type_counters_metric</span> <span class="o">=</span> <span class="n">_extract_type_counts_metric</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
+        <span class="n">cardinality_metric</span> <span class="o">=</span> <span class="n">_extract_cardinality_metric</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
         <span class="n">int_metric</span> <span class="o">=</span> <span class="n">_extract_ints_metric</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
 
         <span class="n">columns</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnProfileView</span><span class="p">(</span>
@@ -523,7 +525,7 @@
                 <span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">fi_metric</span><span class="p">,</span>
                 <span class="n">StandardMetric</span><span class="o">.</span><span class="n">counts</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">count_metrics</span><span class="p">,</span>
                 <span class="n">StandardMetric</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">type_counters_metric</span><span class="p">,</span>
-                <span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">type_counters_metric</span><span class="p">,</span>
+                <span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">cardinality_metric</span><span class="p">,</span>
                 <span class="n">StandardMetric</span><span class="o">.</span><span class="n">ints</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">int_metric</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
@@ -579,17 +581,32 @@
     <span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">_extract_cardinality_metric</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">ColumnMessageV0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CardinalityMetric</span><span class="p">:</span>
+    <span class="n">sketch_message</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">cardinality_tracker</span>
+    <span class="k">if</span> <span class="n">sketch_message</span><span class="p">:</span>
+        <span class="n">hll_bytes</span> <span class="o">=</span> <span class="n">sketch_message</span><span class="o">.</span><span class="n">sketch</span>
+        <span class="n">hll</span> <span class="o">=</span> <span class="n">HllComponent</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">hll_sketch</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">hll_bytes</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">CardinalityMetric</span><span class="p">(</span><span class="n">hll</span><span class="o">=</span><span class="n">hll</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CardinalityMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">()</span>
+
+
 <span class="k">def</span> <span class="nf">_extract_schema_message_v0</span><span class="p">(</span><span class="n">col_prof</span><span class="p">:</span> <span class="n">ColumnProfileView</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SchemaMessageV0</span><span class="p">:</span>
-    <span class="n">metric</span><span class="p">:</span> <span class="n">TypeCountersMetric</span> <span class="o">=</span> <span class="n">col_prof</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="n">TypeCountersMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">())</span>
-    <span class="k">if</span> <span class="n">metric</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">SchemaMessageV0</span><span class="p">()</span>
+    <span class="n">types</span><span class="p">:</span> <span class="n">TypeCountersMetric</span> <span class="o">=</span> <span class="n">col_prof</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="n">TypeCountersMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">())</span>
+    <span class="n">counts</span><span class="p">:</span> <span class="n">ColumnCountsMetric</span> <span class="o">=</span> <span class="n">col_prof</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="n">ColumnCountsMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">TypeCountersMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">counts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">ColumnCountsMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">()</span>
 
     <span class="n">type_counts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">type_counts</span><span class="p">[</span><span class="n">InferredType</span><span class="o">.</span><span class="n">INTEGRAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">integral</span><span class="o">.</span><span class="n">value</span>
-    <span class="n">type_counts</span><span class="p">[</span><span class="n">InferredType</span><span class="o">.</span><span class="n">BOOLEAN</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">boolean</span><span class="o">.</span><span class="n">value</span>
-    <span class="n">type_counts</span><span class="p">[</span><span class="n">InferredType</span><span class="o">.</span><span class="n">FRACTIONAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">fractional</span><span class="o">.</span><span class="n">value</span>
-    <span class="n">type_counts</span><span class="p">[</span><span class="n">InferredType</span><span class="o">.</span><span class="n">STRING</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">value</span>
-    <span class="n">type_counts</span><span class="p">[</span><span class="n">InferredType</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">type_counts</span><span class="p">[</span><span class="n">InferredType</span><span class="o">.</span><span class="n">INTEGRAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">integral</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">type_counts</span><span class="p">[</span><span class="n">InferredType</span><span class="o">.</span><span class="n">BOOLEAN</span><span class="p">]</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">boolean</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">type_counts</span><span class="p">[</span><span class="n">InferredType</span><span class="o">.</span><span class="n">FRACTIONAL</span><span class="p">]</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">fractional</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">type_counts</span><span class="p">[</span><span class="n">InferredType</span><span class="o">.</span><span class="n">STRING</span><span class="p">]</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">type_counts</span><span class="p">[</span><span class="n">InferredType</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">]</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">type_counts</span><span class="p">[</span><span class="n">InferredType</span><span class="o">.</span><span class="n">NULL</span><span class="p">]</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">null</span><span class="o">.</span><span class="n">value</span>
 
     <span class="n">msg_v0</span> <span class="o">=</span> <span class="n">SchemaMessageV0</span><span class="p">(</span>
         <span class="n">typeCounts</span><span class="o">=</span><span class="n">type_counts</span><span class="p">,</span>
