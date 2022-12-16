@@ -1,3 +1,4 @@
+import logging
 import os.path
 import tempfile
 from typing import Any
@@ -274,3 +275,13 @@ def test_result_set_reader(profile_view):
         results = reader.read(path=tmp_file.name)
         assert isinstance(reader, ResultSetReader)
         assert isinstance(results, ResultSet)
+
+
+def test_warning_when_logging_a_vector(caplog):
+    with caplog.at_level(logging.WARNING):
+        why.log({"a": 1.2, "b": [2.2]})
+        assert (
+            "It looks like you are logging a vector which isn't directly profiled in whylogs,"
+            "try logging as a dataframe to get batch logging of individual rows or log the rows individually"
+            in caplog.text
+        )
