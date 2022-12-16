@@ -8,6 +8,7 @@ import whylogs as why
 from whylogs.core import ColumnProfileView
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.metrics.metrics import MetricConfig
+from whylogs.viz.configs import HellingerConfig
 from whylogs.viz.utils.drift_calculations import (
     _compute_chi_squared_test_p_value,
     _compute_ks_test_p_value,
@@ -87,21 +88,30 @@ def test_hellinger_on_empty_sketch():
         _get_hellinger_distance(target_view_column=target_col_view, reference_view_column=ref_col_view)
 
 
-def test_hellinger_single_value():
-    params = [([0], [5], 1.0), ([5], [5], 0.0), ([0], [0], 0.0)]
-    for param in params:
-        target_col = param[0]
-        reference_col = param[1]
+@pytest.mark.parametrize("target_col,reference_col,result", [([0], [5], 1.0), ([5], [5], 0.0), ([0], [0], 0.0)])
+def test_hellinger_single_value(target_col, reference_col, result):
 
-        target = pd.DataFrame(data={"col": target_col})
-        ref = pd.DataFrame(data={"col": reference_col})
+    target = pd.DataFrame(data={"col": target_col})
+    ref = pd.DataFrame(data={"col": reference_col})
 
-        target_view = why.log(target).profile().view()
-        ref_view = why.log(ref).profile().view()
+    target_view = why.log(target).profile().view()
+    ref_view = why.log(ref).profile().view()
 
-        hel = calculate_drift_values(target_view=target_view, reference_view=ref_view, statistic=True)
-        assert hel["col"]["statistic"] == param[2]
-        assert hel["col"]["algorithm"] == "hellinger"
+    hel = calculate_drift_values(target_view=target_view, reference_view=ref_view, statistic=True)
+    assert hel["col"]["statistic"] == result
+    assert hel["col"]["algorithm"] == "hellinger"
+
+
+def test_hellinger_custom_config():
+    config = HellingerConfig(min_n_buckets=1)
+    distribution_metric = DistributionMetric.zero(MetricConfig())
+    target_col_view = ColumnProfileView({"distribution": distribution_metric})
+    ref_col_view = ColumnProfileView({"distribution": distribution_metric})
+    with pytest.warns(
+        UserWarning,
+        match="MIN_N_BUCKETS < 2 might lead to erroneous results for low-sized samples. Consider setting it to >=2.",
+    ):
+        _get_hellinger_distance(target_view_column=target_col_view, reference_view_column=ref_col_view, config=config)
 
 
 def test_calculate_drift_values_result_format(profile_view):

@@ -225,11 +225,21 @@ def calculate_hellinger_distance(target_pmf: List[float], reference_pmf: List[fl
 
 
 def _get_hellinger_distance(
-    target_view_column: ColumnProfileView, reference_view_column: ColumnProfileView, nbins: Optional[int] = None
+    target_view_column: ColumnProfileView,
+    reference_view_column: ColumnProfileView,
+    nbins: Optional[int] = None,
+    config: Optional[HellingerConfig] = None,
 ) -> Optional[ColumnDriftStatistic]:
-    MAX_HIST_BUCKETS = HellingerConfig().max_hist_buckets
-    HIST_AVG_NUMBER_PER_BUCKET = HellingerConfig().hist_avg_number_per_bucket
-    MIN_N_BUCKETS = HellingerConfig().min_n_buckets
+    if config is None:
+        config = HellingerConfig()
+    MAX_HIST_BUCKETS = config.max_hist_buckets
+    HIST_AVG_NUMBER_PER_BUCKET = config.hist_avg_number_per_bucket
+    MIN_N_BUCKETS = config.min_n_buckets
+    if MIN_N_BUCKETS < 2:
+        warnings.warn(
+            "MIN_N_BUCKETS < 2 might lead to erroneous results for low-sized samples. Consider setting it to >=2."
+        )
+
     if not nbins:
         nbins = MAX_HIST_BUCKETS
     target_dist_metric = target_view_column.get_metric("distribution")
