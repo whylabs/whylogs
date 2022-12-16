@@ -1,8 +1,28 @@
 from typing import Union
-
 from whylogs.core.metrics.metrics import CardinalityMetric
 
 from ..metric_constraints import MetricConstraint, MetricsSelector
+from whylogs.core.relations import Require
+
+
+def is_probabilistic_unique(column_name: str) -> MetricConstraint:
+    """Checks that there are no duplicate values in a column.
+
+    Parameters
+    ----------
+    column_name : str
+        Column the constraint is applied to
+    """
+
+    def unique(metric) -> bool:
+        print("hello")
+
+    constraint = MetricConstraint(
+        name=f"{column_name} is probabilistic unique",
+        condition=Require().is_(unique),
+        metric_selector=MetricsSelector(column_name=column_name, metric_name="cardinality"),
+    )
+    return constraint
 
 
 def distinct_number_in_range(column_name: str, lower: Union[int, float], upper: Union[int, float]) -> MetricConstraint:

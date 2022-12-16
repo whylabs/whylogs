@@ -1,28 +1,5 @@
 from whylogs.core.configs import SummaryConfig
-from whylogs.core.relations import Require
-
 from ..metric_constraints import MetricConstraint, MetricsSelector
-
-
-def is_unique(column_name: str) -> MetricConstraint:
-    """Checks that there are no duplicate values in a column.
-
-    Parameters
-    ----------
-    column_name : str
-        Column the constraint is applied to
-    """
-
-    def unique(metric) -> bool:
-        frequent_strings = metric.to_summary_dict(SummaryConfig())["frequent_strings"]
-        return frequent_strings[0].est == 1
-
-    constraint = MetricConstraint(
-        name=f"{column_name} is unique",
-        condition=Require().is_(unique),
-        metric_selector=MetricsSelector(column_name=column_name, metric_name="frequent_items"),
-    )
-    return constraint
 
 
 def frequent_strings_in_reference_set(column_name: str, reference_set: dict) -> MetricConstraint:

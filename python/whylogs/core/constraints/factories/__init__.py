@@ -1,4 +1,4 @@
-from .cardinality_metrics import distinct_number_in_range
+from .cardinality_metrics import distinct_number_in_range, is_probabilistic_unique
 from .condition_counts import condition_meets
 from .count_metrics import (
     count_below_number,
@@ -17,7 +17,6 @@ from .distribution_metrics import (
 )
 from .frequent_items import (
     frequent_strings_in_reference_set,
-    is_unique,
     n_most_common_items_in_set,
 )
 from .types_metrics import (
@@ -42,7 +41,7 @@ ALL = [
     null_values_below_number,
     null_percentage_below_number,
     distinct_number_in_range,
-    is_unique,
+    is_probabilistic_unique,
     frequent_strings_in_reference_set,
     n_most_common_items_in_set,
     column_is_nullable_integral,
