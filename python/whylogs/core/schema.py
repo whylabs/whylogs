@@ -208,6 +208,9 @@ class DeclarativeSchema(DatasetSchema):
     in whylogs/python/tests/core/test_declarative_schema.py
     """
 
+    def add_resolver(self, resolver_spec: ResolverSpec):
+        self.resolvers.add_resolver(resolver_spec)
+
     def __init__(
         self,
         resolvers: List[ResolverSpec],
