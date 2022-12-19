@@ -163,6 +163,9 @@ Attributes
    StandardTypeMapper, StandardResolver, etc.  STANDARD_RESOLVER is defined
    in whylogs/python/tests/core/test_declarative_schema.py
 
+   .. py:method:: add_resolver(resolver_spec: whylogs.core.resolvers.ResolverSpec)
+
+
    .. py:method:: copy() -> DatasetSchema
 
       Returns a new instance of the same underlying schema

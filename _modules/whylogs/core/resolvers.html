@@ -395,7 +395,7 @@
 
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypeAlias</span>
 
-<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">Fractional</span><span class="p">,</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">AnyType</span><span class="p">,</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">Fractional</span><span class="p">,</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">String</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics</span> <span class="kn">import</span> <span class="n">StandardMetric</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">MetricConfig</span>
 
@@ -483,7 +483,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">metric</span><span class="p">:</span> <span class="n">Any</span>  <span class="c1"># Should be a subclass of Metric, it should be the class, not an instance</span>
-    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># omit to use default MetricConfig</span></div>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># omit to use default MetricConfig</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span> <span class="n">Metric</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;MetricSpec: must supply a Metric subclass to MetricSpec&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ResolverSpec"><a class="viewcode-back" href="../../../api/whylogs/core/resolvers/index.html#whylogs.core.ResolverSpec">[docs]</a><span class="nd">@dataclass</span>
@@ -497,7 +501,16 @@
 
     <span class="n">column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># TODO: maybe make this a regex</span>
     <span class="n">column_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">MetricSpec</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span></div>
+    <span class="n">metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">MetricSpec</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_name</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_type</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ResolverSpec: column </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> also specified type, name takes precedence&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_type</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ResolverSpec: resolver specification must supply name or type&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_type</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_type</span><span class="p">,</span> <span class="n">DataType</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ResolverSpec: resolver specification column type must be a DataType&quot;</span><span class="p">)</span></div>
 
 
 <span class="c1"># whylabs expects COLUMN_METRICS to be present for every column.</span>
@@ -521,24 +534,12 @@
 <span class="sd">    of ResolverSpecs</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="DeclarativeResolver.add_resolver"><a class="viewcode-back" href="../../../api/whylogs/core/resolvers/index.html#whylogs.core.DeclarativeResolver.add_resolver">[docs]</a>    <span class="k">def</span> <span class="nf">add_resolver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolver_spec</span><span class="p">:</span> <span class="n">ResolverSpec</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolver_spec</span><span class="p">)</span></div>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolvers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">],</span> <span class="n">default_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># Validate resolvers -- must have name xor type, MetricSpec metrcis must &lt;: Metric</span>
-        <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">resolvers</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">column_name</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">column_type</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;DeclarativeSchema: column </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> also specified type, name takes precedence&quot;</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">column_name</span> <span class="ow">or</span> <span class="n">spec</span><span class="o">.</span><span class="n">column_type</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;DeclarativeSchema: resolver specification must supply name or type&quot;</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">column_type</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">column_type</span><span class="p">,</span> <span class="n">DataType</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;DeclarativeSchema: resolver specification column type must be a DataType&quot;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">metric_spec</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">metric_spec</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span> <span class="n">Metric</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;DeclarativeSchema: must supply a Metric subclass to MetricSpec&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span> <span class="o">=</span> <span class="n">resolvers</span>
+        <span class="c1"># Validate resolvers -- must have name xor type, MetricSpec metrics must &lt;: Metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span> <span class="o">=</span> <span class="n">resolvers</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
 <div class="viewcode-block" id="DeclarativeResolver.resolve"><a class="viewcode-back" href="../../../api/whylogs/core/resolvers/index.html#whylogs.core.DeclarativeResolver.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
         <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -551,6 +552,68 @@
                         <span class="n">result</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">()]</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">result</span></div></div>
+
+
+<span class="c1"># STANDARD_RESOLVER matches the default DatasetSchema/StandardResolver behavior</span>
+<span class="n">STANDARD_RESOLVER</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span>
+        <span class="n">column_type</span><span class="o">=</span><span class="n">Integral</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">ints</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span>
+        <span class="n">column_type</span><span class="o">=</span><span class="n">Fractional</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span>
+        <span class="n">column_type</span><span class="o">=</span><span class="n">String</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">unicode_range</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">AnyType</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">LIMITED_TRACKING_RESOLVER</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span>
+        <span class="n">column_type</span><span class="o">=</span><span class="n">Integral</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">ints</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span>
+        <span class="n">column_type</span><span class="o">=</span><span class="n">Fractional</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">String</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span><span class="p">),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">AnyType</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span><span class="p">),</span>
+<span class="p">]</span>
+
+
+<span class="n">HISTOGRAM_COUNTING_TRACKING_RESOLVER</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">Integral</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">)]),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">Fractional</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">)]),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">String</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">)]),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">AnyType</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">)]),</span>
+<span class="p">]</span>
 </pre></div>
         </article>
       </div>

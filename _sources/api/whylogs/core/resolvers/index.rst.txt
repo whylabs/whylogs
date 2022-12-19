@@ -32,6 +32,9 @@ Attributes
    whylogs.core.resolvers.M
    whylogs.core.resolvers.ColumnSchema
    whylogs.core.resolvers.COLUMN_METRICS
+   whylogs.core.resolvers.STANDARD_RESOLVER
+   whylogs.core.resolvers.LIMITED_TRACKING_RESOLVER
+   whylogs.core.resolvers.HISTOGRAM_COUNTING_TRACKING_RESOLVER
 
 
 .. py:data:: logger
@@ -142,7 +145,25 @@ Attributes
    Implements the declarative resolution logic by interpreting a "program"
    of ResolverSpecs
 
+   .. py:method:: add_resolver(resolver_spec: ResolverSpec)
+
+
    .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
 
 
+
+.. py:data:: STANDARD_RESOLVER
+   
+
+   
+
+.. py:data:: LIMITED_TRACKING_RESOLVER
+   
+
+   
+
+.. py:data:: HISTOGRAM_COUNTING_TRACKING_RESOLVER
+   
+
+   
 
