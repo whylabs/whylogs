@@ -225,10 +225,21 @@ def calculate_hellinger_distance(target_pmf: List[float], reference_pmf: List[fl
 
 
 def _get_hellinger_distance(
-    target_view_column: ColumnProfileView, reference_view_column: ColumnProfileView, nbins: Optional[int] = None
+    target_view_column: ColumnProfileView,
+    reference_view_column: ColumnProfileView,
+    nbins: Optional[int] = None,
+    config: Optional[HellingerConfig] = None,
 ) -> Optional[ColumnDriftStatistic]:
-    MAX_HIST_BUCKETS = HellingerConfig().max_hist_buckets
-    HIST_AVG_NUMBER_PER_BUCKET = HellingerConfig().hist_avg_number_per_bucket
+    if config is None:
+        config = HellingerConfig()
+    MAX_HIST_BUCKETS = config.max_hist_buckets
+    HIST_AVG_NUMBER_PER_BUCKET = config.hist_avg_number_per_bucket
+    MIN_N_BUCKETS = config.min_n_buckets
+    if MIN_N_BUCKETS < 2:
+        warnings.warn(
+            "MIN_N_BUCKETS < 2 might lead to erroneous results for low-sized samples. Consider setting it to >=2."
+        )
+
     if not nbins:
         nbins = MAX_HIST_BUCKETS
     target_dist_metric = target_view_column.get_metric("distribution")
@@ -248,7 +259,14 @@ def _get_hellinger_distance(
     start = min([target_kll_sketch.get_min_value(), ref_kll_sketch.get_min_value()])
     end = max([target_kll_sketch.get_max_value(), ref_kll_sketch.get_max_value()])
     n = target_kll_sketch.get_n() + ref_kll_sketch.get_n()
-    bins, end = _calculate_bins(end=end, start=start, n=n, avg_per_bucket=HIST_AVG_NUMBER_PER_BUCKET, max_buckets=nbins)
+    bins, end = _calculate_bins(
+        end=end,
+        start=start,
+        n=n,
+        avg_per_bucket=HIST_AVG_NUMBER_PER_BUCKET,
+        max_buckets=nbins,
+        min_n_buckets=MIN_N_BUCKETS,
+    )
 
     target_pmf = target_kll_sketch.get_pmf(bins)
     ref_pmf = ref_kll_sketch.get_pmf(bins)

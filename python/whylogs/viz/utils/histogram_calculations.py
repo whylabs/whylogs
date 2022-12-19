@@ -14,6 +14,7 @@ logger = getLogger(__name__)
 
 MAX_HIST_BUCKETS = HistogramConfig().max_hist_buckets
 HIST_AVG_NUMBER_PER_BUCKET = HistogramConfig().hist_avg_number_per_bucket
+MIN_N_BUCKETS = HistogramConfig().min_n_buckets
 
 
 class HistogramSummary(TypedDict):
@@ -38,7 +39,10 @@ def histogram_from_view(column_view: ColumnProfileView, feature_name: str) -> Hi
 
 
 def _histogram_from_sketch(
-    sketch: kll_doubles_sketch, max_buckets: int = None, avg_per_bucket: Optional[float] = None
+    sketch: kll_doubles_sketch,
+    max_buckets: int = None,
+    avg_per_bucket: Optional[float] = None,
+    min_n_buckets: Optional[int] = None,
 ) -> HistogramSummary:
     """
     Generate a summary of a kll_floats_sketch, including a histogram
@@ -65,6 +69,8 @@ def _histogram_from_sketch(
         max_buckets = MAX_HIST_BUCKETS
     if avg_per_bucket is None:
         avg_per_bucket = HIST_AVG_NUMBER_PER_BUCKET
+    if min_n_buckets is None:
+        min_n_buckets = MIN_N_BUCKETS
 
     if (n < 2) or (start == end):
         dx = abs(start) * 1e-7
@@ -72,7 +78,7 @@ def _histogram_from_sketch(
         bins = [start, end]
         counts = [n]
     else:
-        bins, end = _calculate_bins(end, start, n, avg_per_bucket, max_buckets)
+        bins, end = _calculate_bins(end, start, n, avg_per_bucket, max_buckets, min_n_buckets)
         pmf = sketch.get_pmf(bins)
         counts = [round(p * n) for p in pmf]
         counts = counts[1:-1]
