@@ -1,10 +1,11 @@
-from .cardinality_metrics import distinct_number_in_range, is_probabilistic_unique
+from .cardinality_metrics import distinct_number_in_range
 from .condition_counts import condition_meets
 from .count_metrics import (
     count_below_number,
     no_missing_values,
     null_percentage_below_number,
     null_values_below_number,
+    is_probably_unique,
 )
 from .distribution_metrics import (
     greater_than_number,
@@ -14,6 +15,7 @@ from .distribution_metrics import (
     quantile_between_range,
     smaller_than_number,
     stddev_between_range,
+    column_pair_mean_a_less_or_equal_than_mean_b,
 )
 from .frequent_items import (
     frequent_strings_in_reference_set,
@@ -35,13 +37,14 @@ ALL = [
     is_non_negative,
     mean_between_range,
     stddev_between_range,
+    column_pair_mean_a_less_or_equal_than_mean_b,
     quantile_between_range,
     no_missing_values,
     count_below_number,
     null_values_below_number,
+    is_probably_unique,
     null_percentage_below_number,
     distinct_number_in_range,
-    is_probabilistic_unique,
     frequent_strings_in_reference_set,
     n_most_common_items_in_set,
     column_is_nullable_integral,

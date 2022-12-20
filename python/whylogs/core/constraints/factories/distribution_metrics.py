@@ -3,6 +3,8 @@ from typing import Union
 from whylogs.core.constraints import MetricConstraint, MetricsSelector
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.relations import Require
+from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.core.metric_getters import ProfileGetter
 
 
 def greater_than_number(column_name: str, number: Union[float, int], skip_missing: bool = True) -> MetricConstraint:
@@ -16,7 +18,7 @@ def greater_than_number(column_name: str, number: Union[float, int], skip_missin
         reference value for applying the constraint
     skip_missing: bool
         If skip_missing is True, missing distribution metrics will make the check pass.
-        If False, the check will fail on missing metrics
+        If False, the check will fail on missing metrics, such as on an empty dataset
     """
 
     def is_greater(metric: DistributionMetric) -> bool:
@@ -44,7 +46,7 @@ def smaller_than_number(column_name: str, number: float, skip_missing: bool = Tr
         reference value for applying the constraint
     skip_missing: bool
         If skip_missing is True, missing distribution metrics will make the check pass.
-        If False, the check will fail on missing metrics
+        If False, the check will fail on missing metrics, such as on an empty dataset
     """
 
     def is_smaller(metric) -> bool:
@@ -70,7 +72,7 @@ def is_non_negative(column_name: str, skip_missing: bool = True) -> MetricConstr
         Column the constraint is applied to
     skip_missing: bool
         If skip_missing is True, missing distribution metrics will make the check pass.
-        If False, the check will fail on missing metrics
+        If False, the check will fail on missing metrics, such as on an empty dataset
     """
     constraint = MetricConstraint(
         name=f"{column_name} is non negative",
@@ -97,13 +99,14 @@ def is_in_range(
         upper bound of defined range
     skip_missing: bool
         If skip_missing is True, missing distribution metrics will make the check pass.
-        If False, the check will fail on missing metrics
+        If False, the check will fail on missing metrics, such as on an empty dataset
     """
 
     constraint = MetricConstraint(
         name=f"{column_name} is in range [{lower},{upper}]",
         condition=Require("min").greater_or_equals(lower).and_(Require("max").less_or_equals(upper)),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
+        require_column_existence=not skip_missing,
     )
     return constraint
 
@@ -121,7 +124,7 @@ def mean_between_range(column_name: str, lower: float, upper: float, skip_missin
         Upper bound of the value range
     skip_missing: bool
         If skip_missing is True, missing distribution metrics will make the check pass.
-        If False, the check will fail on missing metrics
+        If False, the check will fail on missing metrics, such as on an empty dataset
     """
 
     def is_mean_between(metric) -> bool:
@@ -151,7 +154,7 @@ def stddev_between_range(column_name: str, lower: float, upper: float, skip_miss
         Upper bound of the value range
     skip_missing: bool
         If skip_missing is True, missing distribution metrics will make the check pass.
-        If False, the check will fail on missing metrics
+        If False, the check will fail on missing metrics, such as on an empty dataset
     """
 
     def is_stddev_between_range(metric):
@@ -183,7 +186,7 @@ def quantile_between_range(column_name: str, quantile: float, lower: float, uppe
         Upper bound of the value range
     skip_missing: bool
         If skip_missing is True, missing distribution metrics will make the check pass.
-        If False, the check will fail on missing metrics
+        If False, the check will fail on missing metrics, such as on an empty dataset
     """
 
     def quantile_in_range(metric):
@@ -199,4 +202,18 @@ def quantile_between_range(column_name: str, quantile: float, lower: float, uppe
         condition=quantile_in_range,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
     )
+    return constraint
+
+
+def column_pair_mean_a_less_or_equal_than_mean_b(
+    column_a: str, column_b: str, profile_view: DatasetProfileView
+) -> MetricConstraint:
+    """Checks if mean of column A is less or equal than mean of column B"""
+    dist_metrics = MetricsSelector(metric_name="distribution", column_name=column_a)
+    condition = Require("mean").less_or_equals(
+        ProfileGetter(profile_view, column_name=column_b, path="distribution/mean")
+    )
+
+    constraint_name = f"{column_a} mean is less or equal than {column_b} mean"
+    constraint = MetricConstraint(name=constraint_name, condition=condition, metric_selector=dist_metrics)
     return constraint

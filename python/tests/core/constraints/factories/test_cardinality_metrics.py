@@ -1,11 +1,4 @@
-from whylogs.core.constraints.factories import distinct_number_in_range, is_probabilistic_unique
-
-
-def test_probabilistic_unique(builder):
-    builder.add_constraint(is_probabilistic_unique(column_name="animal"))
-    constraint = builder.build()
-    assert not constraint.validate()
-    pass
+from whylogs.core.constraints.factories import distinct_number_in_range
 
 
 def test_distinct_number_in_range(builder):

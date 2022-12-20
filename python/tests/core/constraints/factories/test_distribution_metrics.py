@@ -10,7 +10,34 @@ from whylogs.core.constraints.factories.distribution_metrics import (
     quantile_between_range,
     smaller_than_number,
     stddev_between_range,
+    column_pair_mean_a_less_or_equal_than_mean_b,
 )
+
+
+def test_column_pair_mean_a_less_or_equal_than_mean_b():
+    data = {
+        "reviews_last_year": [30, 22, 15, 67, 92],
+        "reviews_last_month": [4, 2, 15, 9, 47],
+    }
+
+    df = pd.DataFrame(data)
+
+    prof_view = why.log(df).profile().view()
+    builder = ConstraintsBuilder(dataset_profile_view=prof_view)
+    builder.add_constraint(
+        column_pair_mean_a_less_or_equal_than_mean_b(
+            column_a="reviews_last_month",
+            column_b="reviews_last_year",
+            profile_view=builder._dataset_profile_view,
+            skip_missing=False,
+        )
+    )
+    constraint = builder.build()
+    report = constraint.generate_constraints_report()
+    assert (
+        report[0].name == "reviews_last_month mean is less or equal than reviews_last_year mean"
+        and report[0].passed == 1
+    )
 
 
 def test_is_in_range(builder, nan_builder):
