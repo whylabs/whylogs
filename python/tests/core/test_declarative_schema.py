@@ -1,8 +1,10 @@
 import pytest
 
 import whylogs as why
-from whylogs.core.datatypes import AnyType, Fractional, Integral, String
+from whylogs.core import DatasetSchema
+from whylogs.core.datatypes import Fractional, String
 from whylogs.core.metrics import MetricConfig, StandardMetric
+from whylogs.core.metrics.column_metrics import ColumnCountsMetric
 from whylogs.core.metrics.condition_count_metric import (
     Condition,
     ConditionCountConfig,
@@ -11,45 +13,16 @@ from whylogs.core.metrics.condition_count_metric import (
 from whylogs.core.metrics.condition_count_metric import Relation as Rel
 from whylogs.core.metrics.condition_count_metric import relation as rel
 from whylogs.core.resolvers import (
-    COLUMN_METRICS,
-    DeclarativeResolver,
+    HISTOGRAM_COUNTING_TRACKING_RESOLVER,
+    LIMITED_TRACKING_RESOLVER,
+    STANDARD_RESOLVER,
+    HistogramCountingTrackingResolver,
+    LimitedTrackingResolver,
     MetricSpec,
     ResolverSpec,
+    StandardResolver,
 )
 from whylogs.core.schema import DeclarativeSchema
-
-# STANDARD_RESOLVER matches the default DatasetSchema/StandardResolver behavior
-STANDARD_RESOLVER = [
-    ResolverSpec(
-        column_type=Integral,
-        metrics=COLUMN_METRICS
-        + [
-            MetricSpec(StandardMetric.distribution.value),
-            MetricSpec(StandardMetric.ints.value),
-            MetricSpec(StandardMetric.cardinality.value),
-            MetricSpec(StandardMetric.frequent_items.value),
-        ],
-    ),
-    ResolverSpec(
-        column_type=Fractional,
-        metrics=COLUMN_METRICS
-        + [
-            MetricSpec(StandardMetric.distribution.value),
-            MetricSpec(StandardMetric.cardinality.value),
-        ],
-    ),
-    ResolverSpec(
-        column_type=String,
-        metrics=COLUMN_METRICS
-        + [
-            MetricSpec(StandardMetric.unicode_range.value),
-            MetricSpec(StandardMetric.distribution.value),
-            MetricSpec(StandardMetric.cardinality.value),
-            MetricSpec(StandardMetric.frequent_items.value),
-        ],
-    ),
-    ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
-]
 
 
 def test_declarative_schema() -> None:
@@ -106,6 +79,59 @@ def test_declarative_schema() -> None:
     assert col2_conditions == {"alpha", "digit"}
 
 
+def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
+    not_4_condition = {
+        "not_4": Condition(lambda x: x != 4),
+    }
+
+    not_4_3_condition = {
+        "not_4.3": Condition(lambda x: x != 4.3),
+    }
+
+    legs_not_4_spec = ResolverSpec(
+        column_name="legs",
+        metrics=[
+            MetricSpec(
+                ConditionCountMetric,
+                ConditionCountConfig(conditions=not_4_condition),
+            ),
+        ],
+    )
+
+    weights_not_4_2_spec = ResolverSpec(
+        column_type=Fractional,
+        metrics=[
+            MetricSpec(
+                ConditionCountMetric,
+                ConditionCountConfig(conditions=not_4_3_condition),
+            ),
+        ],
+    )
+
+    schema = DeclarativeSchema(STANDARD_RESOLVER)
+    schema.add_resolver(legs_not_4_spec)
+    schema.add_resolver(weights_not_4_2_spec)
+
+    prof_view = why.log(pandas_dataframe, schema=schema).profile().view()
+    colset = prof_view.to_pandas().columns
+    assert len(colset) == 33
+    assert {"condition_count/not_4", "condition_count/not_4.3", "condition_count/total"}.issubset(colset)
+
+
+def test_additional_metrics_nonexistent(pandas_dataframe):
+    count_spec = ResolverSpec(
+        column_name="nonexistent_columns",
+        metrics=[
+            MetricSpec(ColumnCountsMetric),
+        ],
+    )
+    schema = DeclarativeSchema(HISTOGRAM_COUNTING_TRACKING_RESOLVER)
+    schema.add_resolver(count_spec)
+    prof_view = why.log(pandas_dataframe, schema=schema).profile().view()
+    col_list = list(prof_view.to_pandas().columns)
+    assert all([col.startswith(("type", "distribution")) for col in col_list])
+
+
 @pytest.mark.parametrize("fi_disabled,unicode_enabled", [(False, False), (False, True), (True, False), (True, True)])
 def test_enabled_metrics(fi_disabled: bool, unicode_enabled: bool) -> None:
     config = MetricConfig(fi_disabled=fi_disabled, track_unicode_ranges=unicode_enabled)
@@ -117,40 +143,42 @@ def test_enabled_metrics(fi_disabled: bool, unicode_enabled: bool) -> None:
     assert unicode_enabled == ("unicode_range" in col1_metrics)
 
 
-@pytest.mark.parametrize(
-    "spec,msg",
-    [
-        (ResolverSpec(), "DeclarativeSchema: resolver specification must supply name or type"),
-        (ResolverSpec(column_type=str), "DeclarativeSchema: resolver specification column type must be a DataType"),
-        (
-            ResolverSpec(column_name="bruce", metrics=[MetricSpec(int)]),
-            "DeclarativeSchema: must supply a Metric subclass to MetricSpec",
-        ),
-    ],
-)
-def test_invalid_config(spec, msg) -> None:
+def test_invalid_config() -> None:
     """
     Verify error checking
     """
-    with pytest.raises(ValueError, match=msg):
-        DeclarativeResolver([spec])
+    with pytest.raises(ValueError) as e:
+        ResolverSpec()
+        assert e.value.args[0] == "ResolverSpec: resolver specification must supply name or type"
+    with pytest.raises(ValueError) as e:
+        ResolverSpec(column_type=str)
+        assert e.value.args[0] == "ResolverSpec: resolver specification column type must be a DataType"
+    with pytest.raises(ValueError) as e:
+        ResolverSpec(column_name="bruce", metrics=[MetricSpec(int)])
+        assert e.value.args[0] == "MetricSpec: must supply a Metric subclass to MetricSpec"
 
 
-def test_standard_resolver() -> None:
+def test_resolvers() -> None:
     """
-    Verify DeclarativeSchema(STANDARD_RESOLVER) is equivalent to DatasetSchema()
+    Verify DeclarativeSchema(RESOLVER) is equivalent to DatasetSchema()
+    for different RESOLVERS (Standard, Limited Tracking, HistogramCounting)
     """
+    params = [
+        (StandardResolver(), STANDARD_RESOLVER),
+        (LimitedTrackingResolver(), LIMITED_TRACKING_RESOLVER),
+        (HistogramCountingTrackingResolver(), HISTOGRAM_COUNTING_TRACKING_RESOLVER),
+    ]
 
     class UnknownType:
         pass
 
     data = {"column_1": 3.14, "column_2": "lmno", "column_3": 42, "column_4": UnknownType()}
-    standard_results = why.log(row=data).view()
+    for (reference_resolver, declarative_resolver) in params:
+        reference_results = why.log(row=data, schema=DatasetSchema(resolvers=reference_resolver)).view()
+        declarative_standard_schema = DeclarativeSchema(declarative_resolver)
+        declarative_results = why.log(row=data, schema=declarative_standard_schema).view()
 
-    declarative_standard_schema = DeclarativeSchema(STANDARD_RESOLVER)
-    declarative_results = why.log(row=data, schema=declarative_standard_schema).view()
-
-    for column in ["column_1", "column_2", "column_3", "column_4"]:
-        standard_metrics = set(standard_results.get_column(column).get_metric_names())
-        declarative_metrics = set(declarative_results.get_column(column).get_metric_names())
-        assert standard_metrics == declarative_metrics
+        for column in ["column_1", "column_2", "column_3", "column_4"]:
+            reference_metrics = set(reference_results.get_column(column).get_metric_names())
+            declarative_metrics = set(declarative_results.get_column(column).get_metric_names())
+            assert reference_metrics == declarative_metrics
