@@ -1,8 +1,8 @@
 from typing import Union
+
 from whylogs.core.metrics.metrics import CardinalityMetric
 
 from ..metric_constraints import MetricConstraint, MetricsSelector
-from whylogs.core.relations import Require
 
 
 def distinct_number_in_range(column_name: str, lower: Union[int, float], upper: Union[int, float]) -> MetricConstraint:

@@ -18,3 +18,14 @@ def nan_builder():
     profile_view = why.log(pandas=df).view()
     nan_builder = ConstraintsBuilder(dataset_profile_view=profile_view)
     return nan_builder
+
+
+@pytest.fixture
+def empty_builder():
+    data = {
+        "a": [],
+    }
+    df = pd.DataFrame(data)
+    profile_view = why.log(pandas=df).view()
+    empty_builder = ConstraintsBuilder(dataset_profile_view=profile_view)
+    return empty_builder

@@ -1,4 +1,5 @@
 from whylogs.core.configs import SummaryConfig
+
 from ..metric_constraints import MetricConstraint, MetricsSelector
 
 
