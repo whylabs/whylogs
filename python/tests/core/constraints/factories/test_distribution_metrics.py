@@ -15,6 +15,17 @@ from whylogs.core.constraints.factories.distribution_metrics import (
 )
 
 
+@pytest.fixture
+def empty_builder():
+    data = {
+        "a": [],
+    }
+    df = pd.DataFrame(data)
+    profile_view = why.log(pandas=df).view()
+    empty_builder = ConstraintsBuilder(dataset_profile_view=profile_view)
+    return empty_builder
+
+
 def test_is_in_range(builder, nan_builder):
     builder.add_constraint(is_in_range(column_name="weight", lower=1.1, upper=3.2, skip_missing=False))
     builder.add_constraint(is_in_range(column_name="legs", lower=0, upper=6, skip_missing=False))
@@ -37,7 +48,7 @@ def test_is_non_negative():
         "animal": ["cat", "hawk", "snake", "cat", "mosquito"],
         "legs": [4, 2, 0, 4, 6],
         "weight": [4.3, -1.8, 1.3, 4.1, 5.5e-6],
-        "null_column": [np.nan, np.nan, np.nan, np.nan, np.nan],
+        "null_column": [np.nan] * 5,
     }
 
     view = why.log(pd.DataFrame(data)).profile().view()
