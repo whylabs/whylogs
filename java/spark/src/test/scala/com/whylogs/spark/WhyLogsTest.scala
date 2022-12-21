@@ -84,6 +84,29 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
     assert(matrix(1)(1) == 42L)
   }
 
+   test("test WhyLogsSession with ClassificationMetrics and only model performance columns") {
+    import com.whylogs.spark.WhyLogs._
+
+    val file = Files.createTempFile("data", ".parquet")
+    Files.copy(WhyLogs.getClass.getResourceAsStream("/prediction_data.parquet"), file, StandardCopyOption.REPLACE_EXISTING)
+
+    val df = spark.read.parquet("file://" + file.toAbsolutePath).select("predictions", "targets", "scores")
+    val res = df.newProfilingSession("model")
+      .withClassificationModel("predictions", "targets", "scores")
+      .aggProfiles(Instant.now())
+    res.count()
+    val bytes = res.collect()(0).getAs[Array[Byte]](0)
+    val dp = DatasetProfile.parse(new ByteArrayInputStream(bytes))
+
+    assert(dp.getModelProfile != null)
+    assert(dp.getModelProfile.getMetrics.getClassificationMetrics.getLabels == List("0", "1").asJava)
+    val matrix: Array[Array[Long]] = dp.getModelProfile.getMetrics.getClassificationMetrics.getConfusionMatrix
+    assert(matrix(0)(0) == 40L)
+    assert(matrix(0)(1) == 7L)
+    assert(matrix(1)(0) == 11L)
+    assert(matrix(1)(1) == 42L)
+  }
+
   test("test WhyLogsSession with ModelMetrics") {
     import com.whylogs.spark.WhyLogs._
 

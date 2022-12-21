@@ -149,7 +149,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     val remainingFields = fields.filter(!groupByWithTime.contains(_)).filter(!profileMetricsFields.contains(_))
     val columnGroups = remainingFields.grouped(100).toSeq
 
-    val primaryProfiles = coalesced.select((groupByWithTime ++ profileMetricsFields ++ columnGroups.head).map(col):_*)
+    val primaryProfiles = coalesced.select((groupByWithTime ++ profileMetricsFields).map(col):_*)
       .groupBy(groupByWithTime.map(col):_*)
       .agg(DatasetProfileAggregator(name, timeInMillis, timeColumn, groupByColumns, modelProfile)
         .toColumn
@@ -159,7 +159,6 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
       Seq(primaryProfiles) ++
       // adding the rest of the columns
       columnGroups
-      .tail
       .map(cols => {
         val targetFields = groupByWithTime ++ cols
         val filteredDf = coalesced.select(targetFields.head, targetFields.tail: _*)
