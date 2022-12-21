@@ -161,7 +161,7 @@ results = why.log(df)
 results.writer("whylabs").write()
 ```
 
-![image](<https://github.com/whylabs/whylogs/blob/assets/images/chrome-capture-2022-9-4%20(1).gif>)
+![image](https://github.com/whylabs/whylogs/raw/assets/images/chrome-capture-2022-9-4%20(1).gif)
 
 If you’re interested in trying out WhyLabs, check out the always free [Starter edition](https://hub.whylabsapp.com/signup), which allows you to experience the entire platform’s capabilities with no credit card required.
 
