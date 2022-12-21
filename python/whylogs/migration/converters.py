@@ -17,6 +17,7 @@ from whylogs.core.metrics import (
 from whylogs.core.metrics.metric_components import (
     FractionalComponent,
     FrequentStringsComponent,
+    HllComponent,
     IntegralComponent,
     KllComponent,
     MaxIntegralComponent,
@@ -125,6 +126,7 @@ def v0_to_v1_view(msg: DatasetProfileMessageV0) -> DatasetProfileView:
         fi_metric = FrequentItemsMetric(frequent_strings=fs)
         count_metrics = _extract_col_counts(col_msg)
         type_counters_metric = _extract_type_counts_metric(col_msg)
+        cardinality_metric = _extract_cardinality_metric(col_msg)
         int_metric = _extract_ints_metric(col_msg)
 
         columns[col_name] = ColumnProfileView(
@@ -133,7 +135,7 @@ def v0_to_v1_view(msg: DatasetProfileMessageV0) -> DatasetProfileView:
                 StandardMetric.frequent_items.name: fi_metric,
                 StandardMetric.counts.name: count_metrics,
                 StandardMetric.types.name: type_counters_metric,
-                StandardMetric.cardinality.name: type_counters_metric,
+                StandardMetric.cardinality.name: cardinality_metric,
                 StandardMetric.ints.name: int_metric,
             }
         )
@@ -189,17 +191,32 @@ def _extract_type_counts_metric(msg: ColumnMessageV0) -> TypeCountersMetric:
     )
 
 
+def _extract_cardinality_metric(msg: ColumnMessageV0) -> CardinalityMetric:
+    sketch_message = msg.cardinality_tracker
+    if sketch_message:
+        hll_bytes = sketch_message.sketch
+        hll = HllComponent(ds.hll_sketch.deserialize(hll_bytes))
+        return CardinalityMetric(hll=hll)
+    else:
+        return CardinalityMetric.zero()
+
+
 def _extract_schema_message_v0(col_prof: ColumnProfileView) -> SchemaMessageV0:
-    metric: TypeCountersMetric = col_prof.get_metric(TypeCountersMetric.get_namespace())
-    if metric is None:
-        return SchemaMessageV0()
+    types: TypeCountersMetric = col_prof.get_metric(TypeCountersMetric.get_namespace())
+    counts: ColumnCountsMetric = col_prof.get_metric(ColumnCountsMetric.get_namespace())
+    if types is None:
+        types = TypeCountersMetric.zero()
+
+    if counts is None:
+        counts = ColumnCountsMetric.zero()
 
     type_counts: Dict[int, int] = {}
-    type_counts[InferredType.INTEGRAL] = metric.integral.value
-    type_counts[InferredType.BOOLEAN] = metric.boolean.value
-    type_counts[InferredType.FRACTIONAL] = metric.fractional.value
-    type_counts[InferredType.STRING] = metric.string.value
-    type_counts[InferredType.UNKNOWN] = metric.object.value
+    type_counts[InferredType.INTEGRAL] = types.integral.value
+    type_counts[InferredType.BOOLEAN] = types.boolean.value
+    type_counts[InferredType.FRACTIONAL] = types.fractional.value
+    type_counts[InferredType.STRING] = types.string.value
+    type_counts[InferredType.UNKNOWN] = types.object.value
+    type_counts[InferredType.NULL] = counts.null.value
 
     msg_v0 = SchemaMessageV0(
         typeCounts=type_counts,
