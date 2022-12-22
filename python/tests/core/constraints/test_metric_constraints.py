@@ -74,6 +74,7 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
         for column_name in column_profiles:
             metric = column_profiles[column_name].get_metric("distribution")
             if metric is not None:
+                print(f"SELECTING {column_name}/{metric.namespace}")
                 distribution_metrics.append(metric)
         return distribution_metrics
 
@@ -105,6 +106,7 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
     TEST_LOGGER.info(f"constraints are: {constraints.column_constraints}")
     constraints_valid = constraints.validate()
     report_results = constraints.generate_constraints_report()
+    print(report_results)
     TEST_LOGGER.info(f"constraints report is: {report_results}")
     assert constraints_valid
     assert len(report_results) == 2

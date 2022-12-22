@@ -2,7 +2,7 @@ from collections import namedtuple
 from copy import deepcopy
 from dataclasses import dataclass
 from logging import getLogger
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.utils import deprecated
@@ -38,7 +38,8 @@ class MetricsSelector:
         columns = profile.get_columns()
         result: List[str] = []
         for column_name, column_view in columns.items():
-            if any([metric in column_view.values() for metric in metrics]):
+            # TODO: add ColumnProfileView::get_metrics() -> self._metrics.values()
+            if any([metric in column_view._metrics.values() for metric in metrics]):
                 result.append(column_name)
         return result
 
@@ -174,7 +175,7 @@ class MetricConstraint:
             else:
                 logger.info(
                     f"validate could not get metric {metric_selector.metric_name} from column "
-                    f"{metric_selector.column_name} but require_column_existence is false so returning True. "
+                    f"{metric_selector.column_name} but require_column_existence is not set so returning True. "
                     f"Available metrics on column are: {column_profile.get_metric_component_paths()}"
                 )
                 return (True, None)
@@ -189,7 +190,7 @@ class MetricConstraint:
             if metrics[0].kll.value.is_empty() and not self.require_column_existence:
                 logger.info(
                     f"validate reached empty distribution metrics from column "
-                    f"{metric_selector.column_name} but require_column_existence is false so returning True. "
+                    f"{metric_selector.column_name} but require_column_existence is not set so returning True. "
                     f"Available metrics on column are: {column_profile.get_metric_component_paths()}"
                 )
                 return (True, None)
@@ -219,6 +220,10 @@ class DatasetConstraint:
         return (validate_result, metric_summary)
 
 
+class MissingMetric(Exception):
+    pass
+
+
 class PrefixConstraint:
     def __init__(self, expression: str) -> None:
         self._expression = expression.split()
@@ -228,16 +233,31 @@ class PrefixConstraint:
 
     def _interpret(self, i: int) -> Tuple[Any, int]:
         token = self._expression[i]
-        ...
+        # ...
         if token.startswith(":"):
-            self._metric_map[path] = ...
-            return self._profile.get_column(column_name).get_metric(metric_name).to_summary_dict()[component_name], i+1
+            # TODO: lexical validation
+            column_name, path = token[1:].split(":")
+            metric_name, component_name = path.split("/")  # TODO: verify this works with MultiMetric
+            try:
+                metric = self._profile.get_column(column_name).get_metric(metric_name)
+                summary = metric.to_summary_dict()
+            except:
+                raise MissingMetric(token)
+            
+            metric_path = f"{column_name}/{path}"
+            self._metric_map[metric_path] = metric
+            try:
+                value = summary[component_name]
+            except:
+                raise ValueError("Component {component_name} not found in {metric_path}")
 
-        if token == "?":
+            return value, i+1
+
+        if token == "==":
             left, i = self._interpret(i+1)
             right, i = self._interpret(i)
-            return left ? right, i
-        ...
+            return (left == right), i
+        # ...
 
     def __call__(self, profile: DatasetProfileView, require_column_existence: bool) -> Tuple[bool, Dict[str, Metric]]:
         """
@@ -254,7 +274,18 @@ class PrefixConstraint:
         self._profile = profile
         self._require_column_existence = require_column_existence
         self._metric_map = dict()
-        passes, _ = self._intepret(0)
+        try:
+            passes, _ = self._intepret(0)
+        except MissingMetric as e:
+            if self._require_column_existence:
+                logger.info(f"validate could not get metric {str(e)} from column so returning False.")
+                return (False, None)
+            else:
+                logger.info(f"validate could not get metric {str(e)} from column, "
+                    f"but require_column_existence is False, so returning True. "
+                )
+                return (True, None)
+
         if not isinstance(passes, bool):
             raise ValueError("Contraint expression should return a boolean, got {type(passes)}")
 
@@ -426,6 +457,7 @@ class ConstraintsBuilder:
         return selectors
 
     def add_constraint(self, constraint: Union[MetricConstraint, DatasetConstraint], ignore_missing: bool = False) -> "ConstraintsBuilder":
+        print("=" * 80)
         if isinstance(constraint, MetricConstraint):
             # check that the column exists and we have a column profile view
             column_name = constraint.metric_selector.column_name
@@ -447,6 +479,7 @@ class ConstraintsBuilder:
                 # TODO: construct an equivalent DatasetConstraint?
                 column_names = metric_selector.get_column_names(self._dataset_profile_view)
                 for column_name in column_names:
+                    print(f"ATTACHING: {constraint.name} to {column_name}")
                     if column_name not in self._constraints.column_constraints:
                         # TODO: use default dict
                         self._constraints.column_constraints[column_name] = dict()
@@ -455,6 +488,7 @@ class ConstraintsBuilder:
                 if column_name not in self._constraints.column_constraints:
                     self._constraints.column_constraints[column_name] = dict()
                 self._constraints.column_constraints[column_name][constraint.name] = constraint
+        print("=" * 80)
 
         if isinstance(constraint, DatasetConstraint):
             self._constraints.dataset_constraints.append(constraint)
