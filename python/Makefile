@@ -34,7 +34,8 @@ endif
 
 install-poetry:
 	@$(call i, Installing Poetry)
-	curl -sSL https://install.python-poetry.org | python3 -
+	curl -sSL https://install.python-poetry.org | python3 - --version 1.2.1
+	echo "Add ~/.local/bin to your PATH"
 
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
