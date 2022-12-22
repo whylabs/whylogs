@@ -16,6 +16,14 @@ TEST_LOGGER = getLogger(__name__)
 def profile():
     return DatasetProfile()
 
+@pytest.mark.xfail(raises=ValueError)
+def test_profile_creation_timestamp_utc():
+    DatasetProfile(creation_timestamp=datetime.datetime.now())
+
+@pytest.mark.xfail(raises=ValueError)
+def test_profile_dataset_timestamp_utc():
+    DatasetProfile(dataset_timestamp=datetime.datetime.now())
+
 
 def test_basic_dataset_profile(profile) -> None:
     d = {"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]}

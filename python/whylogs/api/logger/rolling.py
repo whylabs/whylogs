@@ -3,7 +3,7 @@ import logging
 import math
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from threading import Timer
 from typing import Any, Callable, Dict, List, Optional
 
@@ -159,7 +159,7 @@ class TimedRollingLogger(Logger):
             return
 
         self._current_batch_timestamp = self._compute_current_batch_timestamp()
-        dataset_timestamp = datetime.utcfromtimestamp(self._current_batch_timestamp)
+        dataset_timestamp = datetime.fromtimestamp(self._current_batch_timestamp, tz=timezone.utc)
 
         if self._segment_cache:
             self._flush(self._segment_cache.flush(dataset_timestamp))
