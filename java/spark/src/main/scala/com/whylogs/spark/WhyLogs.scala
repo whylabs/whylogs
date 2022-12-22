@@ -182,7 +182,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
           modelId: String,
           apiKey: String,
           endpoint: String = "https://api.whylabsapp.com",
-          sslCaCertData: String = null,
+          sslCaCertData: String = null
          ): Unit = {
     val df = aggProfiles(timestamp = timestampInMs)
 
@@ -197,7 +197,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
                         apiKey: String,
                         rows: Iterator[Row],
                         endpoint: String,
-                        sslCaCertData: String = null,
+                        sslCaCertData: String = null
                       ): Unit = {
     val client: ApiClient = new ApiClient()
     client.setBasePath(endpoint)
