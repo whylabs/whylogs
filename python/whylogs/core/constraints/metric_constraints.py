@@ -270,7 +270,7 @@ class PrefixCondition:
     """
 
     def __init__(self, expression: str) -> None:
-        self._expression = expression.split()
+        self._expression = expression.split()  # TODO: Bug! splits spaces in string literals
         self._profile = None
         self._metric_map: Dict[str, Metric] = dict()
 
@@ -279,8 +279,8 @@ class PrefixCondition:
         # ...
         if token.startswith(":"):
             # TODO: lexical validation
-            column_name, path = token[1:].split(":")
-            metric_name, component_name = path.split("/")  # TODO: verify this works with MultiMetric
+            column_name, path = token[1:].split(":", 1)
+            metric_name, component_name = path.split("/", 1)
             try:
                 metric = self._profile.get_column(column_name).get_metric(metric_name)  # type: ignore
                 summary = metric.to_summary_dict()

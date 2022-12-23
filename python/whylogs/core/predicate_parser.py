@@ -21,7 +21,7 @@ def _get_value(
         if metric is None:
             raise ValueError("Must specify metric to use with MetricGetter")
 
-        namespace, path = token[i][2:].split("/")
+        namespace, path = token[i][2:].split("/", 1)
         if metric.namespace != namespace:
             raise ValueError(f"Expected {namespace} metric but got {metric.namespace}")
 
@@ -31,7 +31,7 @@ def _get_value(
         if profile is None:
             raise ValueError("Must specify profile to use with ProfileGetter")
 
-        column_name, path = token[i][1:].split(":")
+        column_name, path = token[i][1:].split(":", 1)
         return ProfileGetter(profile, column_name, path), i + 1
 
     if bool(re.fullmatch("[0-9]+", token[i])):
