@@ -169,9 +169,7 @@ def log_regression_metrics(
         pandas=data, perf_columns=perf_column_mapping, metric_name="compute_regression_metrics"
     )
 
-    result = _log_with_metrics(data=data, metrics=model_performance_metrics, schema=schema, include_data=log_full_data)
-
-    return result
+    return _log_with_metrics(data=data, metrics=model_performance_metrics, schema=schema, include_data=log_full_data)
 
 
 def read(path: str) -> ResultSet:

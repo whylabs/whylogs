@@ -235,7 +235,7 @@ def test_profile_top_level_api_segmented_performance():
     d = {
         "col1": [i for i in range(input_rows)],
         "col2": [i * i * 1.1 for i in range(input_rows)],
-        segment_column: ["seg_"+str(i % number_of_segments) for i in range(input_rows)],
+        segment_column: ["seg_" + str(i % number_of_segments) for i in range(input_rows)],
         prediction_column: [f"x{str(i%number_of_classes)}" for i in range(input_rows)],
         target_column: [f"x{str((i%5)%number_of_classes)}" for i in range(input_rows)],
     }
@@ -243,7 +243,11 @@ def test_profile_top_level_api_segmented_performance():
     df = pd.DataFrame(data=d)
     segmented_schema = DatasetSchema(segments=segment_on_column(segment_column))
     segmented_classification_results = log_classification_metrics(
-        df, target_column=target_column, prediction_column=prediction_column, schema=segmented_schema, log_full_data=True
+        df,
+        target_column=target_column,
+        prediction_column=prediction_column,
+        schema=segmented_schema,
+        log_full_data=True,
     )
     segmented_regression_results = log_regression_metrics(
         df, target_column="col1", prediction_column="col2", schema=segmented_schema
@@ -260,9 +264,9 @@ def test_profile_top_level_api_segmented_performance():
     first_segment: Segment = next(iter(segments))
     first_segment_profile = segmented_classification_results.profile(first_segment)
 
-    #assert first_segment.key == ("0",)
+    # assert first_segment.key == ("0",)
     assert first_segment_profile is not None
-    
+
     metrics1: ModelPerformanceMetrics = first_segment_profile.model_performance_metrics
     assert metrics1 is not None
     assert metrics1.confusion_matrix is not None
