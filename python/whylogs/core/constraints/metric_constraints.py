@@ -194,6 +194,7 @@ class MissingMetric(Exception):
     a required metric or column could not be found in the DatasetProfileView.
     The DatasetConstraint is responsible for handling this exception.
     """
+
     pass
 
 
@@ -206,6 +207,7 @@ class DatasetConstraint:
     as well as a dictionary mapping 'column_name/metric_namespace' -> Metric for
     any metrics the condition used during its evaluation.
     """
+
     condition: Callable[[DatasetProfileView], Tuple[bool, Dict[str, Metric]]]
     name: str
     require_column_existence: bool = True  # Applies to all columns referenced in the constraint
@@ -286,7 +288,7 @@ class PrefixCondition:
                 raise MissingMetric(token)
 
             # Track Metrics referenced during evaluation
-            metric_path = f"{column_name}/{path}"
+            metric_path = f"{column_name}/{metric_name}"
             self._metric_map[metric_path] = metric
             try:
                 value = summary[component_name]
@@ -353,7 +355,7 @@ class Constraints:
     def validate(self, profile_view: Optional[DatasetProfileView] = None) -> bool:
         profile = self._resolve_profile_view(profile_view)
         column_names = self.column_constraints.keys()
-        if len(column_names) == 0:
+        if len(column_names) == 0 and len(self.dataset_constraints) == 0:
             logger.warning("validate was called with empty set of constraints, returning True!")
             return True
 
@@ -377,10 +379,6 @@ class Constraints:
         profile = self._resolve_profile_view(profile_view)
         column_names = self.column_constraints.keys()
         results: List[Tuple[str, int, int]] = []
-        if len(column_names) == 0:
-            logger.warning("report was called with empty set of constraints!")
-            return results
-
         for column_name in column_names:
             columnar_constraints = self.column_constraints[column_name]
             for constraint_name, metric_constraint in columnar_constraints.items():
@@ -397,6 +395,10 @@ class Constraints:
                 results.append((constraint.name, 0, 1))
             else:
                 results.append((constraint.name, 1, 0))
+
+        if len(results) == 0:
+            logger.warning("report was called with empty set of constraints!")
+
         return results
 
     def _generate_metric_report(
@@ -424,9 +426,6 @@ class Constraints:
         profile = self._resolve_profile_view(profile_view)
         column_names = self.column_constraints.keys()
         results: List[ReportResult] = []
-        if len(column_names) == 0:
-            logger.warning("report was called with empty set of constraints!")
-            return results
 
         for column_name in column_names:
             columnar_constraints = self.column_constraints[column_name]
@@ -453,6 +452,9 @@ class Constraints:
 
             results.append(metric_report)
 
+        if len(results) == 0:
+            logger.warning("generate_constraints_report was called with empty set of constraints!")
+
         return results
 
     def _resolve_profile_view(self, profile_view: Optional[DatasetProfileView]) -> DatasetProfileView:
@@ -473,8 +475,7 @@ class ConstraintsBuilder:
     def get_metric_selectors(self) -> List[MetricsSelector]:
         selectors = []
         column_profiles = self._dataset_profile_view.get_columns()
-        for column_name in column_profiles:
-            column_profile = column_profiles[column_name]
+        for column_name, column_profile in column_profiles.items():
             metric_component_paths = column_profile._metrics.keys()
             for metric_path in metric_component_paths:
                 selectors.append(MetricsSelector(metric_name=metric_path, column_name=column_name))
