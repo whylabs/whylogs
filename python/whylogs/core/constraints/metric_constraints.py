@@ -25,25 +25,11 @@ class MetricsSelector:
         if profile is None:
             return None
         column_profile_view = profile.get_column(self.column_name)
-        if column_profile_view is None:
-            # TODO: this seems wrong... column_name can be None
+        if self.column_name and column_profile_view is None:
             logger.warning(
                 f"No column name {self.column_name} found in profile, available columns are: {profile.get_columns()}"
             )
         return column_profile_view
-
-    """
-    def get_column_names(self, profile: DatasetProfileView) -> List[str]:
-        # TODO: this is probably not a great implementation
-        metrics = self.apply(profile)
-        columns = profile.get_columns()
-        result: List[str] = []
-        for column_name, column_view in columns.items():
-            # TODO: add ColumnProfileView::get_metrics() -> self._metrics.values()
-            if any([metric in column_view._metrics.values() for metric in metrics]):
-                result.append(column_name)
-        return result
-    """
 
     def apply(self, profile: DatasetProfileView) -> List[Metric]:
         if self.metrics_resolver is not None:
@@ -204,7 +190,7 @@ class MetricConstraint:
 
 @dataclass
 class DatasetConstraint:
-    condition: Callable[[DatasetProfileView, bool], Tuple[bool, Dict[str, Metric]]]
+    condition: Callable[[DatasetProfileView], Tuple[bool, Dict[str, Metric]]]
     name: str
     require_column_existence: bool = True  # Applies to all columns referenced in the constraint
 
@@ -217,7 +203,19 @@ class DatasetConstraint:
         return summary
 
     def validate_profile(self, dataset_profile: DatasetProfileView) -> Tuple[bool, Optional[Dict[str, Any]]]:
-        validate_result, metrics = self.condition(dataset_profile, self.require_column_existence)
+        try:
+            validate_result, metrics = self.condition(dataset_profile)
+        except MissingMetric as e:
+            if self.require_column_existence:
+                logger.info(f"validate_profile could not get metric {str(e)} so returning False.")
+                return (False, None)
+
+            logger.info(
+                f"validate_profile could not get metric {str(e)}  "
+                f"but require_column_existence is False, so returning True. "
+            )
+            return (True, None)
+
         metric_summary = self._get_metric_summary(metrics)
         return (validate_result, metric_summary)
 
@@ -235,25 +233,23 @@ class MetricConstraintWrapper:
     def __init__(self, constraint: MetricConstraint) -> None:
         self.constraint = constraint
 
-    def __call__(self, profile: DatasetProfileView, require_column_existence: bool) -> Tuple[bool, Dict[str, Metric]]:
+    def __call__(self, profile: DatasetProfileView) -> Tuple[bool, Dict[str, Metric]]:
         valid, _ = self.constraint.validate_profile(profile)
         metrics = self.constraint.metric_selector.apply(profile)
         columns = profile.get_columns()
         metric_map: Dict[str, Metric] = dict()
         for metric in metrics:
             for column_name, column_view in columns.items():
-                # TODO: add ColumnProfileView::get_metrics() -> self._metrics.values()
-                if metric in column_view._metrics.values():
+                if metric in column_view.get_metrics():
                     metric_map[f"{column_name}/{metric.namespace}"] = metric
                     break
         return valid, metric_map
 
 
-class PrefixConstraint:
+class PrefixCondition:
     def __init__(self, expression: str) -> None:
         self._expression = expression.split()
         self._profile = None
-        self._require_column_existence = True
         self._metric_map: Dict[str, Metric] = dict()
 
     def _interpret(self, i: int) -> Tuple[Any, int]:
@@ -286,7 +282,7 @@ class PrefixConstraint:
         raise ValueError("Unparsable expression {' '.join(self._expression)}")
 
     def __call__(
-        self, profile: DatasetProfileView, require_column_existence: bool
+        self, profile: DatasetProfileView
     ) -> Tuple[bool, Optional[Dict[str, Metric]]]:
         """
         relational operators: ~ ~= == < <= > >= !=
@@ -300,25 +296,28 @@ class PrefixConstraint:
         returns a map of :column_name:metric_namespace -> Metric
         """
         self._profile = profile
-        self._require_column_existence = require_column_existence
         self._metric_map = dict()
-        try:
-            passes, _ = self._interpret(0)
-        except MissingMetric as e:
-            if self._require_column_existence:
-                logger.info(f"validate could not get metric {str(e)} from column so returning False.")
-                return (False, None)
-            else:
-                logger.info(
-                    f"validate could not get metric {str(e)} from column, "
-                    f"but require_column_existence is False, so returning True. "
-                )
-                return (True, None)
-
+        passes, _ = self._interpret(0)
         if not isinstance(passes, bool):
             raise ValueError("Contraint expression should return a boolean, got {type(passes)}")
 
         return passes, self._metric_map
+
+
+def _make_report(
+    constraint_name: str,
+    result: bool,
+    with_summary: bool,
+    metric_summary: Optional[Dict[str, Any]]
+) -> ReportResult:
+    if not result:
+        if with_summary:
+            return ReportResult(name=constraint_name, passed=0, failed=1, summary=metric_summary)
+        return ReportResult(name=constraint_name, passed=0, failed=1, summary=None)
+
+    if with_summary:
+        return ReportResult(name=constraint_name, passed=1, failed=0, summary=metric_summary)
+    return ReportResult(name=constraint_name, passed=1, failed=0, summary=None)
 
 
 class Constraints:
@@ -354,8 +353,8 @@ class Constraints:
             (result, _) = constraint.validate_profile(profile)
             if not result:
                 logger.info(f"{constraint.name} failed on dataset")
-
-        return result
+                return False
+        return True
 
     @deprecated(message="Please use generate_constraints_report()")
     def report(self, profile_view: Optional[DatasetProfileView] = None) -> List[Tuple[str, int, int]]:
@@ -382,18 +381,6 @@ class Constraints:
                 results.append((constraint.name, 0, 1))
             else:
                 results.append((constraint.name, 1, 0))
-
-        """
-        metric_names = self.dataset_constraints.keys()
-        for metric_name in metric_names:
-            metric_constraint = self.dataset_constraints[metric_name]
-            (result, _) = metric_constraint.validate_profile(profile)
-            if not result:
-                logger.info(f"{metric_name} failed on dataset")
-                results.append((metric_name, 0, 1))
-            else:
-                results.append((metric_name, 1, 0))
-        """
         return results
 
     def _generate_metric_report(
@@ -404,16 +391,7 @@ class Constraints:
         with_summary: bool,
     ) -> ReportResult:
         (result, metric_summary) = metric_constraint.validate_profile(profile_view)
-        if not result:
-            if with_summary:
-                return ReportResult(name=constraint_name, passed=0, failed=1, summary=metric_summary)
-            else:
-                return ReportResult(name=constraint_name, passed=0, failed=1, summary=None)
-        else:
-            if with_summary:
-                return ReportResult(name=constraint_name, passed=1, failed=0, summary=metric_summary)
-            else:
-                return ReportResult(name=constraint_name, passed=1, failed=0, summary=None)
+        return _make_report(constraint_name, result, with_summary, metric_summary)
 
     def _generate_dataset_report(
         self,
@@ -422,16 +400,7 @@ class Constraints:
         with_summary: bool,
     ) -> ReportResult:
         (result, summary) = constraint.validate_profile(profile_view)
-        if not result:
-            if with_summary:
-                return ReportResult(name=constraint.name, passed=0, failed=1, summary=summary)
-            else:
-                return ReportResult(name=constraint.name, passed=0, failed=1, summary=None)
-        else:
-            if with_summary:
-                return ReportResult(name=constraint.name, passed=1, failed=0, summary=summary)
-            else:
-                return ReportResult(name=constraint.name, passed=1, failed=0, summary=None)
+        return _make_report(constraint.name, result, with_summary, summary)
 
     def generate_constraints_report(
         self, profile_view: Optional[DatasetProfileView] = None, with_summary=False
@@ -503,23 +472,26 @@ class ConstraintsBuilder:
             column_name = constraint.metric_selector.column_name
             column_profile_view = self._dataset_profile_view.get_column(column_name)
             if (
-                column_profile_view is None
+                column_name is not None
+                and column_profile_view is None
                 and not ignore_missing
                 and constraint.metric_selector.metrics_resolver is None
             ):
                 raise ValueError(
-                    f"{column_name} was not found in set of this profile, the list of columns are: {self._dataset_profile_view.get_columns()}"
+                    f"Column '{column_name}' was not found in this profile, the available columns are: {self._dataset_profile_view.get_columns()}"
                 )
 
             metric_selector = constraint.metric_selector
             metrics = metric_selector.apply(self._dataset_profile_view)
             if (metrics is None or len(metrics) == 0) and not (ignore_missing or column_name is None):
-                # TODO: this seems wrong... column_name can be None
                 raise ValueError(
                     f"metrics not found for column {column_name}, available metric components are: {column_profile_view.get_metric_component_paths()}"
                 )
 
             if column_name is None:
+                # MetricConstraint not associated with a specific column is turned into
+                # a DatasetConstraint. It relies on the constraint's metric_selector
+                # to find the metrics it needs to evaluate the constraint.
                 self._constraints.dataset_constraints.append(
                     DatasetConstraint(
                         condition=MetricConstraintWrapper(constraint),
@@ -527,14 +499,6 @@ class ConstraintsBuilder:
                         require_column_existence=constraint.require_column_existence,
                     )
                 )
-                """
-                column_names = metric_selector.get_column_names(self._dataset_profile_view)
-                for column_name in column_names:
-                    if column_name not in self._constraints.column_constraints:
-                        # TODO: use default dict
-                        self._constraints.column_constraints[column_name] = dict()
-                    self._constraints.column_constraints[column_name][constraint.name] = constraint
-                """
             else:
                 if column_name not in self._constraints.column_constraints:
                     self._constraints.column_constraints[column_name] = dict()
