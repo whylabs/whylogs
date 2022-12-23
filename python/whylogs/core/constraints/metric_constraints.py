@@ -281,9 +281,7 @@ class PrefixCondition:
         # ...
         raise ValueError("Unparsable expression {' '.join(self._expression)}")
 
-    def __call__(
-        self, profile: DatasetProfileView
-    ) -> Tuple[bool, Optional[Dict[str, Metric]]]:
+    def __call__(self, profile: DatasetProfileView) -> Tuple[bool, Optional[Dict[str, Metric]]]:
         """
         relational operators: ~ ~= == < <= > >= !=
         boolean operators:    and or not
@@ -305,10 +303,7 @@ class PrefixCondition:
 
 
 def _make_report(
-    constraint_name: str,
-    result: bool,
-    with_summary: bool,
-    metric_summary: Optional[Dict[str, Any]]
+    constraint_name: str, result: bool, with_summary: bool, metric_summary: Optional[Dict[str, Any]]
 ) -> ReportResult:
     if not result:
         if with_summary:
