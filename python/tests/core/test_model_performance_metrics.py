@@ -7,6 +7,9 @@ from whylogs import log_classification_metrics, log_regression_metrics
 from whylogs.core.model_performance_metrics import ModelPerformanceMetrics
 from whylogs.core.model_performance_metrics.confusion_matrix import ConfusionMatrix
 from whylogs.core.proto.v0 import ModelProfileMessage
+from whylogs.core.schema import DatasetSchema
+from whylogs.core.segment import Segment
+from whylogs.core.segmentation_partition import segment_on_column
 
 TEST_LOGGER = getLogger(__name__)
 
@@ -220,3 +223,49 @@ def test_profile_write_top_level_api_back_compat():
     assert metrics2.regression_metrics is not None
     assert results1.view().get_column(prediction_column) is None
     assert results2.view().get_column(prediction_column) is None
+
+
+def test_profile_top_level_api_segmented_performance():
+    input_rows = 10
+    prediction_column = "col3"
+    target_column = "col3.ground_truth"
+    segment_column = "seg_col"
+    number_of_segments = 5
+    number_of_classes = 2
+    d = {
+        "col1": [i for i in range(input_rows)],
+        "col2": [i * i * 1.1 for i in range(input_rows)],
+        segment_column: ["seg_"+str(i % number_of_segments) for i in range(input_rows)],
+        prediction_column: [f"x{str(i%number_of_classes)}" for i in range(input_rows)],
+        target_column: [f"x{str((i%5)%number_of_classes)}" for i in range(input_rows)],
+    }
+
+    df = pd.DataFrame(data=d)
+    segmented_schema = DatasetSchema(segments=segment_on_column(segment_column))
+    segmented_classification_results = log_classification_metrics(
+        df, target_column=target_column, prediction_column=prediction_column, schema=segmented_schema, log_full_data=True
+    )
+    segmented_regression_results = log_regression_metrics(
+        df, target_column="col1", prediction_column="col2", schema=segmented_schema
+    )
+
+    assert segmented_classification_results.count == number_of_segments
+    assert segmented_regression_results.count == number_of_segments
+    partitions = segmented_classification_results.partitions
+    assert len(partitions) == 1
+    partition = partitions[0]
+    segments = segmented_classification_results.segments_in_partition(partition)
+    assert len(segments) == number_of_segments
+
+    first_segment: Segment = next(iter(segments))
+    first_segment_profile = segmented_classification_results.profile(first_segment)
+
+    #assert first_segment.key == ("0",)
+    assert first_segment_profile is not None
+    
+    metrics1: ModelPerformanceMetrics = first_segment_profile.model_performance_metrics
+    assert metrics1 is not None
+    assert metrics1.confusion_matrix is not None
+    assert metrics1.confusion_matrix.labels == ["x0", "x1"]
+    assert metrics1.confusion_matrix.confusion_matrix.get((0, 0)).n == 1
+    assert metrics1.confusion_matrix.confusion_matrix.get((1, 0)).n == 1
