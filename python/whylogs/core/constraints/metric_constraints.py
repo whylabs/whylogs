@@ -188,8 +188,24 @@ class MetricConstraint:
         return (validate_result, metric_summary)
 
 
+class MissingMetric(Exception):
+    """
+    DatasetConstraint conditions can raise this exception to indicate that
+    a required metric or column could not be found in the DatasetProfileView.
+    The DatasetConstraint is responsible for handling this exception.
+    """
+    pass
+
+
 @dataclass
 class DatasetConstraint:
+    """
+    Implements dataset-level constraints that are not attached to a specific
+    metric or column. The condition Callable takes the DatasetProfileView as
+    input and returns a boolean indicating whether the condition is satisfied
+    as well as a dictionary mapping 'column_name/metric_namespace' -> Metric for
+    any metrics the condition used during its evaluation.
+    """
     condition: Callable[[DatasetProfileView], Tuple[bool, Dict[str, Metric]]]
     name: str
     require_column_existence: bool = True  # Applies to all columns referenced in the constraint
@@ -220,14 +236,10 @@ class DatasetConstraint:
         return (validate_result, metric_summary)
 
 
-class MissingMetric(Exception):
-    pass
-
-
 class MetricConstraintWrapper:
     """
     Converts a MetricConstraint not associated with a specific column
-    into a Callable that can be a DatasetConstraint
+    into a Callable that can be a DatasetConstraint condition.
     """
 
     def __init__(self, constraint: MetricConstraint) -> None:
@@ -235,9 +247,10 @@ class MetricConstraintWrapper:
 
     def __call__(self, profile: DatasetProfileView) -> Tuple[bool, Dict[str, Metric]]:
         valid, _ = self.constraint.validate_profile(profile)
-        metrics = self.constraint.metric_selector.apply(profile)
+        metrics = self.constraint.metric_selector.apply(profile)  # Metrics used during evaluation
         columns = profile.get_columns()
         metric_map: Dict[str, Metric] = dict()
+        # Find the columns the referenced Metrics live in
         for metric in metrics:
             for column_name, column_view in columns.items():
                 if metric in column_view.get_metrics():
@@ -247,6 +260,13 @@ class MetricConstraintWrapper:
 
 
 class PrefixCondition:
+    """
+    Interpret expressions in the form used to serialize Predicate expressions.
+    This is probably a reasonable serialization format for DatasetConstraint
+    conditions, but might not be the best user interface for creating conditions
+    in client code.
+    """
+
     def __init__(self, expression: str) -> None:
         self._expression = expression.split()
         self._profile = None
@@ -265,6 +285,7 @@ class PrefixCondition:
             except:  # noqa
                 raise MissingMetric(token)
 
+            # Track Metrics referenced during evaluation
             metric_path = f"{column_name}/{path}"
             self._metric_map[metric_path] = metric
             try:
@@ -279,7 +300,7 @@ class PrefixCondition:
             right, i = self._interpret(i)
             return (left == right), i
         # ...
-        raise ValueError("Unparsable expression {' '.join(self._expression)}")
+        raise ValueError("Unparsable expression: {' '.join(self._expression)}")
 
     def __call__(self, profile: DatasetProfileView) -> Tuple[bool, Optional[Dict[str, Metric]]]:
         """
@@ -486,7 +507,7 @@ class ConstraintsBuilder:
             if column_name is None:
                 # MetricConstraint not associated with a specific column is turned into
                 # a DatasetConstraint. It relies on the constraint's metric_selector
-                # to find the metrics it needs to evaluate the constraint.
+                # to find the metrics it needs to evaluate the condition.
                 self._constraints.dataset_constraints.append(
                     DatasetConstraint(
                         condition=MetricConstraintWrapper(constraint),
