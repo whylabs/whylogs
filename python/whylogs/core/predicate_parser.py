@@ -34,7 +34,7 @@ def _get_value(
         column_name, path = token[i][1:].split(":", 1)
         return ProfileGetter(profile, column_name, path), i + 1
 
-    if bool(re.fullmatch("[0-9]+", token[i])):
+    if bool(re.fullmatch(r"[-+]?\d+", token[i])):
         return LiteralGetter(int(token[i])), i + 1
 
     return LiteralGetter(float(token[i])), i + 1

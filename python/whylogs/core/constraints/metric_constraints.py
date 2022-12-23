@@ -1,3 +1,4 @@
+import re
 from collections import namedtuple
 from copy import deepcopy
 from dataclasses import dataclass
@@ -261,6 +262,10 @@ class MetricConstraintWrapper:
         return valid, metric_map
 
 
+_INT_RE = re.compile(r"[-+]?\d+")
+_FLOAT_RE = re.compile(r"[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?")
+
+
 class PrefixCondition:
     """
     Interpret expressions in the form used to serialize Predicate expressions.
@@ -270,13 +275,17 @@ class PrefixCondition:
     """
 
     def __init__(self, expression: str) -> None:
-        self._expression = expression.split()  # TODO: Bug! splits spaces in string literals
+        self._expression = expression
+        self._tokens = expression.split()  # TODO: Bug! splits spaces in string literals
         self._profile = None
         self._metric_map: Dict[str, Metric] = dict()
 
-    def _interpret(self, i: int) -> Tuple[Any, int]:
-        token = self._expression[i]
-        # ...
+    def _interpret(self, i: int) -> Tuple[Any, int]:  # noqa: C901
+        token = self._tokens[i]
+
+        # Metric reference        :column_name:metric_namespace/component_name
+        # MultiMetric reference   :column_name:metric_namespace/submetric_name:submetric_namespace/component_name
+        # Dataset-level metric    ::metric_namespace/...
         if token.startswith(":"):
             # TODO: lexical validation
             column_name, path = token[1:].split(":", 1)
@@ -297,18 +306,123 @@ class PrefixCondition:
 
             return value, i + 1
 
+        # Relational operators
+
+        if token == "~":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            regex = re.compile(right) if isinstance(right, str) else None
+            # TODO: should we try to str(left) ?
+            return (regex and isinstance(left, str) and bool(regex.match(left))), i
+
+        if token == "~=":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            regex = re.compile(right) if isinstance(right, str) else None
+            # TODO: should we try to str(left) ?
+            return (regex and isinstance(left, str) and bool(regex.fullmatch(left))), i
+
         if token == "==":
             left, i = self._interpret(i + 1)
             right, i = self._interpret(i)
             return (left == right), i
-        # ...
-        raise ValueError("Unparsable expression: {' '.join(self._expression)}")
+
+        if token == "!=":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left != right), i
+
+        if token == "<":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left < right), i
+
+        if token == "<=":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left <= right), i
+
+        if token == ">":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left > right), i
+
+        if token == ">=":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left >= right), i
+
+        # Boolean operators
+
+        if token == "and":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left and right), i
+
+        if token == "or":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left or right), i
+
+        if token == "not":
+            right, i = self._interpret(i + 1)
+            return (not right), i
+
+        # Arithmetic operators
+
+        if token == "+":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left + right), i
+
+        if token == "-":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left - right), i
+
+        if token == "*":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left * right), i
+
+        if token == "**":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left**right), i
+
+        if token == "/":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left / right), i
+
+        if token == "//":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left // right), i
+
+        if token == "%":
+            left, i = self._interpret(i + 1)
+            right, i = self._interpret(i)
+            return (left % right), i
+
+        # Literals
+
+        if token.startswith('"'):
+            return token[1:-1], i + 1
+
+        if bool(_INT_RE.fullmatch(token)):
+            return int(token), i + 1
+
+        if bool(_FLOAT_RE.fullmatch(token)):
+            return float(token), i + 1
+
+        raise ValueError("Unparsable expression: '{self._expression}' at token {i}: '{token}'")
 
     def __call__(self, profile: DatasetProfileView) -> Tuple[bool, Optional[Dict[str, Metric]]]:
         """
         relational operators: ~ ~= == < <= > >= !=
         boolean operators:    and or not
-        arithmetic operators: + - * / %
+        arithmetic operators: + - * ** / // %
 
         literals: 42 3.14 "blah"
 
