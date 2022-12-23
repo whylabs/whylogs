@@ -32,6 +32,7 @@ class MetricsSelector:
             )
         return column_profile_view
 
+    """
     def get_column_names(self, profile: DatasetProfileView) -> List[str]:
         # TODO: this is probably not a great implementation
         metrics = self.apply(profile)
@@ -42,6 +43,7 @@ class MetricsSelector:
             if any([metric in column_view._metrics.values() for metric in metrics]):
                 result.append(column_name)
         return result
+    """
 
     def apply(self, profile: DatasetProfileView) -> List[Metric]:
         if self.metrics_resolver is not None:
@@ -208,7 +210,7 @@ class DatasetConstraint:
 
     def _get_metric_summary(self, metrics: Dict[str, Metric]) -> Optional[Dict[str, Any]]:
         summary: Dict[str, Any] = dict()
-        for path, metric in metrics:
+        for path, metric in metrics.items():
             metric_summary = pretty_display(metric.namespace, metric.to_summary_dict())
             for component, value in metric_summary.items():
                 summary[f"{path}/{component}"] = value
@@ -222,6 +224,29 @@ class DatasetConstraint:
 
 class MissingMetric(Exception):
     pass
+
+
+class MetricConstraintWrapper:
+    """
+    Converts a MetricConstraint not associated with a specific column
+    into a Callable that can be a DatasetConstraint
+    """
+
+    def __init__(self, constraint: MetricConstraint) -> None:
+        self.constraint = constraint
+
+    def __call__(self, profile: DatasetProfileView, require_column_existence: bool) -> Tuple[bool, Dict[str, Metric]]:
+        valid, _ = self.constraint.validate_profile(profile)
+        metrics = self.constraint.metric_selector.apply(profile)
+        columns = profile.get_columns()
+        metric_map: Dict[str, Metric] = dict()
+        for metric in metrics:
+            for column_name, column_view in columns.items():
+                # TODO: add ColumnProfileView::get_metrics() -> self._metrics.values()
+                if metric in column_view._metrics.values():
+                    metric_map[f"{column_name}/{metric.namespace}"] = metric
+                    break
+        return valid, metric_map
 
 
 class PrefixConstraint:
@@ -243,7 +268,7 @@ class PrefixConstraint:
                 summary = metric.to_summary_dict()
             except:
                 raise MissingMetric(token)
-            
+
             metric_path = f"{column_name}/{path}"
             self._metric_map[metric_path] = metric
             try:
@@ -251,10 +276,10 @@ class PrefixConstraint:
             except:
                 raise ValueError("Component {component_name} not found in {metric_path}")
 
-            return value, i+1
+            return value, i + 1
 
         if token == "==":
-            left, i = self._interpret(i+1)
+            left, i = self._interpret(i + 1)
             right, i = self._interpret(i)
             return (left == right), i
         # ...
@@ -281,7 +306,8 @@ class PrefixConstraint:
                 logger.info(f"validate could not get metric {str(e)} from column so returning False.")
                 return (False, None)
             else:
-                logger.info(f"validate could not get metric {str(e)} from column, "
+                logger.info(
+                    f"validate could not get metric {str(e)} from column, "
                     f"but require_column_existence is False, so returning True. "
                 )
                 return (True, None)
@@ -303,7 +329,7 @@ class Constraints:
         column_constraints: Optional[Dict[str, Dict[str, MetricConstraint]]] = None,
     ) -> None:
         self.column_constraints = column_constraints or dict()
-        self.dataset_constraints = dict()
+        self.dataset_constraints = []
         self.dataset_profile_view = dataset_profile_view
 
     def validate(self, profile_view: Optional[DatasetProfileView] = None) -> bool:
@@ -346,6 +372,15 @@ class Constraints:
                     results.append((constraint_name, 0, 1))
                 else:
                     results.append((constraint_name, 1, 0))
+        for constraint in self.dataset_constraints:
+            result, _ = constraint.validate_profile(profile)
+            if not result:
+                logger.info(f"{constraint.name} failed on dataset")
+                results.append((constraint.name, 0, 1))
+            else:
+                results.append((constraint.name, 1, 0))
+
+        """
         metric_names = self.dataset_constraints.keys()
         for metric_name in metric_names:
             metric_constraint = self.dataset_constraints[metric_name]
@@ -355,6 +390,7 @@ class Constraints:
                 results.append((metric_name, 0, 1))
             else:
                 results.append((metric_name, 1, 0))
+        """
         return results
 
     def _generate_metric_report(
@@ -456,13 +492,18 @@ class ConstraintsBuilder:
                 selectors.append(MetricsSelector(metric_name=metric_path, column_name=column_name))
         return selectors
 
-    def add_constraint(self, constraint: Union[MetricConstraint, DatasetConstraint], ignore_missing: bool = False) -> "ConstraintsBuilder":
-        print("=" * 80)
+    def add_constraint(
+        self, constraint: Union[MetricConstraint, DatasetConstraint], ignore_missing: bool = False
+    ) -> "ConstraintsBuilder":
         if isinstance(constraint, MetricConstraint):
             # check that the column exists and we have a column profile view
             column_name = constraint.metric_selector.column_name
             column_profile_view = self._dataset_profile_view.get_column(column_name)
-            if column_profile_view is None and not ignore_missing and constraint.metric_selector.metrics_resolver is None:
+            if (
+                column_profile_view is None
+                and not ignore_missing
+                and constraint.metric_selector.metrics_resolver is None
+            ):
                 raise ValueError(
                     f"{column_name} was not found in set of this profile, the list of columns are: {self._dataset_profile_view.get_columns()}"
                 )
@@ -476,19 +517,25 @@ class ConstraintsBuilder:
                 )
 
             if column_name is None:
-                # TODO: construct an equivalent DatasetConstraint?
+                self._constraints.dataset_constraints.append(
+                    DatasetConstraint(
+                        condition=MetricConstraintWrapper(constraint),
+                        name=constraint.name,
+                        require_column_existence=constraint.require_column_existence,
+                    )
+                )
+                """
                 column_names = metric_selector.get_column_names(self._dataset_profile_view)
                 for column_name in column_names:
-                    print(f"ATTACHING: {constraint.name} to {column_name}")
                     if column_name not in self._constraints.column_constraints:
                         # TODO: use default dict
                         self._constraints.column_constraints[column_name] = dict()
                     self._constraints.column_constraints[column_name][constraint.name] = constraint
+                """
             else:
                 if column_name not in self._constraints.column_constraints:
                     self._constraints.column_constraints[column_name] = dict()
                 self._constraints.column_constraints[column_name][constraint.name] = constraint
-        print("=" * 80)
 
         if isinstance(constraint, DatasetConstraint):
             self._constraints.dataset_constraints.append(constraint)
