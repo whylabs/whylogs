@@ -698,7 +698,7 @@ power of whylogs and WhyLabs together!</em></p>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">Ecommerce</span><span class="p">()</span>
 
-<span class="n">start_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">start_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 <span class="n">dataset</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">inference_start_timestamp</span><span class="o">=</span><span class="n">start_timestamp</span><span class="p">)</span>
 
 <span class="n">daily_batches</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_inference_data</span><span class="p">(</span><span class="n">number_batches</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
@@ -900,9 +900,13 @@ Using API Key ID:  z8fYdnQwHr
 </section>
 <section id="📊-Profiling-the-Data-+-Sending-to-WhyLabs">
 <h2>📊 Profiling the Data + Sending to WhyLabs<a class="headerlink" href="#📊-Profiling-the-Data-+-Sending-to-WhyLabs" title="Permalink to this headline">#</a></h2>
-<p>Traditionally, data is logged by calling <code class="docutils literal notranslate"><span class="pre">why.log()</span></code>. In this case, we’ll use <code class="docutils literal notranslate"><span class="pre">why.log_classification_metrics()</span></code>, which will log data all the same, but additionally it will compute classification metrics and add them to your results.</p>
+<p>Traditionally, data is logged by calling <code class="docutils literal notranslate"><span class="pre">why.log()</span></code>. In this case, we’ll use <code class="docutils literal notranslate"><span class="pre">why.log_classification_metrics()</span></code>. By setting <code class="docutils literal notranslate"><span class="pre">log_full_data</span></code> to True, we will log the complete dataframe as in <code class="docutils literal notranslate"><span class="pre">why.log()</span></code>, but additionally it will compute classification metrics and add them to your results. If you want to log only the the <code class="docutils literal notranslate"><span class="pre">target</span></code>, <code class="docutils literal notranslate"><span class="pre">prediction</span></code>, and <code class="docutils literal notranslate"><span class="pre">score</span></code> columns, without the complete data, you can simply call <code class="docutils literal notranslate"><span class="pre">log_regression_metrics()</span></code> without specifying <code class="docutils literal notranslate"><span class="pre">log_full_data</span></code>, which
+defaults to False.</p>
 <p><code class="docutils literal notranslate"><span class="pre">log_classification_metrics</span></code> takes the complete dataframe as input (with input/output features, as well as your prediction, target and score column). We also have to define which column is our target (in this case, <code class="docutils literal notranslate"><span class="pre">output_discount</span></code>) and which is our prediction column (<code class="docutils literal notranslate"><span class="pre">output_prediction</span></code> in this case). Additionally, in order to generate confusion matrices and ROC curves, we will also define a score column (<code class="docutils literal notranslate"><span class="pre">output_score</span></code>).</p>
 <p>Once the profile is logged, we can set it’s timestamp for the proper day as given by our batch’s timestamp.Now that we have properly timestamped profiles with regression metrics, we can use the <code class="docutils literal notranslate"><span class="pre">writer</span></code> method to send it to WhyLabs:</p>
+<blockquote>
+<div><p>Note: for whylogs versions 1.1.13 and lower, the default behavior of <code class="docutils literal notranslate"><span class="pre">log_regression_metrics</span></code> was logging the complete data, in addition to target and prediction columns. If you were using it in the older versions and wish to keep that behavior when updating whylogs, set <code class="docutils literal notranslate"><span class="pre">log_full_data</span></code> to True.</p>
+</div></blockquote>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -924,7 +928,8 @@ Using API Key ID:  z8fYdnQwHr
         <span class="n">df</span><span class="p">,</span>
         <span class="n">target_column</span> <span class="o">=</span> <span class="s2">&quot;output_discount&quot;</span><span class="p">,</span>
         <span class="n">prediction_column</span> <span class="o">=</span> <span class="s2">&quot;output_prediction&quot;</span><span class="p">,</span>
-        <span class="n">score_column</span><span class="o">=</span><span class="s2">&quot;output_score&quot;</span>
+        <span class="n">score_column</span><span class="o">=</span><span class="s2">&quot;output_score&quot;</span><span class="p">,</span>
+        <span class="n">log_full_data</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
 
     <span class="n">profile</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>

@@ -394,8 +394,18 @@
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Literal</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ProfileResultSet</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">ResultSetReader</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ProfileResultSet</span><span class="p">,</span>
+    <span class="n">ResultSet</span><span class="p">,</span>
+    <span class="n">ResultSetReader</span><span class="p">,</span>
+    <span class="n">SegmentedResultSet</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.rolling</span> <span class="kn">import</span> <span class="n">TimedRollingLogger</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.logger.segment_processing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_get_segment_from_group_key</span><span class="p">,</span>
+    <span class="n">_grouped_dataframe</span><span class="p">,</span>
+    <span class="n">_log_segment</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.transient</span> <span class="kn">import</span> <span class="n">TransientLogger</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.model_performance_metrics.model_performance_metrics</span> <span class="kn">import</span> <span class="p">(</span>
@@ -430,6 +440,48 @@
     <span class="k">return</span> <span class="n">results</span>
 
 
+<span class="k">def</span> <span class="nf">_performance_metric</span><span class="p">(</span><span class="n">pandas</span><span class="p">,</span> <span class="n">perf_columns</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">):</span>
+    <span class="n">performance_values</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">p</span><span class="p">:</span> <span class="n">pandas</span><span class="p">[</span><span class="n">perf_columns</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span> <span class="k">if</span> <span class="n">perf_columns</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="ow">in</span> <span class="n">pandas</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">perf_columns</span>
+    <span class="p">}</span>
+    <span class="n">model_performance_metrics</span> <span class="o">=</span> <span class="n">ModelPerformanceMetrics</span><span class="p">()</span>
+    <span class="n">metric_function</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model_performance_metrics</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">)</span>
+    <span class="n">metric_function</span><span class="p">(</span><span class="o">**</span><span class="n">performance_values</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model_performance_metrics</span>
+
+
+<span class="k">def</span> <span class="nf">_segmented_performance_metrics</span><span class="p">(</span><span class="n">log_full_data</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">performance_column_mapping</span><span class="p">,</span> <span class="n">performance_metric</span><span class="p">):</span>
+    <span class="n">segmented_profiles</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">segment_partitions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">log_full_data</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">partition_name</span> <span class="ow">in</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
+            <span class="n">partition</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">partition_name</span><span class="p">)</span>
+            <span class="n">diagnostic_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing partition </span><span class="si">{</span><span class="n">partition_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">partition_segments</span> <span class="o">=</span> <span class="n">_log_segment</span><span class="p">(</span><span class="n">partition</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">diagnostic_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Partition </span><span class="si">{</span><span class="n">partition_name</span><span class="si">}</span><span class="s2"> had </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">partition_segments</span><span class="p">)</span><span class="si">}</span><span class="s2"> segments.&quot;</span><span class="p">)</span>
+            <span class="n">segmented_profiles</span><span class="p">[</span><span class="n">partition</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">partition_segments</span>
+
+    <span class="k">for</span> <span class="n">partition_name</span> <span class="ow">in</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
+        <span class="n">partition</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">partition_name</span><span class="p">)</span>
+        <span class="n">grouped_data</span> <span class="o">=</span> <span class="n">_grouped_dataframe</span><span class="p">(</span><span class="n">partition</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">partition_segments</span> <span class="o">=</span> <span class="n">segmented_profiles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">partition</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">group_key</span> <span class="ow">in</span> <span class="n">grouped_data</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">pandas_segment</span> <span class="o">=</span> <span class="n">grouped_data</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">group_key</span><span class="p">)</span>
+            <span class="n">segment_key</span> <span class="o">=</span> <span class="n">_get_segment_from_group_key</span><span class="p">(</span><span class="n">group_key</span><span class="p">,</span> <span class="n">partition</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="n">diagnostic_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing </span><span class="si">{</span><span class="n">performance_metric</span><span class="si">}</span><span class="s2"> for segment </span><span class="si">{</span><span class="n">partition_name</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="n">segment_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">profile</span> <span class="o">=</span> <span class="n">partition_segments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">segment_key</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DatasetProfile</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+            <span class="n">model_performance_metrics</span> <span class="o">=</span> <span class="n">_performance_metric</span><span class="p">(</span>
+                <span class="n">pandas_segment</span><span class="p">,</span> <span class="n">performance_column_mapping</span><span class="p">,</span> <span class="n">performance_metric</span>
+            <span class="p">)</span>
+            <span class="n">profile</span><span class="o">.</span><span class="n">add_model_performance_metrics</span><span class="p">(</span><span class="n">model_performance_metrics</span><span class="p">)</span>
+            <span class="n">partition_segments</span><span class="p">[</span><span class="n">segment_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">profile</span>
+        <span class="n">segmented_profiles</span><span class="p">[</span><span class="n">partition</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">partition_segments</span>
+        <span class="n">segment_partitions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">SegmentedResultSet</span><span class="p">(</span><span class="n">segments</span><span class="o">=</span><span class="n">segmented_profiles</span><span class="p">,</span> <span class="n">partitions</span><span class="o">=</span><span class="n">segment_partitions</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="log_classification_metrics"><a class="viewcode-back" href="../../../api/whylogs/index.html#whylogs.api.log_classification_metrics">[docs]</a><span class="k">def</span> <span class="nf">log_classification_metrics</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -453,16 +505,19 @@
 <span class="sd">        passed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">perf_column_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;predictions&quot;</span><span class="p">:</span> <span class="n">prediction_column</span><span class="p">,</span> <span class="s2">&quot;targets&quot;</span><span class="p">:</span> <span class="n">target_column</span><span class="p">,</span> <span class="s2">&quot;scores&quot;</span><span class="p">:</span> <span class="n">score_column</span><span class="p">}</span>
+
     <span class="k">if</span> <span class="n">schema</span> <span class="ow">and</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
-        <span class="n">diagnostic_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Model performance metrics do not yet support segmentation, unsegmented metrics will be computed&quot;</span>
+        <span class="k">return</span> <span class="n">_segmented_performance_metrics</span><span class="p">(</span>
+            <span class="n">log_full_data</span><span class="p">,</span>
+            <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">performance_column_mapping</span><span class="o">=</span><span class="n">perf_column_mapping</span><span class="p">,</span>
+            <span class="n">performance_metric</span><span class="o">=</span><span class="s2">&quot;compute_confusion_matrix&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="n">model_performance_metrics</span> <span class="o">=</span> <span class="n">ModelPerformanceMetrics</span><span class="p">()</span>
-    <span class="n">model_performance_metrics</span><span class="o">.</span><span class="n">compute_confusion_matrix</span><span class="p">(</span>
-        <span class="n">predictions</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">prediction_column</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span>
-        <span class="n">targets</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">target_column</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span>
-        <span class="n">scores</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">score_column</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span> <span class="k">if</span> <span class="n">score_column</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">model_performance_metrics</span> <span class="o">=</span> <span class="n">_performance_metric</span><span class="p">(</span>
+        <span class="n">pandas</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">perf_columns</span><span class="o">=</span><span class="n">perf_column_mapping</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;compute_confusion_matrix&quot;</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">_log_with_metrics</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">model_performance_metrics</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">include_data</span><span class="o">=</span><span class="n">log_full_data</span><span class="p">)</span></div>
@@ -489,16 +544,19 @@
 <span class="sd">        assocaited scores for each inferred, all values set to 1 if not</span>
 <span class="sd">        passed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">perf_column_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;predictions&quot;</span><span class="p">:</span> <span class="n">prediction_column</span><span class="p">,</span> <span class="s2">&quot;targets&quot;</span><span class="p">:</span> <span class="n">target_column</span><span class="p">}</span>
 
     <span class="k">if</span> <span class="n">schema</span> <span class="ow">and</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
-        <span class="n">diagnostic_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Model performance metrics do not yet support segmentation, unsegmented metrics will be computed&quot;</span>
+        <span class="k">return</span> <span class="n">_segmented_performance_metrics</span><span class="p">(</span>
+            <span class="n">log_full_data</span><span class="p">,</span>
+            <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">performance_column_mapping</span><span class="o">=</span><span class="n">perf_column_mapping</span><span class="p">,</span>
+            <span class="n">performance_metric</span><span class="o">=</span><span class="s2">&quot;compute_regression_metrics&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="n">model_performance_metrics</span> <span class="o">=</span> <span class="n">ModelPerformanceMetrics</span><span class="p">()</span>
-    <span class="n">model_performance_metrics</span><span class="o">.</span><span class="n">compute_regression_metrics</span><span class="p">(</span>
-        <span class="n">predictions</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">prediction_column</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span>
-        <span class="n">targets</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">target_column</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span>
+    <span class="n">model_performance_metrics</span> <span class="o">=</span> <span class="n">_performance_metric</span><span class="p">(</span>
+        <span class="n">pandas</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">perf_columns</span><span class="o">=</span><span class="n">perf_column_mapping</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;compute_regression_metrics&quot;</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">_log_with_metrics</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">model_performance_metrics</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">include_data</span><span class="o">=</span><span class="n">log_full_data</span><span class="p">)</span></div>

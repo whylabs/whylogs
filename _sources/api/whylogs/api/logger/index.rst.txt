@@ -30,6 +30,7 @@ Classes
    whylogs.api.logger.ProfileResultSet
    whylogs.api.logger.ResultSet
    whylogs.api.logger.ResultSetReader
+   whylogs.api.logger.SegmentedResultSet
    whylogs.api.logger.TimedRollingLogger
    whylogs.api.logger.TransientLogger
    whylogs.api.logger.DatasetProfile
@@ -198,6 +199,76 @@ Attributes
 
 
    .. py:method:: read(**kwargs: Any) -> ResultSet
+
+
+
+.. py:class:: SegmentedResultSet(segments: Dict[str, Dict[whylogs.core.Segment, whylogs.core.DatasetProfile]], partitions: Optional[List[whylogs.core.segmentation_partition.SegmentationPartition]] = None)
+
+   Bases: :py:obj:`ResultSet`
+
+   A holder object for profiling results.
+
+   A whylogs.log call can result in more than one profile. This wrapper class
+   simplifies the navigation among these profiles.
+
+   Note that currently we only hold one profile but we're planning to add other
+   kinds of profiles such as segmented profiles here.
+
+   .. py:property:: partitions
+      :type: Optional[List[whylogs.core.segmentation_partition.SegmentationPartition]]
+
+
+   .. py:property:: count
+      :type: int
+
+
+   .. py:property:: performance_metrics
+      :type: Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+
+
+   .. py:method:: profile(segment: Optional[whylogs.core.Segment] = None) -> Optional[whylogs.core.DatasetProfile]
+
+
+   .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
+
+
+   .. py:method:: segments(restrict_to_parition_id: Optional[str] = None) -> Optional[List[whylogs.core.Segment]]
+
+
+   .. py:method:: segments_in_partition(partition: whylogs.core.segmentation_partition.SegmentationPartition) -> Optional[Dict[whylogs.core.Segment, whylogs.core.DatasetProfile]]
+
+
+   .. py:method:: view(segment: Optional[whylogs.core.Segment] = None) -> Optional[whylogs.core.DatasetProfileView]
+
+
+   .. py:method:: get_model_performance_metrics_for_segment(segment: whylogs.core.Segment) -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+
+
+   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
+
+
+   .. py:method:: add_metrics_for_segment(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics, segment: whylogs.core.Segment) -> None
+
+
+   .. py:method:: zero() -> SegmentedResultSet
+      :staticmethod:
+
+
+   .. py:method:: read(multi_profile_file: str) -> ResultSet
+      :staticmethod:
+
+
+   .. py:method:: reader(name: str = 'local') -> ResultSetReader
+      :staticmethod:
+
+
+   .. py:method:: writer(name: str = 'local') -> ResultSetWriter
+
+
+   .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
+
+
+   .. py:method:: add_metric(name: str, metric: whylogs.core.metrics.metrics.Metric) -> None
 
 
 
