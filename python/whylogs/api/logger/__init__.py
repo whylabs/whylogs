@@ -4,8 +4,18 @@ from typing import Any, Dict, Optional
 from typing_extensions import Literal
 
 from whylogs.api.logger.logger import Logger
-from whylogs.api.logger.result_set import ProfileResultSet, ResultSet, ResultSetReader
+from whylogs.api.logger.result_set import (
+    ProfileResultSet,
+    ResultSet,
+    ResultSetReader,
+    SegmentedResultSet,
+)
 from whylogs.api.logger.rolling import TimedRollingLogger
+from whylogs.api.logger.segment_processing import (
+    _get_segment_from_group_key,
+    _grouped_dataframe,
+    _log_segment,
+)
 from whylogs.api.logger.transient import TransientLogger
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
@@ -40,6 +50,48 @@ def _log_with_metrics(
     return results
 
 
+def _performance_metric(pandas, perf_columns, metric_name):
+    performance_values = {
+        p: pandas[perf_columns[p]].to_list() if perf_columns[p] in pandas else None for p in perf_columns
+    }
+    model_performance_metrics = ModelPerformanceMetrics()
+    metric_function = getattr(model_performance_metrics, metric_name)
+    metric_function(**performance_values)
+    return model_performance_metrics
+
+
+def _segmented_performance_metrics(log_full_data, schema, data, performance_column_mapping, performance_metric):
+    segmented_profiles = dict()
+    segment_partitions = list()
+    if log_full_data:
+        for partition_name in schema.segments:
+            partition = schema.segments.get(partition_name)
+            diagnostic_logger.info(f"Processing partition {partition_name}")
+            partition_segments = _log_segment(partition, schema, pandas=data)
+            diagnostic_logger.info(f"Partition {partition_name} had {len(partition_segments)} segments.")
+            segmented_profiles[partition.id] = partition_segments
+
+    for partition_name in schema.segments:
+        partition = schema.segments.get(partition_name)
+        grouped_data = _grouped_dataframe(partition, pandas=data)
+        partition_segments = segmented_profiles.get(partition.id) or dict()
+        for group_key in grouped_data.groups.keys():
+            pandas_segment = grouped_data.get_group(group_key)
+            segment_key = _get_segment_from_group_key(group_key, partition.id)
+            diagnostic_logger.info(f"Computing {performance_metric} for segment {partition_name}->{segment_key}")
+
+            profile = partition_segments.get(segment_key) or DatasetProfile(schema)
+            model_performance_metrics = _performance_metric(
+                pandas_segment, performance_column_mapping, performance_metric
+            )
+            profile.add_model_performance_metrics(model_performance_metrics)
+            partition_segments[segment_key] = profile
+        segmented_profiles[partition.id] = partition_segments
+        segment_partitions.append(partition)
+
+    return SegmentedResultSet(segments=segmented_profiles, partitions=segment_partitions)
+
+
 def log_classification_metrics(
     data: pd.DataFrame,
     target_column: str,
@@ -63,16 +115,19 @@ def log_classification_metrics(
         passed
     """
 
+    perf_column_mapping = {"predictions": prediction_column, "targets": target_column, "scores": score_column}
+
     if schema and schema.segments:
-        diagnostic_logger.warning(
-            "Model performance metrics do not yet support segmentation, unsegmented metrics will be computed"
+        return _segmented_performance_metrics(
+            log_full_data,
+            schema=schema,
+            data=data,
+            performance_column_mapping=perf_column_mapping,
+            performance_metric="compute_confusion_matrix",
         )
 
-    model_performance_metrics = ModelPerformanceMetrics()
-    model_performance_metrics.compute_confusion_matrix(
-        predictions=data[prediction_column].to_list(),
-        targets=data[target_column].to_list(),
-        scores=data[score_column].to_list() if score_column else None,
+    model_performance_metrics = _performance_metric(
+        pandas=data, perf_columns=perf_column_mapping, metric_name="compute_confusion_matrix"
     )
 
     return _log_with_metrics(data=data, metrics=model_performance_metrics, schema=schema, include_data=log_full_data)
@@ -99,16 +154,19 @@ def log_regression_metrics(
         assocaited scores for each inferred, all values set to 1 if not
         passed
     """
+    perf_column_mapping = {"predictions": prediction_column, "targets": target_column}
 
     if schema and schema.segments:
-        diagnostic_logger.warning(
-            "Model performance metrics do not yet support segmentation, unsegmented metrics will be computed"
+        return _segmented_performance_metrics(
+            log_full_data,
+            schema=schema,
+            data=data,
+            performance_column_mapping=perf_column_mapping,
+            performance_metric="compute_regression_metrics",
         )
 
-    model_performance_metrics = ModelPerformanceMetrics()
-    model_performance_metrics.compute_regression_metrics(
-        predictions=data[prediction_column].to_list(),
-        targets=data[target_column].to_list(),
+    model_performance_metrics = _performance_metric(
+        pandas=data, perf_columns=perf_column_mapping, metric_name="compute_regression_metrics"
     )
 
     return _log_with_metrics(data=data, metrics=model_performance_metrics, schema=schema, include_data=log_full_data)
