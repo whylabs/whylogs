@@ -254,7 +254,7 @@ class PrefixConstraint:
         self._expression = expression.split()
         self._profile = None
         self._require_column_existence = True
-        self._metric_map = dict()
+        self._metric_map: Dict[str, Metric] = dict()
 
     def _interpret(self, i: int) -> Tuple[Any, int]:
         token = self._expression[i]
@@ -264,16 +264,16 @@ class PrefixConstraint:
             column_name, path = token[1:].split(":")
             metric_name, component_name = path.split("/")  # TODO: verify this works with MultiMetric
             try:
-                metric = self._profile.get_column(column_name).get_metric(metric_name)
+                metric = self._profile.get_column(column_name).get_metric(metric_name)  # type: ignore
                 summary = metric.to_summary_dict()
-            except:
+            except:  # noqa
                 raise MissingMetric(token)
 
             metric_path = f"{column_name}/{path}"
             self._metric_map[metric_path] = metric
             try:
                 value = summary[component_name]
-            except:
+            except:  # noqa
                 raise ValueError("Component {component_name} not found in {metric_path}")
 
             return value, i + 1
@@ -283,8 +283,11 @@ class PrefixConstraint:
             right, i = self._interpret(i)
             return (left == right), i
         # ...
+        raise ValueError("Unparsable expression {' '.join(self._expression)}")
 
-    def __call__(self, profile: DatasetProfileView, require_column_existence: bool) -> Tuple[bool, Dict[str, Metric]]:
+    def __call__(
+        self, profile: DatasetProfileView, require_column_existence: bool
+    ) -> Tuple[bool, Optional[Dict[str, Metric]]]:
         """
         relational operators: ~ ~= == < <= > >= !=
         boolean operators:    and or not
@@ -300,7 +303,7 @@ class PrefixConstraint:
         self._require_column_existence = require_column_existence
         self._metric_map = dict()
         try:
-            passes, _ = self._intepret(0)
+            passes, _ = self._interpret(0)
         except MissingMetric as e:
             if self._require_column_existence:
                 logger.info(f"validate could not get metric {str(e)} from column so returning False.")
