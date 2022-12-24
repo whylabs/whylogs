@@ -6,6 +6,7 @@ from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from whylogs.core.metrics.metrics import Metric
+from whylogs.core.predicate_parser import _METRIC_REF, _PROFILE_REF, _tokenize
 from whylogs.core.utils import deprecated
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
@@ -276,7 +277,7 @@ class PrefixCondition:
 
     def __init__(self, expression: str) -> None:
         self._expression = expression
-        self._tokens = expression.split()  # TODO: Bug! splits spaces in string literals
+        self._tokens = _tokenize(expression)
         self._profile = None
         self._metric_map: Dict[str, Metric] = dict()
 
@@ -286,9 +287,17 @@ class PrefixCondition:
         # Metric reference        :column_name:metric_namespace/component_name
         # MultiMetric reference   :column_name:metric_namespace/submetric_name:submetric_namespace/component_name
         # Dataset-level metric    ::metric_namespace/...
-        if token.startswith(":"):
-            # TODO: lexical validation
-            column_name, path = token[1:].split(":", 1)
+
+        match = _METRIC_REF.fullmatch(token)
+        if bool(match):
+            path = token[2:]
+            # TODO: get dataset-level metric from profile
+            # TODO: self._metric_map[path] = metric
+            return 0, i + 1
+
+        match = _PROFILE_REF.fullmatch(token)
+        if bool(match):
+            column_name, path = match.groups()
             metric_name, component_name = path.split("/", 1)
             try:
                 metric = self._profile.get_column(column_name).get_metric(metric_name)  # type: ignore

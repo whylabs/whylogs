@@ -4,11 +4,37 @@ from typing import List, Optional, Tuple
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metric_getters import MetricGetter, ProfileGetter
 from whylogs.core.metrics.metrics import Metric
-from whylogs.core.relations import LiteralGetter, Predicate, Relation, ValueGetter
+from whylogs.core.relations import (
+    LiteralGetter,
+    Predicate,
+    Relation,
+    ValueGetter,
+    unescape_colon,
+    unescape_quote,
+)
+
+
+def _unescape_token(input: str) -> str:
+    if input[0] == '"':
+        return unescape_quote(input)
+    if input[0] == ":":
+        return unescape_colon(input)
+    return input
+
+
+_TOKEN_RE = re.compile(r'(?::(?:[^:]|\\:)*:[_a-zA-Z0-9]+/[_a-zA-Z0-9:/]+)|(?:[^ ":][^ ]*)|"(?:[^\\"]|\\[^"]|\\")*"')
+
+
+def _tokenize(input: str) -> List[str]:
+    return [_unescape_token(t) for t in _TOKEN_RE.findall(input)]
 
 
 def _get_component(token: List[str], i: int) -> Tuple[str, int]:
     return token[i], i + 1  # either dummy variable x or metric component name in metric::to_summary_dict()
+
+
+_METRIC_REF = re.compile(r"::[_a-zA-Z0-9]+/(?:[_a-zA-Z0-9]+:[_a-zA-Z0-9]+/)?[_a-zA-Z0-9]+")
+_PROFILE_REF = re.compile(r":(.+?):([_a-zA-Z0-9]+/(?:[_a-zA-Z0-9]+:[_a-zA-Z0-9]+/)?[_a-zA-Z0-9]+)")
 
 
 def _get_value(
@@ -17,7 +43,7 @@ def _get_value(
     if token[i].startswith('"'):
         return LiteralGetter(token[i][1:-1]), i + 1
 
-    if token[i].startswith("::"):
+    if _METRIC_REF.fullmatch(token[i]):
         if metric is None:
             raise ValueError("Must specify metric to use with MetricGetter")
 
@@ -27,11 +53,12 @@ def _get_value(
 
         return MetricGetter(metric, path), i + 1
 
-    if token[i].startswith(":"):
+    match = _PROFILE_REF.fullmatch(token[i])
+    if bool(match):
         if profile is None:
             raise ValueError("Must specify profile to use with ProfileGetter")
 
-        column_name, path = token[i][1:].split(":", 1)
+        column_name, path = match.groups()  # type: ignore
         return ProfileGetter(profile, column_name, path), i + 1
 
     if bool(re.fullmatch(r"[-+]?\d+", token[i])):
@@ -103,5 +130,5 @@ def _deserialize(
 def parse_predicate(
     expression: str, metric: Optional[Metric] = None, profile: Optional[DatasetProfile] = None
 ) -> Predicate:
-    predicate, _ = _deserialize(expression.split(), 0, metric, profile)
+    predicate, _ = _deserialize(_tokenize(expression), 0, metric, profile)
     return predicate

@@ -17,7 +17,8 @@ from whylogs.core.metrics.condition_count_metric import Relation as Rel
 from whylogs.core.metrics.condition_count_metric import relation as rel
 from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.metrics.metrics import OperationResult
-from whylogs.core.predicate_parser import parse_predicate
+from whylogs.core.metrics.unicode_range import UnicodeRangeMetric
+from whylogs.core.predicate_parser import _tokenize, parse_predicate
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.relations import Not, Predicate, Require
 from whylogs.core.resolvers import Resolver
@@ -300,13 +301,14 @@ def test_condition_count_in_dataset_profile() -> None:
     assert summary["condition_count/digit"] > 0
 
 
-def _build_profile(data: List[int]) -> DatasetProfile:
+def _build_profile(data: List[int], col_name: str = "col1") -> DatasetProfile:
     """build up a "reference profile" to compare against"""
-    row = {"col1": data}
+    row = {col_name: data}
     frame = pd.DataFrame(data=row)
     prof = DatasetProfile()
     prof.track(pandas=frame)  # track once to discover columns
-    prof.add_metric("col1", DistributionMetric.zero(MetricConfig()))
+    prof.add_metric(col_name, DistributionMetric.zero(MetricConfig()))
+    prof.add_metric(col_name, UnicodeRangeMetric.zero())
     prof.track(pandas=frame)  # track again to populate the metric
     return prof
 
@@ -362,8 +364,39 @@ def test_metric_getter() -> None:
 
 
 @pytest.mark.parametrize(
+    "input,expected",
+    [
+        ('~ x "abc def"', ["~", "x", '"abc def"']),
+        (r'~ x "abc\"def"', ["~", "x", r'"abc"def"']),
+        (r'  ==   x  " \"\" \" "', ["==", "x", r'" "" " "']),
+        (r'  ==   x  "\"\" \""', ["==", "x", r'""" ""']),
+        (r'  ==   x  "\x"', ["==", "x", r'"\x"']),
+        (r'  ==   x  "\"\x"', ["==", "x", r'""\x"']),
+        (r'  ==   x  "\\"', ["==", "x", r'"\\"']),
+        (r'  ==   x  "\\\""', ["==", "x", r'"\\""']),
+        ("::distribution/n", ["::distribution/n"]),
+        (":col1:distribution/n", [":col1:distribution/n"]),
+        ("::multimetric/subname:distribution/n", ["::multimetric/subname:distribution/n"]),
+        (":col1:multimetric/subname:distribution/n", [":col1:multimetric/subname:distribution/n"]),
+        (
+            ":foo bar:distribution/n :col name:multimetric/subname:distribution/n",
+            [":foo bar:distribution/n", ":col name:multimetric/subname:distribution/n"],
+        ),
+        (
+            r":annoying\:name:distribution/n  :annoying\: name:multimetric/subname:distribution/n",
+            [":annoying:name:distribution/n", ":annoying: name:multimetric/subname:distribution/n"],
+        ),
+    ],
+)
+def test_expression_tokenizer(input: str, expected: List[str]) -> None:
+    assert _tokenize(input) == expected
+
+
+@pytest.mark.parametrize(
     "predicate,serialized",
     [
+        (X.matches('abc"def'), r'~ x "abc\"def"'),
+        (X.matches("abc def"), '~ x "abc def"'),
         (X.matches("[a-zA-Z]+"), '~ x "[a-zA-Z]+"'),
         (X.fullmatch("[a-zA-Z]+"), '~= x "[a-zA-Z]+"'),
         (X.equals("42"), '== x "42"'),
@@ -372,6 +405,7 @@ def test_metric_getter() -> None:
         (X.equals(42.0), "== x 42.0"),
         (X.less_than(42), "< x 42"),
         (X.less_or_equals(42), "<= x 42"),
+        (X.greater_than(-42), "> x -42"),
         (X.greater_than(42), "> x 42"),
         (X.greater_or_equals(42), ">= x 42"),
         (X.not_equal(42), "!= x 42"),
@@ -389,6 +423,7 @@ def test_metric_getter() -> None:
         (Require("mean").equals(42.0), "== mean 42.0"),
         (Require("mean").less_than(42), "< mean 42"),
         (Require("mean").less_or_equals(42), "<= mean 42"),
+        (Require("mean").greater_than(-42), "> mean -42"),
         (Require("mean").greater_than(42), "> mean 42"),
         (Require("mean").greater_or_equals(42), ">= mean 42"),
         (Require("mean").not_equal(42), "!= mean 42"),
@@ -406,6 +441,8 @@ def test_serialization(predicate: X, serialized: str) -> None:
 @pytest.mark.parametrize(
     "predicate",
     [
+        (X.matches('abc"def')),
+        (X.matches("abc def")),
         (X.matches("[a-zA-Z]+")),
         (X.fullmatch("[a-zA-Z]+")),
         (X.equals("42")),
@@ -415,6 +452,7 @@ def test_serialization(predicate: X, serialized: str) -> None:
         (X.less_than(42)),
         (X.less_or_equals(42)),
         (X.greater_than(42)),
+        (X.greater_than(-42)),
         (X.greater_or_equals(42)),
         (X.not_equal(42)),
         # (X.is_(even)),
@@ -432,6 +470,7 @@ def test_serialization(predicate: X, serialized: str) -> None:
         (Require("mean").less_than(42)),
         (Require("mean").less_or_equals(42)),
         (Require("mean").greater_than(42)),
+        (Require("mean").greater_than(-42)),
         (Require("mean").greater_or_equals(42)),
         (Require("mean").not_equal(42)),
         # (Require().is_(even)),
@@ -444,3 +483,29 @@ def test_serialization(predicate: X, serialized: str) -> None:
 def test_deserialization(predicate: X) -> None:
     serialized = predicate.serialize()
     assert parse_predicate(serialized).serialize() == serialized
+
+
+@pytest.mark.parametrize(
+    "col_name,expression",
+    [
+        ("col1", "== n 5"),
+        ("col1", "== n :col1:distribution/n"),
+        ("col1", "== n ::distribution/n"),
+        ("annoying name", "== n 5"),
+        ("annoying name", "== n :annoying name:distribution/n"),
+        ("annoying:name", "== n 5"),
+        ("annoying:name", r"== n :annoying\:name:distribution/n"),
+        (":very : annoying: name:", r"== n :\:very \: annoying\: name\::distribution/n"),
+        (":very : annoying: name:", r"== min :\:very \: annoying\: name\::unicode_range/string_length:distribution/n"),
+        (":", r"== n :\::distribution/n"),
+    ],
+)
+def test_metric_getter_deserialization(col_name: str, expression: str) -> None:
+    data = [0, 2, 3, 4, 5]
+    prof = _build_profile(data, col_name)
+    metric = prof.view().get_column(col_name).get_metric("distribution")
+    assert metric
+
+    predicate = parse_predicate(expression, profile=prof, metric=metric)
+    assert predicate(metric)
+    assert predicate.serialize() == expression

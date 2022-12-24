@@ -17,6 +17,18 @@ class ValueGetter(ABC):
         raise NotImplementedError
 
 
+def unescape_quote(input: str) -> str:
+    return '"' + input[1:-1].replace(r"\"", '"') + '"' if input[0] == input[-1] == '"' else input
+
+
+def unescape_colon(input: str) -> str:
+    return input.replace(r"\:", ":") if input[0] == ":" else input
+
+
+def escape(input: str, target: str) -> str:
+    return input.replace(target, f"\\{target}")
+
+
 class LiteralGetter(ValueGetter):
     def __init__(self, value: Union[str, int, float]) -> None:
         self._literal = value
@@ -26,7 +38,8 @@ class LiteralGetter(ValueGetter):
 
     def serialize(self) -> str:
         if isinstance(self._literal, str):
-            return f'"{self._literal}"'
+            escaped = escape(self._literal, '"')
+            return f'"{escaped}"'
         return str(self._literal)
 
 
