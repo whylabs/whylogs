@@ -253,8 +253,7 @@ class BagOfWordsMetric(MultiMetric):
             # for key in ["doc_length", "term_length"]:
             #    submetrics[key]["frequent_items"] = StandardMetric.frequent_items.zero()
 
-        super(BagOfWordsMetric, self).__init__(submetrics)
-        super(BagOfWordsMetric, self).__post_init__()
+        super().__init__(submetrics)
 
     @property
     def namespace(self) -> str:
@@ -312,8 +311,7 @@ class LsiMetric(MultiMetric):
                 "cardinality": StandardMetric.cardinality.zero(),
             },
         }
-        super(LsiMetric, self).__init__(submetrics)
-        super(LsiMetric, self).__post_init__()
+        super().__init__(submetrics)
 
     @property
     def namespace(self) -> str:
@@ -379,7 +377,7 @@ class NlpLogger:
         svd_config: Optional[SvdMetricConfig] = None,
         svd_state: Optional[MetricMessage] = None,
         schema: Optional[DatasetSchema] = None,
-        column_prefix: str = "nlp",
+        column_prefix: Union[str, list[str]] = "nlp",
     ):
         if svd_class:
             svd_config = svd_config or SvdMetricConfig()
@@ -388,13 +386,16 @@ class NlpLogger:
             else:
                 self._svd_metric = svd_class.zero(svd_config)  # type: ignore
         else:
-            self._svd_metric = SvdMetric.zero(svd_config or SvdMetricConfig())  # TODO: leave this None
+            self._svd_metric = None
 
-        self._column_prefix = column_prefix
+        self._column_prefix = [column_prefix] if isinstance(column_prefix, str) else column_prefix
         datatypes = {
-            f"{column_prefix}_bag_of_words": List[str],
-            f"{column_prefix}_lsi": np.ndarray,
+            f"{prefix}_bag_of_words": List[str] for prefix in self._column_prefix
         }
+        if self._svd_metric:
+            for prefix in self._column_prefix:
+                datatypes[f"{prefix}_lsi"] = np.ndarray
+
         if schema:
             schema = deepcopy(schema)
             schema.types.update(datatypes)
@@ -423,8 +424,8 @@ class NlpLogger:
     def log(
         self,
         # TODO: will add obj, pandas, row here eventually
-        terms: Optional[List[str]] = None,  # bag of words
-        vector: Optional[np.ndarray] = None,  # term vector representing document
+        terms: Optional[Union[Dict[str, List[str]], List[str]]] = None,  # bag of words
+        vector: Optional[Union[Dict[str, np.ndarray], np.ndarray]] = None,  # term vector representing document
     ) -> ResultSet:
         if terms:
             column_data = PreprocessedColumn.apply(terms)
