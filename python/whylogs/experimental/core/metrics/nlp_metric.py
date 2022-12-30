@@ -391,9 +391,7 @@ class NlpLogger:
             self._svd_metric = None
 
         self._column_prefix = column_prefix
-        datatypes = {
-            f"{column_prefix}_bag_of_words": List[str]
-        }
+        datatypes: Dict[str, Any] = {f"{column_prefix}_bag_of_words": List[str]}
         if self._svd_metric:
             datatypes[f"{column_prefix}_lsi"] = np.ndarray
 
