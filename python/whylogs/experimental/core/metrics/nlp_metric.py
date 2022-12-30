@@ -1,7 +1,7 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
 from io import BytesIO
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import scipy as sp
@@ -229,7 +229,7 @@ class BagOfWordsMetric(MultiMetric):
     def __post_init__(self):
         submetrics = {
             "doc_length": {
-                "distribuion": StandardMetric.distribution.zero(),
+                "distribution": StandardMetric.distribution.zero(),
                 "counts": StandardMetric.counts.zero(),
                 "types": StandardMetric.types.zero(),
                 "cardinality": StandardMetric.cardinality.zero(),
@@ -272,12 +272,14 @@ class BagOfWordsMetric(MultiMetric):
             data.pandas.strings.to_list() if data.pandas.strings is not None and not data.pandas.strings.empty else []
         )
         terms = (terms + data.list.strings) if data.list.strings else terms
+        terms = (terms + data.list.objs[0]) if data.list.objs else terms
         if terms:
             term_lengths = [len(term) for term in terms]
             self._update_submetrics("term_length", PreprocessedColumn.apply(term_lengths))
             self._update_submetrics("doc_length", PreprocessedColumn.apply([len(terms)]))
             if not self.fi_disabled:
-                self._update_submetrics("frequent_terms", data)
+                nlp_data = PreprocessedColumn.apply(terms)
+                self._update_submetrics("frequent_terms", nlp_data)
 
         return OperationResult.ok(1)
 
@@ -305,7 +307,7 @@ class LsiMetric(MultiMetric):
     def __post_init__(self):
         submetrics = {
             "residual": {
-                "distribuion": StandardMetric.distribution.zero(),
+                "distribution": StandardMetric.distribution.zero(),
                 "counts": StandardMetric.counts.zero(),
                 "types": StandardMetric.types.zero(),
                 "cardinality": StandardMetric.cardinality.zero(),
@@ -377,7 +379,7 @@ class NlpLogger:
         svd_config: Optional[SvdMetricConfig] = None,
         svd_state: Optional[MetricMessage] = None,
         schema: Optional[DatasetSchema] = None,
-        column_prefix: Union[str, list[str]] = "nlp",
+        column_prefix: str = "nlp",
     ):
         if svd_class:
             svd_config = svd_config or SvdMetricConfig()
@@ -388,13 +390,12 @@ class NlpLogger:
         else:
             self._svd_metric = None
 
-        self._column_prefix = [column_prefix] if isinstance(column_prefix, str) else column_prefix
+        self._column_prefix = column_prefix
         datatypes = {
-            f"{prefix}_bag_of_words": List[str] for prefix in self._column_prefix
+            f"{column_prefix}_bag_of_words": List[str]
         }
         if self._svd_metric:
-            for prefix in self._column_prefix:
-                datatypes[f"{prefix}_lsi"] = np.ndarray
+            datatypes[f"{column_prefix}_lsi"] = np.ndarray
 
         if schema:
             schema = deepcopy(schema)
