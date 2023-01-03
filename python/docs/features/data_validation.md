@@ -97,11 +97,11 @@ Of the examples above, the __Condition Count Metric__ has some particularities, 
 
 whylogs profiles contain summarized information about our data. This means that it's a __lossy__ process, and once we get the profiles, we don't have access anymore to the complete set of data.
 
-This makes some types of constraints impossible to be created from standard metrics itself. For example, suppose you need to check every row of a column to check that there are no textual information that matches a credit card number or email information. Or maybe you're interesting in ensuring that there are no even numbers in a certain column. How do we do that if we don't have access to the complete data?
+This makes some types of constraints impossible to be created from standard metrics itself. For example, suppose you need to check every row of a column to check that there is no textual information that matches a credit card number or email information. Or maybe you're interested in ensuring that there are no even numbers in a certain column. How do we do that if we don't have access to the complete data?
 
-The answer is that you need to define a __Condition Count Metric__ to be tracked __before__ logging your data. This metric will count the number of times the values of a given column meets a user-defined condition. When the profile is generated, you'll have that information to check against the constraints you'll create.
+The answer is that you need to define a __Condition Count Metric__ to be tracked __before__ logging your data. This metric will count the number of times the values of a given column meet a user-defined condition. When the profile is generated, you'll have that information to check against the constraints you'll create.
 
-### Actionables
+### Actions
 
 Additionally, with condition count metrics you can define actions that will be triggered whenever the specified conditions are met during the logging process. This allows you to take action in critical situations without having to wait for the logging to be completed. These actions are customizable, so you can use them in any way you need: send alerts/notifications, raise errors, halt processes in your pipeline, etc.
 
@@ -118,6 +118,6 @@ A whylogs __profile__ contains a set of metrics that summarize the original data
 
 Those metrics can be standard metrics, such as Distribution, Frequent Items, or Types metrics. They can also be __Condition Count Metrics__. Condition Count Metrics count the number of occurrences a certain relation passed/failed. For example, the number of times the rows for the column `Name` was equal to `Bob`.
 
-For a profile to contain Condition Count Metrics, you have first to specify a Condition __before__ logging your data, and pass that to your Dataset Schema. The Dataset Schema configures the behavior for tracking metrics in whylogs.
+For a profile to contain Condition Count Metrics, you have first to specify a Condition __before__ logging your data and pass that to your Dataset Schema. The Dataset Schema configures the behavior for tracking metrics in whylogs.
 
-Conditions also enable you to trigger actions when the condition is met while data is being logged. To do that, you need to specify a set of actions in your Condition object, along with the Relation that will trigger those action. This is the same Relation that will be used to track the Condition Count Metrics in the profile. 
+Conditions also enable you to trigger actions when the condition is met while data is being logged. To do that, you need to specify a set of actions in your Condition object, along with the Relation that will trigger those actions. This is the same Relation that will be used to track the Condition Count Metrics in the profile.
