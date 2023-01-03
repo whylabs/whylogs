@@ -20,9 +20,20 @@
     features/profiling
     features/config
     features/writing
+    features/data_validation
+```
+
+```{eval-rst}
+.. toctree::
+    :maxdepth: 2
+    :caption: Examples
+    :hidden:
+
     examples
     datasets
+    benchmarks
 ```
+
 
 ```{eval-rst}
 .. toctree::
