@@ -131,7 +131,16 @@ class DatasetProfile(Writable):
             new_cols = (col for col in schema_col_keys if col not in self._columns)
             self._initialize_new_columns(tuple(new_cols))
 
-        if pandas is not None:
+        if row is not None:
+            if any(isinstance(v, list) for v in row.values()):
+                logger.warn(
+                    "It looks like you are logging a vector which isn't directly profiled in whylogs,"
+                    "try logging as a dataframe to get batch logging of individual rows or log the rows individually"
+                )
+            for k in row.keys():
+                self._columns[k]._track_datum(row[k])
+            return
+        elif pandas is not None:
             # TODO: iterating over each column in order assumes single column metrics
             #   but if we instead iterate over a new artifact contained in dataset profile: "MetricProfiles", then
             #   each metric profile can specify which columns its tracks, and we can call like this:
@@ -147,11 +156,6 @@ class DatasetProfile(Writable):
                     )
                 else:
                     self._columns[k].track_column(column_values)
-            return
-
-        if row is not None:
-            for k in row.keys():
-                self._columns[k].track_column([row[k]])
             return
 
         raise NotImplementedError

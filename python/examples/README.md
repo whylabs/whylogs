@@ -47,7 +47,7 @@ Welcome! In this section you will find examples on how to integrate `whylogs`' w
 | [Feast](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Feature_Stores_and_whylogs.ipynb)                  | Learn how to log features from your Feature Store with Feast and whylogs                 |
 | [Flask](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/flask_streaming/flask_with_whylogs.ipynb) | See how you can create a Flask app with this whylogs + WhyLabs integration               |
 | [Flyte](https://docs.flyte.org/projects/cookbook/en/stable/auto/integrations/flytekit_plugins/whylogs_examples/index.html)               | Learn how to use whylogs' DatasetProfileView type natively on your Flyte workflows       |
-| [Github Actions](https://docs.whylabs.ai/docs/github-actions-integration)                                                                | Monitor your ML datasets as part of your GitOps CI/CD pipeline                           |
+| [Github Actions](https://docs.whylabs.ai/docs/integration-github-actions)                                                                | Monitor your ML datasets as part of your GitOps CI/CD pipeline                           |
 | [MLflow](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Mlflow_Logging.ipynb)                             | Log your whylogs profiles to an MLflow experiment                                        |
 | [ZenML](https://blog.zenml.io/zero-six-zero-release/)                                                                                    | Combine different MLOps tools together with ZenML and whylogs!                           |
 
@@ -65,10 +65,10 @@ You can monitor your profiles continuously with the WhyLabs Observability Platfo
 
 ### Others
 
-| Integration                                                                 | Description                                                                                   |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| [whylogs Container](https://whylabs.ai/docs/integrations-whylogs-container) | A low code solution to profile your data with a Docker container deployed to your environment |
-| [Java](https://whylabs.ai/docs/java-integration)                            | Profile data with whylogs with Java                                                           |
+| Integration                                                                       | Description                                                                                   |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [whylogs Container](https://docs.whylabs.ai/docs/integrations-whylogs-container/) | A low code solution to profile your data with a Docker container deployed to your environment |
+| [Java](https://docs.whylabs.ai/docs/java-integration/)                            | Profile data with whylogs with Java                                                           |
 
 ## 🧑🏼‍🔬 Advanced examples
 
@@ -83,6 +83,14 @@ Here you will find more advanced use-cases for `whylogs`, and you will learn how
 | [Custom Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Custom_Metrics.ipynb)                                                                     | Create your own metrics and metric components                                             |
 | [String Tracking](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/String_Tracking.ipynb)                                                                   | Track unicode ranges and character length distribution metrics for your textual features. |
 | [Segments](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Segments.ipynb)                                                                                 | Segment your data to improve visibility to the sub-group level                            |
+
+## 📓 Benchmarks
+
+Here you will find experiments to benchmark different aspect of the whylogs package, such as computational performance and different statistical algorithms.
+
+| Example                                                                                                                                                                                | Description                                                                                                                               |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| [Understanding Kolmogorov-Smirnov (KS) Tests for Data Drift on Profiled Data](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/benchmarks/KS_Profiling.ipynb) | Experiments comparing between Kolmogorov-Smirnov whylogs' implementation on profiled data and traditional implementation on complete data |
 
 ## Get in touch
 

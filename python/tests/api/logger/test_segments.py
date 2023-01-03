@@ -1,4 +1,6 @@
 import os
+import pickle
+import tempfile
 from glob import glob
 from typing import Any
 
@@ -286,3 +288,22 @@ def test_multi_column_segment_serialization_roundtrip_v0(tmp_path: Any) -> None:
     post_columns = post_deserialization_view.get_columns()
     assert "A" in post_columns.keys()
     assert "B" in post_columns.keys()
+
+
+def test_pickle_load_merge_profile_view() -> None:
+    df = pd.DataFrame(data={"col1": [1, 2]})
+    logger = why.logger()
+    results = logger.log(df)
+    view2 = logger.log({"col1": 3}).view()
+    pickle_loaded_view = None
+    with tempfile.NamedTemporaryFile() as tmp_file:
+        pickle.dump(results.view(), tmp_file)
+        tmp_file.flush()
+        tmp_file.seek(0)
+        pickle_loaded_view = pickle.load(tmp_file)
+
+    assert pickle_loaded_view is not None
+    assert isinstance(pickle_loaded_view, DatasetProfileView)
+
+    merged_view = view2.merge(pickle_loaded_view)
+    assert merged_view._columns["col1"]._metrics["types"].integral.value == 3

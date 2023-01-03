@@ -3,7 +3,12 @@ from typing import Any, Dict, Optional
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.metric_components import IntegralComponent
-from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
+from whylogs.core.metrics.metrics import (
+    Metric,
+    MetricConfig,
+    OperationResult,
+    register_metric,
+)
 from whylogs.core.preprocessing import PreprocessedColumn
 
 
@@ -129,3 +134,6 @@ class ColumnCountsMetric(Metric):
         return ColumnCountsMetric(
             n=IntegralComponent(0), null=IntegralComponent(0), nan=IntegralComponent(0), inf=IntegralComponent(0)
         )
+
+
+register_metric([TypeCountersMetric, ColumnCountsMetric])

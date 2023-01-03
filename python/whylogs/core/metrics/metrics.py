@@ -62,9 +62,9 @@ class MetricConfig:
 _METRIC_DESERIALIZER_REGISTRY: Dict[str, Type[METRIC]] = {}  # type: ignore
 
 
-def custom_metric(metric: Type[METRIC], config: MetricConfig = MetricConfig()) -> Type[METRIC]:  # type: ignore
+def custom_metric(metric: Type[METRIC]) -> Type[METRIC]:  # type: ignore
     global _METRIC_DESERIALIZER_REGISTRY
-    _METRIC_DESERIALIZER_REGISTRY[metric.get_namespace(config)] = metric
+    _METRIC_DESERIALIZER_REGISTRY[metric.get_namespace()] = metric
     return metric
 
 
@@ -98,10 +98,6 @@ class Metric(ABC):
     @abstractmethod
     def namespace(self) -> str:
         raise NotImplementedError
-
-    def __post_init__(self):
-        global _METRIC_DESERIALIZER_REGISTRY
-        _METRIC_DESERIALIZER_REGISTRY[self.namespace] = self.__class__
 
     def __add__(self: METRIC, other: METRIC) -> METRIC:
         return self.merge(other)
@@ -158,6 +154,15 @@ class Metric(ABC):
         return cls(**components)
 
 
+def register_metric(metrics: Union[Metric, Type[METRIC], List[Metric], List[Type[METRIC]]]) -> None:
+    global _METRIC_DESERIALIZER_REGISTRY
+    if not isinstance(metrics, list):
+        metrics = [metrics]  # type: ignore
+
+    for metric in metrics:  # type: ignore
+        _METRIC_DESERIALIZER_REGISTRY[metric.get_namespace()] = metric  # type: ignore
+
+
 @dataclass(frozen=True)
 class IntsMetric(Metric):
     max: MaxIntegralComponent
@@ -175,12 +180,12 @@ class IntsMetric(Metric):
 
         max_ = self.max.value
         min_ = self.min.value
-        if data.numpy.ints is not None:
+        if data.numpy.ints is not None and len(data.numpy.ints) > 0:
             max_ = max([max_, data.numpy.ints.max()])
             min_ = min([min_, data.numpy.ints.min()])
             successes += len(data.numpy.ints)
 
-        if data.list.ints is not None:
+        if data.list.ints is not None and len(data.list.ints) > 0:
             l_max = max(data.list.ints)
             l_min = min(data.list.ints)
             max_ = max([max_, l_max])
@@ -205,6 +210,9 @@ class IntsMetric(Metric):
     @property
     def minimum(self) -> float:
         return self.min.value
+
+
+register_metric(IntsMetric)
 
 
 @dataclass(frozen=True)
@@ -424,6 +432,9 @@ class DistributionMetric(Metric):
         )
 
 
+register_metric(DistributionMetric)
+
+
 @dataclass(frozen=True)
 class FrequentItem:
     value: str
@@ -481,7 +492,7 @@ class FrequentItemsMetric(Metric):
             limited_freq_items = all_freq_items[: cfg.frequent_items_limit]
         else:
             limited_freq_items = all_freq_items
-        items = [FrequentItem(value=x[0], est=x[1], upper=x[2], lower=x[3]) for x in limited_freq_items]
+        items = [FrequentItem(value=x[0], est=x[1], lower=x[2], upper=x[3]) for x in limited_freq_items]
         return {"frequent_strings": items}
 
     @property
@@ -496,6 +507,9 @@ class FrequentItemsMetric(Metric):
         config = config or MetricConfig()
         sk = ds.frequent_strings_sketch(lg_max_k=config.fi_lg_max_k)
         return FrequentItemsMetric(frequent_strings=FrequentStringsComponent(sk))
+
+
+register_metric(FrequentItemsMetric)
 
 
 @dataclass(frozen=True)
@@ -584,6 +598,9 @@ class CardinalityMetric(Metric):
         return CardinalityMetric(hll=HllComponent(sk))
 
 
+register_metric(CardinalityMetric)
+
+
 def _drop_private_fields(data: List[Tuple[str, Any]]) -> Dict[str, Any]:
     return {k: v for k, v in data if not k.startswith("_")}
 
@@ -597,7 +614,8 @@ class CustomMetricBase(Metric, ABC):
     the supplied or custom MetricComponents. Subclasses must be decorated with
     @dataclass. All fields not prefixed with an underscore will be included
     in the summary and will be [de]serialized. Such subclasses will need to
-    implement the namespace, merge, and zero methods.
+    implement the namespace, merge, and zero methods. They should be registered
+    by calling register_metric()
     """
 
     def get_component_paths(self) -> List[str]:

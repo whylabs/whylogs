@@ -49,14 +49,21 @@ class ColumnProfile(object):
         self._cache = []
         self.track_column(old_cache)
 
-    def track_column(self, series: Any) -> None:
-        ex_col = PreprocessedColumn.apply(series)
+    def _process_extracted_column(self, extracted_column: PreprocessedColumn) -> None:
         for metric in self._metrics.values():
-            res = metric.columnar_update(ex_col)
+            res = metric.columnar_update(extracted_column)
             self._failure_count += res.failures
             self._success_count += res.successes
         for validator in self._column_validators:
-            validator.columnar_validate(ex_col)
+            validator.columnar_validate(extracted_column)
+
+    def track_column(self, series: Any) -> None:
+        ex_col = PreprocessedColumn.apply(series)
+        self._process_extracted_column(ex_col)
+
+    def _track_datum(self, value: Any) -> None:
+        ex_col = PreprocessedColumn._process_scalar_value(value)
+        self._process_extracted_column(ex_col)
 
     def to_protobuf(self) -> ColumnMessage:
         self.flush()
