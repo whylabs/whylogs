@@ -85,7 +85,7 @@ For example, the `legs greater than number 2` would use the metric component `mi
 To enable additional use cases for Metric Constraints, you need to define additional metrics, which will then be used by the constraints. This can be done, for example, by:
 
 - Creating custom metrics - See the [Custom Metrics Example](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Custom_Metrics.ipynb)
-- Creating Condition Count Metrics - See the [Condition Count Metrics Example](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Condition_Count_Metrics.ipynb)
+- Creating Condition Count Metrics - See the [Condition Count Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Condition_Count_Metrics.ipynb) and [Metric Constraints with Condition Count Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Metric_Constraints_with_Condition_Count_Metrics.ipynb) examples
 - Creating existing, but non-standard metrics for specific data types, such as [String Tracking](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/String_Tracking.ipynb) and [Image](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Image_Logging.ipynb) metrics
 
 
