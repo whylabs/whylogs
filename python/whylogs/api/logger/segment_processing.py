@@ -33,6 +33,17 @@ def _process_segment(
     segments[segment_key] = profile
 
 
+def _get_segment_from_group_key(group_key, partition_id) -> Tuple[str, ...]:
+    if isinstance(group_key, str):
+        segment_tuple_key: Tuple[str, ...] = (group_key,)
+    elif isinstance(group_key, (List, Iterable, Iterator)):
+        segment_tuple_key = tuple(str(k) for k in group_key)
+    else:
+        segment_tuple_key = (str(group_key),)
+
+    return Segment(segment_tuple_key, partition_id)
+
+
 def _process_simple_partition(
     partition_id: str,
     schema: DatasetSchema,
@@ -47,13 +58,7 @@ def _process_simple_partition(
         grouped_data = pandas.groupby(columns)
         for group in grouped_data.groups.keys():
             pandas_segment = grouped_data.get_group(group)
-            if isinstance(group, str):
-                segment_tuple_key: Tuple[str, ...] = (group,)
-            elif isinstance(group, (List, Iterable, Iterator)):
-                segment_tuple_key = tuple(str(k) for k in group)
-            else:
-                segment_tuple_key = (str(group),)
-            segment_key = Segment(segment_tuple_key, partition_id)
+            segment_key = _get_segment_from_group_key(group, partition_id)
             _process_segment(pandas_segment, segment_key, segments, schema, segment_cache)
     elif row:
         # TODO: consider if we need to combine with the column names
@@ -82,6 +87,16 @@ def _filter_inputs(
                 "SegmentFilter query string not supported when logging rows, either don't specify a filter or implement the filter.filter_function"
             )
     return (filtered_pandas, filtered_row)
+
+
+def _grouped_dataframe(partition: SegmentationPartition, pandas: pd.DataFrame):
+    columns = partition.mapper.col_names if partition.mapper else None
+    if not columns:
+        raise ValueError(
+            "Please use column segmentation, there are no columns defined and ColumnMapperFunction not yet supported."
+        )
+    grouped_data = pandas.groupby(columns)
+    return grouped_data
 
 
 def _log_segment(
