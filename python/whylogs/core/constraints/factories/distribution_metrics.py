@@ -20,7 +20,7 @@ def greater_than_number(column_name: str, number: Union[float, int], skip_missin
 
     constraint = MetricConstraint(
         name=f"{column_name} greater than number {number}",
-        condition=lambda x: x.min > number,
+        condition=Require("min").greater_than(number),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         require_column_existence=not skip_missing,
     )
@@ -117,7 +117,7 @@ def mean_between_range(column_name: str, lower: float, upper: float, skip_missin
 
     constraint = MetricConstraint(
         name=f"{column_name} mean between {lower} and {upper} (inclusive)",
-        condition=lambda x: lower <= x.avg <= upper,
+        condition=Require("mean").greater_or_equals(lower).and_(Require("mean").less_or_equals(upper)),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         require_column_existence=not skip_missing,
     )
@@ -142,7 +142,7 @@ def stddev_between_range(column_name: str, lower: float, upper: float, skip_miss
 
     constraint = MetricConstraint(
         name=f"{column_name} standard deviation between {lower} and {upper} (inclusive)",
-        condition=lambda x: lower <= x.stddev <= upper,
+        condition=Require("stddev").greater_or_equals(lower).and_(Require("stddev").less_or_equals(upper)),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         require_column_existence=not skip_missing,
     )

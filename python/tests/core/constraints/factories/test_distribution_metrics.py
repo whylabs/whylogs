@@ -43,7 +43,17 @@ def test_is_in_range(builder, nan_builder):
     assert report[0].name == "a is in range [1.1,3.2]" and report[0].passed == 1
 
 
-def test_is_non_negative():
+@pytest.mark.parametrize(
+    "column,passed,failed,skip",
+    [
+        ("weight", 0, 1, True),
+        ("legs", 1, 0, True),
+        ("animal", 0, 1, False),
+        ("null_column", 1, 0, True),
+        ("non_existing_column", None, None, False),
+    ],
+)
+def test_is_non_negative(column, passed, failed, skip):
     data = {
         "animal": ["cat", "hawk", "snake", "cat", "mosquito"],
         "legs": [4, 2, 0, 4, 6],
@@ -53,21 +63,16 @@ def test_is_non_negative():
 
     view = why.log(pd.DataFrame(data)).profile().view()
     builder = ConstraintsBuilder(dataset_profile_view=view)
-
-    builder.add_constraint(is_non_negative(column_name="weight"))
-    builder.add_constraint(is_non_negative(column_name="legs"))
-    builder.add_constraint(is_non_negative(column_name="animal", skip_missing=False))
-    builder.add_constraint(is_non_negative(column_name="null_column", skip_missing=True))
-    with pytest.raises(ValueError) as e:
-        builder.add_constraint(is_non_negative(column_name="non_existing_column", skip_missing=True))
-        assert e.value.args[0].startswith("non_existing_column was not found in set of this profile")
-
-    constraint = builder.build()
-    report = constraint.generate_constraints_report()
-    assert report[0].name == "weight is non negative" and report[0].passed == 0 and report[0].failed == 1
-    assert report[1].name == "legs is non negative" and report[1].passed == 1 and report[1].failed == 0
-    assert report[2].name == "animal is non negative" and report[2].passed == 0 and report[2].failed == 1
-    assert report[3].name == "null_column is non negative" and report[3].passed == 1 and report[3].failed == 0
+    if column == "non_existing_column":
+        with pytest.raises(ValueError, match="non_existing_column was not found in set of this profile"):
+            builder.add_constraint(is_non_negative(column_name=column))
+    else:
+        builder.add_constraint(is_non_negative(column_name=column, skip_missing=skip))
+        constraint = builder.build()
+        report = constraint.generate_constraints_report()
+        assert (
+            report[0].name == f"{column} is non negative" and report[0].passed == passed and report[0].failed == failed
+        )
 
 
 def test_greater_than_number(builder, nan_builder, empty_builder):
