@@ -268,11 +268,14 @@ class BagOfWordsMetric(MultiMetric):
     #       batch of documents
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
+        """
         terms = (
             data.pandas.strings.to_list() if data.pandas.strings is not None and not data.pandas.strings.empty else []
         )
         terms = (terms + data.list.strings) if data.list.strings else terms
         terms = (terms + data.list.objs[0]) if data.list.objs else terms
+        """
+        terms = data.list.objs[0].tolist() if data.list.objs else None
         if terms:
             term_lengths = [len(term) for term in terms]
             self._update_submetrics("term_length", PreprocessedColumn.apply(term_lengths))
