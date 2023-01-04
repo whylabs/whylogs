@@ -370,10 +370,12 @@ def test_metric_getter() -> None:
         (r'~ x "abc\"def"', ["~", "x", r'"abc"def"']),
         (r'  ==   x  " \"\" \" "', ["==", "x", r'" "" " "']),
         (r'  ==   x  "\"\" \""', ["==", "x", r'""" ""']),
+        (r'"\\"', [r'"\"']),
+        (r'"\\\"" "\\ \" \\\"\\" "\foo"', [r'"\""', r'"\ " \"\"', r'"\foo"']),
         (r'  ==   x  "\x"', ["==", "x", r'"\x"']),
         (r'  ==   x  "\"\x"', ["==", "x", r'""\x"']),
-        (r'  ==   x  "\\"', ["==", "x", r'"\\"']),
-        (r'  ==   x  "\\\""', ["==", "x", r'"\\""']),
+        (r'  ==   x  "\\"', ["==", "x", r'"\"']),
+        (r'  ==   x  "\\\""', ["==", "x", r'"\""']),
         ("::distribution/n", ["::distribution/n"]),
         (":col1:distribution/n", [":col1:distribution/n"]),
         ("::multimetric/subname:distribution/n", ["::multimetric/subname:distribution/n"]),
@@ -386,6 +388,8 @@ def test_metric_getter() -> None:
             r":annoying\:name:distribution/n  :annoying\: name:multimetric/subname:distribution/n",
             [":annoying:name:distribution/n", ":annoying: name:multimetric/subname:distribution/n"],
         ),
+        (r":\\::foo/bar", [r":\::foo/bar"]),
+        (r":foo\bar:distribution/component", [r":foo\bar:distribution/component"]),
     ],
 )
 def test_expression_tokenizer(input: str, expected: List[str]) -> None:

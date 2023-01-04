@@ -22,6 +22,11 @@ def _unescape_token(input: str) -> str:
     return input
 
 
+# We use this with findall() to split an input string into tokens.
+# (?::(?:[^:]|\\:)*:[_a-zA-Z0-9]+/[_a-zA-Z0-9:/]+) matches metric references with \: escaped in column names
+# "(?:[^\\"]|\\[^"]|\\")*" matches quoted strings with \"  \\ escaped quotes and \
+# (?:[^ ":][^ ]*) matches everything else delimited by spaces
+
 _TOKEN_RE = re.compile(r'(?::(?:[^:]|\\:)*:[_a-zA-Z0-9]+/[_a-zA-Z0-9:/]+)|(?:[^ ":][^ ]*)|"(?:[^\\"]|\\[^"]|\\")*"')
 
 
@@ -32,6 +37,10 @@ def _tokenize(input: str) -> List[str]:
 def _get_component(token: List[str], i: int) -> Tuple[str, int]:
     return token[i], i + 1  # either dummy variable x or metric component name in metric::to_summary_dict()
 
+
+# These match metric references with our without column names, with capture groups to
+# pull out the column name and path. They have an optional submetric_name:submetric_namespace/
+# section to support MultiMetric references.
 
 _METRIC_REF = re.compile(r"::[_a-zA-Z0-9]+/(?:[_a-zA-Z0-9]+:[_a-zA-Z0-9]+/)?[_a-zA-Z0-9]+")
 _PROFILE_REF = re.compile(r":(.+?):([_a-zA-Z0-9]+/(?:[_a-zA-Z0-9]+:[_a-zA-Z0-9]+/)?[_a-zA-Z0-9]+)")

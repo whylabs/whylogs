@@ -200,7 +200,7 @@ class MissingMetric(Exception):
     pass
 
 
-@dataclass
+@dataclass(frozen=True)
 class DatasetConstraint:
     """
     Implements dataset-level constraints that are not attached to a specific
@@ -311,7 +311,7 @@ class PrefixCondition:
             try:
                 value = summary[component_name]
             except:  # noqa
-                raise ValueError("Component {component_name} not found in {metric_path}")
+                raise ValueError(f"Component {component_name} not found in {metric_path}")
 
             return value, i + 1
 
@@ -425,7 +425,7 @@ class PrefixCondition:
         if bool(_FLOAT_RE.fullmatch(token)):
             return float(token), i + 1
 
-        raise ValueError("Unparsable expression: '{self._expression}' at token {i}: '{token}'")
+        raise ValueError(f"Unparsable expression: '{self._expression}' at token {i}: '{token}'")
 
     def __call__(self, profile: DatasetProfileView) -> Tuple[bool, Optional[Dict[str, Metric]]]:
         """
@@ -437,13 +437,15 @@ class PrefixCondition:
 
         metric component references: :column_name:metric_namespace/metric_component
 
-        returns a map of :column_name:metric_namespace -> Metric
+        returns a bool indicating whether the expression passed and a map of
+        :column_name:metric_namespace -> Metric for the metrics used in evaluating
+        the expression.
         """
         self._profile = profile
         self._metric_map = dict()
         passes, _ = self._interpret(0)
         if not isinstance(passes, bool):
-            raise ValueError("Contraint expression should return a boolean, got {type(passes)}")
+            raise ValueError(f"Contraint expression should return a boolean, got {type(passes)}")
 
         return passes, self._metric_map
 

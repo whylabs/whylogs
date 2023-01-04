@@ -18,7 +18,7 @@ class ValueGetter(ABC):
 
 
 def unescape_quote(input: str) -> str:
-    return '"' + input[1:-1].replace(r"\"", '"') + '"' if input[0] == input[-1] == '"' else input
+    return '"' + input[1:-1].replace(r"\"", '"').replace("\\\\", "\\") + '"' if input[0] == input[-1] == '"' else input
 
 
 def unescape_colon(input: str) -> str:
