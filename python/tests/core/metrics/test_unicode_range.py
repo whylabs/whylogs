@@ -2,8 +2,10 @@ import math
 from typing import Any, Dict
 
 import numpy as np
+import pandas as pd
 import pytest
 
+import whylogs as why
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import DataType
@@ -172,3 +174,14 @@ def test_unicode_range_metric_in_profile() -> None:
         if col1_prof:
             assert col1_prof._metrics.keys() == col2_prof._metrics.keys()
             assert _NaNfully_equal(col1_prof.to_summary_dict(), col2_prof.to_summary_dict())
+
+
+def test_correct_in_column_view() -> None:
+    d = {"col_a": [1, 2], "col_b": [3.0, 4.0], "col_c": ["a", "b"]}
+    results = why.log(pd.DataFrame(d), schema=_UNICODE_SCHEMA)
+    view = results.view()
+    col_view = view.get_column("col_c")
+    summary = col_view.to_summary_dict()
+    assert summary["unicode_range/string_length:ints/min"] == 1
+    assert summary["unicode_range/alpha:distribution/mean"] == 1
+    assert summary["unicode_range/alpha:ints/min"] == 1
