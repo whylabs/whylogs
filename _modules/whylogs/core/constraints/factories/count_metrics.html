@@ -392,9 +392,28 @@
         </div>
         <article role="main">
           <h1>Source code for whylogs.core.constraints.factories.count_metrics</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">..metric_constraints</span> <span class="kn">import</span> <span class="n">MetricConstraint</span><span class="p">,</span> <span class="n">MetricsSelector</span>
+<span></span><span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Require</span>
+
+<span class="kn">from</span> <span class="nn">..metric_constraints</span> <span class="kn">import</span> <span class="n">MetricConstraint</span><span class="p">,</span> <span class="n">MetricsSelector</span>
 
 <span class="c1"># TODO implement skip_missing for all methods</span>
+
+
+<div class="viewcode-block" id="no_missing_values"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.count_metrics.no_missing_values">[docs]</a><span class="k">def</span> <span class="nf">no_missing_values</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Checks that there are no missing values in the column.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Column the constraint is applied to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> has no missing values&quot;</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="n">Require</span><span class="p">(</span><span class="s2">&quot;null&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;counts&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span></div>
 
 
 <div class="viewcode-block" id="count_below_number"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.count_metrics.count_below_number">[docs]</a><span class="k">def</span> <span class="nf">count_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>

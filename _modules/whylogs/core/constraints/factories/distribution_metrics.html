@@ -395,7 +395,7 @@
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="n">MetricConstraint</span><span class="p">,</span> <span class="n">MetricsSelector</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics</span> <span class="kn">import</span> <span class="n">DistributionMetric</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Require</span>
 
 
 <div class="viewcode-block" id="greater_than_number"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.distribution_metrics.greater_than_number">[docs]</a><span class="k">def</span> <span class="nf">greater_than_number</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">skip_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>
@@ -409,19 +409,14 @@
 <span class="sd">        reference value for applying the constraint</span>
 <span class="sd">    skip_missing: bool</span>
 <span class="sd">        If skip_missing is True, missing distribution metrics will make the check pass.</span>
-<span class="sd">        If False, the check will fail on missing metrics</span>
+<span class="sd">        If False, the check will fail on missing metrics, such as on an empty dataset</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">is_greater</span><span class="p">(</span><span class="n">metric</span><span class="p">:</span> <span class="n">DistributionMetric</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">metric</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
-            <span class="k">return</span> <span class="n">metric</span><span class="o">.</span><span class="n">min</span> <span class="o">&gt;=</span> <span class="n">number</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">skip_missing</span> <span class="k">else</span> <span class="kc">False</span>
 
     <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> greater than number </span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="n">condition</span><span class="o">=</span><span class="n">is_greater</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="n">Require</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="n">number</span><span class="p">),</span>
         <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;distribution&quot;</span><span class="p">),</span>
+        <span class="n">require_column_existence</span><span class="o">=</span><span class="ow">not</span> <span class="n">skip_missing</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">constraint</span></div>
 
@@ -437,19 +432,63 @@
 <span class="sd">        reference value for applying the constraint</span>
 <span class="sd">    skip_missing: bool</span>
 <span class="sd">        If skip_missing is True, missing distribution metrics will make the check pass.</span>
-<span class="sd">        If False, the check will fail on missing metrics</span>
+<span class="sd">        If False, the check will fail on missing metrics, such as on an empty dataset</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">is_smaller</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">metric</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
-            <span class="k">return</span> <span class="n">number</span> <span class="o">&gt;=</span> <span class="n">metric</span><span class="o">.</span><span class="n">max</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">skip_missing</span> <span class="k">else</span> <span class="kc">False</span>
 
     <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> smaller than number </span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="n">condition</span><span class="o">=</span><span class="n">is_smaller</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">,</span>
         <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;distribution&quot;</span><span class="p">),</span>
+        <span class="n">require_column_existence</span><span class="o">=</span><span class="ow">not</span> <span class="n">skip_missing</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span></div>
+
+
+<div class="viewcode-block" id="is_non_negative"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.distribution_metrics.is_non_negative">[docs]</a><span class="k">def</span> <span class="nf">is_non_negative</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">skip_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Checks if a column is non negative</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Column the constraint is applied to</span>
+<span class="sd">    skip_missing: bool</span>
+<span class="sd">        If skip_missing is True, missing distribution metrics will make the check pass.</span>
+<span class="sd">        If False, the check will fail on missing metrics, such as on an empty dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> is non negative&quot;</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="n">Require</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">greater_or_equals</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;distribution&quot;</span><span class="p">),</span>
+        <span class="n">require_column_existence</span><span class="o">=</span><span class="ow">not</span> <span class="n">skip_missing</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span></div>
+
+
+<div class="viewcode-block" id="is_in_range"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.distribution_metrics.is_in_range">[docs]</a><span class="k">def</span> <span class="nf">is_in_range</span><span class="p">(</span>
+    <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lower</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">upper</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">skip_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Checks that all of column&#39;s values are in defined range (inclusive).</span>
+
+<span class="sd">    For the constraint to pass, the column&#39;s minimum value should be higher or equal than `lower` and maximum value should be less than or equal to `upper`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Column the constraint is applied to</span>
+<span class="sd">    lower : float</span>
+<span class="sd">        lower bound of defined range</span>
+<span class="sd">    upper : float</span>
+<span class="sd">        upper bound of defined range</span>
+<span class="sd">    skip_missing: bool</span>
+<span class="sd">        If skip_missing is True, missing distribution metrics will make the check pass.</span>
+<span class="sd">        If False, the check will fail on missing metrics, such as on an empty dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> is in range [</span><span class="si">{</span><span class="n">lower</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">upper</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="n">Require</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">greater_or_equals</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span><span class="n">Require</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">less_or_equals</span><span class="p">(</span><span class="n">upper</span><span class="p">)),</span>
+        <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;distribution&quot;</span><span class="p">),</span>
+        <span class="n">require_column_existence</span><span class="o">=</span><span class="ow">not</span> <span class="n">skip_missing</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">constraint</span></div>
 
@@ -467,19 +506,14 @@
 <span class="sd">        Upper bound of the value range</span>
 <span class="sd">    skip_missing: bool</span>
 <span class="sd">        If skip_missing is True, missing distribution metrics will make the check pass.</span>
-<span class="sd">        If False, the check will fail on missing metrics</span>
+<span class="sd">        If False, the check will fail on missing metrics, such as on an empty dataset</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">is_mean_between</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">metric</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
-            <span class="k">return</span> <span class="n">lower</span> <span class="o">&lt;=</span> <span class="n">metric</span><span class="o">.</span><span class="n">avg</span> <span class="o">&lt;=</span> <span class="n">upper</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">skip_missing</span> <span class="k">else</span> <span class="kc">False</span>
 
     <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> mean between </span><span class="si">{</span><span class="n">lower</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">upper</span><span class="si">}</span><span class="s2"> (inclusive)&quot;</span><span class="p">,</span>
-        <span class="n">condition</span><span class="o">=</span><span class="n">is_mean_between</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="n">Require</span><span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">greater_or_equals</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span><span class="n">Require</span><span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">less_or_equals</span><span class="p">(</span><span class="n">upper</span><span class="p">)),</span>
         <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;distribution&quot;</span><span class="p">),</span>
+        <span class="n">require_column_existence</span><span class="o">=</span><span class="ow">not</span> <span class="n">skip_missing</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">constraint</span></div>
 
@@ -497,19 +531,14 @@
 <span class="sd">        Upper bound of the value range</span>
 <span class="sd">    skip_missing: bool</span>
 <span class="sd">        If skip_missing is True, missing distribution metrics will make the check pass.</span>
-<span class="sd">        If False, the check will fail on missing metrics</span>
+<span class="sd">        If False, the check will fail on missing metrics, such as on an empty dataset</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">is_stddev_between_range</span><span class="p">(</span><span class="n">metric</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">metric</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
-            <span class="k">return</span> <span class="n">lower</span> <span class="o">&lt;=</span> <span class="n">metric</span><span class="o">.</span><span class="n">stddev</span> <span class="o">&lt;=</span> <span class="n">upper</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">skip_missing</span> <span class="k">else</span> <span class="kc">False</span>
 
     <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> standard deviation between </span><span class="si">{</span><span class="n">lower</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">upper</span><span class="si">}</span><span class="s2"> (inclusive)&quot;</span><span class="p">,</span>
-        <span class="n">condition</span><span class="o">=</span><span class="n">is_stddev_between_range</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="n">Require</span><span class="p">(</span><span class="s2">&quot;stddev&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">greater_or_equals</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span><span class="n">Require</span><span class="p">(</span><span class="s2">&quot;stddev&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">less_or_equals</span><span class="p">(</span><span class="n">upper</span><span class="p">)),</span>
         <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;distribution&quot;</span><span class="p">),</span>
+        <span class="n">require_column_existence</span><span class="o">=</span><span class="ow">not</span> <span class="n">skip_missing</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">constraint</span></div>
 
@@ -529,21 +558,19 @@
 <span class="sd">        Upper bound of the value range</span>
 <span class="sd">    skip_missing: bool</span>
 <span class="sd">        If skip_missing is True, missing distribution metrics will make the check pass.</span>
-<span class="sd">        If False, the check will fail on missing metrics</span>
+<span class="sd">        If False, the check will fail on missing metrics, such as on an empty dataset</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">quantile_in_range</span><span class="p">(</span><span class="n">metric</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">metric</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
-            <span class="n">quantile_value</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantile</span><span class="p">(</span><span class="n">quantile</span><span class="p">)</span>
-            <span class="n">result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">lower</span> <span class="o">&lt;=</span> <span class="n">quantile_value</span> <span class="o">&lt;=</span> <span class="n">upper</span>
-            <span class="k">return</span> <span class="n">result</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">skip_missing</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="n">quantile_value</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantile</span><span class="p">(</span><span class="n">quantile</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">lower</span> <span class="o">&lt;=</span> <span class="n">quantile_value</span> <span class="o">&lt;=</span> <span class="n">upper</span>
+        <span class="k">return</span> <span class="n">result</span>
 
     <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">quantile</span><span class="si">}</span><span class="s2">-th quantile value between </span><span class="si">{</span><span class="n">lower</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">upper</span><span class="si">}</span><span class="s2"> (inclusive)&quot;</span><span class="p">,</span>
         <span class="n">condition</span><span class="o">=</span><span class="n">quantile_in_range</span><span class="p">,</span>
         <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;distribution&quot;</span><span class="p">),</span>
+        <span class="n">require_column_existence</span><span class="o">=</span><span class="ow">not</span> <span class="n">skip_missing</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">constraint</span></div>
 </pre></div>

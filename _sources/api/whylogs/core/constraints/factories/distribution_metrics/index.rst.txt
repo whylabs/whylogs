@@ -15,6 +15,8 @@ Functions
 
    whylogs.core.constraints.factories.distribution_metrics.greater_than_number
    whylogs.core.constraints.factories.distribution_metrics.smaller_than_number
+   whylogs.core.constraints.factories.distribution_metrics.is_non_negative
+   whylogs.core.constraints.factories.distribution_metrics.is_in_range
    whylogs.core.constraints.factories.distribution_metrics.mean_between_range
    whylogs.core.constraints.factories.distribution_metrics.stddev_between_range
    whylogs.core.constraints.factories.distribution_metrics.quantile_between_range
@@ -30,7 +32,7 @@ Functions
    :param number: reference value for applying the constraint
    :type number: float
    :param skip_missing: If skip_missing is True, missing distribution metrics will make the check pass.
-                        If False, the check will fail on missing metrics
+                        If False, the check will fail on missing metrics, such as on an empty dataset
    :type skip_missing: bool
 
 
@@ -43,7 +45,35 @@ Functions
    :param number: reference value for applying the constraint
    :type number: float
    :param skip_missing: If skip_missing is True, missing distribution metrics will make the check pass.
-                        If False, the check will fail on missing metrics
+                        If False, the check will fail on missing metrics, such as on an empty dataset
+   :type skip_missing: bool
+
+
+.. py:function:: is_non_negative(column_name: str, skip_missing: bool = True) -> whylogs.core.constraints.MetricConstraint
+
+   Checks if a column is non negative
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param skip_missing: If skip_missing is True, missing distribution metrics will make the check pass.
+                        If False, the check will fail on missing metrics, such as on an empty dataset
+   :type skip_missing: bool
+
+
+.. py:function:: is_in_range(column_name: str, lower: Union[float, int], upper: Union[float, int], skip_missing: bool = True) -> whylogs.core.constraints.MetricConstraint
+
+   Checks that all of column's values are in defined range (inclusive).
+
+   For the constraint to pass, the column's minimum value should be higher or equal than `lower` and maximum value should be less than or equal to `upper`.
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param lower: lower bound of defined range
+   :type lower: float
+   :param upper: upper bound of defined range
+   :type upper: float
+   :param skip_missing: If skip_missing is True, missing distribution metrics will make the check pass.
+                        If False, the check will fail on missing metrics, such as on an empty dataset
    :type skip_missing: bool
 
 
@@ -58,7 +88,7 @@ Functions
    :param upper: Upper bound of the value range
    :type upper: int
    :param skip_missing: If skip_missing is True, missing distribution metrics will make the check pass.
-                        If False, the check will fail on missing metrics
+                        If False, the check will fail on missing metrics, such as on an empty dataset
    :type skip_missing: bool
 
 
@@ -73,7 +103,7 @@ Functions
    :param upper: Upper bound of the value range
    :type upper: float
    :param skip_missing: If skip_missing is True, missing distribution metrics will make the check pass.
-                        If False, the check will fail on missing metrics
+                        If False, the check will fail on missing metrics, such as on an empty dataset
    :type skip_missing: bool
 
 
@@ -90,7 +120,7 @@ Functions
    :param upper: Upper bound of the value range
    :type upper: float
    :param skip_missing: If skip_missing is True, missing distribution metrics will make the check pass.
-                        If False, the check will fail on missing metrics
+                        If False, the check will fail on missing metrics, such as on an empty dataset
    :type skip_missing: bool
 
 

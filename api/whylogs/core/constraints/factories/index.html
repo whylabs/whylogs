@@ -431,54 +431,63 @@
 <td><p>Number of distinct categories must be between lower and upper values (inclusive).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.condition_meets" title="whylogs.core.constraints.factories.condition_meets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">condition_meets</span></code></a>(...)</p></td>
-<td><p></p></td>
+<td><p>Checks that all values in column match predicate</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.count_below_number" title="whylogs.core.constraints.factories.count_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count_below_number</span></code></a>(...)</p></td>
 <td><p>Number of elements in a column must be below given number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.null_percentage_below_number" title="whylogs.core.constraints.factories.null_percentage_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_percentage_below_number</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.no_missing_values" title="whylogs.core.constraints.factories.no_missing_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">no_missing_values</span></code></a>(...)</p></td>
+<td><p>Checks that there are no missing values in the column.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.null_percentage_below_number" title="whylogs.core.constraints.factories.null_percentage_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_percentage_below_number</span></code></a>(...)</p></td>
 <td><p>Percentage of null values must be below given number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.null_values_below_number" title="whylogs.core.constraints.factories.null_values_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_values_below_number</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.null_values_below_number" title="whylogs.core.constraints.factories.null_values_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_values_below_number</span></code></a>(...)</p></td>
 <td><p>Number of null values must be below given number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.greater_than_number" title="whylogs.core.constraints.factories.greater_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">greater_than_number</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.greater_than_number" title="whylogs.core.constraints.factories.greater_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">greater_than_number</span></code></a>(...)</p></td>
 <td><p>Minimum value of given column must be above defined number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.mean_between_range" title="whylogs.core.constraints.factories.mean_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_between_range</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.is_in_range" title="whylogs.core.constraints.factories.is_in_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_in_range</span></code></a>(→ whylogs.core.constraints.MetricConstraint)</p></td>
+<td><p>Checks that all of column's values are in defined range (inclusive).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.is_non_negative" title="whylogs.core.constraints.factories.is_non_negative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_non_negative</span></code></a>(...)</p></td>
+<td><p>Checks if a column is non negative</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.mean_between_range" title="whylogs.core.constraints.factories.mean_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_between_range</span></code></a>(...)</p></td>
 <td><p>Estimated mean must be between range defined by lower and upper bounds.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.quantile_between_range" title="whylogs.core.constraints.factories.quantile_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantile_between_range</span></code></a>(column_name, quantile, lower, upper)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.quantile_between_range" title="whylogs.core.constraints.factories.quantile_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantile_between_range</span></code></a>(column_name, quantile, lower, upper)</p></td>
 <td><p>Q-th quantile value must be withing the range defined by lower and upper boundaries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.smaller_than_number" title="whylogs.core.constraints.factories.smaller_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smaller_than_number</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.smaller_than_number" title="whylogs.core.constraints.factories.smaller_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smaller_than_number</span></code></a>(...)</p></td>
 <td><p>Maximum value of given column must be below defined number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.stddev_between_range" title="whylogs.core.constraints.factories.stddev_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stddev_between_range</span></code></a>(column_name, lower, upper[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.stddev_between_range" title="whylogs.core.constraints.factories.stddev_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stddev_between_range</span></code></a>(column_name, lower, upper[, ...])</p></td>
 <td><p>Estimated standard deviation must be between range defined by lower and upper bounds.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.frequent_strings_in_reference_set" title="whylogs.core.constraints.factories.frequent_strings_in_reference_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequent_strings_in_reference_set</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.frequent_strings_in_reference_set" title="whylogs.core.constraints.factories.frequent_strings_in_reference_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequent_strings_in_reference_set</span></code></a>(...)</p></td>
 <td><p>Determine whether a set of variables appear in the frequent strings for a string column.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.n_most_common_items_in_set" title="whylogs.core.constraints.factories.n_most_common_items_in_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_most_common_items_in_set</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.n_most_common_items_in_set" title="whylogs.core.constraints.factories.n_most_common_items_in_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_most_common_items_in_set</span></code></a>(...)</p></td>
 <td><p>Validate if the top n most common items appear in the dataset.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_boolean" title="whylogs.core.constraints.factories.column_is_nullable_boolean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_boolean</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_boolean" title="whylogs.core.constraints.factories.column_is_nullable_boolean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_boolean</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_datatype" title="whylogs.core.constraints.factories.column_is_nullable_datatype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_datatype</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_datatype" title="whylogs.core.constraints.factories.column_is_nullable_datatype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_datatype</span></code></a>(...)</p></td>
 <td><p>Check if column contains only records of specific datatype.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_fractional" title="whylogs.core.constraints.factories.column_is_nullable_fractional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_fractional</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_fractional" title="whylogs.core.constraints.factories.column_is_nullable_fractional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_fractional</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_integral" title="whylogs.core.constraints.factories.column_is_nullable_integral"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_integral</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_integral" title="whylogs.core.constraints.factories.column_is_nullable_integral"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_integral</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_object" title="whylogs.core.constraints.factories.column_is_nullable_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_object</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_object" title="whylogs.core.constraints.factories.column_is_nullable_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_object</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_string" title="whylogs.core.constraints.factories.column_is_nullable_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_string</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.column_is_nullable_string" title="whylogs.core.constraints.factories.column_is_nullable_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_string</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -521,11 +530,12 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="whylogs.core.constraints.factories.condition_meets">
 <span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.</span></span><span class="sig-name descname"><span class="pre">condition_meets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">condition_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/factories/condition_counts.html#condition_meets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.condition_meets" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Checks that all values in column match predicate</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
-<li><p><strong>condition_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of the column to apply the constraint to</p></li>
+<li><p><strong>condition_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of the condition that will be applied to each value of the column</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -544,6 +554,20 @@
 <li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Column the constraint is applied to</p></li>
 <li><p><strong>number</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – reference value for applying the constraint</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint">whylogs.core.constraints.metric_constraints.MetricConstraint</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.factories.no_missing_values">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.</span></span><span class="sig-name descname"><span class="pre">no_missing_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/factories/count_metrics.html#no_missing_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.no_missing_values" title="Permalink to this definition">#</a></dt>
+<dd><p>Checks that there are no missing values in the column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Column the constraint is applied to</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference internal" href="../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint">whylogs.core.constraints.metric_constraints.MetricConstraint</a></p>
@@ -595,7 +619,46 @@
 <li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Column the constraint is applied to</p></li>
 <li><p><strong>number</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – reference value for applying the constraint</p></li>
 <li><p><strong>skip_missing</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If skip_missing is True, missing distribution metrics will make the check pass.
-If False, the check will fail on missing metrics</p></li>
+If False, the check will fail on missing metrics, such as on an empty dataset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../index.html#whylogs.core.constraints.MetricConstraint" title="whylogs.core.constraints.MetricConstraint">whylogs.core.constraints.MetricConstraint</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.factories.is_in_range">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.</span></span><span class="sig-name descname"><span class="pre">is_in_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../index.html#whylogs.core.constraints.MetricConstraint" title="whylogs.core.constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/factories/distribution_metrics.html#is_in_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.is_in_range" title="Permalink to this definition">#</a></dt>
+<dd><p>Checks that all of column’s values are in defined range (inclusive).</p>
+<p>For the constraint to pass, the column’s minimum value should be higher or equal than <cite>lower</cite> and maximum value should be less than or equal to <cite>upper</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Column the constraint is applied to</p></li>
+<li><p><strong>lower</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – lower bound of defined range</p></li>
+<li><p><strong>upper</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – upper bound of defined range</p></li>
+<li><p><strong>skip_missing</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If skip_missing is True, missing distribution metrics will make the check pass.
+If False, the check will fail on missing metrics, such as on an empty dataset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../index.html#whylogs.core.constraints.MetricConstraint" title="whylogs.core.constraints.MetricConstraint">whylogs.core.constraints.MetricConstraint</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.factories.is_non_negative">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.</span></span><span class="sig-name descname"><span class="pre">is_non_negative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../index.html#whylogs.core.constraints.MetricConstraint" title="whylogs.core.constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/factories/distribution_metrics.html#is_non_negative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.is_non_negative" title="Permalink to this definition">#</a></dt>
+<dd><p>Checks if a column is non negative</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Column the constraint is applied to</p></li>
+<li><p><strong>skip_missing</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If skip_missing is True, missing distribution metrics will make the check pass.
+If False, the check will fail on missing metrics, such as on an empty dataset</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -615,7 +678,7 @@ If False, the check will fail on missing metrics</p></li>
 <li><p><strong>lower</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Lower bound of defined range</p></li>
 <li><p><strong>upper</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Upper bound of the value range</p></li>
 <li><p><strong>skip_missing</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If skip_missing is True, missing distribution metrics will make the check pass.
-If False, the check will fail on missing metrics</p></li>
+If False, the check will fail on missing metrics, such as on an empty dataset</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -636,7 +699,7 @@ If False, the check will fail on missing metrics</p></li>
 <li><p><strong>lower</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Lower bound of defined range</p></li>
 <li><p><strong>upper</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Upper bound of the value range</p></li>
 <li><p><strong>skip_missing</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If skip_missing is True, missing distribution metrics will make the check pass.
-If False, the check will fail on missing metrics</p></li>
+If False, the check will fail on missing metrics, such as on an empty dataset</p></li>
 </ul>
 </dd>
 </dl>
@@ -652,7 +715,7 @@ If False, the check will fail on missing metrics</p></li>
 <li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Column the constraint is applied to</p></li>
 <li><p><strong>number</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – reference value for applying the constraint</p></li>
 <li><p><strong>skip_missing</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If skip_missing is True, missing distribution metrics will make the check pass.
-If False, the check will fail on missing metrics</p></li>
+If False, the check will fail on missing metrics, such as on an empty dataset</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -672,7 +735,7 @@ If False, the check will fail on missing metrics</p></li>
 <li><p><strong>lower</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Lower bound of defined range</p></li>
 <li><p><strong>upper</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Upper bound of the value range</p></li>
 <li><p><strong>skip_missing</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If skip_missing is True, missing distribution metrics will make the check pass.
-If False, the check will fail on missing metrics</p></li>
+If False, the check will fail on missing metrics, such as on an empty dataset</p></li>
 </ul>
 </dd>
 </dl>
@@ -897,9 +960,12 @@ Datatypes can be: integral, fractional, boolean, string, object.</p>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.distinct_number_in_range">distinct_number_in_range</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.condition_meets">condition_meets</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.count_below_number">count_below_number</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.factories.no_missing_values">no_missing_values</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.null_percentage_below_number">null_percentage_below_number</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.null_values_below_number">null_values_below_number</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.greater_than_number">greater_than_number</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.factories.is_in_range">is_in_range</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.factories.is_non_negative">is_non_negative</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.mean_between_range">mean_between_range</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.quantile_between_range">quantile_between_range</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.smaller_than_number">smaller_than_number</a></li>

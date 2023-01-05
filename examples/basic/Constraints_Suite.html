@@ -672,36 +672,177 @@ div.rendered_html tbody tr:hover {
 <blockquote>
 <div><p>Note: The constraints shown here are still experimental and subject to further changes. Stay tuned for upgrades!</p>
 </div></blockquote>
+<section id="Completeness-Constraints">
+<h2>Completeness Constraints<a class="headerlink" href="#Completeness-Constraints" title="Permalink to this headline">#</a></h2>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 18%" />
+<col style="width: 48%" />
+<col style="width: 7%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>constraint</p></th>
+<th class="head"><p>parameters</p></th>
+<th class="head"><p>semantic</p></th>
+<th class="head"><p>metric</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>no_missing_values</p></td>
+<td><p>column name</p></td>
+<td><p>Checks that are no missing values in the column</p></td>
+<td><p>Counts</p></td>
+</tr>
+<tr class="row-odd"><td><p>null_values_below_number</p></td>
+<td><p>column name, number</p></td>
+<td><p>Number of null values must be below given number.</p></td>
+<td><p>Counts</p></td>
+</tr>
+<tr class="row-even"><td><p>null_percentage_below_number</p></td>
+<td><p>column name, number</p></td>
+<td><p>Percentage of null values must be below given number.</p></td>
+<td><p>Counts</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="Consistency-Constraints">
+<h2>Consistency Constraints<a class="headerlink" href="#Consistency-Constraints" title="Permalink to this headline">#</a></h2>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 17%" />
+<col style="width: 53%" />
+<col style="width: 9%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>constraint</p></th>
+<th class="head"><p>parameters</p></th>
+<th class="head"><p>semantic</p></th>
+<th class="head"><p>metric</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>greater_than_number</p></td>
+<td><p>column name</p></td>
+<td><p>Minimum value of given column must be above defined number.</p></td>
+<td><p>Distribution</p></td>
+</tr>
+<tr class="row-odd"><td><p>smaller_than_number</p></td>
+<td><p>column name, number</p></td>
+<td><p>Maximum value of given column must be below defined number.</p></td>
+<td><p>Distribution</p></td>
+</tr>
+<tr class="row-even"><td><p>is_in_range</p></td>
+<td><p>column name, lower, upper</p></td>
+<td><p>Checks that all of column’s values are in defined range (inclusive).</p></td>
+<td><p>Distribution</p></td>
+</tr>
+<tr class="row-odd"><td><p>is_non_negative</p></td>
+<td><p>column name</p></td>
+<td><p>Checks if a column is non negative.</p></td>
+<td><p>Distribution</p></td>
+</tr>
+<tr class="row-even"><td><p>n_most_common_items_in_set</p></td>
+<td><p>column name, reference set</p></td>
+<td><p>Checks if the top n most common items appear in the dataset.</p></td>
+<td><p>Frequent Items</p></td>
+</tr>
+<tr class="row-odd"><td><p>frequent_strings_in_reference_set</p></td>
+<td><p>column name, reference set</p></td>
+<td><p>Checks if a set of variables appear in the frequent strings for a string column.</p></td>
+<td><p>Frequent Items</p></td>
+</tr>
+<tr class="row-even"><td><p>count_below_number</p></td>
+<td><p>column name, number</p></td>
+<td><p>Checks if elements in a column are below given number.</p></td>
+<td><p>Counts</p></td>
+</tr>
+<tr class="row-odd"><td><p>distinct_number_in_range</p></td>
+<td><p>column name, lower, upper</p></td>
+<td><p>Checks if number of distinct categories is between lower and upper values (inclusive).</p></td>
+<td><p>Cardinality</p></td>
+</tr>
+<tr class="row-even"><td><p>column_is_nullable_integral</p></td>
+<td><p>column name</p></td>
+<td><p>Check if column contains only records of specific datatype.</p></td>
+<td><p>Types</p></td>
+</tr>
+<tr class="row-odd"><td><p>column_is_nullable_boolean</p></td>
+<td><p>column name</p></td>
+<td><p>Check if column contains only records of specific datatype.</p></td>
+<td><p>Types</p></td>
+</tr>
+<tr class="row-even"><td><p>column_is_nullable_fractional</p></td>
+<td><p>column name</p></td>
+<td><p>Check if column contains only records of specific datatype.</p></td>
+<td><p>Types</p></td>
+</tr>
+<tr class="row-odd"><td><p>column_is_nullable_object</p></td>
+<td><p>column name</p></td>
+<td><p>Check if column contains only records of specific datatype.</p></td>
+<td><p>Types</p></td>
+</tr>
+<tr class="row-even"><td><p>column_is_nullable_string</p></td>
+<td><p>column name</p></td>
+<td><p>Check if column contains only records of specific datatype.</p></td>
+<td><p>Types</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="Statistics-Constraints">
+<h2>Statistics Constraints<a class="headerlink" href="#Statistics-Constraints" title="Permalink to this headline">#</a></h2>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 23%" />
+<col style="width: 54%" />
+<col style="width: 9%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>constraint</p></th>
+<th class="head"><p>parameters</p></th>
+<th class="head"><p>semantic</p></th>
+<th class="head"><p>metric</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>mean_between_range</p></td>
+<td><p>column name, lower, upper</p></td>
+<td><p>Mean must be between range defined by lower and upper bounds.</p></td>
+<td><p>Distribution</p></td>
+</tr>
+<tr class="row-odd"><td><p>stddev_between_range</p></td>
+<td><p>column name, lower, upper</p></td>
+<td><p>Standard deviarion must be between range defined by lower and upper bounds.</p></td>
+<td><p>Distribution</p></td>
+</tr>
+<tr class="row-even"><td><p>quantile_between_range</p></td>
+<td><p>column name, quantile, lower, upper</p></td>
+<td><p>Q-th quantile value must be withing the range defined by lower and upper boundaries.</p></td>
+<td><p>Distribution</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="Table-of-Contents">
 <h2>Table of Contents<a class="headerlink" href="#Table-of-Contents" title="Permalink to this headline">#</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#pre">Installing and Importing Modules</a></p></li>
-<li><p><a class="reference external" href="#distribution">Distribution Metrics Constraints</a></p>
-<ul>
-<li><p>greater_than_number</p></li>
-<li><p>lower_than_number</p></li>
-<li><p>mean_between_range</p></li>
-<li><p>stddev_between_range</p></li>
-<li><p>quantile_between_range</p></li>
-</ul>
-</li>
-<li><p><a class="reference external" href="#frequent">Frequent Items/Frequent Strings Metrics Constraints</a></p>
-<ul>
-<li><p>frequent_strings_in_reference_set</p></li>
-<li><p>n_most_common_items_in_set</p></li>
-</ul>
-</li>
-<li><p><a class="reference external" href="#counts">Counters Constraints</a></p>
-<ul>
-<li><p>total_value_below_number</p></li>
-<li><p>null_values_below_number</p></li>
-</ul>
-</li>
-<li><p><a class="reference external" href="#card">Cardinality Constraints</a></p>
-<ul>
-<li><p>distinct_number_in_range</p></li>
-</ul>
-</li>
+<li><p><a class="reference external" href="#distribution">Distribution Metrics Constraints</a></p></li>
+<li><p><a class="reference external" href="#frequent">Frequent Items/Frequent Strings Metrics Constraints</a></p></li>
+<li><p><a class="reference external" href="#counts">Counters Constraints</a></p></li>
+<li><p><a class="reference external" href="#card">Cardinality Constraints</a></p></li>
+<li><p><a class="reference external" href="#types">Types Constraints</a></p></li>
+<li><p><a class="reference external" href="#comb">Combined Metrics Constraints</a></p></li>
 </ul>
 </section>
 <section id="Installing-whylogs-and-importing-modules">
@@ -717,12 +858,14 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>Then, let’s import the helper functions needed to define the constraints:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="n">ConstraintsBuilder</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">greater_than_number</span><span class="p">,</span>
+    <span class="n">is_in_range</span><span class="p">,</span>
+    <span class="n">is_non_negative</span><span class="p">,</span>
     <span class="n">mean_between_range</span><span class="p">,</span>
     <span class="n">smaller_than_number</span><span class="p">,</span>
     <span class="n">stddev_between_range</span><span class="p">,</span>
@@ -734,7 +877,7 @@ div.rendered_html tbody tr:hover {
 <section id="Examples---Distribution-Metrics-Constraints">
 <h3>Examples - Distribution Metrics Constraints<a class="headerlink" href="#Examples---Distribution-Metrics-Constraints" title="Permalink to this headline">#</a></h3>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -751,7 +894,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
@@ -760,6 +903,9 @@ div.rendered_html tbody tr:hover {
 <span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">smaller_than_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mf">20.5</span><span class="p">))</span>
 <span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">stddev_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
 <span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">quantile_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">2.0</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">is_in_range</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">3.2</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">is_in_range</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;legs&quot;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">is_non_negative</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;legs&quot;</span><span class="p">))</span>
 
 <span class="c1"># animal has missing distribution metrics. this will pass if skip_missing = True and fail otherwise.</span>
 <span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
@@ -782,7 +928,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1453,7 +1599,7 @@ div.rendered_html tbody tr:hover {
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;weight greater than number 0.14&quot;, 0, 1, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;weight mean between 2 and 3 (inclusive)&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;weight smaller than number 20.5&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;weight standard deviation between 1 and 3 (inclusive)&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;weight 0.5-th quantile value between 1.5 and 2.0 (inclusive)&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;animal 0.5-th quantile value between 1.5 and 2.0 (inclusive)&quot;, 0, 1, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 0.0, &quot;stddev&quot;: 0.0, &quot;n&quot;: 0, &quot;max&quot;: NaN, &quot;min&quot;: NaN, &quot;q_01&quot;: null, &quot;q_05&quot;: null, &quot;q_10&quot;: null, &quot;q_25&quot;: null, &quot;median&quot;: null, &quot;q_75&quot;: null, &quot;q_90&quot;: null, &quot;q_95&quot;: null, &quot;q_99&quot;: null}]];
+      const context = [[&quot;weight greater than number 0.14&quot;, 0, 1, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;weight mean between 2 and 3 (inclusive)&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;weight smaller than number 20.5&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;weight standard deviation between 1 and 3 (inclusive)&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;weight 0.5-th quantile value between 1.5 and 2.0 (inclusive)&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;weight is in range [1.1,3.2]&quot;, 0, 1, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 2.3000011000000002, &quot;stddev&quot;: 1.8560694154600064, &quot;n&quot;: 5, &quot;max&quot;: 4.3, &quot;min&quot;: 5.5e-06, &quot;q_01&quot;: 5.5e-06, &quot;q_05&quot;: 5.5e-06, &quot;q_10&quot;: 5.5e-06, &quot;q_25&quot;: 1.3, &quot;median&quot;: 1.8, &quot;q_75&quot;: 4.1, &quot;q_90&quot;: 4.3, &quot;q_95&quot;: 4.3, &quot;q_99&quot;: 4.3}], [&quot;legs is in range [0,6]&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 3.2, &quot;stddev&quot;: 2.280350850198276, &quot;n&quot;: 5, &quot;max&quot;: 6.0, &quot;min&quot;: 0.0, &quot;q_01&quot;: 0.0, &quot;q_05&quot;: 0.0, &quot;q_10&quot;: 0.0, &quot;q_25&quot;: 2.0, &quot;median&quot;: 4.0, &quot;q_75&quot;: 4.0, &quot;q_90&quot;: 6.0, &quot;q_95&quot;: 6.0, &quot;q_99&quot;: 6.0}], [&quot;legs is non negative&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 3.2, &quot;stddev&quot;: 2.280350850198276, &quot;n&quot;: 5, &quot;max&quot;: 6.0, &quot;min&quot;: 0.0, &quot;q_01&quot;: 0.0, &quot;q_05&quot;: 0.0, &quot;q_10&quot;: 0.0, &quot;q_25&quot;: 2.0, &quot;median&quot;: 4.0, &quot;q_75&quot;: 4.0, &quot;q_90&quot;: 6.0, &quot;q_95&quot;: 6.0, &quot;q_99&quot;: 6.0}], [&quot;animal 0.5-th quantile value between 1.5 and 2.0 (inclusive)&quot;, 0, 1, null]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -1617,7 +1763,7 @@ div.rendered_html tbody tr:hover {
 <section id="Frequent-Items/Frequent-Strings-Constraints">
 <h2>Frequent Items/Frequent Strings Constraints<a class="headerlink" href="#Frequent-Items/Frequent-Strings-Constraints" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">n_most_common_items_in_set</span><span class="p">,</span> <span class="n">frequent_strings_in_reference_set</span>
@@ -1627,14 +1773,14 @@ div.rendered_html tbody tr:hover {
 <section id="Examples---Frequent-Items/Frequent-Strings-Constraints">
 <h3>Examples - Frequent Items/Frequent Strings Constraints<a class="headerlink" href="#Examples---Frequent-Items/Frequent-Strings-Constraints" title="Permalink to this headline">#</a></h3>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;animal&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;mosquito&quot;</span><span class="p">],</span>
-    <span class="s2">&quot;legs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+    <span class="s2">&quot;legs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
     <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.3</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">4.1</span><span class="p">,</span> <span class="mf">5.5e-6</span><span class="p">],</span>
 <span class="p">}</span>
 
@@ -1644,13 +1790,14 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
 <span class="n">reference_set</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span><span class="s2">&quot;snake&quot;</span><span class="p">}</span>
 <span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">frequent_strings_in_reference_set</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;animal&quot;</span><span class="p">,</span> <span class="n">reference_set</span><span class="o">=</span><span class="n">reference_set</span><span class="p">))</span>
 <span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">n_most_common_items_in_set</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;animal&quot;</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">reference_set</span><span class="o">=</span><span class="n">reference_set</span><span class="p">))</span>
+
 <span class="n">constraints</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
@@ -1661,7 +1808,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -2332,7 +2479,7 @@ div.rendered_html tbody tr:hover {
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;animal values in set {&#x27;cat&#x27;, &#x27;snake&#x27;}&quot;, 0, 1, {&quot;metric&quot;: &quot;frequent_items&quot;, &quot;frequent_strings_top_10&quot;: [&quot;cat:2&quot;, &quot;snake:2&quot;, &quot;mosquito:1&quot;]}], [&quot;animal 2-most common items in set {&#x27;cat&#x27;, &#x27;snake&#x27;}&quot;, 1, 0, {&quot;metric&quot;: &quot;frequent_items&quot;, &quot;frequent_strings_top_10&quot;: [&quot;cat:2&quot;, &quot;snake:2&quot;, &quot;mosquito:1&quot;]}]];
+      const context = [[&quot;animal values in set {&#x27;snake&#x27;, &#x27;cat&#x27;}&quot;, 0, 1, {&quot;metric&quot;: &quot;frequent_items&quot;, &quot;frequent_strings_top_10&quot;: [&quot;cat:2&quot;, &quot;snake:2&quot;, &quot;mosquito:1&quot;]}], [&quot;animal 2-most common items in set {&#x27;snake&#x27;, &#x27;cat&#x27;}&quot;, 1, 0, {&quot;metric&quot;: &quot;frequent_items&quot;, &quot;frequent_strings_top_10&quot;: [&quot;cat:2&quot;, &quot;snake:2&quot;, &quot;mosquito:1&quot;]}]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -2496,17 +2643,17 @@ div.rendered_html tbody tr:hover {
 <section id="Counters-Constraints">
 <h2>Counters Constraints<a class="headerlink" href="#Counters-Constraints" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">count_below_number</span><span class="p">,</span> <span class="n">null_percentage_below_number</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">no_missing_values</span><span class="p">,</span> <span class="n">count_below_number</span><span class="p">,</span> <span class="n">null_percentage_below_number</span><span class="p">,</span> <span class="n">null_values_below_number</span>
 </pre></div>
 </div>
 </div>
 <section id="Examples---Counters-Constraints">
 <h3>Examples - Counters Constraints<a class="headerlink" href="#Examples---Counters-Constraints" title="Permalink to this headline">#</a></h3>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -2523,12 +2670,15 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
 <span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">count_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;legs&quot;</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
 <span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">null_percentage_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;legs&quot;</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mf">0.05</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">null_values_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;legs&quot;</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">no_missing_values</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;legs&quot;</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">no_missing_values</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;animal&quot;</span><span class="p">))</span>
 
 <span class="n">constraints</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 
@@ -2540,7 +2690,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -3211,7 +3361,7 @@ div.rendered_html tbody tr:hover {
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;count of legs lower than 10&quot;, 1, 0, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 1, &quot;nan&quot;: 1, &quot;inf&quot;: 0}], [&quot;null percentage of legs lower than 0.05&quot;, 0, 1, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 1, &quot;nan&quot;: 1, &quot;inf&quot;: 0}]];
+      const context = [[&quot;count of legs lower than 10&quot;, 1, 0, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 1, &quot;nan&quot;: 1, &quot;inf&quot;: 0}], [&quot;null percentage of legs lower than 0.05&quot;, 0, 1, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 1, &quot;nan&quot;: 1, &quot;inf&quot;: 0}], [&quot;null values of legs lower than 1&quot;, 0, 1, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 1, &quot;nan&quot;: 1, &quot;inf&quot;: 0}], [&quot;legs has no missing values&quot;, 0, 1, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 1, &quot;nan&quot;: 1, &quot;inf&quot;: 0}], [&quot;animal has no missing values&quot;, 1, 0, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 5, &quot;null&quot;: 0, &quot;nan&quot;: 0, &quot;inf&quot;: 0}]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -3375,7 +3525,7 @@ div.rendered_html tbody tr:hover {
 <section id="Cardinality-Constraints">
 <h2>Cardinality Constraints<a class="headerlink" href="#Cardinality-Constraints" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">distinct_number_in_range</span>
@@ -3385,7 +3535,7 @@ div.rendered_html tbody tr:hover {
 <section id="Examples---Cardinality-Constraints">
 <h3>Examples - Cardinality Constraints<a class="headerlink" href="#Examples---Cardinality-Constraints" title="Permalink to this headline">#</a></h3>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -3402,7 +3552,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
@@ -3418,7 +3568,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -4255,7 +4405,7 @@ div.rendered_html tbody tr:hover {
 <section id="Examples---Types-Metrics">
 <h3>Examples - Types Metrics<a class="headerlink" href="#Examples---Types-Metrics" title="Permalink to this headline">#</a></h3>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -4277,7 +4427,7 @@ div.rendered_html tbody tr:hover {
 <section id="Check-Nullable-Types">
 <h4>Check Nullable Types<a class="headerlink" href="#Check-Nullable-Types" title="Permalink to this headline">#</a></h4>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="p">(</span>
@@ -4307,7 +4457,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -5142,12 +5292,17 @@ div.rendered_html tbody tr:hover {
 </section>
 </section>
 </section>
-<section id="Combined-Metrics">
-<h2>Combined Metrics<a class="headerlink" href="#Combined-Metrics" title="Permalink to this headline">#</a></h2>
+<section id="Combined-Constraints">
+<h2>Combined Constraints<a class="headerlink" href="#Combined-Constraints" title="Permalink to this headline">#</a></h2>
 <section id="Examples---Combined-Metrics">
 <h3>Examples - Combined Metrics<a class="headerlink" href="#Examples---Combined-Metrics" title="Permalink to this headline">#</a></h3>
+<p>To create a constraint that checks for a non-nullable type, we combine two separate constraints:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">column</span> <span class="pre">is</span> <span class="pre">nullable</span> <span class="pre">datatype</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">null</span> <span class="pre">values</span> <span class="pre">below</span> <span class="pre">1</span></code></p></li>
+</ul>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -5169,7 +5324,7 @@ div.rendered_html tbody tr:hover {
 <section id="Check-Non-nullable-Types">
 <h4>Check Non-nullable Types<a class="headerlink" href="#Check-Non-nullable-Types" title="Permalink to this headline">#</a></h4>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="p">(</span>
@@ -5213,7 +5368,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -6043,11 +6198,6 @@ div.rendered_html tbody tr:hover {
 " width=100% height=300
         frameBorder=0></iframe></div>
 </div>
-<p>To create a constraint that checks for a non-nullable type, we combine two separate constraints:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">column</span> <span class="pre">is</span> <span class="pre">nullable</span> <span class="pre">datatype</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">null</span> <span class="pre">values</span> <span class="pre">below</span> <span class="pre">1</span></code></p></li>
-</ul>
 </section>
 </section>
 </section>
@@ -6118,6 +6268,9 @@ div.rendered_html tbody tr:hover {
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Simple Constraints - Examples and Usage</a><ul>
+<li><a class="reference internal" href="#Completeness-Constraints">Completeness Constraints</a></li>
+<li><a class="reference internal" href="#Consistency-Constraints">Consistency Constraints</a></li>
+<li><a class="reference internal" href="#Statistics-Constraints">Statistics Constraints</a></li>
 <li><a class="reference internal" href="#Table-of-Contents">Table of Contents</a></li>
 <li><a class="reference internal" href="#Installing-whylogs-and-importing-modules">Installing whylogs and importing modules</a><ul>
 <li><a class="reference internal" href="#Examples---Distribution-Metrics-Constraints">Examples - Distribution Metrics Constraints</a></li>
@@ -6142,7 +6295,7 @@ div.rendered_html tbody tr:hover {
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#Combined-Metrics">Combined Metrics</a><ul>
+<li><a class="reference internal" href="#Combined-Constraints">Combined Constraints</a><ul>
 <li><a class="reference internal" href="#Examples---Combined-Metrics">Examples - Combined Metrics</a><ul>
 <li><a class="reference internal" href="#Check-Non-nullable-Types">Check Non-nullable Types</a></li>
 </ul>

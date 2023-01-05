@@ -414,18 +414,35 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.count_metrics.count_below_number" title="whylogs.core.constraints.factories.count_metrics.count_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count_below_number</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.count_metrics.no_missing_values" title="whylogs.core.constraints.factories.count_metrics.no_missing_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">no_missing_values</span></code></a>(...)</p></td>
+<td><p>Checks that there are no missing values in the column.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.count_metrics.count_below_number" title="whylogs.core.constraints.factories.count_metrics.count_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count_below_number</span></code></a>(...)</p></td>
 <td><p>Number of elements in a column must be below given number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.count_metrics.null_values_below_number" title="whylogs.core.constraints.factories.count_metrics.null_values_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_values_below_number</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.count_metrics.null_values_below_number" title="whylogs.core.constraints.factories.count_metrics.null_values_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_values_below_number</span></code></a>(...)</p></td>
 <td><p>Number of null values must be below given number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.count_metrics.null_percentage_below_number" title="whylogs.core.constraints.factories.count_metrics.null_percentage_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_percentage_below_number</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.count_metrics.null_percentage_below_number" title="whylogs.core.constraints.factories.count_metrics.null_percentage_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_percentage_below_number</span></code></a>(...)</p></td>
 <td><p>Percentage of null values must be below given number.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.factories.count_metrics.no_missing_values">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.count_metrics.</span></span><span class="sig-name descname"><span class="pre">no_missing_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/core/constraints/factories/count_metrics.html#no_missing_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.count_metrics.no_missing_values" title="Permalink to this definition">#</a></dt>
+<dd><p>Checks that there are no missing values in the column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Column the constraint is applied to</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint">whylogs.core.constraints.metric_constraints.MetricConstraint</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="whylogs.core.constraints.factories.count_metrics.count_below_number">
 <span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.count_metrics.</span></span><span class="sig-name descname"><span class="pre">count_below_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/core/constraints/factories/count_metrics.html#count_below_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.count_metrics.count_below_number" title="Permalink to this definition">#</a></dt>
@@ -566,6 +583,7 @@
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a><ul>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#functions">Functions</a><ul>
+<li><a class="reference internal" href="#whylogs.core.constraints.factories.count_metrics.no_missing_values">no_missing_values</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.count_metrics.count_below_number">count_below_number</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.count_metrics.null_values_below_number">null_values_below_number</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.count_metrics.null_percentage_below_number">null_percentage_below_number</a></li>
