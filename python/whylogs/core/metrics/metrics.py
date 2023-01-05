@@ -49,8 +49,8 @@ class MetricConfig:
             "emoticon": (0x1F600, 0x1F64F),
             "control": (0x00, 0x1F),
             "digits": (0x30, 0x39),
-            "latin-lower": (0x41, 0x5A),
-            "latin-upper": (0x61, 0x7A),
+            "latin-upper": (0x41, 0x5A),
+            "latin-lower": (0x61, 0x7A),
             "basic-latin": (0x00, 0x7F),
             "extended-latin": (0x0080, 0x02AF),
         }
