@@ -99,13 +99,12 @@ class UnicodeRangeMetric(MultiMetric):
             for range_name, range_count in range_counter.items():
                 range_data[range_name].append(range_count)
 
-        submetric_col = PreprocessedColumn()
-        submetric_col.list.ints = lengths
+        submetric_col = PreprocessedColumn.apply(lengths)
         for metric in self.submetrics[_STRING_LENGTH].values():
             metric.columnar_update(submetric_col)
 
         for range_name, range_list in range_data.items():
-            submetric_col.list.ints = range_list
+            submetric_col = PreprocessedColumn.apply(range_list)
             for metric in self.submetrics[range_name].values():
                 metric.columnar_update(submetric_col)
 
