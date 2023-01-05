@@ -493,13 +493,12 @@
             <span class="k">for</span> <span class="n">range_name</span><span class="p">,</span> <span class="n">range_count</span> <span class="ow">in</span> <span class="n">range_counter</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">range_data</span><span class="p">[</span><span class="n">range_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">range_count</span><span class="p">)</span>
 
-        <span class="n">submetric_col</span> <span class="o">=</span> <span class="n">PreprocessedColumn</span><span class="p">()</span>
-        <span class="n">submetric_col</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">ints</span> <span class="o">=</span> <span class="n">lengths</span>
+        <span class="n">submetric_col</span> <span class="o">=</span> <span class="n">PreprocessedColumn</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="p">[</span><span class="n">_STRING_LENGTH</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">metric</span><span class="o">.</span><span class="n">columnar_update</span><span class="p">(</span><span class="n">submetric_col</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">range_name</span><span class="p">,</span> <span class="n">range_list</span> <span class="ow">in</span> <span class="n">range_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">submetric_col</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">ints</span> <span class="o">=</span> <span class="n">range_list</span>
+            <span class="n">submetric_col</span> <span class="o">=</span> <span class="n">PreprocessedColumn</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">range_list</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="p">[</span><span class="n">range_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="n">metric</span><span class="o">.</span><span class="n">columnar_update</span><span class="p">(</span><span class="n">submetric_col</span><span class="p">)</span>
 
