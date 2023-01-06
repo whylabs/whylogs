@@ -162,10 +162,26 @@ class MetricConstraint:
             else:
                 logger.info(
                     f"validate could not get metric {metric_selector.metric_name} from column "
-                    f"{metric_selector.column_name} but require_column_existence is set so returning True. "
+                    f"{metric_selector.column_name} but require_column_existence is false so returning True. "
                     f"Available metrics on column are: {column_profile.get_metric_component_paths()}"
                 )
                 return (True, None)
+        if len(metrics) == 1 and metrics[0].namespace == "distribution":
+            if metrics[0].kll.value.is_empty() and self.require_column_existence:
+                logger.info(
+                    f"validate reached empty distribution metrics from column "
+                    f"{metric_selector.column_name} but require_column_existence is set so returning False. "
+                    f"Available metrics on column are: {column_profile.get_metric_component_paths()}"
+                )
+                return (False, None)
+            if metrics[0].kll.value.is_empty() and not self.require_column_existence:
+                logger.info(
+                    f"validate reached empty distribution metrics from column "
+                    f"{metric_selector.column_name} but require_column_existence is false so returning True. "
+                    f"Available metrics on column are: {column_profile.get_metric_component_paths()}"
+                )
+                return (True, None)
+
         validate_result = self._validate_metrics(metrics)
         metric_summary = self._get_metric_summary(metrics)
         return (validate_result, metric_summary)
