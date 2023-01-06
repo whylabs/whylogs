@@ -8,7 +8,7 @@ if shutil.which("pandoc") is None:
     print("Pandoc is required to build our documentation.")
     sys.exit(1)
 
-version = "1.1.20"
+version = "1.1.21-dev0"
 
 project = "whylogs"
 author = "whylogs developers"
