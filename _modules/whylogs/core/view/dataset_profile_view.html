@@ -415,7 +415,11 @@
     <span class="n">MetricComponentMessage</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.utils</span> <span class="kn">import</span> <span class="n">read_delimited_protobuf</span><span class="p">,</span> <span class="n">write_delimited_protobuf</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ensure_timezone</span><span class="p">,</span>
+    <span class="n">read_delimited_protobuf</span><span class="p">,</span>
+    <span class="n">write_delimited_protobuf</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.utils.timestamp_calculations</span> <span class="kn">import</span> <span class="n">to_utc_milliseconds</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.view.column_profile_view</span> <span class="kn">import</span> <span class="n">ColumnProfileView</span>
 
@@ -446,6 +450,10 @@
         <span class="n">metrics</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="k">if</span> <span class="n">dataset_timestamp</span><span class="p">:</span>
+            <span class="n">ensure_timezone</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">creation_timestamp</span><span class="p">:</span>
+            <span class="n">ensure_timezone</span><span class="p">(</span><span class="n">creation_timestamp</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">columns</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="o">=</span> <span class="n">dataset_timestamp</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_creation_timestamp</span> <span class="o">=</span> <span class="n">creation_timestamp</span>
