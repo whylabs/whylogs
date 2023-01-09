@@ -674,7 +674,7 @@ div.rendered_html tbody tr:hover {
 <section id="Installing-whylogs">
 <h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install whylogs
@@ -710,7 +710,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;whylogs.core.datatypes.AnyType at 0x7fcc4c89ba00&gt;
+&lt;whylogs.core.datatypes.AnyType at 0x7fcf420ceee0&gt;
 </pre></div></div>
 </div>
 </section>
@@ -722,8 +722,10 @@ div.rendered_html tbody tr:hover {
 <li><p><strong>types</strong>: Inferred types, such as boolean, string or fractional</p></li>
 <li><p><strong>ints</strong>: Max and Min Values</p></li>
 <li><p><strong>distribution</strong>: min,max, median, quantile values</p></li>
-<li><p><strong>cardinality</strong></p></li>
-<li><p><strong>frequent_items</strong></p></li>
+<li><p><strong>cardinality</strong>: Number of different values</p></li>
+<li><p><strong>frequent_items</strong>: Most common values</p></li>
+<li><p><strong>unicode_range</strong>: Count of characters used in string values</p></li>
+<li><p><strong>condition_count</strong>: Count how often values meet specified conditions</p></li>
 </ul>
 </section>
 <section id="Configuring-Metrics-in-the-Dataset-Schema">
@@ -741,7 +743,7 @@ div.rendered_html tbody tr:hover {
 <p>Let’s see how we can configure our Schema to track only the above metrics for the related types.</p>
 <p>Let’s create a sample dataframe to illustrate:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pandas if you don&#39;t have it already</span>
@@ -759,8 +761,8 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<p>whylogs use <code class="docutils literal notranslate"><span class="pre">Resolvers</span></code> in order to define how a column name or data type gets mapped to different metrics.</p>
-<p>We will need to create a custom Resolver class in order to customize it.</p>
+<p>whylogs uses <code class="docutils literal notranslate"><span class="pre">Resolvers</span></code> in order to define how a column name or data type gets mapped to different metrics.</p>
+<p>We will create a custom Resolver class in order to customize it.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -811,7 +813,9 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div>
+  <div id="df-7e7813dc-2aa6-4987-8cc4-341e87cf2c52">
+    <div class="colab-df-container">
+      <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -829,7 +833,9 @@ div.rendered_html tbody tr:hover {
   <thead>
     <tr style="text-align: right;">
       <th></th>
+      <th>counts/inf</th>
       <th>counts/n</th>
+      <th>counts/nan</th>
       <th>counts/null</th>
       <th>frequent_items/frequent_strings</th>
       <th>type</th>
@@ -878,14 +884,18 @@ div.rendered_html tbody tr:hover {
       <th></th>
       <th></th>
       <th></th>
+      <th></th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>col1</th>
+      <td>0</td>
       <td>3</td>
       <td>0</td>
-      <td>[FrequentItem(value='1.000000', est=1, upper=1...</td>
+      <td>0</td>
+      <td>[FrequentItem(value='1', est=1, upper=1, lower...</td>
       <td>SummaryType.COLUMN</td>
       <td>0</td>
       <td>0</td>
@@ -909,7 +919,9 @@ div.rendered_html tbody tr:hover {
     </tr>
     <tr>
       <th>col2</th>
+      <td>0</td>
       <td>3</td>
+      <td>0</td>
       <td>0</td>
       <td>NaN</td>
       <td>SummaryType.COLUMN</td>
@@ -935,7 +947,9 @@ div.rendered_html tbody tr:hover {
     </tr>
     <tr>
       <th>col3</th>
+      <td>0</td>
       <td>3</td>
+      <td>0</td>
       <td>0</td>
       <td>NaN</td>
       <td>SummaryType.COLUMN</td>
@@ -961,7 +975,9 @@ div.rendered_html tbody tr:hover {
     </tr>
     <tr>
       <th>col4</th>
+      <td>0</td>
       <td>3</td>
+      <td>0</td>
       <td>0</td>
       <td>NaN</td>
       <td>SummaryType.COLUMN</td>
@@ -987,7 +1003,82 @@ div.rendered_html tbody tr:hover {
     </tr>
   </tbody>
 </table>
-</div></div>
+</div>
+      <button class="colab-df-convert" onclick="convertToInteractive('df-7e7813dc-2aa6-4987-8cc4-341e87cf2c52')"
+              title="Convert this dataframe to an interactive table."
+              style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+       width="24px">
+    <path d="M0 0h24v24H0V0z" fill="none"/>
+    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  </svg>
+      </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      flex-wrap:wrap;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+      <script>
+        const buttonEl =
+          document.querySelector('#df-7e7813dc-2aa6-4987-8cc4-341e87cf2c52 button.colab-df-convert');
+        buttonEl.style.display =
+          google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+        async function convertToInteractive(key) {
+          const element = document.querySelector('#df-7e7813dc-2aa6-4987-8cc4-341e87cf2c52');
+          const dataTable =
+            await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                     [key], {});
+          if (!dataTable) return;
+
+          const docLinkHtml = 'Like what you see? Visit the ' +
+            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+            + ' to learn more about interactive tables.';
+          element.innerHTML = '';
+          dataTable['output_type'] = 'display_data';
+          await google.colab.output.renderOutput(dataTable, element);
+          const docLink = document.createElement('div');
+          docLink.innerHTML = docLinkHtml;
+          element.appendChild(docLink);
+        }
+      </script>
+    </div>
+  </div></div>
 </div>
 <p>Notice we have <code class="docutils literal notranslate"><span class="pre">counts</span></code> and <code class="docutils literal notranslate"><span class="pre">types</span></code> metrics for every type, <code class="docutils literal notranslate"><span class="pre">distribution</span></code> metrics only for <code class="docutils literal notranslate"><span class="pre">col2</span></code> and <code class="docutils literal notranslate"><span class="pre">col4</span></code> (floats) and <code class="docutils literal notranslate"><span class="pre">frequent_items</span></code> only for <code class="docutils literal notranslate"><span class="pre">col1</span></code> (ints).</p>
 <p>That’s precisely what we wanted.</p>
@@ -1059,7 +1150,9 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div>
+  <div id="df-57ac0562-b0a3-4b72-9c0f-5670aa2977f4">
+    <div class="colab-df-container">
+      <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -1077,7 +1170,9 @@ div.rendered_html tbody tr:hover {
   <thead>
     <tr style="text-align: right;">
       <th></th>
+      <th>counts/inf</th>
       <th>counts/n</th>
+      <th>counts/nan</th>
       <th>counts/null</th>
       <th>type</th>
       <th>distribution/max</th>
@@ -1120,12 +1215,16 @@ div.rendered_html tbody tr:hover {
       <th></th>
       <th></th>
       <th></th>
+      <th></th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>col1</th>
+      <td>0.0</td>
       <td>3.0</td>
+      <td>0.0</td>
       <td>0.0</td>
       <td>SummaryType.COLUMN</td>
       <td>NaN</td>
@@ -1148,6 +1247,8 @@ div.rendered_html tbody tr:hover {
     </tr>
     <tr>
       <th>col2</th>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>SummaryType.COLUMN</td>
@@ -1173,6 +1274,8 @@ div.rendered_html tbody tr:hover {
       <th>col3</th>
       <td>NaN</td>
       <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>SummaryType.COLUMN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1194,6 +1297,8 @@ div.rendered_html tbody tr:hover {
     </tr>
     <tr>
       <th>col4</th>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>SummaryType.COLUMN</td>
@@ -1219,6 +1324,8 @@ div.rendered_html tbody tr:hover {
       <th>col5</th>
       <td>NaN</td>
       <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>SummaryType.COLUMN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1240,9 +1347,793 @@ div.rendered_html tbody tr:hover {
     </tr>
   </tbody>
 </table>
-</div></div>
+</div>
+      <button class="colab-df-convert" onclick="convertToInteractive('df-57ac0562-b0a3-4b72-9c0f-5670aa2977f4')"
+              title="Convert this dataframe to an interactive table."
+              style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+       width="24px">
+    <path d="M0 0h24v24H0V0z" fill="none"/>
+    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  </svg>
+      </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      flex-wrap:wrap;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+      <script>
+        const buttonEl =
+          document.querySelector('#df-57ac0562-b0a3-4b72-9c0f-5670aa2977f4 button.colab-df-convert');
+        buttonEl.style.display =
+          google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+        async function convertToInteractive(key) {
+          const element = document.querySelector('#df-57ac0562-b0a3-4b72-9c0f-5670aa2977f4');
+          const dataTable =
+            await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                     [key], {});
+          if (!dataTable) return;
+
+          const docLinkHtml = 'Like what you see? Visit the ' +
+            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+            + ' to learn more about interactive tables.';
+          element.innerHTML = '';
+          dataTable['output_type'] = 'display_data';
+          await google.colab.output.renderOutput(dataTable, element);
+          const docLink = document.createElement('div');
+          docLink.innerHTML = docLinkHtml;
+          element.appendChild(docLink);
+        }
+      </script>
+    </div>
+  </div></div>
 </div>
 <p>Note that existing columns that are not specified in your custom resolver won’t have any metrics tracked. In the example above, we added a <code class="docutils literal notranslate"><span class="pre">col5</span></code> column, but since we didn’t link any metrics to it, all of the metrics are <code class="docutils literal notranslate"><span class="pre">NaN</span></code>s.</p>
+</section>
+</section>
+<section id="Declarative-Schema">
+<h2>Declarative Schema<a class="headerlink" href="#Declarative-Schema" title="Permalink to this headline">#</a></h2>
+<p>In the previous section, we created subclasses of <code class="docutils literal notranslate"><span class="pre">Resolver</span></code> and implemented its <code class="docutils literal notranslate"><span class="pre">resolve()</span></code> method using control flow. The <code class="docutils literal notranslate"><span class="pre">DeclarativeSchema</span></code> allows us to customize the metrics present in a column by simply listing the metrics we want by data type or column name without implementing a <code class="docutils literal notranslate"><span class="pre">Resolver</span></code> subclass.</p>
+<section id="Declarative-Schema-Specification">
+<h3>Declarative Schema Specification<a class="headerlink" href="#Declarative-Schema-Specification" title="Permalink to this headline">#</a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">ResolverSpec</span></code> specifies a list of metrics to use for columns that match it. We can match columns by name or by type. The column name takes precedence if both are given. Each <code class="docutils literal notranslate"><span class="pre">ResolverSpec</span></code> has a list of <code class="docutils literal notranslate"><span class="pre">MetricSpec</span></code> that specify the <code class="docutils literal notranslate"><span class="pre">Metric</span></code>s (and optionally custom configurations) to apply to matching metrics. For example:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Condition</span><span class="p">,</span>
+    <span class="n">ConditionCountConfig</span><span class="p">,</span>
+    <span class="n">ConditionCountMetric</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Predicate</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">COLUMN_METRICS</span><span class="p">,</span> <span class="n">MetricSpec</span><span class="p">,</span> <span class="n">ResolverSpec</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">AnyType</span><span class="p">,</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">Fractional</span><span class="p">,</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">String</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">()</span>
+
+
+<span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">ResolverSpec</span><span class="p">(</span>
+            <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;col1&quot;</span><span class="p">,</span>
+            <span class="n">metrics</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+                <span class="n">MetricSpec</span><span class="p">(</span>
+                    <span class="n">ConditionCountMetric</span><span class="p">,</span>
+                    <span class="n">ConditionCountConfig</span><span class="p">(</span>
+                        <span class="n">conditions</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s2">&quot;below 42&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">42</span><span class="p">),</span>
+                            <span class="s2">&quot;above 42&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">42</span><span class="p">),</span>
+                        <span class="p">}</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ResolverSpec</span><span class="p">(</span>
+            <span class="n">column_type</span><span class="o">=</span><span class="n">String</span><span class="p">,</span>
+            <span class="n">metrics</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+                <span class="n">MetricSpec</span><span class="p">(</span>
+                    <span class="n">ConditionCountMetric</span><span class="p">,</span>
+                    <span class="n">ConditionCountConfig</span><span class="p">(</span>
+                        <span class="n">conditions</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;[a-zA-Z]+&quot;</span><span class="p">)),</span>
+                            <span class="s2">&quot;digit&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;[0-9]+&quot;</span><span class="p">)),</span>
+                        <span class="p">}</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;col1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;col2&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span> <span class="s2">&quot;col3&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">],</span> <span class="s2">&quot;col4&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]}</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+<span class="n">prof_view</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+  <div id="df-7ba37396-70d9-4c07-ab1f-e24703c7a554">
+    <div class="colab-df-container">
+      <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>condition_count/above 42</th>
+      <th>condition_count/below 42</th>
+      <th>condition_count/total</th>
+      <th>distribution/max</th>
+      <th>distribution/mean</th>
+      <th>distribution/median</th>
+      <th>distribution/min</th>
+      <th>distribution/n</th>
+      <th>distribution/q_01</th>
+      <th>distribution/q_05</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+      <th>distribution/stddev</th>
+      <th>type</th>
+      <th>condition_count/alpha</th>
+      <th>condition_count/digit</th>
+      <th>frequent_items/frequent_strings</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>col1</th>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>col2</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>col3</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>3.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>[FrequentItem(value='c', est=1, upper=1, lower...</td>
+    </tr>
+    <tr>
+      <th>col4</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+      <button class="colab-df-convert" onclick="convertToInteractive('df-7ba37396-70d9-4c07-ab1f-e24703c7a554')"
+              title="Convert this dataframe to an interactive table."
+              style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+       width="24px">
+    <path d="M0 0h24v24H0V0z" fill="none"/>
+    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  </svg>
+      </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      flex-wrap:wrap;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+      <script>
+        const buttonEl =
+          document.querySelector('#df-7ba37396-70d9-4c07-ab1f-e24703c7a554 button.colab-df-convert');
+        buttonEl.style.display =
+          google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+        async function convertToInteractive(key) {
+          const element = document.querySelector('#df-7ba37396-70d9-4c07-ab1f-e24703c7a554');
+          const dataTable =
+            await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                     [key], {});
+          if (!dataTable) return;
+
+          const docLinkHtml = 'Like what you see? Visit the ' +
+            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+            + ' to learn more about interactive tables.';
+          element.innerHTML = '';
+          dataTable['output_type'] = 'display_data';
+          await google.colab.output.renderOutput(dataTable, element);
+          const docLink = document.createElement('div');
+          docLink.innerHTML = docLinkHtml;
+          element.appendChild(docLink);
+        }
+      </script>
+    </div>
+  </div></div>
+</div>
+<p>We can now pass <code class="docutils literal notranslate"><span class="pre">schema</span></code> to <code class="docutils literal notranslate"><span class="pre">why.log()</span></code> to log data according to the schema. Note that we pass the <code class="docutils literal notranslate"><span class="pre">Metric</span></code> class to the the <code class="docutils literal notranslate"><span class="pre">MetricSpec</span></code> constructor, not an instance. In this example, <code class="docutils literal notranslate"><span class="pre">col1</span></code> will have a <code class="docutils literal notranslate"><span class="pre">ConditionCountMetric</span></code> that tracks how often the column entries are above or below 42. Any string column will track how many entries are alphabetic and how many are numeric.</p>
+<p><code class="docutils literal notranslate"><span class="pre">whylogs.core.resolvers.COLUMN_METRICS</span></code> is a list of <code class="docutils literal notranslate"><span class="pre">MetricSpec</span></code>s for the metrics WhyLabs expects in each column. There are also some predefined <code class="docutils literal notranslate"><span class="pre">ResolverSpec</span></code> lists to cover common use cases. For example, <code class="docutils literal notranslate"><span class="pre">STANDARD_RESOLVER</span></code> specifies the same metrics as the <code class="docutils literal notranslate"><span class="pre">StandardResolver</span></code>:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">STANDARD_RESOLVER</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span>
+        <span class="n">column_type</span><span class="o">=</span><span class="n">Integral</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">ints</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span>
+        <span class="n">column_type</span><span class="o">=</span><span class="n">Fractional</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span>
+        <span class="n">column_type</span><span class="o">=</span><span class="n">String</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">unicode_range</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">AnyType</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span><span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>There are also declarations for * <code class="docutils literal notranslate"><span class="pre">LIMITED_TRACKING_RESOLVER</span></code> just tracks the metrics required by WhyLogs, plus the distribution metric for numeric columns. * <code class="docutils literal notranslate"><span class="pre">HISTOGRAM_COUNTING_TRACKING_RESOLVER</span></code> tracks only the distribution metric for each column.</p>
+<p>These provide handy starting places if we just want to add one or two metrics to one of these standard schema using the <code class="docutils literal notranslate"><span class="pre">add_resolver()</span></code> method:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">STANDARD_RESOLVER</span>
+
+<span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
+<span class="n">extra_metric</span> <span class="o">=</span> <span class="n">ResolverSpec</span><span class="p">(</span>
+    <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;col1&quot;</span><span class="p">,</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+        <span class="n">MetricSpec</span><span class="p">(</span>
+            <span class="n">ConditionCountMetric</span><span class="p">,</span>
+            <span class="n">ConditionCountConfig</span><span class="p">(</span>
+                <span class="n">conditions</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;below 42&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">42</span><span class="p">),</span>
+                    <span class="s2">&quot;above 42&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">42</span><span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver</span><span class="p">(</span><span class="n">extra_metric</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+<span class="n">prof_view</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+  <div id="df-33b7d886-6555-4e01-ac30-004238afcc5e">
+    <div class="colab-df-container">
+      <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cardinality/est</th>
+      <th>cardinality/lower_1</th>
+      <th>cardinality/upper_1</th>
+      <th>condition_count/above 42</th>
+      <th>condition_count/below 42</th>
+      <th>condition_count/total</th>
+      <th>counts/inf</th>
+      <th>counts/n</th>
+      <th>counts/nan</th>
+      <th>counts/null</th>
+      <th>distribution/max</th>
+      <th>distribution/mean</th>
+      <th>distribution/median</th>
+      <th>distribution/min</th>
+      <th>distribution/n</th>
+      <th>distribution/q_01</th>
+      <th>distribution/q_05</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+      <th>distribution/stddev</th>
+      <th>frequent_items/frequent_strings</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+      <th>type</th>
+      <th>types/boolean</th>
+      <th>types/fractional</th>
+      <th>types/integral</th>
+      <th>types/object</th>
+      <th>types/string</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>col1</th>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.00015</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3.0</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>3</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>[FrequentItem(value='1', est=1, upper=1, lower...</td>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>col2</th>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.00015</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>4.0</td>
+      <td>4.0</td>
+      <td>3.0</td>
+      <td>3</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>col3</th>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.00015</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.0</td>
+      <td>[FrequentItem(value='c', est=1, upper=1, lower...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>col4</th>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.00015</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>4.0</td>
+      <td>4.0</td>
+      <td>3.0</td>
+      <td>3</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+      <button class="colab-df-convert" onclick="convertToInteractive('df-33b7d886-6555-4e01-ac30-004238afcc5e')"
+              title="Convert this dataframe to an interactive table."
+              style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+       width="24px">
+    <path d="M0 0h24v24H0V0z" fill="none"/>
+    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  </svg>
+      </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      flex-wrap:wrap;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+      <script>
+        const buttonEl =
+          document.querySelector('#df-33b7d886-6555-4e01-ac30-004238afcc5e button.colab-df-convert');
+        buttonEl.style.display =
+          google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+        async function convertToInteractive(key) {
+          const element = document.querySelector('#df-33b7d886-6555-4e01-ac30-004238afcc5e');
+          const dataTable =
+            await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                     [key], {});
+          if (!dataTable) return;
+
+          const docLinkHtml = 'Like what you see? Visit the ' +
+            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+            + ' to learn more about interactive tables.';
+          element.innerHTML = '';
+          dataTable['output_type'] = 'display_data';
+          await google.colab.output.renderOutput(dataTable, element);
+          const docLink = document.createElement('div');
+          docLink.innerHTML = docLinkHtml;
+          element.appendChild(docLink);
+        }
+      </script>
+    </div>
+  </div></div>
+</div>
+<p>This example adds a condition count metric to <code class="docutils literal notranslate"><span class="pre">col1</span></code> in addition to the usual default metrics.</p>
 </section>
 </section>
 </section>
@@ -1318,6 +2209,10 @@ div.rendered_html tbody tr:hover {
 <li><a class="reference internal" href="#Configuring-Metrics-in-the-Dataset-Schema">Configuring Metrics in the Dataset Schema</a><ul>
 <li><a class="reference internal" href="#Metrics-per-Type">Metrics per Type</a></li>
 <li><a class="reference internal" href="#Metrics-per-Column">Metrics per Column</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Declarative-Schema">Declarative Schema</a><ul>
+<li><a class="reference internal" href="#Declarative-Schema-Specification">Declarative Schema Specification</a></li>
 </ul>
 </li>
 </ul>
