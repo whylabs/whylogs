@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from io import BytesIO
 from typing import List, Optional
@@ -51,7 +51,7 @@ class DistanceFunction(Enum):
 
 @dataclass(frozen=True)
 class EmbeddingConfig(MetricConfig):
-    references: np.ndarray  # columns are reference vectors
+    references: np.ndarray = field(default_factory = lambda : np.zeros((1,1))) # columns are reference vectors
     labels: Optional[List[str]] = None
     distance_fn: DistanceFunction = DistanceFunction.cosine
 
@@ -60,7 +60,7 @@ class EmbeddingConfig(MetricConfig):
             raise ValueError("Embedding reference matrix must be 2 dimensional")
 
         if self.labels:
-            if len(self.labels) == self.references.shape[1]:
+            if len(self.labels) != self.references.shape[1]:
                 raise ValueError(
                     f"Number of labels ({len(self.labels)}) must match number of reference vectors ({self.references.shape[1]})"
                 )
@@ -101,29 +101,32 @@ class EmbeddingMetric(MultiMetric):
             self.submetrics[submetric][key].columnar_update(data)
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
-        X = data.list.objs  # TODO: throw if not 2D
-        if not X:
+        if not data.list.objs:
             return OperationResult.ok(0)
 
-        X_ref_dists = self.distance_fn.value(X, self.references.value)
-        X_ref_closest = np.argmin(self.X_ref_dists, axis=1)
-        closest: List[str] = []
-        for i in range(X_ref_dists.shape[1]):
-            closest.append(self.lables[X_ref_closest[i]])
-            self._update_submetrics(f"{i}_distance", PreprocessedColumn.apply(X_ref_dists[i]))
+        for X in data.list.objs:  # TODO: throw if not 2D ndarray
+            print(f"data shape: {X.shape}    ref shape: {self.references.value.shape}    labels: {self.labels}")
+            X_ref_dists = self.distance_fn(X, self.references.value)
+            X_ref_closest = np.argmin(X_ref_dists, axis=1)
+            print(f"ref dists: {X_ref_dists}")
+            print(f"closest: {X_ref_closest}")
+            closest: List[str] = []
+            for i in range(X_ref_dists.shape[1]):
+                closest.append(self.labels[X_ref_closest[i]])
+                self._update_submetrics(f"{self.labels[i]}_distance", PreprocessedColumn.apply(X_ref_dists[i]))
 
-        self._update_submetrics("closest", PreprocessedColumn.apply(closest))
+            self._update_submetrics("closest", PreprocessedColumn.apply(closest))
 
         return OperationResult.ok(1)
 
     @classmethod
     def zero(cls, cfg: Optional[EmbeddingConfig] = None) -> "EmbeddingMetric":
-        cfg = cfg or EmbeddingConfig(np.zeros((1, 1)))
+        cfg = cfg or EmbeddingConfig()
         if not isinstance(cfg, EmbeddingConfig):
             raise ValueError("EmbeddingMetric.zero() requires EmbeddingConfig argument")
 
         return EmbeddingMetric(
-            MatrixComponent(cfg.references),
-            cfg.labels or [str(i) for i in range(cfg.references.shape[1])],
-            cfg.distance_fn,
+            references = MatrixComponent(cfg.references),
+            labels = cfg.labels or [str(i) for i in range(cfg.references.shape[1])],
+            distance_fn = cfg.distance_fn,
         )
