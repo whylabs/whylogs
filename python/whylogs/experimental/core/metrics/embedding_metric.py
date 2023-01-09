@@ -1,28 +1,22 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from io import BytesIO
+from typing import List, Optional
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_distances, euclidean_distances
 
-from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.deserializers import deserializer
-from whylogs.core.metrics.metric_components import (
-    FractionalComponent,
-    IntegralComponent,
-    MetricComponent,
-)
-from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
+from whylogs.core.metrics.metric_components import MetricComponent
+from whylogs.core.metrics.metrics import MetricConfig, OperationResult
 from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.metrics.serializers import serializer
-from whylogs.core.preprocessing import ListView, PreprocessedColumn
-from whylogs.core.proto import MetricComponentMessage, MetricMessage
-from whylogs.core.resolvers import Resolver, StandardResolver
-from whylogs.core.schema import ColumnSchema
-
+from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.proto import MetricComponentMessage
 
 # TODO: share these with NLP code
+
 
 def _serialize_ndarray(a: np.ndarray) -> bytes:
     bio = BytesIO()
@@ -59,17 +53,17 @@ class DistanceFunction(Enum):
 class EmbeddingConfig(MetricConfig):
     references: np.ndarray  # columns are reference vectors
     labels: Optional[List[str]] = None
-    distance_fn: DistanceFunction = cosine
+    distance_fn: DistanceFunction = DistanceFunction.cosine
 
     def __post_init__(self) -> None:
-        if len(self.references.shape()) != 2:
+        if len(self.references.shape) != 2:
             raise ValueError("Embedding reference matrix must be 2 dimensional")
 
         if self.labels:
-            if len(self.labels) == self.references.shape()[1]:
-                raise ValueError(f"Number of labes ({len(self.labels}) must match number of reference vectors ({self.references.shape()[1]")
-        else:
-            self.labels = [str(i) for i in range(self.references.shape()[1])]
+            if len(self.labels) == self.references.shape[1]:
+                raise ValueError(
+                    f"Number of labels ({len(self.labels)}) must match number of reference vectors ({self.references.shape[1]})"
+                )
 
 
 @dataclass
@@ -84,17 +78,21 @@ class EmbeddingMetric(MultiMetric):
                 "distribution": StandardMetric.distribution.zero(),
                 "counts": StandardMetric.counts.zero(),
                 "types": StandardMetric.types.zero(),
-            } for label in labels
+            }
+            for label in self.labels
         }
-        submetrics.update({  # TODO: these might want to be rates?
-            f"{label}_count": {
-                "distribution": StandardMetric.distribution.zero(),
-                "counts": StandardMetric.counts.zero(),
-                "types": StandardMetric.types.zero(),
-                "cardinality": StandardMetric.cardinality.zero(),
-                "ints": StandardMetric.ints.zero(),
-            } for label in labels
-        })
+        submetrics.update(
+            {  # TODO: these might want to be rates?
+                f"{label}_count": {
+                    "distribution": StandardMetric.distribution.zero(),
+                    "counts": StandardMetric.counts.zero(),
+                    "types": StandardMetric.types.zero(),
+                    "cardinality": StandardMetric.cardinality.zero(),
+                    "ints": StandardMetric.ints.zero(),
+                }
+                for label in self.labels
+            }
+        )
         super().__init__(submetrics)
 
     @property
@@ -106,12 +104,13 @@ class EmbeddingMetric(MultiMetric):
         if not X:
             return OperationResult.ok(0)
 
-        X_ref_dists = self.deistance_fn.value(X, self.references.value)
+        X_ref_dists = self.distance_fn.value(X, self.references.value)
         X_ref_closest = np.argmin(self.X_ref_dists, axis=1)
-        for i in range(X_ref_dists.shape()[1]):
+        for i in range(X_ref_dists.shape[1]):
             closest = X_ref_closest[i]
+            print(closest)
             # update submetrics[f"{closest}_distance"] with PreprocessedColumn.apply([X_ref_dist[i]])
-            # update submetrics[f"{closest}_count"] 
+            # update submetrics[f"{closest}_count"]
         return OperationResult.ok(1)
 
     @classmethod
@@ -121,8 +120,7 @@ class EmbeddingMetric(MultiMetric):
             raise ValueError("EmbeddingMetric.zero() requires EmbeddingConfig argument")
 
         return EmbeddingMetric(
-            MattrixComponent(cfg.references),
-            cfg.labels,
+            MatrixComponent(cfg.references),
+            cfg.labels or [str(i) for i in range(cfg.references.shape[1])],
             cfg.distance_fn,
         )
-                
