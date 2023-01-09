@@ -112,7 +112,7 @@ class TimedRollingLogger(Logger):
 
         self._current_profile: DatasetProfile = DatasetProfile(
             schema=schema,
-            dataset_timestamp=datetime.utcfromtimestamp(self._current_batch_timestamp),
+            dataset_timestamp=datetime.fromtimestamp(self._current_batch_timestamp, timezone.utc),
         )
 
         initial_run_after = (self._current_batch_timestamp + self.interval) - now
