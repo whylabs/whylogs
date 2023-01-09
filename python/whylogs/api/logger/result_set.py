@@ -10,6 +10,7 @@ from whylogs.core import DatasetProfile, DatasetProfileView, Segment
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.model_performance_metrics import ModelPerformanceMetrics
 from whylogs.core.segmentation_partition import SegmentationPartition
+from whylogs.core.utils import ensure_timezone
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 
 logger = getLogger(__name__)
@@ -92,6 +93,7 @@ class ResultSet(ABC):
         return [self.view()]
 
     def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
+        ensure_timezone(dataset_timestamp)
         profile = self.profile()
         if profile is None:
             raise ValueError("Cannot set timestamp on a result set without a profile!")

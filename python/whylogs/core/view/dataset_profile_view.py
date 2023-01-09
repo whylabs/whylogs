@@ -21,7 +21,11 @@ from whylogs.core.proto import (
     MetricComponentMessage,
 )
 from whylogs.core.stubs import pd
-from whylogs.core.utils import read_delimited_protobuf, write_delimited_protobuf
+from whylogs.core.utils import (
+    ensure_timezone,
+    read_delimited_protobuf,
+    write_delimited_protobuf,
+)
 from whylogs.core.utils.timestamp_calculations import to_utc_milliseconds
 from whylogs.core.view.column_profile_view import ColumnProfileView
 
@@ -52,6 +56,10 @@ class DatasetProfileView(Writable):
         metrics: Optional[Dict[str, Any]] = None,
         metadata: Optional[Dict[str, str]] = None,
     ):
+        if dataset_timestamp:
+            ensure_timezone(dataset_timestamp)
+        if creation_timestamp:
+            ensure_timezone(creation_timestamp)
         self._columns = columns.copy()
         self._dataset_timestamp = dataset_timestamp
         self._creation_timestamp = creation_timestamp
