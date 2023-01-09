@@ -82,15 +82,12 @@ class EmbeddingMetric(MultiMetric):
             for label in self.labels
         }
         submetrics.update(
-            {  # TODO: these might want to be rates?
-                f"{label}_count": {
-                    "distribution": StandardMetric.distribution.zero(),
+            {
+                "closest": {
+                    "frequent_items": StandardMetric.frequent_items.zero(),
                     "counts": StandardMetric.counts.zero(),
                     "types": StandardMetric.types.zero(),
-                    "cardinality": StandardMetric.cardinality.zero(),
-                    "ints": StandardMetric.ints.zero(),
                 }
-                for label in self.labels
             }
         )
         super().__init__(submetrics)
@@ -99,6 +96,10 @@ class EmbeddingMetric(MultiMetric):
     def namespace(self) -> str:
         return "embedding"
 
+    def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
+        for key in self.submetrics[submetric].keys():
+            self.submetrics[submetric][key].columnar_update(data)
+
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         X = data.list.objs  # TODO: throw if not 2D
         if not X:
@@ -106,11 +107,13 @@ class EmbeddingMetric(MultiMetric):
 
         X_ref_dists = self.distance_fn.value(X, self.references.value)
         X_ref_closest = np.argmin(self.X_ref_dists, axis=1)
+        closest: List[str] = []
         for i in range(X_ref_dists.shape[1]):
-            closest = X_ref_closest[i]
-            print(closest)
-            # update submetrics[f"{closest}_distance"] with PreprocessedColumn.apply([X_ref_dist[i]])
-            # update submetrics[f"{closest}_count"]
+            closest.append(self.lables[X_ref_closest[i]])
+            self._update_submetrics(f"{i}_distance", PreprocessedColumn.apply(X_ref_dists[i]))
+
+        self._update_submetrics("closest", PreprocessedColumn.apply(closest))
+
         return OperationResult.ok(1)
 
     @classmethod
