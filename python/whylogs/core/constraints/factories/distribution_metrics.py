@@ -1,7 +1,7 @@
 from typing import Union
 
 from whylogs.core.constraints import MetricConstraint, MetricsSelector
-from whylogs.core.metrics import DistributionMetric
+from whylogs.core.relations import Require
 
 
 def greater_than_number(column_name: str, number: Union[float, int], skip_missing: bool = True) -> MetricConstraint:
@@ -15,19 +15,14 @@ def greater_than_number(column_name: str, number: Union[float, int], skip_missin
         reference value for applying the constraint
     skip_missing: bool
         If skip_missing is True, missing distribution metrics will make the check pass.
-        If False, the check will fail on missing metrics
+        If False, the check will fail on missing metrics, such as on an empty dataset
     """
-
-    def is_greater(metric: DistributionMetric) -> bool:
-        if not metric.kll.value.is_empty():
-            return metric.min >= number
-        else:
-            return True if skip_missing else False
 
     constraint = MetricConstraint(
         name=f"{column_name} greater than number {number}",
-        condition=is_greater,
+        condition=Require("min").greater_than(number),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
+        require_column_existence=not skip_missing,
     )
     return constraint
 
@@ -43,19 +38,63 @@ def smaller_than_number(column_name: str, number: float, skip_missing: bool = Tr
         reference value for applying the constraint
     skip_missing: bool
         If skip_missing is True, missing distribution metrics will make the check pass.
-        If False, the check will fail on missing metrics
+        If False, the check will fail on missing metrics, such as on an empty dataset
     """
-
-    def is_smaller(metric) -> bool:
-        if not metric.kll.value.is_empty():
-            return number >= metric.max
-        else:
-            return True if skip_missing else False
 
     constraint = MetricConstraint(
         name=f"{column_name} smaller than number {number}",
-        condition=is_smaller,
+        condition=lambda x: number > x.max,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
+        require_column_existence=not skip_missing,
+    )
+    return constraint
+
+
+def is_non_negative(column_name: str, skip_missing: bool = True) -> MetricConstraint:
+    """Checks if a column is non negative
+
+    Parameters
+    ----------
+    column_name : str
+        Column the constraint is applied to
+    skip_missing: bool
+        If skip_missing is True, missing distribution metrics will make the check pass.
+        If False, the check will fail on missing metrics, such as on an empty dataset
+    """
+    constraint = MetricConstraint(
+        name=f"{column_name} is non negative",
+        condition=Require("min").greater_or_equals(0),
+        metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
+        require_column_existence=not skip_missing,
+    )
+    return constraint
+
+
+def is_in_range(
+    column_name: str, lower: Union[float, int], upper: Union[float, int], skip_missing: bool = True
+) -> MetricConstraint:
+    """Checks that all of column's values are in defined range (inclusive).
+
+    For the constraint to pass, the column's minimum value should be higher or equal than `lower` and maximum value should be less than or equal to `upper`.
+
+    Parameters
+    ----------
+    column_name : str
+        Column the constraint is applied to
+    lower : float
+        lower bound of defined range
+    upper : float
+        upper bound of defined range
+    skip_missing: bool
+        If skip_missing is True, missing distribution metrics will make the check pass.
+        If False, the check will fail on missing metrics, such as on an empty dataset
+    """
+
+    constraint = MetricConstraint(
+        name=f"{column_name} is in range [{lower},{upper}]",
+        condition=Require("min").greater_or_equals(lower).and_(Require("max").less_or_equals(upper)),
+        metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
+        require_column_existence=not skip_missing,
     )
     return constraint
 
@@ -73,19 +112,14 @@ def mean_between_range(column_name: str, lower: float, upper: float, skip_missin
         Upper bound of the value range
     skip_missing: bool
         If skip_missing is True, missing distribution metrics will make the check pass.
-        If False, the check will fail on missing metrics
+        If False, the check will fail on missing metrics, such as on an empty dataset
     """
-
-    def is_mean_between(metric) -> bool:
-        if not metric.kll.value.is_empty():
-            return lower <= metric.avg <= upper
-        else:
-            return True if skip_missing else False
 
     constraint = MetricConstraint(
         name=f"{column_name} mean between {lower} and {upper} (inclusive)",
-        condition=is_mean_between,
+        condition=Require("mean").greater_or_equals(lower).and_(Require("mean").less_or_equals(upper)),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
+        require_column_existence=not skip_missing,
     )
     return constraint
 
@@ -103,19 +137,14 @@ def stddev_between_range(column_name: str, lower: float, upper: float, skip_miss
         Upper bound of the value range
     skip_missing: bool
         If skip_missing is True, missing distribution metrics will make the check pass.
-        If False, the check will fail on missing metrics
+        If False, the check will fail on missing metrics, such as on an empty dataset
     """
-
-    def is_stddev_between_range(metric):
-        if not metric.kll.value.is_empty():
-            return lower <= metric.stddev <= upper
-        else:
-            return True if skip_missing else False
 
     constraint = MetricConstraint(
         name=f"{column_name} standard deviation between {lower} and {upper} (inclusive)",
-        condition=is_stddev_between_range,
+        condition=Require("stddev").greater_or_equals(lower).and_(Require("stddev").less_or_equals(upper)),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
+        require_column_existence=not skip_missing,
     )
     return constraint
 
@@ -135,20 +164,18 @@ def quantile_between_range(column_name: str, quantile: float, lower: float, uppe
         Upper bound of the value range
     skip_missing: bool
         If skip_missing is True, missing distribution metrics will make the check pass.
-        If False, the check will fail on missing metrics
+        If False, the check will fail on missing metrics, such as on an empty dataset
     """
 
     def quantile_in_range(metric):
-        if not metric.kll.value.is_empty():
-            quantile_value = metric.kll.value.get_quantile(quantile)
-            result: bool = lower <= quantile_value <= upper
-            return result
-        else:
-            return True if skip_missing else False
+        quantile_value = metric.kll.value.get_quantile(quantile)
+        result: bool = lower <= quantile_value <= upper
+        return result
 
     constraint = MetricConstraint(
         name=f"{column_name} {quantile}-th quantile value between {lower} and {upper} (inclusive)",
         condition=quantile_in_range,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
+        require_column_existence=not skip_missing,
     )
     return constraint

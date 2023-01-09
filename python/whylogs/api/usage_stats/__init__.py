@@ -10,7 +10,7 @@ import sys
 import uuid
 from datetime import datetime
 from threading import Thread
-from typing import Any, Dict
+from typing import Any, Dict, List
 from urllib import request
 
 import whylogs
@@ -26,8 +26,18 @@ ANALYTICS_OPT_OUT = "WHYLOGS_NO_ANALYTICS"
 # Flag to disable it internally
 _TELEMETRY_DISABLED = False
 _TRACKED_EVENTS: Dict[str, bool] = {}
+_SITE_PACKAGES: List[str] = []
 
-_SITE_PACKAGES = site.getsitepackages()
+try:
+    # fix for virtualenv lack of definition for getsitepackages
+    if hasattr(site, "getsitepackages"):
+        _SITE_PACKAGES = site.getsitepackages()
+    else:
+        from distutils.sysconfig import get_python_lib
+
+        _SITE_PACKAGES = [get_python_lib()]
+except:  # noqa
+    logger.debug("Encountered exception when checking site packages")
 
 if os.getenv(ANALYTICS_OPT_OUT) is not None:
     logger.debug("Opted out of usage statistics. Skipping.")
