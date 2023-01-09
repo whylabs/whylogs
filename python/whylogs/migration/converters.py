@@ -117,8 +117,10 @@ def read_v0_to_view(path: str) -> DatasetProfileView:
 def v0_to_v1_view(msg: DatasetProfileMessageV0) -> DatasetProfileView:
     columns: Dict[str, ColumnProfileView] = {}
 
-    dataset_timestamp = datetime.datetime.fromtimestamp(msg.properties.data_timestamp / 1000.0)
-    creation_timestamp = datetime.datetime.fromtimestamp(msg.properties.session_timestamp / 1000.0)
+    dataset_timestamp = datetime.datetime.fromtimestamp(msg.properties.data_timestamp / 1000.0, datetime.timezone.utc)
+    creation_timestamp = datetime.datetime.fromtimestamp(
+        msg.properties.session_timestamp / 1000.0, datetime.timezone.utc
+    )
 
     for col_name, col_msg in msg.columns.items():
         dist_metric = _extract_dist_metric(col_msg)
