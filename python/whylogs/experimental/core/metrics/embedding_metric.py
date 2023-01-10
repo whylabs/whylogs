@@ -153,16 +153,12 @@ class EmbeddingMetric(MultiMetric):
         for X in matrices:  # TODO: throw if not 2D ndarray
             X_ref_dists = self.distance_fn(X, self.references.value)  # type: ignore
             X_ref_closest = np.argmin(X_ref_dists, axis=1)
-            print(f"ref dists: {X_ref_dists}")
-            print(f"closest: {X_ref_closest}")
             for i in range(X_ref_dists.shape[1]):
-                print(f"updating {self.labels[i]}_distance with {X_ref_dists[ :, i].tolist()}")
                 self._update_submetrics(
                     f"{self.labels[i]}_distance", PreprocessedColumn.apply(X_ref_dists[:, i].tolist())
                 )
 
             closest = [self.labels[i] for i in X_ref_closest]
-            print(f"updating closest with {closest}")
             self._update_submetrics("closest", PreprocessedColumn.apply(closest))
 
         return OperationResult.ok(len(matrices))
