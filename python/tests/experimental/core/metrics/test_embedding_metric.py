@@ -65,7 +65,7 @@ def test_embedding_metric_serialization() -> None:
     deserialized = EmbeddingMetric.from_protobuf(msg)
 
     assert deserialized.namespace == metric.namespace
-    assert deserialized.labels == metric.labels
+    assert deserialized.labels == metric.labels  # TODO: Verify order is preserved
     assert deserialized.submetrics["A_distance"]["distribution"].kll.value.get_n() == 3
     assert (
         deserialized.submetrics["B_distance"]["distribution"].mean.value
