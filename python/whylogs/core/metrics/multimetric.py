@@ -75,7 +75,7 @@ class MultiMetric(Metric, ABC):
 
         self.submetrics = deepcopy(submetrics)
 
-    def merge_submetrics(self: MULTI_METRIC, other: MULTI_METRIC) -> Dict[str, Metric]:
+    def merge_submetrics(self: MULTI_METRIC, other: MULTI_METRIC) -> Dict[str, Dict[str, Metric]]:
         if self.namespace != other.namespace:
             raise ValueError(f"Attempt to merge MultiMetrics {self.namespace} and {other.namespace}")
 

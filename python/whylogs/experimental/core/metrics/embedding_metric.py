@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from io import BytesIO
@@ -13,7 +14,10 @@ from whylogs.core.metrics.metrics import MetricConfig, OperationResult
 from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.metrics.serializers import serializer
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.proto import MetricComponentMessage
+from whylogs.core.proto import MetricComponentMessage, MetricMessage
+
+logger = logging.getLogger(__name__)
+
 
 # TODO: share these with NLP code
 
@@ -30,7 +34,7 @@ def _deserialize_ndarray(a: bytes) -> np.ndarray:
 
 
 class MatrixComponent(MetricComponent[np.ndarray]):
-    #    mtype = np.ndarray
+    # mtype = np.ndarray
     type_id = 101
 
 
@@ -51,9 +55,12 @@ class DistanceFunction(Enum):
 
 @dataclass(frozen=True)
 class EmbeddingConfig(MetricConfig):
-    references: np.ndarray = field(default_factory=lambda: np.zeros((1, 1)))  # columns are reference vectors
+    references: np.ndarray = field(default_factory=lambda: np.zeros((1, 1)))  # rows are reference vectors
     labels: Optional[List[str]] = None
     distance_fn: DistanceFunction = DistanceFunction.cosine
+    serialize_references: bool = True
+
+    # TODO: limit refeence size
 
     def __post_init__(self) -> None:
         if len(self.references.shape) != 2:
@@ -71,6 +78,7 @@ class EmbeddingMetric(MultiMetric):
     references: MatrixComponent
     labels: List[str]
     distance_fn: DistanceFunction
+    serialize_references: bool
 
     def __post_init__(self):
         submetrics = {
@@ -96,6 +104,39 @@ class EmbeddingMetric(MultiMetric):
     def namespace(self) -> str:
         return "embedding"
 
+    def merge(self, other: "EmbeddingMetric") -> "EmbeddingMetric":
+        if self.references.value.shape != other.references.value.shape:
+            if other.references.value.shape == (1, 1):
+                logger.warning("Attempt to merge with unconfigured EmbeddingMetric; ignored")
+                return self
+            if self.references.value.shape == (1, 1):
+                logger.warning("Attempt to merge with unconfigured EmbeddingMetric; ignored")
+                return other
+            raise ValueError("Attempt to merge incompatible EbeddingMetrics")
+
+        if (
+            self.labels != other.labels
+            or self.distance_fn != other.distance_fn
+            or not (self.references.value == other.references.value).all()
+        ):
+            raise ValueError("Attempt to merge incompatible EbeddingMetrics")
+
+        result = EmbeddingMetric(self.references, self.labels, self.distance_fn, self.serialize_references)
+        result.submetrics = self.merge_submetrics(other)
+        return result
+
+    def to_protobuf(self) -> MetricMessage:
+        msg = {}
+        for sub_name, metrics in self.submetrics.items():
+            for namespace, metric in metrics.items():
+                sub_msg = metric.to_protobuf()
+                for comp_name, comp_msg in sub_msg.metric_components.items():
+                    msg[f"{sub_name}:{namespace}/{comp_name}"] = comp_msg
+        if self.serialize_references:
+            msg["references"] = self.references.to_protobuf()
+
+        return MetricMessage(metric_components=msg)
+
     def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
         for key in self.submetrics[submetric].keys():
             self.submetrics[submetric][key].columnar_update(data)
@@ -120,7 +161,34 @@ class EmbeddingMetric(MultiMetric):
             print(f"updating closest with {closest}")
             self._update_submetrics("closest", PreprocessedColumn.apply(closest))
 
-        return OperationResult.ok(1)
+        return OperationResult.ok(len(matrices))
+
+    @classmethod
+    def from_protobuf(cls, msg: MetricMessage) -> "EmbeddingMetric":
+        if "references" in msg.metric_components:
+            references = MatrixComponent.from_protobuf(msg.metric_components["references"])
+            msg.metric_components.pop("references")
+            serialize_references = True
+        else:
+            references = np.zeros((1, 1))
+            serialize_references = False
+
+        submetrics = EmbeddingMetric.submetrics_from_protobuf(msg)
+
+        # TODO: this doesn't guarantee order :(  Fix it, or don't [de]serialize
+        labels: List[str] = []
+        for submetric_name in submetrics.keys():
+            if submetric_name.endswith("_distance"):
+                labels.append(submetric_name[:-9])
+
+        result = EmbeddingMetric(
+            references=references,
+            labels=labels,
+            distance_fn=DistanceFunction.cosine,  # not updatable after deserialization
+            serialize_references=serialize_references,
+        )
+        result.submetrics = submetrics
+        return result
 
     @classmethod
     def zero(cls, cfg: Optional[EmbeddingConfig] = None) -> "EmbeddingMetric":
@@ -132,4 +200,5 @@ class EmbeddingMetric(MultiMetric):
             references=MatrixComponent(cfg.references),
             labels=cfg.labels or [str(i) for i in range(cfg.references.shape[0])],
             distance_fn=cfg.distance_fn,
+            serialize_references=cfg.serialize_references,
         )

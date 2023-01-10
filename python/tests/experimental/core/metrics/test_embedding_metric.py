@@ -1,6 +1,7 @@
 import numpy as np
 
 import whylogs as why
+from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
 from whylogs.experimental.core.metrics.embedding_metric import (
@@ -28,4 +29,47 @@ def test_embedding_metric_holds_the_smoke_in() -> None:
     assert summary["embedding/A_distance:distribution/mean"] > 0
     assert summary["embedding/B_distance:distribution/mean"] > 0
     assert summary["embedding/closest:counts/n"] == 3
-    assert False
+    # assert False
+
+
+def test_embedding_metric_merge_happy_case() -> None:
+    config = EmbeddingConfig(
+        references=np.array([[0.01, 0.01, 0.01], [1, 1, 1]]),
+        labels=["A", "B"],
+        distance_fn=DistanceFunction.euclidean,
+    )
+    metric1 = EmbeddingMetric.zero(config)
+    metric2 = EmbeddingMetric.zero(config)
+    data = PreprocessedColumn.apply(np.array([[0.1, 0.1, 0.1], [0.6, 0.6, 0.6], [2, 2, 2]]))
+    metric1.columnar_update(data)
+    metric2.columnar_update(data)
+    merged = metric1.merge(metric2)
+    summary = merged.to_summary_dict()
+    assert summary["A_distance:counts/n"] == 6
+    assert summary["B_distance:counts/n"] == 6
+    assert summary["A_distance:distribution/mean"] > 0
+    assert summary["B_distance:distribution/mean"] > 0
+    assert summary["closest:counts/n"] == 6
+
+
+def test_embedding_metric_serialization() -> None:
+    config = EmbeddingConfig(
+        references=np.array([[0.01, 0.01, 0.01], [1, 1, 1]]),
+        labels=["A", "B"],
+        distance_fn=DistanceFunction.euclidean,
+    )
+    metric = EmbeddingMetric.zero(config)
+    data = PreprocessedColumn.apply(np.array([[0.1, 0.1, 0.1], [0.6, 0.6, 0.6], [2, 2, 2]]))
+    metric.columnar_update(data)
+    msg = metric.to_protobuf()
+    deserialized = EmbeddingMetric.from_protobuf(msg)
+
+    assert deserialized.namespace == metric.namespace
+    assert deserialized.labels == metric.labels
+    assert deserialized.submetrics["A_distance"]["distribution"].kll.value.get_n() == 3
+    assert (
+        deserialized.submetrics["B_distance"]["distribution"].mean.value
+        == metric.submetrics["B_distance"]["distribution"].mean.value
+    )
+    assert deserialized.submetrics["closest"]["counts"].n.value == 3
+    assert (deserialized.references.value == metric.references.value).all()
