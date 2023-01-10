@@ -14,7 +14,7 @@ from whylogs.experimental.core.metrics.embedding_metric import (
 def test_embedding_metric_holds_the_smoke_in() -> None:
     config = EmbeddingConfig(
         references=np.array([[0.01, 0.01, 0.01], [1, 1, 1]]),
-        labels=["A", "B"],
+        labels=["B", "A"],
         distance_fn=DistanceFunction.euclidean,
     )
     schema = DeclarativeSchema([ResolverSpec(column_name="col1", metrics=[MetricSpec(EmbeddingMetric, config)])])
@@ -22,6 +22,10 @@ def test_embedding_metric_holds_the_smoke_in() -> None:
     profile = why.log(row={"col1": sample_data}, schema=schema)
     view = profile.view()
     column = view.get_column("col1")
+    metric = column.get_metric("embedding")
+    assert metric.labels == ["A", "B"]
+    assert metric.references.value.tolist() == [[1, 1, 1], [0.01, 0.01, 0.01]]
+
     summary = column.to_summary_dict()
     print(summary)
     assert summary["embedding/A_distance:counts/n"] == 3

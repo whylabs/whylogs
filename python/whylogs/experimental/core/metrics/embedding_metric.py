@@ -99,6 +99,10 @@ class EmbeddingMetric(MultiMetric):
             }
         )
         super().__init__(submetrics)
+        # sort labels and permute reference matrix rows to match to support deserialization
+        label_indices = np.argsort(self.labels).tolist()
+        self.labels = sorted(self.labels)
+        self.references = MatrixComponent(self.references.value[label_indices, :])
 
     @property
     def namespace(self) -> str:
@@ -175,11 +179,11 @@ class EmbeddingMetric(MultiMetric):
 
         submetrics = EmbeddingMetric.submetrics_from_protobuf(msg)
 
-        # TODO: this doesn't guarantee order :(  Fix it, or don't [de]serialize
         labels: List[str] = []
         for submetric_name in submetrics.keys():
             if submetric_name.endswith("_distance"):
                 labels.append(submetric_name[:-9])
+        labels = sorted(labels)  # the rows should already be in this order
 
         result = EmbeddingMetric(
             references=references,
