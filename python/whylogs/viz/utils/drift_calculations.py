@@ -1,21 +1,23 @@
 import warnings
-from typing import Dict, List, Optional, Union
-
+from typing import Dict, List, Optional, Union, Callable, Any
+from abc import ABC
 import numpy as np
 from scipy import stats  # type: ignore
 from scipy.spatial.distance import euclidean
 from typing_extensions import TypedDict
 from whylogs_sketching import kll_doubles_sketch  # type: ignore
-
+from dataclasses import dataclass
+from enum import Enum
 from whylogs.core.view.column_profile_view import ColumnProfileView  # type: ignore
 from whylogs.core.view.dataset_profile_view import DatasetProfileView  # type: ignore
-from whylogs.viz.configs import HellingerConfig, KSTestConfig
+from whylogs.drift.configs import HellingerConfig, KSTestConfig, ChiSquareConfig
 from whylogs.viz.utils import _calculate_bins
 from whylogs.viz.utils.frequent_items_calculations import (
     FrequentStats,
     get_frequent_stats,
     zero_padding_frequent_items,
 )
+from whylogs.core.utils import deprecated
 
 
 class ColumnDriftValue(TypedDict):
@@ -30,6 +32,87 @@ class ColumnDriftStatistic(TypedDict):
 
     statistic: float
     algorithm: str
+
+
+def _compute_ks_test_p_value(
+    target_distribution: kll_doubles_sketch,
+    reference_distribution: kll_doubles_sketch,
+    quantiles: Optional[List[float]] = None,
+) -> Optional[ColumnDriftValue]:
+    """Compute the Kolmogorov-Smirnov test p-value of two continuous distributions.
+
+    Uses the quantile values and the corresponding CDFs to calculate the approximate KS statistic.
+    Only applicable to continuous distributions.
+    The null hypothesis expects the samples to come from the same distribution.
+
+    Parameters
+    ----------
+    target_distribution : datasketches.kll_floats_sketch
+        A kll_floats_sketch (quantiles sketch) from the target distribution's values
+    reference_distribution : datasketches.kll_floats_sketch
+        A kll_floats_sketch (quantiles sketch) from the reference (expected) distribution's values
+        Can be generated from a theoretical distribution, or another sample for the same feature.
+    quantiles: Optional[List[float]], optional
+        Bucket of quantiles used to get the CDF's for both target and reference profiles.
+
+    Returns
+    -------
+        p_value : float
+        The estimated p-value from the parametrized KS test, applied on the target and reference distributions'
+        kll_floats_sketch summaries
+
+    """
+
+    if not quantiles:
+        QUANTILES = KSTestConfig().quantiles
+    else:
+        QUANTILES = quantiles
+
+    if reference_distribution.is_empty() or target_distribution.is_empty():
+        return None
+
+    D_max = 0
+    target_quantile_values = target_distribution.get_quantiles(QUANTILES)
+    ref_quantile_values = reference_distribution.get_quantiles(QUANTILES)
+
+    num_quantiles = len(QUANTILES)
+    i, j = 0, 0
+    while i < num_quantiles and j < num_quantiles:
+        if target_quantile_values[i] < ref_quantile_values[j]:
+            current_quantile = target_quantile_values[i]
+            i += 1
+        else:
+            current_quantile = ref_quantile_values[j]
+            j += 1
+
+        cdf_target = target_distribution.get_cdf([current_quantile])[0]
+        cdf_ref = reference_distribution.get_cdf([current_quantile])[0]
+        D = abs(cdf_target - cdf_ref)
+        if D > D_max:
+            D_max = D
+
+    while i < num_quantiles:
+        cdf_target = target_distribution.get_cdf([target_quantile_values[i]])[0]
+        cdf_ref = reference_distribution.get_cdf([target_quantile_values[i]])[0]
+        D = abs(cdf_target - cdf_ref)
+        if D > D_max:
+            D_max = D
+        i += 1
+
+    while j < num_quantiles:
+        cdf_target = target_distribution.get_cdf([ref_quantile_values[j]])[0]
+        cdf_ref = reference_distribution.get_cdf([ref_quantile_values[j]])[0]
+        D = abs(cdf_target - cdf_ref)
+        if D > D_max:
+            D_max = D
+        j += 1
+
+    m, n = sorted([target_distribution.get_n(), reference_distribution.get_n()], reverse=True)
+    en = m * n / (m + n)
+
+    p_value = stats.distributions.kstwo.sf(D_max, np.round(en))
+
+    return {"p_value": p_value, "test": "ks"}
 
 
 def _compute_ks_test_p_value(
@@ -274,6 +357,7 @@ def _get_hellinger_distance(
     return {"statistic": distance, "algorithm": "hellinger"}
 
 
+@deprecated(message="please use whylogs drift's calculate_drift_score instead")
 def calculate_drift_values(
     target_view: DatasetProfileView, reference_view: DatasetProfileView, statistic=False
 ) -> Dict[str, Optional[Union[ColumnDriftValue, ColumnDriftStatistic]]]:

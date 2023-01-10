@@ -2,10 +2,11 @@ import html
 import json
 import logging
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union, Callable
+from whylogs.core import ColumnProfileView
 
 from IPython.core.display import HTML  # type: ignore
-
+from whylogs.drift.column_drift_algorithms import ColumnDriftAlgorithm
 from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.constraints import Constraints
@@ -18,7 +19,7 @@ from whylogs.viz.utils.profile_viz_calculations import (
     add_feature_statistics,
     frequent_items_from_view,
     generate_profile_summary,
-    generate_summaries,
+    generate_summaries_with_drift_score,
     histogram_from_view,
 )
 
@@ -94,6 +95,7 @@ class NotebookProfileVisualizer:
 
     _ref_view: Optional[DatasetProfileView]
     _target_view: DatasetProfileView
+    _drift_map: Optional[Dict[str, ColumnDriftAlgorithm]] = None
 
     @staticmethod
     def _display(template: str, page_spec: PageSpec, height: Optional[str]) -> "HTML":
@@ -197,6 +199,41 @@ class NotebookProfileVisualizer:
             logger.warning("This method has to get at least a target profile, with valid feature title")
             return None
 
+    def add_drift_config(self, column_names: List[str], algorithm: ColumnDriftAlgorithm) -> None:
+        """Add drift configuration.
+        The algorithms and thresholds added through this method will be used to calculate drift scores in the `summary_drift_report()` method.
+        If any drift configuration exists, the new configuration will overwrite the standard behavior when appliable.
+        If a column has multiple configurations defined, the last one defined will be used.
+
+        Parameters
+        ----------
+        config: DriftConfig, required
+            Drift configuration.
+
+        """
+        self._drift_map = {} if not self._drift_map else self._drift_map
+        if not isinstance(algorithm, ColumnDriftAlgorithm):
+            raise ValueError("Algorithm must be of class ColumnDriftAlgorithm.")
+        if not self._target_view or not self._ref_view:
+            logger.error("Set target and reference profiles before adding drift configuration.")
+            raise ValueError
+        if not algorithm:
+            raise ValueError("Drift algorithm cannot be None.")
+        if not column_names:
+            raise ValueError("Drift configuration must have at least one column name.")
+        if algorithm._parameter_config.thresholds and len(algorithm._parameter_config.thresholds) > 2:
+            raise ValueError("Drift algorithm can have at most two thresholds.")
+        if column_names:
+            for column_name in column_names:
+                if column_name not in self._target_view.get_columns().keys():
+                    raise ValueError(f"Column {column_name} not found in target profile.")
+                if column_name not in self._target_view.get_columns().keys():
+                    raise ValueError(f"Column {column_name} not found in reference profile.")
+        for column_name in column_names:
+            if column_name in self._drift_map:
+                logger.warning(f"Overwriting existing drift configuration for column {column_name}.")
+            self._drift_map[column_name] = algorithm
+
     def set_profiles(
         self, target_profile_view: DatasetProfileView, reference_profile_view: Optional[DatasetProfileView] = None
     ) -> None:
@@ -258,11 +295,12 @@ class NotebookProfileVisualizer:
         if not self._target_view or not self._ref_view:
             logger.error("This method has to get both target and reference profiles")
             raise ValueError
-
         page_spec = PageSpecEnum.SUMMARY_REPORT.value
         template = _get_compiled_template(page_spec.html)
 
-        profiles_summary = generate_summaries(self._target_view, self._ref_view, config=None)
+        profiles_summary = generate_summaries_with_drift_score(
+            self._target_view, self._ref_view, config=None, drift_map=self._drift_map
+        )
         rendered_template = template(profiles_summary)
         summary_drift_report = self._display(rendered_template, page_spec, height)
         return summary_drift_report
