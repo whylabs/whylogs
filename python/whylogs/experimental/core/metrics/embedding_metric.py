@@ -130,6 +130,6 @@ class EmbeddingMetric(MultiMetric):
 
         return EmbeddingMetric(
             references=MatrixComponent(cfg.references),
-            labels=cfg.labels or [str(i) for i in range(cfg.references.shape[1])],
+            labels=cfg.labels or [str(i) for i in range(cfg.references.shape[0])],
             distance_fn=cfg.distance_fn,
         )
