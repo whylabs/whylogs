@@ -11,10 +11,6 @@ from fugue import (
     transform,
     transformer,
 )
-from fugue.dataframe.utils import (
-    normalize_dataframe_column_names,
-    rename_dataframe_column_names,
-)
 
 import whylogs as why
 from whylogs.core import DatasetSchema
@@ -39,14 +35,9 @@ def fugue_profile(
     engine_conf: Any = None,
     **kwargs,
 ) -> Any:
-    if not isinstance(df, str):
-        df, renames = normalize_dataframe_column_names(df)
-    else:
-        renames = {}
     profiler = _FugueProfiler(
         partition,
         profile_cols,
-        renames=renames,
         dataset_timestamp=dataset_timestamp,
         creation_timestamp=creation_timestamp,
         schema=schema,
@@ -65,7 +56,6 @@ class _FugueProfiler:
         self,
         partition,
         cols,
-        renames: Dict[str, Any],
         dataset_timestamp: Optional[datetime] = None,
         creation_timestamp: Optional[datetime] = None,
         schema: Optional[DatasetSchema] = None,
@@ -75,11 +65,9 @@ class _FugueProfiler:
 
         self._dataset_timestamp = dataset_timestamp or now
         self._creation_timestamp = creation_timestamp or now
-        self._cols_to_orig = renames
-        self._orig_to_cols = {v: k for k, v in renames.items()}
-
+        
         part = PartitionSpec(partition)
-        self._by = [self._orig_to_cols.get(x, x) for x in part.partition_by]
+        self._by = part.partition_by
         self._partition = PartitionSpec(part, by=self._by)
         self._cols = cols
         self._profile_field = profile_field
@@ -87,8 +75,6 @@ class _FugueProfiler:
         self._schema = schema
 
     def to_col_profiles(self, df: pd.DataFrame) -> Iterable[Dict[str, Any]]:
-        if len(self._cols_to_orig) > 0:
-            df = df.rename(columns=self._cols_to_orig)
         res = why.log(df[self._cols] if self._cols is not None else df, schema=self._schema)
         for col_name, col_profile in res.view().get_columns().items():
             yield {_COL_NAME_FIELD: col_name, _COL_PROFILE_FIELD: col_profile.serialize()}
@@ -110,11 +96,7 @@ class _FugueProfiler:
         yield {self._profile_field: profile_view.serialize()}
 
     def profile_partition(self, df: pd.DataFrame) -> pd.DataFrame:
-        if len(self._cols_to_orig) > 0:
-            pdf = df.rename(columns=self._cols_to_orig)
-        else:
-            pdf = df
-        res = why.log(pdf[self._cols] if self._cols is not None else pdf, schema=self._schema).view().serialize()
+        res = why.log(df[self._cols] if self._cols is not None else df, schema=self._schema).view().serialize()
         return df.head(1)[self._by].assign(**{self._profile_field: res})  # type: ignore
 
     # ---------------- Starting Fugue related logic
@@ -133,7 +115,7 @@ class _FugueProfiler:
         return DatasetProfileView.deserialize(dag.run(engine)["result"].as_array()[0][0])
 
     def transform_with_logical_partition(self, df: Any, engine: Any, engine_conf: Any, **kwargs: Any) -> Any:
-        res = transform(
+        return transform(
             df,
             transformer(lambda pdf: pdf.schema.extract(self._by) + self._profile_schema)(self.profile_partition),
             partition=self._partition,
@@ -141,4 +123,3 @@ class _FugueProfiler:
             engine_conf=engine_conf,
             **kwargs,
         )
-        return rename_dataframe_column_names(res, self._cols_to_orig)
