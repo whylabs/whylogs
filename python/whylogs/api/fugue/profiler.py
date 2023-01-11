@@ -65,7 +65,7 @@ class _FugueProfiler:
 
         self._dataset_timestamp = dataset_timestamp or now
         self._creation_timestamp = creation_timestamp or now
-        
+
         part = PartitionSpec(partition)
         self._by = part.partition_by
         self._partition = PartitionSpec(part, by=self._by)
