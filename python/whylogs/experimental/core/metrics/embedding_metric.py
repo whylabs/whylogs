@@ -55,10 +55,18 @@ class DistanceFunction(Enum):
 
 @dataclass(frozen=True)
 class EmbeddingConfig(MetricConfig):
-    references: np.ndarray = field(default_factory=lambda: np.zeros((1, 1)))  # rows are reference vectors
+    """
+    The rows of references are the reference vectors. A shape of (1, 1) indicates
+    there's no reference matrix and the metric will not be updatable. It should still
+    be mergeable with compatible metrics (details of compatability TBD). The rows
+    must be in the same order as labels. If labels are not provided, "0" ... "n" will
+    be used, where n is the number of rows in the references matrix.
+    """
+
+    references: np.ndarray = field(default_factory=lambda: np.zeros((1, 1)))
     labels: Optional[List[str]] = None
     distance_fn: DistanceFunction = DistanceFunction.cosine
-    serialize_references: bool = True
+    serialize_references: bool = True  # should references be included in protobuf message?
 
     # TODO: limit refeence size
 
@@ -81,6 +89,14 @@ class EmbeddingMetric(MultiMetric):
     serialize_references: bool
 
     def __post_init__(self):
+        """
+        Each label has a {label}_distance submetric that tracks the distribution of
+        distances from the label's reference vector to every logged vector.
+
+        There is also a closest submetric that tracks how often a label's reference
+        vector is the closest to the logged vectors.
+        """
+
         submetrics = {
             f"{label}_distance": {
                 "distribution": StandardMetric.distribution.zero(),
@@ -111,9 +127,13 @@ class EmbeddingMetric(MultiMetric):
     def merge(self, other: "EmbeddingMetric") -> "EmbeddingMetric":
         if self.references.value.shape != other.references.value.shape:
             if other.references.value.shape == (1, 1):
+                # TODO: handle merging with other.serialize_references==False better
+                # The (1, 1) shape indicates the other metric was created without a reference matrix.
+                # It can't have meaningful data in it, so just return myself
                 logger.warning("Attempt to merge with unconfigured EmbeddingMetric; ignored")
                 return self
             if self.references.value.shape == (1, 1):
+                # See comment above
                 logger.warning("Attempt to merge with unconfigured EmbeddingMetric; ignored")
                 return other
             raise ValueError("Attempt to merge incompatible EbeddingMetrics")
@@ -141,14 +161,6 @@ class EmbeddingMetric(MultiMetric):
 
         return MetricMessage(metric_components=msg)
 
-    def get_component_paths(self) -> List[str]:
-        paths = super().get_component_paths()
-        for k, v in self.__dict__.items():
-            if not isinstance(v, MetricComponent):
-                continue
-            paths.append(k)
-        return paths
-
     def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
         for key in self.submetrics[submetric].keys():
             self.submetrics[submetric][key].columnar_update(data)
@@ -175,14 +187,15 @@ class EmbeddingMetric(MultiMetric):
     def from_protobuf(cls, msg: MetricMessage) -> "EmbeddingMetric":
         if "references" in msg.metric_components:
             references = MatrixComponent.from_protobuf(msg.metric_components["references"])
-            msg.metric_components.pop("references")
+            msg.metric_components.pop("references")  # it's not a submetric's component
             serialize_references = True
         else:
-            references = np.zeros((1, 1))
+            references = np.zeros((1, 1))  # indicate I don't have a usuable reference matrix
             serialize_references = False
 
         submetrics = EmbeddingMetric.submetrics_from_protobuf(msg)
 
+        # figure out what my labels were from the {label}_distance submetric names
         labels: List[str] = []
         for submetric_name in submetrics.keys():
             if submetric_name.endswith("_distance"):
