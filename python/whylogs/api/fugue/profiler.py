@@ -2,13 +2,9 @@ from datetime import datetime, timezone
 from functools import reduce
 from typing import Any, Dict, Iterable, List, Optional
 
-import pandas as pd
-from fugue import (
-    PartitionSpec,
-    Schema,
-    transformer,
-)
 import fugue.api as fa
+import pandas as pd
+from fugue import PartitionSpec, Schema, transformer
 
 import whylogs as why
 from whylogs.core import DatasetSchema
