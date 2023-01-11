@@ -120,8 +120,8 @@ class EmbeddingMetric(MultiMetric):
 
         if (
             self.labels != other.labels
-            or self.distance_fn != other.distance_fn
             or not (self.references.value == other.references.value).all()
+            # TODO: maybe   or self.distance_fn != other.distance_fn ? warn if != ?
         ):
             raise ValueError("Attempt to merge incompatible EbeddingMetrics")
 
