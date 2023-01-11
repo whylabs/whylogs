@@ -10,7 +10,7 @@ from sklearn.metrics.pairwise import cosine_distances, euclidean_distances
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.deserializers import deserializer
 from whylogs.core.metrics.metric_components import MetricComponent
-from whylogs.core.metrics.metrics import MetricConfig, OperationResult
+from whylogs.core.metrics.metrics import MetricConfig, OperationResult, register_metric
 from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.metrics.serializers import serializer
 from whylogs.core.preprocessing import PreprocessedColumn
@@ -141,6 +141,14 @@ class EmbeddingMetric(MultiMetric):
 
         return MetricMessage(metric_components=msg)
 
+    def get_component_paths(self) -> List[str]:
+        paths = super().get_component_paths()
+        for k, v in self.__dict__.items():
+            if not isinstance(v, MetricComponent):
+                continue
+            paths.append(k)
+        return paths
+
     def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
         for key in self.submetrics[submetric].keys():
             self.submetrics[submetric][key].columnar_update(data)
@@ -202,3 +210,7 @@ class EmbeddingMetric(MultiMetric):
             distance_fn=cfg.distance_fn,
             serialize_references=cfg.serialize_references,
         )
+
+
+# Register it so Multimetric and ProfileView can deserialize
+register_metric(EmbeddingMetric)
