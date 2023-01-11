@@ -1,6 +1,11 @@
 package com.whylogs.core.metrics.components;
 
 import com.whylogs.core.message.MetricComponentMessage;
+import com.whylogs.core.metrics.Registries;
+import com.whylogs.core.metrics.deserializers.Deserializable;
+import com.whylogs.core.metrics.serializers.Serializable;
+import java.util.function.BiFunction;
+import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import lombok.*;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -14,22 +19,27 @@ import org.apache.commons.lang3.NotImplementedException;
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class MetricComponent<T> {
-  private static final int TYPE_ID =
-      0; // Maybe don't look at this as final if serializer, double check
-
+  // Maybe don't look at this as final if serializer, double check
+  public static int TYPE_ID = 0;
   @NonNull private final T value;
-  // TODO: add fields
-  // Add registry to this class
-  // add serializer
-  // add deserialier
-  /// add aggregator: https://github.com/whylabs/whylogs/pull/719#discussion_r936202557
+
+  private Registries registries;
+  private Serializable<T> serializer;
+  private Deserializable<?> deserializer;
+  private BiFunction<?, ?, ?> aggregator;
 
   public MetricComponent(@NonNull T value) {
     this.value = value;
 
-    // init the registries
-    // TODO: lots of aggregators, deserializers, serializers, etc.
+    this.registries = Registries.getInstance();
+    this.serializer = registries.getSerializerRegistry().get(this.getTypeId());
+    this.deserializer = registries.getDeserializerRegistry().get(this.getTypeId());
+    this.aggregator = registries.getAggregatorRegistry().get(this.getTypeName());
 
+    if (this.serializer == null || this.deserializer == null) {
+      throw new ValueException(
+          "Serializer and deserializer must be defined in pairs, but serializer is None");
+    }
   }
 
   public @NonNull T getValue() {
@@ -45,7 +55,7 @@ public class MetricComponent<T> {
   }
 
   public MetricComponent<T> copy() {
-    return new MetricComponent<T>(value);
+    return new MetricComponent<>(value);
   }
 
   public MetricComponent<T> merge(MetricComponent<T> other) {
@@ -53,11 +63,44 @@ public class MetricComponent<T> {
     throw new NotImplementedException();
   }
 
-  // TODO to_protobuf
-  // TODO from_protobuf
-  // TODO: add a from_protobuf iwht registries passed in
-  public static <M extends MetricComponent> M from_protobuf(MetricComponentMessage message) {
+  public MetricComponentMessage toProtobuf() {
+    if (this.serializer == null) {
+      throw new ValueException("Serializer must be defined");
+    }
+
+    MetricComponentMessage.Builder builder = this.serializer.serialize(this.value);
+    builder.setTypeId(this.getTypeId());
+    return builder.build();
+  }
+
+  public static MetricComponent<?> fromProtobuf(
+      MetricComponentMessage message, Registries registries) {
+    if (registries == null) {
+      registries = Registries.getInstance();
+    }
+
+    Deserializable<?> deserializer = registries.getDeserializerRegistry().get(message.getTypeId());
+    if (deserializer == null) {
+      throw new ValueException("Deserializer must be defined");
+    }
+
+    // TODO: Next iteration will refactor this to a factor with annotation for easier addition and
+    // custom
+    switch (message.getTypeId()) {
+      case 0:
+        return new IntegralComponent((Integer) deserializer.deserialize(message));
+      case 1:
+        return new MinIntegralComponent((Integer) deserializer.deserialize(message));
+      case 2:
+        return new MaxIntegralComponent((Integer) deserializer.deserialize(message));
+      default:
+        // TODO: this may need the deserialize type
+        throw new ValueException("Unknown type id " + message.getTypeId());
+    }
+  }
+
+  public static MetricComponent<?> fromProtobuf(MetricComponentMessage message) {
     // TODO: check that it's a MetricComponent dataclass
-    throw new NotImplementedException();
+    return MetricComponent.fromProtobuf(message, null);
   }
 }

@@ -14,6 +14,13 @@ public class AggregatorRegistry {
   private AggregatorRegistry() {
     this.namedAggregators = new HashMap<>();
     this.idAggregators = new HashMap<>();
+
+    // Numbers
+    // TODO: use the typing for this instead of name
+    this.namedAggregators.put("number", new NumberSumAggregator<Number>());
+    this.idAggregators.put(0, new NumberSumAggregator<Number>());
+    this.idAggregators.put(1, new NumberSumAggregator<Integer>());
+    this.idAggregators.put(2, new NumberSumAggregator<Integer>());
   }
 
   // Instance holder to avoid double checking anti-pattern for singlton

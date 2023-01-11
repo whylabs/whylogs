@@ -20,13 +20,13 @@ public class TestSerializer {
     registry.register("test", serializer);
     Assert.assertEquals(registry.get("test"), serializer);
 
-    Assert.assertEquals(registry.get(1).serialize(20).getN(), 20);
+    Assert.assertEquals(registry.get(1).serialize(20).build().getN(), 20);
   }
 
   @Test
   public void test_numberSerialization() {
     NumberSerializer serializer = new NumberSerializer();
-    MetricComponentMessage message = serializer.serialize(1);
+    MetricComponentMessage.Builder message = serializer.serialize(1);
     Assert.assertEquals(message.getTypeId(), 0);
     Assert.assertEquals(message.getN(), 1);
 

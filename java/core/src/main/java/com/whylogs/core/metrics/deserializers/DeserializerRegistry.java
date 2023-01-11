@@ -3,12 +3,19 @@ package com.whylogs.core.metrics.deserializers;
 import java.util.HashMap;
 
 public class DeserializerRegistry {
-  private final HashMap<String, IDeserialization> namedSerializer;
-  private final HashMap<Integer, IDeserialization> idSerializer;
+  private final HashMap<String, Deserializable> namedSerializer;
+  private final HashMap<Integer, Deserializable> idSerializer;
 
   private DeserializerRegistry() {
     this.namedSerializer = new HashMap<>();
     this.idSerializer = new HashMap<>();
+
+    // Register Defaults
+    this.namedSerializer.put("n", new IntDeserializer());
+    this.namedSerializer.put("d", new FloatDeserializer());
+    this.idSerializer.put(0, new IntDeserializer());
+    this.idSerializer.put(1, new IntDeserializer());
+    this.idSerializer.put(2, new IntDeserializer());
   }
 
   // Instance holder to avoid double-checking antipattern for singleton
@@ -20,7 +27,7 @@ public class DeserializerRegistry {
     return InstanceHolder.instance;
   }
 
-  public <T, A extends IDeserialization> void register(String name, A deserializer) {
+  public <T, A extends Deserializable> void register(String name, A deserializer) {
     namedSerializer.put(name, deserializer);
   }
 
@@ -28,11 +35,11 @@ public class DeserializerRegistry {
     idSerializer.put(typeId, deserializer);
   }
 
-  public IDeserialization get(int typeId) {
+  public Deserializable get(int typeId) {
     return idSerializer.get(typeId);
   }
 
-  public IDeserialization get(String typeName) {
+  public Deserializable get(String typeName) {
     return namedSerializer.get(typeName);
   }
 }

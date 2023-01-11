@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class MinIntegralComponent extends IntegralComponent {
-  private static final int TYPE_ID = 1;
+  public static final int TYPE_ID = 1;
 
   public MinIntegralComponent() {
     super(Integer.MAX_VALUE);

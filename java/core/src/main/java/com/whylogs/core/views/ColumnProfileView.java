@@ -1,7 +1,11 @@
 package com.whylogs.core.views;
 
+import com.whylogs.core.ColumnProfile;
 import com.whylogs.core.SummaryConfig;
 import com.whylogs.core.errors.UnsupportedError;
+import com.whylogs.core.message.ColumnMessage;
+import com.whylogs.core.message.MetricComponentMessage;
+import com.whylogs.core.message.MetricMessage;
 import com.whylogs.core.metrics.Metric;
 import com.whylogs.core.metrics.components.MetricComponent;
 import java.util.*;
@@ -126,5 +130,49 @@ public class ColumnProfileView {
       metric.ifPresent(value -> result.putAll(value.getComponents()));
     }
     return Collections.unmodifiableMap(result);
+  }
+
+  public ColumnMessage toProtobuf() {
+    ColumnMessage.Builder builder = ColumnMessage.newBuilder();
+
+    HashMap<String, MetricComponentMessage> componentsWithNamespace = new HashMap<>();
+    for (String namespace : this.metrics.keySet()) {
+      Metric<?> metric = this.metrics.get(namespace);
+      MetricMessage metricMessage = metric.toProtobuf();
+      for (String componentKey : metricMessage.getMetricComponentsMap().keySet()) {
+        componentsWithNamespace.put(
+            namespace + "/" + componentKey,
+            metricMessage.getMetricComponentsMap().get(componentKey));
+      }
+    }
+
+    builder.putAllMetricComponents(componentsWithNamespace);
+    return builder.build();
+  }
+
+  public static ColumnProfileView fromProtobuf(ColumnMessage message) {
+    HashMap<String, HashMap<String, MetricComponentMessage>> componentMessages = new HashMap<>();
+    HashMap<String, Metric<?>> metrics = new HashMap<>();
+    ColumnProfile<?> profile;
+
+    for (String compoundName : message.getMetricComponentsMap().keySet()) {
+      String[] parts = compoundName.split("/");
+      String namespace = parts[0];
+      String componentName = parts[1];
+      MetricComponentMessage componentMessage = message.getMetricComponentsMap().get(compoundName);
+
+      componentMessages
+          .computeIfAbsent(namespace, k -> new HashMap<>())
+          .put(componentName, componentMessage);
+    }
+
+    for (String namespace : componentMessages.keySet()) {
+      MetricMessage.Builder builder = MetricMessage.newBuilder();
+      builder.putAllMetricComponents(componentMessages.get(namespace));
+      MetricMessage metricMessage = builder.build();
+      metrics.put(namespace, Metric.fromProtobuf(metricMessage, namespace));
+    }
+
+    return new ColumnProfileView(metrics);
   }
 }
