@@ -4,13 +4,11 @@ from typing import Any, Dict, Iterable, List, Optional
 
 import pandas as pd
 from fugue import (
-    FugueWorkflow,
     PartitionSpec,
     Schema,
-    make_execution_engine,
-    transform,
     transformer,
 )
+import fugue.api as fa
 
 import whylogs as why
 from whylogs.core import DatasetSchema
@@ -85,15 +83,14 @@ class _FugueProfiler:
         )
         return df.head(1).assign(**{_COL_PROFILE_FIELD: merged_profile.serialize()})
 
-    def merge_to_view(self, col_profiles: List[Dict[str, Any]]) -> Iterable[Dict[str, Any]]:
-        profile_view = DatasetProfileView(
+    def merge_to_view(self, col_profiles: Iterable[Dict[str, Any]]) -> DatasetProfileView:
+        return DatasetProfileView(
             columns={
                 row[_COL_NAME_FIELD]: ColumnProfileView.from_bytes(row[_COL_PROFILE_FIELD]) for row in col_profiles
             },
             dataset_timestamp=self._dataset_timestamp,
             creation_timestamp=self._creation_timestamp,
         )
-        yield {self._profile_field: profile_view.serialize()}
 
     def profile_partition(self, df: pd.DataFrame) -> pd.DataFrame:
         res = why.log(df[self._cols] if self._cols is not None else df, schema=self._schema).view().serialize()
@@ -102,20 +99,21 @@ class _FugueProfiler:
     # ---------------- Starting Fugue related logic
 
     def transform_no_logical_partition(self, df: Any, engine: Any, engine_conf: Any) -> DatasetProfileView:
-        dag = FugueWorkflow()
-        input_df = dag.load(df) if isinstance(df, str) else dag.df(df)
-        cols = input_df.partition(self._partition).transform(
-            self.to_col_profiles,
-            schema=[(_COL_NAME_FIELD, str), (_COL_PROFILE_FIELD, bytes)],
-        )
-        merged_cols = cols.partition_by(_COL_NAME_FIELD).transform(self.merge_col_profiles, schema="*")
-        result = merged_cols.process(self.merge_to_view, schema=self._profile_schema)
-        result.yield_dataframe_as("result", as_local=True)
-        engine = make_execution_engine(engine, engine_conf)
-        return DatasetProfileView.deserialize(dag.run(engine)["result"].as_array()[0][0])
+        with fa.engine_context(engine, engine_conf):
+            input_df = fa.load(df, as_fugue=True) if isinstance(df, str) else fa.as_fugue_df(df)
+            cols = fa.transform(
+                input_df,
+                self.to_col_profiles,
+                schema=[(_COL_NAME_FIELD, str), (_COL_PROFILE_FIELD, bytes)],
+                partition=self._partition,
+            )
+            merged_cols = fa.transform(
+                cols, self.merge_col_profiles, schema="*", partition=_COL_NAME_FIELD, as_local=True
+            )
+            return self.merge_to_view(fa.as_dict_iterable(merged_cols))
 
     def transform_with_logical_partition(self, df: Any, engine: Any, engine_conf: Any, **kwargs: Any) -> Any:
-        return transform(
+        return fa.transform(
             df,
             transformer(lambda pdf: pdf.schema.extract(self._by) + self._profile_schema)(self.profile_partition),
             partition=self._partition,
