@@ -723,7 +723,7 @@ div.rendered_html tbody tr:hover {
 <section id="Constructing-a-dataset">
 <h2>Constructing a dataset<a class="headerlink" href="#Constructing-a-dataset" title="Permalink to this headline">#</a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -745,7 +745,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -896,13 +896,13 @@ div.rendered_html tbody tr:hover {
       <th>cardinality/est</th>
       <th>cardinality/lower_1</th>
       <th>cardinality/upper_1</th>
+      <th>counts/inf</th>
       <th>counts/n</th>
+      <th>counts/nan</th>
       <th>counts/null</th>
       <th>distribution/max</th>
       <th>distribution/mean</th>
       <th>distribution/median</th>
-      <th>distribution/min</th>
-      <th>distribution/n</th>
       <th>...</th>
       <th>distribution/stddev</th>
       <th>frequent_items/frequent_strings</th>
@@ -946,13 +946,13 @@ div.rendered_html tbody tr:hover {
       <td>3.000000</td>
       <td>3.0</td>
       <td>3.000150</td>
+      <td>0</td>
       <td>100</td>
+      <td>0</td>
       <td>0</td>
       <td>3.000000</td>
       <td>1.880000</td>
       <td>2.000000</td>
-      <td>1.000000</td>
-      <td>100</td>
       <td>...</td>
       <td>0.807540</td>
       <td>[FrequentItem(value='1', est=39, upper=39, low...</td>
@@ -970,13 +970,13 @@ div.rendered_html tbody tr:hover {
       <td>2.000000</td>
       <td>2.0</td>
       <td>2.000100</td>
+      <td>0</td>
       <td>100</td>
+      <td>0</td>
       <td>0</td>
       <td>NaN</td>
       <td>0.000000</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>0</td>
       <td>...</td>
       <td>0.000000</td>
       <td>[FrequentItem(value='a', est=57, upper=57, low...</td>
@@ -994,13 +994,13 @@ div.rendered_html tbody tr:hover {
       <td>100.000025</td>
       <td>100.0</td>
       <td>100.005018</td>
+      <td>0</td>
       <td>100</td>
+      <td>0</td>
       <td>0</td>
       <td>0.992396</td>
       <td>0.499929</td>
       <td>0.487838</td>
-      <td>0.000055</td>
-      <td>100</td>
       <td>...</td>
       <td>0.294085</td>
       <td>NaN</td>
@@ -1018,13 +1018,13 @@ div.rendered_html tbody tr:hover {
       <td>2.000000</td>
       <td>2.0</td>
       <td>2.000100</td>
+      <td>0</td>
       <td>100</td>
+      <td>0</td>
       <td>0</td>
       <td>NaN</td>
       <td>0.000000</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>0</td>
       <td>...</td>
       <td>0.000000</td>
       <td>[FrequentItem(value='xy', est=53, upper=53, lo...</td>
@@ -1039,7 +1039,7 @@ div.rendered_html tbody tr:hover {
     </tr>
   </tbody>
 </table>
-<p>4 rows × 28 columns</p>
+<p>4 rows × 30 columns</p>
 </div></div>
 </div>
 <p>We can select the columns for profiling</p>
@@ -1077,13 +1077,13 @@ div.rendered_html tbody tr:hover {
       <th>cardinality/est</th>
       <th>cardinality/lower_1</th>
       <th>cardinality/upper_1</th>
+      <th>counts/inf</th>
       <th>counts/n</th>
+      <th>counts/nan</th>
       <th>counts/null</th>
       <th>distribution/max</th>
       <th>distribution/mean</th>
       <th>distribution/median</th>
-      <th>distribution/min</th>
-      <th>distribution/n</th>
       <th>...</th>
       <th>distribution/q_95</th>
       <th>distribution/q_99</th>
@@ -1127,13 +1127,13 @@ div.rendered_html tbody tr:hover {
       <td>100.000025</td>
       <td>100.0</td>
       <td>100.005018</td>
+      <td>0</td>
       <td>100</td>
+      <td>0</td>
       <td>0</td>
       <td>0.992396</td>
       <td>0.499929</td>
       <td>0.487838</td>
-      <td>0.000055</td>
-      <td>100</td>
       <td>...</td>
       <td>0.970237</td>
       <td>0.992396</td>
@@ -1151,13 +1151,13 @@ div.rendered_html tbody tr:hover {
       <td>2.000000</td>
       <td>2.0</td>
       <td>2.000100</td>
+      <td>0</td>
       <td>100</td>
+      <td>0</td>
       <td>0</td>
       <td>NaN</td>
       <td>0.000000</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>0</td>
       <td>...</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1172,12 +1172,12 @@ div.rendered_html tbody tr:hover {
     </tr>
   </tbody>
 </table>
-<p>2 rows × 26 columns</p>
+<p>2 rows × 28 columns</p>
 </div></div>
 </div>
 <p>Now assuming we want to use Spark to profile the dataset distributedly and assuming this is how we get a SparkSession:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
@@ -1186,35 +1186,9 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-22/09/20 04:33:57 WARN Utils: Your hostname, codespaces-5144a4 resolves to a loopback address: 127.0.0.1; using 172.16.5.4 instead (on interface eth0)
-22/09/20 04:33:57 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-Setting default log level to &#34;WARN&#34;.
-To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-22/09/20 04:33:57 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-</pre></div></div>
-</div>
 <p>If we want to profile the pandas df on Spark:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fugue_profile</span><span class="p">(</span><span class="n">tdf</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">spark</span><span class="p">)</span>
@@ -1230,81 +1204,49 @@ To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLeve
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;whylogs.core.view.dataset_profile_view.DatasetProfileView at 0x7f4939be4dc0&gt;
+&lt;whylogs.core.view.dataset_profile_view.DatasetProfileView at 0x7effd21e5f90&gt;
 </pre></div></div>
 </div>
 <p>If we want to profile a SparkDataFrame:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark_df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">tdf</span><span class="p">)</span>
-<span class="n">fugue_profile</span><span class="p">(</span><span class="n">spark_df</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">spark</span><span class="p">)</span>
+<span class="n">fugue_profile</span><span class="p">(</span><span class="n">spark_df</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;whylogs.core.view.dataset_profile_view.DatasetProfileView at 0x7f4939078a00&gt;
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-Connection error. Skip stats collection.
+&lt;whylogs.core.view.dataset_profile_view.DatasetProfileView at 0x7effd1ee4910&gt;
 </pre></div></div>
 </div>
 <p>We can also directly profile a parquet file or a folder of parquet files locally or on the cloud (the file will be loaded distributedly):</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fugue_profile</span><span class="p">(</span><span class="s2">&quot;/tmp/test.parquet&quot;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">spark</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;whylogs.core.view.dataset_profile_view.DatasetProfileView at 0x7f49390bb610&gt;
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-Connection error. Skip stats collection.
+&lt;whylogs.core.view.dataset_profile_view.DatasetProfileView at 0x7effd1ef9240&gt;
 </pre></div></div>
 </div>
 <p>It is very similar to profile datasets or files using other backends, there will be detailed guides in the later sections.</p>
@@ -1313,7 +1255,7 @@ Connection error. Skip stats collection.
 <h2>Profiling on logical partitions<a class="headerlink" href="#Profiling-on-logical-partitions" title="Permalink to this headline">#</a></h2>
 <p>If we want to profile <code class="docutils literal notranslate"><span class="pre">tdf</span></code> grouped by columns <code class="docutils literal notranslate"><span class="pre">a</span></code> and <code class="docutils literal notranslate"><span class="pre">b</span></code></p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fugue_profile</span><span class="p">(</span><span class="n">tdf</span><span class="p">,</span> <span class="n">partition</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;by&quot;</span><span class="p">:[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="s2">&quot;b&quot;</span><span class="p">]})</span>
@@ -1321,7 +1263,7 @@ Connection error. Skip stats collection.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1353,37 +1295,37 @@ Connection error. Skip stats collection.
       <th>0</th>
       <td>1</td>
       <td>a</td>
-      <td>b'WHY1\x00\xd6\x02\n\x0e \xa5\xc0\xb3\xc9\xb50...</td>
+      <td>b'WHY1\x00\xf6\x02\n\x0e \xb3\x93\x93\x80\xda0...</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1</td>
       <td>b</td>
-      <td>b'WHY1\x00\xd6\x02\n\x0e \xb4\xc0\xb3\xc9\xb50...</td>
+      <td>b'WHY1\x00\xf6\x02\n\x0e \xc6\x93\x93\x80\xda0...</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2</td>
       <td>a</td>
-      <td>b'WHY1\x00\xd6\x02\n\x0e \xc6\xc0\xb3\xc9\xb50...</td>
+      <td>b'WHY1\x00\xf6\x02\n\x0e \xd6\x93\x93\x80\xda0...</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2</td>
       <td>b</td>
-      <td>b'WHY1\x00\xd6\x02\n\x0e \xd5\xc0\xb3\xc9\xb50...</td>
+      <td>b'WHY1\x00\xf6\x02\n\x0e \xe5\x93\x93\x80\xda0...</td>
     </tr>
     <tr>
       <th>4</th>
       <td>3</td>
       <td>a</td>
-      <td>b'WHY1\x00\xd6\x02\n\x0e \xe3\xc0\xb3\xc9\xb50...</td>
+      <td>b'WHY1\x00\xf6\x02\n\x0e \xf3\x93\x93\x80\xda0...</td>
     </tr>
     <tr>
       <th>5</th>
       <td>3</td>
       <td>b</td>
-      <td>b'WHY1\x00\xd6\x02\n\x0e \xf1\xc0\xb3\xc9\xb50...</td>
+      <td>b'WHY1\x00\xf6\x02\n\x0e \x82\x94\x93\x80\xda0...</td>
     </tr>
   </tbody>
 </table>
@@ -1391,7 +1333,7 @@ Connection error. Skip stats collection.
 </div>
 <p>We can also control the output profile field:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="n">fugue_profile</span><span class="p">(</span><span class="n">tdf</span><span class="p">,</span> <span class="n">partition</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;by&quot;</span><span class="p">:[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="s2">&quot;b&quot;</span><span class="p">]},</span> <span class="n">profile_field</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
@@ -1400,7 +1342,7 @@ Connection error. Skip stats collection.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1432,37 +1374,37 @@ Connection error. Skip stats collection.
       <th>0</th>
       <td>1</td>
       <td>a</td>
-      <td>b'WHY1\x00\xd6\x02\n\x0e \xed\xe3\xb3\xc9\xb50...</td>
+      <td>b'WHY1\x00\xf6\x02\n\x0e \xf7\xb1\x93\x80\xda0...</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1</td>
       <td>b</td>
-      <td>b'WHY1\x00\xd6\x02\n\x0e \xfd\xe3\xb3\xc9\xb50...</td>
+      <td>b'WHY1\x00\xf6\x02\n\x0e \x89\xb2\x93\x80\xda0...</td>
     </tr>
     <tr>
       <th>2</th>
       <td>2</td>
       <td>a</td>
-      <td>b'WHY1\x00\xd6\x02\n\x0e \x8b\xe4\xb3\xc9\xb50...</td>
+      <td>b'WHY1\x00\xf6\x02\n\x0e \x99\xb2\x93\x80\xda0...</td>
     </tr>
     <tr>
       <th>3</th>
       <td>2</td>
       <td>b</td>
-      <td>b'WHY1\x00\xd6\x02\n\x0e \x9a\xe4\xb3\xc9\xb50...</td>
+      <td>b'WHY1\x00\xf6\x02\n\x0e \xa8\xb2\x93\x80\xda0...</td>
     </tr>
     <tr>
       <th>4</th>
       <td>3</td>
       <td>a</td>
-      <td>b'WHY1\x00\xd6\x02\n\x0e \xa8\xe4\xb3\xc9\xb50...</td>
+      <td>b'WHY1\x00\xf6\x02\n\x0e \xb7\xb2\x93\x80\xda0...</td>
     </tr>
     <tr>
       <th>5</th>
       <td>3</td>
       <td>b</td>
-      <td>b'WHY1\x00\xd6\x02\n\x0e \xb6\xe4\xb3\xc9\xb50...</td>
+      <td>b'WHY1\x00\xf6\x02\n\x0e \xc5\xb2\x93\x80\xda0...</td>
     </tr>
   </tbody>
 </table>
@@ -1470,7 +1412,7 @@ Connection error. Skip stats collection.
 </div>
 <p>Here is how to retrieve the views:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs</span> <span class="kn">import</span> <span class="n">DatasetProfileView</span>
@@ -1480,7 +1422,7 @@ Connection error. Skip stats collection.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1530,7 +1472,7 @@ DataFrame[a: bigint, b: string, __whylogs_df_profile_view: binary]
 
 </pre></div></div>
 </div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
@@ -1539,16 +1481,8 @@ DataFrame[a: bigint, b: string, __whylogs_df_profile_view: binary]
 &#39;/tmp/output2.parquet&#39;
 </pre></div></div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-Connection error. Skip stats collection.
-</pre></div></div>
-</div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls /tmp/output*.parquet
@@ -1561,29 +1495,51 @@ Connection error. Skip stats collection.
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 /tmp/output1.parquet:
-_SUCCESS  part-00000-f2fe6067-9404-4f32-8fd7-daa952f14ac3-c000.snappy.parquet
+_SUCCESS  part-00000-ed074f68-68ff-42a8-a003-57e4a0275767-c000.snappy.parquet
 
 /tmp/output2.parquet:
-_SUCCESS  part-00000-337a3e5c-5480-4105-84a9-3db993f33837-c000.snappy.parquet
+_SUCCESS
+part-00000-83c8a2dc-0948-4ccc-bc06-e0fe14c89abb-c000.snappy.parquet
+part-00001-83c8a2dc-0948-4ccc-bc06-e0fe14c89abb-c000.snappy.parquet
+part-00002-83c8a2dc-0948-4ccc-bc06-e0fe14c89abb-c000.snappy.parquet
+part-00003-83c8a2dc-0948-4ccc-bc06-e0fe14c89abb-c000.snappy.parquet
 </pre></div></div>
 </div>
+</section>
+<section id="Using-fugue_profile-in-the-Fugue-API-way">
+<h2>Using <code class="docutils literal notranslate"><span class="pre">fugue_profile</span></code> in the Fugue API way<a class="headerlink" href="#Using-fugue_profile-in-the-Fugue-API-way" title="Permalink to this headline">#</a></h2>
+<p><a class="reference external" href="https://fugue.readthedocs.io/en/latest/top_api.html">Fugue API</a> is a collection of standalone platform agnostic functions for common big data operations. <code class="docutils literal notranslate"><span class="pre">fugue_profile</span></code> is following the same style and can be used like one of them. In the previous example we do data profiling from file to file with one function. While it is compact, it overloads the function, making it hard to read and maintain. Instead, if we follow the best practice, we can do this alternatively:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fugue.api</span> <span class="k">as</span> <span class="nn">fa</span>
+
+<span class="k">with</span> <span class="n">fa</span><span class="o">.</span><span class="n">engine_context</span><span class="p">(</span><span class="n">spark</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">fa</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;/tmp/test.parquet&quot;</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">fugue_profile</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">partition</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;by&quot;</span><span class="p">:[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="s2">&quot;b&quot;</span><span class="p">]})</span>
+    <span class="n">fa</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="s2">&quot;/tmp/output2.parquet&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>Execution wise, it is the same as the previous example. But this makes one line of code do one thing, which is a better coding style</p>
 </section>
 <section id="Performance-Tips">
 <h2>Performance Tips<a class="headerlink" href="#Performance-Tips" title="Permalink to this headline">#</a></h2>
 <section id="Spark">
 <h3>Spark<a class="headerlink" href="#Spark" title="Permalink to this headline">#</a></h3>
-<p>It is strongly recommended to enabled pandas UDF on Spark to get better performance. We need to follow <a class="reference external" href="https://spark.apache.org/docs/3.0.0/sql-pyspark-pandas-with-arrow.html#enabling-for-conversion-tofrom-pandas">this instruction</a> to enable <code class="docutils literal notranslate"><span class="pre">spark.sql.execution.arrow.pyspark.enabled</span></code>. And we also need to enable Fugue to use pandas UDF. A typical way would be:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fugue_profile</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">spark</span><span class="p">,</span> <span class="n">engine_conf</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;fugue.spark.use_pandas_udf&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span>
-</pre></div>
-</div>
-<p>We can also enable it globally (then we don’t need to set it in <code class="docutils literal notranslate"><span class="pre">engine_conf</span></code>):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fugue</span> <span class="kn">import</span> <span class="n">register_global_conf</span>
-
-<span class="n">register_global_conf</span><span class="p">({</span><span class="s2">&quot;fugue.spark.use_pandas_udf&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span>
-</pre></div>
-</div>
+<p>Please use <code class="docutils literal notranslate"><span class="pre">Fugue</span> <span class="pre">&gt;=</span> <span class="pre">0.8.0</span></code>, which enables Pandas UDF by default</p>
+<p>It is also beneficial to enabled pandas UDF on Spark to get better performance. We need to follow <a class="reference external" href="https://spark.apache.org/docs/3.0.0/sql-pyspark-pandas-with-arrow.html#enabling-for-conversion-tofrom-pandas">this instruction</a> to enable <code class="docutils literal notranslate"><span class="pre">spark.sql.execution.arrow.pyspark.enabled</span></code>.</p>
 <p>When we profile a dataframe without logical partition, we may control the number of partitions in order to control the parallelism:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fugue_profile</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">partition</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;num&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span> <span class="n">engine</span><span class="o">=</span><span class="n">spark</span><span class="p">,</span> <span class="n">engine_conf</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;fugue.spark.use_pandas_udf&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fugue_profile</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">partition</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;num&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span> <span class="n">engine</span><span class="o">=</span><span class="n">spark</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>If we don’t specify <code class="docutils literal notranslate"><span class="pre">num</span></code> then the default partitioning of the input dataframe will be used. If the input dataframe is a local dataframe such as pandas dataframe, the default partitioning will be the number of CPUs of the Spark cluster.</p>
@@ -1622,7 +1578,7 @@ _SUCCESS  part-00000-337a3e5c-5480-4105-84a9-3db993f33837-c000.snappy.parquet
 <section id="Accessing-distributed-platforms">
 <h2>Accessing distributed platforms<a class="headerlink" href="#Accessing-distributed-platforms" title="Permalink to this headline">#</a></h2>
 <p>In Fugue, accessing distributed platforms can be very simple. For example with proper setups, to profile a large S3 folder using Databricks, Anyscale or Coiled will be as simple as:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fugue_profile</span><span class="p">(</span><span class="s2">&quot;s3://&lt;path&gt;&quot;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;db:&lt;databricks_cluster_id&gt;&quot;</span><span class="p">,</span> <span class="n">engine_conf</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;fugue.spark.use_pandas_udf&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fugue_profile</span><span class="p">(</span><span class="s2">&quot;s3://&lt;path&gt;&quot;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;db:&lt;databricks_cluster_id&gt;&quot;</span><span class="p">)</span>
 <span class="n">fugue_profile</span><span class="p">(</span><span class="s2">&quot;s3://&lt;path&gt;&quot;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;&lt;anyscale_cluster_uri&gt;&quot;</span><span class="p">)</span>
 <span class="n">fugue_profile</span><span class="p">(</span><span class="s2">&quot;s3://&lt;path&gt;&quot;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;coiled:&lt;coiled_cluster_id&gt;&quot;</span><span class="p">)</span>
 </pre></div>
@@ -1700,6 +1656,7 @@ _SUCCESS  part-00000-337a3e5c-5480-4105-84a9-3db993f33837-c000.snappy.parquet
 <li><a class="reference internal" href="#Constructing-a-dataset">Constructing a dataset</a></li>
 <li><a class="reference internal" href="#Profiling-using-Whylogs-+-Fugue">Profiling using Whylogs + Fugue</a></li>
 <li><a class="reference internal" href="#Profiling-on-logical-partitions">Profiling on logical partitions</a></li>
+<li><a class="reference internal" href="#Using-fugue_profile-in-the-Fugue-API-way">Using <code class="docutils literal notranslate"><span class="pre">fugue_profile</span></code> in the Fugue API way</a></li>
 <li><a class="reference internal" href="#Performance-Tips">Performance Tips</a><ul>
 <li><a class="reference internal" href="#Spark">Spark</a></li>
 <li><a class="reference internal" href="#Ray">Ray</a></li>
