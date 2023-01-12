@@ -61,7 +61,7 @@ requests = "^2.27"
 
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
-black = { version = "*", allow-prereleases = true }
+black = { version = "^22.10.0", allow-prereleases = true }
 bump2version = "^1.0.1"
 flake8 = "^5"
 isort = "^5.6"
