@@ -170,7 +170,7 @@ class ConfusionMatrix:
 
     def to_protobuf(
         self,
-    ):
+    ) -> ScoreMatrixMessage:
         """
         Convert to protobuf
 
@@ -197,7 +197,7 @@ class ConfusionMatrix:
     def from_protobuf(
         cls,
         message: ScoreMatrixMessage,
-    ):
+    ) -> Optional["ConfusionMatrix"]:
         if message is None or message.ByteSize() == 0:
             return None
         labels = message.labels
