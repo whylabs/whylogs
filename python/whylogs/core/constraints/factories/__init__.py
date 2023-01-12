@@ -2,11 +2,14 @@ from .cardinality_metrics import distinct_number_in_range
 from .condition_counts import condition_meets
 from .count_metrics import (
     count_below_number,
+    no_missing_values,
     null_percentage_below_number,
     null_values_below_number,
 )
 from .distribution_metrics import (
     greater_than_number,
+    is_in_range,
+    is_non_negative,
     mean_between_range,
     quantile_between_range,
     smaller_than_number,
@@ -28,9 +31,12 @@ from .types_metrics import (
 ALL = [
     greater_than_number,
     smaller_than_number,
+    is_in_range,
+    is_non_negative,
     mean_between_range,
     stddev_between_range,
     quantile_between_range,
+    no_missing_values,
     count_below_number,
     null_values_below_number,
     null_percentage_below_number,

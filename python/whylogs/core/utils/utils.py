@@ -1,3 +1,4 @@
+import datetime
 import functools
 import warnings
 from typing import Any, Callable, Dict
@@ -42,3 +43,8 @@ def rename_kwargs(func_name: str, kwargs: Dict[str, Any], aliases: Dict[str, str
                 stacklevel=3,
             )
             kwargs[new] = kwargs.pop(alias)
+
+
+def ensure_timezone(dt: datetime.datetime) -> None:
+    if dt.tzinfo is None:
+        raise ValueError("whylogs requires timezone-aware datetime. Please use datetime.datetime(..., tzinfo=..) API")
