@@ -52,6 +52,9 @@ pyspark = {version = "^3.0.0", optional = true}
 # Image support related dependencies
 Pillow = {version = "^9.2.0", optional = true}
 
+# Embeddings support related dependencies
+scikit-learn = {version = "^1.0.2", optional = true}
+
 # Fugue related dependencies
 fugue = {version = "^0.8.0", optional = true}
 requests = "^2.27"
@@ -130,6 +133,9 @@ image = [
 ]
 fugue = [
   "fugue",
+]
+embeddings = [
+  "scikit-learn"
 ]
 
 [build-system]

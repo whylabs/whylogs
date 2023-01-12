@@ -19,6 +19,7 @@ skip_notebooks = [
     "Getting_Started_with_WhyLabsV1.ipynb",
     "Writing_Feature_Weights_to_WhyLabs.ipynb",
     "Image_Logging.ipynb",
+    "mnist_exploration.ipynb",
 ]
 
 
