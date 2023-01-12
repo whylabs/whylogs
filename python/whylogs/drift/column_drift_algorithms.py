@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from enum import Enum
 from whylogs.core.view.column_profile_view import ColumnProfileView  # type: ignore
 from whylogs.core.view.dataset_profile_view import DatasetProfileView  # type: ignore
-from whylogs.drift.configs import HellingerConfig, KSTestConfig, ChiSquareConfig
+from whylogs.drift.configs import HellingerConfig, KSTestConfig, ChiSquareConfig, DriftCategory
 from whylogs.viz.utils import _calculate_bins
 from whylogs.viz.utils.frequent_items_calculations import (
     FrequentStats,
@@ -25,6 +25,7 @@ class DriftAlgorithmScore:
     pvalue: Optional[float] = None
     statistic: Optional[float] = None
     thresholds: Optional[List[float]] = None
+    drift_category: Optional[str] = None
 
     def to_dict(self):
         score_dict = {
@@ -32,6 +33,7 @@ class DriftAlgorithmScore:
             "pvalue": self.pvalue,
             "statistic": self.statistic,
             "thresholds": self.thresholds,
+            "drift_category": self.drift_category,
         }
         return score_dict
 
@@ -39,6 +41,38 @@ class DriftAlgorithmScore:
 class ColumnDriftAlgorithm(ABC):
     def __init__(self, parameter_config: Optional[Any] = None):
         self._parameter_config = parameter_config
+
+    def _get_drift_category(self, measure: float) -> Optional[str]:
+        thresholds = self._parameter_config.thresholds
+        polarity = self._parameter_config.polarity
+
+        if polarity == "positive":
+            if len(thresholds) == 2:
+                if measure > thresholds[1]:
+                    return DriftCategory.DRIFT.value
+                elif measure > thresholds[0]:
+                    return DriftCategory.POSSIBLE_DRIFT.value
+                else:
+                    return DriftCategory.NO_DRIFT.value
+            if len(thresholds) == 1:
+                if measure > thresholds[0]:
+                    return DriftCategory.DRIFT.value
+                else:
+                    return DriftCategory.NO_DRIFT.value
+        if polarity == "negative":
+            if len(thresholds) == 2:
+                if measure > thresholds[1]:
+                    return DriftCategory.NO_DRIFT.value
+                elif measure > thresholds[0]:
+                    return DriftCategory.POSSIBLE_DRIFT.value
+                else:
+                    return DriftCategory.DRIFT.value
+            if len(thresholds) == 1:
+                if measure > thresholds[0]:
+                    return DriftCategory.NO_DRIFT.value
+                else:
+                    return DriftCategory.DRIFT.value
+        return None
 
     def calculate(
         self, target_column_view: ColumnProfileView, reference_column_view: ColumnProfileView
@@ -117,8 +151,12 @@ class Hellinger(ColumnDriftAlgorithm):
         ref_pmf = ref_kll_sketch.get_pmf(bins)
         distance = self._calculate_hellinger_score(target_pmf=target_pmf, reference_pmf=ref_pmf)
         if with_thresholds:
+            drift_category = self._get_drift_category(distance)
             return DriftAlgorithmScore(
-                algorithm=self.name, statistic=distance, thresholds=self._parameter_config.thresholds
+                algorithm=self.name,
+                statistic=distance,
+                thresholds=self._parameter_config.thresholds,
+                drift_category=drift_category,
             )
         else:
             return DriftAlgorithmScore(algorithm=self.name, statistic=distance)
@@ -192,8 +230,13 @@ class ChiSquare(ColumnDriftAlgorithm):
         degrees_of_freedom = degrees_of_freedom if degrees_of_freedom > 0 else 1
         p_value = stats.chi2.sf(chi_sq, degrees_of_freedom)
         if with_thresholds:
+            drift_category = self._get_drift_category(measure=p_value)
             drift_score = DriftAlgorithmScore(
-                algorithm=self.name, pvalue=p_value, statistic=chi_sq, thresholds=self._parameter_config.thresholds
+                algorithm=self.name,
+                pvalue=p_value,
+                statistic=chi_sq,
+                thresholds=self._parameter_config.thresholds,
+                drift_category=drift_category,
             )
         else:
             drift_score = DriftAlgorithmScore(algorithm=self.name, pvalue=p_value, statistic=chi_sq)
@@ -269,8 +312,13 @@ class KS(ColumnDriftAlgorithm):
         en = m * n / (m + n)
         p_value = stats.distributions.kstwo.sf(D_max, np.round(en))
         if with_thresholds:
+            drift_category = self._get_drift_category(measure=p_value)
             drift_score = DriftAlgorithmScore(
-                algorithm=self.name, pvalue=p_value, statistic=D_max, thresholds=self._parameter_config.thresholds
+                algorithm=self.name,
+                pvalue=p_value,
+                statistic=D_max,
+                thresholds=self._parameter_config.thresholds,
+                drift_category=drift_category,
             )
         else:
             drift_score = DriftAlgorithmScore(algorithm=self.name, pvalue=p_value, statistic=D_max)
