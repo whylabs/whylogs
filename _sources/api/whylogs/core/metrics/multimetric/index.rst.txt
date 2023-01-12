@@ -67,7 +67,7 @@ Attributes
 
       
 
-   .. py:method:: merge_submetrics(other: MULTI_METRIC) -> Dict[str, whylogs.core.metrics.Metric]
+   .. py:method:: merge_submetrics(other: MULTI_METRIC) -> Dict[str, Dict[str, whylogs.core.metrics.Metric]]
 
 
    .. py:method:: merge(other: MULTI_METRIC) -> MULTI_METRIC

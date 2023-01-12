@@ -1,0 +1,285 @@
+:py:mod:`whylogs.experimental.core.metrics.embedding_metric`
+============================================================
+
+.. py:module:: whylogs.experimental.core.metrics.embedding_metric
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.core.metrics.embedding_metric.MatrixComponent
+   whylogs.experimental.core.metrics.embedding_metric.DistanceFunction
+   whylogs.experimental.core.metrics.embedding_metric.EmbeddingConfig
+   whylogs.experimental.core.metrics.embedding_metric.EmbeddingMetric
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.core.metrics.embedding_metric.serialize
+   whylogs.experimental.core.metrics.embedding_metric.deserialize
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.core.metrics.embedding_metric.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: MatrixComponent(value: T)
+
+   Bases: :py:obj:`whylogs.core.metrics.metric_components.MetricComponent`\ [\ :py:obj:`numpy.ndarray`\ ]
+
+   A metric component is the smallest unit for a metric.
+
+   A metric might consist of multiple components. An example is distribution metric, which consists of kll sketch for
+   histogram, mean and m2. The calculation of components could be independent or could be coupled with other
+   components.
+
+   .. py:property:: value
+      :type: T
+
+
+   .. py:attribute:: type_id
+      :annotation: = 101
+
+      
+
+   .. py:attribute:: mtype
+      :annotation: :Optional[Type[T]]
+
+      
+
+   .. py:attribute:: registries
+      :annotation: :Optional[Registries]
+
+      
+
+   .. py:method:: set(value: T) -> None
+
+
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricComponentMessage
+
+
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+      :classmethod:
+
+
+
+.. py:function:: serialize(value: numpy.ndarray) -> whylogs.core.proto.MetricComponentMessage
+
+
+.. py:function:: deserialize(msg: whylogs.core.proto.MetricComponentMessage) -> numpy.ndarray
+
+
+.. py:class:: DistanceFunction
+
+   Bases: :py:obj:`enum.Enum`
+
+   Generic enumeration.
+
+   Derive from this class to define new enumerations.
+
+   .. py:attribute:: euclidean
+      
+
+      
+
+   .. py:attribute:: cosine
+      
+
+      
+
+   .. py:method:: name()
+
+      The name of the Enum member.
+
+
+   .. py:method:: value()
+
+      The value of the Enum member.
+
+
+
+.. py:class:: EmbeddingConfig
+
+   Bases: :py:obj:`whylogs.core.metrics.metrics.MetricConfig`
+
+   The rows of references are the reference vectors. A shape of (1, 1) indicates
+   there's no reference matrix and the metric will not be updatable. It should still
+   be mergeable with compatible metrics (details of compatability TBD). The rows
+   must be in the same order as labels. If labels are not provided, "0" ... "n" will
+   be used, where n is the number of rows in the references matrix.
+
+   .. py:attribute:: references
+      :annotation: :numpy.ndarray
+
+      
+
+   .. py:attribute:: labels
+      :annotation: :Optional[List[str]]
+
+      
+
+   .. py:attribute:: distance_fn
+      :annotation: :DistanceFunction
+
+      
+
+   .. py:attribute:: serialize_references
+      :annotation: :bool = True
+
+      
+
+   .. py:attribute:: hll_lg_k
+      :annotation: :int = 12
+
+      
+
+   .. py:attribute:: kll_k
+      :annotation: :int = 256
+
+      
+
+   .. py:attribute:: fi_lg_max_k
+      :annotation: :int = 10
+
+      
+
+   .. py:attribute:: fi_disabled
+      :annotation: :bool = False
+
+      
+
+   .. py:attribute:: track_unicode_ranges
+      :annotation: :bool = False
+
+      
+
+   .. py:attribute:: large_kll_k
+      :annotation: :bool = True
+
+      
+
+   .. py:attribute:: kll_k_large
+      :annotation: :int = 1024
+
+      
+
+   .. py:attribute:: unicode_ranges
+      :annotation: :Dict[str, Tuple[int, int]]
+
+      
+
+   .. py:attribute:: lower_case
+      :annotation: :bool = True
+
+      
+
+   .. py:attribute:: normalize
+      :annotation: :bool = True
+
+      
+
+
+.. py:class:: EmbeddingMetric(submetrics: Dict[str, Dict[str, whylogs.core.metrics.Metric]])
+
+   Bases: :py:obj:`whylogs.core.metrics.multimetric.MultiMetric`
+
+   MultiMetric serves as a base class for custom metrics that consist
+   of one or more metrics. It is handy when you need to do some
+   processing of the logged values and track several metrics on
+   the results. The sub-metrics must either be a StandardMetric, or tagged
+   as a @custom_metric or registered via register_metric(). Note that
+   MultiMetric is neither, so it cannot be nested.
+
+   Typically you will need to override namespace(); columnar_update(), calling
+   it on the submetrics as needed; and the zero() method to return an
+   appropriate "empty" instance of your metric. You will need to override from_protobuf()
+   and merge() if your subclass __init__() method takes arguments different than
+   MultiMetrtic's. You can use the submetrics_from_protbuf() and merge_submetrics()
+   helper methods to implement them. The MultiMetric class will handle the rest of
+   the Metric interface. Don't use / or : in the subclass' namespace.
+
+   See UnicodeRangeMetric for an example.
+
+   .. py:property:: namespace
+      :type: str
+
+
+   .. py:attribute:: references
+      :annotation: :MatrixComponent
+
+      
+
+   .. py:attribute:: labels
+      :annotation: :List[str]
+
+      
+
+   .. py:attribute:: distance_fn
+      :annotation: :DistanceFunction
+
+      
+
+   .. py:attribute:: serialize_references
+      :annotation: :bool
+
+      
+
+   .. py:attribute:: submetrics
+      :annotation: :Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+
+      
+
+   .. py:method:: merge(other: EmbeddingMetric) -> EmbeddingMetric
+
+
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
+
+
+   .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
+
+
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> EmbeddingMetric
+      :classmethod:
+
+
+   .. py:method:: zero(cfg: Optional[EmbeddingConfig] = None) -> EmbeddingMetric
+      :classmethod:
+
+
+   .. py:method:: merge_submetrics(other: MULTI_METRIC) -> Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+
+
+   .. py:method:: get_component_paths() -> List[str]
+
+
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
+
+
+   .. py:method:: submetrics_from_protobuf(msg: whylogs.core.proto.MetricMessage) -> Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+      :classmethod:
+
+
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
+      :classmethod:
+
+
+
