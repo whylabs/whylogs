@@ -787,7 +787,7 @@
                             <span class="question-mark">?</span>
                           <span class="tooltiptext">
                            <div class="mb-1">Drift is evaluated against pvalue, if present, and against statistic otherwise.</div>
-                          </span>                        
+                          </span>
                         </div>
                         </div>
                       </div>
@@ -821,7 +821,17 @@
                            {{{getDiffFromRef this}}}
                         </div></div><div
                         class="wl-table-cell wl-table-cell--top-spacing align-middle"
-                      ><div class="text-align-end">{{getDriftCategory this}}</div></div><div
+                      ><div class="text-align-end">{{getDriftCategory this}}
+                        <div class="tooltip-full-number">
+                          <span class="question-mark">?</span>
+                        <span class="tooltiptext">
+                        <div class="mb-1"><pre class="mb-1">{{getThresholds this}}</pre></div>
+                        </span>
+                      </div>
+                      </div>
+
+                      </div>
+                      <div
                         class="wl-table-cell wl-table-cell--top-spacing align-middle"
                       ><div class="text-align-end">{{totalCount this}}</div></div>
                     </li>
@@ -1019,49 +1029,18 @@
       };
 
       const countOfDrifts = (drift_from_ref, increment = true) => {
-        thresholds = drift_from_ref.thresholds
-        pvalue = drift_from_ref.pvalue
-        statistic = drift_from_ref.statistic
-        primary_value = drift_from_ref.primary_value
-        threshold_on_pvalue = true
-        if (typeof drift_from_ref.pvalue === "number"){
-          primary_value = drift_from_ref.pvalue
-          threshold_on_pvalue = true
+        drift_class = drift_from_ref.drift_category
+        if (drift_class=="NO_DRIFT") {
+          if (increment){Object.values(drifts)[0].count++}
+          return 0
         }
-        else {
-          primary_value = drift_from_ref.statistic
-          threshold_on_pvalue = false}
-        if (thresholds.length == 2) {
-          if (primary_value < thresholds[0]) {
-            if (threshold_on_pvalue) {
-              if (increment){Object.values(drifts)[0].count++}
-              return 0
-            }
-            else {
-              if (increment){Object.values(drifts)[2].count++}
-              return 2
-            }
-          } else if(primary_value >= thresholds[0] && primary_value < thresholds[1]) {            
-            if (increment){Object.values(drifts)[1].count++}
-            return 1
-          } else if(primary_value >= thresholds[1]) {
-            if (threshold_on_pvalue) {
-              if (increment){Object.values(drifts)[2].count++}
-              return 2
-            }
-            else {
-              if (increment){Object.values(drifts)[0].count++}
-              return 0
-            }
-          }
-        } else if (thresholds.length == 1) {
-          if (primary_value < thresholds[0]) {
-            if (increment){Object.values(drifts)[0].count++}
-            return 0
-          } else if(primary_value >= thresholds[0]) {
-            if (increment){Object.values(drifts)[2].count++}
-            return 2
-          }
+        if (drift_class=="POSSIBLE_DRIFT") {
+          if (increment){Object.values(drifts)[1].count++}
+          return 1
+        }
+        if (drift_class=="DRIFT") {
+          if (increment){Object.values(drifts)[2].count++}
+          return 2
         }
       }
 
@@ -1150,9 +1129,9 @@
 
        const cheqValueTypeNumber = (profile, profileValue) => {
          let validValue;
-         if (profile && profileValue !== undefined && typeof profileValue.primary_value === "number") {
+         if (profile && profileValue !== undefined && typeof profileValue === "number") {
            return true
-         } else if (profileValue !== undefined && typeof profileValue.primary_value !== "number") {
+         } else if (profileValue !== undefined && typeof profileValue !== "number") {
            return false
          }
        }
@@ -1162,30 +1141,30 @@
         const columnKey = key.data.key
         const {drift_from_ref} = referenceProfile.columns[columnKey]
 
-        if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
+        if (cheqValueTypeNumber(referenceProfile, drift_from_ref.primary_value)) {
           const driftFromRefNumber = drift_from_ref.primary_value.toPrecision(2)
           return Number(driftFromRefNumber)
 
         }
       });
 
-  
+
       Handlebars.registerHelper("getDriftCategory", function (column, key) {
         const columnKey = key.data.key
         const {drift_from_ref} = referenceProfile.columns[columnKey]
         const categories = {
-          0: "Detected drift",
+          0: "No evidence of drift",
           1: "Possible drift",
-          2: "No evidence of drift"
+          2: "Detected drift"
         }
 
-        if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
+        if (cheqValueTypeNumber(referenceProfile, drift_from_ref.primary_value)) {
           const driftFromRefNumber = drift_from_ref.primary_value.toPrecision(2)
           const driftCategory = countOfDrifts(drift_from_ref, increment=false)
           const circleColor = Object.values(drifts)[driftCategory].colorClass
           return categories[driftCategory]
 
-        } else if (cheqValueTypeNumber(referenceProfile, drift_from_ref) !== undefined) {
+        } else if (cheqValueTypeNumber(referenceProfile, drift_from_ref.primary_value) !== undefined) {
           Object.values(drifts)[0].count++
           return diffFromRefTableElement("undefined", "severe-drift-circle-color")
         }
@@ -1199,16 +1178,16 @@
         const columnKey = key.data.key
         const {drift_from_ref} = referenceProfile.columns[columnKey]
 
-        if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
+        if (cheqValueTypeNumber(referenceProfile, drift_from_ref.primary_value)) {
           const driftFromRefNumber = drift_from_ref.primary_value.toPrecision(2)
           const driftCategory = countOfDrifts(drift_from_ref)
           const circleColor = Object.values(drifts)[driftCategory].colorClass
-          let kv_pairs = Object.entries({
-                                        algorithm:drift_from_ref.algorithm,
-                                        pvalue:drift_from_ref.pvalue,
-                                        statistic:drift_from_ref.statistic,
-                                        thresholds:drift_from_ref.thresholds})
-          let driftStats = kv_pairs.map(([key, value]) => `${key}: ${value}`).join('\n')
+          if (cheqValueTypeNumber(referenceProfile, drift_from_ref.pvalue)){
+            stats_string = `using algorithm: ${drift_from_ref.algorithm}\npvalue is: ${drift_from_ref.pvalue}`
+          }
+          else {
+            stats_string = `using algorithm: ${drift_from_ref.algorithm}\nstatistic is: ${drift_from_ref.statistic}`
+          }
           if (driftCategory==0 || driftCategory == 1){
             driftCount++
           }
@@ -1217,13 +1196,23 @@
              $(".all-features").html(Object.keys(referenceProfile.columns).length)
            })
 
-          return diffFromRefTableElement(driftStats, circleColor)
+          return diffFromRefTableElement(stats_string, circleColor)
 
-        } else if (cheqValueTypeNumber(referenceProfile, drift_from_ref) !== undefined) {
-          Object.values(drifts)[0].count++
-          return diffFromRefTableElement("undefined", "severe-drift-circle-color")
         }
+        return '<p style="color: black">-</p>';
+      });
 
+
+      Handlebars.registerHelper("getThresholds", function (column, key) {
+        const columnKey = key.data.key
+        const {drift_from_ref} = referenceProfile.columns[columnKey]
+
+        if (cheqValueTypeNumber(referenceProfile, drift_from_ref.primary_value)) {
+          thresholds_map = Object.entries(drift_from_ref.thresholds)
+          let thresholds_string = thresholds_map.map(([key, value]) => `${key}: ${value}`).join('\n')
+          return "thresholds:\n"+thresholds_string
+
+        }
         return '<p style="color: black">-</p>';
       });
 
@@ -1249,19 +1238,19 @@
         const columnKey = key.data.key
         const {drift_from_ref} = referenceProfile.columns[columnKey]
 
-        if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
+        if (cheqValueTypeNumber(referenceProfile, drift_from_ref.primary_value)) {
           console.log(drift_from_ref.drift_category)
           console.log(Number(drift_from_ref.drift_category)==0)
-          
-          if (Number(drift_from_ref.drift_category)==0){
+
+          if (drift_from_ref.drift_category=="NO_DRIFT"){
             console.log("discrete")
             return "nodrift"
           }
-          if (Number(drift_from_ref.drift_category)==1){
+          if (drift_from_ref.drift_category=="POSSIBLE_DRIFT"){
             console.log("non-discrete")
             return "possibledrift"
           }
-          if (Number(drift_from_ref.drift_category)==2){
+          if (drift_from_ref.drift_category=="DRIFT"){
             console.log("unknown")
             return "drift"
           }
@@ -1332,7 +1321,7 @@
         let count = 0;
 
         Object.entries(referenceProfile.columns).forEach((feature) => {
-          if (feature[1].drift_from_ref.drift_category == 2) {
+          if (feature[1].drift_from_ref.drift_category == "DRIFT") {
             count++;
           }
         });
@@ -1343,7 +1332,7 @@
         let count = 0;
 
         Object.entries(referenceProfile.columns).forEach((feature) => {
-          if (feature[1].drift_from_ref.drift_category == 1) {
+          if (feature[1].drift_from_ref.drift_category == "POSSIBLE_DRIFT") {
             count++;
           }
         });
@@ -1355,7 +1344,7 @@
         let count = 0;
 
         Object.entries(referenceProfile.columns).forEach((feature) => {
-          if (feature[1].drift_from_ref.drift_category == 0) {
+          if (feature[1].drift_from_ref.drift_category == "NO_DRIFT") {
             count++;
           }
         });

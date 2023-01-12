@@ -2,15 +2,15 @@ import html
 import json
 import logging
 import os
-from typing import Any, Dict, List, Optional, Union, Callable
-from whylogs.core import ColumnProfileView
+from typing import Any, Dict, List, Optional
 
 from IPython.core.display import HTML  # type: ignore
-from whylogs.drift.column_drift_algorithms import ColumnDriftAlgorithm
+
 from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.constraints import Constraints
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.drift.column_drift_algorithms import ColumnDriftAlgorithm
 from whylogs.migration.uncompound import _uncompound_dataset_profile
 from whylogs.viz.enums.enums import PageSpec, PageSpecEnum
 from whylogs.viz.utils.frequent_items_calculations import zero_padding_frequent_items
@@ -221,8 +221,6 @@ class NotebookProfileVisualizer:
             raise ValueError("Drift algorithm cannot be None.")
         if not column_names:
             raise ValueError("Drift configuration must have at least one column name.")
-        if algorithm._parameter_config.thresholds and len(algorithm._parameter_config.thresholds) > 2:
-            raise ValueError("Drift algorithm can have at most two thresholds.")
         if column_names:
             for column_name in column_names:
                 if column_name not in self._target_view.get_columns().keys():

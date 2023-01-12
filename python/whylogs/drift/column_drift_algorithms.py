@@ -1,16 +1,20 @@
 import warnings
-from typing import Dict, List, Optional, Union, Callable, Any
-from abc import ABC
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
+
 import numpy as np
 from scipy import stats  # type: ignore
 from scipy.spatial.distance import euclidean
-from typing_extensions import TypedDict
-from whylogs_sketching import kll_doubles_sketch  # type: ignore
-from dataclasses import dataclass
-from enum import Enum
+
 from whylogs.core.view.column_profile_view import ColumnProfileView  # type: ignore
 from whylogs.core.view.dataset_profile_view import DatasetProfileView  # type: ignore
-from whylogs.drift.configs import HellingerConfig, KSTestConfig, ChiSquareConfig, DriftCategory
+from whylogs.drift.configs import (
+    ChiSquareConfig,
+    DriftThresholds,
+    HellingerConfig,
+    KSTestConfig,
+)
 from whylogs.viz.utils import _calculate_bins
 from whylogs.viz.utils.frequent_items_calculations import (
     FrequentStats,
@@ -24,7 +28,7 @@ class DriftAlgorithmScore:
     algorithm: str
     pvalue: Optional[float] = None
     statistic: Optional[float] = None
-    thresholds: Optional[List[float]] = None
+    thresholds: Optional[DriftThresholds] = None
     drift_category: Optional[str] = None
 
     def to_dict(self):
@@ -32,7 +36,7 @@ class DriftAlgorithmScore:
             "algorithm": self.algorithm,
             "pvalue": self.pvalue,
             "statistic": self.statistic,
-            "thresholds": self.thresholds,
+            "thresholds": self.thresholds.to_dict(),
             "drift_category": self.drift_category,
         }
         return score_dict
@@ -43,40 +47,18 @@ class ColumnDriftAlgorithm(ABC):
         self._parameter_config = parameter_config
 
     def _get_drift_category(self, measure: float) -> Optional[str]:
-        thresholds = self._parameter_config.thresholds
-        polarity = self._parameter_config.polarity
+        if not self._parameter_config:
+            raise ValueError("No parameter config set for algorithm.")
+        thresholds = self._parameter_config.thresholds.to_dict()
+        for drift_class in thresholds:
+            if thresholds[drift_class] and thresholds[drift_class][0] <= measure < thresholds[drift_class][1]:
+                return drift_class
+        raise ValueError(f"Measue {measure} does not fit into any drift category defined by thresholds.")
 
-        if polarity == "positive":
-            if len(thresholds) == 2:
-                if measure > thresholds[1]:
-                    return DriftCategory.DRIFT.value
-                elif measure > thresholds[0]:
-                    return DriftCategory.POSSIBLE_DRIFT.value
-                else:
-                    return DriftCategory.NO_DRIFT.value
-            if len(thresholds) == 1:
-                if measure > thresholds[0]:
-                    return DriftCategory.DRIFT.value
-                else:
-                    return DriftCategory.NO_DRIFT.value
-        if polarity == "negative":
-            if len(thresholds) == 2:
-                if measure > thresholds[1]:
-                    return DriftCategory.NO_DRIFT.value
-                elif measure > thresholds[0]:
-                    return DriftCategory.POSSIBLE_DRIFT.value
-                else:
-                    return DriftCategory.DRIFT.value
-            if len(thresholds) == 1:
-                if measure > thresholds[0]:
-                    return DriftCategory.NO_DRIFT.value
-                else:
-                    return DriftCategory.DRIFT.value
-        return None
-
+    @abstractmethod
     def calculate(
-        self, target_column_view: ColumnProfileView, reference_column_view: ColumnProfileView
-    ) -> DriftAlgorithmScore:
+        self, target_column_view: ColumnProfileView, reference_column_view: ColumnProfileView, with_thresholds: bool
+    ) -> Optional[DriftAlgorithmScore]:
         raise NotImplementedError
 
     def set_parameters(self, parameter_config: Any):
@@ -112,7 +94,10 @@ class Hellinger(ColumnDriftAlgorithm):
 
     def calculate(
         self, target_column_view: ColumnProfileView, reference_column_view: ColumnProfileView, with_thresholds=False
-    ) -> DriftAlgorithmScore:
+    ) -> Optional[DriftAlgorithmScore]:
+
+        if not self._parameter_config:
+            raise ValueError("No parameter config set for algorithm.")
         MAX_HIST_BUCKETS = self._parameter_config.max_hist_buckets
         HIST_AVG_NUMBER_PER_BUCKET = self._parameter_config.hist_avg_number_per_bucket
         MIN_N_BUCKETS = self._parameter_config.min_n_buckets
@@ -229,7 +214,7 @@ class ChiSquare(ColumnDriftAlgorithm):
         degrees_of_freedom = target_unique_count - 1
         degrees_of_freedom = degrees_of_freedom if degrees_of_freedom > 0 else 1
         p_value = stats.chi2.sf(chi_sq, degrees_of_freedom)
-        if with_thresholds:
+        if with_thresholds and self._parameter_config:
             drift_category = self._get_drift_category(measure=p_value)
             drift_score = DriftAlgorithmScore(
                 algorithm=self.name,
@@ -245,7 +230,7 @@ class ChiSquare(ColumnDriftAlgorithm):
 
     def calculate(
         self, target_column_view: ColumnProfileView, reference_column_view: ColumnProfileView, with_thresholds=False
-    ) -> DriftAlgorithmScore:
+    ) -> Optional[DriftAlgorithmScore]:
         target_frequent_stats: FrequentStats = get_frequent_stats(target_column_view, config=None)
         ref_frequent_stats: FrequentStats = get_frequent_stats(reference_column_view, config=None)
 
@@ -327,7 +312,7 @@ class KS(ColumnDriftAlgorithm):
 
     def calculate(
         self, target_column_view: ColumnProfileView, reference_column_view: ColumnProfileView, with_thresholds=False
-    ) -> DriftAlgorithmScore:
+    ) -> Optional[DriftAlgorithmScore]:
         target_dist_metric = target_column_view.get_metric("distribution")
         ref_dist_metric = reference_column_view.get_metric("distribution")
 
@@ -359,7 +344,7 @@ def _get_drift_score(
 ):
     if drift_map and column_name in drift_map:
         drift_algorithm = drift_map[column_name]
-        drift_score: DriftAlgorithmScore = drift_algorithm.calculate(
+        drift_score: Optional[DriftAlgorithmScore] = drift_algorithm.calculate(
             reference_column_view=reference_column_view,
             target_column_view=target_column_view,
             with_thresholds=with_thresholds,
@@ -384,12 +369,13 @@ def calculate_drift_scores(
     reference_view: DatasetProfileView,
     drift_map: Optional[Dict[str, ColumnDriftAlgorithm]] = None,
     with_thresholds=False,
-) -> Dict[str, Optional[DriftAlgorithmScore]]:
+) -> Dict[str, Optional[Dict[str, Any]]]:
     """Calculate drift scores for all columns in the target dataset profile.
 
     If a drift map is provided, the drift algorithm for each column in the map is determined by the map.
     Columns not in the map (or if map is not provided) will use the default drift algorithm selection logic.
-    If the column does not have the required metrics to apply the selected algorithm, None is returned. For example, if KS or Hellinger is selected for a column with string values, None will be returned.
+    If the column does not have the required metrics to apply the selected algorithm, None is returned.
+    For example, if KS or Hellinger is selected for a column with string values, None will be returned.
 
     If with_thresholds is True, the configured algorithm's thresholds is returned in the DriftAlgorithmScore.
 
@@ -410,25 +396,29 @@ def calculate_drift_scores(
             target_view=target_view, reference_view=ref_view, drift_map=drift_map, with_thresholds=True
         )
     """
-    drift_scores: Dict[str, Optional[DriftAlgorithmScore]] = {}
+    drift_scores: Dict[str, Optional[Dict[str, Any]]] = {}
     target_view_columns = target_view.get_columns()
     reference_view_columns = reference_view.get_columns()
-
-    for column_name in drift_map.keys():
-        if column_name not in target_view_columns.keys():
-            warnings.warn(f"Column {column_name} not found in target profile.")
-        if column_name not in reference_view_columns.keys():
-            warnings.warn(f"Column {column_name} not found in reference profile.")
+    if drift_map:
+        for column_name in drift_map.keys():
+            if column_name not in target_view_columns.keys():
+                warnings.warn(f"Column {column_name} not found in target profile.")
+            if column_name not in reference_view_columns.keys():
+                warnings.warn(f"Column {column_name} not found in reference profile.")
 
     for target_column_name in target_view_columns:
         if target_column_name in reference_view_columns:
             target_view_column = target_view_columns[target_column_name]
             reference_view_column = reference_view_columns[target_column_name]
-            drift_scores[target_column_name] = _get_drift_score(
+            drift_score = _get_drift_score(
                 column_name=target_column_name,
                 target_column_view=target_view_column,
                 reference_column_view=reference_view_column,
                 drift_map=drift_map,
                 with_thresholds=with_thresholds,
             )
+            if drift_score:
+                drift_scores[target_column_name] = drift_score.to_dict()
+            else:
+                drift_scores[target_column_name] = None
     return drift_scores

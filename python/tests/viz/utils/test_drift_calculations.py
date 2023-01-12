@@ -8,7 +8,7 @@ import whylogs as why
 from whylogs.core import ColumnProfileView
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.metrics.metrics import MetricConfig
-from whylogs.viz.configs import HellingerConfig
+from whylogs.drift.configs import HellingerConfig
 from whylogs.viz.utils.drift_calculations import (
     _compute_chi_squared_test_p_value,
     _compute_ks_test_p_value,

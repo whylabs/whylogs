@@ -6,9 +6,13 @@ from typing_extensions import TypedDict
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics import CardinalityMetric
-from whylogs.core.utils import get_distribution_metrics
+from whylogs.core.utils import deprecated, get_distribution_metrics
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.drift.column_drift_algorithms import (
+    ColumnDriftAlgorithm,
+    calculate_drift_scores,
+)
 from whylogs.extras.image_metric import ImageMetric
 from whylogs.viz.utils import (
     DescriptiveStatistics,
@@ -18,7 +22,6 @@ from whylogs.viz.utils import (
 )
 from whylogs.viz.utils.descriptive_stats import _get_count_metrics_from_column_view
 from whylogs.viz.utils.drift_calculations import calculate_drift_values
-from whylogs.drift.column_drift_algorithms import calculate_drift_scores, ColumnDriftAlgorithm, DriftAlgorithmScore
 from whylogs.viz.utils.frequent_items_calculations import (
     FrequentItemEstimate,
     frequent_items_from_view,
@@ -27,7 +30,6 @@ from whylogs.viz.utils.histogram_calculations import (
     HistogramSummary,
     histogram_from_view,
 )
-from whylogs.core.utils import deprecated
 
 logger = getLogger(__name__)
 
@@ -97,7 +99,7 @@ class OverallStats(TypedDict):
 class ColumnSummary(TypedDict):
     histogram: Optional[HistogramSummary]
     frequentItems: Optional[List[FrequentItemEstimate]]
-    drift_from_ref: Optional[Union[float, Dict[str, Any]]]
+    drift_from_ref: Optional[Dict[str, Any]]
     isDiscrete: Optional[bool]
     featureStats: Optional[FeatureStats]
 
@@ -205,10 +207,11 @@ def generate_summaries_with_drift_score(
             if target_col_name in drift_values:
                 col_drift_value = drift_values[target_col_name]
                 if col_drift_value:
-                    ref_column_summary["drift_from_ref"] = col_drift_value.to_dict()
-                    ref_column_summary["drift_from_ref"].update(
-                        {"primary_value": col_drift_value.pvalue or col_drift_value.statistic}
-                    )
+                    ref_column_summary["drift_from_ref"] = col_drift_value
+                    if ref_column_summary["drift_from_ref"]:
+                        ref_column_summary["drift_from_ref"].update(
+                            {"primary_value": col_drift_value["pvalue"] or col_drift_value["statistic"]}
+                        )
             target_dist = target_col_view.get_metric("distribution")
             reference_dist = ref_col_view.get_metric("distribution")
             if (
