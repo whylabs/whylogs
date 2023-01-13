@@ -9,7 +9,7 @@ from scipy.spatial.distance import euclidean
 
 from whylogs.core.view.column_profile_view import ColumnProfileView  # type: ignore
 from whylogs.core.view.dataset_profile_view import DatasetProfileView  # type: ignore
-from whylogs.drift.configs import (
+from whylogs.viz.drift.configs import (
     ChiSquareConfig,
     DriftThresholds,
     HellingerConfig,
@@ -401,8 +401,8 @@ def calculate_drift_scores(
     Examples
     --------
     .. code-block:: python
-        from whylogs.drift.column_drift_algorithms import Hellinger
-        from whylogs.drift.configs import HellingerConfig
+        from whylogs.viz.drift.column_drift_algorithms import Hellinger
+        from whylogs.viz.drift.configs import HellingerConfig
 
         hellingerconfig = HellingerConfig(max_hist_buckets=30)
 

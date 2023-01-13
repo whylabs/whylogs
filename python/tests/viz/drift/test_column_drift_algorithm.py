@@ -1,7 +1,7 @@
 import pytest
-from whylogs.drift.configs import KSTestConfig, HellingerConfig, ChiSquareConfig, DriftThresholds
-from whylogs.drift.column_drift_algorithms import calculate_drift_scores
-from whylogs.drift.column_drift_algorithms import KS, Hellinger, ChiSquare
+from whylogs.viz.drift.configs import KSTestConfig, HellingerConfig, ChiSquareConfig, DriftThresholds
+from whylogs.viz.drift.column_drift_algorithms import calculate_drift_scores
+from whylogs.viz.drift.column_drift_algorithms import KS, Hellinger, ChiSquare
 import pandas as pd
 import whylogs as why
 

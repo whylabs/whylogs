@@ -10,7 +10,7 @@ from whylogs_sketching import kll_doubles_sketch  # type: ignore
 from whylogs.core.utils import deprecated
 from whylogs.core.view.column_profile_view import ColumnProfileView  # type: ignore
 from whylogs.core.view.dataset_profile_view import DatasetProfileView  # type: ignore
-from whylogs.drift.configs import HellingerConfig, KSTestConfig
+from whylogs.viz.drift.configs import HellingerConfig, KSTestConfig
 from whylogs.viz.utils import _calculate_bins
 from whylogs.viz.utils.frequent_items_calculations import (
     FrequentStats,

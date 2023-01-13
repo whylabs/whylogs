@@ -4,12 +4,12 @@ from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import TypedDict
 
+import whylogs.viz.drift.column_drift_algorithms as column_drift_algorithms
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics import CardinalityMetric
 from whylogs.core.utils import deprecated, get_distribution_metrics
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
-import whylogs.drift.column_drift_algorithms as column_drift_algorithms
 from whylogs.extras.image_metric import ImageMetric
 from whylogs.viz.utils import (
     DescriptiveStatistics,

@@ -6,11 +6,11 @@ from typing import Any, Dict, List, Optional
 
 from IPython.core.display import HTML  # type: ignore
 
+import whylogs.viz.drift.column_drift_algorithms as column_drift_algorithms
 from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.constraints import Constraints
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
-import whylogs.drift.column_drift_algorithms as column_drift_algorithms
 from whylogs.migration.uncompound import _uncompound_dataset_profile
 from whylogs.viz.enums.enums import PageSpec, PageSpecEnum
 from whylogs.viz.utils.frequent_items_calculations import zero_padding_frequent_items
