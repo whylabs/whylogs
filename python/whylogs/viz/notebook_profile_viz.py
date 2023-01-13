@@ -10,7 +10,7 @@ from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.constraints import Constraints
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
-from whylogs.drift.column_drift_algorithms import ColumnDriftAlgorithm
+import whylogs.drift.column_drift_algorithms as column_drift_algorithms
 from whylogs.migration.uncompound import _uncompound_dataset_profile
 from whylogs.viz.enums.enums import PageSpec, PageSpecEnum
 from whylogs.viz.utils.frequent_items_calculations import zero_padding_frequent_items
@@ -95,7 +95,7 @@ class NotebookProfileVisualizer:
 
     _ref_view: Optional[DatasetProfileView]
     _target_view: DatasetProfileView
-    _drift_map: Optional[Dict[str, ColumnDriftAlgorithm]] = None
+    _drift_map: Optional[Dict[str, column_drift_algorithms.ColumnDriftAlgorithm]] = None
 
     @staticmethod
     def _display(template: str, page_spec: PageSpec, height: Optional[str]) -> "HTML":
@@ -199,7 +199,9 @@ class NotebookProfileVisualizer:
             logger.warning("This method has to get at least a target profile, with valid feature title")
             return None
 
-    def add_drift_config(self, column_names: List[str], algorithm: ColumnDriftAlgorithm) -> None:
+    def add_drift_config(
+        self, column_names: List[str], algorithm: column_drift_algorithms.ColumnDriftAlgorithm
+    ) -> None:
         """Add drift configuration.
         The algorithms and thresholds added through this method will be used to calculate drift scores in the `summary_drift_report()` method.
         If any drift configuration exists, the new configuration will overwrite the standard behavior when appliable.
@@ -212,7 +214,7 @@ class NotebookProfileVisualizer:
 
         """
         self._drift_map = {} if not self._drift_map else self._drift_map
-        if not isinstance(algorithm, ColumnDriftAlgorithm):
+        if not isinstance(algorithm, column_drift_algorithms.ColumnDriftAlgorithm):
             raise ValueError("Algorithm must be of class ColumnDriftAlgorithm.")
         if not self._target_view or not self._ref_view:
             logger.error("Set target and reference profiles before adding drift configuration.")

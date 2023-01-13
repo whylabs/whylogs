@@ -36,8 +36,8 @@ class DriftAlgorithmScore:
             "algorithm": self.algorithm,
             "pvalue": self.pvalue,
             "statistic": self.statistic,
-            "thresholds": self.thresholds.to_dict(),
-            "drift_category": self.drift_category,
+            "thresholds": None if not self.thresholds else self.thresholds.to_dict(),
+            "drift_category": None if not self.drift_category else self.drift_category,
         }
         return score_dict
 
@@ -47,13 +47,20 @@ class ColumnDriftAlgorithm(ABC):
         self._parameter_config = parameter_config
 
     def _get_drift_category(self, measure: float) -> Optional[str]:
+        """
+        Returns the drift category for a given measure.
+        If the measure is not within any of the defined thresholds, returns None.
+        If the measure is within the thresholds of multiple categories, priority is given by drift severity.
+        """
         if not self._parameter_config:
             raise ValueError("No parameter config set for algorithm.")
         thresholds = self._parameter_config.thresholds.to_dict()
-        for drift_class in thresholds:
-            if thresholds[drift_class] and thresholds[drift_class][0] <= measure < thresholds[drift_class][1]:
+        for drift_class in ["DRIFT", "POSSIBLE_DRIFT", "NO_DRIFT"]:
+            drift = thresholds.get(drift_class)
+            if drift and drift[0] <= measure < drift[1]:
                 return drift_class
-        raise ValueError(f"Measue {measure} does not fit into any drift category defined by thresholds.")
+
+        raise ValueError(f"Measure {measure} does not fit into any drift category defined by thresholds.")
 
     @abstractmethod
     def calculate(
@@ -66,10 +73,12 @@ class ColumnDriftAlgorithm(ABC):
 
 
 class Hellinger(ColumnDriftAlgorithm):
-    def __init__(self, parameter_config: Optional[KSTestConfig] = None):
+    def __init__(self, parameter_config: Optional[HellingerConfig] = None):
         self.name = "hellinger"
         if parameter_config is None:
             parameter_config = HellingerConfig()
+        if not isinstance(parameter_config, HellingerConfig):
+            raise ValueError("Parameter config must be of type HellingerConfig.")
         super().__init__(parameter_config)
 
     def _calculate_hellinger_score(self, target_pmf: List[float], reference_pmf: List[float]) -> float:
@@ -148,9 +157,12 @@ class Hellinger(ColumnDriftAlgorithm):
 
 
 class ChiSquare(ColumnDriftAlgorithm):
-    def __init__(self, parameter_config: Optional[KSTestConfig] = None):
+    def __init__(self, parameter_config: Optional[ChiSquareConfig] = None):
         if parameter_config is None:
             parameter_config = ChiSquareConfig()
+        if not isinstance(parameter_config, ChiSquareConfig):
+            raise ValueError("Parameter config must be of type ChiSquareConfig.")
+
         self.name = "chi-square"
         super().__init__(parameter_config)
 
@@ -250,6 +262,9 @@ class KS(ColumnDriftAlgorithm):
         self.name = "ks"
         if parameter_config is None:
             parameter_config = KSTestConfig()
+        if not isinstance(parameter_config, KSTestConfig):
+            raise ValueError("Parameter config must be of type KSTestConfig.")
+
         super().__init__(parameter_config)
 
     def _compute_ks_score(self, target_distribution, reference_distribution, with_thresholds=False):

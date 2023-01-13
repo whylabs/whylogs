@@ -9,10 +9,7 @@ from whylogs.core.metrics import CardinalityMetric
 from whylogs.core.utils import deprecated, get_distribution_metrics
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
-from whylogs.drift.column_drift_algorithms import (
-    ColumnDriftAlgorithm,
-    calculate_drift_scores,
-)
+import whylogs.drift.column_drift_algorithms as column_drift_algorithms
 from whylogs.extras.image_metric import ImageMetric
 from whylogs.viz.utils import (
     DescriptiveStatistics,
@@ -163,7 +160,7 @@ def generate_summaries_with_drift_score(
     target_view: DatasetProfileView,
     ref_view: Optional[DatasetProfileView],
     config: Optional[SummaryConfig],
-    drift_map: Optional[Dict[str, ColumnDriftAlgorithm]] = None,
+    drift_map: Optional[Dict[str, column_drift_algorithms.ColumnDriftAlgorithm]] = None,
 ) -> Optional[Dict[str, Any]]:
     """Generate summaries for target and reference profiles, with drift calculations."""
 
@@ -174,7 +171,9 @@ def generate_summaries_with_drift_score(
         raise ValueError("This method has to get both target and reference profiles")
 
     overall_stats: OverallStats = add_overall_statistics(target_view)
-    drift_values = calculate_drift_scores(target_view, ref_view, drift_map=drift_map, with_thresholds=True)
+    drift_values = column_drift_algorithms.calculate_drift_scores(
+        target_view, ref_view, drift_map=drift_map, with_thresholds=True
+    )
     target_col_views = target_view.get_columns()
     ref_col_views = ref_view.get_columns()
     ref_summary: DatasetSummary = {"columns": {}, "properties": overall_stats}
