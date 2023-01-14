@@ -1,6 +1,5 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
-from io import BytesIO
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -11,19 +10,17 @@ from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.datatypes import DataType
 from whylogs.core.metrics import StandardMetric
-from whylogs.core.metrics.deserializers import deserializer
 from whylogs.core.metrics.metric_components import (
     FractionalComponent,
     IntegralComponent,
-    MetricComponent,
 )
 from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
 from whylogs.core.metrics.multimetric import MultiMetric
-from whylogs.core.metrics.serializers import serializer
 from whylogs.core.preprocessing import ListView, PreprocessedColumn
-from whylogs.core.proto import MetricComponentMessage, MetricMessage
+from whylogs.core.proto import MetricMessage
 from whylogs.core.resolvers import Resolver, StandardResolver
 from whylogs.core.schema import ColumnSchema
+from whylogs.experimental.extras.matrix_component import MatrixComponent
 
 _SMALL = np.finfo(float).eps
 
@@ -32,32 +29,6 @@ def _reciprocal(s: np.ndarray) -> np.ndarray:
     """Return pseudoinverse of singular value vector"""
     # should also zap if too small relative to s[0]
     return np.array([1 / x if x > _SMALL else 0 for x in s])
-
-
-def _serialize_ndarray(a: np.ndarray) -> bytes:
-    bio = BytesIO()
-    np.save(bio, a, allow_pickle=False)
-    return bio.getvalue()
-
-
-def _deserialize_ndarray(a: bytes) -> np.ndarray:
-    bio = BytesIO(a)
-    return np.load(bio, allow_pickle=False)
-
-
-class VectorComponent(MetricComponent[np.ndarray]):
-    #    mtype = np.ndarray
-    type_id = 101
-
-
-@serializer(type_id=101)
-def serialize(value: np.ndarray) -> MetricComponentMessage:
-    return MetricComponentMessage(serialized_bytes=_serialize_ndarray(value))
-
-
-@deserializer(type_id=101)
-def deserialize(msg: MetricComponentMessage) -> np.ndarray:
-    return _deserialize_ndarray(msg.serialized_bytes)
 
 
 @dataclass(frozen=True)
@@ -80,8 +51,8 @@ class SvdMetric(Metric):
 
     k: IntegralComponent  # SVD truncation  k > 0
     decay: FractionalComponent  # 0 < decay <= 1  decay rate of old data
-    U: VectorComponent  # left singular vectors
-    S: VectorComponent  # singular values
+    U: MatrixComponent  # left singular vectors
+    S: MatrixComponent  # singular values
 
     @property
     def namespace(self) -> str:
@@ -134,8 +105,8 @@ class SvdMetric(Metric):
             k=IntegralComponent(0),
             decay=FractionalComponent(0.0),
             # TODO: make this mergeable?
-            U=VectorComponent(np.zeros((1, 1))),
-            S=VectorComponent(np.zeros(1)),
+            U=MatrixComponent(np.zeros((1, 1))),
+            S=MatrixComponent(np.zeros(1)),
         )
 
 
@@ -166,7 +137,7 @@ class UpdatableSvdMetric(SvdMetric):
     def merge(self, other: "SvdMetric") -> "UpdatableSvdMetric":
         # other can be updatable or not
         new_U, new_S = self._resketch(self.k.value, self.decay.value, other.U.value, other.S.value)
-        return UpdatableSvdMetric(self.k, self.decay, VectorComponent(new_U), VectorComponent(new_S))
+        return UpdatableSvdMetric(self.k, self.decay, MatrixComponent(new_U), MatrixComponent(new_S))
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         if not data.list.objs:
@@ -197,8 +168,8 @@ class UpdatableSvdMetric(SvdMetric):
         return UpdatableSvdMetric(
             k=IntegralComponent(cfg.k),
             decay=FractionalComponent(cfg.decay),
-            U=VectorComponent(np.zeros((1, 1))),
-            S=VectorComponent(np.zeros(1)),
+            U=MatrixComponent(np.zeros((1, 1))),
+            S=MatrixComponent(np.zeros(1)),
         )
 
 
@@ -274,8 +245,11 @@ class BagOfWordsMetric(MultiMetric):
         )
         terms = (terms + data.list.strings) if data.list.strings else terms
         terms = (terms + data.list.objs[0]) if data.list.objs else terms
-        """
         terms = data.list.objs[0].tolist() if data.list.objs else None
+        """
+        if data.numpy.strings is None:
+            return OperationResult.ok(0)
+        terms = data.numpy.strings.tolist()
         if terms:
             term_lengths = [len(term) for term in terms]
             self._update_submetrics("term_length", PreprocessedColumn.apply(term_lengths))
