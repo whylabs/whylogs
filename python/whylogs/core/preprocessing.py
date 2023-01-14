@@ -34,7 +34,7 @@ class ListView:
 class NumpyView:
     ints: Optional[np.ndarray] = None
     floats: Optional[np.ndarray] = None
-    strings: Optional[np.array] = None
+    strings: Optional[np.ndarray] = None
 
     def iterables(self) -> List[np.ndarray]:
         it_list = []
