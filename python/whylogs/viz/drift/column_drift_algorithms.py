@@ -53,15 +53,25 @@ class ColumnDriftAlgorithm(ABC):
     def _get_drift_category(self, measure: float) -> Optional[str]:
         """
         Returns the drift category for a given measure.
-        If the measure is not within any of the defined thresholds, returns None.
+        If the measure is not within any of the defined thresholds, raises an error.
         If the measure is within the thresholds of multiple categories, priority is given by drift severity.
+
+        The defined ranges are inclusive of the lower bound and exclusive of the upper bound, with the exception of the highest valued upper bound among all categories.
+        For the highest valued upper bound, the range is inclusive of both the lower and upper bounds.
+        This is to ensure that the highest valued upper bound is always included in the category.
         """
         if not self._parameter_config:
             raise ValueError("No parameter config set for algorithm.")
+        max = float("-inf")
         thresholds = self._parameter_config.thresholds.to_dict()
         for drift_class in ["DRIFT", "POSSIBLE_DRIFT", "NO_DRIFT"]:
             drift = thresholds.get(drift_class)
-            if drift and drift[0] <= measure < drift[1]:
+            if drift:
+                if drift[1] > max:
+                    max = drift[1]
+                if drift[0] <= measure < drift[1]:
+                    return drift_class
+            if measure == max:
                 return drift_class
 
         raise ValueError(f"Measure {measure} does not fit into any drift category defined by thresholds.")

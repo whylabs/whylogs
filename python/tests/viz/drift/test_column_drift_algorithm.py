@@ -56,7 +56,7 @@ def test_calculate_drift_score_with_custom_config(target_view, reference_view):
     )
     chisquareconfig = ChiSquareConfig()
     # binary classification
-    ksconfig = KSTestConfig(thresholds=DriftThresholds(NO_DRIFT=(0.15, 1.1), DRIFT=(0, 0.15)))
+    ksconfig = KSTestConfig(thresholds=DriftThresholds(NO_DRIFT=(0.15, 1), DRIFT=(0, 0.15)))
     drift_map = {"animal": ChiSquare(chisquareconfig), "weight": Hellinger(hellingerconfig), "legs": KS(ksconfig)}
     drift_scores = calculate_drift_scores(
         target_view=target_view, reference_view=reference_view, drift_map=drift_map, with_thresholds=True
@@ -64,13 +64,13 @@ def test_calculate_drift_score_with_custom_config(target_view, reference_view):
     assert drift_scores["animal"]["algorithm"] == "chi-square"
     assert drift_scores["animal"]["drift_category"] == "NO_DRIFT"
     assert drift_scores["animal"]["thresholds"] == {
-        "NO_DRIFT": (0.15, 1.1),
+        "NO_DRIFT": (0.15, 1),
         "POSSIBLE_DRIFT": (0.05, 0.15),
         "DRIFT": (0, 0.05),
     }
     assert drift_scores["legs"]["algorithm"] == "ks"
     assert drift_scores["legs"]["drift_category"] == "DRIFT"
-    assert drift_scores["legs"]["thresholds"] == {"NO_DRIFT": (0.15, 1.1), "DRIFT": (0, 0.15)}
+    assert drift_scores["legs"]["thresholds"] == {"NO_DRIFT": (0.15, 1), "DRIFT": (0, 0.15)}
     assert drift_scores["weight"]["algorithm"] == "hellinger"
     assert drift_scores["weight"]["drift_category"] == "DRIFT"
     assert drift_scores["weight"]["thresholds"] == {
@@ -108,13 +108,13 @@ def test_calculate_drift_with_wrong_config(target_view, reference_view):
 
 
 def test_calculate_drift_conflicting_thresholds(target_view, reference_view):
-    hellingerconfig = HellingerConfig(thresholds=DriftThresholds(NO_DRIFT=(0, 0.9), DRIFT=(0.3, 1.1)))
+    hellingerconfig = HellingerConfig(thresholds=DriftThresholds(NO_DRIFT=(0, 0.9), DRIFT=(0.3, 1)))
     drift_map = {"weight": Hellinger(hellingerconfig)}
     scores = calculate_drift_scores(
         target_view=target_view, reference_view=reference_view, drift_map=drift_map, with_thresholds=True
     )
     assert scores["weight"]["drift_category"] == "DRIFT"  # conflicting thresholds, so priority is by drift severity
-    hellingerconfig = HellingerConfig(thresholds=DriftThresholds(NO_DRIFT=(0, 0.001), DRIFT=(0.99, 1.1)))
+    hellingerconfig = HellingerConfig(thresholds=DriftThresholds(NO_DRIFT=(0, 0.001), DRIFT=(0.99, 1)))
     with pytest.raises(ValueError, match="does not fit into any drift category defined by thresholds."):
         drift_map = {"weight": Hellinger(hellingerconfig)}
         scores = calculate_drift_scores(
