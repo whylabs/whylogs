@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Type, TypeVar
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.errors import DeserializationError, UnsupportedError
 from whylogs.core.metrics import Metric
+from whylogs.core.metrics.metric_components import MetricComponent
 from whylogs.core.metrics.metrics import _METRIC_DESERIALIZER_REGISTRY, OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricComponentMessage, MetricMessage
@@ -75,7 +76,7 @@ class MultiMetric(Metric, ABC):
 
         self.submetrics = deepcopy(submetrics)
 
-    def merge_submetrics(self: MULTI_METRIC, other: MULTI_METRIC) -> Dict[str, Metric]:
+    def merge_submetrics(self: MULTI_METRIC, other: MULTI_METRIC) -> Dict[str, Dict[str, Metric]]:
         if self.namespace != other.namespace:
             raise ValueError(f"Attempt to merge MultiMetrics {self.namespace} and {other.namespace}")
 
@@ -113,6 +114,11 @@ class MultiMetric(Metric, ABC):
             for namespace, metric in metrics.items():
                 for comp_name in metric.get_component_paths():
                     res.append(f"{sub_name}:{namespace}/{comp_name}")
+
+        for k, v in self.__dict__.items():  # Grab any components that aren't in submetrics
+            if not isinstance(v, MetricComponent):
+                continue
+            res.append(k)
 
         return res
 

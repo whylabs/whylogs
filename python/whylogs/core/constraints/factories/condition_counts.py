@@ -2,7 +2,15 @@ from ..metric_constraints import MetricConstraint, MetricsSelector
 
 
 def condition_meets(column_name: str, condition_name: str) -> MetricConstraint:
-    """ """
+    """Checks that all values in column match predicate
+
+    Parameters
+    ----------
+    column_name : str
+        Name of the column to apply the constraint to
+    condition_name : str
+        Name of the condition that will be applied to each value of the column
+    """
 
     def matches_all(x) -> bool:
         if x.matches[condition_name].value != x.total.value:

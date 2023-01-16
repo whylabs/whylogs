@@ -89,8 +89,8 @@ class TestSQLiteStore:
 
     def test_larger_timestamps_wont_merge_profiles(self):
         with SQLiteStore() as store:
-            ts1 = datetime.utcnow()
-            ts2 = datetime.utcnow() + timedelta(hours=10 * int(os.environ["MERGE_PROFILE_PERIOD_HOURS"]))
+            ts1 = datetime.now(timezone.utc)
+            ts2 = datetime.now(timezone.utc) + timedelta(hours=10 * int(os.environ["MERGE_PROFILE_PERIOD_HOURS"]))
 
             view1 = DatasetProfile(creation_timestamp=ts1).view()
             view2 = DatasetProfile(creation_timestamp=ts2).view()

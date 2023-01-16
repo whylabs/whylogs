@@ -1,6 +1,25 @@
+from whylogs.core.relations import Require
+
 from ..metric_constraints import MetricConstraint, MetricsSelector
 
 # TODO implement skip_missing for all methods
+
+
+def no_missing_values(column_name: str) -> MetricConstraint:
+    """Checks that there are no missing values in the column.
+
+    Parameters
+    ----------
+    column_name : str
+        Column the constraint is applied to
+    """
+
+    constraint = MetricConstraint(
+        name=f"{column_name} has no missing values",
+        condition=Require("null").equals(0),
+        metric_selector=MetricsSelector(column_name=column_name, metric_name="counts"),
+    )
+    return constraint
 
 
 def count_below_number(column_name: str, number: int) -> MetricConstraint:
