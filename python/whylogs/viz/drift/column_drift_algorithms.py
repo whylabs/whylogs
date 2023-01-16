@@ -25,6 +25,8 @@ from whylogs.viz.utils.frequent_items_calculations import (
 
 @dataclass
 class DriftAlgorithmScore:
+    """Dataclass for storing drift algorithm score."""
+
     algorithm: str
     pvalue: Optional[float] = None
     statistic: Optional[float] = None
@@ -43,6 +45,8 @@ class DriftAlgorithmScore:
 
 
 class ColumnDriftAlgorithm(ABC):
+    """Abstract class for column drift algorithms."""
+
     def __init__(self, parameter_config: Optional[Any] = None):
         self._parameter_config = parameter_config
 
@@ -66,6 +70,10 @@ class ColumnDriftAlgorithm(ABC):
     def calculate(
         self, target_column_view: ColumnProfileView, reference_column_view: ColumnProfileView, with_thresholds: bool
     ) -> Optional[DriftAlgorithmScore]:
+        """Calculates drift score for a given column.
+
+        If with_thresholds is True, the thresholds defined in the parameter config are also returned, along with the final drift category.
+        """
         raise NotImplementedError
 
     def set_parameters(self, parameter_config: Any):
@@ -73,6 +81,12 @@ class ColumnDriftAlgorithm(ABC):
 
 
 class Hellinger(ColumnDriftAlgorithm):
+    """Hellinger distance algorithm for column drift detection.
+
+    Requires the target and reference columns to have non-empty distribution metrics.
+    The statistic is the Hellinger distance between the two distributions, which can assume values between 0 and 1.
+    """
+
     def __init__(self, parameter_config: Optional[HellingerConfig] = None):
         self.name = "hellinger"
         if parameter_config is None:
@@ -104,6 +118,26 @@ class Hellinger(ColumnDriftAlgorithm):
     def calculate(
         self, target_column_view: ColumnProfileView, reference_column_view: ColumnProfileView, with_thresholds=False
     ) -> Optional[DriftAlgorithmScore]:
+        """Calculates drift score for a given column.
+
+        Parameters
+        ----------
+        target_column_view : ColumnProfileView
+            Column view of the target profile
+        reference_column_view : ColumnProfileView
+            Column view of the reference profile
+        with_thresholds : bool, optional
+            By default False. If True, the thresholds defined in the parameter config are also returned in the DriftAlgorithmScore object,
+            along with the final drift category.
+
+        Returns
+        -------
+        Optional[DriftAlgorithmScore]
+            Returns a DriftAlgorithmScore object containing the p-value and the KS statistic.
+            If with_thresholds is True, also returns the the thresholds defined in the parameter config and the final drift category.
+            The drift category is determined by the p-value and the thresholds defined in the parameter config.
+
+        """
 
         if not self._parameter_config:
             raise ValueError("No parameter config set for algorithm.")
@@ -157,6 +191,8 @@ class Hellinger(ColumnDriftAlgorithm):
 
 
 class ChiSquare(ColumnDriftAlgorithm):
+    """Chi-Squared test algorithm for column drift detection."""
+
     def __init__(self, parameter_config: Optional[ChiSquareConfig] = None):
         if parameter_config is None:
             parameter_config = ChiSquareConfig()
@@ -258,6 +294,8 @@ class ChiSquare(ColumnDriftAlgorithm):
 
 
 class KS(ColumnDriftAlgorithm):
+    """Kolmogorov-Smirnov test algorithm for column drift detection."""
+
     def __init__(self, parameter_config: Optional[KSTestConfig] = None):
         self.name = "ks"
         if parameter_config is None:
@@ -328,6 +366,28 @@ class KS(ColumnDriftAlgorithm):
     def calculate(
         self, target_column_view: ColumnProfileView, reference_column_view: ColumnProfileView, with_thresholds=False
     ) -> Optional[DriftAlgorithmScore]:
+        """Compute the Kolmogorov-Smirnov test for two distributions.
+        Require the target and reference column views to have a distribution metric.
+
+
+
+        Parameters
+        ----------
+        target_column_view : ColumnProfileView
+            Column view of the target profile
+        reference_column_view : ColumnProfileView
+            Column view of the reference profile
+        with_thresholds : bool, optional
+            By default False. If True, the thresholds defined in the parameter config are also returned in the DriftAlgorithmScore object,
+            along with the final drift category.
+
+        Returns
+        -------
+        Optional[DriftAlgorithmScore]
+            Returns a DriftAlgorithmScore object containing the p-value and the KS statistic.
+            If with_thresholds is True, also returns the the thresholds defined in the parameter config and the final drift category.
+            The drift category is determined by the p-value and the thresholds defined in the parameter config.
+        """
         target_dist_metric = target_column_view.get_metric("distribution")
         ref_dist_metric = reference_column_view.get_metric("distribution")
 

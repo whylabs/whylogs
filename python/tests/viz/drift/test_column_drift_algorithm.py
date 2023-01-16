@@ -83,7 +83,7 @@ def test_calculate_drift_score_with_custom_config(target_view, reference_view):
 def test_calculate_drift_wrong_algorithm(target_view, reference_view):
     drift_map = {"animal": Hellinger()}  # wrong algorithm - hellinger needs a distribution metric
     scores = calculate_drift_scores(target_view=target_view, reference_view=reference_view, drift_map=drift_map)
-    assert scores["animal"] == None
+    assert scores["animal"] is None
     assert scores["legs"]  # other columns not in the map are calculated with default behavior
     assert scores["weight"]
 
@@ -100,11 +100,11 @@ def test_calculate_drift_with_nonexisting_column(target_view, reference_view):
 
 def test_calculate_drift_with_wrong_config(target_view, reference_view):
     with pytest.raises(ValueError, match="Parameter config must be of type HellingerConfig."):
-        drift_map = {"weight": Hellinger(KSTestConfig())}
+        Hellinger(KSTestConfig())
     with pytest.raises(ValueError, match="Parameter config must be of type KSTestConfig."):
-        drift_map = {"weight": KS(HellingerConfig())}
+        KS(HellingerConfig())
     with pytest.raises(ValueError, match="Parameter config must be of type ChiSquareConfig."):
-        drift_map = {"weight": ChiSquare(KSTestConfig())}
+        ChiSquare(KSTestConfig())
 
 
 def test_calculate_drift_conflicting_thresholds(target_view, reference_view):

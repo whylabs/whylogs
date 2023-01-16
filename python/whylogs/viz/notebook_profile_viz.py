@@ -267,9 +267,11 @@ class NotebookProfileVisualizer:
     def summary_drift_report(self, height: Optional[str] = None) -> HTML:
         """Generate drift report between target and reference profiles.
 
-        KS test is applied for continuous variables and ChiSquared test for categorical variables.
+        KS is calculated if distribution metrics exists for said column.
+        If not, Chi2 is calculated if frequent items, cardinality and count metric exists. If not, then no drift value is associated to the column.
         If feature is missing from any profile, it will not be included in the report.
         Both target_profile_view and reference_profile_view must be set previously with `set_profiles`.
+        If custom drift behavior is desired, use `add_drift_config` before calling this method.
 
         Parameters
         ----------
@@ -288,6 +290,14 @@ class NotebookProfileVisualizer:
         Generate Summary Drift Report (after setting profiles with `set_profiles`):
 
         .. code-block:: python
+            from whylogs.viz.drift.column_drift_algorithms import Hellinger, ChiSquare
+            from whylogs.viz import NotebookProfileVisualizer
+
+            visualization = NotebookProfileVisualizer()
+            visualization.set_profiles(target_profile_view=target_view, reference_profile_view=ref_view)
+
+            visualization.add_drift_config(column_names=["weight"], algorithm=Hellinger())
+            visualization.add_drift_config(column_names=["legs"], algorithm=ChiSquare())
 
             visualization.summary_drift_report()
 
