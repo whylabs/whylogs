@@ -10,6 +10,7 @@ Subpackages
    :titlesonly:
    :maxdepth: 3
 
+   drift/index.rst
    enums/index.rst
    extensions/index.rst
 
@@ -46,6 +47,17 @@ Classes
    inheritance.
 
    .. py:method:: report() -> str
+
+
+   .. py:method:: add_drift_config(column_names: List[str], algorithm: whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm) -> None
+
+      Add drift configuration.
+      The algorithms and thresholds added through this method will be used to calculate drift scores in the `summary_drift_report()` method.
+      If any drift configuration exists, the new configuration will overwrite the standard behavior when appliable.
+      If a column has multiple configurations defined, the last one defined will be used.
+
+      :param config: Drift configuration.
+      :type config: DriftConfig, required
 
 
    .. py:method:: writer(name: str = 'local') -> HTMLReportWriter
@@ -144,6 +156,17 @@ Classes
        visualization = NotebookProfileVisualizer()
        visualization.set_profiles(target_profile_view=prof_view,reference_profile_view=prof_view_ref)
 
+   .. py:method:: add_drift_config(column_names: List[str], algorithm: whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm) -> None
+
+      Add drift configuration.
+      The algorithms and thresholds added through this method will be used to calculate drift scores in the `summary_drift_report()` method.
+      If any drift configuration exists, the new configuration will overwrite the standard behavior when appliable.
+      If a column has multiple configurations defined, the last one defined will be used.
+
+      :param config: Drift configuration.
+      :type config: DriftConfig, required
+
+
    .. py:method:: set_profiles(target_profile_view: whylogs.core.view.dataset_profile_view.DatasetProfileView, reference_profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None) -> None
 
       Set profiles for Visualization/Comparison.
@@ -163,9 +186,11 @@ Classes
 
       Generate drift report between target and reference profiles.
 
-      KS test is applied for continuous variables and ChiSquared test for categorical variables.
+      KS is calculated if distribution metrics exists for said column.
+      If not, Chi2 is calculated if frequent items, cardinality and count metric exists. If not, then no drift value is associated to the column.
       If feature is missing from any profile, it will not be included in the report.
       Both target_profile_view and reference_profile_view must be set previously with `set_profiles`.
+      If custom drift behavior is desired, use `add_drift_config` before calling this method.
 
       :param height: Preferred height, in pixels, for in-notebook visualization. Example:
                      `"1000px"`. (Default is None)
@@ -179,6 +204,14 @@ Classes
       Generate Summary Drift Report (after setting profiles with `set_profiles`):
 
       .. code-block:: python
+          from whylogs.viz.drift.column_drift_algorithms import Hellinger, ChiSquare
+          from whylogs.viz import NotebookProfileVisualizer
+
+          visualization = NotebookProfileVisualizer()
+          visualization.set_profiles(target_profile_view=target_view, reference_profile_view=ref_view)
+
+          visualization.add_drift_config(column_names=["weight"], algorithm=Hellinger())
+          visualization.add_drift_config(column_names=["legs"], algorithm=ChiSquare())
 
           visualization.summary_drift_report()
 

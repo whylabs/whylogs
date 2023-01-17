@@ -354,7 +354,12 @@
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4 has-children"><a class="reference internal" href="../../../enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../drift/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.drift</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../drift/column_drift_algorithms/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.drift.column_drift_algorithms</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../drift/configs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.drift.configs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../enums/enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums.enums</span></code></a></li>
 </ul>
 </li>
@@ -462,6 +467,27 @@ inheritance.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport.add_drift_config">
+<span class="sig-name descname"><span class="pre">add_drift_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../drift/column_drift_algorithms/index.html#whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm" title="whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm"><span class="pre">whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport.add_drift_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Add drift configuration.
+The algorithms and thresholds added through this method will be used to calculate drift scores in the <cite>summary_drift_report()</cite> method.
+If any drift configuration exists, the new configuration will overwrite the standard behavior when appliable.
+If a column has multiple configurations defined, the last one defined will be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>DriftConfig</em><em>, </em><em>required</em>) – Drift configuration.</p></li>
+<li><p><strong>column_names</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>algorithm</strong> (<a class="reference internal" href="../../../drift/column_drift_algorithms/index.html#whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm" title="whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm"><em>whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -613,6 +639,7 @@ inheritance.</p>
 <li><a class="reference internal" href="#whylogs.viz.extensions.reports.summary_drift.logger">logger</a></li>
 <li><a class="reference internal" href="#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport">SummaryDriftReport</a><ul>
 <li><a class="reference internal" href="#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport.report">report</a></li>
+<li><a class="reference internal" href="#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport.add_drift_config">add_drift_config</a></li>
 <li><a class="reference internal" href="#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport.writer">writer</a></li>
 <li><a class="reference internal" href="#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport.display">display</a></li>
 <li><a class="reference internal" href="#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport.write">write</a></li>

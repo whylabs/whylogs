@@ -40,6 +40,17 @@ Attributes
    .. py:method:: report() -> str
 
 
+   .. py:method:: add_drift_config(column_names: List[str], algorithm: whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm) -> None
+
+      Add drift configuration.
+      The algorithms and thresholds added through this method will be used to calculate drift scores in the `summary_drift_report()` method.
+      If any drift configuration exists, the new configuration will overwrite the standard behavior when appliable.
+      If a column has multiple configurations defined, the last one defined will be used.
+
+      :param config: Drift configuration.
+      :type config: DriftConfig, required
+
+
    .. py:method:: writer(name: str = 'local') -> HTMLReportWriter
 
 

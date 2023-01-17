@@ -354,7 +354,12 @@
 </ul>
 </li>
 <li class="toctree-l3 current has-children"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l4 has-children"><a class="reference internal" href="../enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../drift/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.drift</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../drift/column_drift_algorithms/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.drift.column_drift_algorithms</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../drift/configs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.drift.configs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../enums/enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums.enums</span></code></a></li>
 </ul>
 </li>
@@ -496,6 +501,27 @@ of the generated reports as HTML files.</p>
 </pre></div>
 </div>
 <dl class="py method">
+<dt class="sig sig-object py" id="whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.add_drift_config">
+<span class="sig-name descname"><span class="pre">add_drift_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../drift/column_drift_algorithms/index.html#whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm" title="whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm"><span class="pre">whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.add_drift_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Add drift configuration.
+The algorithms and thresholds added through this method will be used to calculate drift scores in the <cite>summary_drift_report()</cite> method.
+If any drift configuration exists, the new configuration will overwrite the standard behavior when appliable.
+If a column has multiple configurations defined, the last one defined will be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>DriftConfig</em><em>, </em><em>required</em>) – Drift configuration.</p></li>
+<li><p><strong>column_names</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>algorithm</strong> (<a class="reference internal" href="../drift/column_drift_algorithms/index.html#whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm" title="whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm"><em>whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.set_profiles">
 <span class="sig-name descname"><span class="pre">set_profiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_profile_view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView" title="whylogs.core.view.dataset_profile_view.DatasetProfileView"><span class="pre">whylogs.core.view.dataset_profile_view.DatasetProfileView</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_profile_view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView" title="whylogs.core.view.dataset_profile_view.DatasetProfileView"><span class="pre">whylogs.core.view.dataset_profile_view.DatasetProfileView</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.set_profiles" title="Permalink to this definition">#</a></dt>
 <dd><p>Set profiles for Visualization/Comparison.</p>
@@ -530,9 +556,11 @@ of the generated reports as HTML files.</p>
 <dt class="sig sig-object py" id="whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.summary_drift_report">
 <span class="sig-name descname"><span class="pre">summary_drift_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">IPython.core.display.HTML</span></span></span><a class="headerlink" href="#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.summary_drift_report" title="Permalink to this definition">#</a></dt>
 <dd><p>Generate drift report between target and reference profiles.</p>
-<p>KS test is applied for continuous variables and ChiSquared test for categorical variables.
+<p>KS is calculated if distribution metrics exists for said column.
+If not, Chi2 is calculated if frequent items, cardinality and count metric exists. If not, then no drift value is associated to the column.
 If feature is missing from any profile, it will not be included in the report.
-Both target_profile_view and reference_profile_view must be set previously with <cite>set_profiles</cite>.</p>
+Both target_profile_view and reference_profile_view must be set previously with <cite>set_profiles</cite>.
+If custom drift behavior is desired, use <cite>add_drift_config</cite> before calling this method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>height</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Preferred height, in pixels, for in-notebook visualization. Example:
@@ -547,9 +575,6 @@ Both target_profile_view and reference_profile_view must be set previously with 
 </dl>
 <p class="rubric">Examples</p>
 <p>Generate Summary Drift Report (after setting profiles with <cite>set_profiles</cite>):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">summary_drift_report</span><span class="p">()</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="py method">
@@ -788,6 +813,7 @@ If <cite>profile</cite> is not passed, the default is the reference profile.</p>
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
 <li><a class="reference internal" href="#whylogs.viz.notebook_profile_viz.logger">logger</a></li>
 <li><a class="reference internal" href="#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer">NotebookProfileVisualizer</a><ul>
+<li><a class="reference internal" href="#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.add_drift_config">add_drift_config</a></li>
 <li><a class="reference internal" href="#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.set_profiles">set_profiles</a></li>
 <li><a class="reference internal" href="#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.profile_summary">profile_summary</a></li>
 <li><a class="reference internal" href="#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.summary_drift_report">summary_drift_report</a></li>

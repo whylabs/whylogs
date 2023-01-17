@@ -1,0 +1,193 @@
+:py:mod:`whylogs.viz.drift.column_drift_algorithms`
+===================================================
+
+.. py:module:: whylogs.viz.drift.column_drift_algorithms
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.viz.drift.column_drift_algorithms.DriftAlgorithmScore
+   whylogs.viz.drift.column_drift_algorithms.ColumnDriftAlgorithm
+   whylogs.viz.drift.column_drift_algorithms.Hellinger
+   whylogs.viz.drift.column_drift_algorithms.ChiSquare
+   whylogs.viz.drift.column_drift_algorithms.KS
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.viz.drift.column_drift_algorithms.calculate_drift_scores
+
+
+
+.. py:class:: DriftAlgorithmScore
+
+   Dataclass for storing drift algorithm score.
+
+   .. py:attribute:: algorithm
+      :annotation: :str
+
+      
+
+   .. py:attribute:: pvalue
+      :annotation: :Optional[float]
+
+      
+
+   .. py:attribute:: statistic
+      :annotation: :Optional[float]
+
+      
+
+   .. py:attribute:: thresholds
+      :annotation: :Optional[whylogs.viz.drift.configs.DriftThresholds]
+
+      
+
+   .. py:attribute:: drift_category
+      :annotation: :Optional[str]
+
+      
+
+   .. py:method:: to_dict()
+
+
+
+.. py:class:: ColumnDriftAlgorithm(parameter_config: Optional[Any] = None)
+
+   Bases: :py:obj:`abc.ABC`
+
+   Abstract class for column drift algorithms.
+
+   .. py:method:: calculate(target_column_view: whylogs.core.view.column_profile_view.ColumnProfileView, reference_column_view: whylogs.core.view.column_profile_view.ColumnProfileView, with_thresholds: bool) -> Optional[DriftAlgorithmScore]
+      :abstractmethod:
+
+      Calculates drift score for a given column.
+
+      If with_thresholds is True, the thresholds defined in the parameter config are also returned, along with the final drift category.
+
+
+   .. py:method:: set_parameters(parameter_config: Any)
+      :abstractmethod:
+
+
+
+.. py:class:: Hellinger(parameter_config: Optional[whylogs.viz.drift.configs.HellingerConfig] = None)
+
+   Bases: :py:obj:`ColumnDriftAlgorithm`
+
+   Hellinger distance algorithm for column drift detection.
+
+   Requires the target and reference columns to have non-empty distribution metrics.
+   The statistic is the Hellinger distance between the two distributions, which can assume values between 0 and 1.
+
+   .. py:method:: calculate(target_column_view: whylogs.core.view.column_profile_view.ColumnProfileView, reference_column_view: whylogs.core.view.column_profile_view.ColumnProfileView, with_thresholds=False) -> Optional[DriftAlgorithmScore]
+
+      Calculates drift score for a given column.
+
+      :param target_column_view: Column view of the target profile
+      :type target_column_view: ColumnProfileView
+      :param reference_column_view: Column view of the reference profile
+      :type reference_column_view: ColumnProfileView
+      :param with_thresholds: By default False. If True, the thresholds defined in the parameter config are also returned in the DriftAlgorithmScore object,
+                              along with the final drift category.
+      :type with_thresholds: bool, optional
+
+      :returns: Returns a DriftAlgorithmScore object containing the p-value and the KS statistic.
+                If with_thresholds is True, also returns the the thresholds defined in the parameter config and the final drift category.
+                The drift category is determined by the p-value and the thresholds defined in the parameter config.
+      :rtype: Optional[DriftAlgorithmScore]
+
+
+   .. py:method:: set_parameters(parameter_config: Any)
+      :abstractmethod:
+
+
+
+.. py:class:: ChiSquare(parameter_config: Optional[whylogs.viz.drift.configs.ChiSquareConfig] = None)
+
+   Bases: :py:obj:`ColumnDriftAlgorithm`
+
+   Chi-Squared test algorithm for column drift detection.
+
+   .. py:method:: calculate(target_column_view: whylogs.core.view.column_profile_view.ColumnProfileView, reference_column_view: whylogs.core.view.column_profile_view.ColumnProfileView, with_thresholds=False) -> Optional[DriftAlgorithmScore]
+
+      Calculates drift score for a given column.
+
+      If with_thresholds is True, the thresholds defined in the parameter config are also returned, along with the final drift category.
+
+
+   .. py:method:: set_parameters(parameter_config: Any)
+      :abstractmethod:
+
+
+
+.. py:class:: KS(parameter_config: Optional[whylogs.viz.drift.configs.KSTestConfig] = None)
+
+   Bases: :py:obj:`ColumnDriftAlgorithm`
+
+   Kolmogorov-Smirnov test algorithm for column drift detection.
+
+   .. py:method:: calculate(target_column_view: whylogs.core.view.column_profile_view.ColumnProfileView, reference_column_view: whylogs.core.view.column_profile_view.ColumnProfileView, with_thresholds=False) -> Optional[DriftAlgorithmScore]
+
+      Compute the Kolmogorov-Smirnov test for two distributions.
+      Require the target and reference column views to have a distribution metric.
+
+
+
+      :param target_column_view: Column view of the target profile
+      :type target_column_view: ColumnProfileView
+      :param reference_column_view: Column view of the reference profile
+      :type reference_column_view: ColumnProfileView
+      :param with_thresholds: By default False. If True, the thresholds defined in the parameter config are also returned in the DriftAlgorithmScore object,
+                              along with the final drift category.
+      :type with_thresholds: bool, optional
+
+      :returns: Returns a DriftAlgorithmScore object containing the p-value and the KS statistic.
+                If with_thresholds is True, also returns the the thresholds defined in the parameter config and the final drift category.
+                The drift category is determined by the p-value and the thresholds defined in the parameter config.
+      :rtype: Optional[DriftAlgorithmScore]
+
+
+   .. py:method:: set_parameters(parameter_config: Any)
+
+
+
+.. py:function:: calculate_drift_scores(target_view: whylogs.core.view.dataset_profile_view.DatasetProfileView, reference_view: whylogs.core.view.dataset_profile_view.DatasetProfileView, drift_map: Optional[Dict[str, ColumnDriftAlgorithm]] = None, with_thresholds=False) -> Dict[str, Optional[Dict[str, Any]]]
+
+   Calculate drift scores for all columns in the target dataset profile.
+
+   If a drift map is provided, the drift algorithm for each column in the map is determined by the map.
+   Columns not in the map (or if map is not provided) will use the default drift algorithm selection logic.
+   If the column does not have the required metrics to apply the selected algorithm, None is returned.
+   For example, if KS or Hellinger is selected for a column with string values, None will be returned.
+
+   If with_thresholds is True, the configured algorithm's thresholds is returned in the DriftAlgorithmScore.
+
+   Returns a dictionary of column names to drift scores.
+
+
+
+   .. rubric:: Examples
+
+   .. code-block:: python
+       from whylogs.viz.drift.column_drift_algorithms import Hellinger
+       from whylogs.viz.drift.configs import HellingerConfig
+
+       hellingerconfig = HellingerConfig(max_hist_buckets=30)
+
+       drift_map = {"legs": Hellinger(hellingerconfig), "weight": Hellinger(hellingerconfig)}
+       drift_scores = calculate_drift_scores(
+           target_view=target_view, reference_view=ref_view, drift_map=drift_map, with_thresholds=True
+       )
+
+

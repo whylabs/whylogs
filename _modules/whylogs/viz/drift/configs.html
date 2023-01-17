@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
-        <title>whylogs.viz.enums.enums - whylogs v1.1.21</title>
+        <title>whylogs.viz.drift.configs - whylogs v1.1.21</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
@@ -345,7 +345,12 @@
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../api/whylogs/viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../api/whylogs/viz/enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../api/whylogs/viz/drift/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.drift</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/viz/drift/column_drift_algorithms/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.drift.column_drift_algorithms</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/viz/drift/configs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.drift.configs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../api/whylogs/viz/enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/viz/enums/enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums.enums</span></code></a></li>
 </ul>
 </li>
@@ -391,25 +396,52 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for whylogs.viz.enums.enums</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+          <h1>Source code for whylogs.viz.drift.configs</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<div class="viewcode-block" id="PageSpec"><a class="viewcode-back" href="../../../../api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpec">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">PageSpec</span><span class="p">:</span>
-    <span class="n">html</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">height</span><span class="p">:</span> <span class="nb">str</span></div>
+<div class="viewcode-block" id="DriftCategory"><a class="viewcode-back" href="../../../../api/whylogs/viz/drift/configs/index.html#whylogs.viz.drift.configs.DriftCategory">[docs]</a><span class="k">class</span> <span class="nc">DriftCategory</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">NO_DRIFT</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">POSSIBLE_DRIFT</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">DRIFT</span> <span class="o">=</span> <span class="mi">2</span></div>
 
 
-<div class="viewcode-block" id="PageSpecEnum"><a class="viewcode-back" href="../../../../api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpecEnum">[docs]</a><span class="k">class</span> <span class="nc">PageSpecEnum</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">PROFILE_SUMMARY</span> <span class="o">=</span> <span class="n">PageSpec</span><span class="p">(</span><span class="n">html</span><span class="o">=</span><span class="s2">&quot;index-hbs-cdn-all-in-jupyter-profile-summary.html&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s2">&quot;1000px&quot;</span><span class="p">)</span>
-    <span class="n">SUMMARY_REPORT</span> <span class="o">=</span> <span class="n">PageSpec</span><span class="p">(</span><span class="n">html</span><span class="o">=</span><span class="s2">&quot;index-hbs-cdn-all-in-for-jupyter-notebook.html&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s2">&quot;1000px&quot;</span><span class="p">)</span>
-    <span class="n">DOUBLE_HISTOGRAM</span> <span class="o">=</span> <span class="n">PageSpec</span><span class="p">(</span><span class="n">html</span><span class="o">=</span><span class="s2">&quot;index-hbs-cdn-all-in-jupyter-distribution-chart.html&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s2">&quot;300px&quot;</span><span class="p">)</span>
-    <span class="n">DISTRIBUTION_CHART</span> <span class="o">=</span> <span class="n">PageSpec</span><span class="p">(</span><span class="n">html</span><span class="o">=</span><span class="s2">&quot;index-hbs-cdn-all-in-jupyter-bar-chart.html&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s2">&quot;277px&quot;</span><span class="p">)</span>
-    <span class="n">DIFFERENCED_CHART</span> <span class="o">=</span> <span class="n">PageSpec</span><span class="p">(</span><span class="n">html</span><span class="o">=</span><span class="s2">&quot;index-hbs-cdn-all-in-jupyter-differenced-chart.html&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s2">&quot;277px&quot;</span><span class="p">)</span>
-    <span class="n">FEATURE_STATISTICS</span> <span class="o">=</span> <span class="n">PageSpec</span><span class="p">(</span><span class="n">html</span><span class="o">=</span><span class="s2">&quot;index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s2">&quot;650px&quot;</span><span class="p">)</span>
-    <span class="n">CONSTRAINTS_REPORT</span> <span class="o">=</span> <span class="n">PageSpec</span><span class="p">(</span><span class="n">html</span><span class="o">=</span><span class="s2">&quot;index-hbs-cdn-all-in-jupyter-constraints-report.html&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s2">&quot;750px&quot;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="DriftThresholds"><a class="viewcode-back" href="../../../../api/whylogs/viz/drift/configs/index.html#whylogs.viz.drift.configs.DriftThresholds">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">DriftThresholds</span><span class="p">:</span>
+    <span class="n">NO_DRIFT</span><span class="p">:</span> <span class="nb">tuple</span>
+    <span class="n">DRIFT</span><span class="p">:</span> <span class="nb">tuple</span>
+    <span class="n">POSSIBLE_DRIFT</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="DriftThresholds.to_dict"><a class="viewcode-back" href="../../../../api/whylogs/viz/drift/configs/index.html#whylogs.viz.drift.configs.DriftThresholds.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">threshold_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">threshold_dict</span><span class="p">[</span><span class="s2">&quot;NO_DRIFT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NO_DRIFT</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">POSSIBLE_DRIFT</span><span class="p">:</span>
+            <span class="n">threshold_dict</span><span class="p">[</span><span class="s2">&quot;POSSIBLE_DRIFT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">POSSIBLE_DRIFT</span>
+        <span class="n">threshold_dict</span><span class="p">[</span><span class="s2">&quot;DRIFT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DRIFT</span>
+        <span class="k">return</span> <span class="n">threshold_dict</span></div></div>
+
+
+<div class="viewcode-block" id="KSTestConfig"><a class="viewcode-back" href="../../../../api/whylogs/viz/drift/configs/index.html#whylogs.viz.drift.configs.KSTestConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">KSTestConfig</span><span class="p">:</span>
+    <span class="n">quantiles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)))</span>
+    <span class="n">thresholds</span><span class="p">:</span> <span class="n">DriftThresholds</span> <span class="o">=</span> <span class="n">DriftThresholds</span><span class="p">(</span><span class="n">NO_DRIFT</span><span class="o">=</span><span class="p">(</span><span class="mf">0.15</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">POSSIBLE_DRIFT</span><span class="o">=</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">),</span> <span class="n">DRIFT</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="HellingerConfig"><a class="viewcode-back" href="../../../../api/whylogs/viz/drift/configs/index.html#whylogs.viz.drift.configs.HellingerConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">HellingerConfig</span><span class="p">:</span>
+    <span class="n">max_hist_buckets</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span>
+    <span class="n">hist_avg_number_per_bucket</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">min_n_buckets</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">thresholds</span><span class="p">:</span> <span class="n">DriftThresholds</span> <span class="o">=</span> <span class="n">DriftThresholds</span><span class="p">(</span><span class="n">NO_DRIFT</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">),</span> <span class="n">POSSIBLE_DRIFT</span><span class="o">=</span><span class="p">(</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">),</span> <span class="n">DRIFT</span><span class="o">=</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="ChiSquareConfig"><a class="viewcode-back" href="../../../../api/whylogs/viz/drift/configs/index.html#whylogs.viz.drift.configs.ChiSquareConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ChiSquareConfig</span><span class="p">:</span>
+    <span class="n">thresholds</span><span class="p">:</span> <span class="n">DriftThresholds</span> <span class="o">=</span> <span class="n">DriftThresholds</span><span class="p">(</span><span class="n">NO_DRIFT</span><span class="o">=</span><span class="p">(</span><span class="mf">0.15</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">POSSIBLE_DRIFT</span><span class="o">=</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">),</span> <span class="n">DRIFT</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">))</span></div>
 </pre></div>
         </article>
       </div>

@@ -1,0 +1,16 @@
+:py:mod:`whylogs.viz.drift`
+===========================
+
+.. py:module:: whylogs.viz.drift
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   column_drift_algorithms/index.rst
+   configs/index.rst
+
+

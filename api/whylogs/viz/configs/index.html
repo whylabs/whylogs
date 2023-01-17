@@ -354,7 +354,12 @@
 </ul>
 </li>
 <li class="toctree-l3 current has-children"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l4 has-children"><a class="reference internal" href="../enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../drift/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.drift</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../drift/column_drift_algorithms/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.drift.column_drift_algorithms</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../drift/configs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.drift.configs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../enums/enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums.enums</span></code></a></li>
 </ul>
 </li>
@@ -417,12 +422,6 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.viz.configs.HistogramConfig" title="whylogs.viz.configs.HistogramConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HistogramConfig</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.viz.configs.KSTestConfig" title="whylogs.viz.configs.KSTestConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KSTestConfig</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.viz.configs.HellingerConfig" title="whylogs.viz.configs.HellingerConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HellingerConfig</span></code></a></p></td>
-<td><p></p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -442,36 +441,6 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.viz.configs.HistogramConfig.min_n_buckets">
 <span class="sig-name descname"><span class="pre">min_n_buckets</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#whylogs.viz.configs.HistogramConfig.min_n_buckets" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="whylogs.viz.configs.KSTestConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.viz.configs.</span></span><span class="sig-name descname"><span class="pre">KSTestConfig</span></span><a class="headerlink" href="#whylogs.viz.configs.KSTestConfig" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.viz.configs.KSTestConfig.quantiles">
-<span class="sig-name descname"><span class="pre">quantiles</span></span><em class="property"><span class="w"> </span><span class="pre">:List[float]</span></em><a class="headerlink" href="#whylogs.viz.configs.KSTestConfig.quantiles" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="whylogs.viz.configs.HellingerConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.viz.configs.</span></span><span class="sig-name descname"><span class="pre">HellingerConfig</span></span><a class="headerlink" href="#whylogs.viz.configs.HellingerConfig" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.viz.configs.HellingerConfig.max_hist_buckets">
-<span class="sig-name descname"><span class="pre">max_hist_buckets</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span> <span class="pre">=</span> <span class="pre">30</span></em><a class="headerlink" href="#whylogs.viz.configs.HellingerConfig.max_hist_buckets" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.viz.configs.HellingerConfig.hist_avg_number_per_bucket">
-<span class="sig-name descname"><span class="pre">hist_avg_number_per_bucket</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#whylogs.viz.configs.HellingerConfig.hist_avg_number_per_bucket" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.viz.configs.HellingerConfig.min_n_buckets">
-<span class="sig-name descname"><span class="pre">min_n_buckets</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#whylogs.viz.configs.HellingerConfig.min_n_buckets" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -569,16 +538,6 @@
 <li><a class="reference internal" href="#whylogs.viz.configs.HistogramConfig.max_hist_buckets">max_hist_buckets</a></li>
 <li><a class="reference internal" href="#whylogs.viz.configs.HistogramConfig.hist_avg_number_per_bucket">hist_avg_number_per_bucket</a></li>
 <li><a class="reference internal" href="#whylogs.viz.configs.HistogramConfig.min_n_buckets">min_n_buckets</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#whylogs.viz.configs.KSTestConfig">KSTestConfig</a><ul>
-<li><a class="reference internal" href="#whylogs.viz.configs.KSTestConfig.quantiles">quantiles</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#whylogs.viz.configs.HellingerConfig">HellingerConfig</a><ul>
-<li><a class="reference internal" href="#whylogs.viz.configs.HellingerConfig.max_hist_buckets">max_hist_buckets</a></li>
-<li><a class="reference internal" href="#whylogs.viz.configs.HellingerConfig.hist_avg_number_per_bucket">hist_avg_number_per_bucket</a></li>
-<li><a class="reference internal" href="#whylogs.viz.configs.HellingerConfig.min_n_buckets">min_n_buckets</a></li>
 </ul>
 </li>
 </ul>

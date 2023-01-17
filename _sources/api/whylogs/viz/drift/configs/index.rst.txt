@@ -1,0 +1,122 @@
+:py:mod:`whylogs.viz.drift.configs`
+===================================
+
+.. py:module:: whylogs.viz.drift.configs
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.viz.drift.configs.DriftCategory
+   whylogs.viz.drift.configs.DriftThresholds
+   whylogs.viz.drift.configs.KSTestConfig
+   whylogs.viz.drift.configs.HellingerConfig
+   whylogs.viz.drift.configs.ChiSquareConfig
+
+
+
+
+.. py:class:: DriftCategory
+
+   Bases: :py:obj:`enum.Enum`
+
+   Generic enumeration.
+
+   Derive from this class to define new enumerations.
+
+   .. py:attribute:: NO_DRIFT
+      :annotation: = 0
+
+      
+
+   .. py:attribute:: POSSIBLE_DRIFT
+      :annotation: = 1
+
+      
+
+   .. py:attribute:: DRIFT
+      :annotation: = 2
+
+      
+
+   .. py:method:: name()
+
+      The name of the Enum member.
+
+
+   .. py:method:: value()
+
+      The value of the Enum member.
+
+
+
+.. py:class:: DriftThresholds
+
+   .. py:attribute:: NO_DRIFT
+      :annotation: :tuple
+
+      
+
+   .. py:attribute:: DRIFT
+      :annotation: :tuple
+
+      
+
+   .. py:attribute:: POSSIBLE_DRIFT
+      :annotation: :Optional[tuple]
+
+      
+
+   .. py:method:: to_dict()
+
+
+
+.. py:class:: KSTestConfig
+
+   .. py:attribute:: quantiles
+      :annotation: :List[float]
+
+      
+
+   .. py:attribute:: thresholds
+      :annotation: :DriftThresholds
+
+      
+
+
+.. py:class:: HellingerConfig
+
+   .. py:attribute:: max_hist_buckets
+      :annotation: :int = 30
+
+      
+
+   .. py:attribute:: hist_avg_number_per_bucket
+      :annotation: :int = 4
+
+      
+
+   .. py:attribute:: min_n_buckets
+      :annotation: :int = 2
+
+      
+
+   .. py:attribute:: thresholds
+      :annotation: :DriftThresholds
+
+      
+
+
+.. py:class:: ChiSquareConfig
+
+   .. py:attribute:: thresholds
+      :annotation: :DriftThresholds
+
+      
+
+
