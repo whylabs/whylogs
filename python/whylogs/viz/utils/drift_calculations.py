@@ -7,9 +7,10 @@ from scipy.spatial.distance import euclidean
 from typing_extensions import TypedDict
 from whylogs_sketching import kll_doubles_sketch  # type: ignore
 
+from whylogs.core.utils import deprecated
 from whylogs.core.view.column_profile_view import ColumnProfileView  # type: ignore
 from whylogs.core.view.dataset_profile_view import DatasetProfileView  # type: ignore
-from whylogs.viz.configs import HellingerConfig, KSTestConfig
+from whylogs.viz.drift.configs import HellingerConfig, KSTestConfig
 from whylogs.viz.utils import _calculate_bins
 from whylogs.viz.utils.frequent_items_calculations import (
     FrequentStats,
@@ -274,6 +275,7 @@ def _get_hellinger_distance(
     return {"statistic": distance, "algorithm": "hellinger"}
 
 
+@deprecated(message="please use whylogs drift's calculate_drift_score instead")
 def calculate_drift_values(
     target_view: DatasetProfileView, reference_view: DatasetProfileView, statistic=False
 ) -> Dict[str, Optional[Union[ColumnDriftValue, ColumnDriftStatistic]]]:

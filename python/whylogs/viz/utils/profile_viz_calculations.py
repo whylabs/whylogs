@@ -4,9 +4,10 @@ from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import TypedDict
 
+import whylogs.viz.drift.column_drift_algorithms as column_drift_algorithms
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics import CardinalityMetric
-from whylogs.core.utils import get_distribution_metrics
+from whylogs.core.utils import deprecated, get_distribution_metrics
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.extras.image_metric import ImageMetric
@@ -95,7 +96,7 @@ class OverallStats(TypedDict):
 class ColumnSummary(TypedDict):
     histogram: Optional[HistogramSummary]
     frequentItems: Optional[List[FrequentItemEstimate]]
-    drift_from_ref: Optional[float]
+    drift_from_ref: Optional[Dict[str, Any]]
     isDiscrete: Optional[bool]
     featureStats: Optional[FeatureStats]
 
@@ -155,6 +156,96 @@ def is_image_compound_metric(col_view: ColumnProfileView) -> bool:
     return False
 
 
+def generate_summaries_with_drift_score(
+    target_view: DatasetProfileView,
+    ref_view: Optional[DatasetProfileView],
+    config: Optional[SummaryConfig],
+    drift_map: Optional[Dict[str, column_drift_algorithms.ColumnDriftAlgorithm]] = None,
+) -> Optional[Dict[str, Any]]:
+    """Generate summaries for target and reference profiles, with drift calculations."""
+
+    if config is None:
+        config = SummaryConfig()
+
+    if not target_view or not ref_view:
+        raise ValueError("This method has to get both target and reference profiles")
+
+    overall_stats: OverallStats = add_overall_statistics(target_view)
+    drift_values = column_drift_algorithms.calculate_drift_scores(
+        target_view, ref_view, drift_map=drift_map, with_thresholds=True
+    )
+    target_col_views = target_view.get_columns()
+    ref_col_views = ref_view.get_columns()
+    ref_summary: DatasetSummary = {"columns": {}, "properties": overall_stats}
+    target_summary: DatasetSummary = {"columns": {}, "properties": None}
+    for target_col_name in target_col_views:
+        if target_col_name in ref_col_views and not is_image_compound_metric(target_col_views[target_col_name]):
+            target_column_summary: ColumnSummary = {
+                "histogram": None,
+                "frequentItems": None,
+                "drift_from_ref": None,
+                "isDiscrete": None,
+                "featureStats": None,
+            }
+            ref_column_summary: ColumnSummary = {
+                "histogram": None,
+                "frequentItems": None,
+                "drift_from_ref": None,
+                "isDiscrete": None,
+                "featureStats": None,
+            }
+
+            target_col_view = target_col_views[target_col_name]
+            ref_col_view = ref_col_views[target_col_name]
+            if not target_col_view or not ref_col_view:
+                continue
+
+            target_stats = add_feature_statistics(target_col_name, target_col_view)
+            target_column_summary["featureStats"] = target_stats[target_col_name]
+
+            if target_col_name in drift_values:
+                col_drift_value = drift_values[target_col_name]
+                if col_drift_value:
+                    ref_column_summary["drift_from_ref"] = col_drift_value
+                    if ref_column_summary["drift_from_ref"]:
+                        ref_column_summary["drift_from_ref"].update(
+                            {"primary_value": col_drift_value["pvalue"] or col_drift_value["statistic"]}
+                        )
+            target_dist = target_col_view.get_metric("distribution")
+            reference_dist = ref_col_view.get_metric("distribution")
+            if (
+                target_dist
+                and reference_dist
+                and not target_dist.kll.value.is_empty()
+                and not reference_dist.kll.value.is_empty()
+            ):
+                target_column_summary["isDiscrete"] = ref_column_summary["isDiscrete"] = False
+
+                target_histogram = histogram_from_view(target_col_view, target_col_name)
+                target_column_summary["histogram"] = target_histogram
+
+                ref_histogram = histogram_from_view(ref_col_view, target_col_name)
+                ref_column_summary["histogram"] = ref_histogram
+
+            elif target_col_view.get_metric("frequent_items") and ref_col_view.get_metric("frequent_items"):
+                target_column_summary["isDiscrete"] = ref_column_summary["isDiscrete"] = True
+
+                target_frequent_items = frequent_items_from_view(target_col_view, target_col_name, config)
+                target_column_summary["frequentItems"] = target_frequent_items
+
+                ref_frequent_items = frequent_items_from_view(ref_col_view, target_col_name, config)
+                ref_column_summary["frequentItems"] = ref_frequent_items
+            target_summary["columns"][target_col_name] = target_column_summary
+            ref_summary["columns"][target_col_name] = ref_column_summary
+
+    summaries = {
+        "profile_from_whylogs": json.dumps(target_summary),
+        "reference_profile_from_whylogs": json.dumps(ref_summary),
+    }
+    return summaries
+
+
+@deprecated(message="Please use generate_summaries_with_drift_score instead.")
 def generate_summaries(
     target_view: DatasetProfileView, ref_view: Optional[DatasetProfileView], config: Optional[SummaryConfig]
 ) -> Optional[Dict[str, Any]]:

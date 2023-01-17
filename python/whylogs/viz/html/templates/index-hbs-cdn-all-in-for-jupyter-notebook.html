@@ -734,13 +734,12 @@
                        class="form-check-input wl__feature-filter-input"
                        type="checkbox"
                        name="checkbox"
-                       value="Discrete"
-                       id="inferredDiscrete"
-                       onclick="changeDiscreteValue()"
+                       value="Nodrift"
+                       id="nodrift"
                        checked
                      />
-                     <label class="form-check-label" for="inferredDiscrete">
-                       Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
+                     <label class="form-check-label" for="nodrift">
+                       No evidence of drift (<span class="wl__feature-count--nodrift">{{getNoDriftCount}}</span>)
                      </label>
                    </div>
                    <div class="form-check mb-1">
@@ -748,15 +747,14 @@
                        class="form-check-input wl__feature-filter-input"
                        type="checkbox"
                        name="checkbox"
-                       value="Non-discrete"
-                       id="inferredNonDiscrete"
-                       onclick="changeNonDiscreteValue()"
+                       value="Possibledrift"
+                       id="possibledrift"
                        checked
                      />
-                     <label class="form-check-label" for="inferredNonDiscrete">
-                       Inferred non-discrete (<span
-                         class="wl__feature-count--non-discrete"
-                       >{{getNonDiscreteTypeCount}}</span>)
+                     <label class="form-check-label" for="possibledrift">
+                       Possible drift (<span
+                         class="wl__feature-count--possibledrift"
+                       >{{getPossibleDriftCount}}</span>)
                      </label>
                    </div>
                    <div class="form-check mb-1">
@@ -764,15 +762,30 @@
                        class="form-check-input wl__feature-filter-input"
                        type="checkbox"
                        name="checkbox"
-                       value="Unknown"
-                       id="inferredUnknown"
-                       onclick="changeUnknwonValue()"
+                       value="Detecteddrift"
+                       id="detecteddrift"
                        checked
                      />
-                     <label class="form-check-label" for="inferredUnknown">
-                       Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
+                     <label class="form-check-label" for="detecteddrift">
+                       Detected drift (<span class="wl__feature-count--drift">{{getDriftCount}}</span>)
                      </label>
                    </div>
+                   <div class="form-check mb-1">
+                    <input
+                      class="form-check-input wl__feature-filter-input"
+                      type="checkbox"
+                      name="checkbox"
+                      value="Unknowndrift"
+                      id="unknowndrift"
+                      checked
+                    />
+                    <label class="form-check-label" for="unknowndrift">
+                      Unknown (<span
+                        class="wl__feature-count--unknown"
+                      >{{getUnknownDriftCount}}</span>)
+                    </label>
+                  </div>
+
                  </div>
                </div>
               </div>
@@ -784,20 +797,18 @@
                         <div class="wl-table-head table-border-none graph-table-head">Target</div>
                         <div class="wl-table-head table-border-none reference-table-head">Reference</div>
                       </div>
-                      <div class="wl-table-head wl-table-head-wraper text-align-end" style="cursor: pointer;" id="diff-from-ref">
-                        <p id="pvalue" > p-value </p>
-                        <p id="pvalue-asc" style="display: none;"> p-value &#9650 </p>
-                        <p id="pvalue-desc" style="display: none;"> p-value &#9660 </p>
-
-                        <div class="tooltip-full-number">
+                      <div class="wl-table-head wl-table-head-wraper text-align-center" style="cursor: pointer;" id="diff-from-ref">
+                        <div class="pvalue">Drift Score
+                          <div class="tooltip-full-number">
                             <span class="question-mark">?</span>
                           <span class="tooltiptext">
-                           <div class="mb-1">p-values are calculated with K-S test for numerical features and Chi-squared for categorical features.</div>
+                           <div class="mb-1">Drift is evaluated against pvalue, if present, and against statistic otherwise.</div>
                           </span>
                         </div>
+                        </div>
                       </div>
+                      <div class="wl-table-head wl-table-head-wraper text-align-end">Data Drift</div>
                       <div class="wl-table-head wl-table-head-wraper text-align-end">Total count</div>
-                      <div class="wl-table-head wl-table-head-wraper text-align-end">Mean</div>
                     </div>
                   </div>
                   <ul class="wl-table-body wl__table-body" id="table-body">
@@ -805,7 +816,7 @@
                     <li
                     {{#if this.numberSummary}} class="wl-table-row wl-table-row--clickable" {{else}} class="wl-table-row" {{/if}}
                     data-feature-name={{@key}}
-                    data-inferred-type={{inferredType this}}
+                    data-drift-category={{driftCategory this}}
                     data-scroll-to-feature-name={{@key}}
                     data-p-value={{getpvalue this}}
                   >
@@ -826,9 +837,19 @@
                            {{{getDiffFromRef this}}}
                         </div></div><div
                         class="wl-table-cell wl-table-cell--top-spacing align-middle"
-                      ><div class="text-align-end">{{totalCount this}}</div></div><div
+                      ><div class="text-align-end">{{getDriftCategory this}}
+                        <div class="tooltip-full-number">
+                          <span class="question-mark">?</span>
+                        <span class="tooltiptext">
+                        <div class="mb-1"><pre class="mb-1">{{getThresholds this}}</pre></div>
+                        </span>
+                      </div>
+                      </div>
+
+                      </div>
+                      <div
                         class="wl-table-cell wl-table-cell--top-spacing align-middle"
-                      ><div class="text-align-end">{{mean this}}</div></div>
+                      ><div class="text-align-end">{{totalCount this}}</div></div>
                     </li>
                     {{/each}}
                   </ul>
@@ -1011,30 +1032,32 @@
       const drifts = {
         severe: {
           count: 0,
-          range: "with detected drift (0.00 - 0.05)",
+          range: "with detected drift",
         },
         moderate: {
           count: 0,
-          range: "with possible drift (0.05 - 0.15)",
+          range: "with possible drift",
         },
         mild: {
           count: 0,
-          range: "with no evidence of drift (0.15 - 1.0)",
+          range: "with no evidence of drift",
         }
       };
 
-      const countOfDrifts = (driftNumber) => {
-        if(driftNumber >= 0 && driftNumber <= 0.05) {
-          Object.values(drifts)[0].count++
+      const countOfDrifts = (drift_from_ref, increment = true) => {
+        drift_class = drift_from_ref.drift_category
+        if (drift_class=="NO_DRIFT") {
+          if (increment){Object.values(drifts)[2].count++}
           return 0
-        } else if(driftNumber > 0.05 && driftNumber <= 0.15) {
-          Object.values(drifts)[1].count++
+        }
+        if (drift_class=="POSSIBLE_DRIFT") {
+          if (increment){Object.values(drifts)[1].count++}
           return 1
-        } else if(driftNumber > 0.15) {
-          Object.values(drifts)[2].count++
+        }
+        if (drift_class=="DRIFT") {
+          if (increment){Object.values(drifts)[0].count++}
           return 2
         }
-
       }
 
     abbreviate_number = function(value, fixed = 0) {
@@ -1115,8 +1138,8 @@
 
       let driftCount = 0;
       const diffFromRefTableElement = (driftFromRefNumber, circleColor) => `
-         <div class="text-color padding-5 text-align-end justify-content-center">
-           ${driftFromRefNumber}
+         <div class="text-color padding-5 text-align-center justify-content-center">
+          <pre class="mb-1"> ${driftFromRefNumber} </pre>
          </div>
        `
 
@@ -1129,27 +1152,79 @@
          }
        }
 
+       const cheqDriftFromRef = (profile, driftFromRef) => {
+        if (profile && driftFromRef){
+          console.log("drift from ref true")
+          return true
+        }
+        else {
+          console.log("drift from ref false")
+          return false
+        }
+       }
 
        Handlebars.registerHelper("getpvalue", function (column, key) {
         const columnKey = key.data.key
         const {drift_from_ref} = referenceProfile.columns[columnKey]
-
-        if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
-          const driftFromRefNumber = drift_from_ref.toPrecision(2)
+        if (cheqDriftFromRef(referenceProfile, drift_from_ref)){
+          if (cheqValueTypeNumber(referenceProfile, drift_from_ref.primary_value)) {
+          const driftFromRefNumber = drift_from_ref.primary_value.toPrecision(2)
           return Number(driftFromRefNumber)
 
         }
+        }
+        else {
+          return "-"
+        }
       });
+
+
+      Handlebars.registerHelper("getDriftCategory", function (column, key) {
+        const columnKey = key.data.key
+        const {drift_from_ref} = referenceProfile.columns[columnKey]
+        const categories = {
+          0: "No evidence of drift",
+          1: "Possible drift",
+          2: "Detected drift"
+        }
+        if (cheqDriftFromRef(referenceProfile, drift_from_ref)){
+          if (cheqValueTypeNumber(referenceProfile, drift_from_ref.primary_value)) {
+            const driftFromRefNumber = drift_from_ref.primary_value.toPrecision(2)
+            const driftCategory = countOfDrifts(drift_from_ref, increment=false)
+            const circleColor = Object.values(drifts)[driftCategory].colorClass
+            return categories[driftCategory]
+
+          } else if (cheqValueTypeNumber(referenceProfile, drift_from_ref.primary_value) !== undefined) {
+            Object.values(drifts)[0].count++
+            return diffFromRefTableElement("undefined", "severe-drift-circle-color")
+          }
+        }
+        else {
+          return "Unknown"
+        }
+
+        return '<p style="color: black">-</p>';
+      });
+
+
 
       Handlebars.registerHelper("getDiffFromRef", function (column, key) {
         const columnKey = key.data.key
         const {drift_from_ref} = referenceProfile.columns[columnKey]
-
-        if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
-          const driftFromRefNumber = drift_from_ref.toPrecision(2)
-          const driftCategory = countOfDrifts(driftFromRefNumber)
+        if (drift_from_ref==null){
+          return diffFromRefTableElement("-", "")
+        }
+        if (cheqValueTypeNumber(referenceProfile, drift_from_ref.primary_value)) {
+          const driftFromRefNumber = drift_from_ref.primary_value.toPrecision(2)
+          const driftCategory = countOfDrifts(drift_from_ref)
           const circleColor = Object.values(drifts)[driftCategory].colorClass
-          if (driftCategory==0 || driftCategory == 1){
+          if (cheqValueTypeNumber(referenceProfile, drift_from_ref.pvalue)){
+            stats_string = `using algorithm: ${drift_from_ref.algorithm}\npvalue is: ${drift_from_ref.pvalue.toPrecision(3)}`
+          }
+          else {
+            stats_string = `using algorithm: ${drift_from_ref.algorithm}\nstatistic is: ${drift_from_ref.statistic.toPrecision(3)}`
+          }
+          if (driftCategory==1 || driftCategory == 2){
             driftCount++
           }
           $(document).ready(() => {
@@ -1157,13 +1232,25 @@
              $(".all-features").html(Object.keys(referenceProfile.columns).length)
            })
 
-          return diffFromRefTableElement(driftFromRefNumber, circleColor)
+          return diffFromRefTableElement(stats_string, circleColor)
 
-        } else if (cheqValueTypeNumber(referenceProfile, drift_from_ref) !== undefined) {
-          Object.values(drifts)[0].count++
-          return diffFromRefTableElement("undefined", "severe-drift-circle-color")
         }
+        return '<p style="color: black">-</p>';
+      });
 
+
+      Handlebars.registerHelper("getThresholds", function (column, key) {
+        const columnKey = key.data.key
+        const {drift_from_ref} = referenceProfile.columns[columnKey]
+        if (drift_from_ref==null) {
+          return "-"
+        }
+        if (cheqValueTypeNumber(referenceProfile, drift_from_ref.primary_value)) {
+          thresholds_map = Object.entries(drift_from_ref.thresholds)
+          let thresholds_string = thresholds_map.map(([key, value]) => `${key}: ${value}`).join('\n')
+          return "thresholds:\n"+thresholds_string
+
+        }
         return '<p style="color: black">-</p>';
       });
 
@@ -1176,7 +1263,7 @@
 
       Handlebars.registerHelper("inferredType", function (column) {
         let infferedType = "";
-
+        console.log(column)
         if (column.isDiscrete) {
           infferedType = "Discrete";
         } else {
@@ -1184,6 +1271,35 @@
         }
         return infferedType;
       });
+
+      Handlebars.registerHelper("driftCategory", function (column, key) {
+        const columnKey = key.data.key
+        const {drift_from_ref} = referenceProfile.columns[columnKey]
+        if (drift_from_ref == null){
+          return "unknowndrift"
+        }
+        if (cheqValueTypeNumber(referenceProfile, drift_from_ref.primary_value)) {
+          console.log(drift_from_ref.drift_category)
+          console.log(Number(drift_from_ref.drift_category)==0)
+
+          if (drift_from_ref.drift_category=="NO_DRIFT"){
+            console.log("discrete")
+            return "nodrift"
+          }
+          if (drift_from_ref.drift_category=="POSSIBLE_DRIFT"){
+            console.log("non-discrete")
+            return "possibledrift"
+          }
+          if (drift_from_ref.drift_category=="DRIFT"){
+            console.log("unknown")
+            return "drift"
+          }
+
+          return Number(drift_from_ref.drift_category)
+
+        }
+      });
+
 
       Handlebars.registerHelper("frequentItems", function (column) {
         frequentItemsElemString = "";
@@ -1233,13 +1349,76 @@
       Handlebars.registerHelper("getNonDiscreteTypeCount", function () {
         let count = 0;
 
-        Object.entries(this.columns).forEach((feature) => {
+        Object.entries(referenceProfile.columns).forEach((feature) => {
           if (feature[1].isDiscrete === false) {
             count++;
           }
         });
         return count;
       });
+
+      Handlebars.registerHelper("getDriftCount", function () {
+        let count = 0;
+
+        Object.entries(referenceProfile.columns).forEach((feature) => {
+          if (feature[1].drift_from_ref != null){
+            console.log("drif ref not null")
+            if (feature[1].drift_from_ref.drift_category == "DRIFT") {
+              count++;
+            }
+          }
+          else{
+            console.log("drift ref null")
+          }
+        });
+        return count;
+      });
+
+      Handlebars.registerHelper("getPossibleDriftCount", function () {
+        let count = 0;
+
+        Object.entries(referenceProfile.columns).forEach((feature) => {
+          if (feature[1].drift_from_ref != null){
+            console.log("drif ref not null")
+            if (feature[1].drift_from_ref.drift_category == "POSSIBLE_DRIFT") {
+              count++;
+            }
+          }
+          else{
+            console.log("drift ref null")
+          }
+        });
+        return count;
+      });
+
+
+      Handlebars.registerHelper("getNoDriftCount", function () {
+        let count = 0;
+        Object.entries(referenceProfile.columns).forEach((feature) => {
+          if (feature[1].drift_from_ref != null){
+            console.log("drif ref not null")
+            if (feature[1].drift_from_ref.drift_category == "NO_DRIFT") {
+              count++;
+            }
+          }
+          else{
+            console.log("drift ref null")
+          }
+        });
+        return count;
+      });
+
+      Handlebars.registerHelper("getUnknownDriftCount", function () {
+        let count = 0;
+        Object.entries(referenceProfile.columns).forEach((feature) => {
+          if (feature[1].drift_from_ref == null){
+            console.log("drif ref unknown")
+            count++;
+          }
+        });
+        return count;
+      });
+
 
       Handlebars.registerHelper("getUnknownTypeCount", function () {
         let count = 0;
@@ -1267,15 +1446,17 @@
     function initWebsiteScripts() {
       const $featureSearch = document.getElementById("wl__feature-search");
       const $tableBody = document.getElementById("table-body");
-      const $discrete = document.getElementById("inferredDiscrete");
-      const $nonDiscrete = document.getElementById("inferredNonDiscrete");
-      const $unknown = document.getElementById("inferredUnknown");
+      const $noDrift = document.getElementById("nodrift");
+      const $possibleDrift = document.getElementById("possibledrift");
+      const $drift = document.getElementById("detecteddrift");
       const $diffFromRef = document.getElementById("diff-from-ref");
+      const $unknownDrift = document.getElementById("unknowndrift");
 
       const activeTypes = {
-        discrete: true,
-        "non-discrete": true,
-        unknown: true,
+        nodrift: true,
+        possibledrift: true,
+        drift: true,
+        unknowndrift: true,
       };
 
       var driftOrder = {
@@ -1317,47 +1498,11 @@
       }
 
 
-      function orderByDrift(direction) {
-        var tableBodyChildren = $tableBody.children;
-        if (driftOrder['original']) {
-          driftOrder['original'] = false
-          driftOrder['descending'] = true
-
-          originalColumnOrder = [...tableBodyChildren];
-          tableBodyChildren = [...tableBodyChildren].sort((a,b) => (b.dataset.pValue - a.dataset.pValue))
-          document.getElementById("pvalue").style.display = "none";
-          document.getElementById("pvalue-desc").style.display = "";
-
-        } else if (driftOrder['descending']) {
-          driftOrder['descending'] = false
-          driftOrder['ascending'] = true
-          tableBodyChildren = [...tableBodyChildren].sort((a,b) => (a.dataset.pValue - b.dataset.pValue))
-          document.getElementById("pvalue-desc").style.display = "none";
-          document.getElementById("pvalue-asc").style.display = "";
-
-
-        } else if (driftOrder['ascending']) {
-          driftOrder['ascending'] = false
-          driftOrder['original'] = true
-
-          tableBodyChildren = originalColumnOrder;
-          document.getElementById("pvalue-asc").style.display = "none";
-          document.getElementById("pvalue").style.display = "";
-
-        }
-
-        for (let i = 0; i < tableBodyChildren.length; i++) {
-          console.log(tableBodyChildren[i].dataset.pValue)
-        }
-        for (var i = 0; i < tableBodyChildren.length; i++){$tableBody.append(tableBodyChildren[i])}
-      }
-
-
       function handleSearch() {
         const tableBodyChildren = $tableBody.children;
 
         for (let i = 0; i < tableBodyChildren.length; i++) {
-          const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
+          const type = tableBodyChildren[i].dataset.driftCategory.toLowerCase();
           const name = tableBodyChildren[i].dataset.featureName.toLowerCase();
           if (activeTypes[type] && name.startsWith(searchString)) {
             tableBodyChildren[i].style.display = "";
@@ -1375,38 +1520,41 @@
         }, 100),
       );
 
-      $diffFromRef.addEventListener(
-        "click",
-        debounce((event) => {
-          orderByDrift();
-        }, 100),
-      );
-
-      $discrete.addEventListener("change", (event) => {
+      $noDrift.addEventListener("change", (event) => {
         if (event.currentTarget.checked) {
-          activeTypes["discrete"] = true;
+          activeTypes["nodrift"] = true;
         } else {
-          activeTypes["discrete"] = false;
+          activeTypes["nodrift"] = false;
         }
         handleSearch();
         filterNotification()
       });
 
-      $nonDiscrete.addEventListener("change", (event) => {
+      $possibleDrift.addEventListener("change", (event) => {
         if (event.currentTarget.checked) {
-          activeTypes["non-discrete"] = true;
+          activeTypes["possibledrift"] = true;
         } else {
-          activeTypes["non-discrete"] = false;
+          activeTypes["possibledrift"] = false;
         }
         handleSearch();
         filterNotification()
       });
 
-      $unknown.addEventListener("change", (event) => {
+      $unknownDrift.addEventListener("change", (event) => {
         if (event.currentTarget.checked) {
-          activeTypes["unknown"] = true;
+          activeTypes["unknowndrift"] = true;
         } else {
-          activeTypes["unknown"] = false;
+          activeTypes["unknowndrift"] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+      $drift.addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+          activeTypes["drift"] = true;
+        } else {
+          activeTypes["drift"] = false;
         }
         handleSearch();
         filterNotification()

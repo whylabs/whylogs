@@ -84,6 +84,7 @@ Here you will find more advanced use-cases for `whylogs`, and you will learn how
 | [String Tracking](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/String_Tracking.ipynb)                                                                   | Track unicode ranges and character length distribution metrics for your textual features. |
 | [Segments](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Segments.ipynb)                                                                                 | Segment your data to improve visibility to the sub-group level                            |
 | [Metric Constraints with Condition Count Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Metric_Constraints_with_Condition_Count_Metrics.ipynb)   | Build Metric Constraints on top of Condition Count Metrics                                |
+| [Drift Algorithm Configuration](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Drift_Algorithm_Configuration.ipynb)                                       | Choose different drift algorithms and internal parameters for drift detection             |
 
 ## 📓 Benchmarks
 
