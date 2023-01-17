@@ -42,7 +42,7 @@ class ConfusionMatrix:
 
     def __init__(
         self,
-        labels: List[Union[str, int, bool, float]] = None,
+        labels: Optional[List[Union[str, int, bool, float]]] = None,
     ):
         if labels:
             labels_size = len(labels)

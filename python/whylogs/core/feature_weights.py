@@ -28,10 +28,10 @@ class FeatureWeights(Writable):
         return FeatureWeightWriter(feature_weight=self, writer=writer)
 
     def get_default_path(self) -> str:
-        pass
+        return f"feature_weights_{self.segment}.json"
 
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> None:
-        pass
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+        return (False, "write() not implemented on feature weights, use with WhyLabsWriter.")
 
     def to_json(self) -> str:
         return json.dumps({"segment": self.segment, "weights": self.weights})
