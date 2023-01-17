@@ -56,7 +56,8 @@ class ColumnDriftAlgorithm(ABC):
         If the measure is not within any of the defined thresholds, raises an error.
         If the measure is within the thresholds of multiple categories, priority is given by drift severity.
 
-        The defined ranges are inclusive of the lower bound and exclusive of the upper bound, with the exception of the highest valued upper bound among all categories.
+        The defined ranges are inclusive of the lower bound and exclusive of the upper bound,
+        with the exception of the highest valued upper bound among all categories.
         For the highest valued upper bound, the range is inclusive of both the lower and upper bounds.
         This is to ensure that the highest valued upper bound is always included in the category.
         """
