@@ -15,9 +15,9 @@ CLASS_NAMES = ["setosa", "versicolor", "virginica"]
 model = joblib.load('knn_model.pkl')
 
 # Set WhyLabs variables
-os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-qdcnk5"
-os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "model-77"
-os.environ["WHYLABS_API_KEY"] = "NzhivaYyRM.j1di4X4maxSYkf85fwMOaxRusOh96fQSKp1ifRVCjTYsB7w4z4vpG"
+os.environ["WHYLABS_DEFAULT_ORG_ID"] = "ORGID"
+os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "MODELID"
+os.environ["WHYLABS_API_KEY"] = "APIKEY"
 
 app = FastAPI()
 

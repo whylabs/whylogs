@@ -129,7 +129,9 @@ Once profiles are written to WhyLabs they can be inspected, compared, and monito
 Learn more about how to use WhyLabs to monitor your ML models in production [here](https://docs.whylabsapp.com/).
 
 ## A decoupled architecture approach to ML monitoring
-Although whylogs' profiling is very fast and WhyLabs' endpoint also returns the write request quickly, sometimes even small increments of time added to every prediction might be too much. So instead of directly profiling the data and persisting to WhyLabs on every call, a possible solution could be just persisting the output to an asynchronous message queue, which will be periodically processed, as the following diagram shows:
+In general, whylogs is [quite fast](https://whylabs.ai/blog/posts/data-logging-with-whylogs-profiling-for-efficiency) with bulk logging, but it does have fixed overhead per log call, so some traffic patterns may not lend themselves well to logging synchronously. If you can't afford the additional latency overhead that whylogs would take in your inference pipeline then you should consider decoupling whylogs.
+
+Instead of directly logging the data on every call, you can send the data to a message queue like SQS to asynchronously log.
 
 ![](https://docs.whylabs.ai/docs/assets/images/fastapi_decoupled_example-c19a3f218e78b2b6dc577a8b761abaa9.png)
 
