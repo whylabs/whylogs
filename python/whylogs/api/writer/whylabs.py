@@ -498,7 +498,6 @@ class WhyLabsWriter(Writer):
             raise e
 
     def _get_existing_column_schema(self, model_api_instance, column_name) -> Optional[ColumnSchema]:
-
         try:
             # TODO: remove when whylabs supports merge writes.
             existing_schema = model_api_instance.get_entity_schema_column(
