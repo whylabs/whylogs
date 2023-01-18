@@ -307,7 +307,6 @@ def v1_to_dataset_profile_message_v0(
     segment: Optional[Segment],
     partition: Optional[SegmentationPartition],
 ) -> DatasetProfileMessageV0:
-
     segment_message_tags: Optional[Dict[str, str]] = None
     segment_tags: Optional[List[SegmentTag]] = None
     segment_metadata: Optional[Dict[str, str]] = None

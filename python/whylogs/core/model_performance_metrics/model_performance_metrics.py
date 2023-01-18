@@ -36,7 +36,6 @@ class ModelPerformanceMetrics:
     def to_protobuf(
         self,
     ) -> ModelProfileMessage:
-
         model_type = ModelType.UNKNOWN
         if not self.model_type:
             if self.confusion_matrix:

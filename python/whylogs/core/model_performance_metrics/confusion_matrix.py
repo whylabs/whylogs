@@ -146,7 +146,6 @@ class ConfusionMatrix:
 
     @staticmethod
     def _dist_to_numbers(dist: Optional[DistributionMetric]) -> NumbersMessageV0:
-
         variance_message = VarianceMessage()
 
         if dist is None or dist.kll.value.is_empty():

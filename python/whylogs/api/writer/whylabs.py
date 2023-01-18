@@ -172,7 +172,6 @@ class WhyLabsWriter(Writer):
 
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
-
         if isinstance(file, FeatureWeights):
             return self.write_feature_weights(file, **kwargs)
 
@@ -306,7 +305,6 @@ class WhyLabsWriter(Writer):
     def _do_upload(
         self, dataset_timestamp: int, profile_path: Optional[str] = None, profile_file: Optional[IO[bytes]] = None
     ) -> Tuple[bool, str]:
-
         assert profile_path or profile_file, "Either a file or file path must be specified when uploading profiles"
         self._validate_org_and_dataset()
         self._validate_api_key()
