@@ -18,6 +18,7 @@
    ]
   },
   {
+   "attachments": {},
    "cell_type": "markdown",
    "metadata": {},
    "source": [
@@ -29,7 +30,8 @@
     "- Log daily input features with whylogs\n",
     "- Log daily regression performance metrics with whylogs\n",
     "- Write logged profiles to WhyLabs' dashboard\n",
-    "- Show performance summary at WhyLabs"
+    "- Show performance summary at WhyLabs\n",
+    "- __Advanced__: Monitor segmented performance metrics"
    ]
   },
   {
@@ -374,6 +376,98 @@
    "metadata": {},
    "source": [
     "![alt text](images/regression_metrics.png)"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Advanced Usage - Monitoring Segmented Performance Metrics\n",
+    "\n",
+    "You can also log performance metrics for specific segments of your data.\n",
+    "\n",
+    "For example, let's say we want to monitor the performance of our model according to climate type . We might be interested in comparing performance metrics of the complete data against a specific segment, such as measurements that were taken from stations located at `Dry` or `Tropical` regions.\n",
+    "\n",
+    "To do that, it's very simple: we just need to specify the column we wish to segment on and pass that information to a __Dataset Schema__ object, like this:"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "> If you want to learn more about segments, please refer to [this example](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Segments.ipynb)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from whylogs.core.segmentation_partition import segment_on_column\n",
+    "from whylogs.core.schema import DatasetSchema\n",
+    "\n",
+    "segment_column = \"meta_climate\"\n",
+    "segmented_schema = DatasetSchema(segments=segment_on_column(segment_column))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now, we can log the profiles as demonstraded previously, with two differences. We'll pass the schema to the `log_classification_metrics` method, and also set the timestamp to the complete result set:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from whylogs.api.writer.whylabs import WhyLabsWriter\n",
+    "import whylogs as why\n",
+    "\n",
+    "columns = [\"meta_climate\",\"meta_latitude\",\"meta_longitude\",\"prediction_temperature\",\"temperature\"]\n",
+    "for batch in daily_batches:\n",
+    "    dataset_timestamp = batch.timestamp\n",
+    "\n",
+    "    df = batch.data[columns]\n",
+    "    print(\"logging data for date {}\".format(dataset_timestamp))\n",
+    "    results = why.log_regression_metrics(\n",
+    "        df,\n",
+    "        target_column = \"temperature\",\n",
+    "        prediction_column = \"prediction_temperature\",\n",
+    "        schema=segmented_schema,\n",
+    "        log_full_data=True)\n",
+    "\n",
+    "    results.set_dataset_timestamp(dataset_timestamp)\n",
+    "    print(\"writing profiles to whylabs...\")\n",
+    "    results.writer(\"whylabs\").write()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Note that we're passing `segmented_schema` as the `schema` parameter. This will tell whylogs to log the metrics for the complete data, as well as for each segment.\n",
+    "\n",
+    "You'll get a similar dashboard at the `performance` page at WhyLabs, but now you'll see a dropdown menu with the available segments (or complete data). You'll also be able to choose a second segment to compare against:"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "![alt text](images/segmented_performance_regression.png)"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can see that the errors seem to be similar between the `tropical` segment and complete data. However, the difference begins to increase with time, with the model's performance for the `tropical` segment being consistently lower than for the complete data. You can verify it by exploring the other metrics on this dashboard, or look for other insights by exploring the other segments!"
    ]
   }
  ],

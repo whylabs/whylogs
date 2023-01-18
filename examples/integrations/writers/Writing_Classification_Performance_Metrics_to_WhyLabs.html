@@ -678,6 +678,7 @@ power of whylogs and WhyLabs together!</em></p>
 <li><p>Log daily classification performance metrics with whylogs</p></li>
 <li><p>Write logged profiles to WhyLabs’ dashboard</p></li>
 <li><p>Show performance summary at WhyLabs</p></li>
+<li><p><strong>Advanced</strong>: Monitor segmented performance metrics</p></li>
 </ul>
 <section id="Installing-whylogs">
 <h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
@@ -700,7 +701,7 @@ power of whylogs and WhyLabs together!</em></p>
 <h3>Downloading the data into daily batches<a class="headerlink" href="#Downloading-the-data-into-daily-batches" title="Permalink to this headline">#</a></h3>
 <p>Let’s download 7 batches with 7 days worth of data, corresponding to the last 7 days. We can use directly the datasets module for that.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.datasets</span> <span class="kn">import</span> <span class="n">Ecommerce</span>
@@ -741,7 +742,7 @@ power of whylogs and WhyLabs together!</em></p>
 <p>The target and prediction features are encoded as 0’s and 1’s. While this example would work just as well this way, let’s encode these categories to strings - <code class="docutils literal notranslate"><span class="pre">discount</span></code> and <code class="docutils literal notranslate"><span class="pre">full</span> <span class="pre">price</span></code> - for didactical purposes.</p>
 <p>Let’s take a look at the resulting data for the first day:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;product&#39;</span><span class="p">,</span><span class="s1">&#39;sales_last_week&#39;</span><span class="p">,</span><span class="s1">&#39;market_price&#39;</span><span class="p">,</span><span class="s1">&#39;rating&#39;</span><span class="p">,</span><span class="s1">&#39;category&#39;</span><span class="p">,</span><span class="s1">&#39;output_discount&#39;</span><span class="p">,</span><span class="s1">&#39;output_prediction&#39;</span><span class="p">,</span><span class="s1">&#39;output_score&#39;</span><span class="p">]</span>
@@ -750,13 +751,12 @@ power of whylogs and WhyLabs together!</em></p>
 
 <span class="n">df</span><span class="p">[</span><span class="s1">&#39;output_discount&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;output_discount&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;discount&quot;</span> <span class="k">if</span> <span class="n">x</span><span class="o">==</span><span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;full price&quot;</span><span class="p">)</span>
 <span class="n">df</span><span class="p">[</span><span class="s1">&#39;output_prediction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;output_prediction&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;discount&quot;</span> <span class="k">if</span> <span class="n">x</span><span class="o">==</span><span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;full price&quot;</span><span class="p">)</span>
-
 <span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -801,55 +801,55 @@ power of whylogs and WhyLabs together!</em></p>
   </thead>
   <tbody>
     <tr>
-      <th>2022-09-07 00:00:00+00:00</th>
+      <th>2023-01-10 00:00:00+00:00</th>
       <td>1-2-3 Noodles - Veg Masala Flavour</td>
       <td>2</td>
       <td>12.0</td>
-      <td>4.200000</td>
+      <td>4</td>
       <td>Snacks and Branded Foods</td>
       <td>full price</td>
       <td>full price</td>
       <td>1.000000</td>
     </tr>
     <tr>
-      <th>2022-09-07 00:00:00+00:00</th>
+      <th>2023-01-10 00:00:00+00:00</th>
       <td>Jaggery Powder - Organic, Sulphur Free</td>
       <td>1</td>
       <td>280.0</td>
-      <td>3.996552</td>
+      <td>3</td>
       <td>Gourmet and World Food</td>
       <td>full price</td>
       <td>full price</td>
       <td>0.571833</td>
     </tr>
     <tr>
-      <th>2022-09-07 00:00:00+00:00</th>
+      <th>2023-01-10 00:00:00+00:00</th>
       <td>Pudding - Assorted</td>
       <td>3</td>
       <td>50.0</td>
-      <td>4.400000</td>
+      <td>4</td>
       <td>Gourmet and World Food</td>
       <td>full price</td>
       <td>discount</td>
       <td>0.600000</td>
     </tr>
     <tr>
-      <th>2022-09-07 00:00:00+00:00</th>
+      <th>2023-01-10 00:00:00+00:00</th>
       <td>Perfectly Moist Dark Chocolate Fudge Cake Mix ...</td>
       <td>1</td>
       <td>495.0</td>
-      <td>4.000000</td>
+      <td>4</td>
       <td>Gourmet and World Food</td>
       <td>full price</td>
       <td>discount</td>
       <td>0.517833</td>
     </tr>
     <tr>
-      <th>2022-09-07 00:00:00+00:00</th>
+      <th>2023-01-10 00:00:00+00:00</th>
       <td>Pasta/Spaghetti Spoon - Nylon, Silicon Handle,...</td>
       <td>1</td>
       <td>299.0</td>
-      <td>3.732046</td>
+      <td>3</td>
       <td>Kitchen, Garden and Pets</td>
       <td>discount</td>
       <td>discount</td>
@@ -873,7 +873,7 @@ power of whylogs and WhyLabs together!</em></p>
 <p>Go to <a class="reference external" href="https://whylabs.ai/free">https://whylabs.ai/free</a> and grab a free account. You can follow along with the examples if you wish, but if you’re interested in only following this demonstration, you can go ahead and skip the quick start instructions.</p>
 <p>After that, you’ll be prompted to create an API token. Once you create it, copy and store it locally. The second important information here is your org ID. Take note of it as well. After you get your API Token and Org ID, you can go to <a class="reference external" href="https://hub.whylabsapp.com/models">https://hub.whylabsapp.com/models</a> to see your projects dashboard. You can create a new project and take note of it’s ID (if it’s a model project it will look like <code class="docutils literal notranslate"><span class="pre">model-xxxx</span></code>).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">getpass</span>
@@ -903,7 +903,7 @@ power of whylogs and WhyLabs together!</em></p>
 Enter your WhyLabs Org ID
 Enter your WhyLabs Dataset ID
 Enter your WhyLabs API key
-Using API Key ID:  z8fYdnQwHr
+Using API Key ID:
 </pre></div></div>
 </div>
 </section>
@@ -922,6 +922,7 @@ defaults to False.</p>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span>
 <span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+
 
 <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;product&#39;</span><span class="p">,</span><span class="s1">&#39;sales_last_week&#39;</span><span class="p">,</span><span class="s1">&#39;market_price&#39;</span><span class="p">,</span><span class="s1">&#39;rating&#39;</span><span class="p">,</span><span class="s1">&#39;category&#39;</span><span class="p">,</span><span class="s1">&#39;output_discount&#39;</span><span class="p">,</span><span class="s1">&#39;output_prediction&#39;</span><span class="p">,</span><span class="s1">&#39;output_score&#39;</span><span class="p">]</span>
 
@@ -984,6 +985,66 @@ writing profiles to whylabs...
 <li><p>F1</p></li>
 </ul>
 <img alt="alt text" src="../../../_images/whylabs_classification.png" />
+</section>
+<section id="Advanced-Usage---Monitoring-Segmented-Performance-Metrics">
+<h2>Advanced Usage - Monitoring Segmented Performance Metrics<a class="headerlink" href="#Advanced-Usage---Monitoring-Segmented-Performance-Metrics" title="Permalink to this headline">#</a></h2>
+<p>You can also log performance metrics for specific segments of your data.</p>
+<p>For example, let’s say we want to monitor the performance of our model according to the product’s category. We might be interested in comparing performance metrics of the complete data against a specific segment, such as <code class="docutils literal notranslate"><span class="pre">Fruits</span> <span class="pre">&amp;</span> <span class="pre">Vegetables</span></code> or <code class="docutils literal notranslate"><span class="pre">Beverages</span></code>, for example, or compare one segment against another.</p>
+<p>To do that, it’s very simple: we just need to specify the column we wish to segment on and pass that information to a <strong>Dataset Schema</strong> object, like this:</p>
+<blockquote>
+<div><p>If you want to learn more about segments, please refer to <a class="reference external" href="https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Segments.ipynb">this example</a>.</p>
+</div></blockquote>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">segment_on_column</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DatasetSchema</span>
+
+<span class="n">segment_column</span> <span class="o">=</span> <span class="s2">&quot;category&quot;</span>
+<span class="n">segmented_schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">segments</span><span class="o">=</span><span class="n">segment_on_column</span><span class="p">(</span><span class="n">segment_column</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Now, we can log the profiles as demonstraded previously, with two differences. We’ll pass the schema to the <code class="docutils literal notranslate"><span class="pre">log_classification_metrics</span></code> method, and also set the timestamp to the complete result set:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span>
+<span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+
+
+<span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;product&#39;</span><span class="p">,</span><span class="s1">&#39;sales_last_week&#39;</span><span class="p">,</span><span class="s1">&#39;market_price&#39;</span><span class="p">,</span><span class="s1">&#39;rating&#39;</span><span class="p">,</span><span class="s1">&#39;category&#39;</span><span class="p">,</span><span class="s1">&#39;output_discount&#39;</span><span class="p">,</span><span class="s1">&#39;output_prediction&#39;</span><span class="p">,</span><span class="s1">&#39;output_score&#39;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">daily_batches</span><span class="p">:</span>
+    <span class="n">dataset_timestamp</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">timestamp</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;output_discount&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;output_discount&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;discount&quot;</span> <span class="k">if</span> <span class="n">x</span><span class="o">==</span><span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;full price&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;output_prediction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;output_prediction&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;discount&quot;</span> <span class="k">if</span> <span class="n">x</span><span class="o">==</span><span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;full price&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;logging data for date </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">))</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log_classification_metrics</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">target_column</span> <span class="o">=</span> <span class="s2">&quot;output_discount&quot;</span><span class="p">,</span>
+        <span class="n">prediction_column</span> <span class="o">=</span> <span class="s2">&quot;output_prediction&quot;</span><span class="p">,</span>
+        <span class="n">score_column</span><span class="o">=</span><span class="s2">&quot;output_score&quot;</span><span class="p">,</span>
+        <span class="n">schema</span><span class="o">=</span><span class="n">segmented_schema</span><span class="p">,</span>
+        <span class="n">log_full_data</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">results</span><span class="o">.</span><span class="n">set_dataset_timestamp</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;writing profiles to whylabs...&quot;</span><span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;whylabs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Note that we’re passing <code class="docutils literal notranslate"><span class="pre">segmented_schema</span></code> as the <code class="docutils literal notranslate"><span class="pre">schema</span></code> parameter. This will tell whylogs to log the metrics for the complete data, as well as for each segment.</p>
+<p>You’ll get a similar dashboard at the <code class="docutils literal notranslate"><span class="pre">performance</span></code> page at WhyLabs, but now you’ll see a dropdown menu with the available segments (or complete data). You’ll also be able to choose a second segment to compare against:</p>
+<img alt="alt text" src="../../../_images/segmented_performance_class.png" />
+<p>We can see that products in the <code class="docutils literal notranslate"><span class="pre">Kitchen,</span> <span class="pre">Garden</span> <span class="pre">and</span> <span class="pre">Pets</span></code> category represents around 14% of the total data (605/4160), and the classification model seems to perform consistently better for this category. You can verify it by exploring the other metrics on this dashboard, or look for other insights by exploring the other segments!</p>
 </section>
 </section>
 
@@ -1059,6 +1120,7 @@ writing profiles to whylabs...
 </li>
 <li><a class="reference internal" href="#✔️-Setting-the-Environment-Variables">✔️ Setting the Environment Variables</a></li>
 <li><a class="reference internal" href="#📊-Profiling-the-Data-+-Sending-to-WhyLabs">📊 Profiling the Data + Sending to WhyLabs</a></li>
+<li><a class="reference internal" href="#Advanced-Usage---Monitoring-Segmented-Performance-Metrics">Advanced Usage - Monitoring Segmented Performance Metrics</a></li>
 </ul>
 </li>
 </ul>
