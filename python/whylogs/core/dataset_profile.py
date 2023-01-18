@@ -121,7 +121,6 @@ class DatasetProfile(Writable):
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Mapping[str, Any]] = None,
     ) -> None:
-
         pandas, row = _pandas_or_dict(obj, pandas, row)
 
         # TODO: do this less frequently when operating at row level

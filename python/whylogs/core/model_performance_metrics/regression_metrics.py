@@ -22,7 +22,6 @@ class RegressionMetrics:
 
         # need to vectorize this
         for idx, target in enumerate(targets):
-
             self.sum_abs_diff += abs(predictions[idx] - target)
             self.sum_diff += predictions[idx] - target
             self.sum2_diff += (predictions[idx] - target) ** 2

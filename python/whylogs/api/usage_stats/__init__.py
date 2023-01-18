@@ -10,7 +10,7 @@ import sys
 import uuid
 from datetime import datetime
 from threading import Thread
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from urllib import request
 
 import whylogs
@@ -138,7 +138,7 @@ def _build_metadata() -> Dict[str, Any]:
     return metadata
 
 
-def _send_stats_event(event_name: str, identity: str, properties: Dict[str, Any] = None) -> None:
+def _send_stats_event(event_name: str, identity: str, properties: Optional[Dict[str, Any]] = None) -> None:
     data = {
         "identity": identity,
         "event": event_name,
