@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import IO, Any, Optional, Tuple
+from typing import IO, Any, Dict, List, Optional, Tuple
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore
@@ -15,6 +15,8 @@ from whylabs_client.api.log_api import (
     LogReferenceRequest,
     LogReferenceResponse,
 )
+from whylabs_client.api.models_api import ModelsApi
+from whylabs_client.model.column_schema import ColumnSchema
 from whylabs_client.rest import ForbiddenException  # type: ignore
 
 from whylogs import __version__ as _version
@@ -132,6 +134,66 @@ class WhyLabsWriter(Writer):
         if ssl_ca_cert is not None:
             self._ssl_ca_cert = ssl_ca_cert
         return self
+
+    def _tag_columns(self, columns: List[str], value: str) -> Tuple[bool, str]:
+        """Sets the column as an input or output for the specified dataset.
+
+        Parameters
+        ----------
+        columns : List[str]
+            The list of column names you want to tag as input or output
+
+        value: str
+            For example we can pass in "output" to configure the column as an output.
+
+        Returns
+        -------
+        Tuple[bool, str]
+            Tuple with a boolean indicating success or failure: e.g. (True, "column prediction was updated to output") and string with status message.
+        """
+        self._validate_org_and_dataset()
+        self._validate_api_key()
+        results: Dict[str, str] = dict()
+        all_sucessful = True
+        # TODO: update the list of columns at once, support arbitrary tags as well.
+        for column_name in columns:
+            status = self._put_column_schema(column_name, value)
+            results[column_name] = status[1]
+            if status[0] != 200:
+                all_sucessful = False
+        return all_sucessful, str(results)
+
+    def tag_output_columns(self, columns: List[str]) -> Tuple[bool, str]:
+        """Sets the list of columns as output columns for the specified dataset.
+
+        Parameters
+        ----------
+        columns : List[str]
+            The list of column names you want to tag as outputs.
+
+        Returns
+        -------
+        Tuple[bool, str]
+            Tuple with a boolean indicating success or failure: e.g. (True, "column prediction was updated to output") and string with status message.
+        """
+
+        return self._tag_columns(columns, "output")
+
+    def tag_input_columns(self, columns: List[str]) -> Tuple[bool, str]:
+        """Sets the list of columns as input columns for the specified dataset.
+
+        Parameters
+        ----------
+        columns : List[str]
+            The list of column names you want to tag as inputs.
+
+        Returns
+        -------
+        Tuple[bool, str]
+            Tuple with a boolean indicating success or failure: e.g. (True, "column [output_voltage] updated to input") and string with status message.
+        """
+
+        return self._tag_columns(columns, "input")
 
     def write_feature_weights(self, file: FeatureWeights, **kwargs: Any) -> Tuple[bool, str]:
         """Put feature weights for the specified dataset.
@@ -338,6 +400,18 @@ class WhyLabsWriter(Writer):
 
         return FeatureWeightsApi(self._api_log_client)
 
+    def _get_or_create_models_client(self) -> ModelsApi:
+        environment_api_key = os.environ.get(API_KEY_ENV)
+
+        if self._api_log_client is None:
+            self._refresh_api_client()
+        elif environment_api_key is not None and self._api_key != environment_api_key:
+            logger.warning(f"Updating API key ID from: {self._api_key_id} to: {environment_api_key[:10]}")
+            self._api_key = environment_api_key
+            self._refresh_api_client()
+
+        return ModelsApi(self._api_log_client)
+
     def _get_or_create_api_log_client(self) -> LogApi:
         environment_api_key = os.environ.get(API_KEY_ENV)
 
@@ -422,6 +496,69 @@ class WhyLabsWriter(Writer):
                 f" with API token ID: {api_key_id}"
             )
             raise e
+
+    def _get_existing_column_schema(self, model_api_instance, column_name) -> Optional[ColumnSchema]:
+
+        try:
+            # TODO: remove when whylabs supports merge writes.
+            existing_schema = model_api_instance.get_entity_schema_column(
+                org_id=self._org_id, dataset_id=self._dataset_id, column_id=column_name
+            )
+
+            if existing_schema:
+                data_type = existing_schema.get("dataType")
+                discreteness = existing_schema.get("discreteness")
+                existing_classification = existing_schema.get("classifier")
+                column_schema = ColumnSchema(
+                    classifier=existing_classification, data_type=data_type, discreteness=discreteness
+                )
+                return column_schema
+        except ForbiddenException as e:
+            api_key_id = self._api_key[:10] if self._api_key else None
+            logger.exception(
+                f"Failed to set column outputs {self._org_id}/{self._dataset_id} for column name: ({column_name}) "
+                f"{self.whylabs_api_endpoint}"
+                f" with API token ID: {api_key_id}"
+            )
+            raise e
+        return None
+
+    def _column_schema_needs_update(self, column_schema: ColumnSchema, new_classification: str) -> bool:
+        existing_classification = column_schema.classifier
+        if not existing_classification:
+            return True
+        return existing_classification != new_classification
+
+    def _put_column_schema(self, column_name: str, value: str) -> Tuple[int, str]:
+        model_api_instance = self._get_or_create_models_client()
+
+        # TODO: simplify after ColumnSchema updates support merge writes, can remove the read here.
+        column_schema: ColumnSchema = self._get_existing_column_schema(model_api_instance, column_name)
+        if self._column_schema_needs_update(column_schema, value):
+            updated_column_schema = ColumnSchema(
+                classifier=value, data_type=column_schema.data_type, discreteness=column_schema.discreteness
+            )
+            try:
+                # TODO: remove when whylabs supports merge writes.
+                model_api_instance.put_entity_schema_column(
+                    self._org_id, self._dataset_id, column_name, updated_column_schema
+                )
+                return (
+                    200,
+                    f"{column_name} updated from {column_schema.classifier} to {updated_column_schema.classifier}",
+                )
+            except ForbiddenException as e:
+                api_key_id = self._api_key[:10] if self._api_key else None
+                logger.exception(
+                    f"Failed to set column outputs {self._org_id}/{self._dataset_id} for column name: ({column_name}) "
+                    f"{self.whylabs_api_endpoint}"
+                    f" with API token ID: {api_key_id}"
+                )
+                raise e
+        else:
+            no_update_made_message = f"column {column_name} was already classified {column_schema.classifier}."
+            logger.info(no_update_made_message)
+            return (200, no_update_made_message)
 
     def _post_log_async(self, request: LogAsyncRequest, dataset_timestamp: int) -> AsyncLogResponse:
         log_api = self._get_or_create_api_log_client()
