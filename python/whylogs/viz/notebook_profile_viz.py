@@ -107,7 +107,11 @@ class NotebookProfileVisualizer:
         return display
 
     def _display_distribution_chart(
-        self, feature_name: str, difference: bool, cell_height: str = None, config: Optional[SummaryConfig] = None
+        self,
+        feature_name: str,
+        difference: bool,
+        cell_height: Optional[str] = None,
+        config: Optional[SummaryConfig] = None,
     ) -> Optional[HTML]:
         if config is None:
             config = SummaryConfig()
@@ -162,7 +166,7 @@ class NotebookProfileVisualizer:
             logger.warning("This method has to get at least a target profile, with valid feature title")
             return None
 
-    def _display_histogram_chart(self, feature_name: str, cell_height: str = None) -> Optional[HTML]:
+    def _display_histogram_chart(self, feature_name: str, cell_height: Optional[str] = None) -> Optional[HTML]:
         page_spec = PageSpecEnum.DOUBLE_HISTOGRAM.value
         template = _get_compiled_template(page_spec.html)
         if self._target_view:
@@ -252,7 +256,7 @@ class NotebookProfileVisualizer:
         self._target_view = _uncompound_dataset_profile(target_profile_view) if target_profile_view else None
         self._ref_view = _uncompound_dataset_profile(reference_profile_view) if reference_profile_view else None
 
-    def profile_summary(self, cell_height: str = None) -> HTML:
+    def profile_summary(self, cell_height: Optional[str] = None) -> HTML:
         page_spec = PageSpecEnum.PROFILE_SUMMARY.value
         template = _get_compiled_template(page_spec.html)
 

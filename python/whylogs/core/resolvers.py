@@ -30,7 +30,6 @@ class StandardResolver(Resolver):
     """Standard metric resolution with builtin types."""
 
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-
         metrics: List[StandardMetric] = [StandardMetric.counts, StandardMetric.types]
 
         if isinstance(why_type, Integral):

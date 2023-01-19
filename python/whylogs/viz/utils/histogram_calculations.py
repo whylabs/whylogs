@@ -40,7 +40,7 @@ def histogram_from_view(column_view: ColumnProfileView, feature_name: str) -> Hi
 
 def _histogram_from_sketch(
     sketch: kll_doubles_sketch,
-    max_buckets: int = None,
+    max_buckets: Optional[int] = None,
     avg_per_bucket: Optional[float] = None,
     min_n_buckets: Optional[int] = None,
 ) -> HistogramSummary:
