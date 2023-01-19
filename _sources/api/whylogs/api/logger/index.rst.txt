@@ -392,7 +392,7 @@ Attributes
 
 
 
-.. py:class:: DatasetSchema(types: Optional[Dict[str, Any]] = None, default_configs: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, resolvers: Optional[whylogs.core.resolvers.Resolver] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Dict[str, List[whylogs.core.validators.validator.Validator]] = None)
+.. py:class:: DatasetSchema(types: Optional[Dict[str, Any]] = None, default_configs: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, resolvers: Optional[whylogs.core.resolvers.Resolver] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Optional[Dict[str, List[whylogs.core.validators.validator.Validator]]] = None)
 
    Defines the schema for tracking metrics in whylogs.
 
@@ -482,7 +482,7 @@ Attributes
       :classmethod:
 
 
-   .. py:method:: compute_confusion_matrix(predictions: List[Union[str, int, bool, float]], targets: List[Union[str, int, bool, float]], scores: List[float] = None)
+   .. py:method:: compute_confusion_matrix(predictions: List[Union[str, int, bool, float]], targets: List[Union[str, int, bool, float]], scores: Optional[List[float]] = None)
 
       computes the confusion_matrix, if one is already present merges to old one.
 
@@ -510,7 +510,6 @@ Attributes
 
 
 .. py:data:: diagnostic_logger
-   
 
    
 

@@ -60,22 +60,22 @@ Classes
 
 
    .. py:attribute:: n
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: null
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: nan
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: inf
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
@@ -119,27 +119,27 @@ Classes
 
 
    .. py:attribute:: integral
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: fractional
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: boolean
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: string
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: object
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
@@ -183,17 +183,17 @@ Classes
 
 
    .. py:attribute:: conditions
-      :annotation: :Dict[str, Condition]
+      :type: Dict[str, Condition]
 
       
 
    .. py:attribute:: total
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: matches
-      :annotation: :Dict[str, whylogs.core.metrics.metric_components.IntegralComponent]
+      :type: Dict[str, whylogs.core.metrics.metric_components.IntegralComponent]
 
       
 
@@ -252,7 +252,7 @@ Classes
 
 
    .. py:attribute:: hll
-      :annotation: :whylogs.core.metrics.metric_components.HllComponent
+      :type: whylogs.core.metrics.metric_components.HllComponent
 
       
 
@@ -359,17 +359,17 @@ Classes
 
 
    .. py:attribute:: kll
-      :annotation: :whylogs.core.metrics.metric_components.KllComponent
+      :type: whylogs.core.metrics.metric_components.KllComponent
 
       
 
    .. py:attribute:: mean
-      :annotation: :whylogs.core.metrics.metric_components.FractionalComponent
+      :type: whylogs.core.metrics.metric_components.FractionalComponent
 
       
 
    .. py:attribute:: m2
-      :annotation: :whylogs.core.metrics.metric_components.FractionalComponent
+      :type: whylogs.core.metrics.metric_components.FractionalComponent
 
       
 
@@ -425,7 +425,7 @@ Classes
 
 
    .. py:attribute:: frequent_strings
-      :annotation: :whylogs.core.metrics.metric_components.FrequentStringsComponent
+      :type: whylogs.core.metrics.metric_components.FrequentStringsComponent
 
       
 
@@ -477,12 +477,12 @@ Classes
 
 
    .. py:attribute:: max
-      :annotation: :whylogs.core.metrics.metric_components.MaxIntegralComponent
+      :type: whylogs.core.metrics.metric_components.MaxIntegralComponent
 
       
 
    .. py:attribute:: min
-      :annotation: :whylogs.core.metrics.metric_components.MinIntegralComponent
+      :type: whylogs.core.metrics.metric_components.MinIntegralComponent
 
       
 
@@ -560,52 +560,61 @@ Classes
 .. py:class:: MetricConfig
 
    .. py:attribute:: hll_lg_k
-      :annotation: :int = 12
+      :type: int
+      :value: 12
 
       
 
    .. py:attribute:: kll_k
-      :annotation: :int = 256
+      :type: int
+      :value: 256
 
       
 
    .. py:attribute:: fi_lg_max_k
-      :annotation: :int = 10
+      :type: int
+      :value: 10
 
       
 
    .. py:attribute:: fi_disabled
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: track_unicode_ranges
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: large_kll_k
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: kll_k_large
-      :annotation: :int = 1024
+      :type: int
+      :value: 1024
 
       
 
    .. py:attribute:: unicode_ranges
-      :annotation: :Dict[str, Tuple[int, int]]
+      :type: Dict[str, Tuple[int, int]]
 
       
 
    .. py:attribute:: lower_case
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: normalize
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
@@ -631,22 +640,24 @@ Classes
 
 
    .. py:attribute:: range_definitions
-      :annotation: :Dict[str, Tuple[int, int]]
+      :type: Dict[str, Tuple[int, int]]
 
       
 
    .. py:attribute:: lower_case
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: normalize
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: submetrics
-      :annotation: :Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+      :type: Dict[str, Dict[str, whylogs.core.metrics.Metric]]
 
       
 
@@ -694,42 +705,34 @@ Classes
    Derive from this class to define new enumerations.
 
    .. py:attribute:: types
-      
 
       
 
    .. py:attribute:: distribution
-      
 
       
 
    .. py:attribute:: counts
-      
 
       
 
    .. py:attribute:: ints
-      
 
       
 
    .. py:attribute:: cardinality
-      
 
       
 
    .. py:attribute:: frequent_items
-      
 
       
 
    .. py:attribute:: unicode_range
-      
 
       
 
    .. py:attribute:: condition_count
-      
 
       
 

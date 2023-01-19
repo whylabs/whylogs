@@ -29,29 +29,28 @@ Attributes
 
 
 .. py:data:: logger
-   
 
    
 
 .. py:class:: ListView
 
    .. py:attribute:: ints
-      :annotation: :Optional[List[int]]
+      :type: Optional[List[int]]
 
       
 
    .. py:attribute:: floats
-      :annotation: :Optional[List[Union[float, decimal.Decimal]]]
+      :type: Optional[List[Union[float, decimal.Decimal]]]
 
       
 
    .. py:attribute:: strings
-      :annotation: :Optional[List[str]]
+      :type: Optional[List[str]]
 
       
 
    .. py:attribute:: objs
-      :annotation: :Optional[List[Any]]
+      :type: Optional[List[Any]]
 
       
 
@@ -66,12 +65,12 @@ Attributes
 
 
    .. py:attribute:: ints
-      :annotation: :Optional[whylogs.core.stubs.np.ndarray]
+      :type: Optional[whylogs.core.stubs.np.ndarray]
 
       
 
    .. py:attribute:: floats
-      :annotation: :Optional[whylogs.core.stubs.np.ndarray]
+      :type: Optional[whylogs.core.stubs.np.ndarray]
 
       
 
@@ -82,12 +81,12 @@ Attributes
 .. py:class:: PandasView
 
    .. py:attribute:: strings
-      :annotation: :Optional[whylogs.core.stubs.pd.Series]
+      :type: Optional[whylogs.core.stubs.pd.Series]
 
       
 
    .. py:attribute:: objs
-      :annotation: :Optional[whylogs.core.stubs.pd.Series]
+      :type: Optional[whylogs.core.stubs.pd.Series]
 
       
 
@@ -105,32 +104,34 @@ Attributes
    We also track the null count and ensure that processed lists/Series don't contain null values.
 
    .. py:attribute:: numpy
-      :annotation: :NumpyView
+      :type: NumpyView
 
       
 
    .. py:attribute:: pandas
-      :annotation: :PandasView
+      :type: PandasView
 
       
 
    .. py:attribute:: list
-      :annotation: :ListView
+      :type: ListView
 
       
 
    .. py:attribute:: null_count
-      :annotation: :int = 0
+      :type: int
+      :value: 0
 
       
 
    .. py:attribute:: len
-      :annotation: :int = 0
+      :type: int
+      :value: 0
 
       
 
    .. py:attribute:: original
-      :annotation: :Any
+      :type: Any
 
       
 

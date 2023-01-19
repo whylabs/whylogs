@@ -30,27 +30,27 @@ Classes
 
 
    .. py:attribute:: integral
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: fractional
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: boolean
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: string
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: object
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
@@ -94,22 +94,22 @@ Classes
 
 
    .. py:attribute:: n
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: null
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: nan
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: inf
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 

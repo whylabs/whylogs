@@ -516,10 +516,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -755,7 +756,7 @@ div.rendered_html tbody tr:hover {
 <span class="k">def</span> <span class="nf">generate_data</span><span class="p">(</span>
     <span class="n">distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">drift_magnitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100000</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Generates a pandas series with samples drawn from a distribution (normal, pareto or uniform). The internal parameters</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a pandas series with samples drawn from a distribution (normal, pareto or uniform). The internal parameters</span>
 <span class="sd">    for each distributions are fixed. You can specify the number of samples you want and also if a drift of a certain magnitude is</span>
 <span class="sd">    to be injected. The drift magnitude is a ratio of the distribution&#39;s interquartile range.</span>
 
@@ -790,7 +791,7 @@ div.rendered_html tbody tr:hover {
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
 
 <span class="k">def</span> <span class="nf">run_ks_experiment</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span><span class="n">drift_magnitude</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">quantile_list</span> <span class="o">=</span> <span class="n">QUANTILE_LIST</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Runs KS experiment for given distribution type and drift magnitude. The experiments are run</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Runs KS experiment for given distribution type and drift magnitude. The experiments are run</span>
 <span class="sd">    for multiple sample sizes and number of buckets, 10 times for each combination of parameters.</span>
 
 <span class="sd">    Parameters</span>
@@ -865,7 +866,7 @@ div.rendered_html tbody tr:hover {
     <span class="k">return</span> <span class="n">experiment_results</span>
 
 <span class="k">def</span> <span class="nf">run_experiment_on_params</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span><span class="n">magnitudes</span> <span class="o">=</span> <span class="n">drift_magnitudes</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Runs the KS experiment for a list of different drift magnitudes</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">exps_results</span> <span class="o">=</span> <span class="p">{}</span>
@@ -888,7 +889,7 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span>
 <span class="k">def</span> <span class="nf">plot_drift</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="n">magnitudes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.75</span><span class="p">],</span> <span class="n">sample_size</span> <span class="o">=</span> <span class="mi">100000</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Plots 4 histograms in a 2x2 matrix for different drift magnitudes, for the given distribution type</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plots 4 histograms in a 2x2 matrix for different drift magnitudes, for the given distribution type</span>
 <span class="sd">    and number of samples.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -924,7 +925,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_pvalues</span><span class="p">(</span><span class="n">quant_bars_per_drift</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Plots the pvalues for both whylogs and scipy&#39;s implementation for</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plots the pvalues for both whylogs and scipy&#39;s implementation for</span>
 <span class="sd">    different drift magnitudes. Expects 4 different drift magnitudes to</span>
 <span class="sd">    plot a 2x2 matrix.</span>
 
@@ -971,7 +972,7 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 <span class="k">def</span> <span class="nf">plot_buckets_experiment</span><span class="p">(</span><span class="n">quant_bars_per_drift</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Plots the mean absolute errors for different number of buckets for</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plots the mean absolute errors for different number of buckets for</span>
 <span class="sd">    different drift magnitudes. Expects 4 different drift magnitudes to</span>
 <span class="sd">    plot a 2x2 matrix. The errors are calculated based on the difference</span>
 <span class="sd">    between whylogs&#39; and scipy&#39;s KS implementation.</span>
@@ -1036,7 +1037,7 @@ div.rendered_html tbody tr:hover {
 
 
 <span class="k">class</span> <span class="nc">MyCustomResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Resolver that assigns DistributionMetric to every column (which is ok because we only have one numerical column).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolver that assigns DistributionMetric to every column (which is ok because we only have one numerical column).&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
         <span class="n">metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">StandardMetric</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="p">]</span>
@@ -1047,7 +1048,7 @@ div.rendered_html tbody tr:hover {
         <span class="k">return</span> <span class="n">result</span>
 
 <span class="k">def</span> <span class="nf">get_parquet_size</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">frac</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Get the size in bytes of a serialized pandas DF</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the size in bytes of a serialized pandas DF</span>
 <span class="sd">    in parquet format. This is only used when comparing</span>
 <span class="sd">    profiling vs. sampling results.</span>
 
@@ -1076,7 +1077,7 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="k">def</span> <span class="nf">get_kll_size_map</span><span class="p">(</span><span class="n">kll_list</span><span class="p">:</span><span class="nb">list</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is just to find the proper number of samples and size in bytes to match sizes between profiles and sampled dataframes.</span>
 <span class="sd">    Distribution type does not affect significantly the output.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1113,7 +1114,7 @@ div.rendered_html tbody tr:hover {
 <span class="kn">from</span> <span class="nn">whylogs.viz.utils.drift_calculations</span> <span class="kn">import</span> <span class="n">calculate_drift_values</span>
 
 <span class="k">def</span> <span class="nf">run_kll_experiment</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="n">magnitudes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span> <span class="n">kllSizeMap</span><span class="p">:</span><span class="nb">dict</span> <span class="o">=</span> <span class="p">{}):</span>
-    <span class="sd">&quot;&quot;&quot;Runs experiment on different KLL_K parameters.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Runs experiment on different KLL_K parameters.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1192,7 +1193,7 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 <span class="k">def</span> <span class="nf">plot_kll_experiment</span><span class="p">(</span><span class="n">bars_per_kll_per_drift</span><span class="p">,</span> <span class="n">include_sampling</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Plots kll experiments for different magnitudes (expects 4).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plots kll experiments for different magnitudes (expects 4).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

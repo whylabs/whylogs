@@ -407,7 +407,7 @@
 
 <div class="viewcode-block" id="FeatureWeights"><a class="viewcode-back" href="../../../api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeights">[docs]</a><span class="k">class</span> <span class="nc">FeatureWeights</span><span class="p">(</span><span class="n">Writable</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">segment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Feature Weights</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Feature Weights</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -427,10 +427,10 @@
         <span class="k">return</span> <span class="n">FeatureWeightWriter</span><span class="p">(</span><span class="n">feature_weight</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="o">=</span><span class="n">writer</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FeatureWeights.get_default_path"><a class="viewcode-back" href="../../../api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeights.get_default_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">pass</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;feature_weights_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">segment</span><span class="si">}</span><span class="s2">.json&quot;</span></div>
 
-<div class="viewcode-block" id="FeatureWeights.write"><a class="viewcode-back" href="../../../api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeights.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">pass</span></div>
+<div class="viewcode-block" id="FeatureWeights.write"><a class="viewcode-back" href="../../../api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeights.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;write() not implemented on feature weights, use with WhyLabsWriter.&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FeatureWeights.to_json"><a class="viewcode-back" href="../../../api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeights.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;segment&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">segment</span><span class="p">,</span> <span class="s2">&quot;weights&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">})</span></div>
@@ -449,7 +449,7 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="FeatureWeightWriter.write"><a class="viewcode-back" href="../../../api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeightWriter.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Put feature weights for the specified dataset.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Put feature weights for the specified dataset.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -459,7 +459,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_feature_weight</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FeatureWeightWriter.get_feature_weights"><a class="viewcode-back" href="../../../api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeightWriter.get_feature_weights">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FeatureWeights</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get latest version for the feature weights for the specified dataset</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get latest version for the feature weights for the specified dataset</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>

@@ -30,17 +30,17 @@ Classes
    Derive from this class to define new enumerations.
 
    .. py:attribute:: NO_DRIFT
-      :annotation: = 0
+      :value: 0
 
       
 
    .. py:attribute:: POSSIBLE_DRIFT
-      :annotation: = 1
+      :value: 1
 
       
 
    .. py:attribute:: DRIFT
-      :annotation: = 2
+      :value: 2
 
       
 
@@ -58,17 +58,17 @@ Classes
 .. py:class:: DriftThresholds
 
    .. py:attribute:: NO_DRIFT
-      :annotation: :tuple
+      :type: tuple
 
       
 
    .. py:attribute:: DRIFT
-      :annotation: :tuple
+      :type: tuple
 
       
 
    .. py:attribute:: POSSIBLE_DRIFT
-      :annotation: :Optional[tuple]
+      :type: Optional[tuple]
 
       
 
@@ -79,12 +79,12 @@ Classes
 .. py:class:: KSTestConfig
 
    .. py:attribute:: quantiles
-      :annotation: :List[float]
+      :type: List[float]
 
       
 
    .. py:attribute:: thresholds
-      :annotation: :DriftThresholds
+      :type: DriftThresholds
 
       
 
@@ -92,22 +92,25 @@ Classes
 .. py:class:: HellingerConfig
 
    .. py:attribute:: max_hist_buckets
-      :annotation: :int = 30
+      :type: int
+      :value: 30
 
       
 
    .. py:attribute:: hist_avg_number_per_bucket
-      :annotation: :int = 4
+      :type: int
+      :value: 4
 
       
 
    .. py:attribute:: min_n_buckets
-      :annotation: :int = 2
+      :type: int
+      :value: 2
 
       
 
    .. py:attribute:: thresholds
-      :annotation: :DriftThresholds
+      :type: DriftThresholds
 
       
 
@@ -115,7 +118,7 @@ Classes
 .. py:class:: ChiSquareConfig
 
    .. py:attribute:: thresholds
-      :annotation: :DriftThresholds
+      :type: DriftThresholds
 
       
 

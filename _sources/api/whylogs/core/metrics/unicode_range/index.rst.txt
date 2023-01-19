@@ -38,22 +38,24 @@ Classes
 
 
    .. py:attribute:: range_definitions
-      :annotation: :Dict[str, Tuple[int, int]]
+      :type: Dict[str, Tuple[int, int]]
 
       
 
    .. py:attribute:: lower_case
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: normalize
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: submetrics
-      :annotation: :Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+      :type: Dict[str, Dict[str, whylogs.core.metrics.Metric]]
 
       
 

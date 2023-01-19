@@ -31,7 +31,7 @@ Classes
    .. py:method:: get_default_path() -> str
 
 
-   .. py:method:: write(path: whylogs.api.writer.writer.Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: whylogs.api.writer.writer.Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: to_json() -> str

@@ -34,27 +34,27 @@ Functions
    Dataclass for storing drift algorithm score.
 
    .. py:attribute:: algorithm
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: pvalue
-      :annotation: :Optional[float]
+      :type: Optional[float]
 
       
 
    .. py:attribute:: statistic
-      :annotation: :Optional[float]
+      :type: Optional[float]
 
       
 
    .. py:attribute:: thresholds
-      :annotation: :Optional[whylogs.viz.drift.configs.DriftThresholds]
+      :type: Optional[whylogs.viz.drift.configs.DriftThresholds]
 
       
 
    .. py:attribute:: drift_category
-      :annotation: :Optional[str]
+      :type: Optional[str]
 
       
 

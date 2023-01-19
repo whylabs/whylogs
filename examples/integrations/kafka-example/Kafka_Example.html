@@ -516,10 +516,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -673,11 +674,11 @@ div.rendered_html tbody tr:hover {
 <div><p><strong>NOTE</strong>: In order to get this example going, we will use Apache Zookeper and Apache Kafka locally with Docker Compose, so be sure to have it installed and ready in your environment. If you want to read more on how this YAML file was built, check out <a class="reference external" href="https://medium.com/better-programming/your-local-event-driven-environment-using-dockerised-kafka-cluster-6e84af09cd95">this blogpost</a>.</p>
 </div></blockquote>
 <p>To get things going, we will put the services up and create the topic in kafka with the following commands:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose up -d
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 
-% docker <span class="nb">exec</span> -ti kafka bash
+%<span class="w"> </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-ti<span class="w"> </span>kafka<span class="w"> </span>bash
 
-root@kafka: kafka-topics --create --bootstrap-server localhost:9092 --replication-factor <span class="m">1</span> --partitions <span class="m">1</span> --topic whylogs-stream
+root@kafka:<span class="w"> </span>kafka-topics<span class="w"> </span>--create<span class="w"> </span>--bootstrap-server<span class="w"> </span>localhost:9092<span class="w"> </span>--replication-factor<span class="w"> </span><span class="m">1</span><span class="w"> </span>--partitions<span class="w"> </span><span class="m">1</span><span class="w"> </span>--topic<span class="w"> </span>whylogs-stream
 </pre></div>
 </div>
 <p>If you haven’t already, make sure to also install <code class="docutils literal notranslate"><span class="pre">kafka-python</span></code> and <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> in your environment by uncommenting the following cell.</p>

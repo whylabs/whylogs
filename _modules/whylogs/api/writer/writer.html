@@ -407,7 +407,7 @@
 <div class="viewcode-block" id="Writable"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/writer/index.html#whylogs.api.writer.Writable">[docs]</a><span class="k">class</span> <span class="nc">Writable</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_safe_open_write</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Open `path` for writing, creating any parent directories as needed.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open `path` for writing, creating any parent directories as needed.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
@@ -426,7 +426,7 @@
 <div class="viewcode-block" id="Writer"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/writer/index.html#whylogs.api.writer.Writer">[docs]</a><span class="k">class</span> <span class="nc">Writer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="c1"># noinspection PyMethodMayBeStatic</span>
 <div class="viewcode-block" id="Writer.check_interval"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/writer/index.html#whylogs.api.writer.Writer.check_interval">[docs]</a>    <span class="k">def</span> <span class="nf">check_interval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval_seconds</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Validate an interval configuration for a given writer.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate an interval configuration for a given writer.</span>
 
 <span class="sd">        Some writer only accepts certain interval configuration. By default, this should return True for a valid</span>
 <span class="sd">        non-negative interval.&quot;&quot;&quot;</span></div>

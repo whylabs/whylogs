@@ -411,7 +411,7 @@
 
 
 <div class="viewcode-block" id="ModelPerformanceMetrics"><a class="viewcode-back" href="../../../../api/whylogs/core/model_performance_metrics/model_performance_metrics/index.html#whylogs.api.logger.ModelPerformanceMetrics">[docs]</a><span class="k">class</span> <span class="nc">ModelPerformanceMetrics</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Container class for various model-related performance metrics</span>
 
 <span class="sd">    Attributes:</span>
@@ -435,7 +435,6 @@
 <div class="viewcode-block" id="ModelPerformanceMetrics.to_protobuf"><a class="viewcode-back" href="../../../../api/whylogs/core/model_performance_metrics/model_performance_metrics/index.html#whylogs.api.logger.ModelPerformanceMetrics.to_protobuf">[docs]</a>    <span class="k">def</span> <span class="nf">to_protobuf</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelProfileMessage</span><span class="p">:</span>
-
         <span class="n">model_type</span> <span class="o">=</span> <span class="n">ModelType</span><span class="o">.</span><span class="n">UNKNOWN</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">confusion_matrix</span><span class="p">:</span>
@@ -480,9 +479,9 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">predictions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
         <span class="n">targets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
-        <span class="n">scores</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">scores</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        computes the confusion_matrix, if one is already present merges to old one.</span>
 
 <span class="sd">        Args:</span>
@@ -544,7 +543,7 @@
         <span class="k">return</span> <span class="n">output_column_names</span>
 
 <div class="viewcode-block" id="ModelPerformanceMetrics.merge"><a class="viewcode-back" href="../../../../api/whylogs/core/model_performance_metrics/model_performance_metrics/index.html#whylogs.api.logger.ModelPerformanceMetrics.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :type other: ModelMetrics</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">confusion_matrix</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">regression_metrics</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>

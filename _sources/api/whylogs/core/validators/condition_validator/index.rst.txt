@@ -26,7 +26,6 @@ Attributes
 
 
 .. py:data:: logger
-   
 
    
 
@@ -38,27 +37,28 @@ Attributes
    inheritance.
 
    .. py:attribute:: conditions
-      :annotation: :Dict[str, Union[whylogs.core.metrics.condition_count_metric.Condition, Callable[[Any], bool]]]
+      :type: Dict[str, Union[whylogs.core.metrics.condition_count_metric.Condition, Callable[[Any], bool]]]
 
       
 
    .. py:attribute:: actions
-      :annotation: :List[Callable[[str, str, Any], None]]
+      :type: List[Callable[[str, str, Any], None]]
 
       
 
    .. py:attribute:: name
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: total
-      :annotation: :int = 0
+      :type: int
+      :value: 0
 
       
 
    .. py:attribute:: failures
-      :annotation: :Dict[str, int]
+      :type: Dict[str, int]
 
       
 

@@ -404,7 +404,7 @@
 
 
 <div class="viewcode-block" id="greater_than_number"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.distribution_metrics.greater_than_number">[docs]</a><span class="k">def</span> <span class="nf">greater_than_number</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">skip_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Minimum value of given column must be above defined number.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimum value of given column must be above defined number.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -427,7 +427,7 @@
 
 
 <div class="viewcode-block" id="smaller_than_number"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.distribution_metrics.smaller_than_number">[docs]</a><span class="k">def</span> <span class="nf">smaller_than_number</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">skip_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Maximum value of given column must be below defined number.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Maximum value of given column must be below defined number.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -450,7 +450,7 @@
 
 
 <div class="viewcode-block" id="is_non_negative"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.distribution_metrics.is_non_negative">[docs]</a><span class="k">def</span> <span class="nf">is_non_negative</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">skip_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Checks if a column is non negative</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks if a column is non negative</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -472,7 +472,7 @@
 <div class="viewcode-block" id="is_in_range"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.distribution_metrics.is_in_range">[docs]</a><span class="k">def</span> <span class="nf">is_in_range</span><span class="p">(</span>
     <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lower</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">upper</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">skip_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Checks that all of column&#39;s values are in defined range (inclusive).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks that all of column&#39;s values are in defined range (inclusive).</span>
 
 <span class="sd">    For the constraint to pass, the column&#39;s minimum value should be higher or equal than `lower` and maximum value should be less than or equal to `upper`.</span>
 
@@ -499,7 +499,7 @@
 
 
 <div class="viewcode-block" id="mean_between_range"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.distribution_metrics.mean_between_range">[docs]</a><span class="k">def</span> <span class="nf">mean_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lower</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">upper</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">skip_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Estimated mean must be between range defined by lower and upper bounds.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Estimated mean must be between range defined by lower and upper bounds.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -524,7 +524,7 @@
 
 
 <div class="viewcode-block" id="stddev_between_range"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.distribution_metrics.stddev_between_range">[docs]</a><span class="k">def</span> <span class="nf">stddev_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lower</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">upper</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">skip_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Estimated standard deviation must be between range defined by lower and upper bounds.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Estimated standard deviation must be between range defined by lower and upper bounds.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -549,7 +549,7 @@
 
 
 <div class="viewcode-block" id="quantile_between_range"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.distribution_metrics.quantile_between_range">[docs]</a><span class="k">def</span> <span class="nf">quantile_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">quantile</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lower</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">upper</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">skip_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Q-th quantile value must be withing the range defined by lower and upper boundaries.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Q-th quantile value must be withing the range defined by lower and upper boundaries.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

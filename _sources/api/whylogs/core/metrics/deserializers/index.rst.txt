@@ -36,12 +36,10 @@ Attributes
 
 
 .. py:data:: M
-   
 
    
 
 .. py:data:: NUM
-   
 
    
 

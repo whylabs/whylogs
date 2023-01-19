@@ -46,74 +46,79 @@ Attributes
 
 
 .. py:data:: T
-   
 
    
 
 .. py:data:: M
-   
 
    
 
 .. py:data:: NUM
-   
 
    
 
 .. py:data:: METRIC
-   
 
    
 
 .. py:class:: MetricConfig
 
    .. py:attribute:: hll_lg_k
-      :annotation: :int = 12
+      :type: int
+      :value: 12
 
       
 
    .. py:attribute:: kll_k
-      :annotation: :int = 256
+      :type: int
+      :value: 256
 
       
 
    .. py:attribute:: fi_lg_max_k
-      :annotation: :int = 10
+      :type: int
+      :value: 10
 
       
 
    .. py:attribute:: fi_disabled
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: track_unicode_ranges
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: large_kll_k
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: kll_k_large
-      :annotation: :int = 1024
+      :type: int
+      :value: 1024
 
       
 
    .. py:attribute:: unicode_ranges
-      :annotation: :Dict[str, Tuple[int, int]]
+      :type: Dict[str, Tuple[int, int]]
 
       
 
    .. py:attribute:: lower_case
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: normalize
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
@@ -124,12 +129,14 @@ Attributes
 .. py:class:: OperationResult
 
    .. py:attribute:: failures
-      :annotation: :int = 0
+      :type: int
+      :value: 0
 
       
 
    .. py:attribute:: successes
-      :annotation: :int = 0
+      :type: int
+      :value: 0
 
       
 
@@ -208,12 +215,12 @@ Attributes
 
 
    .. py:attribute:: max
-      :annotation: :whylogs.core.metrics.metric_components.MaxIntegralComponent
+      :type: whylogs.core.metrics.metric_components.MaxIntegralComponent
 
       
 
    .. py:attribute:: min
-      :annotation: :whylogs.core.metrics.metric_components.MinIntegralComponent
+      :type: whylogs.core.metrics.metric_components.MinIntegralComponent
 
       
 
@@ -320,17 +327,17 @@ Attributes
 
 
    .. py:attribute:: kll
-      :annotation: :whylogs.core.metrics.metric_components.KllComponent
+      :type: whylogs.core.metrics.metric_components.KllComponent
 
       
 
    .. py:attribute:: mean
-      :annotation: :whylogs.core.metrics.metric_components.FractionalComponent
+      :type: whylogs.core.metrics.metric_components.FractionalComponent
 
       
 
    .. py:attribute:: m2
-      :annotation: :whylogs.core.metrics.metric_components.FractionalComponent
+      :type: whylogs.core.metrics.metric_components.FractionalComponent
 
       
 
@@ -373,22 +380,22 @@ Attributes
 .. py:class:: FrequentItem
 
    .. py:attribute:: value
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: est
-      :annotation: :int
+      :type: int
 
       
 
    .. py:attribute:: upper
-      :annotation: :int
+      :type: int
 
       
 
    .. py:attribute:: lower
-      :annotation: :int
+      :type: int
 
       
 
@@ -409,7 +416,7 @@ Attributes
 
 
    .. py:attribute:: frequent_strings
-      :annotation: :whylogs.core.metrics.metric_components.FrequentStringsComponent
+      :type: whylogs.core.metrics.metric_components.FrequentStringsComponent
 
       
 
@@ -465,7 +472,7 @@ Attributes
 
 
    .. py:attribute:: hll
-      :annotation: :whylogs.core.metrics.metric_components.HllComponent
+      :type: whylogs.core.metrics.metric_components.HllComponent
 
       
 

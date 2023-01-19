@@ -27,12 +27,10 @@ Attributes
 
 
 .. py:data:: logger
-   
 
    
 
 .. py:data:: METRIC
-   
 
    
 

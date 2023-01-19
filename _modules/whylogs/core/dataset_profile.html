@@ -423,7 +423,7 @@
 
 
 <div class="viewcode-block" id="DatasetProfile"><a class="viewcode-back" href="../../../api/whylogs/core/index.html#whylogs.api.logger.DatasetProfile">[docs]</a><span class="k">class</span> <span class="nc">DatasetProfile</span><span class="p">(</span><span class="n">Writable</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dataset profile represents a collection of in-memory profiling stats for a dataset.</span>
 
 <span class="sd">    Args:</span>
@@ -468,12 +468,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_active</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Returns True if the profile tracking code is currently running.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if the profile tracking code is currently running.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_active</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Returns True if the profile tracking code is currently running.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if the profile tracking code is currently running.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_track_count</span> <span class="o">==</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="DatasetProfile.set_dataset_timestamp"><a class="viewcode-back" href="../../../api/whylogs/core/index.html#whylogs.api.logger.DatasetProfile.set_dataset_timestamp">[docs]</a>    <span class="k">def</span> <span class="nf">set_dataset_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -520,7 +520,6 @@
         <span class="n">pandas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">row</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-
         <span class="n">pandas</span><span class="p">,</span> <span class="n">row</span> <span class="o">=</span> <span class="n">_pandas_or_dict</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pandas</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
 
         <span class="c1"># TODO: do this less frequently when operating at row level</span>
@@ -563,7 +562,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="k">def</span> <span class="nf">_track_classification_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">scores</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function to track metrics based on validation data.</span>
 <span class="sd">        user may also pass the associated attribute names associated with</span>
 <span class="sd">        target, prediction, and/or score.</span>
@@ -591,7 +590,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model_performance_metrics</span><span class="o">.</span><span class="n">compute_confusion_matrix</span><span class="p">(</span><span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span> <span class="n">scores</span><span class="o">=</span><span class="n">scores</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_track_regression_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">scores</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function to track regression metrics based on validation data.</span>
 <span class="sd">        user may also pass the associated attribute names associated with</span>
 <span class="sd">        target, prediction, and/or score.</span>
@@ -646,7 +645,7 @@
 <div class="viewcode-block" id="DatasetProfile.get_default_path"><a class="viewcode-back" href="../../../api/whylogs/core/index.html#whylogs.api.logger.DatasetProfile.get_default_path">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_default_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;bin&quot;</span><span class="p">):</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;profile.</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span><span class="si">}</span><span class="s2">.bin&quot;</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;profile.</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">))</span><span class="si">}</span><span class="s2">.bin&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">path</span></div>
 
 <div class="viewcode-block" id="DatasetProfile.write"><a class="viewcode-back" href="../../../api/whylogs/core/index.html#whylogs.api.logger.DatasetProfile.write">[docs]</a>    <span class="nd">@deprecated_alias</span><span class="p">(</span><span class="n">path_or_base_dir</span><span class="o">=</span><span class="s2">&quot;path&quot;</span><span class="p">)</span>

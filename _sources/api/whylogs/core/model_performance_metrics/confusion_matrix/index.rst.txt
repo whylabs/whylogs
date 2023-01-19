@@ -29,26 +29,26 @@ Attributes
 
 
 .. py:data:: MODEL_METRICS_MAX_LABELS
-   :annotation: = 256
+   :value: 256
 
    
 
 .. py:data:: MODEL_METRICS_LABEL_SIZE_WARNING_THRESHOLD
-   :annotation: = 64
+   :value: 64
 
    
 
 .. py:data:: EMPTY_KLL
-   :annotation: :bytes
+   :type: bytes
 
    
 
 .. py:data:: EMPTY_THETA
-   :annotation: :bytes
+   :type: bytes
 
    
 
-.. py:class:: ConfusionMatrix(labels: List[Union[str, int, bool, float]] = None)
+.. py:class:: ConfusionMatrix(labels: Optional[List[Union[str, int, bool, float]]] = None)
 
    Confusion Matrix Class to hold labels and matrix data.
 

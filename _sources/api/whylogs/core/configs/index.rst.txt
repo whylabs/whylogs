@@ -58,12 +58,12 @@ Classes
 
 
    .. py:attribute:: NO_FALSE_NEGATIVES
-      :annotation: = 1
+      :value: 1
 
       
 
    .. py:attribute:: NO_FALSE_POSITIVES
-      :annotation: = 0
+      :value: 0
 
       
 
@@ -133,22 +133,23 @@ Classes
 .. py:class:: SummaryConfig
 
    .. py:attribute:: disabled_metrics
-      :annotation: :List[str]
+      :type: List[str]
 
       
 
    .. py:attribute:: frequent_items_error_type
-      :annotation: :FrequentItemsErrorType
+      :type: FrequentItemsErrorType
 
       
 
    .. py:attribute:: frequent_items_limit
-      :annotation: :int
+      :type: int
 
       
 
    .. py:attribute:: hll_stddev
-      :annotation: :int = 1
+      :type: int
+      :value: 1
 
       
 

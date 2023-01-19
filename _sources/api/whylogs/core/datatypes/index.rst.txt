@@ -35,12 +35,10 @@ Attributes
 
 
 .. py:data:: CategoricalDtype
-   
 
    
 
 .. py:data:: NT
-   
 
    
 
@@ -61,12 +59,10 @@ Attributes
 
 
 .. py:data:: NumericalType
-   
 
    
 
 .. py:data:: NUMBER
-   
 
    
 

@@ -37,52 +37,51 @@ Attributes
 
 
 .. py:data:: EMPTY_FI_SKETCH
-   :annotation: :bytes
+   :type: bytes
 
    
 
 .. py:data:: EMPTY_HLL
-   :annotation: :bytes
+   :type: bytes
 
    
 
 .. py:data:: EMPTY_KLL
-   :annotation: :bytes
+   :type: bytes
 
    
 
 .. py:data:: EMPTY_THETA
-   :annotation: :bytes
+   :type: bytes
 
    
 
 .. py:data:: logger
-   
 
    
 
 .. py:data:: PARTITION_ID
-   :annotation: = segp_id
+   :value: 'segp_id'
 
    
 
 .. py:data:: PARTITION_NAME
-   :annotation: = segp_name
+   :value: 'segp_name'
 
    
 
 .. py:data:: PARTITION_HAS_FILTER
-   :annotation: = segp_filter
+   :value: 'segp_filter'
 
    
 
 .. py:data:: SEGMENT_ON_COLUMN
-   :annotation: = segp_col
+   :value: 'segp_col'
 
    
 
 .. py:data:: SEGMENT_ON_COLUMNS
-   :annotation: = segp_cols
+   :value: 'segp_cols'
 
    
 

@@ -26,7 +26,6 @@ Attributes
 
 
 .. py:data:: logger
-   
 
    
 
@@ -117,7 +116,7 @@ Attributes
       :type reference_profile_view: DatasetProfileView, optional
 
 
-   .. py:method:: profile_summary(cell_height: str = None) -> IPython.core.display.HTML
+   .. py:method:: profile_summary(cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
 
    .. py:method:: summary_drift_report(height: Optional[str] = None) -> IPython.core.display.HTML

@@ -30,22 +30,20 @@ Attributes
 
 
 .. py:data:: WHYLOGS_MAGIC_HEADER
-   :annotation: = WHY1
+   :value: 'WHY1'
 
    
 
 .. py:data:: WHYLOGS_MAGIC_HEADER_LEN
-   :annotation: = 4
+   :value: 4
 
    
 
 .. py:data:: WHYLOGS_MAGIC_HEADER_BYTES
-   
 
    
 
 .. py:data:: logger
-   
 
    
 
@@ -65,12 +63,12 @@ Attributes
    errors defaults to 'strict'.
 
    .. py:attribute:: COLUMN
-      :annotation: = COLUMN
+      :value: 'COLUMN'
 
       
 
    .. py:attribute:: DATASET
-      :annotation: = DATASET
+      :value: 'DATASET'
 
       
 

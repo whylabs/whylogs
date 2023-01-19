@@ -13,152 +13,140 @@ Module Contents
 ---------------
 
 .. py:data:: DESCRIPTOR
-   
 
    
 
 .. py:data:: Op
-   
 
    
 
 .. py:data:: unused
-   :annotation: = 0
+   :value: 0
 
    
 
 .. py:data:: LT
-   :annotation: = 1
+   :value: 1
 
    
 
 .. py:data:: LE
-   :annotation: = 2
+   :value: 2
 
    
 
 .. py:data:: EQ
-   :annotation: = 3
+   :value: 3
 
    
 
 .. py:data:: NE
-   :annotation: = 4
+   :value: 4
 
    
 
 .. py:data:: GE
-   :annotation: = 5
+   :value: 5
 
    
 
 .. py:data:: GT
-   :annotation: = 6
+   :value: 6
 
    
 
 .. py:data:: MATCH
-   :annotation: = 7
+   :value: 7
 
    
 
 .. py:data:: NOMATCH
-   :annotation: = 8
+   :value: 8
 
    
 
 .. py:data:: BTWN
-   :annotation: = 9
+   :value: 9
 
    
 
 .. py:data:: IN_SET
-   :annotation: = 10
+   :value: 10
 
    
 
 .. py:data:: CONTAIN_SET
-   :annotation: = 11
+   :value: 11
 
    
 
 .. py:data:: EQ_SET
-   :annotation: = 12
+   :value: 12
 
    
 
 .. py:data:: APPLY_FUNC
-   :annotation: = 13
+   :value: 13
 
    
 
 .. py:data:: IN
-   :annotation: = 14
+   :value: 14
 
    
 
 .. py:data:: CONTAIN
-   :annotation: = 15
+   :value: 15
 
    
 
 .. py:data:: NOT_IN
-   :annotation: = 16
+   :value: 16
 
    
 
 .. py:data:: SUM
-   :annotation: = 17
+   :value: 17
 
    
 
 .. py:data:: SummaryConstraintMsg
-   
 
    
 
 .. py:data:: ReferenceDistributionContinuousMessage
-   
 
    
 
 .. py:data:: ReferenceDistributionDiscreteMessage
-   
 
    
 
 .. py:data:: SummaryBetweenConstraintMsg
-   
 
    
 
 .. py:data:: ApplyFunctionMsg
-   
 
    
 
 .. py:data:: ValueConstraintMsg
-   
 
    
 
 .. py:data:: MultiColumnValueConstraintMsg
-   
 
    
 
 .. py:data:: ValueConstraintMsgs
-   
 
    
 
 .. py:data:: SummaryConstraintMsgs
-   
 
    
 
 .. py:data:: DatasetConstraintMsg
-   
 
    
 

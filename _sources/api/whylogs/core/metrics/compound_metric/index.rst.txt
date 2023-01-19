@@ -26,7 +26,6 @@ Attributes
 
 
 .. py:data:: COMPOUND_METRIC
-   
 
    
 
@@ -57,7 +56,7 @@ Attributes
 
 
    .. py:attribute:: submetrics
-      :annotation: :Dict[str, whylogs.core.metrics.Metric]
+      :type: Dict[str, whylogs.core.metrics.Metric]
 
       
 

@@ -20,12 +20,12 @@ Classes
 .. py:class:: Segment
 
    .. py:attribute:: key
-      :annotation: :Tuple[str, Ellipsis]
+      :type: Tuple[str, Ellipsis]
 
       
 
    .. py:attribute:: parent_id
-      :annotation: :str
+      :type: str
 
       
 

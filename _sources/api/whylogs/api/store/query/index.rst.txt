@@ -29,22 +29,22 @@ Attributes
 .. py:class:: DateQuery
 
    .. py:attribute:: dataset_id
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: start_date
-      :annotation: :datetime.datetime
+      :type: datetime.datetime
 
       
 
    .. py:attribute:: end_date
-      :annotation: :Optional[datetime.datetime]
+      :type: Optional[datetime.datetime]
 
       
 
    .. py:attribute:: segment_tag
-      :annotation: :Optional[str]
+      :type: Optional[str]
 
       
 
@@ -52,18 +52,17 @@ Attributes
 .. py:class:: DatasetIdQuery
 
    .. py:attribute:: dataset_id
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: segment_tag
-      :annotation: :Optional[str]
+      :type: Optional[str]
 
       
 
 
 .. py:data:: BaseQuery
-   
 
    
 

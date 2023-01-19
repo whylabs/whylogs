@@ -431,7 +431,7 @@
 
 
 <div class="viewcode-block" id="ConfusionMatrix"><a class="viewcode-back" href="../../../../api/whylogs/core/model_performance_metrics/confusion_matrix/index.html#whylogs.core.model_performance_metrics.confusion_matrix.ConfusionMatrix">[docs]</a><span class="k">class</span> <span class="nc">ConfusionMatrix</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Confusion Matrix Class to hold labels and matrix data.</span>
 
@@ -441,7 +441,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">labels</span><span class="p">:</span>
             <span class="n">labels_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
@@ -473,7 +473,7 @@
         <span class="n">targets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
         <span class="n">scores</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function adds predictions and targets to confusion matrix with scores.</span>
 
 <span class="sd">        Args:</span>
@@ -517,7 +517,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">confusion_matrix</span><span class="p">[</span><span class="n">entry_key</span><span class="p">]</span><span class="o">.</span><span class="n">columnar_update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ConfusionMatrix.merge"><a class="viewcode-back" href="../../../../api/whylogs/core/model_performance_metrics/confusion_matrix/index.html#whylogs.core.model_performance_metrics.confusion_matrix.ConfusionMatrix.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_cm</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Merge two seperate confusion matrix which may or may not overlap in labels.</span>
 
 <span class="sd">        Args:</span>
@@ -545,7 +545,6 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_dist_to_numbers</span><span class="p">(</span><span class="n">dist</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DistributionMetric</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">NumbersMessageV0</span><span class="p">:</span>
-
         <span class="n">variance_message</span> <span class="o">=</span> <span class="n">VarianceMessage</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">dist</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">dist</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
@@ -571,7 +570,7 @@
 <div class="viewcode-block" id="ConfusionMatrix.to_protobuf"><a class="viewcode-back" href="../../../../api/whylogs/core/model_performance_metrics/confusion_matrix/index.html#whylogs.core.model_performance_metrics.confusion_matrix.ConfusionMatrix.to_protobuf">[docs]</a>    <span class="k">def</span> <span class="nf">to_protobuf</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert to protobuf</span>
 
 <span class="sd">        Returns:</span>
@@ -619,7 +618,7 @@
 
 
 <span class="k">def</span> <span class="nf">_merge_CM</span><span class="p">(</span><span class="n">old_conf_matrix</span><span class="p">:</span> <span class="n">ConfusionMatrix</span><span class="p">,</span> <span class="n">new_conf_matrix</span><span class="p">:</span> <span class="n">ConfusionMatrix</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Merges two confusion_matrix since distinc or overlaping labels</span>
 
 <span class="sd">    Args:</span>

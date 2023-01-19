@@ -27,12 +27,11 @@ Attributes
 
 
 .. py:data:: DEFAULT_DIR
-   :annotation: = profile_store/
+   :value: 'profile_store/'
 
    
 
 .. py:data:: logger
-   
 
    
 

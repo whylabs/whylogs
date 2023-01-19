@@ -31,32 +31,27 @@ Attributes
 
 
 .. py:data:: FIVE_MINUTES_IN_SECONDS
-   
 
    
 
 .. py:data:: DAY_IN_SECONDS
-   
 
    
 
 .. py:data:: WEEK_IN_SECONDS
-   
 
    
 
 .. py:data:: FIVE_YEARS_IN_SECONDS
-   
 
    
 
 .. py:data:: logger
-   
 
    
 
 .. py:data:: API_KEY_ENV
-   :annotation: = WHYLABS_API_KEY
+   :value: 'WHYLABS_API_KEY'
 
    
 

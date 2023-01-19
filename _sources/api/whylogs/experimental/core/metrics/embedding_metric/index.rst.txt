@@ -38,7 +38,6 @@ Attributes
 
 
 .. py:data:: logger
-   
 
    
 
@@ -57,17 +56,17 @@ Attributes
 
 
    .. py:attribute:: type_id
-      :annotation: = 101
+      :value: 101
 
       
 
    .. py:attribute:: mtype
-      :annotation: :Optional[Type[T]]
+      :type: Optional[Type[T]]
 
       
 
    .. py:attribute:: registries
-      :annotation: :Optional[Registries]
+      :type: Optional[Registries]
 
       
 
@@ -97,12 +96,10 @@ Attributes
    Derive from this class to define new enumerations.
 
    .. py:attribute:: euclidean
-      
 
       
 
    .. py:attribute:: cosine
-      
 
       
 
@@ -128,72 +125,82 @@ Attributes
    be used, where n is the number of rows in the references matrix.
 
    .. py:attribute:: references
-      :annotation: :numpy.ndarray
+      :type: numpy.ndarray
 
       
 
    .. py:attribute:: labels
-      :annotation: :Optional[List[str]]
+      :type: Optional[List[str]]
 
       
 
    .. py:attribute:: distance_fn
-      :annotation: :DistanceFunction
+      :type: DistanceFunction
 
       
 
    .. py:attribute:: serialize_references
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: hll_lg_k
-      :annotation: :int = 12
+      :type: int
+      :value: 12
 
       
 
    .. py:attribute:: kll_k
-      :annotation: :int = 256
+      :type: int
+      :value: 256
 
       
 
    .. py:attribute:: fi_lg_max_k
-      :annotation: :int = 10
+      :type: int
+      :value: 10
 
       
 
    .. py:attribute:: fi_disabled
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: track_unicode_ranges
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: large_kll_k
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: kll_k_large
-      :annotation: :int = 1024
+      :type: int
+      :value: 1024
 
       
 
    .. py:attribute:: unicode_ranges
-      :annotation: :Dict[str, Tuple[int, int]]
+      :type: Dict[str, Tuple[int, int]]
 
       
 
    .. py:attribute:: lower_case
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: normalize
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
@@ -224,27 +231,27 @@ Attributes
 
 
    .. py:attribute:: references
-      :annotation: :MatrixComponent
+      :type: MatrixComponent
 
       
 
    .. py:attribute:: labels
-      :annotation: :List[str]
+      :type: List[str]
 
       
 
    .. py:attribute:: distance_fn
-      :annotation: :DistanceFunction
+      :type: DistanceFunction
 
       
 
    .. py:attribute:: serialize_references
-      :annotation: :bool
+      :type: bool
 
       
 
    .. py:attribute:: submetrics
-      :annotation: :Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+      :type: Dict[str, Dict[str, whylogs.core.metrics.Metric]]
 
       
 

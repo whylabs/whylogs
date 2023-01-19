@@ -38,17 +38,16 @@ Attributes
 
 
 .. py:data:: logger
-   
 
    
 
 .. py:data:: M
-   
 
    
 
 .. py:data:: ColumnSchema
-   :annotation: :typing_extensions.TypeAlias = ColumnSchema
+   :type: typing_extensions.TypeAlias
+   :value: 'ColumnSchema'
 
    
 
@@ -100,12 +99,12 @@ Attributes
    Specify a Metric to instantiate.
 
    .. py:attribute:: metric
-      :annotation: :Any
+      :type: Any
 
       
 
    .. py:attribute:: config
-      :annotation: :Optional[whylogs.core.metrics.metrics.MetricConfig]
+      :type: Optional[whylogs.core.metrics.metrics.MetricConfig]
 
       
 
@@ -118,23 +117,22 @@ Attributes
    class, not an instance.
 
    .. py:attribute:: column_name
-      :annotation: :Optional[str]
+      :type: Optional[str]
 
       
 
    .. py:attribute:: column_type
-      :annotation: :Optional[Any]
+      :type: Optional[Any]
 
       
 
    .. py:attribute:: metrics
-      :annotation: :List[MetricSpec]
+      :type: List[MetricSpec]
 
       
 
 
 .. py:data:: COLUMN_METRICS
-   
 
    
 
@@ -153,17 +151,14 @@ Attributes
 
 
 .. py:data:: STANDARD_RESOLVER
-   
 
    
 
 .. py:data:: LIMITED_TRACKING_RESOLVER
-   
 
    
 
 .. py:data:: HISTOGRAM_COUNTING_TRACKING_RESOLVER
-   
 
    
 

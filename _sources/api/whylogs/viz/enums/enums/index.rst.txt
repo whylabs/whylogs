@@ -21,12 +21,12 @@ Classes
 .. py:class:: PageSpec
 
    .. py:attribute:: html
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: height
-      :annotation: :str
+      :type: str
 
       
 
@@ -40,37 +40,30 @@ Classes
    Derive from this class to define new enumerations.
 
    .. py:attribute:: PROFILE_SUMMARY
-      
 
       
 
    .. py:attribute:: SUMMARY_REPORT
-      
 
       
 
    .. py:attribute:: DOUBLE_HISTOGRAM
-      
 
       
 
    .. py:attribute:: DISTRIBUTION_CHART
-      
 
       
 
    .. py:attribute:: DIFFERENCED_CHART
-      
 
       
 
    .. py:attribute:: FEATURE_STATISTICS
-      
 
       
 
    .. py:attribute:: CONSTRAINTS_REPORT
-      
 
       
 

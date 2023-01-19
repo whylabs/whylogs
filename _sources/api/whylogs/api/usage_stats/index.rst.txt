@@ -27,12 +27,11 @@ Attributes
 
 
 .. py:data:: logger
-   
 
    
 
 .. py:data:: ANALYTICS_OPT_OUT
-   :annotation: = WHYLOGS_NO_ANALYTICS
+   :value: 'WHYLOGS_NO_ANALYTICS'
 
    
 

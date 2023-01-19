@@ -43,17 +43,16 @@ Attributes
 
 
 .. py:data:: logger
-   
 
    
 
 .. py:data:: ImageType
-   
 
    
 
 .. py:data:: DEFAULT_IMAGE_FEATURES
-   :annotation: :List[str] = []
+   :type: List[str]
+   :value: []
 
    
 
@@ -121,62 +120,71 @@ Attributes
    Bases: :py:obj:`whylogs.core.metrics.metrics.MetricConfig`
 
    .. py:attribute:: allowed_exif_tags
-      :annotation: :Set[str]
+      :type: Set[str]
 
       
 
    .. py:attribute:: forbidden_exif_tags
-      :annotation: :Set[str]
+      :type: Set[str]
 
       
 
    .. py:attribute:: hll_lg_k
-      :annotation: :int = 12
+      :type: int
+      :value: 12
 
       
 
    .. py:attribute:: kll_k
-      :annotation: :int = 256
+      :type: int
+      :value: 256
 
       
 
    .. py:attribute:: fi_lg_max_k
-      :annotation: :int = 10
+      :type: int
+      :value: 10
 
       
 
    .. py:attribute:: fi_disabled
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: track_unicode_ranges
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: large_kll_k
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: kll_k_large
-      :annotation: :int = 1024
+      :type: int
+      :value: 1024
 
       
 
    .. py:attribute:: unicode_ranges
-      :annotation: :Dict[str, Tuple[int, int]]
+      :type: Dict[str, Tuple[int, int]]
 
       
 
    .. py:attribute:: lower_case
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: normalize
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
@@ -207,7 +215,7 @@ Attributes
 
 
    .. py:attribute:: submetrics
-      :annotation: :Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+      :type: Dict[str, Dict[str, whylogs.core.metrics.Metric]]
 
       
 

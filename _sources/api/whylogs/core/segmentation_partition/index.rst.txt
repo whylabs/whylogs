@@ -38,39 +38,38 @@ Attributes
 
 
 .. py:data:: logger
-   
 
    
 
 .. py:data:: MAX_SEGMENTS_ERROR_THRESHOLD
-   :annotation: = 2000
+   :value: 2000
 
    
 
 .. py:data:: MAX_SEGMENTS_WARNING_THRESHOLD
-   :annotation: = 200
+   :value: 200
 
    
 
 .. py:class:: ColumnMapperFunction
 
    .. py:attribute:: col_names
-      :annotation: :Optional[List[str]]
+      :type: Optional[List[str]]
 
       
 
    .. py:attribute:: map
-      :annotation: :Optional[Callable]
+      :type: Optional[Callable]
 
       
 
    .. py:attribute:: field_projector
-      :annotation: :whylogs.core.projectors.FieldProjector
+      :type: whylogs.core.projectors.FieldProjector
 
       
 
    .. py:attribute:: id
-      :annotation: :str
+      :type: str
 
       
 
@@ -78,12 +77,12 @@ Attributes
 .. py:class:: SegmentFilter
 
    .. py:attribute:: filter_function
-      :annotation: :Optional[Callable]
+      :type: Optional[Callable]
 
       
 
    .. py:attribute:: query_string
-      :annotation: :Optional[str]
+      :type: Optional[str]
 
       
 
@@ -99,22 +98,22 @@ Attributes
 
 
    .. py:attribute:: name
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: mapper
-      :annotation: :Optional[ColumnMapperFunction]
+      :type: Optional[ColumnMapperFunction]
 
       
 
    .. py:attribute:: id
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: filter
-      :annotation: :Optional[SegmentFilter]
+      :type: Optional[SegmentFilter]
 
       
 

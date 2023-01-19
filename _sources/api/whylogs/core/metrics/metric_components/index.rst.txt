@@ -36,29 +36,27 @@ Attributes
 
 
 .. py:data:: T
-   
 
    
 
 .. py:data:: M
-   
 
    
 
 .. py:class:: Registries
 
    .. py:attribute:: aggregatorRegistry
-      :annotation: :Optional[whylogs.core.metrics.aggregators.AggregatorRegistry]
+      :type: Optional[whylogs.core.metrics.aggregators.AggregatorRegistry]
 
       
 
    .. py:attribute:: serializerRegistry
-      :annotation: :Optional[whylogs.core.metrics.serializers.SerializerRegistry]
+      :type: Optional[whylogs.core.metrics.serializers.SerializerRegistry]
 
       
 
    .. py:attribute:: deserializerRegistry
-      :annotation: :Optional[whylogs.core.metrics.deserializers.DeserializerRegistry]
+      :type: Optional[whylogs.core.metrics.deserializers.DeserializerRegistry]
 
       
 
@@ -78,17 +76,18 @@ Attributes
 
 
    .. py:attribute:: mtype
-      :annotation: :Optional[Type[T]]
+      :type: Optional[Type[T]]
 
       
 
    .. py:attribute:: type_id
-      :annotation: :int = 0
+      :type: int
+      :value: 0
 
       
 
    .. py:attribute:: registries
-      :annotation: :Optional[Registries]
+      :type: Optional[Registries]
 
       
 
@@ -118,17 +117,17 @@ Attributes
 
 
    .. py:attribute:: mtype
-      
 
       
 
    .. py:attribute:: type_id
-      :annotation: :int = 0
+      :type: int
+      :value: 0
 
       
 
    .. py:attribute:: registries
-      :annotation: :Optional[Registries]
+      :type: Optional[Registries]
 
       
 
@@ -158,17 +157,16 @@ Attributes
 
 
    .. py:attribute:: mtype
-      
 
       
 
    .. py:attribute:: type_id
-      :annotation: = 1
+      :value: 1
 
       
 
    .. py:attribute:: registries
-      :annotation: :Optional[Registries]
+      :type: Optional[Registries]
 
       
 
@@ -202,17 +200,16 @@ Attributes
 
 
    .. py:attribute:: mtype
-      
 
       
 
    .. py:attribute:: type_id
-      :annotation: = 2
+      :value: 2
 
       
 
    .. py:attribute:: registries
-      :annotation: :Optional[Registries]
+      :type: Optional[Registries]
 
       
 
@@ -246,17 +243,17 @@ Attributes
 
 
    .. py:attribute:: mtype
-      
 
       
 
    .. py:attribute:: type_id
-      :annotation: :int = 0
+      :type: int
+      :value: 0
 
       
 
    .. py:attribute:: registries
-      :annotation: :Optional[Registries]
+      :type: Optional[Registries]
 
       
 
@@ -276,7 +273,6 @@ Attributes
    Bases: :py:obj:`MetricComponent`\ [\ :py:obj:`whylogs_sketching.kll_doubles_sketch`\ ]
 
    .. py:attribute:: mtype
-      
 
       
 
@@ -286,7 +282,6 @@ Attributes
    Bases: :py:obj:`MetricComponent`\ [\ :py:obj:`whylogs_sketching.hll_sketch`\ ]
 
    .. py:attribute:: mtype
-      
 
       
 
@@ -296,7 +291,6 @@ Attributes
    Bases: :py:obj:`MetricComponent`\ [\ :py:obj:`whylogs_sketching.frequent_strings_sketch`\ ]
 
    .. py:attribute:: mtype
-      
 
       
 
@@ -329,17 +323,16 @@ Attributes
 
 
    .. py:attribute:: type_id
-      
 
       
 
    .. py:attribute:: mtype
-      :annotation: :Optional[Type[T]]
+      :type: Optional[Type[T]]
 
       
 
    .. py:attribute:: registries
-      :annotation: :Optional[Registries]
+      :type: Optional[Registries]
 
       
 

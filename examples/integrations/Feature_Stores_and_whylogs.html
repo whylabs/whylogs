@@ -516,10 +516,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -724,10 +725,10 @@ distance), we might be interested in enriching our feature vector with informati
 </pre></div>
 </div>
 <div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
-mkdir feature_repo
-mkdir feature_repo/data
-mkdir feature_repo/whylogs_output
-touch feature_repo/__init__.py
+mkdir<span class="w"> </span>feature_repo
+mkdir<span class="w"> </span>feature_repo/data
+mkdir<span class="w"> </span>feature_repo/whylogs_output
+touch<span class="w"> </span>feature_repo/__init__.py
 </pre></div>
 </div>
 </div>
@@ -1028,7 +1029,7 @@ dtype: object
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>feast apply
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>feast<span class="w"> </span>apply
 </pre></div>
 </div>
 </div>
@@ -3907,7 +3908,7 @@ Materializing <span class="ansi-green-intense-fg ansi-bold">1</span> feature vie
 </pre></div>
 </div>
 <div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
-ls whylogs_output
+ls<span class="w"> </span>whylogs_output
 </pre></div>
 </div>
 </div>

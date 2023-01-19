@@ -467,7 +467,7 @@
 
 <div class="viewcode-block" id="PreprocessedColumn"><a class="viewcode-back" href="../../../api/whylogs/core/preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">PreprocessedColumn</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;View of a column with data of various underlying storage.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;View of a column with data of various underlying storage.</span>
 
 <span class="sd">    If Pandas is available, we will use Pandas to handle batch processing.</span>
 <span class="sd">    If numpy is available, we will use ndarray for numerical values.</span>
@@ -496,7 +496,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">len</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
     <span class="k">def</span> <span class="nf">_pandas_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">parse_numeric_string</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Split a Pandas Series into numpy array and other Pandas series.</span>
 
 <span class="sd">        Args:</span>

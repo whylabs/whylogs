@@ -466,7 +466,7 @@
 
 
 <span class="k">class</span> <span class="nc">PandasExtensionDtype</span><span class="p">(</span><span class="n">ExtensionDtype</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A np.dtype duck-typed class, suitable for holding a custom dtype.</span>
 
 <span class="sd">    THIS IS NOT A REAL NUMPY DTYPE</span>
@@ -489,7 +489,7 @@
     <span class="n">_cache_dtypes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">str_type</span><span class="p">,</span> <span class="n">PandasExtensionDtype</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">str_type</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a string representation for a particular object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -503,12 +503,12 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">reset_cache</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;clear the cache&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;clear the cache&quot;&quot;&quot;</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">_cache_dtypes</span> <span class="o">=</span> <span class="p">{}</span>
 
 
 <span class="k">class</span> <span class="nc">CategoricalDtypeType</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    the type of CategoricalDtype, this metaclass determines subclass ability</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -517,7 +517,7 @@
 
 <div class="viewcode-block" id="CategoricalDtype"><a class="viewcode-back" href="../../../../api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.CategoricalDtype">[docs]</a><span class="nd">@register_extension_dtype</span>
 <span class="k">class</span> <span class="nc">CategoricalDtype</span><span class="p">(</span><span class="n">PandasExtensionDtype</span><span class="p">,</span> <span class="n">ExtensionDtype</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Type for categorical data with the categories and orderedness.</span>
 
 <span class="sd">    Parameters</span>
@@ -609,7 +609,7 @@
         <span class="n">ordered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">dtype</span><span class="p">:</span> <span class="n">Dtype</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CategoricalDtype</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct dtype from the input parameters used in :class:`Categorical`.</span>
 
 <span class="sd">        This constructor method specifically does not do the factorization</span>
@@ -698,7 +698,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">construct_from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="n">str_type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CategoricalDtype</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct a CategoricalDtype from a string.</span>
 
 <span class="sd">        Parameters</span>
@@ -757,7 +757,7 @@
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hash_categories</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Rules for CDT equality:</span>
 <span class="sd">        1) Any CDT is equal to the string &#39;category&#39;</span>
 <span class="sd">        2) Any CDT is equal to itself</span>
@@ -876,7 +876,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">construct_array_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">type_t</span><span class="p">[</span><span class="n">Categorical</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the array type associated with this dtype.</span>
 
 <span class="sd">        Returns</span>
@@ -889,7 +889,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">validate_ordered</span><span class="p">(</span><span class="n">ordered</span><span class="p">:</span> <span class="n">Ordered</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Validates that we have a valid ordered parameter. If</span>
 <span class="sd">        it is not a boolean, a TypeError will be raised.</span>
 
@@ -908,7 +908,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">validate_categories</span><span class="p">(</span><span class="n">categories</span><span class="p">,</span> <span class="n">fastpath</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Index</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Validates that we have good categories</span>
 
 <span class="sd">        Parameters</span>
@@ -944,7 +944,7 @@
         <span class="k">return</span> <span class="n">categories</span>
 
     <span class="k">def</span> <span class="nf">update_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">str_type</span> <span class="o">|</span> <span class="n">CategoricalDtype</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CategoricalDtype</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a CategoricalDtype with categories and ordered taken from dtype</span>
 <span class="sd">        if specified, otherwise falling back to self if unspecified</span>
 
@@ -978,14 +978,14 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Index</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        An ``Index`` containing the unique categories allowed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ordered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ordered</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Whether the categories have an ordered relationship.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ordered</span>
@@ -1029,7 +1029,7 @@
 
 <span class="nd">@register_extension_dtype</span>
 <span class="k">class</span> <span class="nc">DatetimeTZDtype</span><span class="p">(</span><span class="n">PandasExtensionDtype</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An ExtensionDtype for timezone-aware datetime data.</span>
 
 <span class="sd">    **This is not an actual numpy dtype**, but a duck type.</span>
@@ -1109,21 +1109,21 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">unit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">str_type</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The precision of the datetime data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unit</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">tz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tzinfo</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The timezone.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tz</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">construct_array_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">type_t</span><span class="p">[</span><span class="n">DatetimeArray</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the array type associated with this dtype.</span>
 
 <span class="sd">        Returns</span>
@@ -1136,7 +1136,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">construct_from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="n">str_type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatetimeTZDtype</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct a DatetimeTZDtype from a string.</span>
 
 <span class="sd">        Parameters</span>
@@ -1175,7 +1175,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">str_type</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;A string representation of the dtype.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A string representation of the dtype.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -1205,7 +1205,7 @@
 
 <span class="nd">@register_extension_dtype</span>
 <span class="k">class</span> <span class="nc">PeriodDtype</span><span class="p">(</span><span class="n">dtypes</span><span class="o">.</span><span class="n">PeriodDtypeBase</span><span class="p">,</span> <span class="n">PandasExtensionDtype</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An ExtensionDtype for Period data.</span>
 
 <span class="sd">    **This is not an actual numpy dtype**, but a duck type.</span>
@@ -1242,7 +1242,7 @@
     <span class="n">_cache_dtypes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">str_type</span><span class="p">,</span> <span class="n">PandasExtensionDtype</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        freq : frequency</span>
@@ -1274,7 +1274,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The frequency object of this PeriodDtype.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span>
@@ -1295,7 +1295,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">construct_from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="n">str_type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PeriodDtype</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Strict construction from a string, raise a TypeError if not</span>
 <span class="sd">        possible</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1348,7 +1348,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">is_dtype</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a boolean if we if the passed type is an actual dtype that we</span>
 <span class="sd">        can match (via string or type)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1369,7 +1369,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">construct_array_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">type_t</span><span class="p">[</span><span class="n">PeriodArray</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the array type associated with this dtype.</span>
 
 <span class="sd">        Returns</span>
@@ -1383,7 +1383,7 @@
     <span class="k">def</span> <span class="nf">__from_arrow__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">:</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">Array</span> <span class="o">|</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">ChunkedArray</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PeriodArray</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct PeriodArray from pyarrow Array/ChunkedArray.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">pyarrow</span>
@@ -1410,7 +1410,7 @@
 
 <span class="nd">@register_extension_dtype</span>
 <span class="k">class</span> <span class="nc">IntervalDtype</span><span class="p">(</span><span class="n">PandasExtensionDtype</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An ExtensionDtype for Interval data.</span>
 
 <span class="sd">    **This is not an actual numpy dtype**, but a duck type.</span>
@@ -1517,14 +1517,14 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">subtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The dtype of the Interval bounds.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subtype</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">construct_array_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">IntervalArray</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the array type associated with this dtype.</span>
 
 <span class="sd">        Returns</span>
@@ -1537,7 +1537,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">construct_from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">string</span><span class="p">:</span> <span class="n">str_type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IntervalDtype</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        attempt to construct this type from a string, raise a TypeError</span>
 <span class="sd">        if its not possible</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1599,7 +1599,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">is_dtype</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a boolean if we if the passed type is an actual dtype that we</span>
 <span class="sd">        can match (via string or type)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1619,7 +1619,7 @@
     <span class="k">def</span> <span class="nf">__from_arrow__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">:</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">Array</span> <span class="o">|</span> <span class="n">pyarrow</span><span class="o">.</span><span class="n">ChunkedArray</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IntervalArray</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct IntervalArray from pyarrow Array/ChunkedArray.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">pyarrow</span>
@@ -1664,7 +1664,7 @@
 
 
 <span class="k">class</span> <span class="nc">PandasDtype</span><span class="p">(</span><span class="n">ExtensionDtype</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Pandas ExtensionDtype for NumPy dtypes.</span>
 
 <span class="sd">    This is mostly for internal compatibility, and is not especially</span>
@@ -1693,21 +1693,21 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">numpy_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The NumPy dtype this PandasDtype wraps.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A bit-width name for this data-type.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="o">.</span><span class="n">name</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">generic</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The type object used to instantiate a scalar of this NumPy data-type.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="o">.</span><span class="n">type</span>
@@ -1735,7 +1735,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">construct_array_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">type_t</span><span class="p">[</span><span class="n">PandasArray</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the array type associated with this dtype.</span>
 
 <span class="sd">        Returns</span>
@@ -1748,14 +1748,14 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">kind</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A character code (one of &#39;biufcmMOSUV&#39;) identifying the general kind of data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="o">.</span><span class="n">kind</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">itemsize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The element size of this data-type object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="o">.</span><span class="n">itemsize</span>

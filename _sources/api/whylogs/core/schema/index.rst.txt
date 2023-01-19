@@ -30,21 +30,18 @@ Attributes
 
 
 .. py:data:: logger
-   
 
    
 
 .. py:data:: LARGE_CACHE_SIZE_LIMIT
-   
 
    
 
 .. py:data:: T
-   
 
    
 
-.. py:class:: DatasetSchema(types: Optional[Dict[str, Any]] = None, default_configs: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, resolvers: Optional[whylogs.core.resolvers.Resolver] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Dict[str, List[whylogs.core.validators.validator.Validator]] = None)
+.. py:class:: DatasetSchema(types: Optional[Dict[str, Any]] = None, default_configs: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, resolvers: Optional[whylogs.core.resolvers.Resolver] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Optional[Dict[str, List[whylogs.core.validators.validator.Validator]]] = None)
 
    Defines the schema for tracking metrics in whylogs.
 
@@ -116,27 +113,27 @@ Attributes
    factories) and any additional trackers here.
 
    .. py:attribute:: dtype
-      :annotation: :Any
+      :type: Any
 
       
 
    .. py:attribute:: cfg
-      :annotation: :whylogs.core.metrics.metrics.MetricConfig
+      :type: whylogs.core.metrics.metrics.MetricConfig
 
       
 
    .. py:attribute:: type_mapper
-      :annotation: :whylogs.core.datatypes.TypeMapper
+      :type: whylogs.core.datatypes.TypeMapper
 
       
 
    .. py:attribute:: resolver
-      :annotation: :whylogs.core.resolvers.Resolver
+      :type: whylogs.core.resolvers.Resolver
 
       
 
    .. py:attribute:: validators
-      :annotation: :Dict[str, List[whylogs.core.validators.validator.Validator]]
+      :type: Dict[str, List[whylogs.core.validators.validator.Validator]]
 
       
 

@@ -25,17 +25,17 @@ Classes
    inheritance.
 
    .. py:attribute:: name
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: conditions
-      :annotation: :Dict[str, whylogs.core.metrics.condition_count_metric.Condition]
+      :type: Dict[str, whylogs.core.metrics.condition_count_metric.Condition]
 
       
 
    .. py:attribute:: actions
-      :annotation: :List[Callable[[str, str, Any], None]]
+      :type: List[Callable[[str, str, Any], None]]
 
       
 

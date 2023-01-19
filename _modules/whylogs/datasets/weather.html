@@ -423,7 +423,7 @@
 
 <div class="viewcode-block" id="Weather"><a class="viewcode-back" href="../../../api/whylogs/datasets/weather/index.html#whylogs.datasets.Weather">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">Weather</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Weather Forecast Dataset</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Weather Forecast Dataset</span>
 
 <span class="sd">    The Weather Forecast Dataset contains meteorological features at a particular place (defined by latitude and longitude features) and time.</span>
 <span class="sd">    This dataset can present data distribution shifts over both time and space.</span>
@@ -452,7 +452,7 @@
     <span class="n">dataset_config</span><span class="p">:</span> <span class="n">DatasetConfig</span> <span class="o">=</span> <span class="n">WeatherConfig</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;in_domain&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes internal dataframes.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes internal dataframes.</span>
 
 <span class="sd">        If the files are already present locally, won&#39;t try to download from S3.</span>
 
@@ -501,7 +501,7 @@
         <span class="k">return</span> <span class="n">timestamp</span>
 
     <span class="k">def</span> <span class="nf">_validate_interval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Checks if desired interval are of acceptable units and inside maximum duration limits.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks if desired interval are of acceptable units and inside maximum duration limits.&quot;&quot;&quot;</span>
         <span class="n">number_days</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">_parse_interval</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">number_days</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_config</span><span class="o">.</span><span class="n">max_interval</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Maximum allowed interval for this dataset is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_config</span><span class="o">.</span><span class="n">max_interval</span><span class="p">))</span>
@@ -512,7 +512,7 @@
 <div class="viewcode-block" id="Weather.get_inference_data"><a class="viewcode-back" href="../../../api/whylogs/datasets/weather/index.html#whylogs.datasets.Weather.get_inference_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_inference_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">target_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">number_batches</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Batch</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Batch</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Get batch(es) from inference dataset.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get batch(es) from inference dataset.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -555,7 +555,7 @@
         <span class="n">inference_start_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">original</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Set timestamp and interval parameters for the dataset object.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set timestamp and interval parameters for the dataset object.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -611,7 +611,7 @@
 
 
 <div class="viewcode-block" id="WeatherDatasetIterator"><a class="viewcode-back" href="../../../api/whylogs/datasets/weather/index.html#whylogs.datasets.WeatherDatasetIterator">[docs]</a><span class="k">class</span> <span class="nc">WeatherDatasetIterator</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Iterator to retrieve inference batches, when multiple batches are required.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Iterator to retrieve inference batches, when multiple batches are required.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">number_days</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">number_batches</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">DatasetConfig</span>

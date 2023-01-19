@@ -23,12 +23,14 @@ Classes
 .. py:class:: BaseConfig
 
    .. py:attribute:: data_folder
-      :annotation: :str = whylogs_data
+      :type: str
+      :value: 'whylogs_data'
 
       
 
    .. py:attribute:: description_folder
-      :annotation: :str = whylogs.datasets.descr
+      :type: str
+      :value: 'whylogs.datasets.descr'
 
       
 
@@ -36,57 +38,57 @@ Classes
 .. py:class:: DatasetConfig
 
    .. py:attribute:: folder_name
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: url
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: baseline_start_timestamp
-      :annotation: :Dict[str, datetime.datetime]
+      :type: Dict[str, datetime.datetime]
 
       
 
    .. py:attribute:: inference_start_timestamp
-      :annotation: :Dict[str, datetime.datetime]
+      :type: Dict[str, datetime.datetime]
 
       
 
    .. py:attribute:: max_interval
-      :annotation: :int
+      :type: int
 
       
 
    .. py:attribute:: base_unit
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: available_versions
-      :annotation: :tuple
+      :type: tuple
 
       
 
    .. py:attribute:: target_columns
-      :annotation: :dict
+      :type: dict
 
       
 
    .. py:attribute:: prediction_columns
-      :annotation: :dict
+      :type: dict
 
       
 
    .. py:attribute:: miscellaneous_columns
-      :annotation: :dict
+      :type: dict
 
       
 
    .. py:attribute:: ignore_columns
-      :annotation: :dict
+      :type: dict
 
       
 
@@ -96,62 +98,68 @@ Classes
    Bases: :py:obj:`DatasetConfig`
 
    .. py:attribute:: folder_name
-      :annotation: :str = ecommerce
+      :type: str
+      :value: 'ecommerce'
 
       
 
    .. py:attribute:: description_file
-      :annotation: :str = ecommerce.rst
+      :type: str
+      :value: 'ecommerce.rst'
 
       
 
    .. py:attribute:: available_versions
-      :annotation: :tuple = ['base']
+      :type: tuple
+      :value: ('base',)
 
       
 
    .. py:attribute:: url
-      :annotation: :str = https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/Ecommerce
+      :type: str
+      :value: 'https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/Ecommerce'
 
       
 
    .. py:attribute:: baseline_start_timestamp
-      :annotation: :Dict[str, datetime.datetime]
+      :type: Dict[str, datetime.datetime]
 
       
 
    .. py:attribute:: inference_start_timestamp
-      :annotation: :Dict[str, datetime.datetime]
+      :type: Dict[str, datetime.datetime]
 
       
 
    .. py:attribute:: max_interval
-      :annotation: :int = 21
+      :type: int
+      :value: 21
 
       
 
    .. py:attribute:: base_unit
-      :annotation: :str = D
+      :type: str
+      :value: 'D'
 
       
 
    .. py:attribute:: target_columns
-      :annotation: :Dict[str, List[str]]
+      :type: Dict[str, List[str]]
 
       
 
    .. py:attribute:: prediction_columns
-      :annotation: :Dict[str, List[str]]
+      :type: Dict[str, List[str]]
 
       
 
    .. py:attribute:: miscellaneous_columns
-      :annotation: :Dict[str, List[str]]
+      :type: Dict[str, List[str]]
 
       
 
    .. py:attribute:: ignore_columns
-      :annotation: :Dict[str, List[str]]
+      :type: Dict[str, List[str]]
 
       
 
@@ -161,62 +169,68 @@ Classes
    Bases: :py:obj:`DatasetConfig`
 
    .. py:attribute:: folder_name
-      :annotation: :str = weather_forecast
+      :type: str
+      :value: 'weather_forecast'
 
       
 
    .. py:attribute:: description_file
-      :annotation: :str = weather.rst
+      :type: str
+      :value: 'weather.rst'
 
       
 
    .. py:attribute:: url
-      :annotation: :str = https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/WeatherForecast
+      :type: str
+      :value: 'https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/WeatherForecast'
 
       
 
    .. py:attribute:: baseline_start_timestamp
-      :annotation: :Dict[str, datetime.datetime]
+      :type: Dict[str, datetime.datetime]
 
       
 
    .. py:attribute:: inference_start_timestamp
-      :annotation: :Dict[str, datetime.datetime]
+      :type: Dict[str, datetime.datetime]
 
       
 
    .. py:attribute:: max_interval
-      :annotation: :int = 30
+      :type: int
+      :value: 30
 
       
 
    .. py:attribute:: base_unit
-      :annotation: :str = D
+      :type: str
+      :value: 'D'
 
       
 
    .. py:attribute:: available_versions
-      :annotation: :tuple = ['in_domain', 'out_domain']
+      :type: tuple
+      :value: ('in_domain', 'out_domain')
 
       
 
    .. py:attribute:: target_columns
-      :annotation: :Dict[str, List[str]]
+      :type: Dict[str, List[str]]
 
       
 
    .. py:attribute:: prediction_columns
-      :annotation: :Dict[str, List[str]]
+      :type: Dict[str, List[str]]
 
       
 
    .. py:attribute:: miscellaneous_columns
-      :annotation: :Dict[str, List[str]]
+      :type: Dict[str, List[str]]
 
       
 
    .. py:attribute:: ignore_columns
-      :annotation: :Dict[str, List[str]]
+      :type: Dict[str, List[str]]
 
       
 

@@ -61,47 +61,47 @@ Functions
    Derive from this class to define new enumerations.
 
    .. py:attribute:: no_op
-      :annotation: = 0
+      :value: 0
 
       
 
    .. py:attribute:: match
-      :annotation: = 1
+      :value: 1
 
       
 
    .. py:attribute:: fullmatch
-      :annotation: = 2
+      :value: 2
 
       
 
    .. py:attribute:: equal
-      :annotation: = 3
+      :value: 3
 
       
 
    .. py:attribute:: less
-      :annotation: = 4
+      :value: 4
 
       
 
    .. py:attribute:: leq
-      :annotation: = 5
+      :value: 5
 
       
 
    .. py:attribute:: greater
-      :annotation: = 6
+      :value: 6
 
       
 
    .. py:attribute:: geq
-      :annotation: = 7
+      :value: 7
 
       
 
    .. py:attribute:: neq
-      :annotation: = 8
+      :value: 8
 
       
 

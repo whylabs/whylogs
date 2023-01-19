@@ -216,52 +216,61 @@ Attributes
 .. py:class:: MetricConfig
 
    .. py:attribute:: hll_lg_k
-      :annotation: :int = 12
+      :type: int
+      :value: 12
 
       
 
    .. py:attribute:: kll_k
-      :annotation: :int = 256
+      :type: int
+      :value: 256
 
       
 
    .. py:attribute:: fi_lg_max_k
-      :annotation: :int = 10
+      :type: int
+      :value: 10
 
       
 
    .. py:attribute:: fi_disabled
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: track_unicode_ranges
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: large_kll_k
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: kll_k_large
-      :annotation: :int = 1024
+      :type: int
+      :value: 1024
 
       
 
    .. py:attribute:: unicode_ranges
-      :annotation: :Dict[str, Tuple[int, int]]
+      :type: Dict[str, Tuple[int, int]]
 
       
 
    .. py:attribute:: lower_case
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: normalize
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
@@ -293,7 +302,7 @@ Attributes
       :classmethod:
 
 
-   .. py:method:: compute_confusion_matrix(predictions: List[Union[str, int, bool, float]], targets: List[Union[str, int, bool, float]], scores: List[float] = None)
+   .. py:method:: compute_confusion_matrix(predictions: List[Union[str, int, bool, float]], targets: List[Union[str, int, bool, float]], scores: Optional[List[float]] = None)
 
       computes the confusion_matrix, if one is already present merges to old one.
 
@@ -391,27 +400,27 @@ Attributes
    factories) and any additional trackers here.
 
    .. py:attribute:: dtype
-      :annotation: :Any
+      :type: Any
 
       
 
    .. py:attribute:: cfg
-      :annotation: :whylogs.core.metrics.metrics.MetricConfig
+      :type: whylogs.core.metrics.metrics.MetricConfig
 
       
 
    .. py:attribute:: type_mapper
-      :annotation: :whylogs.core.datatypes.TypeMapper
+      :type: whylogs.core.datatypes.TypeMapper
 
       
 
    .. py:attribute:: resolver
-      :annotation: :whylogs.core.resolvers.Resolver
+      :type: whylogs.core.resolvers.Resolver
 
       
 
    .. py:attribute:: validators
-      :annotation: :Dict[str, List[whylogs.core.validators.validator.Validator]]
+      :type: Dict[str, List[whylogs.core.validators.validator.Validator]]
 
       
 
@@ -422,7 +431,7 @@ Attributes
 
 
 
-.. py:class:: DatasetSchema(types: Optional[Dict[str, Any]] = None, default_configs: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, resolvers: Optional[whylogs.core.resolvers.Resolver] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Dict[str, List[whylogs.core.validators.validator.Validator]] = None)
+.. py:class:: DatasetSchema(types: Optional[Dict[str, Any]] = None, default_configs: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, resolvers: Optional[whylogs.core.resolvers.Resolver] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Optional[Dict[str, List[whylogs.core.validators.validator.Validator]]] = None)
 
    Defines the schema for tracking metrics in whylogs.
 
@@ -488,12 +497,12 @@ Attributes
 .. py:class:: Segment
 
    .. py:attribute:: key
-      :annotation: :Tuple[str, Ellipsis]
+      :type: Tuple[str, Ellipsis]
 
       
 
    .. py:attribute:: parent_id
-      :annotation: :str
+      :type: str
 
       
 
@@ -509,28 +518,28 @@ Attributes
 
 
    .. py:attribute:: name
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: mapper
-      :annotation: :Optional[ColumnMapperFunction]
+      :type: Optional[ColumnMapperFunction]
 
       
 
    .. py:attribute:: id
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: filter
-      :annotation: :Optional[SegmentFilter]
+      :type: Optional[SegmentFilter]
 
       
 
 
 .. py:data:: WHYLOGS_MAGIC_HEADER
-   :annotation: = WHY1
+   :value: 'WHY1'
 
    
 

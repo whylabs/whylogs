@@ -40,12 +40,10 @@ Attributes
 
 
 .. py:data:: logger
-   
 
    
 
 .. py:data:: Relation
-   
 
    
 
@@ -64,22 +62,24 @@ Attributes
 .. py:class:: Condition
 
    .. py:attribute:: relation
-      :annotation: :Callable[[Any], bool]
+      :type: Callable[[Any], bool]
 
       
 
    .. py:attribute:: throw_on_failure
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: log_on_failure
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: actions
-      :annotation: :List[Callable[[str, str, Any], None]]
+      :type: List[Callable[[str, str, Any], None]]
 
       
 
@@ -89,57 +89,66 @@ Attributes
    Bases: :py:obj:`whylogs.core.metrics.metrics.MetricConfig`
 
    .. py:attribute:: conditions
-      :annotation: :Dict[str, Condition]
+      :type: Dict[str, Condition]
 
       
 
    .. py:attribute:: hll_lg_k
-      :annotation: :int = 12
+      :type: int
+      :value: 12
 
       
 
    .. py:attribute:: kll_k
-      :annotation: :int = 256
+      :type: int
+      :value: 256
 
       
 
    .. py:attribute:: fi_lg_max_k
-      :annotation: :int = 10
+      :type: int
+      :value: 10
 
       
 
    .. py:attribute:: fi_disabled
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: track_unicode_ranges
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: large_kll_k
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: kll_k_large
-      :annotation: :int = 1024
+      :type: int
+      :value: 1024
 
       
 
    .. py:attribute:: unicode_ranges
-      :annotation: :Dict[str, Tuple[int, int]]
+      :type: Dict[str, Tuple[int, int]]
 
       
 
    .. py:attribute:: lower_case
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
    .. py:attribute:: normalize
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
@@ -156,17 +165,17 @@ Attributes
 
 
    .. py:attribute:: conditions
-      :annotation: :Dict[str, Condition]
+      :type: Dict[str, Condition]
 
       
 
    .. py:attribute:: total
-      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
 
       
 
    .. py:attribute:: matches
-      :annotation: :Dict[str, whylogs.core.metrics.metric_components.IntegralComponent]
+      :type: Dict[str, whylogs.core.metrics.metric_components.IntegralComponent]
 
       
 

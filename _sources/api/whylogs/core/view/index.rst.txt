@@ -80,7 +80,7 @@ Attributes
 
 
 .. py:data:: WHYLOGS_MAGIC_HEADER
-   :annotation: = WHY1
+   :value: 'WHY1'
 
    
 

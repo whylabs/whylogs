@@ -13,152 +13,127 @@ Module Contents
 ---------------
 
 .. py:data:: DESCRIPTOR
-   
 
    
 
 .. py:data:: ModelType
-   
 
    
 
 .. py:data:: UNKNOWN
-   :annotation: = 0
+   :value: 0
 
    
 
 .. py:data:: CLASSIFICATION
-   :annotation: = 1
+   :value: 1
 
    
 
 .. py:data:: REGRESSION
-   :annotation: = 2
+   :value: 2
 
    
 
 .. py:data:: EMBEDDINGS
-   :annotation: = 3
+   :value: 3
 
    
 
 .. py:data:: NLP
-   :annotation: = 4
+   :value: 4
 
    
 
 .. py:data:: CountersV0
-   
 
    
 
 .. py:data:: InferredType
-   
 
    
 
 .. py:data:: DoublesMessage
-   
 
    
 
 .. py:data:: LongsMessage
-   
 
    
 
 .. py:data:: VarianceMessage
-   
 
    
 
 .. py:data:: FrequentNumbersSketchMessage
-   
 
    
 
 .. py:data:: FrequentItemsSketchMessageV0
-   
 
    
 
 .. py:data:: NumbersMessageV0
-   
 
    
 
 .. py:data:: CharPosMessage
-   
 
    
 
 .. py:data:: StringsMessageV0
-   
 
    
 
 .. py:data:: SchemaMessageV0
-   
 
    
 
 .. py:data:: ColumnMessageV0
-   
 
    
 
 .. py:data:: DatasetPropertiesV0
-   
 
    
 
 .. py:data:: ScoreMatrixMessage
-   
 
    
 
 .. py:data:: RegressionMetricsMessage
-   
 
    
 
 .. py:data:: ModelMetricsMessage
-   
 
    
 
 .. py:data:: ModelProfileMessage
-   
 
    
 
 .. py:data:: DatasetProfileMessageV0
-   
 
    
 
 .. py:data:: ColumnsChunkSegment
-   
 
    
 
 .. py:data:: DatasetMetadataSegment
-   
 
    
 
 .. py:data:: MessageSegment
-   
 
    
 
 .. py:data:: HllSketchMessageV0
-   
 
    
 
 .. py:data:: KllFloatsSketchMessage
-   
 
    
 

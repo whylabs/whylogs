@@ -38,29 +38,27 @@ Attributes
 
 
 .. py:data:: logger
-   
 
    
 
 .. py:data:: ReportResult
-   
 
    
 
 .. py:class:: MetricsSelector
 
    .. py:attribute:: metric_name
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: column_name
-      :annotation: :Optional[str]
+      :type: Optional[str]
 
       
 
    .. py:attribute:: metrics_resolver
-      :annotation: :Optional[Callable[[whylogs.core.view.dataset_profile_view.DatasetProfileView], List[whylogs.core.metrics.metrics.Metric]]]
+      :type: Optional[Callable[[whylogs.core.view.dataset_profile_view.DatasetProfileView], List[whylogs.core.metrics.metrics.Metric]]]
 
       
 
@@ -77,22 +75,23 @@ Attributes
 .. py:class:: MetricConstraint
 
    .. py:attribute:: condition
-      :annotation: :Callable[[whylogs.core.metrics.metrics.Metric], bool]
+      :type: Callable[[whylogs.core.metrics.metrics.Metric], bool]
 
       
 
    .. py:attribute:: name
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: metric_selector
-      :annotation: :MetricsSelector
+      :type: MetricsSelector
 
       
 
    .. py:attribute:: require_column_existence
-      :annotation: :bool = True
+      :type: bool
+      :value: True
 
       
 
@@ -106,17 +105,17 @@ Attributes
 .. py:class:: Constraints(dataset_profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None, column_constraints: Optional[Dict[str, Dict[str, MetricConstraint]]] = None)
 
    .. py:attribute:: column_constraints
-      :annotation: :Dict[str, Dict[str, MetricConstraint]]
+      :type: Dict[str, Dict[str, MetricConstraint]]
 
       
 
    .. py:attribute:: dataset_constraints
-      :annotation: :Dict[str, MetricConstraint]
+      :type: Dict[str, MetricConstraint]
 
       
 
    .. py:attribute:: dataset_profile_view
-      :annotation: :Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView]
+      :type: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView]
 
       
 

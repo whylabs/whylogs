@@ -46,52 +46,56 @@ Classes
    Ecommerce Dataset
 
    .. py:attribute:: baseline_df
-      :annotation: :pandas.DataFrame
+      :type: pandas.DataFrame
 
       
 
    .. py:attribute:: inference_df
-      :annotation: :pandas.DataFrame
+      :type: pandas.DataFrame
 
       
 
    .. py:attribute:: inference_interval
-      :annotation: :str = 1d
+      :type: str
+      :value: '1d'
 
       
 
    .. py:attribute:: number_days
-      :annotation: :int = 1
+      :type: int
+      :value: 1
 
       
 
    .. py:attribute:: unit
-      :annotation: :str = D
+      :type: str
+      :value: 'D'
 
       
 
    .. py:attribute:: url
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: baseline_timestamp
-      :annotation: :Union[datetime.date, datetime.datetime]
+      :type: Union[datetime.date, datetime.datetime]
 
       
 
    .. py:attribute:: inference_start_timestamp
-      :annotation: :Union[datetime.date, datetime.datetime]
+      :type: Union[datetime.date, datetime.datetime]
 
       
 
    .. py:attribute:: original
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: dataset_config
-      :annotation: :whylogs.datasets.configs.DatasetConfig
+      :type: whylogs.datasets.configs.DatasetConfig
 
       
 
@@ -160,52 +164,56 @@ Classes
    For a detailed description, please use the dataset's describe() method or visit whylog's documentation website.
 
    .. py:attribute:: baseline_df
-      :annotation: :pandas.DataFrame
+      :type: pandas.DataFrame
 
       
 
    .. py:attribute:: inference_df
-      :annotation: :pandas.DataFrame
+      :type: pandas.DataFrame
 
       
 
    .. py:attribute:: inference_interval
-      :annotation: :str = 1d
+      :type: str
+      :value: '1d'
 
       
 
    .. py:attribute:: number_days
-      :annotation: :int = 1
+      :type: int
+      :value: 1
 
       
 
    .. py:attribute:: unit
-      :annotation: :str = D
+      :type: str
+      :value: 'D'
 
       
 
    .. py:attribute:: url
-      :annotation: :str
+      :type: str
 
       
 
    .. py:attribute:: baseline_timestamp
-      :annotation: :Union[datetime.date, datetime.datetime]
+      :type: Union[datetime.date, datetime.datetime]
 
       
 
    .. py:attribute:: inference_start_timestamp
-      :annotation: :Union[datetime.date, datetime.datetime]
+      :type: Union[datetime.date, datetime.datetime]
 
       
 
    .. py:attribute:: original
-      :annotation: :bool = False
+      :type: bool
+      :value: False
 
       
 
    .. py:attribute:: dataset_config
-      :annotation: :whylogs.datasets.configs.DatasetConfig
+      :type: whylogs.datasets.configs.DatasetConfig
 
       
 

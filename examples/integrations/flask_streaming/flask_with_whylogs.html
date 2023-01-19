@@ -516,10 +516,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -909,7 +910,7 @@ Model saved as model.joblib
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>docker build --build-arg <span class="nv">PYTHON_VERSION</span><span class="o">=</span><span class="m">3</span>.9 -t whylogs-flask .
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>docker<span class="w"> </span>build<span class="w"> </span>--build-arg<span class="w"> </span><span class="nv">PYTHON_VERSION</span><span class="o">=</span><span class="m">3</span>.9<span class="w"> </span>-t<span class="w"> </span>whylogs-flask<span class="w"> </span>.
 </pre></div>
 </div>
 </div>
@@ -1012,7 +1013,7 @@ Use &#39;docker scan&#39; to run Snyk tests against images to find vulnerabiliti
 </pre></div></div>
 </div>
 <p>Huzzah!! It built! We have a docker image, but nothing is running yet. Open a terminal and execute the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -p <span class="m">5000</span>:5000 whylogs-flask
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-p<span class="w"> </span><span class="m">5000</span>:5000<span class="w"> </span>whylogs-flask
 </pre></div>
 </div>
 </section>
