@@ -90,7 +90,6 @@ def test_hellinger_on_empty_sketch():
 
 @pytest.mark.parametrize("target_col,reference_col,result", [([0], [5], 1.0), ([5], [5], 0.0), ([0], [0], 0.0)])
 def test_hellinger_single_value(target_col, reference_col, result):
-
     target = pd.DataFrame(data={"col": target_col})
     ref = pd.DataFrame(data={"col": reference_col})
 

@@ -24,5 +24,5 @@ def test_is_nullable_type(builder):
         ("weight is nullable boolean", 0, 1, None),
         ("weight is nullable object", 0, 1, None),
     ]
-    for (x, y) in zip(constraint.report(), constraint.generate_constraints_report()):
+    for x, y in zip(constraint.report(), constraint.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])

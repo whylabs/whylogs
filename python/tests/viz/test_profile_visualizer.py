@@ -140,7 +140,6 @@ def test_viz_constraints_report(
     max_less_than_equal_constraints: Constraints,
     tmp_path: str,
 ) -> None:
-
     test_output = os.path.join(tmp_path, "b18")
     visualization.write(
         rendered_html=visualization.constraints_report(max_less_than_equal_constraints),

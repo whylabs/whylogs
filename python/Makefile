@@ -19,7 +19,7 @@ build.proto.v0.dir := whylogs/core/proto/v0
 build.proto.v0 := $(patsubst $(src.proto.v0.dir)/%.proto,$(build.proto.v0.dir)/%_pb2.py,$(src.proto.v0))
 default: dist
 
-release: format lint test dist ## Compile distribution files and run all tests and checks.
+release: pre-commit test dist ## Compile distribution files and run all tests and checks.
 
 pre-commit: proto
 	@$(call i, Running pre-commit checks)
@@ -135,16 +135,12 @@ lint-fix: ## Automatically fix linting issues.
 	poetry run autoflake --in-place --remove-all-unused-imports --remove-unused-variables $(src.python) $(tst.python)
 
 format: ## Check style formatting.
-	@$(call i, Checking import formatting)
-	poetry run isort --check-only .
-	@$(call i, Checking code formatting)
-	poetry run black --check .
+	@$(call w, format is deprecated running pre-commit instead)
+	poetry run pre-commit run --all-files
 
-format-fix: ## Fix formatting with black. This updates files.
-	@$(call i, Formatting imports)
-	poetry run isort .
-	@$(call i, Formatting code)
-	poetry run black .
+format-fix: ## Fix formatting with pre-commit (black, isort, flake, + configured hooks).
+	@$(call w, format-fix is deprecated running pre-commit instead)
+	poetry run pre-commit run --all-files
 
 test: dist ## Run unit tests.
 	@$(call i, Running tests)
