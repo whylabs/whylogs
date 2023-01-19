@@ -110,6 +110,28 @@ Attributes
       :param -------:
 
 
+   .. py:method:: tag_output_columns(columns: List[str]) -> Tuple[bool, str]
+
+      Sets the list of columns as output columns for the specified dataset.
+
+      :param columns: The list of column names you want to tag as outputs.
+      :type columns: List[str]
+
+      :returns: Tuple with a boolean indicating success or failure: e.g. (True, "column prediction was updated to output") and string with status message.
+      :rtype: Tuple[bool, str]
+
+
+   .. py:method:: tag_input_columns(columns: List[str]) -> Tuple[bool, str]
+
+      Sets the list of columns as input columns for the specified dataset.
+
+      :param columns: The list of column names you want to tag as inputs.
+      :type columns: List[str]
+
+      :returns: Tuple with a boolean indicating success or failure: e.g. (True, "column [output_voltage] updated to input") and string with status message.
+      :rtype: Tuple[bool, str]
+
+
    .. py:method:: write_feature_weights(file: whylogs.core.feature_weights.FeatureWeights, **kwargs: Any) -> Tuple[bool, str]
 
       Put feature weights for the specified dataset.
