@@ -99,7 +99,6 @@ def test_condition_validator(credit_card_validator, transcriptions) -> None:
 
 
 def test_condition_validator_dataframe(credit_card_validator, transcriptions):
-
     df = pd.DataFrame(data=transcriptions, columns=["transcriptions"])
     validators = {"transcriptions": [credit_card_validator]}
 
