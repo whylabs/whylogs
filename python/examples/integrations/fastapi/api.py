@@ -32,7 +32,6 @@ class PredictRequest(BaseModel):
 
 # Create prediction function
 def make_prediction(model, features):
-
     results = model.predict(features)
     probs = model.predict_proba(features)
     result = results[0]
@@ -46,7 +45,6 @@ def make_prediction(model, features):
 # Create API endpoint
 @app.post("/predict")
 def predict(request: PredictRequest) -> JSONResponse:
-
     # Convert input data to list for model prediction
     data = jsonable_encoder(request)
     features = list(data.values())
