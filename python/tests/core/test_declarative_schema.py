@@ -173,7 +173,7 @@ def test_resolvers() -> None:
         pass
 
     data = {"column_1": 3.14, "column_2": "lmno", "column_3": 42, "column_4": UnknownType()}
-    for (reference_resolver, declarative_resolver) in params:
+    for reference_resolver, declarative_resolver in params:
         reference_results = why.log(row=data, schema=DatasetSchema(resolvers=reference_resolver)).view()
         declarative_standard_schema = DeclarativeSchema(declarative_resolver)
         declarative_results = why.log(row=data, schema=declarative_standard_schema).view()

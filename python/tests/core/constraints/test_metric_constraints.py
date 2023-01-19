@@ -110,7 +110,7 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
     assert len(report_results) == 2
     # ReportResult(name, passed, failed, summary)
     assert report_results[0] == ("legs less than 12", 1, 0, None)
-    for (x, y) in zip(constraints.report(), constraints.generate_constraints_report()):
+    for x, y in zip(constraints.report(), constraints.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
 
 
@@ -198,7 +198,7 @@ def test_same_constraint_on_multiple_columns(profile_view):
             ("greater_than_zero", 0, 1, None),
         ]
     )
-    for (x, y) in zip(constraints.report(), constraints.generate_constraints_report()):
+    for x, y in zip(constraints.report(), constraints.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
 
 
@@ -217,5 +217,5 @@ def test_constraints_report(pandas_constraint_dataframe) -> None:
     assert report[0].failed == 1
     assert report[0].summary["metric"] == "distribution"
     assert report[0].summary["min"] == 0
-    for (x, y) in zip(constraints.report(), constraints.generate_constraints_report()):
+    for x, y in zip(constraints.report(), constraints.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])

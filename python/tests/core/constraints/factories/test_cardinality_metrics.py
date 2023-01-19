@@ -11,7 +11,7 @@ def test_distinct_number_in_range(builder):
         ("legs distinct values estimate between 0.0 and 4.0 (inclusive)", 1, 0, None),
         ("legs distinct values estimate between 0.1 and 2.0 (inclusive)", 0, 1, None),
     ]
-    for (x, y) in zip(constraint.report(), constraint.generate_constraints_report()):
+    for x, y in zip(constraint.report(), constraint.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
 
 
@@ -25,5 +25,5 @@ def test_distinct_number_in_range_with_nans(nan_builder):
         ("a distinct values estimate between 0 and 5.0 (inclusive)", 1, 0, None),
         ("a distinct values estimate between 2.2 and 5.0 (inclusive)", 0, 1, None),
     ]
-    for (x, y) in zip(constraint.report(), constraint.generate_constraints_report()):
+    for x, y in zip(constraint.report(), constraint.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
