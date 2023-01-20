@@ -89,7 +89,7 @@ def test_greater_than_number(builder, nan_builder, empty_builder):
         ("animal greater than number 0.0", 1, 0, None),
         ("animal greater than number 0.5", 0, 1, None),
     ]
-    for (x, y) in zip(constraint.report(), constraint.generate_constraints_report()):
+    for x, y in zip(constraint.report(), constraint.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
 
     nan_builder.add_constraint(greater_than_number(column_name="a", number=2.2, skip_missing=False))
@@ -113,7 +113,7 @@ def test_smaller_than_number(builder, nan_builder, empty_builder):
         ("animal smaller than number 0.0", 1, 0, None),
         ("animal smaller than number 0.5", 0, 1, None),
     ]
-    for (x, y) in zip(constraint.report(), constraint.generate_constraints_report()):
+    for x, y in zip(constraint.report(), constraint.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
 
     nan_builder.add_constraint(smaller_than_number(column_name="a", number=2.2, skip_missing=False))
@@ -137,7 +137,7 @@ def test_mean_between_range(builder, nan_builder):
         ("animal mean between 0.0 and 1.0 (inclusive)", 1, 0, None),
         ("animal mean between 0.0 and 1.3 (inclusive)", 0, 1, None),
     ]
-    for (x, y) in zip(constraint.report(), constraint.generate_constraints_report()):
+    for x, y in zip(constraint.report(), constraint.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
 
     nan_builder.add_constraint(mean_between_range(column_name="a", lower=0.0, upper=1.3, skip_missing=False))
@@ -159,7 +159,7 @@ def test_stddev_between_range(builder, nan_builder):
         ("animal standard deviation between 0.0 and 1.0 (inclusive)", 1, 0, None),
         ("animal standard deviation between 0.0 and 1.3 (inclusive)", 0, 1, None),
     ]
-    for (x, y) in zip(constraint.report(), constraint.generate_constraints_report()):
+    for x, y in zip(constraint.report(), constraint.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
 
     nan_builder.add_constraint(stddev_between_range(column_name="a", lower=0.0, upper=1.3, skip_missing=False))
@@ -189,7 +189,7 @@ def test_quantile_between_range(builder, nan_builder):
         ("animal 0.5-th quantile value between 0.0 and 5.2 (inclusive)", 1, 0, None),
         ("animal 0.5-th quantile value between 0.0 and 5.0 (inclusive)", 0, 1, None),
     ]
-    for (x, y) in zip(constraint.report(), constraint.generate_constraints_report()):
+    for x, y in zip(constraint.report(), constraint.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
 
     nan_builder.add_constraint(

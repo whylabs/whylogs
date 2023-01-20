@@ -1,0 +1,6 @@
+whylogs[whylabs]
+fastapi
+joblib
+scikit-learn
+uvicorn
+pandas

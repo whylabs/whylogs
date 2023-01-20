@@ -75,7 +75,7 @@ class DatasetSchema:
         cache_size: int = 1024,
         schema_based_automerge: bool = False,
         segments: Optional[Dict[str, SegmentationPartition]] = None,
-        validators: Dict[str, List[Validator]] = None,
+        validators: Optional[Dict[str, List[Validator]]] = None,
     ) -> None:
         self._columns = dict()
         self.types = types or dict()

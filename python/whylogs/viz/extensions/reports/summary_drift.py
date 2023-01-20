@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class SummaryDriftReport(HTMLReport):
-
     _drift_map: Optional[Dict[str, column_drift_algorithms.ColumnDriftAlgorithm]] = None
 
     def __init__(self, ref_view: DatasetProfileView, target_view: DatasetProfileView, height: Optional[str] = None):

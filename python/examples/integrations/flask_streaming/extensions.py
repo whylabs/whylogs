@@ -3,7 +3,6 @@ from flasgger import Swagger  # type: ignore
 
 
 def init_swagger(app):  # type: ignore
-
     swagger_dict = yaml.safe_load(open("swagger.yaml"))
     swagger_dict["host"] = app.config["SWAGGER_HOST"]
     swagger_dict["basePath"] = app.config["SWAGGER_BASEPATH"]
