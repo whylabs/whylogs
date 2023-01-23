@@ -2,11 +2,13 @@
 A read/write library for length-delimited protobuf messages.
 
 Based on: https://github.com/soulmachine/delimited-protobuf/blob/main/delimited_protobuf.py"""
+from logging import getLogger
 from typing import IO, Type, TypeVar
 
-from google.protobuf.message import Message
+from google.protobuf.message import DecodeError, Message
 
 T = TypeVar("T", bound=Message)
+logger = getLogger(__name__)
 
 
 def _read_varint(stream: IO[bytes], offset: int = 0) -> int:
@@ -34,7 +36,16 @@ def read_delimited_protobuf(stream: IO[bytes], proto_class_name: Type[T], offset
         return proto_class_name()
     buf = stream.read(size)
     msg = proto_class_name()
-    msg.ParseFromString(buf)
+    try:
+        msg.ParseFromString(buf)
+    except DecodeError as decode_error:
+        logger.warning(
+            f"{decode_error}: when reading delimited protobuf file of size "
+            f"{size} bytes as {proto_class_name}, falling back to non-delimited read."
+        )
+        stream.seek(0)
+        buf = stream.read()
+        msg.ParseFromString(buf)
     return msg
 
 
