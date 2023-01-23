@@ -4,6 +4,8 @@ whylogs v1 has been released on **May 31st, 2022**. While this release represent
 
 Users can visit this [migration guide](https://docs.whylabs.ai/docs/v1-migration/) to assist with migrating their code to whylogs v1.
 
+If you need to convert a serialized v0 profile to a v1 profile, please check our [v0-to-v1 converter example](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/converting_v0_to_v1.ipynb).
+
 ## What’s New With whylogs v1
 
 
