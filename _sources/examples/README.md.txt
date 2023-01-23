@@ -86,6 +86,7 @@ Here you will find more advanced use-cases for `whylogs`, and you will learn how
 | [Segments](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Segments.ipynb)                                                                                 | Segment your data to improve visibility to the sub-group level                            |
 | [Metric Constraints with Condition Count Metrics](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Metric_Constraints_with_Condition_Count_Metrics.ipynb)   | Build Metric Constraints on top of Condition Count Metrics                                |
 | [Drift Algorithm Configuration](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Drift_Algorithm_Configuration.ipynb)                                       | Choose different drift algorithms and internal parameters for drift detection             |
+| [Converting profiles from v0 to v1](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/converting_v0_to_v1.ipynb)                                             | Convert whylogs v0 profiles to v1 profiles                                                |
 
 ## 📓 Benchmarks
 
