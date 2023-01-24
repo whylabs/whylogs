@@ -7,6 +7,8 @@ from typing import IO, Type, TypeVar
 
 from google.protobuf.message import DecodeError, Message
 
+from whylogs.core.errors import DeserializationError
+
 T = TypeVar("T", bound=Message)
 logger = getLogger(__name__)
 
@@ -45,7 +47,12 @@ def read_delimited_protobuf(stream: IO[bytes], proto_class_name: Type[T], offset
         )
         stream.seek(0)
         buf = stream.read()
-        msg.ParseFromString(buf)
+        try:
+            msg.ParseFromString(buf)
+        except Exception as e:
+            logger.error(f"{e}: Occured during attempted fallback read of {proto_class_name}.")
+            raise DeserializationError(f"Failed fallback attempt to read {proto_class_name}:{e}")
+
     return msg
 
 
