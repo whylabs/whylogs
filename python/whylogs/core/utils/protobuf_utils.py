@@ -9,7 +9,6 @@ from google.protobuf.message import DecodeError, Message
 
 from whylogs.core.errors import DeserializationError
 
-
 T = TypeVar("T", bound=Message)
 logger = getLogger(__name__)
 
