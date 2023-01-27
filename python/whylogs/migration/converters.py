@@ -107,7 +107,7 @@ def _generate_segment_tags_metadata(
     return segment_message_tags, segment_tags, segment_metadata
 
 
-def read_v0_to_view(path: str, allow_partial: bool = True) -> DatasetProfileView:
+def read_v0_to_view(path: str, allow_partial: bool = False) -> DatasetProfileView:
     with open(path, "r+b") as f:
         v0_msg = read_delimited_protobuf(f, DatasetProfileMessageV0)
         if v0_msg is None:
