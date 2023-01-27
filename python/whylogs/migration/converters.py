@@ -23,7 +23,8 @@ from whylogs.core.metrics.metric_components import (
     MaxIntegralComponent,
     MinIntegralComponent,
 )
-from whylogs.core.metrics.metrics import CardinalityMetric
+from whylogs.core.metrics.metrics import CardinalityMetric, Metric
+from whylogs.core.model_performance_metrics import ModelPerformanceMetrics
 from whylogs.core.proto import SegmentTag
 from whylogs.core.proto.v0 import (
     ColumnMessageV0,
@@ -41,6 +42,7 @@ from whylogs.core.segment import Segment
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.utils import read_delimited_protobuf
 from whylogs.core.utils.timestamp_calculations import to_utc_milliseconds
+from whylogs.core.view.dataset_profile_view import _TAG_PREFIX
 
 _DEFAULT_V0_LG_MAX_K = 12
 _DEFAULT_V0_KLL_K = 128
@@ -60,7 +62,6 @@ PARTITION_NAME = "segp_name"
 PARTITION_HAS_FILTER = "segp_filter"
 SEGMENT_ON_COLUMN = "segp_col"
 SEGMENT_ON_COLUMNS = "segp_cols"
-_TAG_PREFIX = "whylogs.tag."
 
 
 def _generate_segment_tags_metadata(
@@ -106,50 +107,79 @@ def _generate_segment_tags_metadata(
     return segment_message_tags, segment_tags, segment_metadata
 
 
-def read_v0_to_view(path: str) -> DatasetProfileView:
+def read_v0_to_view(path: str, allow_partial: bool = False) -> DatasetProfileView:
     with open(path, "r+b") as f:
         v0_msg = read_delimited_protobuf(f, DatasetProfileMessageV0)
         if v0_msg is None:
             raise DeserializationError("Unexpected empty message")
-        return v0_to_v1_view(v0_msg)
+        return v0_to_v1_view(v0_msg, allow_partial)
 
 
-def v0_to_v1_view(msg: DatasetProfileMessageV0) -> DatasetProfileView:
+def v0_to_v1_view(msg: DatasetProfileMessageV0, allow_partial: bool = False) -> DatasetProfileView:
     columns: Dict[str, ColumnProfileView] = {}
 
     dataset_timestamp = datetime.datetime.fromtimestamp(msg.properties.data_timestamp / 1000.0, datetime.timezone.utc)
     creation_timestamp = datetime.datetime.fromtimestamp(
         msg.properties.session_timestamp / 1000.0, datetime.timezone.utc
     )
-
+    aggregated_errors: Dict[str, Dict[str, str]] = dict()
     for col_name, col_msg in msg.columns.items():
-        dist_metric = _extract_dist_metric(col_msg)
-        fs = FrequentStringsComponent(ds.frequent_strings_sketch.deserialize(col_msg.frequent_items.sketch))
-        fi_metric = FrequentItemsMetric(frequent_strings=fs)
-        count_metrics = _extract_col_counts(col_msg)
-        type_counters_metric = _extract_type_counts_metric(col_msg)
-        cardinality_metric = _extract_cardinality_metric(col_msg)
-        int_metric = _extract_ints_metric(col_msg)
+        extracted_metrics: Dict[str, Metric] = dict()
+        failed_metrics: Dict[str, str] = dict()
+        extracted_metrics[StandardMetric.distribution.name] = _extract_dist_metric(col_msg)
+        extracted_metrics[StandardMetric.counts.name] = _extract_col_counts(col_msg)
+        extracted_metrics[StandardMetric.types.name] = _extract_type_counts_metric(col_msg)
+        extracted_metrics[StandardMetric.cardinality.name] = _extract_cardinality_metric(col_msg)
+        extracted_metrics[StandardMetric.ints.name] = _extract_ints_metric(col_msg)
 
-        columns[col_name] = ColumnProfileView(
-            metrics={
-                StandardMetric.distribution.name: dist_metric,
-                StandardMetric.frequent_items.name: fi_metric,
-                StandardMetric.counts.name: count_metrics,
-                StandardMetric.types.name: type_counters_metric,
-                StandardMetric.cardinality.name: cardinality_metric,
-                StandardMetric.ints.name: int_metric,
-            }
-        )
+        try:
+            fs = FrequentStringsComponent(ds.frequent_strings_sketch.deserialize(col_msg.frequent_items.sketch))
+            extracted_metrics[StandardMetric.frequent_items.name] = FrequentItemsMetric(frequent_strings=fs)
+        except Exception as e:
+            failure_message = (
+                f"Failed extracting ({StandardMetric.frequent_items.name}) metric from v0 profile. "
+                f"Column: {col_name}: encountered {e}."
+            )
+            logger.error(failure_message)
+            if allow_partial:
+                failed_metrics[StandardMetric.frequent_items.name] = f"{e}"
+            else:
+                raise DeserializationError(failure_message)
+        if failed_metrics:
+            aggregated_errors[col_name] = failed_metrics
+
+        columns[col_name] = ColumnProfileView(metrics=extracted_metrics)
+    if aggregated_errors:
+        warning_message = [f"column: {str(col)}->{aggregated_errors[col]}" for col in aggregated_errors]
+        logger.warning(f"Encountered errors while converting to v1: {warning_message}")
+    else:
+        logger.info("Successfully converted v0 metrics to v1!")
+
+    metadata = None
+
+    if msg.properties.metadata:
+        logger.info(f"Found and copied over metadata from v0 message: {msg.properties.metadata}")
+        metadata = dict(msg.properties.metadata)
 
     if msg.properties.tags:
-        logger.info(
-            f"Found tags in v0 message, ignoring while converting to v1 DatasetProfileView: {msg.properties.tags}"
+        logger.warning(
+            f"Found tags in v0 message, these will be moved to the metadata collection in DatasetProfileView: {msg.properties.tags}"
         )
+        if metadata is None:
+            metadata = dict(msg.properties.tags)
+        else:
+            metadata.update(dict(msg.properties.tags))
 
-    return DatasetProfileView(
-        columns=columns, dataset_timestamp=dataset_timestamp, creation_timestamp=creation_timestamp
+    converted_profile = DatasetProfileView(
+        columns=columns, dataset_timestamp=dataset_timestamp, creation_timestamp=creation_timestamp, metadata=metadata
     )
+
+    if msg.modeProfile:
+        logger.info("Found ModelPerformanceMetrics in v0 message, adding to converted v1 view.")
+        perf_metrics = ModelPerformanceMetrics.from_protobuf(msg.modeProfile)
+        converted_profile.add_model_performance_metrics(perf_metrics)
+
+    return converted_profile
 
 
 def _extract_ints_metric(msg: ColumnMessageV0) -> IntsMetric:

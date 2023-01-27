@@ -35,6 +35,7 @@ WHYLOGS_MAGIC_HEADER_LEN = 4
 
 WHYLOGS_MAGIC_HEADER_BYTES = WHYLOGS_MAGIC_HEADER.encode("utf-8")
 _MODEL_PERFORMANCE = "model_performance_metrics"
+_TAG_PREFIX = "whylogs.tag."
 
 logger = logging.getLogger(__name__)
 
@@ -204,6 +205,27 @@ class DatasetProfileView(Writable):
                 self._do_write(out_f)
         return True, path
 
+    @staticmethod
+    def _split_tags_and_metadata(
+        tags: Optional[Dict[str, str]]
+    ) -> Tuple[Optional[Dict[str, str]], Optional[Dict[str, str]]]:
+        # nothing to split, return (None, None)
+        # for use in serializing dataset property's tags and metadata
+        if not tags:
+            return None, None
+        message_tags: Optional[Dict[str, str]] = None
+        metadata: Dict[str, str] = dict(tags)
+        tag_keys: List[str] = list()
+        for key, value in metadata.items():
+            if key and key.startswith(_TAG_PREFIX):
+                if message_tags is None:
+                    message_tags = dict()
+                message_tags[key] = value
+                tag_keys.append(key)
+        for key in tag_keys:
+            metadata.pop(key)
+        return message_tags, metadata
+
     def _do_write(self, out_f: BinaryIO) -> Tuple[bool, str]:
         all_metric_component_names = set()
         # capture the list of all metric component paths
@@ -240,10 +262,13 @@ class DatasetProfileView(Writable):
 
             total_len = f.tell()
             f.flush()
+            tags, metadata = DatasetProfileView._split_tags_and_metadata(self._metadata)
 
             properties = DatasetProperties(
                 dataset_timestamp=to_utc_milliseconds(self._dataset_timestamp),
                 creation_timestamp=to_utc_milliseconds(self._creation_timestamp),
+                tags=tags,
+                metadata=metadata,
             )
             dataset_header = DatasetProfileHeader(
                 column_offsets=column_chunk_offsets,
