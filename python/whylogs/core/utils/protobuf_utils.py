@@ -12,6 +12,7 @@ from whylogs.core.errors import DeserializationError
 
 T = TypeVar("T", bound=Message)
 logger = getLogger(__name__)
+_DECODE_ERROR_STRING = "Unexpected end-group tag"
 
 
 def _read_varint(stream: IO[bytes], offset: int = 0) -> int:
@@ -58,12 +59,12 @@ def read_delimited_protobuf(stream: IO[bytes], proto_class_name: Type[T], offset
                     logger.info(
                         f"Encountered RuntimeWarning when reading delimited file: {w.message}, retrying to read profile as non-delimited file."
                     )
-
-                    delimited_read_failure = True
-                    break
+                    if _DECODE_ERROR_STRING in str(w.message):
+                        delimited_read_failure = True
+                        break
             if not delimited_read_failure:
                 logger.info(
-                    f"Encountered {len(warning_messages)} warnings, e.g. {warning_messages[-1].category} but no RuntimeWarning detected, "
+                    f"Encountered {len(warning_messages)} warnings, e.g. {warning_messages[-1].message} but no DecodeError message detected, "
                     "proceeding with the already delimited parsed file."
                 )
 
