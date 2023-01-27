@@ -422,7 +422,8 @@
     <span class="n">MaxIntegralComponent</span><span class="p">,</span>
     <span class="n">MinIntegralComponent</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">CardinalityMetric</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">CardinalityMetric</span><span class="p">,</span> <span class="n">Metric</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.model_performance_metrics</span> <span class="kn">import</span> <span class="n">ModelPerformanceMetrics</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.proto</span> <span class="kn">import</span> <span class="n">SegmentTag</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.proto.v0</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ColumnMessageV0</span><span class="p">,</span>
@@ -440,6 +441,7 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">SegmentationPartition</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.utils</span> <span class="kn">import</span> <span class="n">read_delimited_protobuf</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.utils.timestamp_calculations</span> <span class="kn">import</span> <span class="n">to_utc_milliseconds</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.view.dataset_profile_view</span> <span class="kn">import</span> <span class="n">_TAG_PREFIX</span>
 
 <span class="n">_DEFAULT_V0_LG_MAX_K</span> <span class="o">=</span> <span class="mi">12</span>
 <span class="n">_DEFAULT_V0_KLL_K</span> <span class="o">=</span> <span class="mi">128</span>
@@ -459,7 +461,6 @@
 <span class="n">PARTITION_HAS_FILTER</span> <span class="o">=</span> <span class="s2">&quot;segp_filter&quot;</span>
 <span class="n">SEGMENT_ON_COLUMN</span> <span class="o">=</span> <span class="s2">&quot;segp_col&quot;</span>
 <span class="n">SEGMENT_ON_COLUMNS</span> <span class="o">=</span> <span class="s2">&quot;segp_cols&quot;</span>
-<span class="n">_TAG_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;whylogs.tag.&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">_generate_segment_tags_metadata</span><span class="p">(</span>
@@ -505,50 +506,79 @@
     <span class="k">return</span> <span class="n">segment_message_tags</span><span class="p">,</span> <span class="n">segment_tags</span><span class="p">,</span> <span class="n">segment_metadata</span>
 
 
-<div class="viewcode-block" id="read_v0_to_view"><a class="viewcode-back" href="../../../api/whylogs/migration/converters/index.html#whylogs.read_v0_to_view">[docs]</a><span class="k">def</span> <span class="nf">read_v0_to_view</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
+<div class="viewcode-block" id="read_v0_to_view"><a class="viewcode-back" href="../../../api/whylogs/migration/converters/index.html#whylogs.read_v0_to_view">[docs]</a><span class="k">def</span> <span class="nf">read_v0_to_view</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">allow_partial</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">v0_msg</span> <span class="o">=</span> <span class="n">read_delimited_protobuf</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">DatasetProfileMessageV0</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">v0_msg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="s2">&quot;Unexpected empty message&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">v0_to_v1_view</span><span class="p">(</span><span class="n">v0_msg</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">v0_to_v1_view</span><span class="p">(</span><span class="n">v0_msg</span><span class="p">,</span> <span class="n">allow_partial</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="v0_to_v1_view"><a class="viewcode-back" href="../../../api/whylogs/migration/converters/index.html#whylogs.v0_to_v1_view">[docs]</a><span class="k">def</span> <span class="nf">v0_to_v1_view</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">DatasetProfileMessageV0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
+<div class="viewcode-block" id="v0_to_v1_view"><a class="viewcode-back" href="../../../api/whylogs/migration/converters/index.html#whylogs.v0_to_v1_view">[docs]</a><span class="k">def</span> <span class="nf">v0_to_v1_view</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">DatasetProfileMessageV0</span><span class="p">,</span> <span class="n">allow_partial</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
     <span class="n">columns</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="n">dataset_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">data_timestamp</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
     <span class="n">creation_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span>
         <span class="n">msg</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">session_timestamp</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span>
     <span class="p">)</span>
-
+    <span class="n">aggregated_errors</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">col_msg</span> <span class="ow">in</span> <span class="n">msg</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">dist_metric</span> <span class="o">=</span> <span class="n">_extract_dist_metric</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
-        <span class="n">fs</span> <span class="o">=</span> <span class="n">FrequentStringsComponent</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">frequent_strings_sketch</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">col_msg</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">sketch</span><span class="p">))</span>
-        <span class="n">fi_metric</span> <span class="o">=</span> <span class="n">FrequentItemsMetric</span><span class="p">(</span><span class="n">frequent_strings</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
-        <span class="n">count_metrics</span> <span class="o">=</span> <span class="n">_extract_col_counts</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
-        <span class="n">type_counters_metric</span> <span class="o">=</span> <span class="n">_extract_type_counts_metric</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
-        <span class="n">cardinality_metric</span> <span class="o">=</span> <span class="n">_extract_cardinality_metric</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
-        <span class="n">int_metric</span> <span class="o">=</span> <span class="n">_extract_ints_metric</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
+        <span class="n">extracted_metrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">failed_metrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">extracted_metrics</span><span class="p">[</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_extract_dist_metric</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
+        <span class="n">extracted_metrics</span><span class="p">[</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">counts</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_extract_col_counts</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
+        <span class="n">extracted_metrics</span><span class="p">[</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_extract_type_counts_metric</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
+        <span class="n">extracted_metrics</span><span class="p">[</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_extract_cardinality_metric</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
+        <span class="n">extracted_metrics</span><span class="p">[</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">ints</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_extract_ints_metric</span><span class="p">(</span><span class="n">col_msg</span><span class="p">)</span>
 
-        <span class="n">columns</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnProfileView</span><span class="p">(</span>
-            <span class="n">metrics</span><span class="o">=</span><span class="p">{</span>
-                <span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">dist_metric</span><span class="p">,</span>
-                <span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">fi_metric</span><span class="p">,</span>
-                <span class="n">StandardMetric</span><span class="o">.</span><span class="n">counts</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">count_metrics</span><span class="p">,</span>
-                <span class="n">StandardMetric</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">type_counters_metric</span><span class="p">,</span>
-                <span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">cardinality_metric</span><span class="p">,</span>
-                <span class="n">StandardMetric</span><span class="o">.</span><span class="n">ints</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">int_metric</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fs</span> <span class="o">=</span> <span class="n">FrequentStringsComponent</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">frequent_strings_sketch</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">col_msg</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">sketch</span><span class="p">))</span>
+            <span class="n">extracted_metrics</span><span class="p">[</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">FrequentItemsMetric</span><span class="p">(</span><span class="n">frequent_strings</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">failure_message</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed extracting (</span><span class="si">{</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">) metric from v0 profile. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Column: </span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">: encountered </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">failure_message</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">allow_partial</span><span class="p">:</span>
+                <span class="n">failed_metrics</span><span class="p">[</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="n">failure_message</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">failed_metrics</span><span class="p">:</span>
+            <span class="n">aggregated_errors</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">failed_metrics</span>
+
+        <span class="n">columns</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnProfileView</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="n">extracted_metrics</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">aggregated_errors</span><span class="p">:</span>
+        <span class="n">warning_message</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;column: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="n">aggregated_errors</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">aggregated_errors</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Encountered errors while converting to v1: </span><span class="si">{</span><span class="n">warning_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Successfully converted v0 metrics to v1!&quot;</span><span class="p">)</span>
+
+    <span class="n">metadata</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found and copied over metadata from v0 message: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">metadata</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Found tags in v0 message, ignoring while converting to v1 DatasetProfileView: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Found tags in v0 message, these will be moved to the metadata collection in DatasetProfileView: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">tags</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="n">DatasetProfileView</span><span class="p">(</span>
-        <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">,</span> <span class="n">creation_timestamp</span><span class="o">=</span><span class="n">creation_timestamp</span>
-    <span class="p">)</span></div>
+    <span class="n">converted_profile</span> <span class="o">=</span> <span class="n">DatasetProfileView</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">,</span> <span class="n">creation_timestamp</span><span class="o">=</span><span class="n">creation_timestamp</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">modeProfile</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Found ModelPerformanceMetrics in v0 message, adding to converted v1 view.&quot;</span><span class="p">)</span>
+        <span class="n">perf_metrics</span> <span class="o">=</span> <span class="n">ModelPerformanceMetrics</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">modeProfile</span><span class="p">)</span>
+        <span class="n">converted_profile</span><span class="o">.</span><span class="n">add_model_performance_metrics</span><span class="p">(</span><span class="n">perf_metrics</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">converted_profile</span></div>
 
 
 <span class="k">def</span> <span class="nf">_extract_ints_metric</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">ColumnMessageV0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IntsMetric</span><span class="p">:</span>

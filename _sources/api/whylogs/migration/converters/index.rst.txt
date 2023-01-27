@@ -85,10 +85,10 @@ Attributes
 
    
 
-.. py:function:: read_v0_to_view(path: str) -> whylogs.core.DatasetProfileView
+.. py:function:: read_v0_to_view(path: str, allow_partial: bool = False) -> whylogs.core.DatasetProfileView
 
 
-.. py:function:: v0_to_v1_view(msg: whylogs.core.proto.v0.DatasetProfileMessageV0) -> whylogs.core.DatasetProfileView
+.. py:function:: v0_to_v1_view(msg: whylogs.core.proto.v0.DatasetProfileMessageV0, allow_partial: bool = False) -> whylogs.core.DatasetProfileView
 
 
 .. py:function:: v1_to_dataset_profile_message_v0(profile_view: whylogs.core.DatasetProfileView, segment: Optional[whylogs.core.segment.Segment], partition: Optional[whylogs.core.segmentation_partition.SegmentationPartition]) -> whylogs.core.proto.v0.DatasetProfileMessageV0

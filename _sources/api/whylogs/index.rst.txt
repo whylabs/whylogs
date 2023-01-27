@@ -213,7 +213,7 @@ Functions
 
 
 
-.. py:function:: v0_to_v1_view(msg: whylogs.core.proto.v0.DatasetProfileMessageV0) -> whylogs.core.DatasetProfileView
+.. py:function:: v0_to_v1_view(msg: whylogs.core.proto.v0.DatasetProfileMessageV0, allow_partial: bool = False) -> whylogs.core.DatasetProfileView
 
 
 .. py:function:: package_version(package: str = __package__) -> str
