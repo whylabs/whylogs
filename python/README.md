@@ -220,9 +220,9 @@ whylogs supports both structured and unstructured data, specifically:
 | Data type        | Features | Notebook Example                                                                                                                                                |
 | ---------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Tabular Data     | ✅       | [Getting started with structured data](https://github.com/whylabs/whylogs/blob/mainline/python/examples/basic/Getting_Started.ipynb)                            |
-| Image Data       | ✅       | [Getting started with images](https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/examples/logging_images.ipynb)                                          |
+| Image Data       | ✅       | [Getting started with images](https://github.com/whylabs/whylogs/blob/mainline/python/examples/advanced/Image_Logging.ipynb)                                    |
 | Text Data        | ✅       | [String Features](https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/examples/String_Features.ipynb)                                                     |
-| Embeddings       | 🛠        |                                                                                                                                                                 |
+| Embeddings       | ✅       | [Embeddings Distance Logging](https://github.com/whylabs/whylogs/blob/mainline/python/examples/experimental/embeddings/Embeddings_Distance_Logging.ipynb)       |
 | Other Data Types | ✋       | Do you have a request for a data type that you don’t see listed here? Raise an issue or join our Slack community and make a request! We’re always happy to help |
 
 ## Integrations
