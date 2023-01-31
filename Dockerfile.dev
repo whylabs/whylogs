@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM python:3.8
 
 RUN mkdir /workspace && \
     apt update && \
@@ -33,8 +33,8 @@ RUN apt install less -y && \
 USER whyuser
 
 WORKDIR /home/whyuser
-RUN curl -sSL https://install.python-poetry.org | python3 - && \
-    echo source /home/whyuser/.poetry/env >> .bashrc
+RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.2.1 && \
+    echo 'export PATH="$PATH:$HOME/.local/bin"' >> .bashrc
 
 WORKDIR /workspace
 CMD [ "bash" ]
