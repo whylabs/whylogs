@@ -57,6 +57,7 @@ class MetricConfig:
     )
     lower_case: bool = True  # Convert Unicode characters to lower-case before counting Unicode ranges
     normalize: bool = True  # Unicode normalize strings before counting Unicode ranges
+    max_frequent_item_size: int = 128
 
 
 _METRIC_DESERIALIZER_REGISTRY: Dict[str, Type[METRIC]] = {}  # type: ignore
@@ -446,6 +447,7 @@ class FrequentItem:
 @dataclass(frozen=True)
 class FrequentItemsMetric(Metric):
     frequent_strings: FrequentStringsComponent
+    max_frequent_item_size: int = 128
 
     @property
     def namespace(self) -> str:
@@ -460,7 +462,8 @@ class FrequentItemsMetric(Metric):
                 self.frequent_strings.value.update_np(arr)
                 successes += len(arr)
         if view.pandas.strings is not None:
-            self.frequent_strings.value.update_str_list(view.pandas.strings.to_list())
+            strings = [s[0 : self.max_frequent_item_size] for s in view.pandas.strings.to_list()]
+            self.frequent_strings.value.update_str_list(strings)
             successes += len(view.pandas.strings)
 
         if view.list.ints is not None:
@@ -472,7 +475,8 @@ class FrequentItemsMetric(Metric):
             successes += len(view.list.floats)
 
         if view.list.strings is not None:
-            self.frequent_strings.value.update_str_list(view.list.strings)
+            strings = [s[0 : self.max_frequent_item_size] for s in view.list.strings]
+            self.frequent_strings.value.update_str_list(strings)
             successes += len(view.list.strings)
 
         failures = 0
@@ -506,7 +510,9 @@ class FrequentItemsMetric(Metric):
     def zero(cls, config: Optional[MetricConfig] = None) -> "FrequentItemsMetric":
         config = config or MetricConfig()
         sk = ds.frequent_strings_sketch(lg_max_k=config.fi_lg_max_k)
-        return FrequentItemsMetric(frequent_strings=FrequentStringsComponent(sk))
+        return FrequentItemsMetric(
+            frequent_strings=FrequentStringsComponent(sk), max_frequent_item_size=config.max_frequent_item_size
+        )
 
 
 register_metric(FrequentItemsMetric)

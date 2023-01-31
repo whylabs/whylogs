@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 import whylogs as why
-from whylogs.core import ColumnProfileView
+from whylogs.core import ColumnProfileView, DatasetSchema
 from whylogs.core.metrics.maths import VarianceM2Result, parallel_variance_m2
 from whylogs.core.metrics.metrics import (
     CardinalityMetric,
@@ -166,6 +166,20 @@ def test_frequent_items_bounds_order() -> None:
     res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
     fi_tuple = res.array[0][0]
     assert fi_tuple.lower <= fi_tuple.est <= fi_tuple.upper
+
+
+@pytest.mark.parametrize(
+    "config, limit",
+    [
+        (MetricConfig(), MetricConfig().max_frequent_item_size),
+        (MetricConfig(max_frequent_item_size=50), 50),
+    ],
+)
+def test_frequent_item_max_size(config: MetricConfig, limit: int) -> None:
+    df = pd.DataFrame({"str": ["X" * 200]})
+    schema = DatasetSchema(default_configs=config)
+    res = why.log(df, schema=schema).view().to_pandas()["frequent_items/frequent_strings"]
+    assert len(res.array[0][0].value) <= limit
 
 
 def test_cardinality_metric_booleans() -> None:
