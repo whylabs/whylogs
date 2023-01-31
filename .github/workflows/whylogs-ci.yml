@@ -82,8 +82,12 @@ jobs:
           *) echo "Incorrect Poetry virtualenv." && exit 1 ;;
           esac
 
-      - name: Run build, style, and lint checks
-        run: make release
+      - name: Run pre-commit checks
+        if: ${{ matrix.python-version == 3.8 }}
+        run: make pre-commit
+
+      - name: Run build and test
+        run: make test
 
       - name: Smoke test wheel in client environment
         run: |
