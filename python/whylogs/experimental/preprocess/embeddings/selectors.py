@@ -1,5 +1,6 @@
-import numpy as np
+from typing import Optional
 
+import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
@@ -9,18 +10,18 @@ class ReferenceSelector:
         self.n_references = 0
         self.ref_labels = None
 
-    def calculate_references(self, X: np.array, y: np.array):
+    def calculate_references(self, X: np.ndarray, y: Optional[np.ndarray]):
         raise NotImplementedError()
 
 
 class PCACentroidsSelector(ReferenceSelector):
-    def __init__(self, n_components=2, lower_percentile_limit=0, upper_percentile_limit=0):
+    def __init__(self, n_components: int = 2, lower_percentile_limit: float = 0, upper_percentile_limit: float = 0):
         super().__init__()
         self.n_components = n_components
         self.lower_percentile_limit = lower_percentile_limit
         self.upper_percentile_limit = upper_percentile_limit
 
-    def calculate_references(self, X: np.array, y: np.array):
+    def calculate_references(self, X: np.ndarray, y: Optional[np.ndarray]):
         # Fit PCA
         pca = PCA(n_components=self.n_components)
         X_pca = pca.fit_transform(X)
@@ -38,7 +39,7 @@ class PCACentroidsSelector(ReferenceSelector):
                 up = np.percentile(filtered_X_pca, self.upper_percentile_limit)
                 filtered_X_pca = filtered_X_pca[(lp < filtered_X_pca) & (filtered_X_pca < up)]
             refs[i] = filtered_X_pca.mean(axis=0)
-        refs = np.array(refs)
+        refs = np.array(refs).tolist()
 
         # Convert centroids back to raw space
         raw_refs = pca.inverse_transform(refs)
@@ -47,13 +48,13 @@ class PCACentroidsSelector(ReferenceSelector):
 
 
 class PCAKMeansSelector(ReferenceSelector):
-    def __init__(self, n_clusters=8, n_components=2, kmeans_kwargs={}):
+    def __init__(self, n_clusters: int = 8, n_components: int = 2, kmeans_kwargs={}):
         super().__init__()
         self.n_clusters = n_clusters
         self.n_components = n_components
         self.kmeans_kwargs = kmeans_kwargs
 
-    def calculate_references(self, X: np.array, y: np.array):
+    def calculate_references(self, X: np.ndarray, y: Optional[np.ndarray] = None):
         self.n_references = self.n_clusters
         self.ref_labels = list(range(self.n_clusters))
 

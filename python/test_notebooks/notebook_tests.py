@@ -20,7 +20,7 @@ skip_notebooks = [
     "Writing_Feature_Weights_to_WhyLabs.ipynb",
     "Image_Logging.ipynb",
     "mnist_exploration.ipynb",
-    "Embeddings_Distance_Logging.ipynb"  # skipped due to data download
+    "Embeddings_Distance_Logging.ipynb",  # skipped due to data download
 ]
 
 
