@@ -220,6 +220,7 @@ class DeclarativeSchema(DatasetSchema):
         cache_size: int = 1024,
         schema_based_automerge: bool = False,
         segments: Optional[Dict[str, SegmentationPartition]] = None,
+        validators: Optional[Dict[str, List[Validator]]] = None,
     ) -> None:
         if not resolvers:
             logger.warning("No columns specified in DeclarativeSchema")
@@ -232,4 +233,5 @@ class DeclarativeSchema(DatasetSchema):
             cache_size=cache_size,
             schema_based_automerge=schema_based_automerge,
             segments=segments,
+            validators=validators,
         )
