@@ -152,6 +152,12 @@ Attributes
 
       
 
+   .. py:attribute:: max_frequent_item_size
+      :type: int
+      :value: 128
+
+      
+
 
 .. py:class:: ConditionCountMetric
 

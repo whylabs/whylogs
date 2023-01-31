@@ -1366,6 +1366,11 @@ inheritance.</p>
 <span class="sig-name descname"><span class="pre">frequent_strings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="metric_components/index.html#whylogs.core.metrics.metric_components.FrequentStringsComponent" title="whylogs.core.metrics.metric_components.FrequentStringsComponent"><span class="pre">whylogs.core.metrics.metric_components.FrequentStringsComponent</span></a></em><a class="headerlink" href="#whylogs.core.metrics.FrequentItemsMetric.frequent_strings" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.FrequentItemsMetric.max_frequent_item_size">
+<span class="sig-name descname"><span class="pre">max_frequent_item_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">128</span></em><a class="headerlink" href="#whylogs.core.metrics.FrequentItemsMetric.max_frequent_item_size" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.FrequentItemsMetric.columnar_update">
 <span class="sig-name descname"><span class="pre">columnar_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><span class="pre">whylogs.core.preprocessing.PreprocessedColumn</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">OperationResult</span></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/metrics/metrics.html#FrequentItemsMetric.columnar_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.FrequentItemsMetric.columnar_update" title="Permalink to this definition">#</a></dt>
@@ -1779,6 +1784,11 @@ inheritance.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.MetricConfig.normalize">
 <span class="sig-name descname"><span class="pre">normalize</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#whylogs.core.metrics.MetricConfig.normalize" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.MetricConfig.max_frequent_item_size">
+<span class="sig-name descname"><span class="pre">max_frequent_item_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">128</span></em><a class="headerlink" href="#whylogs.core.metrics.MetricConfig.max_frequent_item_size" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2228,6 +2238,7 @@ range to be tracked. The string length is tracked under the key
 <li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.namespace">namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.strings">strings</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.frequent_strings">frequent_strings</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.max_frequent_item_size">max_frequent_item_size</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.columnar_update">columnar_update</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.to_summary_dict">to_summary_dict</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.FrequentItemsMetric.zero">zero</a></li>
@@ -2277,6 +2288,7 @@ range to be tracked. The string length is tracked under the key
 <li><a class="reference internal" href="#whylogs.core.metrics.MetricConfig.unicode_ranges">unicode_ranges</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.MetricConfig.lower_case">lower_case</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.MetricConfig.normalize">normalize</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.MetricConfig.max_frequent_item_size">max_frequent_item_size</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric">UnicodeRangeMetric</a><ul>

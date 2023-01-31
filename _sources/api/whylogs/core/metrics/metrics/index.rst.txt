@@ -122,6 +122,12 @@ Attributes
 
       
 
+   .. py:attribute:: max_frequent_item_size
+      :type: int
+      :value: 128
+
+      
+
 
 .. py:function:: custom_metric(metric: Type[METRIC]) -> Type[METRIC]
 
@@ -417,6 +423,12 @@ Attributes
 
    .. py:attribute:: frequent_strings
       :type: whylogs.core.metrics.metric_components.FrequentStringsComponent
+
+      
+
+   .. py:attribute:: max_frequent_item_size
+      :type: int
+      :value: 128
 
       
 

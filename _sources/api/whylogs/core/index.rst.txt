@@ -274,6 +274,12 @@ Attributes
 
       
 
+   .. py:attribute:: max_frequent_item_size
+      :type: int
+      :value: 128
+
+      
+
 
 .. py:class:: ModelPerformanceMetrics(confusion_matrix: Optional[whylogs.core.model_performance_metrics.confusion_matrix.ConfusionMatrix] = None, regression_metrics: Optional[whylogs.core.model_performance_metrics.regression_metrics.RegressionMetrics] = None, metrics: Optional[Dict[str, whylogs.core.metrics.metrics.Metric]] = None, field_metadata: Optional[Dict[str, Set[str]]] = None)
 

@@ -429,6 +429,12 @@ Classes
 
       
 
+   .. py:attribute:: max_frequent_item_size
+      :type: int
+      :value: 128
+
+      
+
    .. py:method:: columnar_update(view: whylogs.core.preprocessing.PreprocessedColumn) -> OperationResult
 
 
@@ -615,6 +621,12 @@ Classes
    .. py:attribute:: normalize
       :type: bool
       :value: True
+
+      
+
+   .. py:attribute:: max_frequent_item_size
+      :type: int
+      :value: 128
 
       
 
