@@ -1,0 +1,44 @@
+:py:mod:`whylogs.experimental.preprocess.embeddings.selectors`
+==============================================================
+
+.. py:module:: whylogs.experimental.preprocess.embeddings.selectors
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.preprocess.embeddings.selectors.ReferenceSelector
+   whylogs.experimental.preprocess.embeddings.selectors.PCACentroidsSelector
+   whylogs.experimental.preprocess.embeddings.selectors.PCAKMeansSelector
+
+
+
+
+.. py:class:: ReferenceSelector
+
+   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray])
+      :abstractmethod:
+
+
+
+.. py:class:: PCACentroidsSelector(n_components: int = 2, lower_percentile_limit: float = 0, upper_percentile_limit: float = 0)
+
+   Bases: :py:obj:`ReferenceSelector`
+
+   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray])
+
+
+
+.. py:class:: PCAKMeansSelector(n_clusters: int = 8, n_components: int = 2, kmeans_kwargs={})
+
+   Bases: :py:obj:`ReferenceSelector`
+
+   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray] = None)
+
+
+
