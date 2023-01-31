@@ -35,6 +35,8 @@
 
 ## What is whylogs
 
+Foo
+
 whylogs is an open source library for logging any kind of data. With whylogs, users are able to generate summaries of their datasets (called _whylogs profiles_) which they can use to:
 
 1. Track changes in their dataset
