@@ -9,9 +9,9 @@ from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.api.pyspark.experimental import (
     collect_column_profile_views,
     collect_dataset_profile_view,
+    collect_segmented_results,
     column_profile_bytes_aggregator,
     whylogs_pandas_map_profiler,
-    collect_segmented_results,
 )
 from whylogs.core import ColumnProfileView, DatasetProfile, DatasetSchema, Resolver
 from whylogs.core.metrics import StandardMetric
@@ -21,6 +21,7 @@ from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 
 TEST_LOGGER = getLogger(__name__)
+
 
 def _assert_segmented_result_sets_are_equal(results_a: SegmentedResultSet, results_b: SegmentedResultSet) -> None:
     assert type(results_a) == type(results_b)
@@ -52,8 +53,13 @@ def _assert_segmented_result_sets_are_equal(results_a: SegmentedResultSet, resul
             assert col_name in columns_in_b
             assert (col_name, columns_in_a[col_name].to_protobuf()) == (col_name, columns_in_b[col_name].to_protobuf())
 
-        assert segmented_view_a.creation_timestamp.timestamp() == pytest.approx(segmented_view_b.creation_timestamp.timestamp())
-        assert segmented_view_a.dataset_timestamp.timestamp() == pytest.approx(segmented_view_b.dataset_timestamp.timestamp())
+        assert segmented_view_a.creation_timestamp.timestamp() == pytest.approx(
+            segmented_view_b.creation_timestamp.timestamp()
+        )
+        assert segmented_view_a.dataset_timestamp.timestamp() == pytest.approx(
+            segmented_view_b.dataset_timestamp.timestamp()
+        )
+
 
 class TestPySpark(object):
     @pytest.fixture()
@@ -80,10 +86,10 @@ class TestPySpark(object):
     def segment_df(self, segment_columns, spark_session):
         segment_df = spark_session.createDataFrame(
             data=[
-                [0, 'test', 2.0, 3.0],
-                [1, 'test', 2.1, 3.1],
-                [0, 'eval', 2.3, 3.3],
-                [1, 'reserved', 2.4, 3.4],
+                [0, "test", 2.0, 3.0],
+                [1, "test", 2.1, 3.1],
+                [0, "eval", 2.3, 3.3],
+                [1, "reserved", 2.4, 3.4],
             ],
             schema=segment_columns,
         )
@@ -139,12 +145,12 @@ class TestPySpark(object):
 
     def test_profile_segments_same_in_pyspark_and_local_python_log(self, segment_df):
         segment_column = "B"
- 
+
         d = {
-            "A" : [0,1,0,1],
-            "B" : ['test','test','eval','reserved'],
-            "C" : [2.0,2.1,2.3,2.4],
-            "D" : [3.0,3.1,3.3,3.4],
+            "A": [0, 1, 0, 1],
+            "B": ["test", "test", "eval", "reserved"],
+            "C": [2.0, 2.1, 2.3, 2.4],
+            "D": [3.0, 3.1, 3.3, 3.4],
         }
 
         df = pd.DataFrame(data=d)
@@ -159,8 +165,6 @@ class TestPySpark(object):
         assert local_results is not None
         assert pyspark_results.count == local_results.count
         _assert_segmented_result_sets_are_equal(pyspark_results, local_results)
-
-
 
     def test_collect_dataset_profile_view(self, input_df):
         profile_view = collect_dataset_profile_view(input_df=input_df)

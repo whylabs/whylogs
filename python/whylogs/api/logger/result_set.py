@@ -383,7 +383,9 @@ class SegmentedResultSet(ResultSet):
                 if hasattr(profile, "view"):
                     view = profile.view()
                 else:
-                    logger.error(f"Unexpected type: {type(profile)} -> {profile}, cannot check for model performance metrics.")
+                    logger.error(
+                        f"Unexpected type: {type(profile)} -> {profile}, cannot check for model performance metrics."
+                    )
                     return None
             return view.model_performance_metrics
         return None
