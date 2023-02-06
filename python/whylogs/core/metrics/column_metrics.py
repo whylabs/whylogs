@@ -18,6 +18,7 @@ class TypeCountersMetric(Metric):
     fractional: IntegralComponent
     boolean: IntegralComponent
     string: IntegralComponent
+    vector: IntegralComponent
     object: IntegralComponent
 
     @property
@@ -30,7 +31,7 @@ class TypeCountersMetric(Metric):
             "fractional": self.fractional.value,
             "boolean": self.boolean.value,
             "string": self.string.value,
-            "object": self.object.value,
+            "object": self.object.value + self.vector.value,
         }
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
@@ -71,6 +72,16 @@ class TypeCountersMetric(Metric):
         successes += string_count
         self.string.set(string_count + string_count_prev)
 
+        vector_count = 0
+        vector_count_prev = self.vector.value
+        if data.pandas.num_nparrays is not None:
+            vector_count += len(data.pandas.num_nparrays)
+        elif data.list.num_nparrays is not None:
+            vector_count += len(data.list.num_nparrays)
+
+        successes += vector_count
+        self.vector.set(vector_count + vector_count_prev)
+
         objects = 0
         objects_prev = self.object.value
         if data.pandas.objs is not None:
@@ -89,6 +100,7 @@ class TypeCountersMetric(Metric):
             fractional=IntegralComponent(0),
             boolean=IntegralComponent(0),
             string=IntegralComponent(0),
+            vector=IntegralComponent(0),
             object=IntegralComponent(0),
         )
 
