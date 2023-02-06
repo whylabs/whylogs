@@ -1,3 +1,4 @@
+from .segmented_profiler import collect_segmented_results
 from .profiler import (
     collect_column_profile_views,
     collect_dataset_profile_view,
@@ -10,4 +11,5 @@ __ALL__ = [
     column_profile_bytes_aggregator,
     collect_column_profile_views,
     collect_dataset_profile_view,
+    collect_segmented_results,
 ]
