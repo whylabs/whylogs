@@ -1,7 +1,6 @@
 import numpy as np
 
 import whylogs as why
-
 from whylogs.core.resolvers import MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
 from whylogs.experimental.extras.nlp_metric import BagOfWordsMetric
