@@ -37,8 +37,6 @@ def _assert_segmented_result_sets_are_equal(results_a: SegmentedResultSet, resul
         if isinstance(segmented_view_b, DatasetProfile):
             segmented_view_b = segmented_view_b.view()
         assert isinstance(segmented_view_b, DatasetProfileView)
-        if segmented_view_a is None and segmented_view_b is None:
-            return
         if segmented_view_a is None or segmented_view_b is None:
             assert segmented_view_a == segmented_view_b
 
