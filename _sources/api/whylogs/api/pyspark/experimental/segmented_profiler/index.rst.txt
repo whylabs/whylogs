@@ -1,0 +1,57 @@
+:py:mod:`whylogs.api.pyspark.experimental.segmented_profiler`
+=============================================================
+
+.. py:module:: whylogs.api.pyspark.experimental.segmented_profiler
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.pyspark.experimental.segmented_profiler.whylogs_pandas_segmented_profiler
+   whylogs.api.pyspark.experimental.segmented_profiler.column_profile_bytes_aggregator
+   whylogs.api.pyspark.experimental.segmented_profiler.collect_segmented_column_profile_views
+   whylogs.api.pyspark.experimental.segmented_profiler.collect_segmented_results
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.pyspark.experimental.segmented_profiler.logger
+   whylogs.api.pyspark.experimental.segmented_profiler.SparkDataFrame
+   whylogs.api.pyspark.experimental.segmented_profiler.SEGMENT_KEY_FIELD
+
+
+.. py:data:: logger
+
+   
+
+.. py:data:: SparkDataFrame
+
+   
+
+.. py:data:: SEGMENT_KEY_FIELD
+   :value: 'segment_key'
+
+   
+
+.. py:function:: whylogs_pandas_segmented_profiler(pdf_iterator: Iterable[whylogs.core.stubs.pd.DataFrame], schema: Optional[whylogs.core.DatasetSchema] = None) -> Iterable[whylogs.core.stubs.pd.DataFrame]
+
+
+.. py:function:: column_profile_bytes_aggregator(group_by_cols: Tuple[str], profiles_df: whylogs.core.stubs.pd.DataFrame) -> whylogs.core.stubs.pd.DataFrame
+
+
+.. py:function:: collect_segmented_column_profile_views(input_df: pyspark.sql.DataFrame, schema: Optional[whylogs.core.DatasetSchema] = None) -> Dict[whylogs.core.segment.Segment, Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView]]
+
+
+.. py:function:: collect_segmented_results(input_df: pyspark.sql.DataFrame, schema: whylogs.core.DatasetSchema, dataset_timestamp: Optional[int] = None, creation_timestamp: Optional[int] = None) -> whylogs.api.logger.result_set.ResultSet
+
+

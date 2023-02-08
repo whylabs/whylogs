@@ -11,6 +11,7 @@ Submodules
    :maxdepth: 1
 
    profiler/index.rst
+   segmented_profiler/index.rst
 
 
 Package Contents
@@ -26,6 +27,7 @@ Functions
    whylogs.api.pyspark.experimental.collect_dataset_profile_view
    whylogs.api.pyspark.experimental.column_profile_bytes_aggregator
    whylogs.api.pyspark.experimental.whylogs_pandas_map_profiler
+   whylogs.api.pyspark.experimental.collect_segmented_results
 
 
 
@@ -39,5 +41,8 @@ Functions
 
 
 .. py:function:: whylogs_pandas_map_profiler(pdf_iterator: Iterable[whylogs.core.stubs.pd.DataFrame], schema: Optional[whylogs.core.DatasetSchema] = None) -> Iterable[whylogs.core.stubs.pd.DataFrame]
+
+
+.. py:function:: collect_segmented_results(input_df: pyspark.sql.DataFrame, schema: whylogs.core.DatasetSchema, dataset_timestamp: Optional[int] = None, creation_timestamp: Optional[int] = None) -> whylogs.api.logger.result_set.ResultSet
 
 

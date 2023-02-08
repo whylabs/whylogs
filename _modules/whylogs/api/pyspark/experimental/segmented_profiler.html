@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
-        <title>whylogs.api.pyspark.experimental.profiler - whylogs v1.1.24</title>
+        <title>whylogs.api.pyspark.experimental.segmented_profiler - whylogs v1.1.24</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css" />
@@ -396,15 +396,21 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for whylogs.api.pyspark.experimental.profiler</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+          <h1>Source code for whylogs.api.pyspark.experimental.segmented_profiler</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">reduce</span>
 <span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">SegmentedResultSet</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.pyspark.experimental.profiler</span> <span class="kn">import</span> <span class="n">COL_NAME_FIELD</span><span class="p">,</span> <span class="n">COL_PROFILE_FIELD</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.usage_stats</span> <span class="kn">import</span> <span class="n">emit_usage</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetSchema</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.segment</span> <span class="kn">import</span> <span class="n">Segment</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">SegmentationPartition</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.view.column_profile_view</span> <span class="kn">import</span> <span class="n">ColumnProfileView</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.view.dataset_profile_view</span> <span class="kn">import</span> <span class="n">DatasetProfileView</span>
@@ -418,27 +424,49 @@
     <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No pyspark available&quot;</span><span class="p">)</span>
     <span class="n">SparkDataFrame</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore</span>
 
-<span class="n">COL_NAME_FIELD</span> <span class="o">=</span> <span class="s2">&quot;col_name&quot;</span>
-<span class="n">COL_PROFILE_FIELD</span> <span class="o">=</span> <span class="s2">&quot;col_profile&quot;</span>
+<span class="n">SEGMENT_KEY_FIELD</span> <span class="o">=</span> <span class="s2">&quot;segment_key&quot;</span>
 
 
-<div class="viewcode-block" id="whylogs_pandas_map_profiler"><a class="viewcode-back" href="../../../../../api/whylogs/api/pyspark/experimental/profiler/index.html#whylogs.api.pyspark.experimental.whylogs_pandas_map_profiler">[docs]</a><span class="k">def</span> <span class="nf">whylogs_pandas_map_profiler</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">_segment_to_string</span><span class="p">(</span><span class="n">segment</span><span class="p">:</span> <span class="n">Segment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="n">segment</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_string_to_segment</span><span class="p">(</span><span class="n">segment_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">segment_key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">segment_params</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">segment_key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;key&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">segment_params</span> <span class="ow">or</span> <span class="s2">&quot;parent_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">segment_params</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Segment key is missing required key values or parent_id: </span><span class="si">{segment_params}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">tuple_key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">segment_params</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">])</span>
+    <span class="n">parent_id</span> <span class="o">=</span> <span class="n">segment_params</span><span class="p">[</span><span class="s2">&quot;parent_id&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">Segment</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">tuple_key</span><span class="p">,</span> <span class="n">parent_id</span><span class="o">=</span><span class="n">parent_id</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="whylogs_pandas_segmented_profiler"><a class="viewcode-back" href="../../../../../api/whylogs/api/pyspark/experimental/segmented_profiler/index.html#whylogs.api.pyspark.experimental.whylogs_pandas_segmented_profiler">[docs]</a><span class="k">def</span> <span class="nf">whylogs_pandas_segmented_profiler</span><span class="p">(</span>
     <span class="n">pdf_iterator</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Cannot profile segments without segmentation defined in the specified DatasetSchema: no segments found.&quot;</span>
+        <span class="p">)</span>
     <span class="k">for</span> <span class="n">input_df</span> <span class="ow">in</span> <span class="n">pdf_iterator</span><span class="p">:</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">input_df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
-        <span class="n">res_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">COL_NAME_FIELD</span><span class="p">,</span> <span class="n">COL_PROFILE_FIELD</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">col_profile</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">COL_NAME_FIELD</span><span class="p">:</span> <span class="p">[</span><span class="n">col_name</span><span class="p">],</span>
-                <span class="n">COL_PROFILE_FIELD</span><span class="p">:</span> <span class="p">[</span><span class="n">col_profile</span><span class="o">.</span><span class="n">to_protobuf</span><span class="p">()</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">()],</span>
-            <span class="p">}</span>
-            <span class="n">df_temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
-            <span class="n">res_df</span> <span class="o">=</span> <span class="n">res_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_temp</span><span class="p">)</span>
+        <span class="c1"># TODO: optimize this so we split the dataframe by segment first rather than split in the pandas dataframe</span>
+        <span class="n">segmented_results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">input_df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+        <span class="n">res_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">SEGMENT_KEY_FIELD</span><span class="p">,</span> <span class="n">COL_NAME_FIELD</span><span class="p">,</span> <span class="n">COL_PROFILE_FIELD</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">segmented_key</span> <span class="ow">in</span> <span class="n">segmented_results</span><span class="o">.</span><span class="n">segments</span><span class="p">():</span>
+            <span class="n">spark_segment_key</span> <span class="o">=</span> <span class="n">_segment_to_string</span><span class="p">(</span><span class="n">segmented_key</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">col_profile</span> <span class="ow">in</span> <span class="n">segmented_results</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">segmented_key</span><span class="p">)</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">SEGMENT_KEY_FIELD</span><span class="p">:</span> <span class="p">[</span><span class="n">spark_segment_key</span><span class="p">],</span>
+                    <span class="n">COL_NAME_FIELD</span><span class="p">:</span> <span class="p">[</span><span class="n">col_name</span><span class="p">],</span>
+                    <span class="n">COL_PROFILE_FIELD</span><span class="p">:</span> <span class="p">[</span><span class="n">col_profile</span><span class="o">.</span><span class="n">to_protobuf</span><span class="p">()</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">()],</span>
+                <span class="p">}</span>
+                <span class="n">df_temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
+                <span class="n">res_df</span> <span class="o">=</span> <span class="n">res_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_temp</span><span class="p">)</span>
         <span class="k">yield</span> <span class="n">res_df</span></div>
 
 
-<div class="viewcode-block" id="column_profile_bytes_aggregator"><a class="viewcode-back" href="../../../../../api/whylogs/api/pyspark/experimental/profiler/index.html#whylogs.api.pyspark.experimental.column_profile_bytes_aggregator">[docs]</a><span class="k">def</span> <span class="nf">column_profile_bytes_aggregator</span><span class="p">(</span><span class="n">group_by_cols</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">profiles_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<div class="viewcode-block" id="column_profile_bytes_aggregator"><a class="viewcode-back" href="../../../../../api/whylogs/api/pyspark/experimental/segmented_profiler/index.html#whylogs.api.pyspark.experimental.column_profile_bytes_aggregator">[docs]</a><span class="k">def</span> <span class="nf">column_profile_bytes_aggregator</span><span class="p">(</span><span class="n">group_by_cols</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">profiles_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">profiles_df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">group_by_cols</span> <span class="o">+</span> <span class="p">(</span><span class="nb">bytearray</span><span class="p">(),)])</span>
 
@@ -448,48 +476,86 @@
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">group_by_cols</span> <span class="o">+</span> <span class="p">(</span><span class="n">merged_profile</span><span class="o">.</span><span class="n">serialize</span><span class="p">(),)])</span></div>
 
 
-<div class="viewcode-block" id="collect_column_profile_views"><a class="viewcode-back" href="../../../../../api/whylogs/api/pyspark/experimental/profiler/index.html#whylogs.api.pyspark.experimental.collect_column_profile_views">[docs]</a><span class="k">def</span> <span class="nf">collect_column_profile_views</span><span class="p">(</span>
+<div class="viewcode-block" id="collect_segmented_column_profile_views"><a class="viewcode-back" href="../../../../../api/whylogs/api/pyspark/experimental/segmented_profiler/index.html#whylogs.api.pyspark.experimental.collect_segmented_column_profile_views">[docs]</a><span class="k">def</span> <span class="nf">collect_segmented_column_profile_views</span><span class="p">(</span>
     <span class="n">input_df</span><span class="p">:</span> <span class="n">SparkDataFrame</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Segment</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]]:</span>
     <span class="k">if</span> <span class="n">SparkDataFrame</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Unable to load pyspark; install pyspark to get whylogs profiling support in spark environment.&quot;</span><span class="p">)</span>
 
-    <span class="n">cp</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">COL_NAME_FIELD</span><span class="si">}</span><span class="s2"> string, </span><span class="si">{</span><span class="n">COL_PROFILE_FIELD</span><span class="si">}</span><span class="s2"> binary&quot;</span>
-    <span class="n">whylogs_pandas_map_profiler_with_schema</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">whylogs_pandas_map_profiler</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
-    <span class="n">profile_bytes_df</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">mapInPandas</span><span class="p">(</span><span class="n">whylogs_pandas_map_profiler_with_schema</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">cp</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-    <span class="n">column_profiles</span> <span class="o">=</span> <span class="n">profile_bytes_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">COL_NAME_FIELD</span><span class="p">)</span><span class="o">.</span><span class="n">applyInPandas</span><span class="p">(</span>  <span class="c1"># linebreak</span>
+    <span class="n">cp</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SEGMENT_KEY_FIELD</span><span class="si">}</span><span class="s2"> string, </span><span class="si">{</span><span class="n">COL_NAME_FIELD</span><span class="si">}</span><span class="s2"> string, </span><span class="si">{</span><span class="n">COL_PROFILE_FIELD</span><span class="si">}</span><span class="s2"> binary&quot;</span>
+    <span class="n">whylogs_pandas_map_profiler_with_schema</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">whylogs_pandas_segmented_profiler</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+    <span class="n">segmented_profile_bytes_df</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">mapInPandas</span><span class="p">(</span><span class="n">whylogs_pandas_map_profiler_with_schema</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">cp</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+    <span class="c1"># aggregate by segment key first, then by column</span>
+    <span class="n">segment_column_profiles</span> <span class="o">=</span> <span class="n">segmented_profile_bytes_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+        <span class="n">SEGMENT_KEY_FIELD</span><span class="p">,</span> <span class="n">COL_NAME_FIELD</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">applyInPandas</span><span class="p">(</span>  <span class="c1"># linebreak</span>
         <span class="n">column_profile_bytes_aggregator</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">cp</span>
     <span class="p">)</span>
-    <span class="n">collected_profile_views</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">row</span><span class="o">.</span><span class="n">col_name</span><span class="p">:</span> <span class="n">ColumnProfileView</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">col_profile</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">column_profiles</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+    <span class="n">collected_segment_column_profile_views</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Segment</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">ColumnProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="n">_string_to_segment</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">segment_key</span><span class="p">),</span> <span class="n">row</span><span class="o">.</span><span class="n">col_name</span><span class="p">):</span> <span class="n">ColumnProfileView</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">col_profile</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">segment_column_profiles</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
     <span class="p">}</span>
-    <span class="k">return</span> <span class="n">collected_profile_views</span></div>
+
+    <span class="n">segmented_column_profile_views</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Segment</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">key_tuple</span> <span class="ow">in</span> <span class="n">collected_segment_column_profile_views</span><span class="p">:</span>
+        <span class="n">segment_key</span> <span class="o">=</span> <span class="n">key_tuple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">column_name</span> <span class="o">=</span> <span class="n">key_tuple</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">segment_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">segmented_column_profile_views</span><span class="p">:</span>
+            <span class="n">segmented_column_profile_views</span><span class="p">[</span><span class="n">segment_key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">segmented_column_profile_views</span><span class="p">[</span><span class="n">segment_key</span><span class="p">][</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">collected_segment_column_profile_views</span><span class="p">[</span><span class="n">key_tuple</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">segmented_column_profile_views</span></div>
 
 
-<div class="viewcode-block" id="collect_dataset_profile_view"><a class="viewcode-back" href="../../../../../api/whylogs/api/pyspark/experimental/profiler/index.html#whylogs.api.pyspark.experimental.collect_dataset_profile_view">[docs]</a><span class="k">def</span> <span class="nf">collect_dataset_profile_view</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">_lookup_segment_partition_by_id</span><span class="p">(</span><span class="n">schema</span><span class="p">:</span> <span class="n">DatasetSchema</span><span class="p">,</span> <span class="n">partition_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SegmentationPartition</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">partition_name</span> <span class="ow">in</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
+        <span class="n">partition</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">[</span><span class="n">partition_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">partition_id</span> <span class="o">==</span> <span class="n">partition</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">partition</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping segment: could not find partition with id </span><span class="si">{</span><span class="n">partition_id</span><span class="si">}</span><span class="s2"> in: </span><span class="si">{</span><span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="collect_segmented_results"><a class="viewcode-back" href="../../../../../api/whylogs/api/pyspark/experimental/segmented_profiler/index.html#whylogs.api.pyspark.experimental.collect_segmented_results">[docs]</a><span class="k">def</span> <span class="nf">collect_segmented_results</span><span class="p">(</span>
     <span class="n">input_df</span><span class="p">:</span> <span class="n">SparkDataFrame</span><span class="p">,</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">DatasetSchema</span><span class="p">,</span>
     <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">creation_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultSet</span><span class="p">:</span>
     <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
 
     <span class="n">_dataset_timestamp</span> <span class="o">=</span> <span class="n">dataset_timestamp</span> <span class="ow">or</span> <span class="n">now</span>
     <span class="n">_creation_timestamp</span> <span class="o">=</span> <span class="n">creation_timestamp</span> <span class="ow">or</span> <span class="n">now</span>
-    <span class="k">if</span> <span class="n">schema</span> <span class="ow">and</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;collect_dataset_profile_view returns a single DatasetProfileView but segmentation was defined, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;: </span><span class="si">{</span><span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="si">}</span><span class="s2"> may return multiple segmented profiles. Please use `collect_segmented_results` if you want to profile&quot;</span>
-            <span class="s2">&quot; in spark with segments defined.&quot;</span>
-        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot collect segmented results without segments defined in the passed in DatasetSchema&quot;</span><span class="p">)</span>
 
-    <span class="n">column_views_dict</span> <span class="o">=</span> <span class="n">collect_column_profile_views</span><span class="p">(</span><span class="n">input_df</span><span class="o">=</span><span class="n">input_df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing segmented profiling in spark with </span><span class="si">{</span><span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">segment_column_views_dict</span> <span class="o">=</span> <span class="n">collect_segmented_column_profile_views</span><span class="p">(</span><span class="n">input_df</span><span class="o">=</span><span class="n">input_df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+    <span class="n">segments</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Segment</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">partitions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SegmentationPartition</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
-    <span class="n">profile_view</span> <span class="o">=</span> <span class="n">DatasetProfileView</span><span class="p">(</span>
-        <span class="n">columns</span><span class="o">=</span><span class="n">column_views_dict</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">_dataset_timestamp</span><span class="p">,</span> <span class="n">creation_timestamp</span><span class="o">=</span><span class="n">_creation_timestamp</span>
-    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">segment_column_views_dict</span><span class="p">:</span>
+        <span class="n">partition_id</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">parent_id</span>
+        <span class="c1"># check that the segment&#39;s parent id has a matching partition</span>
+        <span class="n">partition</span> <span class="o">=</span> <span class="n">_lookup_segment_partition_by_id</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">partition_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">partition</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Skipping segment: could not collect profiles for segment </span><span class="si">{</span><span class="n">segment</span><span class="si">}</span><span class="s2"> because the schema has no matching partition ids: </span><span class="si">{</span><span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">partition_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
+            <span class="n">segments</span><span class="p">[</span><span class="n">partition_id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">segment</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">[</span><span class="n">partition_id</span><span class="p">]:</span>
+            <span class="n">column_views_dict</span> <span class="o">=</span> <span class="n">segment_column_views_dict</span><span class="p">[</span><span class="n">segment</span><span class="p">]</span>
+            <span class="n">segments</span><span class="p">[</span><span class="n">partition_id</span><span class="p">][</span><span class="n">segment</span><span class="p">]</span> <span class="o">=</span> <span class="n">DatasetProfileView</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="n">column_views_dict</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">_dataset_timestamp</span><span class="p">,</span> <span class="n">creation_timestamp</span><span class="o">=</span><span class="n">_creation_timestamp</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Collision when collecting profiles for segment </span><span class="si">{</span><span class="n">segment</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">profile_view</span></div>
+    <span class="k">return</span> <span class="n">SegmentedResultSet</span><span class="p">(</span><span class="n">segments</span><span class="o">=</span><span class="n">segments</span><span class="p">,</span> <span class="n">partitions</span><span class="o">=</span><span class="n">partitions</span><span class="p">)</span></div>
 </pre></div>
         </article>
       </div>
