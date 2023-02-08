@@ -161,3 +161,18 @@ def test_rolling_row_messages_with_segments(tmp_path: Any) -> None:
     # after explicitly calling close on the logger, we trigger one more flush which has two segments and expect two callbacks
     rolling_logger.close()
     assert rolling_callback.call_count == 2
+
+
+def test_rolling_do_rollover():
+    import pandas as pd
+
+    df = pd.DataFrame(data={"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]})
+    rolling_logger = why.logger(mode="rolling", interval=5, when="M", base_name="profile_")
+    rolling_logger.append_writer("local")
+
+    rolling_logger.log(df)
+    initial_profile_id = id(rolling_logger._current_profile)
+    rolling_logger._do_rollover()
+    post_rollover_profile_id = id(rolling_logger._current_profile)
+    rolling_logger.close()
+    assert initial_profile_id != post_rollover_profile_id
