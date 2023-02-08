@@ -9,7 +9,11 @@ import pandas as pd
 import pytest
 
 import whylogs as why
-from whylogs.api.logger.result_set import SegmentedResultSet
+from whylogs.api.logger.result_set import (
+    ProfileResultSet,
+    SegmentedResultSet,
+    ViewResultSet,
+)
 from whylogs.core.metrics.metrics import CardinalityMetric, DistributionMetric
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.segment import Segment
@@ -290,6 +294,37 @@ def test_multi_column_segment_serialization_roundtrip_v0(tmp_path: Any) -> None:
     assert "B" in post_columns.keys()
 
 
+def test_merge_view() -> None:
+    df = pd.DataFrame(data={"col1": [1, 2]})
+    logger = why.logger()
+    results = logger.log(df)
+    merged_results = results.merge(ViewResultSet.zero())
+    view = merged_results.view()
+    assert view._columns["col1"]._metrics["types"].integral.value == 2
+
+
+def test_merge_two_result_sets() -> None:
+    df1 = pd.DataFrame(data={"col1": [1, 2]})
+    df2 = pd.DataFrame(data={"col1": [3, 4]})
+    logger = why.logger()
+    results1 = logger.log(df1)
+    results2 = logger.log(df2)
+    merged_results = results1.merge(results2)
+    view = merged_results.view()
+    assert view._columns["col1"]._metrics["types"].integral.value == 4
+    assert view._columns["col1"]._metrics["distribution"].min == 1
+    assert view._columns["col1"]._metrics["distribution"].max == 4
+
+
+def test_merge_result_set_zero() -> None:
+    df = pd.DataFrame(data={"col1": [1, 2]})
+    logger = why.logger()
+    results = logger.log(df)
+    merged_results = results.merge(ProfileResultSet.zero())
+    view = merged_results.view()
+    assert view._columns["col1"]._metrics["types"].integral.value == 2
+
+
 def test_pickle_load_merge_profile_view() -> None:
     df = pd.DataFrame(data={"col1": [1, 2]})
     logger = why.logger()
@@ -307,3 +342,39 @@ def test_pickle_load_merge_profile_view() -> None:
 
     merged_view = view2.merge(pickle_loaded_view)
     assert merged_view._columns["col1"]._metrics["types"].integral.value == 3
+
+
+def test_segment_merge_different_columns() -> None:
+    input_rows = 35
+    d = {
+        "A": [i % 7 for i in range(input_rows)],
+        "B": [f"x{str(i%5)}" for i in range(input_rows)],
+    }
+    input_rows2 = 27
+    d2 = {
+        "A": [i % 4 for i in range(input_rows2)],
+        "B": [f"x{str(i%7)}" for i in range(input_rows2)],
+        "C": [bool(i % 2) for i in range(input_rows2)],
+    }
+
+    df = pd.DataFrame(data=d)
+    df2 = pd.DataFrame(data=d2)
+    segmentation_partition = SegmentationPartition(name="A,B", mapper=ColumnMapperFunction(col_names=["A", "B"]))
+    test_segments = {segmentation_partition.name: segmentation_partition}
+    segmented_schema = DatasetSchema(segments=test_segments)
+    results: SegmentedResultSet = why.log(df, schema=segmented_schema)
+    results2: SegmentedResultSet = why.log(df2, schema=segmented_schema)
+    merged_results = results.merge(results2)
+
+    assert merged_results.count == 42
+    for segment in merged_results.segments():
+        segmented_view = merged_results.view(segment=segment)
+        if len(segmented_view._columns) == 3:
+            assert segmented_view._columns["C"] is not None
+            assert segmented_view._columns["C"]._metrics["types"].boolean.value > 0
+        else:
+            # some segments haven't seen column 'C' and so only have two columns
+            assert len(segmented_view._columns) == 2
+            assert segmented_view._columns["A"] is not None
+            assert segmented_view._columns["B"] is not None
+        assert segmented_view._columns["A"]._metrics["cardinality"].estimate == pytest.approx(1.0)
