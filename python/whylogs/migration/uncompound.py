@@ -70,7 +70,9 @@ def _uncompound_multimetric(col_name: str, metric_name: str, metric: MultiMetric
     return result
 
 
-def _uncompound_condition_count(col_name: str, metric_name: str, metric: ConditionCountMetric) -> Dict[str, ColumnProfileView]:
+def _uncompound_condition_count(
+    col_name: str, metric_name: str, metric: ConditionCountMetric
+) -> Dict[str, ColumnProfileView]:
     result: Dict[str, ColumnProfileView] = dict()
     for condition_name, count_component in metric.matches.items():
         new_col_name = f"{col_name}.{condition_name}"
