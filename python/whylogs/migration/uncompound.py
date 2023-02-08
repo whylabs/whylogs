@@ -77,10 +77,10 @@ def _uncompound_condition_count(
     for condition_name, count_component in metric.matches.items():
         new_col_name = f"{col_name}.{condition_name}"
         new_metric = ColumnCountsMetric(
-            metric.total,  # n
-            count_component,  # null
-            IntegralComponent(0),  # nan
-            IntegralComponent(0),  # inf
+            n=metric.total,  # total condition evaluations
+            null=count_component,  # count of successful evaluations
+            nan=IntegralComponent(0),  # unused
+            inf=IntegralComponent(0),  # unused
         )
         result[new_col_name] = ColumnProfileView({ColumnCountsMetric.namespace: new_metric})
 
