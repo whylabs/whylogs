@@ -1,6 +1,7 @@
 import math
 import os
 import time
+from datetime import datetime, timezone
 from os import listdir
 from os.path import isfile
 from typing import Any
@@ -169,10 +170,15 @@ def test_rolling_do_rollover():
     df = pd.DataFrame(data={"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]})
     rolling_logger = why.logger(mode="rolling", interval=5, when="M", base_name="profile_")
     rolling_logger.append_writer("local")
-
     rolling_logger.log(df)
+    now = datetime.now(timezone.utc)
     initial_profile_id = id(rolling_logger._current_profile)
+    profile_timestamp = rolling_logger._current_profile.dataset_timestamp
     rolling_logger._do_rollover()
     post_rollover_profile_id = id(rolling_logger._current_profile)
     rolling_logger.close()
     assert initial_profile_id != post_rollover_profile_id
+    assert now.timestamp() == pytest.approx(profile_timestamp.timestamp())
+    # these lines below fail as a comparison
+    # now_plus_1h = now + datetime.timedelta(hours=1)
+    # assert now.timestamp() == pytest.approx(now_plus_1h.timestamp())
