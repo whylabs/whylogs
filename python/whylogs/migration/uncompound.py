@@ -3,7 +3,10 @@ from typing import Dict
 
 from whylogs.core import ColumnProfileView, DatasetProfileView
 from whylogs.core.metrics import Metric
+from whylogs.core.metrics.column_metrics import ColumnCountsMetric
 from whylogs.core.metrics.compound_metric import CompoundMetric
+from whylogs.core.metrics.condition_count_metric import ConditionCountMetric
+from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.metrics.multimetric import MultiMetric
 
 try:
@@ -67,6 +70,21 @@ def _uncompound_multimetric(col_name: str, metric_name: str, metric: MultiMetric
     return result
 
 
+def _uncompound_condition_count(col_name: str, metric_name: str, metric: ConditionCountMetric) -> Dict[str, ColumnProfileView]:
+    result: Dict[str, ColumnProfileView] = dict()
+    for condition_name, count_component in metric.matches.items():
+        new_col_name = f"{col_name}.{condition_name}"
+        new_metric = ColumnCountsMetric(
+            metric.total,  # n
+            count_component,  # null
+            IntegralComponent(0),  # nan
+            IntegralComponent(0),  # inf
+        )
+        result[new_col_name] = ColumnProfileView({ColumnCountsMetric.namespace: new_metric})
+
+    return result
+
+
 def _uncompound_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
     """
     v0 whylabs doesn't understand compound metrics. This creates a new column for
@@ -85,6 +103,8 @@ def _uncompound_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
                 new_columns.update(_uncompound_metric(col_name, metric_name, metric))
             if isinstance(metric, MultiMetric):
                 new_columns.update(_uncompound_multimetric(col_name, metric_name, metric))
+            if isinstance(metric, ConditionCountMetric):
+                new_columns.update(_uncompound_condition_count(col_name, metric_name, metric))
 
     new_prof._columns.update(new_columns)
     return new_prof
