@@ -103,10 +103,6 @@ def test_accuracy_estimation(acc_estimator, target_df):
 
 
 def test_regression_estimation(acc_estimator, target_df):
-    target_results = make_regression_result_set(target_df)
-    with pytest.raises(ValueError, match="Accuracy estimation currently supported for binary classification problems."):
-        acc_estimator.estimate(target_results)
-
     reference_result = make_regression_result_set(target_df)
     acc_estimator = AccuracyEstimator(reference_result)
     target_results = make_result_set(target_df)

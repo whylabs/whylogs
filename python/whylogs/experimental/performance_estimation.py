@@ -101,7 +101,6 @@ class AccuracyEstimator(PerformanceEstimator):
         first_result_segment = next(iter(reference_segments))
         first_result_profile = self._get_profile_from_segment(first_result_segment, reference_results)
 
-        self._validate_profile(first_target_profile)
         self._validate_profile(first_result_profile)
 
         if any([len(segment.key) > 1 for segment in reference_segments]):
@@ -111,8 +110,10 @@ class AccuracyEstimator(PerformanceEstimator):
 
         reference_keys = set([segment.key[0] for segment in reference_segments])
         target_keys = set([segment.key[0] for segment in target_segments])
-        if reference_keys != target_keys:
-            raise ValueError("The keys in the reference and target segments must be the same.")
+        if not target_keys.issubset(reference_keys):
+            raise ValueError(
+                "The set of keys in the target results must be a subset of the keys in the reference results."
+            )
 
         return reference_segments, target_segments
 
@@ -169,7 +170,7 @@ class AccuracyEstimator(PerformanceEstimator):
         estimated_accuracy = sum([reference_accuracies[k] * target_proportions[k] for k in reference_accuracies.keys()])
         return estimated_accuracy
 
-    def estimate(self, target: Union[pd.DataFrame, SegmentedResultSet]) -> EstimationResult:
+    def estimate(self, target: SegmentedResultSet) -> EstimationResult:
         """
         Estimate the overall accuracy of a target result set based on a reference result set.
 
@@ -177,8 +178,7 @@ class AccuracyEstimator(PerformanceEstimator):
 
         returns: An EstimationResult object containing the estimated accuracy, id of partition used to perform the estimation and the profiles' dataset timestamp.
         """
-        if isinstance(target, pd.DataFrame):
-            raise NotImplementedError("AccuracyEstimator does not yet support pandas.DataFrame as target")
+
         assert isinstance(target, SegmentedResultSet), "target must be a SegmentedResultSet"
 
         reference_results = self._reference_result_set
