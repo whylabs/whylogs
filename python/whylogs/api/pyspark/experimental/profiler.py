@@ -20,7 +20,6 @@ except ImportError:  # noqa
     SparkDataFrame = None  # type: ignore
 
 COL_NAME_FIELD = "col_name"
-
 COL_PROFILE_FIELD = "col_profile"
 
 
@@ -78,6 +77,12 @@ def collect_dataset_profile_view(
 
     _dataset_timestamp = dataset_timestamp or now
     _creation_timestamp = creation_timestamp or now
+    if schema and schema.segments:
+        raise ValueError(
+            "collect_dataset_profile_view returns a single DatasetProfileView but segmentation was defined, "
+            f": {schema.segments} may return multiple segmented profiles. Please use `collect_segmented_results` if you want to profile"
+            " in spark with segments defined."
+        )
 
     column_views_dict = collect_column_profile_views(input_df=input_df, schema=schema)
 
