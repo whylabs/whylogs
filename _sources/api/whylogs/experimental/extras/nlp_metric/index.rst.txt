@@ -1,0 +1,467 @@
+:py:mod:`whylogs.experimental.extras.nlp_metric`
+================================================
+
+.. py:module:: whylogs.experimental.extras.nlp_metric
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.extras.nlp_metric.SvdMetricConfig
+   whylogs.experimental.extras.nlp_metric.SvdMetric
+   whylogs.experimental.extras.nlp_metric.UpdatableSvdMetric
+   whylogs.experimental.extras.nlp_metric.NlpConfig
+   whylogs.experimental.extras.nlp_metric.BagOfWordsMetric
+   whylogs.experimental.extras.nlp_metric.LsiMetric
+   whylogs.experimental.extras.nlp_metric.ResolverWrapper
+   whylogs.experimental.extras.nlp_metric.NlpLogger
+
+
+
+
+.. py:class:: SvdMetricConfig
+
+   Bases: :py:obj:`whylogs.core.metrics.metrics.MetricConfig`
+
+   .. py:attribute:: k
+      :type: int
+      :value: 100
+
+      
+
+   .. py:attribute:: decay
+      :type: float
+      :value: 1.0
+
+      
+
+   .. py:attribute:: hll_lg_k
+      :type: int
+      :value: 12
+
+      
+
+   .. py:attribute:: kll_k
+      :type: int
+      :value: 256
+
+      
+
+   .. py:attribute:: fi_lg_max_k
+      :type: int
+      :value: 10
+
+      
+
+   .. py:attribute:: fi_disabled
+      :type: bool
+      :value: False
+
+      
+
+   .. py:attribute:: track_unicode_ranges
+      :type: bool
+      :value: False
+
+      
+
+   .. py:attribute:: large_kll_k
+      :type: bool
+      :value: True
+
+      
+
+   .. py:attribute:: kll_k_large
+      :type: int
+      :value: 1024
+
+      
+
+   .. py:attribute:: unicode_ranges
+      :type: Dict[str, Tuple[int, int]]
+
+      
+
+   .. py:attribute:: lower_case
+      :type: bool
+      :value: True
+
+      
+
+   .. py:attribute:: normalize
+      :type: bool
+      :value: True
+
+      
+
+   .. py:attribute:: max_frequent_item_size
+      :type: int
+      :value: 128
+
+      
+
+
+.. py:class:: SvdMetric
+
+   Bases: :py:obj:`whylogs.core.metrics.metrics.Metric`
+
+   non-updating SVD metric
+
+   .. py:property:: namespace
+      :type: str
+
+
+   .. py:attribute:: k
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
+
+      
+
+   .. py:attribute:: decay
+      :type: whylogs.core.metrics.metric_components.FractionalComponent
+
+      
+
+   .. py:attribute:: U
+      :type: whylogs.experimental.extras.matrix_component.MatrixComponent
+
+      
+
+   .. py:attribute:: S
+      :type: whylogs.experimental.extras.matrix_component.MatrixComponent
+
+      
+
+   .. py:method:: residual(vector: numpy.ndarray) -> float
+
+      Retruns the residual of the vector given the current approximate SVD:
+      residual = || U S S^{+} U' x - x || / || x ||  where x is the vector
+
+
+   .. py:method:: merge(other: SvdMetric) -> SvdMetric
+
+
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
+
+
+   .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
+
+
+   .. py:method:: zero(cfg: Optional[whylogs.core.metrics.metrics.MetricConfig] = None) -> SvdMetric
+      :classmethod:
+
+      Instances created with zero() will be useless because they're
+      not updatable.
+
+
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
+      :classmethod:
+
+
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
+
+
+   .. py:method:: get_component_paths() -> List[str]
+
+
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> METRIC
+      :classmethod:
+
+
+
+.. py:class:: UpdatableSvdMetric
+
+   Bases: :py:obj:`SvdMetric`
+
+   updating SVD metric
+
+   .. py:property:: namespace
+      :type: str
+
+
+   .. py:attribute:: k
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
+
+      
+
+   .. py:attribute:: decay
+      :type: whylogs.core.metrics.metric_components.FractionalComponent
+
+      
+
+   .. py:attribute:: U
+      :type: whylogs.experimental.extras.matrix_component.MatrixComponent
+
+      
+
+   .. py:attribute:: S
+      :type: whylogs.experimental.extras.matrix_component.MatrixComponent
+
+      
+
+   .. py:method:: merge(other: SvdMetric) -> UpdatableSvdMetric
+
+
+   .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
+
+
+   .. py:method:: zero(cfg: Optional[SvdMetricConfig] = None) -> UpdatableSvdMetric
+      :classmethod:
+
+      Instances created with zero() will be useless because they're
+      not updatable.
+
+
+   .. py:method:: residual(vector: numpy.ndarray) -> float
+
+      Retruns the residual of the vector given the current approximate SVD:
+      residual = || U S S^{+} U' x - x || / || x ||  where x is the vector
+
+
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
+
+
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
+      :classmethod:
+
+
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
+
+
+   .. py:method:: get_component_paths() -> List[str]
+
+
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> METRIC
+      :classmethod:
+
+
+
+.. py:class:: NlpConfig
+
+   Bases: :py:obj:`whylogs.core.metrics.metrics.MetricConfig`
+
+   If you pass in an UpdatableSvdMetric, the SVD will be updated along with the
+   NlpMetric's residual distribution. A non-updatable SvdMetric will update the
+   residual distribution, but it will not update the SVD as new term vectors are
+   processed.
+
+   Note that the [Updatable]SvdMetric is not [de]serialized with the NlpMetric.
+   You'll have to manage that yourself.
+
+   .. py:attribute:: svd
+      :type: SvdMetric
+
+      
+
+   .. py:attribute:: hll_lg_k
+      :type: int
+      :value: 12
+
+      
+
+   .. py:attribute:: kll_k
+      :type: int
+      :value: 256
+
+      
+
+   .. py:attribute:: fi_lg_max_k
+      :type: int
+      :value: 10
+
+      
+
+   .. py:attribute:: fi_disabled
+      :type: bool
+      :value: False
+
+      
+
+   .. py:attribute:: track_unicode_ranges
+      :type: bool
+      :value: False
+
+      
+
+   .. py:attribute:: large_kll_k
+      :type: bool
+      :value: True
+
+      
+
+   .. py:attribute:: kll_k_large
+      :type: int
+      :value: 1024
+
+      
+
+   .. py:attribute:: unicode_ranges
+      :type: Dict[str, Tuple[int, int]]
+
+      
+
+   .. py:attribute:: lower_case
+      :type: bool
+      :value: True
+
+      
+
+   .. py:attribute:: normalize
+      :type: bool
+      :value: True
+
+      
+
+   .. py:attribute:: max_frequent_item_size
+      :type: int
+      :value: 128
+
+      
+
+
+.. py:class:: BagOfWordsMetric(submetrics: Dict[str, Dict[str, whylogs.core.metrics.Metric]])
+
+   Bases: :py:obj:`whylogs.core.metrics.multimetric.MultiMetric`
+
+   Natural language processing metric -- treat document as a bag of words
+
+   .. py:property:: namespace
+      :type: str
+
+
+   .. py:attribute:: fi_disabled
+      :type: bool
+      :value: False
+
+      
+
+   .. py:attribute:: submetrics
+      :type: Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+
+      
+
+   .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
+
+      terms = (
+          data.pandas.strings.to_list() if data.pandas.strings is not None and not data.pandas.strings.empty else []
+      )
+      terms = (terms + data.list.strings) if data.list.strings else terms
+      terms = (terms + data.list.objs[0]) if data.list.objs else terms
+      terms = data.list.objs[0].tolist() if data.list.objs else None
+
+
+   .. py:method:: zero(cfg: Optional[whylogs.core.metrics.metrics.MetricConfig] = None) -> BagOfWordsMetric
+      :classmethod:
+
+
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> BagOfWordsMetric
+      :classmethod:
+
+
+   .. py:method:: merge_submetrics(other: MULTI_METRIC) -> Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+
+
+   .. py:method:: merge(other: MULTI_METRIC) -> MULTI_METRIC
+
+
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
+
+
+   .. py:method:: get_component_paths() -> List[str]
+
+
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
+
+
+   .. py:method:: submetrics_from_protobuf(msg: whylogs.core.proto.MetricMessage) -> Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+      :classmethod:
+
+
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
+      :classmethod:
+
+
+
+.. py:class:: LsiMetric(submetrics: Dict[str, Dict[str, whylogs.core.metrics.Metric]])
+
+   Bases: :py:obj:`whylogs.core.metrics.multimetric.MultiMetric`
+
+   Natural language processing -- latent sematic indexing metric
+
+   .. py:property:: namespace
+      :type: str
+
+
+   .. py:attribute:: svd
+      :type: SvdMetric
+
+      
+
+   .. py:attribute:: submetrics
+      :type: Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+
+      
+
+   .. py:method:: merge(other: LsiMetric) -> LsiMetric
+
+
+   .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
+
+
+   .. py:method:: zero(cfg: Optional[whylogs.core.metrics.metrics.MetricConfig] = None) -> LsiMetric
+      :classmethod:
+
+
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> LsiMetric
+      :classmethod:
+
+
+   .. py:method:: merge_submetrics(other: MULTI_METRIC) -> Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+
+
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
+
+
+   .. py:method:: get_component_paths() -> List[str]
+
+
+   .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
+
+
+   .. py:method:: submetrics_from_protobuf(msg: whylogs.core.proto.MetricMessage) -> Dict[str, Dict[str, whylogs.core.metrics.Metric]]
+      :classmethod:
+
+
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
+      :classmethod:
+
+
+
+.. py:class:: ResolverWrapper(resolver: whylogs.core.resolvers.Resolver)
+
+   Bases: :py:obj:`whylogs.core.resolvers.Resolver`
+
+   A resolver maps from a column name and a data type to trackers.
+
+   Note that the key of the result dictionaries defines the namespaces of the metrics in the serialized form.
+
+   .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, column_schema: whylogs.core.schema.ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+
+
+
+.. py:class:: NlpLogger(svd_class: Optional[type] = None, svd_config: Optional[SvdMetricConfig] = None, svd_state: Optional[whylogs.core.proto.MetricMessage] = None, schema: Optional[whylogs.core.DatasetSchema] = None, column_prefix: str = 'nlp')
+
+   .. py:method:: log(terms: Optional[Union[Dict[str, List[str]], List[str]]] = None, vector: Optional[Union[Dict[str, numpy.ndarray], numpy.ndarray]] = None) -> whylogs.api.logger.result_set.ResultSet
+
+
+   .. py:method:: get_svd_state() -> whylogs.core.proto.MetricMessage
+
+
+   .. py:method:: get_profile() -> whylogs.api.logger.result_set.ResultSet
+
+
+

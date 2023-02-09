@@ -1,0 +1,74 @@
+:py:mod:`whylogs.experimental.extras.matrix_component`
+======================================================
+
+.. py:module:: whylogs.experimental.extras.matrix_component
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.extras.matrix_component.MatrixComponent
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.extras.matrix_component.serialize
+   whylogs.experimental.extras.matrix_component.deserialize
+
+
+
+.. py:class:: MatrixComponent(value: T)
+
+   Bases: :py:obj:`whylogs.core.metrics.metric_components.MetricComponent`\ [\ :py:obj:`numpy.ndarray`\ ]
+
+   A metric component is the smallest unit for a metric.
+
+   A metric might consist of multiple components. An example is distribution metric, which consists of kll sketch for
+   histogram, mean and m2. The calculation of components could be independent or could be coupled with other
+   components.
+
+   .. py:property:: value
+      :type: T
+
+
+   .. py:attribute:: type_id
+      :value: 101
+
+      
+
+   .. py:attribute:: mtype
+      :type: Optional[Type[T]]
+
+      
+
+   .. py:attribute:: registries
+      :type: Optional[Registries]
+
+      
+
+   .. py:method:: set(value: T) -> None
+
+
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricComponentMessage
+
+
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+      :classmethod:
+
+
+
+.. py:function:: serialize(value: numpy.ndarray) -> whylogs.core.proto.MetricComponentMessage
+
+
+.. py:function:: deserialize(msg: whylogs.core.proto.MetricComponentMessage) -> numpy.ndarray
+
+

@@ -74,6 +74,11 @@ Attributes
 
       
 
+   .. py:attribute:: strings
+      :type: Optional[whylogs.core.stubs.np.ndarray]
+
+      
+
    .. py:method:: iterables() -> List[whylogs.core.stubs.np.ndarray]
 
 

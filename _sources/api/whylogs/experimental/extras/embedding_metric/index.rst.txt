@@ -1,7 +1,7 @@
-:py:mod:`whylogs.experimental.core.metrics.embedding_metric`
-============================================================
+:py:mod:`whylogs.experimental.extras.embedding_metric`
+======================================================
 
-.. py:module:: whylogs.experimental.core.metrics.embedding_metric
+.. py:module:: whylogs.experimental.extras.embedding_metric
 
 
 Module Contents
@@ -12,20 +12,10 @@ Classes
 
 .. autoapisummary::
 
-   whylogs.experimental.core.metrics.embedding_metric.MatrixComponent
-   whylogs.experimental.core.metrics.embedding_metric.DistanceFunction
-   whylogs.experimental.core.metrics.embedding_metric.EmbeddingConfig
-   whylogs.experimental.core.metrics.embedding_metric.EmbeddingMetric
+   whylogs.experimental.extras.embedding_metric.DistanceFunction
+   whylogs.experimental.extras.embedding_metric.EmbeddingConfig
+   whylogs.experimental.extras.embedding_metric.EmbeddingMetric
 
-
-
-Functions
-~~~~~~~~~
-
-.. autoapisummary::
-
-   whylogs.experimental.core.metrics.embedding_metric.serialize
-   whylogs.experimental.core.metrics.embedding_metric.deserialize
 
 
 
@@ -34,58 +24,12 @@ Attributes
 
 .. autoapisummary::
 
-   whylogs.experimental.core.metrics.embedding_metric.logger
+   whylogs.experimental.extras.embedding_metric.logger
 
 
 .. py:data:: logger
 
    
-
-.. py:class:: MatrixComponent(value: T)
-
-   Bases: :py:obj:`whylogs.core.metrics.metric_components.MetricComponent`\ [\ :py:obj:`numpy.ndarray`\ ]
-
-   A metric component is the smallest unit for a metric.
-
-   A metric might consist of multiple components. An example is distribution metric, which consists of kll sketch for
-   histogram, mean and m2. The calculation of components could be independent or could be coupled with other
-   components.
-
-   .. py:property:: value
-      :type: T
-
-
-   .. py:attribute:: type_id
-      :value: 101
-
-      
-
-   .. py:attribute:: mtype
-      :type: Optional[Type[T]]
-
-      
-
-   .. py:attribute:: registries
-      :type: Optional[Registries]
-
-      
-
-   .. py:method:: set(value: T) -> None
-
-
-   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricComponentMessage
-
-
-   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
-      :classmethod:
-
-
-
-.. py:function:: serialize(value: numpy.ndarray) -> whylogs.core.proto.MetricComponentMessage
-
-
-.. py:function:: deserialize(msg: whylogs.core.proto.MetricComponentMessage) -> numpy.ndarray
-
 
 .. py:class:: DistanceFunction
 
@@ -237,7 +181,7 @@ Attributes
 
 
    .. py:attribute:: references
-      :type: MatrixComponent
+      :type: whylogs.experimental.extras.matrix_component.MatrixComponent
 
       
 
