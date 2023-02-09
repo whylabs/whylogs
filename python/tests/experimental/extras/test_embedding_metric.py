@@ -4,7 +4,7 @@ import whylogs as why
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
-from whylogs.experimental.core.metrics.embedding_metric import (
+from whylogs.experimental.extras.embedding_metric import (
     DistanceFunction,
     EmbeddingConfig,
     EmbeddingMetric,
