@@ -133,10 +133,12 @@ class TestWhylabsWriter(object):
 
     def test_option_will_overwrite_defaults(self) -> None:
         writer = WhyLabsWriter()
-        writer.option(org_id="new_org_id", dataset_id="new_dataset_id", api_key="other_api_key")
+        writer.option(org_id="new_org_id",
+                dataset_id="new_dataset_id",
+                api_key="newkeynewk.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         assert writer._org_id == "new_org_id"
         assert writer._dataset_id == "new_dataset_id"
-        assert writer._api_key == "other_api_key"
+        assert writer.key_id == "newkeynewk"
 
     def test_api_key_prefers_parameter_over_env_var(self, results, caplog):
         os.environ["WHYLABS_API_KEY"] = "0123456789.any"
