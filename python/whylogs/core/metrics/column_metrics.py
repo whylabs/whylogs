@@ -31,7 +31,8 @@ class TypeCountersMetric(Metric):
             "fractional": self.fractional.value,
             "boolean": self.boolean.value,
             "string": self.string.value,
-            "object": self.object.value + self.vector.value,
+            "vector": self.vector.value,
+            "object": self.object.value,
         }
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
