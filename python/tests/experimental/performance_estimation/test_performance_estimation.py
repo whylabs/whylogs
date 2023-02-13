@@ -1,13 +1,14 @@
-import pytest
 import pandas as pd
+import pytest
+
 import whylogs as why
-from whylogs.core.segmentation_partition import segment_on_column
 from whylogs.core.schema import DatasetSchema
-from whylogs.experimental.performance_estimation import AccuracyEstimator
 from whylogs.core.segmentation_partition import (
     ColumnMapperFunction,
     SegmentationPartition,
+    segment_on_column,
 )
+from whylogs.experimental.performance_estimation import AccuracyEstimator
 
 
 @pytest.fixture

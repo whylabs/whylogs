@@ -2,13 +2,11 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from logging import getLogger
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple
 
 from whylogs.api.logger.result_set import SegmentedResultSet
-from whylogs.core import Segment
+from whylogs.core import DatasetProfile, Segment
 from whylogs.core.model_performance_metrics.confusion_matrix import ConfusionMatrix
-from whylogs.core.stubs import pd
-from whylogs.core import DatasetProfile
 
 logger = getLogger(__name__)
 
@@ -95,9 +93,6 @@ class AccuracyEstimator(PerformanceEstimator):
         reference_segments = reference_results.segments_in_partition(reference_partition)
         target_segments = target_results.segments_in_partition(target_partition)
 
-        first_target_segment = next(iter(target_segments))
-        first_target_profile = self._get_profile_from_segment(first_target_segment, target_results)
-
         first_result_segment = next(iter(reference_segments))
         first_result_profile = self._get_profile_from_segment(first_result_segment, reference_results)
 
@@ -176,7 +171,7 @@ class AccuracyEstimator(PerformanceEstimator):
 
         Assumes the presence of a segmented column in the reference and target result sets.
 
-        returns: An EstimationResult object containing the estimated accuracy, id of partition used to perform the estimation and the profiles' dataset timestamp.
+        returns: An EstimationResult object containing the estimated accuracy, partition's id and the profiles' dataset timestamp.
         """
 
         assert isinstance(target, SegmentedResultSet), "target must be a SegmentedResultSet"
