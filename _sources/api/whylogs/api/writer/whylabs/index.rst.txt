@@ -12,6 +12,9 @@ Classes
 
 .. autoapisummary::
 
+   whylogs.api.writer.whylabs.KeyRefresher
+   whylogs.api.writer.whylabs.StaticKeyRefresher
+   whylogs.api.writer.whylabs.EnvironmentKeyRefresher
    whylogs.api.writer.whylabs.WhyLabsWriter
 
 
@@ -55,7 +58,44 @@ Attributes
 
    
 
-.. py:class:: WhyLabsWriter(org_id: Optional[str] = None, api_key: Optional[str] = None, dataset_id: Optional[str] = None)
+.. py:class:: KeyRefresher
+
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:property:: key_id
+      :type: str
+      :abstractmethod:
+
+
+
+.. py:class:: StaticKeyRefresher(api_key: str)
+
+   Bases: :py:obj:`KeyRefresher`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:property:: key_id
+      :type: str
+
+
+
+.. py:class:: EnvironmentKeyRefresher
+
+   Bases: :py:obj:`KeyRefresher`
+
+   This key refresher uses environment variable key. The key is automatically picked up if the
+   user changes the environment variable.
+
+   .. py:property:: key_id
+      :type: str
+
+
+
+.. py:class:: WhyLabsWriter(org_id: Optional[str] = None, api_key: Optional[str] = None, dataset_id: Optional[str] = None, api_client: Optional[whylabs_client.ApiClient] = None, ssl_ca_cert: Optional[str] = None, _timeout_seconds: Optional[float] = None)
 
    Bases: :py:obj:`whylogs.api.writer.Writer`
 
@@ -91,6 +131,10 @@ Attributes
    profile.writer("whylabs").write()
    ```
 
+   .. py:property:: key_id
+      :type: str
+
+
    .. py:method:: check_interval(interval_seconds: int) -> None
 
       Validate an interval configuration for a given writer.
@@ -99,7 +143,7 @@ Attributes
       non-negative interval.
 
 
-   .. py:method:: option(org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None, reference_profile_name: Optional[str] = None, configuration: Optional[whylabs_client.Configuration] = None, ssl_ca_cert: Optional[str] = None) -> WhyLabsWriter
+   .. py:method:: option(org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None, reference_profile_name: Optional[str] = None, configuration: Optional[whylabs_client.Configuration] = None, ssl_ca_cert: Optional[str] = None, api_client: Optional[whylabs_client.ApiClient] = None, timeout_seconds: Optional[float] = None) -> WhyLabsWriter
 
       :param org_id the organization ID:
       :param dataset_id the dataset Id:
@@ -117,7 +161,8 @@ Attributes
       :param columns: The list of column names you want to tag as outputs.
       :type columns: List[str]
 
-      :returns: Tuple with a boolean indicating success or failure: e.g. (True, "column prediction was updated to output") and string with status message.
+      :returns: Tuple with a boolean indicating success or failure: e.g. (True, "column prediction was updated to
+                output") and string with status message.
       :rtype: Tuple[bool, str]
 
 
@@ -128,7 +173,8 @@ Attributes
       :param columns: The list of column names you want to tag as inputs.
       :type columns: List[str]
 
-      :returns: Tuple with a boolean indicating success or failure: e.g. (True, "column [output_voltage] updated to input") and string with status message.
+      :returns: Tuple with a boolean indicating success or failure: e.g. (True, "column [output_voltage] updated to
+                input") and string with status message.
       :rtype: Tuple[bool, str]
 
 
