@@ -21,6 +21,7 @@ skip_notebooks = [
     "Image_Logging.ipynb",
     "mnist_exploration.ipynb",
     "Embeddings_Distance_Logging.ipynb",  # skipped due to data download
+    "NLP_Summarization.ipynb",
 ]
 
 

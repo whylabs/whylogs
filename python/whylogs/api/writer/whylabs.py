@@ -1,11 +1,15 @@
+import abc
+import copy
 import datetime
 import logging
 import os
 import tempfile
-from typing import IO, Any, Dict, List, Optional, Tuple
+from typing import IO, Any, Dict, List, Optional, Tuple, Union
+from urllib.parse import urlparse
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore
+from urllib3 import PoolManager, ProxyManager
 from whylabs_client import ApiClient, Configuration  # type: ignore
 from whylabs_client.api.feature_weights_api import FeatureWeightsApi
 from whylabs_client.api.log_api import AsyncLogResponse  # type: ignore
@@ -40,6 +44,71 @@ FIVE_YEARS_IN_SECONDS = DAY_IN_SECONDS * 365 * 5
 logger = logging.getLogger(__name__)
 
 API_KEY_ENV = "WHYLABS_API_KEY"
+
+_API_CLIENT_CACHE: Dict[str, ApiClient] = dict()
+_UPLOAD_POOLER_CACHE: Dict[str, Union[PoolManager, ProxyManager]] = dict()
+
+_US_WEST2_DOMAIN = "songbird-20201223060057342600000001.s3.us-west-2.amazonaws.com"
+_S3_PUBLIC_DOMAIN = os.environ.get("_WHYLABS_PRIVATE_S3_DOMAIN") or _US_WEST2_DOMAIN
+
+
+def _validate_api_key(api_key: Optional[str]) -> str:
+    if api_key is None:
+        raise ValueError("Missing API key. Set it via WHYLABS_API_KEY environment variable or as an api_key option")
+    if len(api_key) < 12:
+        raise ValueError("API key too short")
+    if len(api_key) > 64:
+        raise ValueError("API key too long")
+    if api_key[10] != ".":
+        raise ValueError("Invalid format. Expecting a dot at an index 10")
+    return api_key[:10]
+
+
+class KeyRefresher(abc.ABC):
+    @property
+    @abc.abstractmethod
+    def key_id(self) -> str:
+        pass
+
+    @abc.abstractmethod
+    def __call__(self, config: Configuration) -> None:
+        pass
+
+
+class StaticKeyRefresher(KeyRefresher):
+    def __init__(self, api_key: str) -> None:
+        self._key_id = _validate_api_key(api_key)
+        self._api_key = api_key
+
+    @property
+    def key_id(self) -> str:
+        return self._key_id
+
+    def __call__(self, config: Configuration) -> None:
+        config.api_key = {"ApiKeyAuth": self._api_key}
+
+    def __hash__(self):
+        return hash(self._api_key)
+
+
+class EnvironmentKeyRefresher(KeyRefresher):
+    """
+    This key refresher uses environment variable key. The key is automatically picked up if the
+    user changes the environment variable.
+    """
+
+    @property
+    def key_id(self) -> str:
+        return self._key_id
+
+    def __call__(self, config: Configuration) -> None:
+        api_key = os.environ.get(API_KEY_ENV)
+        self._key_id = _validate_api_key(api_key)
+        assert api_key is not None
+        config.api_key = {"ApiKeyAuth": api_key}
+
+
+_ENV_KEY_REFRESHER = EnvironmentKeyRefresher()
 
 
 class WhyLabsWriter(Writer):
@@ -82,17 +151,145 @@ class WhyLabsWriter(Writer):
 
     """
 
-    def __init__(self, org_id: Optional[str] = None, api_key: Optional[str] = None, dataset_id: Optional[str] = None):
+    _key_refresher: KeyRefresher
+    _endpoint_hostname: Optional[str] = None
+    _s3_private_domain: Optional[str] = None
+    _s3_endpoint_subject: Optional[str] = None
+    _timeout_seconds: float = 300.0
+
+    def __init__(
+        self,
+        org_id: Optional[str] = None,
+        api_key: Optional[str] = None,
+        dataset_id: Optional[str] = None,
+        api_client: Optional[ApiClient] = None,
+        ssl_ca_cert: Optional[str] = None,
+        _timeout_seconds: Optional[float] = None,
+    ):
         self._org_id = org_id or os.environ.get("WHYLABS_DEFAULT_ORG_ID")
-        self._api_key = api_key or os.environ.get("WHYLABS_API_KEY")
-        self._api_key_id = ""
         self._dataset_id = dataset_id or os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
         self._feature_weights = None
         self.whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
         self._reference_profile_name = os.environ.get("WHYLABS_REFERENCE_PROFILE_NAME")
-        self._api_log_client: Optional[ApiClient] = None
-        self._ssl_ca_cert: Optional[str] = None
-        self._configuration: Optional[Configuration] = None
+        self._ssl_ca_cert = ssl_ca_cert
+        self._api_config: Optional[Configuration] = None
+
+        if api_key:
+            self._key_refresher = StaticKeyRefresher(api_key)
+        else:
+            self._key_refresher = _ENV_KEY_REFRESHER
+        if api_client:
+            self._api_client = api_client
+        else:
+            self._api_client = None
+            self._refresh_client()
+
+        # Enable private access to WhyLabs endpoints
+        _private_api_endpoint = os.environ.get("WHYLABS_PRIVATE_API_ENDPOINT")
+        _private_s3_endpoint = os.environ.get("WHYLABS_PRIVATE_S3_ENDPOINT")
+        if _private_api_endpoint:
+            logger.debug(f"Using private API endpoint: {_private_api_endpoint}")
+            self._endpoint_hostname = urlparse(self.whylabs_api_endpoint).netloc
+            self.whylabs_api_endpoint = _private_api_endpoint
+
+        pooler_cache_key = ""
+        if _private_s3_endpoint:
+            logger.debug(f"Using private S3 endpoint: {_private_s3_endpoint}")
+            self._s3_private_domain = urlparse(_private_s3_endpoint).netloc
+            self._s3_endpoint_subject = _S3_PUBLIC_DOMAIN
+            pooler_cache_key += self._s3_private_domain
+
+        if _timeout_seconds is not None:
+            self._timeout_seconds = _timeout_seconds
+
+        # Using a pooler for uploading data
+        pool = _UPLOAD_POOLER_CACHE.get(pooler_cache_key)
+        if pool is None:
+            logger.debug(f"Pooler is not available. Creating a new one for key: {pooler_cache_key}")
+            pool = PoolManager(
+                num_pools=4,
+                maxsize=10,
+                assert_hostname=self._s3_endpoint_subject,
+                server_hostname=self._s3_endpoint_subject,
+            )
+            self._s3_pool = pool
+            _UPLOAD_POOLER_CACHE[pooler_cache_key] = pool
+        else:
+            self._s3_pool = pool
+
+    @property
+    def key_id(self) -> str:
+        return self._key_refresher.key_id
+
+    def _refresh_client(self) -> None:
+        """
+        Refresh the API client by comparing various configs. We try to
+        re-use the client as much as we can since using a new client
+        every time can be expensive.
+
+        """
+        cache_key = ""
+
+        if self._api_client:
+            config = copy.deepcopy(self._api_client.configuration)
+        else:
+            config = Configuration()
+        # Set an empty api key. The key refresher will refresh it
+        config.api_key = {"ApiKeyAuth": ""}
+        config.refresh_api_key_hook = self._key_refresher
+        cache_key += str(hash(self._key_refresher))
+
+        config.discard_unknown_keys = True
+        # Disable client side validation and trust the server
+        config.client_side_validation = False
+
+        cache_key += str(hash(config))
+        if self._ssl_ca_cert:
+            config.ssl_ca_cert = self._ssl_ca_cert
+            cache_key += str(hash(self._ssl_ca_cert))
+        config.host = self.whylabs_api_endpoint
+        cache_key += str(hash(self.whylabs_api_endpoint))
+        if self._endpoint_hostname:
+            cache_key += str(hash(self._endpoint_hostname))
+
+        existing_client = _API_CLIENT_CACHE.get(cache_key)
+        if existing_client:
+            logger.debug(f"Found existing client under cache key: {cache_key}")
+            self._api_client = existing_client
+            return
+
+        client = whylabs_client.ApiClient(config)
+        client.user_agent = f"whylogs/python/{_version}"
+
+        self._api_client = client
+        _API_CLIENT_CACHE[cache_key] = client
+        logger.debug(f"Created and updated new client for cache key: {cache_key}")
+
+        if self._endpoint_hostname:
+            logger.info(f"Override endpoint hostname for TLS verification is set to: {self._endpoint_hostname}")
+            self._update_hostname_config(self._endpoint_hostname)
+
+    def _update_hostname_config(self, endpoint_hostname_override: str) -> None:
+        """
+        This method overrides the pool manager's new connection method to add the hostname
+
+        """
+        import urllib3
+
+        if isinstance(self._api_client.rest_client.pool_manager, urllib3.ProxyManager):
+            raise ValueError("Endpoint hostname override is not supported when using with proxy")
+
+        logger.debug(f"Override endpoint hostname to: {endpoint_hostname_override}")
+        old_conn_factory = self._api_client.rest_client.pool_manager.connection_from_host
+
+        def new_conn_factory(host: str, port: int, scheme: str, pool_kwargs: Optional[Dict[str, str]] = None) -> Any:
+            if pool_kwargs is None:
+                pool_kwargs = {}
+            pool_kwargs["assert_hostname"] = endpoint_hostname_override
+            pool_kwargs["server_hostname"] = endpoint_hostname_override
+            return old_conn_factory(host, port, scheme, pool_kwargs)
+
+        self._api_client.rest_client.pool_manager.connection_from_host = new_conn_factory
 
     def check_interval(self, interval_seconds: int) -> None:
         if interval_seconds < FIVE_MINUTES_IN_SECONDS:
@@ -106,6 +303,8 @@ class WhyLabsWriter(Writer):
         reference_profile_name: Optional[str] = None,
         configuration: Optional[Configuration] = None,
         ssl_ca_cert: Optional[str] = None,
+        api_client: Optional[ApiClient] = None,
+        timeout_seconds: Optional[float] = None,
     ) -> "WhyLabsWriter":
         """
 
@@ -126,13 +325,19 @@ class WhyLabsWriter(Writer):
         if org_id is not None:
             self._org_id = org_id
         if api_key is not None:
-            self._api_key = api_key
+            self._key_refresher = StaticKeyRefresher(api_key)
+            self._refresh_client()
         if reference_profile_name is not None:
             self._reference_profile_name = reference_profile_name
         if configuration is not None:
-            self._configuration = configuration
+            raise ValueError("Manual configuration is not supported. Please override the api_client instead")
+        if api_client is not None:
+            self._api_client = api_client
         if ssl_ca_cert is not None:
             self._ssl_ca_cert = ssl_ca_cert
+            self._refresh_client()
+        if timeout_seconds is not None:
+            self._timeout_seconds = timeout_seconds
         return self
 
     def _tag_columns(self, columns: List[str], value: str) -> Tuple[bool, str]:
@@ -149,10 +354,10 @@ class WhyLabsWriter(Writer):
         Returns
         -------
         Tuple[bool, str]
-            Tuple with a boolean indicating success or failure: e.g. (True, "column prediction was updated to output") and string with status message.
+            Tuple with a boolean indicating success or failure: e.g. (True, "column prediction was updated to
+            output") and string with status message.
         """
         self._validate_org_and_dataset()
-        self._validate_api_key()
         results: Dict[str, str] = dict()
         all_sucessful = True
         # TODO: update the list of columns at once, support arbitrary tags as well.
@@ -174,7 +379,8 @@ class WhyLabsWriter(Writer):
         Returns
         -------
         Tuple[bool, str]
-            Tuple with a boolean indicating success or failure: e.g. (True, "column prediction was updated to output") and string with status message.
+            Tuple with a boolean indicating success or failure: e.g. (True, "column prediction was updated to
+            output") and string with status message.
         """
 
         return self._tag_columns(columns, "output")
@@ -190,7 +396,8 @@ class WhyLabsWriter(Writer):
         Returns
         -------
         Tuple[bool, str]
-            Tuple with a boolean indicating success or failure: e.g. (True, "column [output_voltage] updated to input") and string with status message.
+            Tuple with a boolean indicating success or failure: e.g. (True, "column [output_voltage] updated to
+            input") and string with status message.
         """
 
         return self._tag_columns(columns, "input")
@@ -271,7 +478,8 @@ class WhyLabsWriter(Writer):
             time_delta_seconds = utc_now.timestamp() - stamp
             if time_delta_seconds < 0:
                 logger.warning(
-                    f"About to upload a profile with a dataset_timestamp that is in the future: {time_delta_seconds}s old."
+                    f"About to upload a profile with a dataset_timestamp that is in the future: "
+                    f"{time_delta_seconds}s old."
                 )
             elif time_delta_seconds > WEEK_IN_SECONDS:
                 if time_delta_seconds > FIVE_YEARS_IN_SECONDS:
@@ -283,7 +491,8 @@ class WhyLabsWriter(Writer):
                 else:
                     logger.warning(
                         f"A profile being uploaded to WhyLabs has a dataset_timestamp of {dataset_timestamp} "
-                        f"which is older than 7 days compared to {utc_now}. These profiles should be processed within 24 hours."
+                        f"which is older than 7 days compared to {utc_now}. These profiles should be processed "
+                        f"within 24 hours."
                     )
 
             if stamp <= 0:
@@ -299,17 +508,6 @@ class WhyLabsWriter(Writer):
             )
         # TODO: retry
         return response
-
-    def _validate_api_key(self) -> None:
-        if self._api_key is None:
-            raise ValueError("Missing API key. Set it via WHYLABS_API_KEY environment variable or as an api_key option")
-        if len(self._api_key) < 12:
-            raise ValueError("API key too short")
-        if len(self._api_key) > 64:
-            raise ValueError("API key too long")
-        if self._api_key[10] != ".":
-            raise ValueError("Invalid format. Expecting a dot at an index 10")
-        self._api_key_id = self._api_key[:10]
 
     def _validate_org_and_dataset(self) -> None:
         if self._org_id is None:
@@ -330,7 +528,6 @@ class WhyLabsWriter(Writer):
             Response of the GET request, with segmentWeights and metadata.
         """
         self._validate_org_and_dataset()
-        self._validate_api_key()
 
         result = self._get_column_weights()
         return result
@@ -345,7 +542,6 @@ class WhyLabsWriter(Writer):
         """
 
         self._validate_org_and_dataset()
-        self._validate_api_key()
 
         result = self._put_feature_weights()
         if result == 200:
@@ -353,103 +549,54 @@ class WhyLabsWriter(Writer):
         else:
             return False, str(result)
 
-    def _copy_file(self, profile_file: IO[bytes], upload_url: str, dataset_timestamp: int, api_key_id: Optional[str]):
-        http_response = requests.put(upload_url, data=profile_file.read())
+    def _put_file(self, profile_file: IO[bytes], upload_url: str, dataset_timestamp: int) -> Tuple[bool, str]:
+        # TODO: probably want to call this API using asyncio
+        headers = {"Content-Type": "application/octet-stream"}
+        if self._s3_endpoint_subject:
+            logger.info(f"Override Host parameter since we are using S3 private endpoint: {self._s3_private_domain}")
+            headers["Host"] = self._s3_endpoint_subject
+        response = self._s3_pool.request(
+            "PUT", upload_url, headers=headers, timeout=self._timeout_seconds, body=profile_file.read()
+        )
         is_successful = False
-        if http_response.status_code == 200:
+        if response.status == 200:
             is_successful = True
             logger.info(
                 f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
+                f"{self.whylabs_api_endpoint} with API token ID: {self._key_refresher.key_id}"
             )
-        return is_successful, http_response.text
+        return is_successful, response.reason
 
     def _do_upload(
         self, dataset_timestamp: int, profile_path: Optional[str] = None, profile_file: Optional[IO[bytes]] = None
     ) -> Tuple[bool, str]:
         assert profile_path or profile_file, "Either a file or file path must be specified when uploading profiles"
         self._validate_org_and_dataset()
-        self._validate_api_key()
 
         logger.debug("Generating the upload URL")
         upload_url = self._get_upload_url(dataset_timestamp=dataset_timestamp)
-        api_key_id = self._api_key[:10] if self._api_key else None
         try:
             if profile_file:
-                return self._copy_file(profile_file, upload_url, dataset_timestamp, api_key_id)
+                return self._put_file(profile_file, upload_url, dataset_timestamp)
             elif profile_path:
                 with open(profile_path, "rb") as f:
-                    return self._copy_file(f, upload_url, dataset_timestamp, api_key_id)
+                    return self._put_file(f, upload_url, dataset_timestamp)
         except requests.RequestException as e:
             logger.info(
                 f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                + f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}. Error occurred: {e}"
+                + f"{self.whylabs_api_endpoint} with API token ID: {self.key_id}. Error occurred: {e}"
             )
             return False, str(e)
         return False, "Either a profile_file or profile_path must be specified when uploading profiles to WhyLabs!"
 
     def _get_or_create_feature_weights_client(self) -> FeatureWeightsApi:
-        environment_api_key = os.environ.get(API_KEY_ENV)
-
-        if self._api_log_client is None:
-            self._refresh_api_client()
-        elif environment_api_key is not None and self._api_key != environment_api_key:
-            logger.warning(f"Updating API key ID from: {self._api_key_id} to: {environment_api_key[:10]}")
-            self._api_key = environment_api_key
-            self._refresh_api_client()
-
-        return FeatureWeightsApi(self._api_log_client)
+        return FeatureWeightsApi(self._api_client)
 
     def _get_or_create_models_client(self) -> ModelsApi:
-        environment_api_key = os.environ.get(API_KEY_ENV)
-
-        if self._api_log_client is None:
-            self._refresh_api_client()
-        elif environment_api_key is not None and self._api_key != environment_api_key:
-            logger.warning(f"Updating API key ID from: {self._api_key_id} to: {environment_api_key[:10]}")
-            self._api_key = environment_api_key
-            self._refresh_api_client()
-
-        return ModelsApi(self._api_log_client)
+        return ModelsApi(self._api_client)
 
     def _get_or_create_api_log_client(self) -> LogApi:
-        environment_api_key = os.environ.get(API_KEY_ENV)
-
-        if self._api_log_client is None:
-            self._refresh_api_client()
-        elif environment_api_key is not None and self._api_key != environment_api_key:
-            logger.warning(f"Updating API key ID from: {self._api_key_id} to: {environment_api_key[:10]}")
-            self._api_key = environment_api_key
-            self._refresh_api_client()
-
-        return LogApi(self._api_log_client)
-
-    def _refresh_api_client(self) -> None:
-        self._validate_api_key()
-
-        if self._configuration is None:
-            config = whylabs_client.Configuration()
-        else:
-            config = self._configuration
-        config.ssl_ca_cert = self._ssl_ca_cert
-        config.host = self.whylabs_api_endpoint
-        config.api_key = {"ApiKeyAuth": self._api_key}
-        config.discard_unknown_keys = True
-
-        client = whylabs_client.ApiClient(config)
-        client.user_agent = f"whylogs/python/{_version}"
-        self._api_log_client = client
-
-    def _get_rest_config(self) -> Configuration:
-        if self._configuration is None:
-            config = whylabs_client.Configuration()
-        else:
-            config = self._configuration
-
-        config.host = self.whylabs_api_endpoint
-        config.api_key = {"ApiKeyAuth": self._api_key}
-        config.discard_unknown_keys = True
-        return config
+        return LogApi(self._api_client)
 
     @staticmethod
     def _build_log_async_request(dataset_timestamp: int) -> LogAsyncRequest:
@@ -468,11 +615,10 @@ class WhyLabsWriter(Writer):
             )
             return result
         except ForbiddenException as e:
-            api_key_id = self._api_key[:10] if self._api_key else None
             logger.exception(
                 f"Failed to upload {self._org_id}/{self._dataset_id} to "
                 f"{self.whylabs_api_endpoint}"
-                f" with API token ID: {api_key_id}"
+                f" with API token ID: {self.key_id}"
             )
             raise e
 
@@ -489,11 +635,10 @@ class WhyLabsWriter(Writer):
             )
             return result[1]
         except ForbiddenException as e:
-            api_key_id = self._api_key[:10] if self._api_key else None
             logger.exception(
                 f"Failed to upload {self._org_id}/{self._dataset_id} to "
                 f"{self.whylabs_api_endpoint}"
-                f" with API token ID: {api_key_id}"
+                f" with API token ID: {self.key_id}"
             )
             raise e
 
@@ -513,11 +658,10 @@ class WhyLabsWriter(Writer):
                 )
                 return column_schema
         except ForbiddenException as e:
-            api_key_id = self._api_key[:10] if self._api_key else None
             logger.exception(
                 f"Failed to set column outputs {self._org_id}/{self._dataset_id} for column name: ({column_name}) "
                 f"{self.whylabs_api_endpoint}"
-                f" with API token ID: {api_key_id}"
+                f" with API token ID: {self.key_id}"
             )
             raise e
         return None
@@ -547,11 +691,11 @@ class WhyLabsWriter(Writer):
                     f"{column_name} updated from {column_schema.classifier} to {updated_column_schema.classifier}",
                 )
             except ForbiddenException as e:
-                api_key_id = self._api_key[:10] if self._api_key else None
                 logger.exception(
-                    f"Failed to set column outputs {self._org_id}/{self._dataset_id} for column name: ({column_name}) "
+                    f"Failed to set column outputs {self._org_id}/{self._dataset_id} for column name: ("
+                    f"{column_name}) "
                     f"{self.whylabs_api_endpoint}"
-                    f" with API token ID: {api_key_id}"
+                    f" with API token ID: {self.key_id}"
                 )
                 raise e
         else:
@@ -565,11 +709,10 @@ class WhyLabsWriter(Writer):
             result = log_api.log_async(org_id=self._org_id, dataset_id=self._dataset_id, log_async_request=request)
             return result
         except ForbiddenException as e:
-            api_key_id = self._api_key[:10] if self._api_key else None
             logger.exception(
                 f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
                 f"{self.whylabs_api_endpoint}"
-                f" with API token ID: {api_key_id}"
+                f" with API token ID: {self.key_id}"
             )
             raise e
 
@@ -582,11 +725,10 @@ class WhyLabsWriter(Writer):
             result = async_result.get()
             return result
         except ForbiddenException as e:
-            api_key_id = self._api_key[:10] if self._api_key else None
             logger.exception(
                 f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
                 f"{self.whylabs_api_endpoint}"
-                f" with API token ID: {api_key_id}"
+                f" with API token ID: {self.key_id}"
             )
             raise e
 
@@ -599,4 +741,13 @@ class WhyLabsWriter(Writer):
             request = self._build_log_async_request(dataset_timestamp)
             res = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
             upload_url = res["upload_url"]
+
+        if self._s3_private_domain:
+            if _S3_PUBLIC_DOMAIN not in upload_url:
+                raise ValueError(
+                    "S3 private domain is enabled but your account is not using S3 upload endpoint. " "Aborting!"
+                )
+            upload_url = upload_url.replace(_S3_PUBLIC_DOMAIN, self._s3_private_domain)
+            logger.debug(f"Replaced URL with our private domain. New URL: {upload_url}")
+
         return upload_url
