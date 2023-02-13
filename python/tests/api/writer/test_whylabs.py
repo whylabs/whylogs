@@ -133,9 +133,11 @@ class TestWhylabsWriter(object):
 
     def test_option_will_overwrite_defaults(self) -> None:
         writer = WhyLabsWriter()
-        writer.option(org_id="new_org_id",
-                dataset_id="new_dataset_id",
-                api_key="newkeynewk.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        writer.option(
+            org_id="new_org_id",
+            dataset_id="new_dataset_id",
+            api_key="newkeynewk.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        )
         assert writer._org_id == "new_org_id"
         assert writer._dataset_id == "new_dataset_id"
         assert writer.key_id == "newkeynewk"
