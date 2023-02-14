@@ -23,7 +23,7 @@ X = Predicate()
 
 try:
     from PIL.Image import Image as ImageType
-except ImportError as e:
+except ImportError:
     ImageType = None
 
 
