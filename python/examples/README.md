@@ -89,6 +89,14 @@ Here you will find more advanced use-cases for `whylogs`, and you will learn how
 | [Drift Algorithm Configuration](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Drift_Algorithm_Configuration.ipynb)                                       | Choose different drift algorithms and internal parameters for drift detection             |
 | [Converting profiles from v0 to v1](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/converting_v0_to_v1.ipynb)                                             | Convert whylogs v0 profiles to v1 profiles                                                |
 
+## 🧪 Experimental
+
+Here you will find examples of features that are still on an experimental stage. Expect changes on the API and the functionality of these features.
+
+| Example                                                                                                                                                                                                | Description                                                                        |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| [Performance Estimation - Estimating Accuracy for Binary Classification Problems](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/performance_estimation.ipynb) | Estimate accuracy for unlabeled target datasets for binary classification problems |
+
 ## 📓 Benchmarks
 
 Here you will find experiments to benchmark different aspect of the whylogs package, such as computational performance and different statistical algorithms.
