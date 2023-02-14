@@ -41,6 +41,13 @@ def _v0_compatible_image_feature_flag() -> bool:
     return False
 
 
+def _condition_count_magic_string() -> str:
+    """
+    Column name prefix for uncompounded ConditionCountMetric columns
+    """
+    return "CONDITION_COUNT_METRIC_MAGIC."
+
+
 def _uncompounded_column_name(column_name: str, metric_name: str, submetric_name: str, metric: Metric) -> str:
     if isinstance(metric, ImageMetric) and _v0_compatible_image_feature_flag():
         return submetric_name
@@ -75,14 +82,30 @@ def _uncompound_condition_count(
 ) -> Dict[str, ColumnProfileView]:
     result: Dict[str, ColumnProfileView] = dict()
     for condition_name, count_component in metric.matches.items():
-        new_col_name = f"{col_name}.{condition_name}"
+        new_col_name = f"{_condition_count_magic_string()}{col_name}.{condition_name}.total"
         new_metric = ColumnCountsMetric(
             n=metric.total,  # total condition evaluations
-            null=count_component,  # count of successful evaluations
+            null=IntegralComponent(0),  # unused
             nan=IntegralComponent(0),  # unused
             inf=IntegralComponent(0),  # unused
         )
-        result[new_col_name] = ColumnProfileView({ColumnCountsMetric.namespace: new_metric})
+        result[new_col_name] = ColumnProfileView({ColumnCountsMetric.get_namespace(): new_metric})
+        new_col_name = f"{_condition_count_magic_string()}{col_name}.{condition_name}.matches"
+        new_metric = ColumnCountsMetric(
+            n=count_component,  # count of evaluations that matched condition
+            null=IntegralComponent(0),  # unused
+            nan=IntegralComponent(0),  # unused
+            inf=IntegralComponent(0),  # unused
+        )
+        result[new_col_name] = ColumnProfileView({ColumnCountsMetric.get_namespace(): new_metric})
+        new_col_name = f"{_condition_count_magic_string()}{col_name}.{condition_name}.non_matches"
+        new_metric = ColumnCountsMetric(
+            n=IntegralComponent(metric.total.value - count_component.value),  # evaluations that didn't match
+            null=IntegralComponent(0),  # unused
+            nan=IntegralComponent(0),  # unused
+            inf=IntegralComponent(0),  # unused
+        )
+        result[new_col_name] = ColumnProfileView({ColumnCountsMetric.get_namespace(): new_metric})
 
     return result
 

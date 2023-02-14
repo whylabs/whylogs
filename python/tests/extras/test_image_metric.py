@@ -3,7 +3,6 @@ import os
 from typing import Dict
 
 import whylogs as why
-from whylogs.api.writer.whylabs import _uncompound_dataset_profile
 from whylogs.core import DatasetProfileView
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.datatypes import DataType
@@ -146,22 +145,6 @@ def test_log_interface() -> None:
     results = why.log(row={"image_col": img}, schema=schema).view().get_column("image_col")
     logger.info(results.to_summary_dict())
     assert results.to_summary_dict()["image/ImagePixelWidth:distribution/mean"] > 0
-
-
-def test_uncompound_profile() -> None:
-    image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
-    img = image_loader(image_path)
-    profile_view = log_image(img, "image_column").view()
-    uncompounded = _uncompound_dataset_profile(profile_view)
-    assert "image_column" in uncompounded._columns
-    assert "image" in uncompounded._columns["image_column"]._metrics  # original compound metric
-    assert "image_column.ImagePixelWidth" in uncompounded._columns
-
-    for metric in ["counts", "types", "cardinality", "distribution", "ints", "frequent_items"]:
-        assert metric in uncompounded._columns["image_column.ImagePixelWidth"]._metrics  # uncompounded
-
-    for metric in ["counts", "types", "cardinality", "frequent_items"]:
-        assert metric in uncompounded._columns["image_column.Software"]._metrics
 
 
 def test_deserialize_profile() -> None:
