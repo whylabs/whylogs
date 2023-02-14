@@ -1,6 +1,6 @@
 import os
-import pandas as pd
 
+import pandas as pd
 from PIL import Image
 
 import whylogs as why
@@ -13,7 +13,10 @@ from whylogs.core.relations import Predicate
 from whylogs.core.resolvers import MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
 from whylogs.extras.image_metric import log_image
-from whylogs.migration.uncompound import _uncompound_dataset_profile, _condition_count_magic_string
+from whylogs.migration.uncompound import (
+    _condition_count_magic_string,
+    _uncompound_dataset_profile,
+)
 
 X = Predicate()
 
@@ -22,8 +25,6 @@ try:
     from PIL.Image import Image as ImageType
 except ImportError as e:
     ImageType = None
-    logger.debug(str(e))
-    logger.debug("Unable to load PIL; install Pillow for image support")
 
 
 TEST_DATA_PATH = os.path.abspath(
@@ -86,17 +87,19 @@ def test_uncompounded_condition_count() -> None:
         "digit": Condition(X.matches("[0-9]+")),
     }
     config = ConditionCountConfig(conditions=conditions)
-    schema = DeclarativeSchema([
-        ResolverSpec(
-            column_name="col1",
-            metrics=[
-                MetricSpec(
-                    ConditionCountMetric,
-                    config,
-                ),
-            ],
-        ),
-    ])
+    schema = DeclarativeSchema(
+        [
+            ResolverSpec(
+                column_name="col1",
+                metrics=[
+                    MetricSpec(
+                        ConditionCountMetric,
+                        config,
+                    ),
+                ],
+            ),
+        ]
+    )
 
     df = pd.DataFrame({"col1": ["abc", "123"]})
     profile = why.log(df, schema=schema).profile().view()
