@@ -124,6 +124,4 @@ References
 ----------
 
 .. [1] https://www.openml.org/d/42125 - Employee Salaries Dataset
-    
-
 
