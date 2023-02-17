@@ -10,7 +10,7 @@
   
 <meta property="og:url" content="https://whylogs.readthedocs.io/examples/experimental/performance_estimation.html" />
   
-<meta property="og:description" content="Once your model is deployed, monitoring its performance plays a crucial role in ensuring the quality of your ML system. To calculate metrics such as accuracy, labels are required. However, in many ..." />
+<meta property="og:description" content="🚩 Create a free WhyLabs account to get more value out of whylogs! Did you know you can store, visualize, and monitor whylogs profiles with the WhyLabs Observability Platform? Sign up for a free Why..." />
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
@@ -663,8 +663,13 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
+<blockquote>
+<div><p class="rubric" id="create-a-free-whylabs-account-to-get-more-value-out-of-whylogs">🚩 <em>Create a free WhyLabs account to get more value out of whylogs!</em></p>
+<p><em>Did you know you can store, visualize, and monitor whylogs profiles with the</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=Performance_Estimation">WhyLabs Observability Platform</a><em>? Sign up for a</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=Performance_Estimation">free WhyLabs account</a> <em>to leverage the power of whylogs and WhyLabs together!</em></p>
+</div></blockquote>
 <section id="Performance-Estimation---Estimating-Accuracy-for-Binary-Classification-Problems">
 <h1>Performance Estimation - Estimating Accuracy for Binary Classification Problems<a class="headerlink" href="#Performance-Estimation---Estimating-Accuracy-for-Binary-Classification-Problems" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/experimental/performance_estimation.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <p>Once your model is deployed, monitoring its performance plays a crucial role in ensuring the quality of your ML system. To calculate metrics such as accuracy, labels are required. However, in many cases, labels can be unavailable, partially available or come in a delayed fashion.</p>
 <p>In this notebook, we will show one possible way of estimating the performance of your model without having access to the labels. We will use the <a class="reference external" href="https://whylogs.readthedocs.io/en/latest/datasets/ecommerce.html">Ecommerce dataset</a> to demonstrate the process.</p>
 <p>We will cover:</p>
@@ -798,6 +803,15 @@ segments are mutually exclusive and exhaustive.</p>
 <section id="Accuracy-Estimation-with-whylogs">
 <h2>Accuracy Estimation with whylogs<a class="headerlink" href="#Accuracy-Estimation-with-whylogs" title="Permalink to this headline">#</a></h2>
 <p>Let’s finally see how we can use whylogs to estimate the accuracy of a model.</p>
+<p>first, let’s install whylogs and the required extras:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install -q &#39;whylogs[whylabs,datasets]&#39;
+</pre></div>
+</div>
+</div>
 <section id="Getting-the-Reference-and-Target-Datasets">
 <h3>Getting the Reference and Target Datasets<a class="headerlink" href="#Getting-the-Reference-and-Target-Datasets" title="Permalink to this headline">#</a></h3>
 <p>The first thing we need is to get:</p>
@@ -1163,7 +1177,7 @@ Day 6 accuracy - real: 0.6886766712141883, estimated: 0.6867237421366811, pre-de
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_experimental_performance_estimation_23_0.png" src="../../_images/examples_experimental_performance_estimation_23_0.png" />
+<img alt="../../_images/examples_experimental_performance_estimation_27_0.png" src="../../_images/examples_experimental_performance_estimation_27_0.png" />
 </div>
 </div>
 <div class="nboutput nblast docutils container">
