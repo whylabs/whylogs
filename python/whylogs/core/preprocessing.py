@@ -161,7 +161,7 @@ class PreprocessedColumn:
         str_mask = non_null_series.apply(lambda x: isinstance(x, str))
 
         floats = non_null_series[float_mask]
-        ints = non_null_series[int_mask]
+        ints = non_null_series[int_mask].astype(int)
         bool_count = non_null_series[bool_mask].count()
         bool_count_where_true = non_null_series[bool_mask_where_true].count()
         strings = non_null_series[str_mask]
@@ -173,6 +173,7 @@ class PreprocessedColumn:
             floats = floats.astype(float)
             inf_mask = floats.apply(lambda x: np.isinf(x))
             self.inf_count = len(floats[inf_mask])
+
         self.numpy = NumpyView(floats=floats, ints=ints)
         self.pandas.strings = strings
         self.pandas.objs = objs
