@@ -402,7 +402,10 @@
 
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">ColumnProfileView</span><span class="p">,</span> <span class="n">DatasetProfileView</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.column_metrics</span> <span class="kn">import</span> <span class="n">ColumnCountsMetric</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.compound_metric</span> <span class="kn">import</span> <span class="n">CompoundMetric</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">ConditionCountMetric</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.metric_components</span> <span class="kn">import</span> <span class="n">IntegralComponent</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.multimetric</span> <span class="kn">import</span> <span class="n">MultiMetric</span>
 
 <span class="k">try</span><span class="p">:</span>
@@ -437,6 +440,13 @@
     <span class="k">return</span> <span class="kc">False</span>
 
 
+<span class="k">def</span> <span class="nf">_condition_count_magic_string</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Column name prefix for uncompounded ConditionCountMetric columns</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;__whylabs.condition.&quot;</span>
+
+
 <span class="k">def</span> <span class="nf">_uncompounded_column_name</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">submetric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">Metric</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">ImageMetric</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_v0_compatible_image_feature_flag</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">submetric_name</span>
@@ -466,6 +476,39 @@
     <span class="k">return</span> <span class="n">result</span>
 
 
+<span class="k">def</span> <span class="nf">_uncompound_condition_count</span><span class="p">(</span>
+    <span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">ConditionCountMetric</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]:</span>
+    <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">condition_name</span><span class="p">,</span> <span class="n">count_component</span> <span class="ow">in</span> <span class="n">metric</span><span class="o">.</span><span class="n">matches</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">new_col_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_condition_count_magic_string</span><span class="p">()</span><span class="si">}{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">condition_name</span><span class="si">}</span><span class="s2">.total&quot;</span>
+        <span class="n">new_metric</span> <span class="o">=</span> <span class="n">ColumnCountsMetric</span><span class="p">(</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">metric</span><span class="o">.</span><span class="n">total</span><span class="p">,</span>  <span class="c1"># total condition evaluations</span>
+            <span class="n">null</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>  <span class="c1"># unused</span>
+            <span class="n">nan</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>  <span class="c1"># unused</span>
+            <span class="n">inf</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>  <span class="c1"># unused</span>
+        <span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnProfileView</span><span class="p">({</span><span class="n">ColumnCountsMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">():</span> <span class="n">new_metric</span><span class="p">})</span>
+        <span class="n">new_col_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_condition_count_magic_string</span><span class="p">()</span><span class="si">}{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">condition_name</span><span class="si">}</span><span class="s2">.matches&quot;</span>
+        <span class="n">new_metric</span> <span class="o">=</span> <span class="n">ColumnCountsMetric</span><span class="p">(</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">count_component</span><span class="p">,</span>  <span class="c1"># count of evaluations that matched condition</span>
+            <span class="n">null</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>  <span class="c1"># unused</span>
+            <span class="n">nan</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>  <span class="c1"># unused</span>
+            <span class="n">inf</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>  <span class="c1"># unused</span>
+        <span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnProfileView</span><span class="p">({</span><span class="n">ColumnCountsMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">():</span> <span class="n">new_metric</span><span class="p">})</span>
+        <span class="n">new_col_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_condition_count_magic_string</span><span class="p">()</span><span class="si">}{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">condition_name</span><span class="si">}</span><span class="s2">.non_matches&quot;</span>
+        <span class="n">new_metric</span> <span class="o">=</span> <span class="n">ColumnCountsMetric</span><span class="p">(</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">count_component</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>  <span class="c1"># evaluations that didn&#39;t match</span>
+            <span class="n">null</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>  <span class="c1"># unused</span>
+            <span class="n">nan</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>  <span class="c1"># unused</span>
+            <span class="n">inf</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>  <span class="c1"># unused</span>
+        <span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnProfileView</span><span class="p">({</span><span class="n">ColumnCountsMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">():</span> <span class="n">new_metric</span><span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+
+
 <span class="k">def</span> <span class="nf">_uncompound_dataset_profile</span><span class="p">(</span><span class="n">prof</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    v0 whylabs doesn&#39;t understand compound metrics. This creates a new column for</span>
@@ -484,6 +527,8 @@
                 <span class="n">new_columns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_uncompound_metric</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">,</span> <span class="n">metric</span><span class="p">))</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">MultiMetric</span><span class="p">):</span>
                 <span class="n">new_columns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_uncompound_multimetric</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">,</span> <span class="n">metric</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">ConditionCountMetric</span><span class="p">):</span>
+                <span class="n">new_columns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_uncompound_condition_count</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">,</span> <span class="n">metric</span><span class="p">))</span>
 
     <span class="n">new_prof</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_columns</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">new_prof</span>
