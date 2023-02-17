@@ -99,6 +99,19 @@ def test_lending_club(lending_club_df: pd.DataFrame) -> None:
     assert len(df) == 151
 
 
+def test_categorical_dtype() -> None:
+    data = {"can_fly": [0, 1, 0, 0], "habitat": ["forest", "forest", "river", "river"]}
+
+    df = pd.DataFrame(data)
+    df["can_fly"] = df["can_fly"].astype("category")
+    df["habitat"] = df["habitat"].astype("category")
+
+    results = why.log(df)
+    view = results.view()
+    metrics = view.get_column("can_fly").get_metric("counts").to_summary_dict()
+    assert metrics["n"] == 4
+
+
 def test_roundtrip_resultset(tmp_path: Any) -> None:
     d = {"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]}
     df = pd.DataFrame(data=d)
