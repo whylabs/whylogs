@@ -20,7 +20,7 @@ class ListView:
     ints: Optional[List[int]] = None
     floats: Optional[List[Union[float, Decimal]]] = None
     strings: Optional[List[str]] = None
-    num_nparrays: Optional[List[np.ndarray]] = None
+    vectors: Optional[List[np.ndarray]] = None
     objs: Optional[List[Any]] = None
 
     def iterables(self) -> List[List[Any]]:
@@ -60,12 +60,12 @@ class NumpyView:
 @dataclass
 class PandasView:
     strings: Optional[pd.Series] = None
-    num_nparrays: Optional[pd.Series] = None
+    vectors: Optional[pd.Series] = None
     objs: Optional[pd.Series] = None
 
     def iterables(self) -> List[pd.Series]:
         it_list = []
-        for lst in [self.strings, self.num_nparrays, self.objs]:
+        for lst in [self.strings, self.vectors, self.objs]:
             if lst is not None and len(lst) > 0:
                 it_list.append(lst)
         return it_list
@@ -161,7 +161,7 @@ class PreprocessedColumn:
         bool_mask_where_true = non_null_series.apply(lambda x: pdc.is_bool(x) and x)
         int_mask = non_null_series.apply(lambda x: pdc.is_number(x) and pdc.is_integer(x) and not pdc.is_bool(x))
         str_mask = non_null_series.apply(lambda x: isinstance(x, str))
-        num_nparray_mask = non_null_series.apply(
+        vector_mask = non_null_series.apply(
             lambda x: isinstance(x, np.ndarray) and np.issubdtype(x.dtype, np.number)
         )
 
@@ -170,8 +170,8 @@ class PreprocessedColumn:
         bool_count = non_null_series[bool_mask].count()
         bool_count_where_true = non_null_series[bool_mask_where_true].count()
         strings = non_null_series[str_mask]
-        num_nparrays = non_null_series[num_nparray_mask]
-        objs = non_null_series[~(float_mask | str_mask | int_mask | bool_mask | num_nparray_mask)]
+        vectors = non_null_series[vector_mask]
+        objs = non_null_series[~(float_mask | str_mask | int_mask | bool_mask | vector_mask)]
 
         # convert numeric types to float if they are considered
         # Fractional types e.g. decimal.Decimal only if there are values
@@ -182,7 +182,7 @@ class PreprocessedColumn:
 
         self.numpy = NumpyView(floats=floats, ints=ints)
         self.pandas.strings = strings
-        self.pandas.num_nparrays = num_nparrays
+        self.pandas.vectors = vectors
         self.pandas.objs = objs
         self.bool_count = bool_count
         self.bool_count_where_true = bool_count_where_true
@@ -202,7 +202,7 @@ class PreprocessedColumn:
         int_list = []
         float_list = []
         string_list = []
-        num_nparray_list = []
+        vector_list = []
         obj_list = []
         if isinstance(value, int):
             if isinstance(value, bool):
@@ -220,8 +220,9 @@ class PreprocessedColumn:
             float_list.append(value)
         elif isinstance(value, str):
             string_list.append(value)
-        elif is_not_stub(np.ndarray) and isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.number):
-            num_nparray_list.append(value)
+        elif isinstance(value, list) or (is_not_stub(np.ndarray) and 
+                isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.number)):
+            vector_list.append(value)
         elif value is not None:
             obj_list.append(value)
         else:
@@ -236,10 +237,10 @@ class PreprocessedColumn:
                     result.bool_count_where_true = 1
 
             result.numpy = NumpyView(ints=ints, floats=floats)
-            result.list = ListView(strings=string_list, num_nparrays=num_nparray_list, objs=obj_list)
+            result.list = ListView(strings=string_list, vectors=vector_list, objs=obj_list)
         else:
             result.list = ListView(
-                ints=int_list, floats=float_list, strings=string_list, num_nparrays=num_nparray_list, objs=obj_list
+                ints=int_list, floats=float_list, strings=string_list, vectors=vector_list, objs=obj_list
             )
 
         return result
@@ -274,7 +275,7 @@ class PreprocessedColumn:
             int_list = []
             float_list: List[Union[float, Decimal]] = []
             string_list = []
-            num_nparray_list = []
+            vector_list = []
             obj_list = []
             null_count = 0
             for x in data:
@@ -285,7 +286,7 @@ class PreprocessedColumn:
                 elif isinstance(x, str):
                     string_list.append(x)
                 elif is_not_stub(np.ndarray) and isinstance(x, np.ndarray) and np.issubdtype(x.dtype, np.number):
-                    num_nparray_list.append(x)
+                    vector_list.append(x)
                 elif x is not None:
                     obj_list.append(x)
                 else:
@@ -297,11 +298,11 @@ class PreprocessedColumn:
                 floats = np.asarray(float_list, dtype=float)
 
                 result.numpy = NumpyView(ints=ints, floats=floats)
-                result.list = ListView(strings=string_list, num_nparrays=num_nparray_list, objs=obj_list)
+                result.list = ListView(strings=string_list, vectors=vector_list, objs=obj_list)
                 return result
             else:
                 result.list = ListView(
-                    ints=int_list, floats=float_list, strings=string_list, num_nparrays=num_nparray_list, objs=obj_list
+                    ints=int_list, floats=float_list, strings=string_list, vectors=vector_list, objs=obj_list
                 )
                 return result
 

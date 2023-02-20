@@ -75,10 +75,10 @@ class TypeCountersMetric(Metric):
 
         vector_count = 0
         vector_count_prev = self.vector.value
-        if data.pandas.num_nparrays is not None:
-            vector_count += len(data.pandas.num_nparrays)
-        elif data.list.num_nparrays is not None:
-            vector_count += len(data.list.num_nparrays)
+        if data.pandas.vectors is not None:
+            vector_count += len(data.pandas.vectors)
+        elif data.list.vectors is not None:
+            vector_count += len(data.list.vectors)
 
         successes += vector_count
         self.vector.set(vector_count + vector_count_prev)

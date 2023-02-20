@@ -135,7 +135,7 @@ class EmbeddingMetric(MultiMetric):
             self.submetrics[submetric][key].columnar_update(data)
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
-        if data.numpy.ints is None and data.numpy.floats is None and data.pandas.num_nparrays is None:
+        if data.numpy.ints is None and data.numpy.floats is None and data.pandas.vectors is None:
             return OperationResult.ok(0)
 
         converted_numpy_ints = None
@@ -150,11 +150,11 @@ class EmbeddingMetric(MultiMetric):
             if is_not_stub(pd.Series) and isinstance(data.numpy.floats, pd.Series) and not data.numpy.floats.empty:
                 converted_numpy_floats = data.numpy.floats.to_numpy()
 
-        converted_num_nparrays = None
-        if data.pandas.num_nparrays is not None:
-            converted_num_nparrays = np.stack(data.pandas.num_nparrays.to_numpy(), axis=1)
+        converted_vectors = None
+        if data.pandas.vectors is not None:
+            converted_vectors = np.stack(data.pandas.vectors.to_numpy(), axis=1)
 
-        matrices = [X for X in [converted_numpy_ints, converted_numpy_floats, converted_num_nparrays] if X is not None]
+        matrices = [X for X in [converted_numpy_ints, converted_numpy_floats, converted_vectors] if X is not None]
         for X in matrices:  # TODO: throw if not 2D ndarray
             X_ref_dists = self.distance_fn(X, self.references.value)  # type: ignore
             X_ref_closest = np.argmin(X_ref_dists, axis=1)
