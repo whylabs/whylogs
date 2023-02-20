@@ -3,7 +3,10 @@ from typing import Dict
 
 from whylogs.core import ColumnProfileView, DatasetProfileView
 from whylogs.core.metrics import Metric
+from whylogs.core.metrics.column_metrics import ColumnCountsMetric
 from whylogs.core.metrics.compound_metric import CompoundMetric
+from whylogs.core.metrics.condition_count_metric import ConditionCountMetric
+from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.metrics.multimetric import MultiMetric
 
 try:
@@ -38,6 +41,13 @@ def _v0_compatible_image_feature_flag() -> bool:
     return False
 
 
+def _condition_count_magic_string() -> str:
+    """
+    Column name prefix for uncompounded ConditionCountMetric columns
+    """
+    return "__whylabs.condition."
+
+
 def _uncompounded_column_name(column_name: str, metric_name: str, submetric_name: str, metric: Metric) -> str:
     if isinstance(metric, ImageMetric) and _v0_compatible_image_feature_flag():
         return submetric_name
@@ -67,6 +77,39 @@ def _uncompound_multimetric(col_name: str, metric_name: str, metric: MultiMetric
     return result
 
 
+def _uncompound_condition_count(
+    col_name: str, metric_name: str, metric: ConditionCountMetric
+) -> Dict[str, ColumnProfileView]:
+    result: Dict[str, ColumnProfileView] = dict()
+    for condition_name, count_component in metric.matches.items():
+        new_col_name = f"{_condition_count_magic_string()}{col_name}.{condition_name}.total"
+        new_metric = ColumnCountsMetric(
+            n=metric.total,  # total condition evaluations
+            null=IntegralComponent(0),  # unused
+            nan=IntegralComponent(0),  # unused
+            inf=IntegralComponent(0),  # unused
+        )
+        result[new_col_name] = ColumnProfileView({ColumnCountsMetric.get_namespace(): new_metric})
+        new_col_name = f"{_condition_count_magic_string()}{col_name}.{condition_name}.matches"
+        new_metric = ColumnCountsMetric(
+            n=count_component,  # count of evaluations that matched condition
+            null=IntegralComponent(0),  # unused
+            nan=IntegralComponent(0),  # unused
+            inf=IntegralComponent(0),  # unused
+        )
+        result[new_col_name] = ColumnProfileView({ColumnCountsMetric.get_namespace(): new_metric})
+        new_col_name = f"{_condition_count_magic_string()}{col_name}.{condition_name}.non_matches"
+        new_metric = ColumnCountsMetric(
+            n=IntegralComponent(metric.total.value - count_component.value),  # evaluations that didn't match
+            null=IntegralComponent(0),  # unused
+            nan=IntegralComponent(0),  # unused
+            inf=IntegralComponent(0),  # unused
+        )
+        result[new_col_name] = ColumnProfileView({ColumnCountsMetric.get_namespace(): new_metric})
+
+    return result
+
+
 def _uncompound_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
     """
     v0 whylabs doesn't understand compound metrics. This creates a new column for
@@ -85,6 +128,8 @@ def _uncompound_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
                 new_columns.update(_uncompound_metric(col_name, metric_name, metric))
             if isinstance(metric, MultiMetric):
                 new_columns.update(_uncompound_multimetric(col_name, metric_name, metric))
+            if isinstance(metric, ConditionCountMetric):
+                new_columns.update(_uncompound_condition_count(col_name, metric_name, metric))
 
     new_prof._columns.update(new_columns)
     return new_prof
