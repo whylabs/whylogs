@@ -25,10 +25,19 @@ logger = logging.getLogger(__name__)
 def _uncompound_metric_feature_flag() -> bool:
     """
     v0 whylabs doesn't understand compound metrics. If this is True, turn
-    each submetric in a compound metric into its own column in the profile
-    so that v0 whylabs will only see metrics it understands.
+    each submetric in a compound metric or MultiMetric into its own column
+    in the profile so that v0 whylabs will only see metrics it understands.
     """
     return True
+
+
+def _uncompound_condition_count_feature_flag() -> bool:
+    """
+    v0 whylabs doesn't understand condition count metrics. If this is True, turn
+    each condition into its three ColumnCountMetric columns in the profile
+    so that v0 whylabs will only see metrics it understands.
+    """
+    return False
 
 
 def _v0_compatible_image_feature_flag() -> bool:
@@ -55,6 +64,9 @@ def _uncompounded_column_name(column_name: str, metric_name: str, submetric_name
 
 
 def _uncompound_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
+    if not _uncompound_metric_feature_flag():
+        return dict()
+
     result: Dict[str, ColumnProfileView] = dict()
     for submetric_name, submetric in metric.submetrics.items():
         new_col_name = _uncompounded_column_name(col_name, metric_name, submetric_name, metric)
@@ -69,6 +81,9 @@ def _uncompounded_multimetric_column_name(column_name: str, submetric_name: str,
 
 
 def _uncompound_multimetric(col_name: str, metric_name: str, metric: MultiMetric) -> Dict[str, ColumnProfileView]:
+    if not _uncompound_metric_feature_flag():
+        return dict()
+
     result: Dict[str, ColumnProfileView] = dict()
     for submetric_name, submetrics in metric.submetrics.items():
         new_col_name = _uncompounded_multimetric_column_name(col_name, submetric_name, metric)
@@ -80,6 +95,9 @@ def _uncompound_multimetric(col_name: str, metric_name: str, metric: MultiMetric
 def _uncompound_condition_count(
     col_name: str, metric_name: str, metric: ConditionCountMetric
 ) -> Dict[str, ColumnProfileView]:
+    if not _uncompound_condition_count_feature_flag():
+        return dict()
+
     result: Dict[str, ColumnProfileView] = dict()
     for condition_name, count_component in metric.matches.items():
         new_col_name = f"{_condition_count_magic_string()}{col_name}.{condition_name}.total"
