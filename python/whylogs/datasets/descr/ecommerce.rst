@@ -28,8 +28,6 @@ The **base** version contains two partitions: **Baseline** and **Inference**
 base
 ~~~~
 
-This version contains 5
-
 * Baseline
    * Number of instances: 34743
    * Number of features: 19
