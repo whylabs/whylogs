@@ -21,3 +21,4 @@ Datasets
 
     datasets/weather
     datasets/ecommerce
+    datasets/employee

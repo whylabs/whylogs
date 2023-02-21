@@ -1,0 +1,166 @@
+:py:mod:`whylogs.datasets.employee`
+===================================
+
+.. py:module:: whylogs.datasets.employee
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.datasets.employee.Employee
+   whylogs.datasets.employee.EmployeeDatasetIterator
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.datasets.employee.logger
+   whylogs.datasets.employee.base_config
+
+
+.. py:data:: logger
+
+   
+
+.. py:data:: base_config
+
+   
+
+.. py:class:: Employee(version: str = 'base')
+
+   Bases: :py:obj:`whylogs.datasets.base.Dataset`
+
+   Employee Dataset
+
+   .. py:attribute:: baseline_df
+      :type: pandas.DataFrame
+
+      
+
+   .. py:attribute:: production_df
+      :type: pandas.DataFrame
+
+      
+
+   .. py:attribute:: production_interval
+      :type: str
+      :value: '1d'
+
+      
+
+   .. py:attribute:: number_days
+      :type: int
+      :value: 1
+
+      
+
+   .. py:attribute:: unit
+      :type: str
+      :value: 'D'
+
+      
+
+   .. py:attribute:: url
+      :type: str
+
+      
+
+   .. py:attribute:: baseline_timestamp
+      :type: Union[datetime.date, datetime.datetime]
+
+      
+
+   .. py:attribute:: production_start_timestamp
+      :type: Union[datetime.date, datetime.datetime]
+
+      
+
+   .. py:attribute:: original
+      :type: bool
+      :value: False
+
+      
+
+   .. py:attribute:: dataset_config
+      :type: whylogs.datasets.configs.DatasetConfig
+
+      
+
+   .. py:method:: describe_versions() -> Tuple[str]
+      :classmethod:
+
+      Describe available versions for the given dataset.
+
+
+   .. py:method:: describe() -> Optional[str]
+      :classmethod:
+
+      Display overall dataset description.
+
+
+   .. py:method:: get_baseline() -> whylogs.datasets.base.Batch
+
+      Get baseline Batch object.
+
+      :returns: A batch object representing the complete baseline data.
+      :rtype: Batch
+
+
+   .. py:method:: get_inference_data(target_date: Optional[Union[datetime.date, datetime.datetime]] = None, number_batches: Optional[int] = None) -> Union[whylogs.datasets.base.Batch, Iterable[whylogs.datasets.base.Batch]]
+      :abstractmethod:
+
+      Get inference batch(es)
+
+      :param target_date: If target_date is set, a single batch will be returned for the given date(or datetime).
+                          If both target_date and number_batches are defined, an error will be raised.
+      :type target_date: Optional[Union[date, datetime]], optional
+      :param number_batches: If number_batches is set to `n`, an iterator of `n` inference batches will be returned, starting from `inference_start_timestamp`.
+                             If both target_date and number_batches are defined, an error will be raised.
+      :type number_batches: Optional[int], optional
+
+      :returns: Can return either a single or multiple batches, according to the parameters passed.
+      :rtype: Union[Batch, Iterable[Batch]]
+
+
+   .. py:method:: get_production_data(target_date: Optional[Union[datetime.date, datetime.datetime]] = None, number_batches: Optional[int] = None) -> Union[whylogs.datasets.base.Batch, Iterable[whylogs.datasets.base.Batch]]
+
+      Get batch(es) from production dataset.
+
+      :param target_date: Target date for single batch. If datetime is passed, only date will be considered, by default None
+      :type target_date: Optional[Union[date, datetime]], optional
+      :param number_batches: Number of batches to be retrieved. Each batch will have a time interval as defined by `production_interval` from `set_parameters`. By default None
+      :type number_batches: Optional[int], optional
+
+      :returns: Can return a single batch or an interator of batches, depending on input parameters
+      :rtype: Union[Batch, Iterable[Batch]]
+
+
+   .. py:method:: set_parameters(production_interval: Optional[str] = None, baseline_timestamp: Optional[Union[datetime.date, datetime.datetime]] = None, production_start_timestamp: Optional[Union[datetime.date, datetime.datetime]] = None, original: Optional[bool] = None) -> None
+
+      Set timestamp and interval parameters for the dataset object.
+
+      :param production_interval: Interval for the production batches. If none is passed, daily production batches will be returned, by default None
+      :type production_interval: Optional[str], optional
+      :param baseline_timestamp: Timestamp for the baseline dataset. If none is passed, timestamp will be equal to the current day, by default None
+      :type baseline_timestamp: Optional[Union[date, datetime]], optional
+      :param production_start_timestamp: Timestamp for the start of the inference dataset. If none is passed, timestamp will be equal to tomorrow's date, by default None
+      :type production_start_timestamp: Optional[Union[date, datetime]], optional
+      :param original: _If true, sets both baseline and inference timestamps to the dataset's original timestamp, by default None
+      :type original: Optional[bool], optional
+
+
+
+.. py:class:: EmployeeDatasetIterator(df: pandas.DataFrame, number_days: int, number_batches: int, version: str, config=DatasetConfig)
+
+   Iterator to retrieve production batches, when multiple batches are required.
+
+

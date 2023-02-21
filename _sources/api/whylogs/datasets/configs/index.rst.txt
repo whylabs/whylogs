@@ -15,6 +15,7 @@ Classes
    whylogs.datasets.configs.BaseConfig
    whylogs.datasets.configs.DatasetConfig
    whylogs.datasets.configs.EcommerceConfig
+   whylogs.datasets.configs.EmployeeConfig
    whylogs.datasets.configs.WeatherConfig
 
 
@@ -53,7 +54,12 @@ Classes
       
 
    .. py:attribute:: inference_start_timestamp
-      :type: Dict[str, datetime.datetime]
+      :type: Optional[Dict[str, datetime.datetime]]
+
+      
+
+   .. py:attribute:: production_start_timestamp
+      :type: Optional[Dict[str, datetime.datetime]]
 
       
 
@@ -131,9 +137,90 @@ Classes
 
       
 
+   .. py:attribute:: production_start_timestamp
+      :type: Dict[str, datetime.datetime]
+
+      
+
    .. py:attribute:: max_interval
       :type: int
       :value: 21
+
+      
+
+   .. py:attribute:: base_unit
+      :type: str
+      :value: 'D'
+
+      
+
+   .. py:attribute:: target_columns
+      :type: Dict[str, List[str]]
+
+      
+
+   .. py:attribute:: prediction_columns
+      :type: Dict[str, List[str]]
+
+      
+
+   .. py:attribute:: miscellaneous_columns
+      :type: Dict[str, List[str]]
+
+      
+
+   .. py:attribute:: ignore_columns
+      :type: Dict[str, List[str]]
+
+      
+
+
+.. py:class:: EmployeeConfig
+
+   Bases: :py:obj:`DatasetConfig`
+
+   .. py:attribute:: folder_name
+      :type: str
+      :value: 'employee'
+
+      
+
+   .. py:attribute:: description_file
+      :type: str
+      :value: 'employee.rst'
+
+      
+
+   .. py:attribute:: available_versions
+      :type: tuple
+      :value: ('base',)
+
+      
+
+   .. py:attribute:: url
+      :type: str
+      :value: 'https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/Employee'
+
+      
+
+   .. py:attribute:: baseline_start_timestamp
+      :type: Dict[str, datetime.datetime]
+
+      
+
+   .. py:attribute:: inference_start_timestamp
+      :type: Dict[str, datetime.datetime]
+
+      
+
+   .. py:attribute:: production_start_timestamp
+      :type: Dict[str, datetime.datetime]
+
+      
+
+   .. py:attribute:: max_interval
+      :type: int
+      :value: 31
 
       
 
@@ -193,6 +280,15 @@ Classes
 
    .. py:attribute:: inference_start_timestamp
       :type: Dict[str, datetime.datetime]
+
+      
+
+   .. py:attribute:: production_start_timestamp
+      :type: Dict[str, datetime.datetime]
+
+      
+
+   .. py:attribute:: production_start_timestamp
 
       
 

@@ -33,12 +33,11 @@
    ]
   },
   {
+   "attachments": {},
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "## Installing the datasets module\n",
-    "\n",
-    "Uncomment the cell below if you don't have the `datasets` module installed:"
+    "## Installing the datasets module"
    ]
   },
   {
@@ -1129,7 +1128,7 @@
  ],
  "metadata": {
   "kernelspec": {
-   "display_name": "Python 3.8.10 ('.venv': poetry)",
+   "display_name": ".venv",
    "language": "python",
    "name": "python3"
   },
@@ -1148,7 +1147,7 @@
   "orig_nbformat": 4,
   "vscode": {
    "interpreter": {
-    "hash": "8430e7bcc333486e417258c6fadac662061ebd166d9f3c5ccb12c1968aa41625"
+    "hash": "5dd5901cadfd4b29c2aaf95ecd29c0c3b10829ad94dcfe59437dbee391154aea"
    }
   }
  },
