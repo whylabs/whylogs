@@ -1,7 +1,7 @@
 Employee Dataset
 ================
 
-The employee dataset contains annual salary information for employees of an american County. It contains features related to each employee, such as employee's department, gender, salary, and hiring date.
+The employee dataset contains annual salary information for employees of an American county. It contains features related to each employee, such as employee's department, gender, salary, and hiring date.
 
 The original data was sourced from the `employee_salaries` OpenML dataset, and can be found here: https://www.openml.org/d/42125. From the source data additional transformations were made, such as: data cleaning, feature creation and feature engineering.
 
