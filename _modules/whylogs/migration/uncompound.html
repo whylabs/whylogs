@@ -425,10 +425,19 @@
 <span class="k">def</span> <span class="nf">_uncompound_metric_feature_flag</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    v0 whylabs doesn&#39;t understand compound metrics. If this is True, turn</span>
-<span class="sd">    each submetric in a compound metric into its own column in the profile</span>
-<span class="sd">    so that v0 whylabs will only see metrics it understands.</span>
+<span class="sd">    each submetric in a compound metric or MultiMetric into its own column</span>
+<span class="sd">    in the profile so that v0 whylabs will only see metrics it understands.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">def</span> <span class="nf">_uncompound_condition_count_feature_flag</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    v0 whylabs doesn&#39;t understand condition count metrics. If this is True, turn</span>
+<span class="sd">    each condition into its three ColumnCountMetric columns in the profile</span>
+<span class="sd">    so that v0 whylabs will only see metrics it understands.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="kc">False</span>
 
 
 <span class="k">def</span> <span class="nf">_v0_compatible_image_feature_flag</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -455,6 +464,9 @@
 
 
 <span class="k">def</span> <span class="nf">_uncompound_metric</span><span class="p">(</span><span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">CompoundMetric</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_uncompound_metric_feature_flag</span><span class="p">():</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+
     <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">submetric_name</span><span class="p">,</span> <span class="n">submetric</span> <span class="ow">in</span> <span class="n">metric</span><span class="o">.</span><span class="n">submetrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">new_col_name</span> <span class="o">=</span> <span class="n">_uncompounded_column_name</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">,</span> <span class="n">submetric_name</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
@@ -469,6 +481,9 @@
 
 
 <span class="k">def</span> <span class="nf">_uncompound_multimetric</span><span class="p">(</span><span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">MultiMetric</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_uncompound_metric_feature_flag</span><span class="p">():</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+
     <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">submetric_name</span><span class="p">,</span> <span class="n">submetrics</span> <span class="ow">in</span> <span class="n">metric</span><span class="o">.</span><span class="n">submetrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">new_col_name</span> <span class="o">=</span> <span class="n">_uncompounded_multimetric_column_name</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">submetric_name</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
@@ -480,6 +495,9 @@
 <span class="k">def</span> <span class="nf">_uncompound_condition_count</span><span class="p">(</span>
     <span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">ConditionCountMetric</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_uncompound_condition_count_feature_flag</span><span class="p">():</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+
     <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">condition_name</span><span class="p">,</span> <span class="n">count_component</span> <span class="ow">in</span> <span class="n">metric</span><span class="o">.</span><span class="n">matches</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">new_col_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_condition_count_magic_string</span><span class="p">()</span><span class="si">}{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">condition_name</span><span class="si">}</span><span class="s2">.total&quot;</span>
