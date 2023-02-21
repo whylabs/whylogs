@@ -4,6 +4,7 @@ import pandas as pd
 from PIL import Image
 
 import whylogs as why
+import whylogs.migration.uncompound as uc
 from whylogs.core.metrics.condition_count_metric import (
     Condition,
     ConditionCountConfig,
@@ -19,6 +20,10 @@ from whylogs.migration.uncompound import (
 )
 
 X = Predicate()
+
+
+# Turn on uncompounding of CounditionCountMetric
+uc._uncompound_condition_count_feature_flag = lambda: True
 
 
 try:
