@@ -466,7 +466,7 @@ scandir = ["scandir (>=1.5,<2.0)"]
 
 [[package]]
 name = "fugue"
-version = "0.8.0"
+version = "0.8.1"
 description = "An abstraction layer for distributed computation"
 category = "main"
 optional = true
@@ -474,18 +474,18 @@ python-versions = ">=3.7"
 
 [package.dependencies]
 adagio = ">=0.2.4"
-fugue-sql-antlr = ">=0.1.1"
+fugue-sql-antlr = ">=0.1.5"
 jinja2 = "*"
 pandas = ">=1.0.2"
 pyarrow = ">=0.15.1"
 qpd = ">=0.4.0"
 sqlalchemy = "*"
 sqlglot = "*"
-triad = ">=0.8.0"
+triad = ">=0.8.1"
 
 [package.extras]
-all = ["dask[dataframe,distributed]", "dask[dataframe,distributed] (>=2022.9.0)", "duckdb (>=0.5.0)", "fugue-sql-antlr[cpp] (>=0.1.0)", "ibis-framework (>=2.1.1)", "ibis-framework (>=3.2.0)", "ipython (>=7.10.0)", "jupyterlab", "notebook", "pyarrow (>=6.0.1)", "pyspark", "qpd[dask] (>=0.4.0)", "ray[data] (>=2.0.0)"]
-cpp_sql_parser = ["fugue-sql-antlr[cpp] (>=0.1.1)"]
+all = ["dask[dataframe,distributed]", "dask[dataframe,distributed] (>=2022.9.0)", "duckdb (>=0.5.0)", "fugue-sql-antlr[cpp] (>=0.1.5)", "ibis-framework (>=2.1.1)", "ibis-framework (>=3.2.0)", "ipython (>=7.10.0)", "jupyterlab", "notebook", "pyarrow (>=6.0.1)", "pyspark", "qpd[dask] (>=0.4.0)", "ray[data] (>=2.0.0)"]
+cpp_sql_parser = ["fugue-sql-antlr[cpp] (>=0.1.5)"]
 dask = ["dask[dataframe,distributed]", "dask[dataframe,distributed] (>=2022.9.0)", "qpd[dask] (>=0.4.0)"]
 duckdb = ["duckdb (>=0.5.0)", "numpy", "pyarrow (>=6.0.1)"]
 ibis = ["ibis-framework (>=2.1.1)", "ibis-framework (>=3.2.0)"]
@@ -495,7 +495,7 @@ spark = ["pyspark"]
 
 [[package]]
 name = "fugue-sql-antlr"
-version = "0.1.1"
+version = "0.1.5"
 description = "Fugue SQL Antlr Parser"
 category = "main"
 optional = true
@@ -507,7 +507,7 @@ jinja2 = "*"
 triad = ">=0.6.8"
 
 [package.extras]
-cpp = ["fugue-sql-antlr-cpp (==0.1.1)"]
+cpp = ["fugue-sql-antlr-cpp (==0.1.5)"]
 test = ["speedy_antlr_tool"]
 
 [[package]]
@@ -2293,7 +2293,7 @@ importlib-metadata = {version = "*", markers = "python_version < \"3.8\""}
 
 [package.extras]
 aiomysql = ["aiomysql", "greenlet (!=0.4.17)"]
-aiosqlite = ["aiosqlite", "greenlet (!=0.4.17)", "typing_extensions (!=3.10.0.1)"]
+aiosqlite = ["aiosqlite", "greenlet (!=0.4.17)", "typing-extensions (!=3.10.0.1)"]
 asyncio = ["greenlet (!=0.4.17)"]
 asyncmy = ["asyncmy (>=0.2.3,!=0.2.4)", "greenlet (!=0.4.17)"]
 mariadb_connector = ["mariadb (>=1.0.1,!=1.1.2)"]
@@ -2303,14 +2303,14 @@ mssql_pyodbc = ["pyodbc"]
 mypy = ["mypy (>=0.910)", "sqlalchemy2-stubs"]
 mysql = ["mysqlclient (>=1.4.0)", "mysqlclient (>=1.4.0,<2)"]
 mysql_connector = ["mysql-connector-python"]
-oracle = ["cx_oracle (>=7)", "cx_oracle (>=7,<8)"]
+oracle = ["cx-oracle (>=7)", "cx-oracle (>=7,<8)"]
 postgresql = ["psycopg2 (>=2.7)"]
 postgresql_asyncpg = ["asyncpg", "greenlet (!=0.4.17)"]
 postgresql_pg8000 = ["pg8000 (>=1.16.6,!=1.29.0)"]
 postgresql_psycopg2binary = ["psycopg2-binary"]
 postgresql_psycopg2cffi = ["psycopg2cffi"]
 pymysql = ["pymysql", "pymysql (<1)"]
-sqlcipher = ["sqlcipher3_binary"]
+sqlcipher = ["sqlcipher3-binary"]
 
 [[package]]
 name = "sqlglot"
@@ -2652,7 +2652,7 @@ whylabs = ["whylabs-client", "requests"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1, <4"
-content-hash = "9352dcfcd8d23a6090d998a315467237df7804a02f1f8e20484e5960e5b15438"
+content-hash = "d9d88e6c2744af4ee166afbdeb12612346f2f3a0bebf336c0b12f8c3e84af4d1"
 
 [metadata.files]
 2to3 = [
@@ -3067,11 +3067,11 @@ fs = [
     {file = "fs-2.4.16.tar.gz", hash = "sha256:ae97c7d51213f4b70b6a958292530289090de3a7e15841e108fbe144f069d313"},
 ]
 fugue = [
-    {file = "fugue-0.8.0-py3-none-any.whl", hash = "sha256:0788fffc82354bfe4c1d0f2a27bad0507dd6df4e5d9d7104d159f2b574e1d404"},
-    {file = "fugue-0.8.0.tar.gz", hash = "sha256:b2cd5b1dab5a004d17b357c3e9f457727e954504358e31af8b29188b215b2a21"},
+    {file = "fugue-0.8.1-py3-none-any.whl", hash = "sha256:eecaed8208866d07ff28aea93be7c39348d757b23808390660de6a5e6b060e32"},
+    {file = "fugue-0.8.1.tar.gz", hash = "sha256:be2f6b531503a7211f432a2896212b2a4317f8fe45801f16af3d7cc2ef35e40e"},
 ]
 fugue-sql-antlr = [
-    {file = "fugue-sql-antlr-0.1.1.tar.gz", hash = "sha256:e276badd471cf3e1659e94ba181896e2b1887de63ef53ac2badc73483b1c9332"},
+    {file = "fugue-sql-antlr-0.1.5.tar.gz", hash = "sha256:615767d7f956db6ad15e68ebfa88aff000acf19a8c936c5164b494565f55ed82"},
 ]
 furo = [
     {file = "furo-2022.9.29-py3-none-any.whl", hash = "sha256:559ee17999c0f52728481dcf6b1b0cf8c9743e68c5e3a18cb45a7992747869a9"},
@@ -3343,6 +3343,7 @@ lazy-object-proxy = [
     {file = "lazy_object_proxy-1.9.0-cp39-cp39-win_amd64.whl", hash = "sha256:db1c1722726f47e10e0b5fdbf15ac3b8adb58c091d12b3ab713965795036985f"},
 ]
 livereload = [
+    {file = "livereload-2.6.3-py2.py3-none-any.whl", hash = "sha256:ad4ac6f53b2d62bb6ce1a5e6e96f1f00976a32348afedcb4b6d68df2a1d346e4"},
     {file = "livereload-2.6.3.tar.gz", hash = "sha256:776f2f865e59fde56490a56bcc6773b6917366bce0c267c60ee8aaf1a0959869"},
 ]
 markdown-it-py = [
