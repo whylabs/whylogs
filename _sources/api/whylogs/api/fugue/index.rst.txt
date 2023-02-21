@@ -11,6 +11,7 @@ Submodules
    :maxdepth: 1
 
    profiler/index.rst
+   registry/index.rst
 
 
 Package Contents

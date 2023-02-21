@@ -1,0 +1,30 @@
+:py:mod:`whylogs.api.fugue.registry`
+====================================
+
+.. py:module:: whylogs.api.fugue.registry
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.fugue.registry.WhyViz
+
+
+
+
+.. py:class:: WhyViz(func: str, **kwargs: Any)
+
+   Bases: :py:obj:`fugue.Outputter`
+
+   .. py:method:: validate_on_compile() -> None
+
+
+   .. py:method:: process(dfs: fugue.DataFrames) -> None
+
+
+
