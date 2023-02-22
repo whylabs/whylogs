@@ -219,7 +219,7 @@ def _extract_type_counts_metric(msg: ColumnMessageV0) -> TypeCountersMetric:
         fractional=IntegralComponent(frac_count or 0),
         boolean=IntegralComponent(bool_count or 0),
         string=IntegralComponent(string_count or 0),
-        vector=IntegralComponent(0),
+        tensor=IntegralComponent(0),
         object=IntegralComponent(obj_count or 0),
     )
 

@@ -129,32 +129,27 @@ class EmbeddingMetric(MultiMetric):
             msg["references"] = self.references.to_protobuf()
 
         return MetricMessage(metric_components=msg)
-
     def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
         for key in self.submetrics[submetric].keys():
             self.submetrics[submetric][key].columnar_update(data)
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
-        if data.numpy.ints is None and data.numpy.floats is None and data.pandas.vectors is None:
+        if data.pandas.tensors is None and data.list.tensors is None:
             return OperationResult.ok(0)
 
-        converted_numpy_ints = None
-        if data.numpy.ints is not None and len(data.numpy.ints) > 0:
-            converted_numpy_ints = data.numpy.ints
-            if is_not_stub(pd.Series) and isinstance(data.numpy.ints, pd.Series) and not data.numpy.ints.empty:
-                converted_numpy_ints = data.numpy.ints.to_numpy()
+        pandas_tensors = None
+        if data.pandas.tensors is not None:
+            pandas_tensors = np.stack(data.pandas.tensors.to_numpy(), axis=0)
+        
+        list_tensors = None
+        if data.list.tensors is not None:
+            try:
+                list_tensors = np.concatenate(np.array(data.list.tensors), axis=0)
+            except:
+                logger.warn("Unable to convert lists into valid numpy array, so can not log as embeddings")
+                
 
-        converted_numpy_floats = None
-        if data.numpy.floats is not None and len(data.numpy.floats) > 0:
-            converted_numpy_floats = data.numpy.floats
-            if is_not_stub(pd.Series) and isinstance(data.numpy.floats, pd.Series) and not data.numpy.floats.empty:
-                converted_numpy_floats = data.numpy.floats.to_numpy()
-
-        converted_vectors = None
-        if data.pandas.vectors is not None:
-            converted_vectors = np.stack(data.pandas.vectors.to_numpy(), axis=1)
-
-        matrices = [X for X in [converted_numpy_ints, converted_numpy_floats, converted_vectors] if X is not None]
+        matrices = [X for X in [pandas_tensors, list_tensors] if X is not None]
         for X in matrices:  # TODO: throw if not 2D ndarray
             X_ref_dists = self.distance_fn(X, self.references.value)  # type: ignore
             X_ref_closest = np.argmin(X_ref_dists, axis=1)
