@@ -134,10 +134,21 @@ class EmbeddingMetric(MultiMetric):
             self.submetrics[submetric][key].columnar_update(data)
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
-        if data.numpy.ints is None and data.numpy.floats is None:
+        if data.pandas.tensors is None and data.list.tensors is None:
             return OperationResult.ok(0)
 
-        matrices = [X for X in [data.numpy.ints, data.numpy.floats] if X is not None]
+        pandas_tensors = None
+        if data.pandas.tensors is not None:
+            pandas_tensors = np.stack(data.pandas.tensors.to_numpy(), axis=0)
+
+        list_tensors = None
+        if data.list.tensors is not None:
+            try:
+                list_tensors = np.concatenate(np.array(data.list.tensors), axis=0)
+            except Exception as e:
+                logger.warn(f"{e}: Unable to convert lists into valid numpy array, so can not log as embeddings")
+
+        matrices = [X for X in [pandas_tensors, list_tensors] if X is not None]
         for X in matrices:  # TODO: throw if not 2D ndarray
             X_ref_dists = self.distance_fn(X, self.references.value)  # type: ignore
             X_ref_closest = np.argmin(X_ref_dists, axis=1)
