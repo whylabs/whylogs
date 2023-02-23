@@ -122,7 +122,7 @@ os.environ["WHYLABS_DEFAULT_DATASET_ID"] = 'PROJECTID'
 Run the API server with BentoML to test the API locally.
 
 ```bash
-`bentoml serve service:svc --reload`
+bentoml serve service:svc --reload
 ```
 
 ### 5. Test the API locally
