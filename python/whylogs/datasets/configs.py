@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -14,7 +14,8 @@ class DatasetConfig:
     folder_name: str
     url: str
     baseline_start_timestamp: Dict[str, datetime]
-    inference_start_timestamp: Dict[str, datetime]
+    inference_start_timestamp: Optional[Dict[str, datetime]]
+    production_start_timestamp: Optional[Dict[str, datetime]]
     max_interval: int
     base_unit: str
     available_versions: tuple
@@ -37,6 +38,11 @@ class EcommerceConfig(DatasetConfig):
         }
     )
     inference_start_timestamp: Dict[str, datetime] = field(
+        default_factory=lambda: {
+            "base": datetime(year=2022, month=8, day=19, tzinfo=timezone.utc),
+        }
+    )
+    production_start_timestamp: Dict[str, datetime] = field(
         default_factory=lambda: {
             "base": datetime(year=2022, month=8, day=19, tzinfo=timezone.utc),
         }
@@ -74,6 +80,47 @@ class EcommerceConfig(DatasetConfig):
 
 
 @dataclass
+class EmployeeConfig(DatasetConfig):
+    folder_name: str = "employee"
+    description_file: str = "employee.rst"
+    available_versions: tuple = ("base",)
+    url: str = "https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/Employee"
+    baseline_start_timestamp: Dict[str, datetime] = field(
+        default_factory=lambda: {
+            "base": datetime(year=2023, month=1, day=16, tzinfo=timezone.utc),
+        }
+    )
+    inference_start_timestamp: Dict[str, datetime] = field(
+        default_factory=lambda: {
+            "base": datetime(year=2023, month=1, day=17, tzinfo=timezone.utc),
+        }
+    )
+    production_start_timestamp: Dict[str, datetime] = field(
+        default_factory=lambda: {
+            "base": datetime(year=2023, month=1, day=17, tzinfo=timezone.utc),
+        }
+    )
+    max_interval: int = 31
+    base_unit: str = "D"
+    target_columns: Dict[str, List[str]] = field(default_factory=lambda: {"base": []})
+    prediction_columns: Dict[str, List[str]] = field(
+        default_factory=lambda: {
+            "base": [],
+        }
+    )
+    miscellaneous_columns: Dict[str, List[str]] = field(
+        default_factory=lambda: {
+            "base": ["assignment_category"],
+        }
+    )
+    ignore_columns: Dict[str, List[str]] = field(
+        default_factory=lambda: {
+            "base": ["date"],
+        }
+    )
+
+
+@dataclass
 class WeatherConfig(DatasetConfig):
     folder_name: str = "weather_forecast"
     description_file: str = "weather.rst"
@@ -90,7 +137,13 @@ class WeatherConfig(DatasetConfig):
             "out_domain": datetime(year=2019, month=5, day=14, tzinfo=timezone.utc),
         }
     )
-
+    production_start_timestamp: Dict[str, datetime] = field(
+        default_factory=lambda: {
+            "in_domain": datetime(year=2019, month=2, day=1, tzinfo=timezone.utc),
+            "out_domain": datetime(year=2019, month=5, day=14, tzinfo=timezone.utc),
+        }
+    )
+    production_start_timestamp = None
     max_interval: int = 30
     base_unit: str = "D"
     available_versions: tuple = ("in_domain", "out_domain")
