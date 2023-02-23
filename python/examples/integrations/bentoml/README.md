@@ -17,23 +17,26 @@ There are two notable files in this example:
 
 After running the training script with `python train.py`, you'll see a message similar to "`Model saved: Model(tag="iris_knn:fhfsvifgrsrtjlg6")`". This is the versioned model saved to the BentoML local model store.
 
-In `service.py`, we'll get ready to serve and monitor our latest saved model.
+> Note: It can be good practice to log the training data as a static reference profile to use as a baseline to detect data drift. For more information, check out the [whylogs documentation](https://whylogs.readthedocs.io/en/latest/examples/integrations/writers/Writing_Reference_Profiles_to_WhyLabs.html).
+
+Next, In `service.py`, we'll get ready to serve and monitor our latest saved model.
 
 To get the WhyLabs API key and org-id, go to the [WhyLabs dashboard](https://hub.whylabsapp.com/) and click on the "Access Tokens" section in the settings menu. Model-ids are found under the "Project Management" tab in the same section.
 
 ```python
+import atexit
 import os
 
-import numpy as np
-import whylogs as why
-
 import bentoml
+import numpy as np
 from bentoml.io import NumpyNdarray, Text
 
+import whylogs as why
+
 # Set WhyLabs environment variables
-os.environ['WHYLABS_API_KEY'] = 'APIKEY'
-os.environ["WHYLABS_DEFAULT_ORG_ID"] = 'ORGID'
-os.environ["WHYLABS_DEFAULT_DATASET_ID"] = 'PROJECTID'
+os.environ["WHYLABS_API_KEY"] = "APIKEY"
+os.environ["WHYLABS_DEFAULT_ORG_ID"] = "ORGID"
+os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "PROJECTID"
 
 # Model Prediction Class Names
 CLASS_NAMES = ["setosa", "versicolor", "virginica"]
@@ -44,9 +47,11 @@ svc = bentoml.Service("iris_classifier", runners=[iris_clf_runner])
 
 ```
 
-> Pro tip: A best practice for software deployment is to have these environment variables always set on the machine/environment level (such as per the CI/QA machine, a Kubernetes Pod, etc.) so it is possible to leave code untouched and persist it correctly according to the environment you execute it.
+> Note: A best practice for software deployment is to have these environment variables always set on the machine/environment level (such as per the CI/QA machine, a Kubernetes Pod, etc.) so it is possible to leave code untouched and persist it correctly according to the environment you execute it.
 
 Now that our bentoML runner and environment variables are set, we can create an API endpoint with BentoML and set up model and data monitoring with whylogs and WhyLabs. We'll Log the data, predicted class, and model probability score.
+
+Create a class in `service.py` to handle startup, shutdown, logging, and prediction logic with Bentoml. This example uses the [rolling log](https://whylogs.readthedocs.io/en/latest/examples/advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.html) functionality of whylogs to write profiles to WhyLabs at set intervals. The `atexit` module registers a callback function to close the whylogs rolling logger when the service is shut down.
 
 ```python
 # Create a BentoML API endpoint for model predictions & logging
@@ -138,7 +143,8 @@ curl -i \
 
 ### 6. View the logged data in WhyLabs & Setup Monitoring
 
-In the WhyLabs project, you will see the data profile for the iris dataset and the model predictions being logged.
+In the WhyLabs project, you will see the data profile for the iris dataset and the model predictions being logged. You will need to wait the 5 minutes set in the rolling log before the data is written to WhyLabs.
+
 You can enable ML monitoring for your model and data in the `monitor` section of the WhyLabs dashboard.
 
 ![WhyLabs](https://camo.githubusercontent.com/8e9cc18b64b157d4569fa6ed2bd5152200ee7bb1a11e54f858f923a4be635f90/68747470733a2f2f7768796c6162732e61692f5f6e6578742f696d6167653f75726c3d6874747073253341253246253246636f6e74656e742e7768796c6162732e6169253246636f6e74656e74253246696d616765732532463230323225324631312532464672616d652d363839392d2d312d2e706e6726773d3331323026713d3735)
