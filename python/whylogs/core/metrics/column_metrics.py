@@ -18,11 +18,7 @@ class TypeCountersMetric(Metric):
     fractional: IntegralComponent
     boolean: IntegralComponent
     string: IntegralComponent
-<<<<<<< HEAD
     tensor: IntegralComponent
-=======
-    vector: IntegralComponent
->>>>>>> 4511d00ad105a0fb0ca88c646d31acfee1503c64
     object: IntegralComponent
 
     @property
@@ -35,11 +31,7 @@ class TypeCountersMetric(Metric):
             "fractional": self.fractional.value,
             "boolean": self.boolean.value,
             "string": self.string.value,
-<<<<<<< HEAD
             "tensor": self.tensor.value,
-=======
-            "vector": self.vector.value,
->>>>>>> 4511d00ad105a0fb0ca88c646d31acfee1503c64
             "object": self.object.value,
         }
 
@@ -81,7 +73,6 @@ class TypeCountersMetric(Metric):
         successes += string_count
         self.string.set(string_count + string_count_prev)
 
-<<<<<<< HEAD
         tensor_count = 0
         tensor_count_prev = self.tensor.value
         if data.pandas.tensors is not None:
@@ -91,17 +82,6 @@ class TypeCountersMetric(Metric):
 
         successes += tensor_count
         self.tensor.set(tensor_count + tensor_count_prev)
-=======
-        vector_count = 0
-        vector_count_prev = self.vector.value
-        if data.pandas.vectors is not None:
-            vector_count += len(data.pandas.vectors)
-        elif data.list.vectors is not None:
-            vector_count += len(data.list.vectors)
-
-        successes += vector_count
-        self.vector.set(vector_count + vector_count_prev)
->>>>>>> 4511d00ad105a0fb0ca88c646d31acfee1503c64
 
         objects = 0
         objects_prev = self.object.value
@@ -121,11 +101,7 @@ class TypeCountersMetric(Metric):
             fractional=IntegralComponent(0),
             boolean=IntegralComponent(0),
             string=IntegralComponent(0),
-<<<<<<< HEAD
             tensor=IntegralComponent(0),
-=======
-            vector=IntegralComponent(0),
->>>>>>> 4511d00ad105a0fb0ca88c646d31acfee1503c64
             object=IntegralComponent(0),
         )
 
