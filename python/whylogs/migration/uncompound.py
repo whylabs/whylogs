@@ -54,7 +54,7 @@ def _condition_count_magic_string() -> str:
     """
     Column name prefix for uncompounded ConditionCountMetric columns
     """
-    return "__whylabs.condition."
+    return "Ω.whylabs.condition."
 
 
 def _uncompounded_column_name(column_name: str, metric_name: str, submetric_name: str, metric: Metric) -> str:
