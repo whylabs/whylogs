@@ -54,35 +54,51 @@ Now that our bentoML runner and environment variables are set, we can create an 
 Create a class in `service.py` to handle startup, shutdown, logging, and prediction logic with Bentoml. This example uses the [rolling log](https://whylogs.readthedocs.io/en/latest/examples/advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.html) functionality of whylogs to write profiles to WhyLabs at set intervals. The `atexit` module registers a callback function to close the whylogs rolling logger when the service is shut down.
 
 ```python
-# Create a BentoML API endpoint for model predictions & logging
-@svc.api(
-    input=NumpyNdarray.from_sample(np.array([4.9, 3.0, 1.4, 0.2],
-    dtype=np.double)),
-    output=Text(),
-)
-async def classify(features: np.ndarray) -> str:
-    results = await iris_clf_runner.predict.async_run([features])
-    probs = iris_clf_runner.predict_proba.run([features])
-    result = results[0]
+# create a class to handle startup, shutdown, and prediction logic with Bentoml
+class MyService:
+    def __init__(self):
+        # Initialize the whylogs rolling logger with a 5 minute interval
+        global logger
+        logger = why.logger(
+            mode="rolling", interval=5, when="M", base_name="bentoml_predictions"
+        )
+        logger.append_writer("whylabs")
 
-    category = CLASS_NAMES[result]
-    prob = max(probs[0])
+    def on_exit_callback(self):
+        # Close the whylogs rolling logger when the service is shut down
+        logger.close()
 
-    # create a dict of data & prediction results w/ feature names
-    data = {
-        "sepal length": features[0],
-        "sepal width": features[1],
-        "petal length": features[2],
-        "petal width": features[3],
-        "class_output": category,
-        "proba_output": prob,
-    }
+    # Create a BentoML API endpoint for model predictions & logging
+    @svc.api(
+        input=NumpyNdarray.from_sample(np.array([4.9, 3.0, 1.4, 0.2], dtype=np.double)),
+        output=Text(),
+    )
+    async def classify(features: np.ndarray):
+        results = await iris_clf_runner.predict.async_run([features])
+        probs = iris_clf_runner.predict_proba.run([features])
+        result = results[0]
 
-    # Log data+outputs with whylogs & write to WhyLabs.ai
-    profile_results = why.log(data)
-    profile_results.writer("whylabs").write()
+        category = CLASS_NAMES[result]
+        prob = max(probs[0])
 
-    return category
+        # create a dict of data & prediction results w/ feature names
+        data = {
+            "sepal length": features[0],
+            "sepal width": features[1],
+            "petal length": features[2],
+            "petal width": features[3],
+            "class_output": category,
+            "proba_output": prob,
+        }
+
+        # Log data + model outputs to WhyLabs.ai
+        logger.log(data)
+
+        return category
+
+
+my_service = MyService()
+atexit.register(my_service.on_exit_callback)
 
 ```
 
