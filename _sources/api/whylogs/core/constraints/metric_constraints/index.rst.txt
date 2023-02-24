@@ -14,6 +14,9 @@ Classes
 
    whylogs.core.constraints.metric_constraints.MetricsSelector
    whylogs.core.constraints.metric_constraints.MetricConstraint
+   whylogs.core.constraints.metric_constraints.DatasetConstraint
+   whylogs.core.constraints.metric_constraints.MetricConstraintWrapper
+   whylogs.core.constraints.metric_constraints.PrefixCondition
    whylogs.core.constraints.metric_constraints.Constraints
    whylogs.core.constraints.metric_constraints.ConstraintsBuilder
 
@@ -62,7 +65,7 @@ Attributes
 
       
 
-   .. py:method:: column_profile(profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
+   .. py:method:: column_profile(profile: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView]) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
 
 
    .. py:method:: apply(profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> List[whylogs.core.metrics.metrics.Metric]
@@ -102,6 +105,66 @@ Attributes
 
 
 
+.. py:exception:: MissingMetric
+
+   Bases: :py:obj:`Exception`
+
+   DatasetConstraint conditions can raise this exception to indicate that
+   a required metric or column could not be found in the DatasetProfileView.
+   The DatasetConstraint is responsible for handling this exception.
+
+   .. py:class:: args
+
+
+   .. py:method:: with_traceback()
+
+      Exception.with_traceback(tb) --
+      set self.__traceback__ to tb and return self.
+
+
+
+.. py:class:: DatasetConstraint
+
+   Implements dataset-level constraints that are not attached to a specific
+   metric or column. The condition Callable takes the DatasetProfileView as
+   input and returns a boolean indicating whether the condition is satisfied
+   as well as a dictionary mapping 'column_name/metric_namespace' -> Metric for
+   any metrics the condition used during its evaluation.
+
+   .. py:attribute:: condition
+      :type: Callable[[whylogs.core.view.dataset_profile_view.DatasetProfileView], Tuple[bool, Dict[str, whylogs.core.metrics.metrics.Metric]]]
+
+      
+
+   .. py:attribute:: name
+      :type: str
+
+      
+
+   .. py:attribute:: require_column_existence
+      :type: bool
+      :value: True
+
+      
+
+   .. py:method:: validate_profile(dataset_profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> Tuple[bool, Optional[Dict[str, Any]]]
+
+
+
+.. py:class:: MetricConstraintWrapper(constraint: MetricConstraint)
+
+   Converts a MetricConstraint not associated with a specific column
+   into a Callable that can be a DatasetConstraint condition.
+
+
+.. py:class:: PrefixCondition(expression: str)
+
+   Interpret expressions in the form used to serialize Predicate expressions.
+   This is probably a reasonable serialization format for DatasetConstraint
+   conditions, but might not be the best user interface for creating conditions
+   in client code.
+
+
 .. py:class:: Constraints(dataset_profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None, column_constraints: Optional[Dict[str, Dict[str, MetricConstraint]]] = None)
 
    .. py:attribute:: column_constraints
@@ -110,7 +173,7 @@ Attributes
       
 
    .. py:attribute:: dataset_constraints
-      :type: Dict[str, MetricConstraint]
+      :type: List[DatasetConstraint]
 
       
 
@@ -134,7 +197,7 @@ Attributes
    .. py:method:: get_metric_selectors() -> List[MetricsSelector]
 
 
-   .. py:method:: add_constraint(constraint: MetricConstraint, ignore_missing: bool = False) -> ConstraintsBuilder
+   .. py:method:: add_constraint(constraint: Union[MetricConstraint, DatasetConstraint], ignore_missing: bool = False) -> ConstraintsBuilder
 
 
    .. py:method:: build() -> Constraints

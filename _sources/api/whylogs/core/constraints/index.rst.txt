@@ -32,8 +32,10 @@ Classes
 
    whylogs.core.constraints.Constraints
    whylogs.core.constraints.ConstraintsBuilder
+   whylogs.core.constraints.DatasetConstraint
    whylogs.core.constraints.MetricConstraint
    whylogs.core.constraints.MetricsSelector
+   whylogs.core.constraints.PrefixCondition
 
 
 
@@ -46,7 +48,7 @@ Classes
       
 
    .. py:attribute:: dataset_constraints
-      :type: Dict[str, MetricConstraint]
+      :type: List[DatasetConstraint]
 
       
 
@@ -70,10 +72,38 @@ Classes
    .. py:method:: get_metric_selectors() -> List[MetricsSelector]
 
 
-   .. py:method:: add_constraint(constraint: MetricConstraint, ignore_missing: bool = False) -> ConstraintsBuilder
+   .. py:method:: add_constraint(constraint: Union[MetricConstraint, DatasetConstraint], ignore_missing: bool = False) -> ConstraintsBuilder
 
 
    .. py:method:: build() -> Constraints
+
+
+
+.. py:class:: DatasetConstraint
+
+   Implements dataset-level constraints that are not attached to a specific
+   metric or column. The condition Callable takes the DatasetProfileView as
+   input and returns a boolean indicating whether the condition is satisfied
+   as well as a dictionary mapping 'column_name/metric_namespace' -> Metric for
+   any metrics the condition used during its evaluation.
+
+   .. py:attribute:: condition
+      :type: Callable[[whylogs.core.view.dataset_profile_view.DatasetProfileView], Tuple[bool, Dict[str, whylogs.core.metrics.metrics.Metric]]]
+
+      
+
+   .. py:attribute:: name
+      :type: str
+
+      
+
+   .. py:attribute:: require_column_existence
+      :type: bool
+      :value: True
+
+      
+
+   .. py:method:: validate_profile(dataset_profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> Tuple[bool, Optional[Dict[str, Any]]]
 
 
 
@@ -124,10 +154,18 @@ Classes
 
       
 
-   .. py:method:: column_profile(profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
+   .. py:method:: column_profile(profile: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView]) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
 
 
    .. py:method:: apply(profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> List[whylogs.core.metrics.metrics.Metric]
 
+
+
+.. py:class:: PrefixCondition(expression: str)
+
+   Interpret expressions in the form used to serialize Predicate expressions.
+   This is probably a reasonable serialization format for DatasetConstraint
+   conditions, but might not be the best user interface for creating conditions
+   in client code.
 
 

@@ -450,10 +450,19 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.relations.Not" title="whylogs.core.relations.Not"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Not</span></code></a>(→ Predicate)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.relations.unescape_quote" title="whylogs.core.relations.unescape_quote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unescape_quote</span></code></a>(→ str)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.relations.Require" title="whylogs.core.relations.Require"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Require</span></code></a>(→ Predicate)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.relations.unescape_colon" title="whylogs.core.relations.unescape_colon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unescape_colon</span></code></a>(→ str)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.relations.escape" title="whylogs.core.relations.escape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">escape</span></code></a>(→ str)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.relations.Not" title="whylogs.core.relations.Not"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Not</span></code></a>(→ Predicate)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.relations.Require" title="whylogs.core.relations.Require"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Require</span></code></a>(→ Predicate)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -475,6 +484,48 @@ inheritance.</p>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.relations.unescape_quote">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.relations.</span></span><span class="sig-name descname"><span class="pre">unescape_quote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/relations.html#unescape_quote"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.relations.unescape_quote" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.relations.unescape_colon">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.relations.</span></span><span class="sig-name descname"><span class="pre">unescape_colon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/relations.html#unescape_colon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.relations.unescape_colon" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.relations.escape">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.relations.</span></span><span class="sig-name descname"><span class="pre">escape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/relations.html#escape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.relations.escape" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
@@ -865,6 +916,9 @@ inheritance.</p>
 <li><a class="reference internal" href="#whylogs.core.relations.ValueGetter.serialize">serialize</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#whylogs.core.relations.unescape_quote">unescape_quote</a></li>
+<li><a class="reference internal" href="#whylogs.core.relations.unescape_colon">unescape_colon</a></li>
+<li><a class="reference internal" href="#whylogs.core.relations.escape">escape</a></li>
 <li><a class="reference internal" href="#whylogs.core.relations.LiteralGetter">LiteralGetter</a><ul>
 <li><a class="reference internal" href="#whylogs.core.relations.LiteralGetter.serialize">serialize</a></li>
 </ul>

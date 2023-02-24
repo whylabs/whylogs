@@ -409,11 +409,46 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.dataset_profile</span> <span class="kn">import</span> <span class="n">DatasetProfile</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metric_getters</span> <span class="kn">import</span> <span class="n">MetricGetter</span><span class="p">,</span> <span class="n">ProfileGetter</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">LiteralGetter</span><span class="p">,</span> <span class="n">Predicate</span><span class="p">,</span> <span class="n">Relation</span><span class="p">,</span> <span class="n">ValueGetter</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LiteralGetter</span><span class="p">,</span>
+    <span class="n">Predicate</span><span class="p">,</span>
+    <span class="n">Relation</span><span class="p">,</span>
+    <span class="n">ValueGetter</span><span class="p">,</span>
+    <span class="n">unescape_colon</span><span class="p">,</span>
+    <span class="n">unescape_quote</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_unescape_token</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">unescape_quote</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;:&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">unescape_colon</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">input</span>
+
+
+<span class="c1"># We use this with findall() to split an input string into tokens.</span>
+<span class="c1"># (?::(?:[^:]|\\:)*:[_a-zA-Z0-9]+/[_a-zA-Z0-9:/]+) matches metric references with \: escaped in column names</span>
+<span class="c1"># &quot;(?:[^\\&quot;]|\\[^&quot;]|\\&quot;)*&quot; matches quoted strings with \&quot;  \\ escaped quotes and \</span>
+<span class="c1"># (?:[^ &quot;:][^ ]*) matches everything else delimited by spaces</span>
+
+<span class="n">_TOKEN_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(?::(?:[^:]|</span><span class="se">\\</span><span class="s1">:)*:[_a-zA-Z0-9]+/[_a-zA-Z0-9:/]+)|(?:[^ &quot;:][^ ]*)|&quot;(?:[^</span><span class="se">\\</span><span class="s1">&quot;]|</span><span class="se">\\</span><span class="s1">[^&quot;]|</span><span class="se">\\</span><span class="s1">&quot;)*&quot;&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_tokenize</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">_unescape_token</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">_TOKEN_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="nb">input</span><span class="p">)]</span>
 
 
 <span class="k">def</span> <span class="nf">_get_component</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
     <span class="k">return</span> <span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># either dummy variable x or metric component name in metric::to_summary_dict()</span>
+
+
+<span class="c1"># These match metric references with our without column names, with capture groups to</span>
+<span class="c1"># pull out the column name and path. They have an optional submetric_name:submetric_namespace/</span>
+<span class="c1"># section to support MultiMetric references.</span>
+
+<span class="n">_METRIC_REF</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;::[_a-zA-Z0-9]+/(?:[_a-zA-Z0-9]+:[_a-zA-Z0-9]+/)?[_a-zA-Z0-9]+&quot;</span><span class="p">)</span>
+<span class="n">_PROFILE_REF</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;:(.+?):([_a-zA-Z0-9]+/(?:[_a-zA-Z0-9]+:[_a-zA-Z0-9]+/)?[_a-zA-Z0-9]+)&quot;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_get_value</span><span class="p">(</span>
@@ -422,24 +457,25 @@
     <span class="k">if</span> <span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">LiteralGetter</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
 
-    <span class="k">if</span> <span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">_METRIC_REF</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
         <span class="k">if</span> <span class="n">metric</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify metric to use with MetricGetter&quot;</span><span class="p">)</span>
 
-        <span class="n">namespace</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="n">namespace</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">metric</span><span class="o">.</span><span class="n">namespace</span> <span class="o">!=</span> <span class="n">namespace</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s2"> metric but got </span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">namespace</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">MetricGetter</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">path</span><span class="p">),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
 
-    <span class="k">if</span> <span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">):</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">_PROFILE_REF</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify profile to use with ProfileGetter&quot;</span><span class="p">)</span>
 
-        <span class="n">column_name</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="n">column_name</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
         <span class="k">return</span> <span class="n">ProfileGetter</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">path</span><span class="p">),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
 
-    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="s2">&quot;[0-9]+&quot;</span><span class="p">,</span> <span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">])):</span>
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[-+]?\d+&quot;</span><span class="p">,</span> <span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">])):</span>
         <span class="k">return</span> <span class="n">LiteralGetter</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">])),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
 
     <span class="k">return</span> <span class="n">LiteralGetter</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="n">i</span><span class="p">])),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
@@ -508,7 +544,7 @@
 <div class="viewcode-block" id="parse_predicate"><a class="viewcode-back" href="../../../api/whylogs/core/predicate_parser/index.html#whylogs.core.predicate_parser.parse_predicate">[docs]</a><span class="k">def</span> <span class="nf">parse_predicate</span><span class="p">(</span>
     <span class="n">expression</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">profile</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfile</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Predicate</span><span class="p">:</span>
-    <span class="n">predicate</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_deserialize</span><span class="p">(</span><span class="n">expression</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">profile</span><span class="p">)</span>
+    <span class="n">predicate</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_deserialize</span><span class="p">(</span><span class="n">_tokenize</span><span class="p">(</span><span class="n">expression</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">profile</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">predicate</span></div>
 </pre></div>
         </article>

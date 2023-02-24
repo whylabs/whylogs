@@ -76,7 +76,7 @@ Classes
    .. py:method:: specify_output_fields(column_names: Union[str, Set[str]]) -> None
 
 
-   .. py:method:: merge(other)
+   .. py:method:: merge(other) -> ModelPerformanceMetrics
 
       :type other: ModelMetrics
 

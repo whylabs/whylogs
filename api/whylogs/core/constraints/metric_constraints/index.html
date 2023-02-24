@@ -431,10 +431,19 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MetricConstraint</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.Constraints" title="whylogs.core.constraints.metric_constraints.Constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Constraints</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint" title="whylogs.core.constraints.metric_constraints.DatasetConstraint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetConstraint</span></code></a></p></td>
+<td><p>Implements dataset-level constraints that are not attached to a specific</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MetricConstraintWrapper" title="whylogs.core.constraints.metric_constraints.MetricConstraintWrapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MetricConstraintWrapper</span></code></a></p></td>
+<td><p>Converts a MetricConstraint not associated with a specific column</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.PrefixCondition" title="whylogs.core.constraints.metric_constraints.PrefixCondition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrefixCondition</span></code></a></p></td>
+<td><p>Interpret expressions in the form used to serialize Predicate expressions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.Constraints" title="whylogs.core.constraints.metric_constraints.Constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Constraints</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.ConstraintsBuilder" title="whylogs.core.constraints.metric_constraints.ConstraintsBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConstraintsBuilder</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.ConstraintsBuilder" title="whylogs.core.constraints.metric_constraints.ConstraintsBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConstraintsBuilder</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -505,10 +514,10 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.MetricsSelector.column_profile">
-<span class="sig-name descname"><span class="pre">column_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView" title="whylogs.core.view.dataset_profile_view.DatasetProfileView"><span class="pre">whylogs.core.view.dataset_profile_view.DatasetProfileView</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../view/column_profile_view/index.html#whylogs.core.view.column_profile_view.ColumnProfileView" title="whylogs.core.view.column_profile_view.ColumnProfileView"><span class="pre">whylogs.core.view.column_profile_view.ColumnProfileView</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/metric_constraints.html#MetricsSelector.column_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.MetricsSelector.column_profile" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">column_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView" title="whylogs.core.view.dataset_profile_view.DatasetProfileView"><span class="pre">whylogs.core.view.dataset_profile_view.DatasetProfileView</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../view/column_profile_view/index.html#whylogs.core.view.column_profile_view.ColumnProfileView" title="whylogs.core.view.column_profile_view.ColumnProfileView"><span class="pre">whylogs.core.view.column_profile_view.ColumnProfileView</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/metric_constraints.html#MetricsSelector.column_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.MetricsSelector.column_profile" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>profile</strong> (<a class="reference internal" href="../../view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView" title="whylogs.core.view.dataset_profile_view.DatasetProfileView"><em>whylogs.core.view.dataset_profile_view.DatasetProfileView</em></a>) – </p>
+<dd class="field-odd"><p><strong>profile</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../../view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView" title="whylogs.core.view.dataset_profile_view.DatasetProfileView"><em>whylogs.core.view.dataset_profile_view.DatasetProfileView</em></a><em>]</em>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>Optional[<a class="reference internal" href="../../view/column_profile_view/index.html#whylogs.core.view.column_profile_view.ColumnProfileView" title="whylogs.core.view.column_profile_view.ColumnProfileView">whylogs.core.view.column_profile_view.ColumnProfileView</a>]</p>
@@ -598,6 +607,91 @@
 
 </dd></dl>
 
+<dl class="py exception">
+<dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.MissingMetric">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.metric_constraints.</span></span><span class="sig-name descname"><span class="pre">MissingMetric</span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/metric_constraints.html#MissingMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.MissingMetric" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/exceptions.html#Exception" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>DatasetConstraint conditions can raise this exception to indicate that
+a required metric or column could not be found in the DatasetProfileView.
+The DatasetConstraint is responsible for handling this exception.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.MissingMetric.args">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">args</span></span><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.MissingMetric.args" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.MissingMetric.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.MissingMetric.with_traceback" title="Permalink to this definition">#</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.DatasetConstraint">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.metric_constraints.</span></span><span class="sig-name descname"><span class="pre">DatasetConstraint</span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/metric_constraints.html#DatasetConstraint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint" title="Permalink to this definition">#</a></dt>
+<dd><p>Implements dataset-level constraints that are not attached to a specific
+metric or column. The condition Callable takes the DatasetProfileView as
+input and returns a boolean indicating whether the condition is satisfied
+as well as a dictionary mapping ‘column_name/metric_namespace’ -&gt; Metric for
+any metrics the condition used during its evaluation.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.DatasetConstraint.condition">
+<span class="sig-name descname"><span class="pre">condition</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView" title="whylogs.core.view.dataset_profile_view.DatasetProfileView"><span class="pre">whylogs.core.view.dataset_profile_view.DatasetProfileView</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><span class="pre">whylogs.core.metrics.metrics.Metric</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint.condition" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.DatasetConstraint.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint.name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.DatasetConstraint.require_column_existence">
+<span class="sig-name descname"><span class="pre">require_column_existence</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint.require_column_existence" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.DatasetConstraint.validate_profile">
+<span class="sig-name descname"><span class="pre">validate_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_profile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView" title="whylogs.core.view.dataset_profile_view.DatasetProfileView"><span class="pre">whylogs.core.view.dataset_profile_view.DatasetProfileView</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/metric_constraints.html#DatasetConstraint.validate_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint.validate_profile" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset_profile</strong> (<a class="reference internal" href="../../view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView" title="whylogs.core.view.dataset_profile_view.DatasetProfileView"><em>whylogs.core.view.dataset_profile_view.DatasetProfileView</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Tuple[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)">bool</a>, Optional[Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, Any]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.MetricConstraintWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.metric_constraints.</span></span><span class="sig-name descname"><span class="pre">MetricConstraintWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">MetricConstraint</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/metric_constraints.html#MetricConstraintWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.MetricConstraintWrapper" title="Permalink to this definition">#</a></dt>
+<dd><p>Converts a MetricConstraint not associated with a specific column
+into a Callable that can be a DatasetConstraint condition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>constraint</strong> (<a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><em>MetricConstraint</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.PrefixCondition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.metric_constraints.</span></span><span class="sig-name descname"><span class="pre">PrefixCondition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/metric_constraints.html#PrefixCondition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.PrefixCondition" title="Permalink to this definition">#</a></dt>
+<dd><p>Interpret expressions in the form used to serialize Predicate expressions.
+This is probably a reasonable serialization format for DatasetConstraint
+conditions, but might not be the best user interface for creating conditions
+in client code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>expression</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.Constraints">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.metric_constraints.</span></span><span class="sig-name descname"><span class="pre">Constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_profile_view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView" title="whylogs.core.view.dataset_profile_view.DatasetProfileView"><span class="pre">whylogs.core.view.dataset_profile_view.DatasetProfileView</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">MetricConstraint</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/metric_constraints.html#Constraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.Constraints" title="Permalink to this definition">#</a></dt>
@@ -616,7 +710,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.Constraints.dataset_constraints">
-<span class="sig-name descname"><span class="pre">dataset_constraints</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">MetricConstraint</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.Constraints.dataset_constraints" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">dataset_constraints</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint" title="whylogs.core.constraints.metric_constraints.DatasetConstraint"><span class="pre">DatasetConstraint</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.Constraints.dataset_constraints" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -688,11 +782,11 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.constraints.metric_constraints.ConstraintsBuilder.add_constraint">
-<span class="sig-name descname"><span class="pre">add_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">MetricConstraint</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.ConstraintsBuilder" title="whylogs.core.constraints.metric_constraints.ConstraintsBuilder"><span class="pre">ConstraintsBuilder</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/metric_constraints.html#ConstraintsBuilder.add_constraint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.ConstraintsBuilder.add_constraint" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">MetricConstraint</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint" title="whylogs.core.constraints.metric_constraints.DatasetConstraint"><span class="pre">DatasetConstraint</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.ConstraintsBuilder" title="whylogs.core.constraints.metric_constraints.ConstraintsBuilder"><span class="pre">ConstraintsBuilder</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/constraints/metric_constraints.html#ConstraintsBuilder.add_constraint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.metric_constraints.ConstraintsBuilder.add_constraint" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>constraint</strong> (<a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><em>MetricConstraint</em></a>) – </p></li>
+<li><p><strong>constraint</strong> (<em>Union</em><em>[</em><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><em>MetricConstraint</em></a><em>, </em><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint" title="whylogs.core.constraints.metric_constraints.DatasetConstraint"><em>DatasetConstraint</em></a><em>]</em>) – </p></li>
 <li><p><strong>ignore_missing</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
 </ul>
 </dd>
@@ -825,6 +919,20 @@
 <li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MetricConstraint.validate_profile">validate_profile</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MissingMetric">MissingMetric</a><ul>
+<li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MissingMetric.args">args</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MissingMetric.with_traceback">with_traceback</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint">DatasetConstraint</a><ul>
+<li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint.condition">condition</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint.name">name</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint.require_column_existence">require_column_existence</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.DatasetConstraint.validate_profile">validate_profile</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.MetricConstraintWrapper">MetricConstraintWrapper</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.PrefixCondition">PrefixCondition</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.Constraints">Constraints</a><ul>
 <li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.Constraints.column_constraints">column_constraints</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.metric_constraints.Constraints.dataset_constraints">dataset_constraints</a></li>

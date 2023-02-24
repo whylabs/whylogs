@@ -63,6 +63,9 @@ Attributes
    .. py:method:: get_metric_names() -> List[str]
 
 
+   .. py:method:: get_metrics() -> List[whylogs.core.metrics.metrics.Metric]
+
+
    .. py:method:: to_summary_dict(*, column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
 
 

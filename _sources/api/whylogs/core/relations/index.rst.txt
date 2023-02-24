@@ -24,6 +24,9 @@ Functions
 
 .. autoapisummary::
 
+   whylogs.core.relations.unescape_quote
+   whylogs.core.relations.unescape_colon
+   whylogs.core.relations.escape
    whylogs.core.relations.Not
    whylogs.core.relations.Require
 
@@ -39,6 +42,15 @@ Functions
    .. py:method:: serialize() -> str
       :abstractmethod:
 
+
+
+.. py:function:: unescape_quote(input: str) -> str
+
+
+.. py:function:: unescape_colon(input: str) -> str
+
+
+.. py:function:: escape(input: str, target: str) -> str
 
 
 .. py:class:: LiteralGetter(value: Union[str, int, float])

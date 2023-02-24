@@ -83,7 +83,7 @@ Attributes
       :rtype: ConfusionMatrix
 
 
-   .. py:method:: to_protobuf()
+   .. py:method:: to_protobuf() -> whylogs.core.proto.v0.ScoreMatrixMessage
 
       Convert to protobuf
 
@@ -91,7 +91,7 @@ Attributes
       :rtype: TYPE
 
 
-   .. py:method:: from_protobuf(message: whylogs.core.proto.v0.ScoreMatrixMessage)
+   .. py:method:: from_protobuf(message: whylogs.core.proto.v0.ScoreMatrixMessage) -> Optional[ConfusionMatrix]
       :classmethod:
 
 

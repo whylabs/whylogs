@@ -403,13 +403,15 @@
         </div>
         <article role="main">
           <h1>Source code for whylogs.core.constraints.metric_constraints</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.predicate_parser</span> <span class="kn">import</span> <span class="n">_METRIC_REF</span><span class="p">,</span> <span class="n">_PROFILE_REF</span><span class="p">,</span> <span class="n">_tokenize</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.utils</span> <span class="kn">import</span> <span class="n">deprecated</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.view.column_profile_view</span> <span class="kn">import</span> <span class="n">ColumnProfileView</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.view.dataset_profile_view</span> <span class="kn">import</span> <span class="n">DatasetProfileView</span>
@@ -426,11 +428,11 @@
     <span class="n">column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># &lt;- TODO: return a collection of columns</span>
     <span class="n">metrics_resolver</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">DatasetProfileView</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Metric</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="MetricsSelector.column_profile"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.MetricsSelector.column_profile">[docs]</a>    <span class="k">def</span> <span class="nf">column_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ColumnProfileView</span><span class="p">]:</span>
+<div class="viewcode-block" id="MetricsSelector.column_profile"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.MetricsSelector.column_profile">[docs]</a>    <span class="k">def</span> <span class="nf">column_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ColumnProfileView</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">column_profile_view</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">column_profile_view</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_name</span> <span class="ow">and</span> <span class="n">column_profile_view</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;No column name </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> found in profile, available columns are: </span><span class="si">{</span><span class="n">profile</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
@@ -443,6 +445,7 @@
                 <span class="k">return</span> <span class="n">custom_result</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;metrics_resolver must return a list of Metrics if defined!&quot;</span><span class="p">)</span>
+
         <span class="n">results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">column_profile_view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">column_profile_view</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -567,7 +570,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;validate could not get metric </span><span class="si">{</span><span class="n">metric_selector</span><span class="o">.</span><span class="n">metric_name</span><span class="si">}</span><span class="s2"> from column &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric_selector</span><span class="o">.</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> but require_column_existence is false so returning True. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric_selector</span><span class="o">.</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> but require_column_existence is not set so returning True. &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;Available metrics on column are: </span><span class="si">{</span><span class="n">column_profile</span><span class="o">.</span><span class="n">get_metric_component_paths</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -582,7 +585,7 @@
             <span class="k">if</span> <span class="n">metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">require_column_existence</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;validate reached empty distribution metrics from column &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric_selector</span><span class="o">.</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> but require_column_existence is false so returning True. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric_selector</span><span class="o">.</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> but require_column_existence is not set so returning True. &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;Available metrics on column are: </span><span class="si">{</span><span class="n">column_profile</span><span class="o">.</span><span class="n">get_metric_component_paths</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -592,9 +595,282 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">validate_result</span><span class="p">,</span> <span class="n">metric_summary</span><span class="p">)</span></div></div>
 
 
+<div class="viewcode-block" id="MissingMetric"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.MissingMetric">[docs]</a><span class="k">class</span> <span class="nc">MissingMetric</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DatasetConstraint conditions can raise this exception to indicate that</span>
+<span class="sd">    a required metric or column could not be found in the DatasetProfileView.</span>
+<span class="sd">    The DatasetConstraint is responsible for handling this exception.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="DatasetConstraint"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.DatasetConstraint">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">DatasetConstraint</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements dataset-level constraints that are not attached to a specific</span>
+<span class="sd">    metric or column. The condition Callable takes the DatasetProfileView as</span>
+<span class="sd">    input and returns a boolean indicating whether the condition is satisfied</span>
+<span class="sd">    as well as a dictionary mapping &#39;column_name/metric_namespace&#39; -&gt; Metric for</span>
+<span class="sd">    any metrics the condition used during its evaluation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">condition</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">DatasetProfileView</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]]]</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">require_column_existence</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Applies to all columns referenced in the constraint</span>
+
+    <span class="k">def</span> <span class="nf">_get_metric_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="n">summary</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">metric_summary</span> <span class="o">=</span> <span class="n">pretty_display</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">metric</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">component</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metric_summary</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">summary</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">summary</span>
+
+<div class="viewcode-block" id="DatasetConstraint.validate_profile"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.DatasetConstraint.validate_profile">[docs]</a>    <span class="k">def</span> <span class="nf">validate_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_profile</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">validate_result</span><span class="p">,</span> <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">condition</span><span class="p">(</span><span class="n">dataset_profile</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">MissingMetric</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">require_column_existence</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;validate_profile could not get metric </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2"> so returning False.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;validate_profile could not get metric </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">  &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;but require_column_existence is False, so returning True. &quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">metric_summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_metric_summary</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">validate_result</span><span class="p">,</span> <span class="n">metric_summary</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="MetricConstraintWrapper"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.MetricConstraintWrapper">[docs]</a><span class="k">class</span> <span class="nc">MetricConstraintWrapper</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a MetricConstraint not associated with a specific column</span>
+<span class="sd">    into a Callable that can be a DatasetConstraint condition.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="n">MetricConstraint</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraint</span> <span class="o">=</span> <span class="n">constraint</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]]:</span>
+        <span class="n">valid</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraint</span><span class="o">.</span><span class="n">validate_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraint</span><span class="o">.</span><span class="n">metric_selector</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>  <span class="c1"># Metrics used during evaluation</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span>
+        <span class="n">metric_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="c1"># Find the columns the referenced Metrics live in</span>
+        <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column_view</span> <span class="ow">in</span> <span class="n">columns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">column_view</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">():</span>
+                    <span class="n">metric_map</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">namespace</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="n">valid</span><span class="p">,</span> <span class="n">metric_map</span></div>
+
+
+<span class="n">_INT_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[-+]?\d+&quot;</span><span class="p">)</span>
+<span class="n">_FLOAT_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="PrefixCondition"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.PrefixCondition">[docs]</a><span class="k">class</span> <span class="nc">PrefixCondition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpret expressions in the form used to serialize Predicate expressions.</span>
+<span class="sd">    This is probably a reasonable serialization format for DatasetConstraint</span>
+<span class="sd">    conditions, but might not be the best user interface for creating conditions</span>
+<span class="sd">    in client code.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expression</span> <span class="o">=</span> <span class="n">expression</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span> <span class="o">=</span> <span class="n">_tokenize</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metric_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_interpret</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>  <span class="c1"># noqa: C901</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="c1"># Metric reference        :column_name:metric_namespace/component_name</span>
+        <span class="c1"># MultiMetric reference   :column_name:metric_namespace/submetric_name:submetric_namespace/component_name</span>
+        <span class="c1"># Dataset-level metric    ::metric_namespace/...</span>
+
+        <span class="n">match</span> <span class="o">=</span> <span class="n">_METRIC_REF</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="c1"># TODO: get dataset-level metric from profile</span>
+            <span class="c1"># TODO: self._metric_map[path] = metric</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="n">match</span> <span class="o">=</span> <span class="n">_PROFILE_REF</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+            <span class="n">column_name</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+            <span class="n">metric_name</span><span class="p">,</span> <span class="n">component_name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">metric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="n">metric_name</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                <span class="n">summary</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">()</span>
+            <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
+                <span class="k">raise</span> <span class="n">MissingMetric</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+
+            <span class="c1"># Track Metrics referenced during evaluation</span>
+            <span class="n">metric_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metric_map</span><span class="p">[</span><span class="n">metric_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">summary</span><span class="p">[</span><span class="n">component_name</span><span class="p">]</span>
+            <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Component </span><span class="si">{</span><span class="n">component_name</span><span class="si">}</span><span class="s2"> not found in </span><span class="si">{</span><span class="n">metric_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">value</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="c1"># Relational operators</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;~&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">right</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="c1"># TODO: should we try to str(left) ?</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">regex</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">left</span><span class="p">))),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;~=&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">right</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="c1"># TODO: should we try to str(left) ?</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">regex</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">regex</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">left</span><span class="p">))),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;==&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="o">==</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;!=&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="o">!=</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="o">&lt;=</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="o">&gt;</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="o">&gt;=</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="c1"># Boolean operators</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;and&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="ow">and</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;or&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="ow">or</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;not&quot;</span><span class="p">:</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="ow">not</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="c1"># Arithmetic operators</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="o">+</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="o">-</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="o">*</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;**&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span><span class="o">**</span><span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="o">/</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;//&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="o">//</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;%&quot;</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">right</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="o">%</span> <span class="n">right</span><span class="p">),</span> <span class="n">i</span>
+
+        <span class="c1"># Literals</span>
+
+        <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">_INT_RE</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">token</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">token</span><span class="p">),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">_FLOAT_RE</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">token</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">token</span><span class="p">),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unparsable expression: &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_expression</span><span class="si">}</span><span class="s2">&#39; at token </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: &#39;</span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        relational operators: ~ ~= == &lt; &lt;= &gt; &gt;= !=</span>
+<span class="sd">        boolean operators:    and or not</span>
+<span class="sd">        arithmetic operators: + - * ** / // %</span>
+
+<span class="sd">        literals: 42 3.14 &quot;blah&quot;</span>
+
+<span class="sd">        metric component references: :column_name:metric_namespace/metric_component</span>
+
+<span class="sd">        returns a bool indicating whether the expression passed and a map of</span>
+<span class="sd">        :column_name:metric_namespace -&gt; Metric for the metrics used in evaluating</span>
+<span class="sd">        the expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span> <span class="o">=</span> <span class="n">profile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metric_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">passes</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">passes</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Contraint expression should return a boolean, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">passes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">passes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric_map</span></div>
+
+
+<span class="k">def</span> <span class="nf">_make_report</span><span class="p">(</span>
+    <span class="n">constraint_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">with_summary</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">metric_summary</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReportResult</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">with_summary</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ReportResult</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">constraint_name</span><span class="p">,</span> <span class="n">passed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">failed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="n">metric_summary</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ReportResult</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">constraint_name</span><span class="p">,</span> <span class="n">passed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">failed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">with_summary</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ReportResult</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">constraint_name</span><span class="p">,</span> <span class="n">passed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">failed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="n">metric_summary</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ReportResult</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">constraint_name</span><span class="p">,</span> <span class="n">passed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">failed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="Constraints"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.Constraints">[docs]</a><span class="k">class</span> <span class="nc">Constraints</span><span class="p">:</span>
     <span class="n">column_constraints</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MetricConstraint</span><span class="p">]]</span>
-    <span class="n">dataset_constraints</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MetricConstraint</span><span class="p">]</span>
+    <span class="n">dataset_constraints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetConstraint</span><span class="p">]</span>
     <span class="n">dataset_profile_view</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -602,16 +878,14 @@
         <span class="n">dataset_profile_view</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">column_constraints</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MetricConstraint</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">column_constraints</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">column_constraints</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">column_constraints</span> <span class="o">=</span> <span class="n">column_constraints</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_constraints</span> <span class="o">=</span> <span class="n">column_constraints</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataset_profile_view</span> <span class="o">=</span> <span class="n">dataset_profile_view</span>
 
 <div class="viewcode-block" id="Constraints.validate"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.Constraints.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile_view</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_profile_view</span><span class="p">(</span><span class="n">profile_view</span><span class="p">)</span>
         <span class="n">column_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_constraints</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">column_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">column_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;validate was called with empty set of constraints, returning True!&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span>
 
@@ -622,12 +896,11 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constraint_name</span><span class="si">}</span><span class="s2"> failed on column </span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="k">return</span> <span class="kc">False</span>
-        <span class="n">metric_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">metric_name</span> <span class="ow">in</span> <span class="n">metric_names</span><span class="p">:</span>
-            <span class="n">metric_constraint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="p">[</span><span class="n">metric_name</span><span class="p">]</span>
-            <span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">metric_constraint</span><span class="o">.</span><span class="n">validate_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">validate_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2"> failed on dataset&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constraint</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> failed on dataset&quot;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
@@ -636,10 +909,6 @@
         <span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_profile_view</span><span class="p">(</span><span class="n">profile_view</span><span class="p">)</span>
         <span class="n">column_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_constraints</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="n">results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">column_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;report was called with empty set of constraints!&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">results</span>
-
         <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">column_names</span><span class="p">:</span>
             <span class="n">columnar_constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_constraints</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">constraint_name</span><span class="p">,</span> <span class="n">metric_constraint</span> <span class="ow">in</span> <span class="n">columnar_constraints</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -649,15 +918,17 @@
                     <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">constraint_name</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">constraint_name</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-        <span class="n">metric_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">metric_name</span> <span class="ow">in</span> <span class="n">metric_names</span><span class="p">:</span>
-            <span class="n">metric_constraint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="p">[</span><span class="n">metric_name</span><span class="p">]</span>
-            <span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">metric_constraint</span><span class="o">.</span><span class="n">validate_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">validate_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2"> failed on dataset&quot;</span><span class="p">)</span>
-                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">metric_name</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constraint</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> failed on dataset&quot;</span><span class="p">)</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">constraint</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">metric_name</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">constraint</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;report was called with empty set of constraints!&quot;</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">results</span></div>
 
     <span class="k">def</span> <span class="nf">_generate_metric_report</span><span class="p">(</span>
@@ -668,16 +939,16 @@
         <span class="n">with_summary</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReportResult</span><span class="p">:</span>
         <span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">metric_summary</span><span class="p">)</span> <span class="o">=</span> <span class="n">metric_constraint</span><span class="o">.</span><span class="n">validate_profile</span><span class="p">(</span><span class="n">profile_view</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">with_summary</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">ReportResult</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">constraint_name</span><span class="p">,</span> <span class="n">passed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">failed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="n">metric_summary</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">ReportResult</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">constraint_name</span><span class="p">,</span> <span class="n">passed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">failed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">with_summary</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">ReportResult</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">constraint_name</span><span class="p">,</span> <span class="n">passed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">failed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="n">metric_summary</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">ReportResult</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">constraint_name</span><span class="p">,</span> <span class="n">passed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">failed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_make_report</span><span class="p">(</span><span class="n">constraint_name</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">with_summary</span><span class="p">,</span> <span class="n">metric_summary</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_generate_dataset_report</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">profile_view</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">,</span>
+        <span class="n">constraint</span><span class="p">:</span> <span class="n">DatasetConstraint</span><span class="p">,</span>
+        <span class="n">with_summary</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReportResult</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">validate_profile</span><span class="p">(</span><span class="n">profile_view</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_make_report</span><span class="p">(</span><span class="n">constraint</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">with_summary</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Constraints.generate_constraints_report"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.Constraints.generate_constraints_report">[docs]</a>    <span class="k">def</span> <span class="nf">generate_constraints_report</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">profile_view</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">with_summary</span><span class="o">=</span><span class="kc">False</span>
@@ -685,9 +956,6 @@
         <span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_profile_view</span><span class="p">(</span><span class="n">profile_view</span><span class="p">)</span>
         <span class="n">column_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_constraints</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="n">results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ReportResult</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">column_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;report was called with empty set of constraints!&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">results</span>
 
         <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">column_names</span><span class="p">:</span>
             <span class="n">columnar_constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_constraints</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span>
@@ -703,19 +971,19 @@
 
                 <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metric_report</span><span class="p">)</span>
 
-        <span class="n">metric_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">metric_name</span> <span class="ow">in</span> <span class="n">metric_names</span><span class="p">:</span>
-            <span class="n">metric_constraint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="p">[</span><span class="n">metric_name</span><span class="p">]</span>
-            <span class="n">metric_report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_metric_report</span><span class="p">(</span>
+        <span class="k">for</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="p">:</span>
+            <span class="n">metric_report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_dataset_report</span><span class="p">(</span>
                 <span class="n">profile_view</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span>
-                <span class="n">metric_constraint</span><span class="o">=</span><span class="n">metric_constraint</span><span class="p">,</span>
-                <span class="n">constraint_name</span><span class="o">=</span><span class="n">metric_name</span><span class="p">,</span>
+                <span class="n">constraint</span><span class="o">=</span><span class="n">constraint</span><span class="p">,</span>
                 <span class="n">with_summary</span><span class="o">=</span><span class="n">with_summary</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">metric_report</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2"> failed on dataset.&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constraint</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> failed on dataset.&quot;</span><span class="p">)</span>
 
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metric_report</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;generate_constraints_report was called with empty set of constraints!&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">results</span></div>
 
@@ -737,35 +1005,54 @@
 <div class="viewcode-block" id="ConstraintsBuilder.get_metric_selectors"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.ConstraintsBuilder.get_metric_selectors">[docs]</a>    <span class="k">def</span> <span class="nf">get_metric_selectors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">MetricsSelector</span><span class="p">]:</span>
         <span class="n">selectors</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">column_profiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_profile_view</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">column_profiles</span><span class="p">:</span>
-            <span class="n">column_profile</span> <span class="o">=</span> <span class="n">column_profiles</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column_profile</span> <span class="ow">in</span> <span class="n">column_profiles</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">metric_component_paths</span> <span class="o">=</span> <span class="n">column_profile</span><span class="o">.</span><span class="n">_metrics</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">metric_path</span> <span class="ow">in</span> <span class="n">metric_component_paths</span><span class="p">:</span>
                 <span class="n">selectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">metric_name</span><span class="o">=</span><span class="n">metric_path</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">selectors</span></div>
 
-<div class="viewcode-block" id="ConstraintsBuilder.add_constraint"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.ConstraintsBuilder.add_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">add_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="n">MetricConstraint</span><span class="p">,</span> <span class="n">ignore_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ConstraintsBuilder&quot;</span><span class="p">:</span>
-        <span class="c1"># check that the column exists and we have a column profile view</span>
-        <span class="n">column_name</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">metric_selector</span><span class="o">.</span><span class="n">column_name</span>
-        <span class="n">column_profile_view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_profile_view</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">column_profile_view</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ignore_missing</span> <span class="ow">and</span> <span class="n">constraint</span><span class="o">.</span><span class="n">metric_selector</span><span class="o">.</span><span class="n">metrics_resolver</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> was not found in set of this profile, the list of columns are: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_profile_view</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
+<div class="viewcode-block" id="ConstraintsBuilder.add_constraint"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.ConstraintsBuilder.add_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">add_constraint</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">MetricConstraint</span><span class="p">,</span> <span class="n">DatasetConstraint</span><span class="p">],</span> <span class="n">ignore_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ConstraintsBuilder&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">constraint</span><span class="p">,</span> <span class="n">MetricConstraint</span><span class="p">):</span>
+            <span class="c1"># check that the column exists and we have a column profile view</span>
+            <span class="n">column_name</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">metric_selector</span><span class="o">.</span><span class="n">column_name</span>
+            <span class="n">column_profile_view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_profile_view</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">column_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">column_profile_view</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">ignore_missing</span>
+                <span class="ow">and</span> <span class="n">constraint</span><span class="o">.</span><span class="n">metric_selector</span><span class="o">.</span><span class="n">metrics_resolver</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">&#39; was not found in this profile, the available columns are: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_profile_view</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
 
-        <span class="n">metric_selector</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">metric_selector</span>
-        <span class="n">metrics</span> <span class="o">=</span> <span class="n">metric_selector</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_profile_view</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">metrics</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">ignore_missing</span> <span class="ow">or</span> <span class="n">column_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;metrics not found for column </span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">, available metric components are: </span><span class="si">{</span><span class="n">column_profile_view</span><span class="o">.</span><span class="n">get_metric_component_paths</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
+            <span class="n">metric_selector</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">metric_selector</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="n">metric_selector</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_profile_view</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">metrics</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">ignore_missing</span> <span class="ow">or</span> <span class="n">column_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;metrics not found for column </span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">, available metric components are: </span><span class="si">{</span><span class="n">column_profile_view</span><span class="o">.</span><span class="n">get_metric_component_paths</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">column_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="p">[</span><span class="n">constraint</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">constraint</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">column_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="o">.</span><span class="n">column_constraints</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="o">.</span><span class="n">column_constraints</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="o">.</span><span class="n">column_constraints</span><span class="p">[</span><span class="n">column_name</span><span class="p">][</span><span class="n">constraint</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">constraint</span>
+            <span class="k">if</span> <span class="n">column_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># MetricConstraint not associated with a specific column is turned into</span>
+                <span class="c1"># a DatasetConstraint. It relies on the constraint&#39;s metric_selector</span>
+                <span class="c1"># to find the metrics it needs to evaluate the condition.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">DatasetConstraint</span><span class="p">(</span>
+                        <span class="n">condition</span><span class="o">=</span><span class="n">MetricConstraintWrapper</span><span class="p">(</span><span class="n">constraint</span><span class="p">),</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">constraint</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">require_column_existence</span><span class="o">=</span><span class="n">constraint</span><span class="o">.</span><span class="n">require_column_existence</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">column_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="o">.</span><span class="n">column_constraints</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="o">.</span><span class="n">column_constraints</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="o">.</span><span class="n">column_constraints</span><span class="p">[</span><span class="n">column_name</span><span class="p">][</span><span class="n">constraint</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">constraint</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">constraint</span><span class="p">,</span> <span class="n">DatasetConstraint</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span></div>
 

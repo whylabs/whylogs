@@ -554,7 +554,9 @@
     <span class="k">return</span> <span class="n">constraint</span></div>
 
 
-<div class="viewcode-block" id="quantile_between_range"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.distribution_metrics.quantile_between_range">[docs]</a><span class="k">def</span> <span class="nf">quantile_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">quantile</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lower</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">upper</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">skip_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="quantile_between_range"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.distribution_metrics.quantile_between_range">[docs]</a><span class="k">def</span> <span class="nf">quantile_between_range</span><span class="p">(</span>
+    <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">quantile</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lower</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">upper</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">skip_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Q-th quantile value must be withing the range defined by lower and upper boundaries.</span>
 
 <span class="sd">    Parameters</span>
@@ -572,7 +574,7 @@
 <span class="sd">        If False, the check will fail on missing metrics, such as on an empty dataset</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">quantile_in_range</span><span class="p">(</span><span class="n">metric</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">quantile_in_range</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">quantile_value</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantile</span><span class="p">(</span><span class="n">quantile</span><span class="p">)</span>
         <span class="n">result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">lower</span> <span class="o">&lt;=</span> <span class="n">quantile_value</span> <span class="o">&lt;=</span> <span class="n">upper</span>
         <span class="k">return</span> <span class="n">result</span>

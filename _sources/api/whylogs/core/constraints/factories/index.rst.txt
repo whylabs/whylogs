@@ -175,7 +175,7 @@ Attributes
    :type skip_missing: bool
 
 
-.. py:function:: quantile_between_range(column_name: str, quantile: float, lower: float, upper: float, skip_missing: bool = True)
+.. py:function:: quantile_between_range(column_name: str, quantile: float, lower: float, upper: float, skip_missing: bool = True) -> whylogs.core.constraints.MetricConstraint
 
    Q-th quantile value must be withing the range defined by lower and upper boundaries.
 
