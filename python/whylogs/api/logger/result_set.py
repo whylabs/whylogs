@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from logging import getLogger
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from whylogs.api.reader import Reader, Readers
 from whylogs.api.writer import Writer, Writers
@@ -11,9 +11,105 @@ from whylogs.core.metrics.metrics import Metric
 from whylogs.core.model_performance_metrics import ModelPerformanceMetrics
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.utils import ensure_timezone
+from whylogs.core.view.dataset_profile_view import _MODEL_PERFORMANCE
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 
 logger = getLogger(__name__)
+
+
+def _merge_metrics(
+    lhs_metrics: Optional[Dict[str, Any]], rhs_metrics: Optional[Dict[str, Any]]
+) -> Optional[Dict[str, Any]]:
+    if not rhs_metrics:
+        return lhs_metrics
+    if not lhs_metrics:
+        return rhs_metrics
+    lhs_keys = lhs_metrics.keys()
+    rhs_keys = rhs_metrics.keys()
+    merged_metrics: Dict[str, Any] = dict()
+    lhs_only = lhs_keys - rhs_keys
+    rhs_only = rhs_keys - lhs_keys
+    intersection_keys = lhs_keys & rhs_keys
+    for key in lhs_only:
+        merged_metrics[key] = lhs_metrics[key]
+
+    for key in rhs_only:
+        merged_metrics[key] = rhs_metrics[key]
+
+    for key in intersection_keys:
+        merged_metrics[key] = lhs_metrics[key].merge(rhs_metrics[key])
+
+    return merged_metrics
+
+
+def _accumulate_properties(acc: Optional[Dict[str, Any]], props: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    if not props:
+        return acc
+    if acc is None:
+        acc = dict()
+    intersection_keys = acc.keys() & props.keys()
+    for key in intersection_keys:
+        if acc[key] != props[key]:
+            logger.warning(f"Merging result properties collision, using {key}:{acc[key]} and dropping {props[key]}.")
+    acc.update(props)
+    return acc
+
+
+def _merge_segments(
+    lhs_segments: Dict[Segment, Union[DatasetProfile, DatasetProfileView]],
+    rhs_segments: Dict[Segment, Union[DatasetProfile, DatasetProfileView]],
+) -> Dict[Segment, DatasetProfileView]:
+    lhs_keys = lhs_segments.keys()
+    rhs_keys = rhs_segments.keys()
+    merged_segments: Dict[Segment, DatasetProfileView] = dict()
+    lhs_only = lhs_keys - rhs_keys
+    rhs_only = rhs_keys - lhs_keys
+    intersection_keys = lhs_keys & rhs_keys
+    for key in lhs_only:
+        left_value = lhs_segments[key]
+        left_view = left_value if isinstance(left_value, DatasetProfileView) else left_value.view()
+        merged_segments[key] = left_view
+
+    for key in rhs_only:
+        right_value = rhs_segments[key]
+        right_view = right_value if isinstance(right_value, DatasetProfileView) else right_value.view()
+        merged_segments[key] = right_view
+
+    for key in intersection_keys:
+        left_value = lhs_segments[key]
+        left_view = left_value if isinstance(left_value, DatasetProfileView) else left_value.view()
+        right_value = lhs_segments[key]
+        right_view = right_value if isinstance(right_value, DatasetProfileView) else right_value.view()
+        merged_segments[key] = left_view.merge(right_view)
+
+    return merged_segments
+
+
+def _merge_partitioned_segments(
+    lhs_segments: Dict[str, Dict[Segment, DatasetProfile]], rhs_segments: Dict[str, Dict[Segment, DatasetProfile]]
+) -> Dict[str, Dict[Segment, DatasetProfile]]:
+    lhs_partitions = lhs_segments.keys()
+    rhs_partitions = rhs_segments.keys()
+    merged_partitions: Dict[str, Dict[Segment, DatasetProfile]] = dict()
+    lhs_only = lhs_partitions - rhs_partitions
+    rhs_only = rhs_partitions - lhs_partitions
+    intersection_keys = lhs_partitions & rhs_partitions
+    for key in lhs_only:
+        merged_partitions[key] = lhs_segments[key]
+
+    for key in rhs_only:
+        merged_partitions[key] = rhs_segments[key]
+
+    for key in intersection_keys:
+        merged_partitions[key] = _merge_segments(lhs_segments[key], rhs_segments[key])
+
+    return merged_partitions
+
+
+def _merge_partitions(
+    lhs_partitions: List[SegmentationPartition], rhs_partitions: List[SegmentationPartition]
+) -> List[SegmentationPartition]:
+    return list(set(lhs_partitions).union(set(rhs_partitions)))
 
 
 class ResultSetWriter:
@@ -128,6 +224,9 @@ class ResultSet(ABC):
         else:
             raise ValueError(f"Cannot add {name} metric {metric} to a result set with no profile!")
 
+    def merge(self, other: "ResultSet") -> "ResultSet":
+        raise NotImplementedError("This result set did not define merge, see ProfileResultSet or SegmentedResulSet.")
+
 
 class ViewResultSet(ResultSet):
     def __init__(self, view: DatasetProfileView) -> None:
@@ -142,6 +241,15 @@ class ViewResultSet(ResultSet):
     @staticmethod
     def zero() -> "ViewResultSet":
         return ViewResultSet(DatasetProfileView.zero())
+
+    def merge(self, other: "ResultSet") -> "ViewResultSet":
+        if other is None:
+            return self
+
+        lhs_view = self._view or DatasetProfileView.zero()
+        if not isinstance(other, (ViewResultSet, ProfileResultSet)):
+            logger.warning(f"Merging potentially incompatible ViewResultSet and {type(other)}")
+        return ViewResultSet(lhs_view.merge(other.view()))
 
 
 class ProfileResultSet(ResultSet):
@@ -158,18 +266,30 @@ class ProfileResultSet(ResultSet):
     def zero() -> "ProfileResultSet":
         return ProfileResultSet(DatasetProfile())
 
+    def merge(self, other: "ResultSet") -> ViewResultSet:
+        if other is None:
+            return self
+
+        lhs_profile = self.view() or DatasetProfileView()
+        if not isinstance(other, (ProfileResultSet, ViewResultSet)):
+            logger.error(f"Merging potentially incompatible ProfileResultSet and {type(other)}")
+        return ViewResultSet(lhs_profile.merge(other.view()))
+
 
 class SegmentedResultSet(ResultSet):
     def __init__(
         self,
-        segments: Dict[str, Dict[Segment, DatasetProfile]],
+        segments: Dict[str, Dict[Segment, Union[DatasetProfile, DatasetProfileView]]],
         partitions: Optional[List[SegmentationPartition]] = None,
+        metrics: Optional[Dict[str, Any]] = None,
+        properties: Optional[Dict[str, Any]] = None,
     ) -> None:
         self._segments = segments
         self._partitions = partitions
-        self.model_performance_metric: Optional[ModelPerformanceMetrics] = None
+        self._metrics = metrics or dict()
+        self._dataset_properties = properties or dict()
 
-    def profile(self, segment: Optional[Segment] = None) -> Optional[DatasetProfile]:
+    def profile(self, segment: Optional[Segment] = None) -> Optional[Union[DatasetProfile, DatasetProfileView]]:
         if not self._segments:
             return None
         elif segment:
@@ -181,13 +301,23 @@ class SegmentedResultSet(ResultSet):
                 segments = self._segments.get(partition_id)
                 number_of_segments = len(segments) if segments else 0
                 if number_of_segments == 1:
-                    single_dictionary: Dict[Segment, DatasetProfile] = segments if segments else dict()
+                    single_dictionary: Dict[Segment, Union[DatasetProfile, DatasetProfileView]] = (
+                        segments if segments else dict()
+                    )
                     for key in single_dictionary:
                         return single_dictionary[key]
 
         raise ValueError(
             f"A profile was requested from a segmented result set without specifying which segment to return: {self._segments}"
         )
+
+    @property
+    def dataset_properties(self) -> Optional[Dict[str, Any]]:
+        return self._dataset_properties
+
+    @property
+    def dataset_metrics(self) -> Optional[Dict[str, Any]]:
+        return self._metrics
 
     @property
     def partitions(self) -> Optional[List[SegmentationPartition]]:
@@ -228,12 +358,15 @@ class SegmentedResultSet(ResultSet):
                 result += len(profiles)
         return result
 
-    def segments_in_partition(self, partition: SegmentationPartition) -> Optional[Dict[Segment, DatasetProfile]]:
+    def segments_in_partition(
+        self, partition: SegmentationPartition
+    ) -> Optional[Dict[Segment, Union[DatasetProfile, DatasetProfileView]]]:
         return self._segments.get(partition.id)
 
     def view(self, segment: Optional[Segment] = None) -> Optional[DatasetProfileView]:
         result = self.profile(segment)
-        return result.view() if result else None
+        view = result.view() if isinstance(result, DatasetProfile) else result
+        return view
 
     def get_model_performance_metrics_for_segment(self, segment: Segment) -> Optional[ModelPerformanceMetrics]:
         if segment.parent_id in self._segments:
@@ -243,7 +376,17 @@ class SegmentedResultSet(ResultSet):
                     f"No profile found for segment {segment} when requesting model performance metrics, returning None!"
                 )
                 return None
-            view = profile.view()
+
+            if isinstance(profile, DatasetProfileView):
+                view = profile
+            else:
+                if hasattr(profile, "view"):
+                    view = profile.view()
+                else:
+                    logger.error(
+                        f"Unexpected type: {type(profile)} -> {profile}, cannot check for model performance metrics."
+                    )
+                    return None
             return view.model_performance_metrics
         return None
 
@@ -273,9 +416,9 @@ class SegmentedResultSet(ResultSet):
                         logger.debug(
                             f"Found model performance metrics: {metric}, adding to segmented profile: {segment_key}."
                         )
-
+                    view = profile.view() if isinstance(profile, DatasetProfile) else profile
                     segmented_profile = SegmentedDatasetProfileView(
-                        profile_view=profile.view(), segment=segment_key, partition=first_partition
+                        profile_view=view, segment=segment_key, partition=first_partition
                     )
                     results.append(segmented_profile)
             else:
@@ -297,3 +440,40 @@ class SegmentedResultSet(ResultSet):
     @staticmethod
     def zero() -> "SegmentedResultSet":
         return SegmentedResultSet(segments=dict())
+
+    @property
+    def model_performance_metric(self) -> Optional[ModelPerformanceMetrics]:
+        if self._metrics:
+            return self._metrics.get(_MODEL_PERFORMANCE)
+        return None
+
+    def add_model_performance_metrics(self, metrics: ModelPerformanceMetrics) -> None:
+        if self._metrics:
+            self._metrics[_MODEL_PERFORMANCE] = metrics
+        else:
+            self._metrics = {_MODEL_PERFORMANCE: metrics}
+
+    def add_metric(self, name: str, metric: Metric) -> None:
+        if not self._metrics:
+            self._metrics = dict()
+        self._metrics[name] = metric
+
+    def merge(self, other: "ResultSet") -> "SegmentedResultSet":
+        if other is None:
+            return self
+
+        if isinstance(other, SegmentedResultSet):
+            lhs_partitions: List[SegmentationPartition] = self.partitions or list()
+            rhs_partitions: List[SegmentationPartition] = other.partitions or list()
+
+            lhs_segments: Dict[str, Dict[Segment, DatasetProfile]] = self._segments or dict()
+            rhs_segments: Dict[str, Dict[Segment, DatasetProfile]] = other._segments or dict()
+
+            merged_segments = _merge_partitioned_segments(lhs_segments, rhs_segments)
+            merged_metrics = _merge_metrics(self.dataset_metrics, other.dataset_metrics)
+            merged_partitions = _merge_partitions(lhs_partitions, rhs_partitions)
+            properties = _accumulate_properties(self._dataset_properties, other.dataset_properties)
+
+            return SegmentedResultSet(merged_segments, merged_partitions, metrics=merged_metrics, properties=properties)
+        else:
+            raise ValueError(f"Cannot merge incompatible SegmentedResultSet and {type(other)}")

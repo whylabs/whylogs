@@ -34,10 +34,11 @@ class ListView:
 class NumpyView:
     ints: Optional[np.ndarray] = None
     floats: Optional[np.ndarray] = None
+    strings: Optional[np.ndarray] = None
 
     def iterables(self) -> List[np.ndarray]:
         it_list = []
-        for lst in [self.ints, self.floats]:
+        for lst in [self.ints, self.floats, self.strings]:
             if lst is not None and len(lst) > 0:
                 it_list.append(lst)
         return it_list
@@ -49,6 +50,8 @@ class NumpyView:
             length += len(self.ints)
         if self.floats is not None:
             length += len(self.floats)
+        if self.strings is not None:
+            length += len(self.strings)
 
         return length
 
@@ -158,7 +161,7 @@ class PreprocessedColumn:
         str_mask = non_null_series.apply(lambda x: isinstance(x, str))
 
         floats = non_null_series[float_mask]
-        ints = non_null_series[int_mask]
+        ints = non_null_series[int_mask].astype(int)
         bool_count = non_null_series[bool_mask].count()
         bool_count_where_true = non_null_series[bool_mask_where_true].count()
         strings = non_null_series[str_mask]
@@ -170,6 +173,7 @@ class PreprocessedColumn:
             floats = floats.astype(float)
             inf_mask = floats.apply(lambda x: np.isinf(x))
             self.inf_count = len(floats[inf_mask])
+
         self.numpy = NumpyView(floats=floats, ints=ints)
         self.pandas.strings = strings
         self.pandas.objs = objs
@@ -239,11 +243,13 @@ class PreprocessedColumn:
 
         if isinstance(data, np.ndarray):
             result.len = len(data)
-            if issubclass(data.dtype.type, np.number):
+            if issubclass(data.dtype.type, (np.number, np.str_)):
                 if issubclass(data.dtype.type, np.floating):
                     result.numpy = NumpyView(floats=data.astype(float))
-                else:
+                elif issubclass(data.dtype.type, np.integer):
                     result.numpy = NumpyView(ints=data.astype(int))
+                elif issubclass(data.dtype.type, np.str_):
+                    result.numpy = NumpyView(strings=data)
             else:
                 raise ValueError(f"Unsupported numpy type: {data.dtype}")
             return result

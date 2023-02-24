@@ -20,7 +20,10 @@ skip_notebooks = [
     "Writing_Feature_Weights_to_WhyLabs.ipynb",
     "Image_Logging.ipynb",
     "mnist_exploration.ipynb",
+    "performance_estimation.ipynb",
     "Embeddings_Distance_Logging.ipynb",  # skipped due to data download
+    "whylogs_Audio_examples.ipynb",  # skipped because of Kaggle data download and API key for whylabs upload
+    "NLP_Summarization.ipynb",
 ]
 
 
