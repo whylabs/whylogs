@@ -93,9 +93,10 @@ Here you will find more advanced use-cases for `whylogs`, and you will learn how
 
 Here you will find examples of features that are still on an experimental stage. Expect changes on the API and the functionality of these features.
 
-| Example                                                                                                                                                                                                | Description                                                                        |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| [Performance Estimation - Estimating Accuracy for Binary Classification Problems](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/performance_estimation.ipynb) | Estimate accuracy for unlabeled target datasets for binary classification problems |
+| Example                                                                                                                                                                                                | Description                                                                         |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| [Performance Estimation - Estimating Accuracy for Binary Classification Problems](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/performance_estimation.ipynb) | Estimate accuracy for unlabeled target datasets for binary classification problems  |
+| [Extracting and Monitoring Audio Samples](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/whylogs_Audio_examples.ipynb)                                         | Extract features from audio samples for the purpose of monitoring for drift/quality |
 
 ## 📓 Benchmarks
 
