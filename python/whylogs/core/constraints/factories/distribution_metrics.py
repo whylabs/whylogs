@@ -149,7 +149,9 @@ def stddev_between_range(column_name: str, lower: float, upper: float, skip_miss
     return constraint
 
 
-def quantile_between_range(column_name: str, quantile: float, lower: float, upper: float, skip_missing: bool = True):
+def quantile_between_range(
+    column_name: str, quantile: float, lower: float, upper: float, skip_missing: bool = True
+) -> MetricConstraint:
     """Q-th quantile value must be withing the range defined by lower and upper boundaries.
 
     Parameters
@@ -167,7 +169,7 @@ def quantile_between_range(column_name: str, quantile: float, lower: float, uppe
         If False, the check will fail on missing metrics, such as on an empty dataset
     """
 
-    def quantile_in_range(metric):
+    def quantile_in_range(metric) -> bool:
         quantile_value = metric.kll.value.get_quantile(quantile)
         result: bool = lower <= quantile_value <= upper
         return result

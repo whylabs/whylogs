@@ -3,7 +3,7 @@ from typing import Union
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metrics.metrics import Metric
-from whylogs.core.relations import ValueGetter
+from whylogs.core.relations import ValueGetter, escape
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 
@@ -40,4 +40,4 @@ class ProfileGetter(ValueGetter):
         return summary[self._path]
 
     def serialize(self) -> str:
-        return f":{self._column_name}:{self._path}"
+        return f":{escape(self._column_name, ':')}:{self._path}"

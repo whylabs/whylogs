@@ -64,7 +64,7 @@ def test_is_non_negative(column, passed, failed, skip):
     view = why.log(pd.DataFrame(data)).profile().view()
     builder = ConstraintsBuilder(dataset_profile_view=view)
     if column == "non_existing_column":
-        with pytest.raises(ValueError, match="non_existing_column was not found in set of this profile"):
+        with pytest.raises(ValueError, match="Column 'non_existing_column' was not found in this profile"):
             builder.add_constraint(is_non_negative(column_name=column))
     else:
         builder.add_constraint(is_non_negative(column_name=column, skip_missing=skip))
