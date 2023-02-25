@@ -67,12 +67,10 @@ class ColumnProfile(object):
 
     def to_protobuf(self) -> ColumnMessage:
         self.flush()
-
         return self.view().to_protobuf()
 
     def view(self) -> ColumnProfileView:
         self.flush()
-
         return ColumnProfileView(
             metrics=self._metrics.copy(),
             success_count=self._success_count,

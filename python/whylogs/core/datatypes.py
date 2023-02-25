@@ -107,55 +107,19 @@ class String(DataType[str]):
         return False
 
 
-class Tensor(DataType[Any]):
+class Tensor(DataType[np.ndarray]):
     def __init__(self) -> None:
-        super().__init__(str)
+        super().__init__(np.ndarray)
 
     @classmethod
     def _do_match(cls, dtype_or_type: Any, maybe_type: Optional[Any]) -> bool:
-        if hasattr(dtype_or_type, "name"):
-            if dtype_or_type.name == "object":  # type: ignore
-                return True
-
-        # use the underlying type within a dtype object
         if maybe_type:
             dtype_or_type = maybe_type
 
         if not isinstance(dtype_or_type, type):
             return False
 
-        if issubclass(dtype_or_type, (str, np.unicode_)):
-            return True
-
-        return False
-
-
-class Object(DataType[Any]):
-    def __init__(self) -> None:
-        super().__init__(str)
-
-    @classmethod
-    def _do_match(cls, dtype_or_type: Any, maybe_type: Optional[Any]) -> bool:
-        # Pandas Categorical is Strings
-        if CategoricalDtype is not None and isinstance(dtype_or_type, CategoricalDtype):
-            return True
-
-        # handle pandas series. Anything 'object' is treated as a Series of strings
-        if hasattr(dtype_or_type, "name"):
-            if dtype_or_type.name == "object":  # type: ignore
-                return True
-
-        # use the underlying type within a dtype object
-        if maybe_type:
-            dtype_or_type = maybe_type
-
-        if not isinstance(dtype_or_type, type):
-            return False
-
-        if issubclass(dtype_or_type, (str, np.unicode_)):
-            return True
-
-        return False
+        return (dtype_or_type == np.ndarray)  # TODO: can't see the data type in the ndarray :(
 
 
 class AnyType(DataType[Any]):
@@ -185,7 +149,7 @@ class StandardTypeMapper(TypeMapper):
         Args:
             custom_types: List of additional DataType classes that you want to extend.
         """
-        self._all_types = [Integral, Fractional, String]
+        self._all_types = [Integral, Fractional, String, Tensor]
         if custom_types is not None:
             self._all_types.extend(custom_types)
 

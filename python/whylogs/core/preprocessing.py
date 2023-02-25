@@ -201,6 +201,7 @@ class PreprocessedColumn:
     @staticmethod
     def _process_scalar_value(value: Any) -> "PreprocessedColumn":
         result = PreprocessedColumn()
+        result.original = value
         result.len = 1
         int_list = []
         float_list = []
@@ -224,7 +225,7 @@ class PreprocessedColumn:
         elif isinstance(value, str):
             string_list.append(value)
         elif isinstance(value, list) and PreprocessedColumn._is_tensorable(value):
-            tensor_list.append(value)
+            tensor_list.append(np.asarray(value))
         elif is_not_stub(np.ndarray) and isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.number):
             tensor_list.append(value)
         elif value is not None:
@@ -258,7 +259,11 @@ class PreprocessedColumn:
             result.len = len(data)
             return result
 
+        # TODO: Everything below should be dead code?
+        #       No, you can get a list when flusing the cache
+
         if isinstance(data, np.ndarray):
+            # assert False  # some unit tests call ::apply(np.ndarray)
             result.len = len(data)
             if issubclass(data.dtype.type, (np.number, np.str_)):
                 if issubclass(data.dtype.type, np.floating):
@@ -272,7 +277,7 @@ class PreprocessedColumn:
             return result
 
         if isinstance(data, List):
-            result.len = len(data)
+            result.len = len(data)  # TODO: not right for tensors?
             if is_not_stub(pd.Series):
                 return PreprocessedColumn.apply(pd.Series(data, dtype="object"))
 
@@ -289,8 +294,9 @@ class PreprocessedColumn:
                     float_list.append(x)
                 elif isinstance(x, str):
                     string_list.append(x)
+                # TODO: This will turn matrices into a list of vectors :(
                 elif isinstance(x, list) and PreprocessedColumn._is_tensorable(x):
-                    tensor_list.append(x)
+                    tensor_list.append(np.asarray(x))
                 elif is_not_stub(np.ndarray) and isinstance(x, np.ndarray) and np.issubdtype(x.dtype, np.number):
                     tensor_list.append(x)
                 elif x is not None:
@@ -329,4 +335,4 @@ class PreprocessedColumn:
         if not is_not_stub(np.ndarray):
             return False
         X = np.asarray(value)
-        return len(X.shape) > 0 and np.issubdtype(X.dtype, np.number)
+        return len(X.shape) > 0 and all([i > 0 for i in X.shape]) and np.issubdtype(X.dtype, np.number)

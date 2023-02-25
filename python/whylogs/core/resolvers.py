@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, TypeVar
 
 from typing_extensions import TypeAlias
 
-from whylogs.core.datatypes import AnyType, DataType, Fractional, Integral, String
+from whylogs.core.datatypes import AnyType, DataType, Fractional, Integral, String, Tensor
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 

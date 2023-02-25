@@ -1,6 +1,7 @@
 import numpy as np
 
 import whylogs as why
+from whylogs.core.datatypes import Tensor
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
@@ -17,7 +18,7 @@ def test_embedding_metric_holds_the_smoke_in() -> None:
         labels=["B", "A"],
         distance_fn=DistanceFunction.euclidean,
     )
-    schema = DeclarativeSchema([ResolverSpec(column_name="col1", metrics=[MetricSpec(EmbeddingMetric, config)])])
+    schema = DeclarativeSchema([ResolverSpec(column_type=Tensor, metrics=[MetricSpec(EmbeddingMetric, config)])])
     sample_data = np.array([[0.1, 0.1, 0.1], [0.6, 0.6, 0.6], [2, 2, 2]])
     profile = why.log(row={"col1": sample_data}, schema=schema)
     view = profile.view()
@@ -44,7 +45,7 @@ def test_embedding_metric_merge_happy_case() -> None:
     )
     metric1 = EmbeddingMetric.zero(config)
     metric2 = EmbeddingMetric.zero(config)
-    data = PreprocessedColumn.apply(np.array([[0.1, 0.1, 0.1], [0.6, 0.6, 0.6], [2, 2, 2]]))
+    data = PreprocessedColumn._process_scalar_value(np.array([[0.1, 0.1, 0.1], [0.6, 0.6, 0.6], [2, 2, 2]]))
     metric1.columnar_update(data)
     metric2.columnar_update(data)
     merged = metric1.merge(metric2)
@@ -63,7 +64,7 @@ def test_embedding_metric_serialization() -> None:
         distance_fn=DistanceFunction.euclidean,
     )
     metric = EmbeddingMetric.zero(config)
-    data = PreprocessedColumn.apply(np.array([[0.1, 0.1, 0.1], [0.6, 0.6, 0.6], [2, 2, 2]]))
+    data = PreprocessedColumn._process_scalar_value(np.array([[0.1, 0.1, 0.1], [0.6, 0.6, 0.6], [2, 2, 2]]))
     metric.columnar_update(data)
     msg = metric.to_protobuf()
     deserialized = EmbeddingMetric.from_protobuf(msg)

@@ -4,7 +4,7 @@ import whylogs as why
 from whylogs.core import DatasetSchema
 from whylogs.core.datatypes import Fractional, String
 from whylogs.core.metrics import MetricConfig, StandardMetric
-from whylogs.core.metrics.column_metrics import ColumnCountsMetric
+from whylogs.core.metrics.column_metrics import ColumnCountsMetric, TypeCountersMetric
 from whylogs.core.metrics.condition_count_metric import (
     Condition,
     ConditionCountConfig,
@@ -114,7 +114,18 @@ def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
 
     prof_view = why.log(pandas_dataframe, schema=schema).profile().view()
     colset = prof_view.to_pandas().columns
-    assert len(colset) == 33
+
+    num_count_components = len(ColumnCountsMetric.zero().to_summary_dict().keys())
+    num_type_components = len(TypeCountersMetric.zero().to_summary_dict().keys())
+    num_dist_components = len(StandardMetric.distribution.value.zero().to_summary_dict().keys())
+    num_freq_items_components = len(StandardMetric.frequent_items.value.zero().to_summary_dict().keys())
+    num_card_components = len(StandardMetric.cardinality.value.zero().to_summary_dict().keys())
+    num_int_components = len(StandardMetric.ints.value.zero().to_summary_dict().keys())
+    num_cond_components = 3  # total, not_4, not_4.3
+
+    # - 1 for 'type' column, which is from Pandas, not whylogs
+    assert len(colset) - 1 == num_count_components + num_type_components + num_dist_components + num_freq_items_components + num_card_components + num_int_components + num_cond_components
+
     assert {"condition_count/not_4", "condition_count/not_4.3", "condition_count/total"}.issubset(colset)
 
 

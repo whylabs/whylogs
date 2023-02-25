@@ -9,7 +9,7 @@ from whylogs.experimental.extras.nlp_metric import BagOfWordsMetric
 def test_bag_of_words_meric_holds_the_smoke_in() -> None:
     resolvers = [ResolverSpec(column_name="words", metrics=[MetricSpec(BagOfWordsMetric)])]
     schema = DeclarativeSchema(resolvers)
-    profile = why.log(obj={"words": np.array(["foo", "bar", "wubbie"])}, schema=schema)
+    profile = why.log(row={"words": ["foo", "bar", "wubbie"]}, schema=schema)
     view = profile.view()
     column = view.get_column("words")
     summary = column.to_summary_dict()
