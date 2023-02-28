@@ -404,7 +404,8 @@
         <article role="main">
           <h1>Source code for whylogs.migration.uncompound</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">ColumnProfileView</span><span class="p">,</span> <span class="n">DatasetProfileView</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
@@ -427,6 +428,11 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
+<div class="viewcode-block" id="FeatureFlags"><a class="viewcode-back" href="../../../api/whylogs/migration/uncompound/index.html#whylogs.migration.uncompound.FeatureFlags">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">FeatureFlags</span><span class="p">:</span>
+    <span class="n">uncompound_condition_count</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
 <span class="k">def</span> <span class="nf">_uncompound_metric_feature_flag</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    v0 whylabs doesn&#39;t understand compound metrics. If this is True, turn</span>
@@ -436,13 +442,15 @@
     <span class="k">return</span> <span class="kc">True</span>
 
 
-<span class="k">def</span> <span class="nf">_uncompound_condition_count_feature_flag</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_uncompound_condition_count_feature_flag</span><span class="p">(</span><span class="n">flags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FeatureFlags</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    v0 whylabs doesn&#39;t understand condition count metrics. If this is True, turn</span>
 <span class="sd">    each condition into its three ColumnCountMetric columns in the profile</span>
 <span class="sd">    so that v0 whylabs will only see metrics it understands.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">flags</span><span class="o">.</span><span class="n">uncompound_condition_count</span>
 
 
 <span class="k">def</span> <span class="nf">_v0_compatible_image_feature_flag</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -459,7 +467,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Column name prefix for uncompounded ConditionCountMetric columns</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="s2">&quot;__whylabs.condition.&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;Ω.whylabs.condition.&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">_uncompounded_column_name</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">submetric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">Metric</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -498,9 +506,9 @@
 
 
 <span class="k">def</span> <span class="nf">_uncompound_condition_count</span><span class="p">(</span>
-    <span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">ConditionCountMetric</span>
+    <span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">ConditionCountMetric</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FeatureFlags</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]:</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">_uncompound_condition_count_feature_flag</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_uncompound_condition_count_feature_flag</span><span class="p">(</span><span class="n">flags</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
 
     <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -533,7 +541,7 @@
     <span class="k">return</span> <span class="n">result</span>
 
 
-<span class="k">def</span> <span class="nf">_uncompound_dataset_profile</span><span class="p">(</span><span class="n">prof</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_uncompound_dataset_profile</span><span class="p">(</span><span class="n">prof</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FeatureFlags</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    v0 whylabs doesn&#39;t understand compound metrics. This creates a new column for</span>
 <span class="sd">    each submetric in a compound metric so that whylabs only sees metrics it understands.</span>
@@ -552,7 +560,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">MultiMetric</span><span class="p">):</span>
                 <span class="n">new_columns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_uncompound_multimetric</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">,</span> <span class="n">metric</span><span class="p">))</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">ConditionCountMetric</span><span class="p">):</span>
-                <span class="n">new_columns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_uncompound_condition_count</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">,</span> <span class="n">metric</span><span class="p">))</span>
+                <span class="n">new_columns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_uncompound_condition_count</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">flags</span><span class="p">))</span>
 
     <span class="n">new_prof</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_columns</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">new_prof</span>
