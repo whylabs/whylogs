@@ -55,7 +55,7 @@ def _uncompound_performance_estimation_magic_string() -> str:
     return "Ω.whylabs.output_performance_estimation."
 
 
-def _uncompound_performance_estimation_feature_flag() -> str:
+def _uncompound_performance_estimation_feature_flag() -> bool:
     return True
 
 

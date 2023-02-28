@@ -438,7 +438,7 @@ class WhyLabsWriter(Writer):
             estimation_result_profile = log({f"{estimation_magic_string}accuracy": file.accuracy}).profile()
             estimation_result_profile.set_dataset_timestamp(file.target_result_timestamp)
             return self.write(estimation_result_profile.view())
-        return None
+        return False, str("Performance estimation feature flag is not enabled")
 
     def write_feature_weights(self, file: FeatureWeights, **kwargs: Any) -> Tuple[bool, str]:
         """Put feature weights for the specified dataset.
