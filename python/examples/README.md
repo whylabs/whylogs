@@ -44,6 +44,7 @@ Welcome! In this section you will find examples on how to integrate `whylogs`' w
 | Integration                                                                                                                              | Description                                                                              |
 | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | [Apache Airflow](https://github.com/whylabs/airflow-provider-whylogs)                                                                    | Use Airflow Operators to create drift reports and run contraint validations on your data |
+| [BentoML](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/bentoml)                                         | Learn how monitor ML models managed and served with BentoML                              |
 | [FastAPI](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/fastapi)                                         | Learn how monitor ML models served with FastAPI                                          |
 | [Feast](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Feature_Stores_and_whylogs.ipynb)                  | Learn how to log features from your Feature Store with Feast and whylogs                 |
 | [Flask](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/integrations/flask_streaming/flask_with_whylogs.ipynb) | See how you can create a Flask app with this whylogs + WhyLabs integration               |
@@ -93,9 +94,10 @@ Here you will find more advanced use-cases for `whylogs`, and you will learn how
 
 Here you will find examples of features that are still on an experimental stage. Expect changes on the API and the functionality of these features.
 
-| Example                                                                                                                                                                                                | Description                                                                        |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| [Performance Estimation - Estimating Accuracy for Binary Classification Problems](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/performance_estimation.ipynb) | Estimate accuracy for unlabeled target datasets for binary classification problems |
+| Example                                                                                                                                                                                                | Description                                                                         |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| [Performance Estimation - Estimating Accuracy for Binary Classification Problems](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/performance_estimation.ipynb) | Estimate accuracy for unlabeled target datasets for binary classification problems  |
+| [Extracting and Monitoring Audio Samples](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/whylogs_Audio_examples.ipynb)                                         | Extract features from audio samples for the purpose of monitoring for drift/quality |
 
 ## 📓 Benchmarks
 

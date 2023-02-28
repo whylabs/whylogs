@@ -143,7 +143,7 @@ class ModelPerformanceMetrics:
                     output_column_names.append(column_name)
         return output_column_names
 
-    def merge(self, other):
+    def merge(self, other) -> "ModelPerformanceMetrics":
         """
         :type other: ModelMetrics
         """
