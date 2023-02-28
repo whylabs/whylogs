@@ -56,6 +56,7 @@ class AccuracyEstimator(PerformanceEstimator):
         if len(reference_result_set.partitions) > 1:
             logger.warning("More than one partition found. Only the first partition will be used for the estimation.")
         self._reference_result_timestamp = self._get_first_segment_timestamp(reference_result_set)
+        self._partition_id = reference_result_set.partitions[0].id
         self._target_result_timestamp = None
         super().__init__(reference_result_set)
 
@@ -129,7 +130,7 @@ class AccuracyEstimator(PerformanceEstimator):
     def _get_reference_timestamp(self):
         return self._reference_result_timestamp
 
-    def get_target_timestamp(self):
+    def _get_target_timestamp(self):
         return self._target_result_timestamp
 
     def _get_reference_partition_id(self):
@@ -183,5 +184,5 @@ class AccuracyEstimator(PerformanceEstimator):
             reference_partition_id=self._get_reference_partition_id(),
             target_result_timestamp=self._get_target_timestamp(),
         )
-        target.add_performance_estimation()
+        target.add_performance_estimation(estimation_result=estimation_result)
         return estimation_result
