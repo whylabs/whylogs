@@ -13,7 +13,9 @@ from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.utils import ensure_timezone
 from whylogs.core.view.dataset_profile_view import _MODEL_PERFORMANCE
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
-from whylogs.experimental.performance_estimation.estimation_results import EstimationResult
+from whylogs.experimental.performance_estimation.estimation_results import (
+    EstimationResult,
+)
 
 logger = getLogger(__name__)
 

@@ -5,7 +5,9 @@ from typing import Tuple
 from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.core import DatasetProfile, Segment
 from whylogs.core.model_performance_metrics.confusion_matrix import ConfusionMatrix
-from whylogs.experimental.performance_estimation.estimation_results import EstimationResult
+from whylogs.experimental.performance_estimation.estimation_results import (
+    EstimationResult,
+)
 
 logger = getLogger(__name__)
 
