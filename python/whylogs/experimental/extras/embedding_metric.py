@@ -10,9 +10,8 @@ from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import MetricConfig, OperationResult, register_metric
 from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.proto import MetricMessage, MetricComponentMessage
+from whylogs.core.proto import MetricMessage
 from whylogs.experimental.extras.matrix_component import MatrixComponent
-from whylogs.core.stubs import is_not_stub, pd
 
 logger = logging.getLogger(__name__)
 
@@ -129,6 +128,7 @@ class EmbeddingMetric(MultiMetric):
             msg["references"] = self.references.to_protobuf()
 
         return MetricMessage(metric_components=msg)
+
     def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
         for key in self.submetrics[submetric].keys():
             self.submetrics[submetric][key].columnar_update(data)
@@ -140,14 +140,13 @@ class EmbeddingMetric(MultiMetric):
         pandas_tensors = None
         if data.pandas.tensors is not None:
             pandas_tensors = np.stack(data.pandas.tensors.to_numpy(), axis=0)
-        
+
         list_tensors = None
         if data.list.tensors is not None:
             try:
                 list_tensors = np.concatenate(np.array(data.list.tensors), axis=0)
-            except:
+            except:  # noqa
                 logger.warn("Unable to convert lists into valid numpy array, so can not log as embeddings")
-                
 
         matrices = [X for X in [pandas_tensors, list_tensors] if X is not None]
         for X in matrices:  # TODO: throw if not 2D ndarray

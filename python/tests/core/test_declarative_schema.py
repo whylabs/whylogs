@@ -124,7 +124,16 @@ def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
     num_cond_components = 3  # total, not_4, not_4.3
 
     # - 1 for 'type' column, which is from Pandas, not whylogs
-    assert len(colset) - 1 == num_count_components + num_type_components + num_dist_components + num_freq_items_components + num_card_components + num_int_components + num_cond_components
+    assert (
+        len(colset) - 1
+        == num_count_components
+        + num_type_components
+        + num_dist_components
+        + num_freq_items_components
+        + num_card_components
+        + num_int_components
+        + num_cond_components
+    )
 
     assert {"condition_count/not_4", "condition_count/not_4.3", "condition_count/total"}.issubset(colset)
 

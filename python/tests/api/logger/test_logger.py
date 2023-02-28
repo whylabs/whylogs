@@ -1,4 +1,3 @@
-import logging
 import os.path
 import tempfile
 from typing import Any
@@ -158,10 +157,10 @@ def test_counters_dataframe_vs_row() -> None:
     assert len(view_row_pandas.columns) > 0
 
 
-@pytest.mark.parametrize("input", [
-    {"a": ["x", "y"]},  # non-numeric list -> object
-    {"a": []}  # tensors require positive shape in every dimension
-])
+@pytest.mark.parametrize(
+    "input",
+    [{"a": ["x", "y"]}, {"a": []}],  # non-numeric list -> object  # tensors require positive shape in every dimension
+)
 def test_object_count_dict(input) -> None:
     row_results = why.log(input)
     row_view = row_results.view()
@@ -169,27 +168,29 @@ def test_object_count_dict(input) -> None:
     assert row_view._columns.get("a")._metrics.get("types").object.value == 1
 
 
-@pytest.mark.parametrize("input,stub_np,ints,reals,bools,strs,tensors,objs", [
-    ({"a": 1}, False, 1, 0, 0, 0, 0, 0),
-    ({"a": 1.0}, False, 0, 1, 0, 0, 0, 0),
-    ({"a": True}, False, 0, 0, 1, 0, 0, 0),
-    ({"a": "foo"}, False, 0, 0, 0, 1, 0, 0),
-    ({"a": [1, 2]}, False, 0, 0, 0, 0, 1, 0),
-    ({"a": [[1, 2], [3, 4]]}, False, 0, 0, 0, 0, 1, 0),
-    ({"a": [[1, 2.5], [3.14, 4]]}, False, 0, 0, 0, 0, 1, 0),
-    ({"a": [[1, 2], ["x", "y"]]}, False, 0, 0, 0, 0, 0, 1),
-    ({"a": []}, False, 0, 0, 0, 0, 0, 1),
-
-    ({"a": 1}, True, 1, 0, 0, 0, 0, 0),
-    ({"a": 1.0}, True, 0, 1, 0, 0, 0, 0),
-    ({"a": True}, True, 0, 0, 1, 0, 0, 0),
-    ({"a": "foo"}, True, 0, 0, 0, 1, 0, 0),
-    ({"a": [1, 2]}, True, 0, 0, 0, 0, 0, 1),
-    ({"a": [[1, 2], [3, 4]]}, True, 0, 0, 0, 0, 0, 1),
-    ({"a": [[1, 2.5], [3.14, 4]]}, True, 0, 0, 0, 0, 0, 1),
-    ({"a": [[1, 2], ["x", "y"]]}, True, 0, 0, 0, 0, 0, 1),
-    ({"a": []}, True, 0, 0, 0, 0, 0, 1),
-])
+@pytest.mark.parametrize(
+    "input,stub_np,ints,reals,bools,strs,tensors,objs",
+    [
+        ({"a": 1}, False, 1, 0, 0, 0, 0, 0),
+        ({"a": 1.0}, False, 0, 1, 0, 0, 0, 0),
+        ({"a": True}, False, 0, 0, 1, 0, 0, 0),
+        ({"a": "foo"}, False, 0, 0, 0, 1, 0, 0),
+        ({"a": [1, 2]}, False, 0, 0, 0, 0, 1, 0),
+        ({"a": [[1, 2], [3, 4]]}, False, 0, 0, 0, 0, 1, 0),
+        ({"a": [[1, 2.5], [3.14, 4]]}, False, 0, 0, 0, 0, 1, 0),
+        ({"a": [[1, 2], ["x", "y"]]}, False, 0, 0, 0, 0, 0, 1),
+        ({"a": []}, False, 0, 0, 0, 0, 0, 1),
+        ({"a": 1}, True, 1, 0, 0, 0, 0, 0),
+        ({"a": 1.0}, True, 0, 1, 0, 0, 0, 0),
+        ({"a": True}, True, 0, 0, 1, 0, 0, 0),
+        ({"a": "foo"}, True, 0, 0, 0, 1, 0, 0),
+        ({"a": [1, 2]}, True, 0, 0, 0, 0, 0, 1),
+        ({"a": [[1, 2], [3, 4]]}, True, 0, 0, 0, 0, 0, 1),
+        ({"a": [[1, 2.5], [3.14, 4]]}, True, 0, 0, 0, 0, 0, 1),
+        ({"a": [[1, 2], ["x", "y"]]}, True, 0, 0, 0, 0, 0, 1),
+        ({"a": []}, True, 0, 0, 0, 0, 0, 1),
+    ],
+)
 def test_type_count_dict(input, stub_np, ints, reals, bools, strs, tensors, objs, monkeypatch) -> None:
     monkeypatch.setattr("whylogs.core.preprocessing.is_not_stub", lambda x: (not stub_np))
     row_results = why.log(input)
@@ -202,27 +203,29 @@ def test_type_count_dict(input, stub_np, ints, reals, bools, strs, tensors, objs
     assert row_view._columns.get("a")._metrics.get("types").object.value == objs
 
 
-@pytest.mark.parametrize("input,stub_np,ints,reals,bools,strs,tensors,objs", [
-    ({"a": 1}, False, 1, 0, 0, 0, 0, 0),
-    ({"a": 1.0}, False, 0, 1, 0, 0, 0, 0),
-    ({"a": True}, False, 0, 0, 1, 0, 0, 0),
-    ({"a": "foo"}, False, 0, 0, 0, 1, 0, 0),
-    ({"a": [1, 2]}, False, 0, 0, 0, 0, 1, 0),
-    ({"a": [[1, 2], [3, 4]]}, False, 0, 0, 0, 0, 1, 0),
-    ({"a": [[1, 2.5], [3.14, 4]]}, False, 0, 0, 0, 0, 1, 0),
-    ({"a": [[1, 2], ["x", "y"]]}, False, 0, 0, 0, 0, 0, 1),
-    ({"a": []}, False, 0, 0, 0, 0, 0, 1),
-
-    ({"a": 1}, True, 1, 0, 0, 0, 0, 0),
-    ({"a": 1.0}, True, 0, 1, 0, 0, 0, 0),
-    ({"a": True}, True, 0, 0, 1, 0, 0, 0),
-    ({"a": "foo"}, True, 0, 0, 0, 1, 0, 0),
-    ({"a": [1, 2]}, True, 0, 0, 0, 0, 0, 1),
-    ({"a": [[1, 2], [3, 4]]}, True, 0, 0, 0, 0, 0, 1),
-    ({"a": [[1, 2.5], [3.14, 4]]}, True, 0, 0, 0, 0, 0, 1),
-    ({"a": [[1, 2], ["x", "y"]]}, True, 0, 0, 0, 0, 0, 1),
-    ({"a": []}, True, 0, 0, 0, 0, 0, 1),
-])
+@pytest.mark.parametrize(
+    "input,stub_np,ints,reals,bools,strs,tensors,objs",
+    [
+        ({"a": 1}, False, 1, 0, 0, 0, 0, 0),
+        ({"a": 1.0}, False, 0, 1, 0, 0, 0, 0),
+        ({"a": True}, False, 0, 0, 1, 0, 0, 0),
+        ({"a": "foo"}, False, 0, 0, 0, 1, 0, 0),
+        ({"a": [1, 2]}, False, 0, 0, 0, 0, 1, 0),
+        ({"a": [[1, 2], [3, 4]]}, False, 0, 0, 0, 0, 1, 0),
+        ({"a": [[1, 2.5], [3.14, 4]]}, False, 0, 0, 0, 0, 1, 0),
+        ({"a": [[1, 2], ["x", "y"]]}, False, 0, 0, 0, 0, 0, 1),
+        ({"a": []}, False, 0, 0, 0, 0, 0, 1),
+        ({"a": 1}, True, 1, 0, 0, 0, 0, 0),
+        ({"a": 1.0}, True, 0, 1, 0, 0, 0, 0),
+        ({"a": True}, True, 0, 0, 1, 0, 0, 0),
+        ({"a": "foo"}, True, 0, 0, 0, 1, 0, 0),
+        ({"a": [1, 2]}, True, 0, 0, 0, 0, 0, 1),
+        ({"a": [[1, 2], [3, 4]]}, True, 0, 0, 0, 0, 0, 1),
+        ({"a": [[1, 2.5], [3.14, 4]]}, True, 0, 0, 0, 0, 0, 1),
+        ({"a": [[1, 2], ["x", "y"]]}, True, 0, 0, 0, 0, 0, 1),
+        ({"a": []}, True, 0, 0, 0, 0, 0, 1),
+    ],
+)
 def test_type_count_row(input, stub_np, ints, reals, bools, strs, tensors, objs, monkeypatch) -> None:
     monkeypatch.setattr("whylogs.core.preprocessing.is_not_stub", lambda x: (not stub_np))
     row_results = why.log(row=input)
@@ -235,10 +238,10 @@ def test_type_count_row(input, stub_np, ints, reals, bools, strs, tensors, objs,
     assert row_view._columns.get("a")._metrics.get("types").object.value == objs
 
 
-@pytest.mark.parametrize("input", [
-    {"a": ["x", "y"]},  # non-numeric list -> object
-    {"a": []}  # tensors require positive shape in every dimension
-])
+@pytest.mark.parametrize(
+    "input",
+    [{"a": ["x", "y"]}, {"a": []}],  # non-numeric list -> object  # tensors require positive shape in every dimension
+)
 def test_object_count_row(input) -> None:
     row_results = why.log(row=input)
     row_view = row_results.view()

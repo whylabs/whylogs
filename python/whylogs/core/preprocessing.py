@@ -155,8 +155,8 @@ class PreprocessedColumn:
 
         if parse_numeric_string:
             non_null_series = pd.to_numeric(non_null_series, errors="ignore")
-        
-        # TODO: Do we want to parse numeric strings inside of tensors? 
+
+        # TODO: Do we want to parse numeric strings inside of tensors?
 
         float_mask = non_null_series.apply(lambda x: pdc.is_float(x) or pdc.is_decimal(x))
         bool_mask = non_null_series.apply(lambda x: pdc.is_bool(x))
@@ -164,8 +164,7 @@ class PreprocessedColumn:
         int_mask = non_null_series.apply(lambda x: pdc.is_number(x) and pdc.is_integer(x) and not pdc.is_bool(x))
         str_mask = non_null_series.apply(lambda x: isinstance(x, str))
         tensor_mask = non_null_series.apply(
-            lambda x: (isinstance(x, list) and PreprocessedColumn._is_tensorable(x)) or 
-                      (isinstance(x, np.ndarray) and np.issubdtype(x.dtype, np.number))
+            lambda x: isinstance(x, (list, np.ndarray)) and PreprocessedColumn._is_tensorable(x)
         )
 
         floats = non_null_series[float_mask]
@@ -174,6 +173,7 @@ class PreprocessedColumn:
         bool_count_where_true = non_null_series[bool_mask_where_true].count()
         strings = non_null_series[str_mask]
         tensors = non_null_series[tensor_mask]
+        tensors = [x if isinstance(x, np.ndarray) else np.asarray(x) for x in tensors]
         objs = non_null_series[~(float_mask | str_mask | int_mask | bool_mask | tensor_mask)]
 
         # convert numeric types to float if they are considered
@@ -294,10 +294,9 @@ class PreprocessedColumn:
                     float_list.append(x)
                 elif isinstance(x, str):
                     string_list.append(x)
-                # TODO: This will turn matrices into a list of vectors :(
                 elif isinstance(x, list) and PreprocessedColumn._is_tensorable(x):
                     tensor_list.append(np.asarray(x))
-                elif is_not_stub(np.ndarray) and isinstance(x, np.ndarray) and np.issubdtype(x.dtype, np.number):
+                elif isinstance(x, np.ndarray) and PreprocessedColumn._is_tensorable(x):
                     tensor_list.append(x)
                 elif x is not None:
                     obj_list.append(x)
@@ -331,8 +330,9 @@ class PreprocessedColumn:
         return PreprocessedColumn.apply(list_format)
 
     @staticmethod
-    def _is_tensorable(value: List[Any]) -> bool:
+    def _is_tensorable(value: Union[np.ndarray, List[Any]]) -> bool:
         if not is_not_stub(np.ndarray):
             return False
-        X = np.asarray(value)
+
+        X = value if isinstance(value, np.ndarray) else np.asarray(value)
         return len(X.shape) > 0 and all([i > 0 for i in X.shape]) and np.issubdtype(X.dtype, np.number)

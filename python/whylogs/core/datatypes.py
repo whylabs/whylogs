@@ -119,7 +119,7 @@ class Tensor(DataType[np.ndarray]):
         if not isinstance(dtype_or_type, type):
             return False
 
-        return (dtype_or_type == np.ndarray)  # TODO: can't see the data type in the ndarray :(
+        return dtype_or_type == np.ndarray  # TODO: can't see the data type in the ndarray :(
 
 
 class AnyType(DataType[Any]):

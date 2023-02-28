@@ -14,7 +14,7 @@ from whylogs.core.utils.utils import deprecated_alias
 from .column_profile import ColumnProfile
 from .input_resolver import _pandas_or_dict
 from .schema import DatasetSchema
-from .stubs import is_not_stub, np, pd
+from .stubs import pd
 from .view import DatasetProfileView
 
 logger = logging.getLogger(__name__)
