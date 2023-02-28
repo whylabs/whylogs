@@ -8,7 +8,7 @@ from whylogs.core.segmentation_partition import (
     SegmentationPartition,
     segment_on_column,
 )
-from whylogs.experimental.performance_estimation import AccuracyEstimator
+from whylogs.experimental.performance_estimation.estimators import AccuracyEstimator
 
 
 @pytest.fixture

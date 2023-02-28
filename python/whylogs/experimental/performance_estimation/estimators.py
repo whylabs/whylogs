@@ -1,28 +1,13 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from datetime import datetime
 from logging import getLogger
-from typing import Optional, Tuple
+from typing import Tuple
 
 from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.core import DatasetProfile, Segment
 from whylogs.core.model_performance_metrics.confusion_matrix import ConfusionMatrix
+from whylogs.experimental.performance_estimation.estimation_results import EstimationResult
 
 logger = getLogger(__name__)
-
-
-@dataclass
-class EstimationResult:
-    """
-    The result of a performance estimation.
-    accuracy: The estimated accuracy.
-    reference_partition_id: The partition id of the reference result set.
-    reference_result_timestamp: The timestamp of the reference result set.
-    """
-
-    accuracy: Optional[float] = None
-    reference_partition_id: Optional[str] = None
-    reference_result_timestamp: Optional[datetime] = None
 
 
 class PerformanceEstimator(ABC):
@@ -70,12 +55,14 @@ class AccuracyEstimator(PerformanceEstimator):
     def __init__(self, reference_result_set: SegmentedResultSet):
         if len(reference_result_set.partitions) > 1:
             logger.warning("More than one partition found. Only the first partition will be used for the estimation.")
-        self._partition_id = reference_result_set.partitions[0].id
-        segment_key = next(iter(reference_result_set._segments[self._partition_id]))
-        self._reference_result_timestamp = reference_result_set._segments[self._partition_id][
-            segment_key
-        ].dataset_timestamp
+        self._reference_result_timestamp = self._get_first_segment_timestamp(reference_result_set)
+        self._target_result_timestamp = None
         super().__init__(reference_result_set)
+
+    def _get_first_segment_timestamp(self, result_set: SegmentedResultSet):
+        partition_id = result_set.partitions[0].id
+        segment_key = next(iter(result_set._segments[partition_id]))
+        return result_set._segments[partition_id][segment_key].dataset_timestamp
 
     def _get_segments(self, reference_results: SegmentedResultSet, target_results: SegmentedResultSet):
         if len(reference_results.partitions) > 1 and len(target_results.partitions) > 1:
@@ -142,6 +129,9 @@ class AccuracyEstimator(PerformanceEstimator):
     def _get_reference_timestamp(self):
         return self._reference_result_timestamp
 
+    def get_target_timestamp(self):
+        return self._target_result_timestamp
+
     def _get_reference_partition_id(self):
         return self._partition_id
 
@@ -175,7 +165,7 @@ class AccuracyEstimator(PerformanceEstimator):
         """
 
         assert isinstance(target, SegmentedResultSet), "target must be a SegmentedResultSet"
-
+        self._target_result_timestamp = self._get_first_segment_timestamp(target)
         reference_results = self._reference_result_set
         target_results = target
         reference_segments, _ = self._get_segments(reference_results, target_results)
@@ -191,5 +181,7 @@ class AccuracyEstimator(PerformanceEstimator):
             accuracy=estimated_accuracy,
             reference_result_timestamp=self._get_reference_timestamp(),
             reference_partition_id=self._get_reference_partition_id(),
+            target_result_timestamp=self._get_target_timestamp(),
         )
+        target.add_performance_estimation()
         return estimation_result

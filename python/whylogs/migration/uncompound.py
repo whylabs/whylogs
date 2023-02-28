@@ -22,6 +22,17 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+def _uncompound_performance_estimation_magic_string() -> str:
+    """
+    Column name prefix for performance estimation metrics
+    """
+    return "__whylabs.output_performance_estimation."
+
+
+def _uncompound_performance_estimation_feature_flag() -> str:
+    return True
+
+
 def _uncompound_metric_feature_flag() -> bool:
     """
     v0 whylabs doesn't understand compound metrics. If this is True, turn
