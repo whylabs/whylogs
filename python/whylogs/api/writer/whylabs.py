@@ -68,7 +68,9 @@ def _check_whylabs_condition_count_uncompound() -> bool:
             )
             return True
         else:
-            logger.info(f"Got {response.status_code = } so allowing condition count upload to whylabs uncompounded!")
+            logger.info(
+                f"Got response code {response.status_code} but expected 200, so allowing condition count upload to whylabs uncompounded!"
+            )
     except Exception:
         logger.warning("Error trying to read whylabs config, falling back to defaults for uncompounding")
     return False
