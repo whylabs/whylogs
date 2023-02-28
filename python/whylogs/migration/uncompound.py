@@ -1,5 +1,6 @@
 import logging
-from typing import Dict
+from dataclasses import dataclass
+from typing import Dict, Optional
 
 from whylogs.core import ColumnProfileView, DatasetProfileView
 from whylogs.core.metrics import Metric
@@ -22,6 +23,11 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class FeatureFlags:
+    uncompound_condition_count: bool = False
+
+
 def _uncompound_metric_feature_flag() -> bool:
     """
     v0 whylabs doesn't understand compound metrics. If this is True, turn
@@ -31,13 +37,15 @@ def _uncompound_metric_feature_flag() -> bool:
     return True
 
 
-def _uncompound_condition_count_feature_flag() -> bool:
+def _uncompound_condition_count_feature_flag(flags: Optional[FeatureFlags] = None) -> bool:
     """
     v0 whylabs doesn't understand condition count metrics. If this is True, turn
     each condition into its three ColumnCountMetric columns in the profile
     so that v0 whylabs will only see metrics it understands.
     """
-    return False
+    if flags is None:
+        return False
+    return flags.uncompound_condition_count
 
 
 def _v0_compatible_image_feature_flag() -> bool:
@@ -54,7 +62,7 @@ def _condition_count_magic_string() -> str:
     """
     Column name prefix for uncompounded ConditionCountMetric columns
     """
-    return "__whylabs.condition."
+    return "Ω.whylabs.condition."
 
 
 def _uncompounded_column_name(column_name: str, metric_name: str, submetric_name: str, metric: Metric) -> str:
@@ -93,9 +101,9 @@ def _uncompound_multimetric(col_name: str, metric_name: str, metric: MultiMetric
 
 
 def _uncompound_condition_count(
-    col_name: str, metric_name: str, metric: ConditionCountMetric
+    col_name: str, metric_name: str, metric: ConditionCountMetric, flags: Optional[FeatureFlags] = None
 ) -> Dict[str, ColumnProfileView]:
-    if not _uncompound_condition_count_feature_flag():
+    if not _uncompound_condition_count_feature_flag(flags):
         return dict()
 
     result: Dict[str, ColumnProfileView] = dict()
@@ -128,7 +136,7 @@ def _uncompound_condition_count(
     return result
 
 
-def _uncompound_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
+def _uncompound_dataset_profile(prof: DatasetProfileView, flags: Optional[FeatureFlags] = None) -> DatasetProfileView:
     """
     v0 whylabs doesn't understand compound metrics. This creates a new column for
     each submetric in a compound metric so that whylabs only sees metrics it understands.
@@ -147,7 +155,7 @@ def _uncompound_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
             if isinstance(metric, MultiMetric):
                 new_columns.update(_uncompound_multimetric(col_name, metric_name, metric))
             if isinstance(metric, ConditionCountMetric):
-                new_columns.update(_uncompound_condition_count(col_name, metric_name, metric))
+                new_columns.update(_uncompound_condition_count(col_name, metric_name, metric, flags))
 
     new_prof._columns.update(new_columns)
     return new_prof

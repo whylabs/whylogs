@@ -33,6 +33,7 @@ from whylogs.core.feature_weights import FeatureWeights
 from whylogs.core.utils import deprecated_alias
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 from whylogs.migration.uncompound import (
+    FeatureFlags,
     _uncompound_dataset_profile,
     _uncompound_metric_feature_flag,
 )
@@ -50,6 +51,29 @@ _UPLOAD_POOLER_CACHE: Dict[str, Union[PoolManager, ProxyManager]] = dict()
 
 _US_WEST2_DOMAIN = "songbird-20201223060057342600000001.s3.us-west-2.amazonaws.com"
 _S3_PUBLIC_DOMAIN = os.environ.get("_WHYLABS_PRIVATE_S3_DOMAIN") or _US_WEST2_DOMAIN
+
+
+def _check_whylabs_condition_count_uncompound() -> bool:
+    whylabs_config_url = (
+        "https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_config/whylabs_condition_count_disabled"
+    )
+    logger.info(f"checking: {whylabs_config_url}")
+    try:
+        response = requests.head(whylabs_config_url)
+        logger.info(f"checking: {whylabs_config_url}")
+        logger.info(f"headers are: {response.headers} code: {response.status_code}")
+        if response.status_code == 200:
+            logger.info(
+                "found the whylabs condition count disabled file so running uncompound on condition count metrics"
+            )
+            return True
+        else:
+            logger.info(
+                f"Got response code {response.status_code} but expected 200, so allowing condition count upload to whylabs uncompounded!"
+            )
+    except Exception:
+        logger.warning("Error trying to read whylabs config, falling back to defaults for uncompounding")
+    return False
 
 
 def _validate_api_key(api_key: Optional[str]) -> str:
@@ -452,15 +476,17 @@ class WhyLabsWriter(Writer):
                 "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
             )
 
+        flags = FeatureFlags(_check_whylabs_condition_count_uncompound())
+
         if _uncompound_metric_feature_flag():
             if has_segments:
-                updated_profile_view = _uncompound_dataset_profile(view.profile_view)
+                updated_profile_view = _uncompound_dataset_profile(view.profile_view, flags)
                 view = SegmentedDatasetProfileView(
                     profile_view=updated_profile_view, segment=view._segment, partition=view._partition
                 )
 
             else:
-                view = _uncompound_dataset_profile(view)
+                view = _uncompound_dataset_profile(view, flags)
 
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
