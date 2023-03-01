@@ -40,6 +40,5 @@ class EstimationResultWriter:
         self._writer = writer
 
     def write(self, **kwargs: Any) -> None:
-        # TODO: special handling of large number of files, handle throttling
         self._writer.write(profile=self._estimation_result, **kwargs)
         logger.debug("Completed writing estimation result!")
