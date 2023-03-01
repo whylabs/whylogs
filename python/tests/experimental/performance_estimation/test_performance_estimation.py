@@ -114,13 +114,8 @@ def test_accuracy_estimation(acc_estimator, target_df):
     target_results = make_result_set(target_df)
     estimator_result = acc_estimator.estimate(target_results)
     assert estimator_result.accuracy == 0.625
-    assert target_results._performance_estimation.accuracy == 0.625
-
     assert estimator_result.reference_partition_id is not None
-    assert target_results._performance_estimation.reference_partition_id is not None
-
     assert estimator_result.reference_result_timestamp is not None
-    assert target_results._performance_estimation.reference_result_timestamp is not None
 
 
 def test_regression_estimation(acc_estimator, target_df):
@@ -129,10 +124,3 @@ def test_regression_estimation(acc_estimator, target_df):
     target_results = make_result_set(target_df)
     with pytest.raises(ValueError, match="Accuracy estimation currently supported for binary classification problems."):
         acc_estimator.estimate(target_results)
-
-
-def test_add_performance_estimation(target_df, estimation_result):
-    target_result = make_result_set(target_df)
-    assert target_result._performance_estimation is None
-    target_result.add_performance_estimation(estimation_result)
-    assert target_result._performance_estimation is not None

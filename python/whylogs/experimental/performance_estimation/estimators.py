@@ -186,5 +186,4 @@ class AccuracyEstimator(PerformanceEstimator):
             reference_partition_id=self._get_reference_partition_id(),
             target_result_timestamp=self._get_target_timestamp(),
         )
-        target.add_performance_estimation(estimation_result=estimation_result)
         return estimation_result
