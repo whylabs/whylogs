@@ -9,7 +9,12 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_series_equal
 
-from whylogs.core.preprocessing import ListView, PreprocessedColumn
+from whylogs.core.preprocessing import (
+    ListView,
+    NumpyView,
+    PandasView,
+    PreprocessedColumn,
+)
 from whylogs.core.stubs import NumpyStub, PandasStub
 
 TEST_LOGGER = getLogger(__name__)
@@ -29,6 +34,18 @@ def assert_list_view_is_all_nones(view: ListView) -> None:
     assert view.strings is None
     assert view.tensors is None
     assert view.objs is None
+
+
+def assert_pandas_view_is_all_nones(view: PandasView) -> None:
+    assert view.strings is None
+    assert view.tensors is None
+    assert view.objs is None
+
+
+def assert_numpy_view_is_all_nones(view: NumpyView) -> None:
+    assert view.ints is None
+    assert view.floats is None
+    assert view.strings is None
 
 
 class TestListElements(object):
@@ -353,9 +370,7 @@ def test_process_scalar_called_with_scalar_nonobject(
         assert column.numpy.strings is None  # TODO: should strings be in NumpyView instead?
 
     # scalar code path never produces Pandas
-    assert column.pandas.strings is None
-    assert column.pandas.tensors is None
-    assert column.pandas.objs is None
+    assert_pandas_view_is_all_nones(column.pandas)
 
 
 @pytest.mark.parametrize(
@@ -420,9 +435,7 @@ def test_process_scalar_called_with_ternsorable(value: Any, np_stubbed: bool, pd
     assert column.numpy.strings is None
 
     # scalar code path never produces Pandas
-    assert column.pandas.strings is None
-    assert column.pandas.tensors is None
-    assert column.pandas.objs is None
+    assert_pandas_view_is_all_nones(column.pandas)
 
 
 class _UnknownType:
@@ -453,7 +466,7 @@ class _UnknownType:
         (np.asarray([["a", "b"], ["c", "d"]]), True, False),
         (np.asarray(["a", "b", "c"]), True, True),
         (np.asarray([["a", "b"], ["c", "d"]]), True, True),
-        # Tensorizability requires non-stubbed numpy, so these are all objects
+        # Tensorability requires non-stubbed numpy, so these are all objects
         ([1, 2, 3], True, False),
         ([[1, 0, 0], [0, 1, 0], [0, 0, 1]], True, False),
         (np.asarray([1, 2, 3]), True, False),
@@ -501,9 +514,7 @@ def test_process_scalar_called_with_scalar_object(value: Any, np_stubbed: bool, 
     assert column.numpy.strings is None
 
     # scalar code path never produces Pandas
-    assert column.pandas.strings is None
-    assert column.pandas.tensors is None
-    assert column.pandas.objs is None
+    assert_pandas_view_is_all_nones(column.pandas)
 
 
 @pytest.mark.parametrize(
@@ -515,7 +526,7 @@ def test_process_scalar_called_with_scalar_object(value: Any, np_stubbed: bool, 
         ([np.array([[1, 0], [0, 1]]), np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])]),
     ],
 )
-def test_apply_tensorable_series(column: pd.Series) -> None:
+def test_apply_tensorable_series(column: List[Any]) -> None:
     res = PreprocessedColumn.apply(pd.Series(column))
     assert len(res.pandas.tensors) == len(column)
     for i in range(len(column)):
@@ -534,12 +545,150 @@ def test_apply_tensorable_series(column: pd.Series) -> None:
     assert_list_view_is_all_nones(res.list)
 
 
-def test_apply_ndarray() -> None:
-    pass
+@pytest.mark.parametrize(
+    "column",
+    [
+        ([["a", "b", "c"], ["d", "e"]]),
+        ([np.asarray(["a", "b", "c"]), np.asarray(["d", "e"])]),
+        ([_UnknownType(), _UnknownType()]),
+        ([[_UnknownType(), _UnknownType()], [_UnknownType(), _UnknownType()]]),
+    ],
+)
+def test_apply_nontensorable_series(column: Any) -> None:
+    res = PreprocessedColumn.apply(pd.Series(column))
+
+    assert len(res.pandas.objs) == len(column)
+    assert_zero_len(res.pandas.strings)
+    assert_zero_len(res.pandas.tensors)
+
+    assert res.numpy.floats.shape == (0,)
+    assert res.numpy.ints.shape == (0,)
+    assert res.numpy.strings is None
+
+    # list view is not used in the apply() code path
+    assert_list_view_is_all_nones(res.list)
 
 
-def test_apply_list() -> None:
-    pass
+@pytest.mark.parametrize(
+    "column",
+    [
+        (np.asarray([1, 0, 0])),
+        (np.asarray([[1, 0, 0], [0, 1, 0], [0, 0, 1]])),
+        (np.asarray([1.0, 0.0, 0.0])),
+        (np.asarray([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])),
+        (np.asarray(["a", "b", "c"])),
+    ],
+)
+def test_apply_ndarray(column: np.ndarray) -> None:
+    res = PreprocessedColumn.apply(column)
+
+    if issubclass(column.dtype.type, np.floating):
+        assert res.numpy.floats.tolist() == column.tolist()
+        assert res.numpy.ints is None
+        assert res.numpy.strings is None
+    elif issubclass(column.dtype.type, np.integer):
+        assert res.numpy.floats is None
+        assert res.numpy.ints.tolist() == column.tolist()
+        assert res.numpy.strings is None
+    else:
+        assert res.numpy.floats is None
+        assert res.numpy.ints is None
+        assert res.numpy.strings.tolist() == column.tolist()
+
+    assert_list_view_is_all_nones(res.list)
+    assert_pandas_view_is_all_nones(res.pandas)
+
+
+""" pandas implies numpy
+([1, 2, 3], True, False, [1, 2, 3], [], [], [], []),
+([4.0, 5.0, "a", "b"], True, False, [], [4.0, 5.0], ["a", "b"], [], []),
+([[1, 2, 3]], True, False, [], [], [], [], [[1, 2, 3]]),  # no numpy means no tensors
+([[[1, 0], [0, 1]]], True, False, [], [], [], [], [[[1, 0], [0, 1]]]),
+([_UnknownType, ["a", "b"]], True, False, [], [], [], [], [_UnknownType, ["a", "b"]]),
+"""
+
+
+@pytest.mark.parametrize(
+    "column,np_stubbed,pd_stubbed,ints,floats,strings,tensors,objs",
+    [
+        ([1, 2, 3], False, True, [1, 2, 3], [], [], [], []),
+        ([4.0, 5.0, "a", "b"], False, True, [], [4.0, 5.0], ["a", "b"], [], []),
+        ([[1, 2, 3]], False, True, [], [], [], [np.asarray([1, 2, 3])], []),
+        ([[[1, 0], [0, 1]]], False, True, [], [], [], [np.asarray([[1, 0], [0, 1]])], []),
+        ([_UnknownType, ["a", "b"]], False, True, [], [], [], [], [_UnknownType, ["a", "b"]]),
+        ([1, 2, 3], True, True, [1, 2, 3], [], [], [], []),
+        ([4.0, 5.0, "a", "b"], True, True, [], [4.0, 5.0], ["a", "b"], [], []),
+        ([[1, 2, 3]], True, True, [], [], [], [], [[1, 2, 3]]),  # no numpy means no tensors
+        ([[[1, 0], [0, 1]]], True, True, [], [], [], [], [[[1, 0], [0, 1]]]),
+        ([_UnknownType, ["a", "b"]], True, True, [], [], [], [], [_UnknownType, ["a", "b"]]),
+        ([1, 2, 3], False, False, [1, 2, 3], [], [], [], []),
+        ([4.0, 5.0, "a", "b"], False, False, [], [4.0, 5.0], ["a", "b"], [], []),
+        ([[1, 2, 3]], False, False, [], [], [], [np.asarray([1, 2, 3])], []),
+        ([[[1, 0], [0, 1]]], False, False, [], [], [], [np.asarray([[1, 0], [0, 1]])], []),
+        ([_UnknownType, ["a", "b"]], False, False, [], [], [], [], [_UnknownType, ["a", "b"]]),
+        # "scalars" get wrapped in a list and apply called recursively
+        (1, False, False, [1], [], [], [], []),
+        (1, False, True, [1], [], [], [], []),
+        (1, True, True, [1], [], [], [], []),
+        (1.0, False, False, [], [1.0], [], [], []),
+        (1.0, False, True, [], [1.0], [], [], []),
+        (1.0, True, True, [], [1.0], [], [], []),
+        ("a", False, False, [], [], ["a"], [], []),
+        ("a", False, True, [], [], ["a"], [], []),
+        ("a", True, True, [], [], ["a"], [], []),
+    ],
+)
+def test_apply_list(
+    column: Union[List[Any], int, float, str],
+    np_stubbed: bool,
+    pd_stubbed: bool,
+    ints: List[int],
+    floats: List[float],
+    strings: List[str],
+    tensors: List[np.ndarray],
+    objs: List[Any],
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr("whylogs.core.preprocessing.np", NumpyStub() if np_stubbed else np)
+    monkeypatch.setattr("whylogs.core.preprocessing.pd", PandasStub() if pd_stubbed else pd)
+    res = PreprocessedColumn.apply(column)
+    print(f"result {res}")
+    if pd_stubbed:
+        assert_pandas_view_is_all_nones(res.pandas)
+
+        if np_stubbed:
+            assert_numpy_view_is_all_nones(res.numpy)
+            assert res.list.ints == ints
+            assert res.list.floats == floats
+        else:
+            assert res.numpy.ints.tolist() == ints
+            assert res.numpy.floats.tolist() == floats
+            assert res.numpy.strings is None
+
+            assert res.list.ints is None
+            assert res.list.floats is None
+
+        assert res.list.strings == strings
+        assert len(res.list.tensors) == len(tensors)
+        for i in range(len(tensors)):
+            assert res.list.tensors[i].tolist() == tensors[i].tolist()
+
+        assert res.list.objs == objs
+
+    else:  # pandas is not stubbed; list is wrapped in pd.Series(column, dtype="object")
+        assert_list_view_is_all_nones(res.list)
+
+        assert res.numpy.ints.tolist() == ints
+        assert res.numpy.floats.tolist() == floats
+        assert res.numpy.strings is None
+
+        assert res.pandas.strings.tolist() == strings
+        assert res.pandas.objs.tolist() == objs
+        assert len(res.pandas.tensors) == len(tensors)
+        for i in range(len(tensors)):
+            X = res.pandas.tensors[i]
+            Y = tensors[i]
+            assert X.shape == Y.shape
 
 
 def test_apply_iterable() -> None:
