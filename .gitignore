@@ -203,3 +203,6 @@ python/examples/integrations/*.png
 
 # profile store
 profile_store/*
+
+# whylogs testing
+whylogs_data/*

@@ -49,7 +49,7 @@ class TestGCSWriter(object):
     def setup_class(cls):
         assert TestGCSWriter._find_open_test_port(max_retry=3)
         storage_host = f"http://{HOST}:{cls.test_port}"
-        TEST_LOGGER.info(f"Running test using {storage_host =}")
+        TEST_LOGGER.info(f"Running test using {storage_host}")
         os.environ["STORAGE_EMULATOR_HOST"] = storage_host
         cls.server = create_server(HOST, cls.test_port, in_memory=True, default_bucket=GCS_BUCKET)
         cls.server.start()
