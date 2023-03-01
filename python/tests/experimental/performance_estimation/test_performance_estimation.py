@@ -1,5 +1,3 @@
-import datetime
-
 import pandas as pd
 import pytest
 
@@ -9,9 +7,6 @@ from whylogs.core.segmentation_partition import (
     ColumnMapperFunction,
     SegmentationPartition,
     segment_on_column,
-)
-from whylogs.experimental.performance_estimation.estimation_results import (
-    EstimationResult,
 )
 from whylogs.experimental.performance_estimation.estimators import AccuracyEstimator
 
