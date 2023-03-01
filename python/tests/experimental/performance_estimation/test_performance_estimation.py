@@ -17,16 +17,6 @@ from whylogs.experimental.performance_estimation.estimators import AccuracyEstim
 
 
 @pytest.fixture
-def estimation_result():
-    return EstimationResult(
-        accuracy=0.67,
-        reference_result_timestamp=datetime.datetime(2023, 2, 28, 20, 8, 30, 545177, tzinfo=datetime.timezone.utc),
-        reference_partition_id="8ff3ae3",
-        target_result_timestamp=datetime.datetime(2023, 2, 28, 20, 8, 31, 9774, tzinfo=datetime.timezone.utc),
-    )
-
-
-@pytest.fixture
 def acc_estimator(reference_df):
     reference_result = make_result_set(reference_df)
     acc_estimator = AccuracyEstimator(reference_result)

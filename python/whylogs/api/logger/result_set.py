@@ -13,9 +13,6 @@ from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.utils import ensure_timezone
 from whylogs.core.view.dataset_profile_view import _MODEL_PERFORMANCE
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
-from whylogs.experimental.performance_estimation.estimation_results import (
-    EstimationResult,
-)
 
 logger = getLogger(__name__)
 
@@ -291,7 +288,6 @@ class SegmentedResultSet(ResultSet):
         self._partitions = partitions
         self._metrics = metrics or dict()
         self._dataset_properties = properties or dict()
-        self._performance_estimation = None
 
     def profile(self, segment: Optional[Segment] = None) -> Optional[Union[DatasetProfile, DatasetProfileView]]:
         if not self._segments:
@@ -314,9 +310,6 @@ class SegmentedResultSet(ResultSet):
         raise ValueError(
             f"A profile was requested from a segmented result set without specifying which segment to return: {self._segments}"
         )
-
-    def add_performance_estimation(self, estimation_result: EstimationResult) -> None:
-        self._performance_estimation = estimation_result
 
     @property
     def dataset_properties(self) -> Optional[Dict[str, Any]]:
@@ -437,9 +430,6 @@ class SegmentedResultSet(ResultSet):
             logger.warning(
                 f"Attempt to build segmented results for writing but there are no segments in this result set: {self._segments}. returning None."
             )
-        if self._performance_estimation:
-            results.append(self._performance_estimation)
-
         return results
 
     def add_metrics_for_segment(self, metrics: ModelPerformanceMetrics, segment: Segment) -> None:
