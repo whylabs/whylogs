@@ -688,6 +688,18 @@ are free to customize your actions as well as the conditions that trigger those 
 </ul>
 <p>Showing the different types of conditions is NOT the focus of this example. If you wish to see the different types of conditions you can define, please refer to <a class="reference external" href="https://whylogs.readthedocs.io/en/stable/examples/advanced/Condition_Count_Metrics.html">Condition Count Metrics</a>.</p>
 <p>Unlike metrics, validators will not log properties into profiles. They are meant only to evaluate conditions and trigger actions while logging is under way.</p>
+<section id="Installing-whylogs-and-importing-modules">
+<h2>Installing whylogs and importing modules<a class="headerlink" href="#Installing-whylogs-and-importing-modules" title="Permalink to this headline">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
+<span class="o">%</span><span class="k">pip</span> install whylogs
+</pre></div>
+</div>
+</div>
+</section>
 <section id="Use-case:-Validating-email-and-credit-card-columns">
 <h2>Use-case: Validating email and credit card columns<a class="headerlink" href="#Use-case:-Validating-email-and-credit-card-columns" title="Permalink to this headline">#</a></h2>
 <p>In this simple scenario, we want to make sure two things happen:</p>
@@ -942,6 +954,7 @@ Validator: no_credit_cards
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Real-time Data Validation with Condition Validators</a><ul>
+<li><a class="reference internal" href="#Installing-whylogs-and-importing-modules">Installing whylogs and importing modules</a></li>
 <li><a class="reference internal" href="#Use-case:-Validating-email-and-credit-card-columns">Use-case: Validating email and credit card columns</a></li>
 <li><a class="reference internal" href="#Defining-the-Conditions">Defining the Conditions</a></li>
 <li><a class="reference internal" href="#Defining-the-actions">Defining the actions</a></li>

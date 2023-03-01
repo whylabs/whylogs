@@ -61,7 +61,8 @@
         }
       ],
       "source": [
-        "%pip install 'whylogs[whylabs]' pyAudioAnalysis eyed3 pydub -q\n"
+        "# Note: you may need to restart the kernel to use updated packages.\n",
+        "%pip install 'whylogs[whylabs]' pyAudioAnalysis eyed3 pydub"
       ]
     },
     {
