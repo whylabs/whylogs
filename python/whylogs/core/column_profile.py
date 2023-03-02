@@ -50,12 +50,16 @@ class ColumnProfile(object):
         self.track_column(old_cache)
 
     def _process_extracted_column(self, extracted_column: PreprocessedColumn) -> None:
+        sampling_size = getattr(self._schema.cfg, "validator_sampling_size", None)
         for metric in self._metrics.values():
             res = metric.columnar_update(extracted_column)
             self._failure_count += res.failures
             self._success_count += res.successes
         for validator in self._column_validators:
-            validator.columnar_validate(extracted_column)
+            if sampling_size is None:
+                validator.columnar_validate(extracted_column)
+            else:
+                validator.columnar_validate(extracted_column, sampling_size)
 
     def track_column(self, series: Any) -> None:
         ex_col = PreprocessedColumn.apply(series)
