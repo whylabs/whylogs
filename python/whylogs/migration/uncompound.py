@@ -48,6 +48,17 @@ def _uncompound_condition_count_feature_flag(flags: Optional[FeatureFlags] = Non
     return flags.uncompound_condition_count
 
 
+def _uncompound_performance_estimation_magic_string() -> str:
+    """
+    Column name prefix for performance estimation metrics
+    """
+    return "Ω.whylabs.output_performance_estimation."
+
+
+def _uncompound_performance_estimation_feature_flag() -> bool:
+    return True
+
+
 def _v0_compatible_image_feature_flag() -> bool:
     """
     v0 whylogs only supported logging a single image in a profile.

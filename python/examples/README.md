@@ -98,6 +98,8 @@ Here you will find examples of features that are still on an experimental stage.
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
 | [Performance Estimation - Estimating Accuracy for Binary Classification Problems](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/performance_estimation.ipynb) | Estimate accuracy for unlabeled target datasets for binary classification problems  |
 | [Extracting and Monitoring Audio Samples](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/whylogs_Audio_examples.ipynb)                                         | Extract features from audio samples for the purpose of monitoring for drift/quality |
+| [NLP Summarization](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/NLP_Summarization.ipynb)                                                                    | Monitor a document summarization task with whylogs                                  |
+| [Embeddings Distance Logging](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/Embeddings_Distance_Logging.ipynb)                                                | Profile embedding values by comparing them to reference data points                 |
 
 ## 📓 Benchmarks
 
