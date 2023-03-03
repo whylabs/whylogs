@@ -185,11 +185,8 @@ class PreprocessedColumn:
 
         self.numpy = NumpyView(floats=floats, ints=ints)
         self.pandas.strings = strings
-        print(f"str {type(strings)} : {strings}")
         self.pandas.tensors = tensors
-        print(f"tensors {type(tensors)} : {tensors}")
         self.pandas.objs = objs
-        print(f"obs {type(objs)} : {objs}")
         self.bool_count = bool_count
         self.bool_count_where_true = bool_count_where_true
 
@@ -229,7 +226,7 @@ class PreprocessedColumn:
             string_list.append(value)
         elif isinstance(value, list) and PreprocessedColumn._is_tensorable(value):
             tensor_list.append(np.asarray(value))
-        elif is_not_stub(np.ndarray) and isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.number):
+        elif is_not_stub(np.ndarray) and PreprocessedColumn._is_tensorable(value):
             tensor_list.append(value)
         elif value is not None:
             obj_list.append(value)
@@ -262,11 +259,7 @@ class PreprocessedColumn:
             result.len = len(data)
             return result
 
-        # TODO: Everything below should be dead code?
-        #       No, you can get a list when flusing the cache
-
         if isinstance(data, np.ndarray):
-            # assert False  # some unit tests call ::apply(np.ndarray)
             result.len = len(data)
             if issubclass(data.dtype.type, (np.number, np.str_)):
                 if issubclass(data.dtype.type, np.floating):
@@ -280,7 +273,7 @@ class PreprocessedColumn:
             return result
 
         if isinstance(data, List):
-            result.len = len(data)  # TODO: not right for tensors?
+            result.len = len(data)
             if is_not_stub(pd.Series):
                 return PreprocessedColumn.apply(pd.Series(data, dtype="object"))
 
@@ -337,5 +330,9 @@ class PreprocessedColumn:
         if not is_not_stub(np.ndarray):
             return False
 
-        X = value if isinstance(value, np.ndarray) else np.asarray(value)
-        return len(X.shape) > 0 and all([i > 0 for i in X.shape]) and np.issubdtype(X.dtype, np.number)
+        maybe_tensor = value if isinstance(value, np.ndarray) else np.asarray(value)
+        return (
+            len(maybe_tensor.shape) > 0
+            and all([i > 0 for i in maybe_tensor.shape])
+            and np.issubdtype(maybe_tensor.dtype, np.number)
+        )

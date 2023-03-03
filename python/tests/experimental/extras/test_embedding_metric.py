@@ -28,13 +28,11 @@ def test_embedding_metric_holds_the_smoke_in() -> None:
     assert metric.references.value.tolist() == [[1, 1, 1], [0.01, 0.01, 0.01]]
 
     summary = column.to_summary_dict()
-    print(summary)
     assert summary["embedding/A_distance:counts/n"] == 3
     assert summary["embedding/B_distance:counts/n"] == 3
     assert summary["embedding/A_distance:distribution/mean"] > 0
     assert summary["embedding/B_distance:distribution/mean"] > 0
     assert summary["embedding/closest:counts/n"] == 3
-    # assert False
 
 
 def test_embedding_metric_merge_happy_case() -> None:

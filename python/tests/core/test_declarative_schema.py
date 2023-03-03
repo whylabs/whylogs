@@ -123,10 +123,8 @@ def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
     num_int_components = len(StandardMetric.ints.value.zero().to_summary_dict().keys())
     num_cond_components = 3  # total, not_4, not_4.3
 
-    # - 1 for 'type' column, which is from Pandas, not whylogs
-    assert (
-        len(colset) - 1
-        == num_count_components
+    expected_column_count = (
+        num_count_components
         + num_type_components
         + num_dist_components
         + num_freq_items_components
@@ -135,6 +133,8 @@ def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
         + num_cond_components
     )
 
+    # - 1 for 'type' column, which is from Pandas, not whylogs
+    assert len(colset) - 1 == expected_column_count
     assert {"condition_count/not_4", "condition_count/not_4.3", "condition_count/total"}.issubset(colset)
 
 

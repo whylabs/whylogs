@@ -652,7 +652,6 @@ def test_apply_list(
     monkeypatch.setattr("whylogs.core.preprocessing.np", NumpyStub() if np_stubbed else np)
     monkeypatch.setattr("whylogs.core.preprocessing.pd", PandasStub() if pd_stubbed else pd)
     res = PreprocessedColumn.apply(column)
-    print(f"result {res}")
     if pd_stubbed:
         assert_pandas_view_is_all_nones(res.pandas)
 

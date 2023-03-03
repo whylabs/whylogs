@@ -18,8 +18,8 @@ class TypeCountersMetric(Metric):
     fractional: IntegralComponent
     boolean: IntegralComponent
     string: IntegralComponent
-    tensor: IntegralComponent
     object: IntegralComponent
+    tensor: IntegralComponent
 
     @property
     def namespace(self) -> str:
@@ -31,8 +31,8 @@ class TypeCountersMetric(Metric):
             "fractional": self.fractional.value,
             "boolean": self.boolean.value,
             "string": self.string.value,
-            "tensor": self.tensor.value,
             "object": self.object.value,
+            "tensor": self.tensor.value,
         }
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
@@ -101,8 +101,8 @@ class TypeCountersMetric(Metric):
             fractional=IntegralComponent(0),
             boolean=IntegralComponent(0),
             string=IntegralComponent(0),
-            tensor=IntegralComponent(0),
             object=IntegralComponent(0),
+            tensor=IntegralComponent(0),
         )
 
 

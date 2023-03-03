@@ -107,7 +107,11 @@ class String(DataType[str]):
         return False
 
 
-class Tensor(DataType[np.ndarray]):
+class _PlaceHolder:
+    pass
+
+
+class Tensor(DataType[_PlaceHolder]):
     def __init__(self) -> None:
         super().__init__(np.ndarray)
 
@@ -119,6 +123,7 @@ class Tensor(DataType[np.ndarray]):
         if not isinstance(dtype_or_type, type):
             return False
 
+        # TODO: I think dtype will be object, so this won't work :(
         return dtype_or_type == np.ndarray  # TODO: can't see the data type in the ndarray :(
 
 
