@@ -1,7 +1,6 @@
 import numpy as np
 
 import whylogs as why
-from whylogs.core.datatypes import Tensor
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
@@ -18,7 +17,7 @@ def test_embedding_metric_holds_the_smoke_in() -> None:
         labels=["B", "A"],
         distance_fn=DistanceFunction.euclidean,
     )
-    schema = DeclarativeSchema([ResolverSpec(column_type=Tensor, metrics=[MetricSpec(EmbeddingMetric, config)])])
+    schema = DeclarativeSchema([ResolverSpec(column_name="col1", metrics=[MetricSpec(EmbeddingMetric, config)])])
     sample_data = np.array([[0.1, 0.1, 0.1], [0.6, 0.6, 0.6], [2, 2, 2]])
     profile = why.log(row={"col1": sample_data}, schema=schema)
     view = profile.view()

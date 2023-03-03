@@ -107,26 +107,6 @@ class String(DataType[str]):
         return False
 
 
-class _PlaceHolder:
-    pass
-
-
-class Tensor(DataType[_PlaceHolder]):
-    def __init__(self) -> None:
-        super().__init__(np.ndarray)
-
-    @classmethod
-    def _do_match(cls, dtype_or_type: Any, maybe_type: Optional[Any]) -> bool:
-        if maybe_type:
-            dtype_or_type = maybe_type
-
-        if not isinstance(dtype_or_type, type):
-            return False
-
-        # TODO: I think dtype will be object, so this won't work :(
-        return dtype_or_type == np.ndarray  # TODO: can't see the data type in the ndarray :(
-
-
 class AnyType(DataType[Any]):
     def __init__(self) -> None:
         super().__init__(type)
@@ -154,7 +134,7 @@ class StandardTypeMapper(TypeMapper):
         Args:
             custom_types: List of additional DataType classes that you want to extend.
         """
-        self._all_types = [Integral, Fractional, String, Tensor]
+        self._all_types = [Integral, Fractional, String]
         if custom_types is not None:
             self._all_types.extend(custom_types)
 
