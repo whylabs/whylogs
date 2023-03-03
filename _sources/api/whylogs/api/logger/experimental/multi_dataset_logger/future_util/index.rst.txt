@@ -1,0 +1,34 @@
+:py:mod:`whylogs.api.logger.experimental.multi_dataset_logger.future_util`
+==========================================================================
+
+.. py:module:: whylogs.api.logger.experimental.multi_dataset_logger.future_util
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.multi_dataset_logger.future_util.wait_result
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.multi_dataset_logger.future_util.T
+
+
+.. py:data:: T
+
+   
+
+.. py:function:: wait_result(future: concurrent.futures.Future[T]) -> T
+
+

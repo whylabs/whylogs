@@ -1,0 +1,327 @@
+:py:mod:`whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger`
+===========================================================================================
+
+.. py:module:: whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.DatasetProfileContainer
+   whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.TrackMessage
+   whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.FlushMessage
+   whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.LoggerStatus
+   whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.StatusMessage
+   whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.PendingWritable
+   whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.MultiDatasetRollingLogger
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.Row
+   whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.TrackData
+   whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.LoggerMessage
+
+
+.. py:data:: Row
+
+   
+
+.. py:data:: TrackData
+
+   
+
+.. py:class:: DatasetProfileContainer(dataset_timestamp: int, schema: Optional[whylogs.core.DatasetSchema])
+
+   A container that abstracts over different types of profiles.
+
+   This does the work of deciding how to track data and how to create profiles given a DatasetSchema.
+   This can only be used to manage a single entity for a given time. For example, this can represent
+   a normal DatasetProfile or segment that has a given dataset timestamp.
+
+   .. py:method:: track(data: TrackData) -> None
+
+      Track data against the contained profile or segment.
+
+
+   .. py:method:: to_result_set() -> whylogs.api.logger.result_set.ResultSet
+
+      Get the ResultSet of the contained profile/segment.
+
+      This doesn't have any side effects. It generates a ResultSet of whatever
+      is inside when this is called.
+
+
+
+.. py:class:: TrackMessage
+
+   Send some data to be tracked.
+
+   .. attribute:: data
+
+      The data to be tracked.
+
+   .. attribute:: timestamp_ms
+
+      The time in milliseconds when the data occurred.
+
+   .. attribute:: result
+
+      an optional Future that is fulfilled when the track has completed. It will either
+      be a success (None) or a failure (Exception).
+
+   .. py:attribute:: data
+      :type: TrackData
+
+      
+
+   .. py:attribute:: timestamp_ms
+      :type: int
+
+      
+
+   .. py:attribute:: result
+      :type: Optional[concurrent.futures.Future[None]]
+
+      
+
+
+.. py:class:: FlushMessage
+
+   Trigger a flush, converting all managed profiles to result sets and attempt to write them if there are writers.
+
+
+.. py:class:: LoggerStatus
+
+   Various status metrics.
+
+   This returns various metadata about the current state. Useful for logging, testing, and debugging.
+
+   .. attribute:: dataset_timestamps
+
+      The amount of dataset timestamps being managed. Each of these will map
+      to either a profile or a segment.
+
+   .. attribute:: dataset_profiles
+
+      The amount of dataset profiles being managed. One of these is created for
+      each time period that the logger is configured to manage. For example, if the logger is configured
+      to aggregate by hour and TrackMessages come in for two hours, then there will be two of these.
+
+   .. attribute:: segment_caches
+
+      Same as dataset_profiles, but for segments.
+
+   .. attribute:: writers
+
+      Amount of writers that the logger is configured to have.
+
+   .. attribute:: pending_writables
+
+      The amount of items that have been flushed but have not yet been written.
+
+   .. py:attribute:: dataset_timestamps
+      :type: int
+
+      
+
+   .. py:attribute:: dataset_profiles
+      :type: int
+
+      
+
+   .. py:attribute:: segment_caches
+      :type: int
+
+      
+
+   .. py:attribute:: writers
+      :type: int
+
+      
+
+   .. py:attribute:: pending_writables
+      :type: int
+
+      
+
+
+.. py:class:: StatusMessage
+
+   Get various status metrics.
+
+   .. py:attribute:: result
+      :type: concurrent.futures.Future[LoggerStatus]
+
+      
+
+
+.. py:class:: PendingWritable
+
+   .. py:attribute:: attempts
+      :type: int
+
+      
+
+   .. py:attribute:: writable
+      :type: whylogs.api.writer.writer.Writable
+
+      
+
+
+.. py:data:: LoggerMessage
+
+   
+
+.. py:class:: MultiDatasetRollingLogger(aggregate_by: whylogs.api.logger.experimental.multi_dataset_logger.time_util.TimeGranularity = TimeGranularity.Hour, write_schedule: whylogs.api.logger.experimental.multi_dataset_logger.time_util.Schedule = Schedule(cadence=TimeGranularity.Minute, interval=10), schema: Optional[whylogs.core.DatasetSchema] = None, writers: List[whylogs.api.writer.Writer] = [])
+
+   Bases: :py:obj:`whylogs.api.logger.experimental.multi_dataset_logger.message_processor.MessageProcessor`\ [\ :py:obj:`LoggerMessage`\ ]
+
+   A logger that manages profiles and segments for various dataset timestamps.
+
+   This logger manages a map of dataset timestamp to dataset profile/segment and handles proper
+   logging to each type. Given a TimeGranularity to aggregate by, for each call to track(), roughly
+   the following will happen:
+
+       - The timestamp_ms will be truncated to the start of the day/hour (depending on aggregate_by). This
+           is the dataset timestamp.
+       - That dataset timestamp is used as the key to either create a dataset profile/segment, or to add
+           the current data to.
+
+   The logger also periodically attempts to write out the internal state according to the write_schedule. It
+   will attempt to write three times before considering a result set unwritable and dropping it. o
+
+   The logger is associated with one or no dataset schema as well. That will determine if the logger creates
+   normal profiles or segments internally, among other things.
+
+   .. py:property:: name
+
+      A string used for identification purposes only.
+
+      It has no semantics. Multiple threads may be given the same name. The
+      initial name is set by the constructor.
+
+   .. py:property:: ident
+
+      Thread identifier of this thread or None if it has not been started.
+
+      This is a nonzero integer. See the get_ident() function. Thread
+      identifiers may be recycled when a thread exits and another thread is
+      created. The identifier is available even after the thread has exited.
+
+   .. py:property:: daemon
+
+      A boolean value indicating whether this thread is a daemon thread.
+
+      This must be set before start() is called, otherwise RuntimeError is
+      raised. Its initial value is inherited from the creating thread; the
+      main thread is not a daemon thread and therefore all threads created in
+      the main thread default to daemon = False.
+
+      The entire Python program exits when only daemon threads are left.
+
+   .. py:method:: log(data: TrackData, timestamp_ms: Optional[int] = None, sync: bool = False) -> None
+
+      Log some data.
+
+      :param data: The data to log. This can either be a pandas data frame, a row (dictionary of str to str/int/float/etc),
+                   or a list of rows.
+      :param timestamp_ms: The timestamp of the data. If this isn't supplied then it is assumed to have happened now.
+      :param sync: Whether or not to perform this action synchronously. By default, this is an asynchronous operation.
+                   You can make this synchronous in order to react to errors. Mostly useful when initially setting up
+                   logging since the only errors that can be responded to are data format related.
+
+
+   .. py:method:: flush() -> None
+
+      Flush the internal state, causing everything to be written using the configured writers.
+
+
+   .. py:method:: run() -> None
+
+      Method representing the thread's activity.
+
+      You may override this method in a subclass. The standard run() method
+      invokes the callable object passed to the object's constructor as the
+      target argument, if any, with sequential and keyword arguments taken
+      from the args and kwargs arguments, respectively.
+
+
+
+   .. py:method:: send(message: Union[MessageType, CloseMessage]) -> None
+
+
+   .. py:method:: close() -> None
+
+
+   .. py:method:: start()
+
+      Start the thread's activity.
+
+      It must be called at most once per thread object. It arranges for the
+      object's run() method to be invoked in a separate thread of control.
+
+      This method will raise a RuntimeError if called more than once on the
+      same thread object.
+
+
+
+   .. py:method:: join(timeout=None)
+
+      Wait until the thread terminates.
+
+      This blocks the calling thread until the thread whose join() method is
+      called terminates -- either normally or through an unhandled exception
+      or until the optional timeout occurs.
+
+      When the timeout argument is present and not None, it should be a
+      floating point number specifying a timeout for the operation in seconds
+      (or fractions thereof). As join() always returns None, you must call
+      is_alive() after join() to decide whether a timeout happened -- if the
+      thread is still alive, the join() call timed out.
+
+      When the timeout argument is not present or None, the operation will
+      block until the thread terminates.
+
+      A thread can be join()ed many times.
+
+      join() raises a RuntimeError if an attempt is made to join the current
+      thread as that would cause a deadlock. It is also an error to join() a
+      thread before it has been started and attempts to do so raises the same
+      exception.
+
+
+
+   .. py:method:: is_alive()
+
+      Return whether the thread is alive.
+
+      This method returns True just before the run() method starts until just
+      after the run() method terminates. See also the module function
+      enumerate().
+
+
+
+   .. py:method:: isDaemon()
+
+
+   .. py:method:: setDaemon(daemonic)
+
+
+   .. py:method:: getName()
+
+
+   .. py:method:: setName(name)
+
+
+

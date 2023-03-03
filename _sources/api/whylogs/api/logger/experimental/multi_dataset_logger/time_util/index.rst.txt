@@ -1,0 +1,107 @@
+:py:mod:`whylogs.api.logger.experimental.multi_dataset_logger.time_util`
+========================================================================
+
+.. py:module:: whylogs.api.logger.experimental.multi_dataset_logger.time_util
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.multi_dataset_logger.time_util.TimeGranularity
+   whylogs.api.logger.experimental.multi_dataset_logger.time_util.Schedule
+   whylogs.api.logger.experimental.multi_dataset_logger.time_util.FunctionTimer
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.multi_dataset_logger.time_util.current_time_ms
+   whylogs.api.logger.experimental.multi_dataset_logger.time_util.truncate_time_ms
+
+
+
+.. py:function:: current_time_ms() -> int
+
+
+.. py:class:: TimeGranularity
+
+   Bases: :py:obj:`enum.Enum`
+
+   Generic enumeration.
+
+   Derive from this class to define new enumerations.
+
+   .. py:attribute:: Second
+      :value: 'Second'
+
+      
+
+   .. py:attribute:: Minute
+      :value: 'Minute'
+
+      
+
+   .. py:attribute:: Hour
+      :value: 'Hour'
+
+      
+
+   .. py:attribute:: Day
+      :value: 'Day'
+
+      
+
+   .. py:attribute:: Month
+      :value: 'Month'
+
+      
+
+   .. py:method:: name()
+
+      The name of the Enum member.
+
+
+   .. py:method:: value()
+
+      The value of the Enum member.
+
+
+
+.. py:function:: truncate_time_ms(t: int, granularity: TimeGranularity) -> int
+
+
+.. py:class:: Schedule
+
+   .. py:attribute:: cadence
+      :type: TimeGranularity
+
+      
+
+   .. py:attribute:: interval
+      :type: int
+
+      
+
+
+.. py:class:: FunctionTimer(schedule: Schedule, fn: Callable)
+
+   A timer that executes a function repeatedly given a Schedule. It will execute at the bottom of
+   that time period. For example, a schedule of Schedule(TimeGranularity.Hour, 1) will execute at
+   the start of each hour. If you start the timer 5 minutes before the next hour then it will first
+   execute in five minutes, and then each hour after that.
+
+   .. py:method:: is_alive() -> bool
+
+
+   .. py:method:: stop() -> None
+
+
+

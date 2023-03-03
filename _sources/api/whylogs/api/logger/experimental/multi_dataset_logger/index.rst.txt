@@ -1,0 +1,18 @@
+:py:mod:`whylogs.api.logger.experimental.multi_dataset_logger`
+==============================================================
+
+.. py:module:: whylogs.api.logger.experimental.multi_dataset_logger
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   future_util/index.rst
+   message_processor/index.rst
+   multi_dataset_rolling_logger/index.rst
+   time_util/index.rst
+
+
