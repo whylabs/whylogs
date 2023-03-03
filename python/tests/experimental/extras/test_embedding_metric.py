@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 import whylogs as why
 from whylogs.core.preprocessing import PreprocessedColumn
@@ -11,7 +12,7 @@ from whylogs.experimental.extras.embedding_metric import (
 )
 
 
-def test_embedding_metric_holds_the_smoke_in() -> None:
+def test_embedding_metric_row() -> None:
     config = EmbeddingConfig(
         references=np.array([[0.01, 0.01, 0.01], [1, 1, 1]]),
         labels=["B", "A"],
@@ -20,6 +21,33 @@ def test_embedding_metric_holds_the_smoke_in() -> None:
     schema = DeclarativeSchema([ResolverSpec(column_name="col1", metrics=[MetricSpec(EmbeddingMetric, config)])])
     sample_data = np.array([[0.1, 0.1, 0.1], [0.6, 0.6, 0.6], [2, 2, 2]])
     profile = why.log(row={"col1": sample_data}, schema=schema)
+    view = profile.view()
+    column = view.get_column("col1")
+    metric = column.get_metric("embedding")
+    assert metric.labels == ["A", "B"]
+    assert metric.references.value.tolist() == [[1, 1, 1], [0.01, 0.01, 0.01]]
+
+    summary = column.to_summary_dict()
+    assert summary["embedding/A_distance:counts/n"] == 3
+    assert summary["embedding/B_distance:counts/n"] == 3
+    assert summary["embedding/A_distance:distribution/mean"] > 0
+    assert summary["embedding/B_distance:distribution/mean"] > 0
+    assert summary["embedding/closest:counts/n"] == 3
+
+
+def test_embedding_metric_pandas() -> None:
+    config = EmbeddingConfig(
+        references=np.array([[0.01, 0.01, 0.01], [1, 1, 1]]),
+        labels=["B", "A"],
+        distance_fn=DistanceFunction.euclidean,
+    )
+    schema = DeclarativeSchema([ResolverSpec(column_name="col1", metrics=[MetricSpec(EmbeddingMetric, config)])])
+    column = [
+        np.asarray([0.1, 0.1, 0.1]),
+        np.asarray([0.6, 0.6, 0.6]),
+        np.asarray([2, 2, 2]),
+    ]
+    profile = why.log(pandas=pd.DataFrame({"col1": column}), schema=schema)
     view = profile.view()
     column = view.get_column("col1")
     metric = column.get_metric("embedding")

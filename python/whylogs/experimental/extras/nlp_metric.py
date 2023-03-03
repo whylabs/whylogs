@@ -319,7 +319,8 @@ class LsiMetric(MultiMetric):
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         self.svd.columnar_update(data)  # no-op if SVD is not updating
         residuals: List[float] = []
-        for vector in chain(data.list.tensors or [], data.pandas.tensors or []):  # TODO: batch these?
+        pandas_tensors = data.pandas.tensors if data.pandas.tensors is not None else []
+        for vector in chain(data.list.tensors or [], pandas_tensors):  # TODO: batch these?
             residuals.append(self.svd.residual(vector))
 
         self._update_submetrics("residual", PreprocessedColumn.apply(residuals))

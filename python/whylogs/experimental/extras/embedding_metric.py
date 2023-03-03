@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass, field
 from enum import Enum
+from itertools import chain
 from typing import List, Optional
 
 import numpy as np
@@ -134,33 +135,32 @@ class EmbeddingMetric(MultiMetric):
             self.submetrics[submetric][key].columnar_update(data)
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
-        if data.pandas.tensors is None and data.list.tensors is None:
-            return OperationResult.ok(0)
+        reference_dim = self.references.value.shape[1]  # number of columns in reference matrix
+        successes = 0
+        failures = 0
+        pandas_tensors = data.pandas.tensors if data.pandas.tensors is not None else []
+        for matrix in chain(data.list.tensors or [], pandas_tensors):  # TODO: stack these
+            if len(matrix.shape) == 1:
+                matrix = matrix.reshape((1, matrix.shape[0]))
+            if len(matrix.shape) != 2 or matrix.shape[1] != reference_dim:
+                logger.warn(
+                    f"EmbeddingMetric requires 1 x {reference_dim} matrices; got tensor with shape {matrix.shape}"
+                )
+                failures += 1
+                continue
 
-        pandas_tensors = None
-        if data.pandas.tensors is not None:
-            pandas_tensors = np.stack(data.pandas.tensors.to_numpy(), axis=0)
-
-        list_tensors = None
-        if data.list.tensors is not None:
-            try:
-                list_tensors = np.concatenate(np.array(data.list.tensors), axis=0)
-            except:  # noqa
-                logger.warn("Unable to convert lists into valid numpy array, so can not log as embeddings")
-
-        matrices = [X for X in [pandas_tensors, list_tensors] if X is not None]
-        for X in matrices:  # TODO: throw if not 2D ndarray
-            X_ref_dists = self.distance_fn(X, self.references.value)  # type: ignore
-            X_ref_closest = np.argmin(X_ref_dists, axis=1)
-            for i in range(X_ref_dists.shape[1]):
+            ref_dists = self.distance_fn(matrix, self.references.value)  # type: ignore
+            ref_closest = np.argmin(ref_dists, axis=1)
+            for i in range(ref_dists.shape[1]):
                 self._update_submetrics(
-                    f"{self.labels[i]}_distance", PreprocessedColumn.apply(X_ref_dists[:, i].tolist())
+                    f"{self.labels[i]}_distance", PreprocessedColumn.apply(ref_dists[:, i].tolist())
                 )
 
-            closest = [self.labels[i] for i in X_ref_closest]
+            closest = [self.labels[i] for i in ref_closest]
             self._update_submetrics("closest", PreprocessedColumn.apply(closest))
+            successes += 1
 
-        return OperationResult.ok(len(matrices))
+        return OperationResult(failures, successes)
 
     @classmethod
     def from_protobuf(cls, msg: MetricMessage) -> "EmbeddingMetric":
