@@ -3,8 +3,10 @@ from typing import List
 
 from whylogs.core.constraints import (
     ConstraintsBuilder,
+    DatasetConstraint,
     MetricConstraint,
     MetricsSelector,
+    PrefixCondition,
 )
 from whylogs.core.constraints.factories.distribution_metrics import greater_than_number
 from whylogs.core.constraints.metric_constraints import ReportResult
@@ -147,6 +149,40 @@ def test_multicolumn_constraints(caplog, pandas_constraint_dataframe) -> None:
     assert constraints_valid
     assert len(report_results) == 1
     assert report_results[0] == ("legs less than weight", 1, 0)
+
+
+def test_dataset_constraints(pandas_constraint_dataframe) -> None:
+    profile = DatasetProfile()
+    profile.track(pandas=pandas_constraint_dataframe)
+    view = profile.view()
+    constraints_builder = ConstraintsBuilder(dataset_profile_view=view)
+
+    multi_column_agreement = DatasetConstraint(
+        name="multi_column_agreement",
+        condition=PrefixCondition("== :legs:distribution/n :animal:counts/n"),
+    )
+    same_column_agreement = DatasetConstraint(
+        name="same_column_agreement",
+        condition=PrefixCondition("== :legs:distribution/n :legs:counts/n"),
+    )
+    failing_constraint = DatasetConstraint(
+        name="failing_constraint",
+        condition=PrefixCondition("== :legs:distribution/mean :animal:counts/n"),
+    )
+    constraints_builder.add_constraint(constraint=multi_column_agreement)
+    constraints_builder.add_constraint(constraint=same_column_agreement)
+    constraints_builder.add_constraint(constraint=failing_constraint)
+    constraints = constraints_builder.build()
+    TEST_LOGGER.info(f"constraints are: {constraints.dataset_constraints}")
+    constraints_valid = constraints.validate()
+    report_results = constraints.generate_constraints_report()
+    TEST_LOGGER.info(f"constraints report is: {report_results}")
+    assert not constraints_valid
+    assert len(report_results) == 3
+    # ReportResult(name, passed, failed, summary)
+    assert report_results[0] == ("multi_column_agreement", 1, 0, None)
+    assert report_results[1] == ("same_column_agreement", 1, 0, None)
+    assert report_results[2] == ("failing_constraint", 0, 1, None)
 
 
 def test_same_constraint_on_multiple_columns(profile_view):
