@@ -1,4 +1,8 @@
+import errno
+import logging
 import os
+import random
+import socket
 
 import pytest
 from gcp_storage_emulator.server import create_server
@@ -8,16 +12,46 @@ from whylogs.api.writer.gcs import GCSWriter
 
 HOST = "localhost"
 PORT = 9023
+MAX_PORT = 10000
 GCS_BUCKET = "test-bucket"
+TEST_LOGGER = logging.getLogger(__name__)
 
 
 class TestGCSWriter(object):
     server = None
+    test_port = PORT
+
+    @classmethod
+    def _find_open_test_port(cls, max_retry: int):
+        test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        retry_count = 0
+        while retry_count < max_retry:
+            try:
+                test_socket.bind(("127.0.0.1", cls.test_port))
+                return True
+            except socket.error as e:
+                if e.errno == errno.EADDRINUSE:
+                    port = random.randint(PORT + 1, MAX_PORT)
+                    cls.test_port = port
+                    TEST_LOGGER.warning(f"attempt #{retry_count + 1} will try port: {cls.test_port}")
+
+                else:
+                    TEST_LOGGER.info(
+                        f"{e} wasn't address in use error when attempting to bind to port so letting test proceed."
+                    )
+                    return True
+            finally:
+                retry_count = retry_count + 1
+                test_socket.close()
+        return False
 
     @classmethod
     def setup_class(cls):
-        os.environ["STORAGE_EMULATOR_HOST"] = f"http://{HOST}:{PORT}"
-        cls.server = create_server(HOST, PORT, in_memory=True, default_bucket=GCS_BUCKET)
+        assert TestGCSWriter._find_open_test_port(max_retry=3)
+        storage_host = f"http://{HOST}:{cls.test_port}"
+        TEST_LOGGER.info(f"Running test using {storage_host}")
+        os.environ["STORAGE_EMULATOR_HOST"] = storage_host
+        cls.server = create_server(HOST, cls.test_port, in_memory=True, default_bucket=GCS_BUCKET)
         cls.server.start()
 
     @classmethod
