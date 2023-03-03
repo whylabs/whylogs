@@ -70,7 +70,14 @@ class Logger(ABC):
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Dict[str, Any]] = None,
         schema: Optional[DatasetSchema] = None,
+        timestamp_ms: Optional[int] = None,  # Not the dataset timestamp, but the timestamp of the data
     ) -> ResultSet:
+        """
+        Args:
+            timestamp_ms: The timestamp of the data being logged. This defaults to now if it isn't provided.
+             This is used to determine what the dataset timestamp should be. For an hourly model, the dataset
+             timestamp will end up being the start of the hour of the provided timestamp_ms, UTC.
+        """
         if self._is_closed:
             raise LoggingError("Cannot log to a closed logger")
         if obj is None and pandas is None and row is None:
