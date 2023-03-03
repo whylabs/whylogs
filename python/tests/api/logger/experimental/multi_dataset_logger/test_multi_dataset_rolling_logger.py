@@ -1,9 +1,19 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
+import numpy as np
 import pytest
 from dateutil import tz
+
+from whylogs.core.resolvers import MetricSpec, ResolverSpec
+from whylogs.core.schema import DatasetSchema, DeclarativeSchema
+from whylogs.experimental.extras.embedding_metric import (
+    DistanceFunction,
+    EmbeddingConfig,
+    EmbeddingMetric,
+)
+from whylogs.experimental.preprocess.embeddings.selectors import PCAKMeansSelector
 
 try:
     from whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger import (
@@ -18,7 +28,6 @@ from whylogs.api.logger.experimental.multi_dataset_logger.time_util import (
 )
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
-from whylogs.core.schema import DatasetSchema
 from whylogs.core.segmentation_partition import (
     ColumnMapperFunction,
     SegmentationPartition,
@@ -53,6 +62,35 @@ class TestWriter(Writer):
 def test_happy_path() -> None:
     writer = TestWriter()
     logger = MultiDatasetRollingLogger(writers=[writer])
+
+    ts = 1677207714000
+    row = {"col1": 1, "col2": "b"}
+    logger.log(row, timestamp_ms=ts)
+    logger.log(row, timestamp_ms=ts)
+    logger.log(row, timestamp_ms=ts)
+
+    result = logger._status()
+    assert result.dataset_profiles == 1
+    assert result.dataset_timestamps == 1
+    assert result.segment_caches == 0
+    logger.close()
+    assert writer.write_count == 1
+
+
+def test_no_segments_schema() -> None:
+    writer = TestWriter()
+
+    # Make a fancy embedding schema with no segmentation
+    fake_embeddings: List[List[float]] = [[1.0 for i in range(0, 50)] for i in range(0, 30)]
+    references, _ = PCAKMeansSelector(n_clusters=8, n_components=20).calculate_references(np.asarray(fake_embeddings))
+    config = EmbeddingConfig(
+        references=references,
+        labels=None,
+        distance_fn=DistanceFunction.euclidean,
+    )
+
+    schema = DeclarativeSchema([ResolverSpec(column_name="embeddings", metrics=[MetricSpec(EmbeddingMetric, config)])])
+    logger = MultiDatasetRollingLogger(writers=[writer], schema=schema)
 
     ts = 1677207714000
     row = {"col1": 1, "col2": "b"}

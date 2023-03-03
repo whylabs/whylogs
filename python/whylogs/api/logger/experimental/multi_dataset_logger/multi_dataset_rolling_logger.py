@@ -49,7 +49,7 @@ class DatasetProfileContainer:
             self._target = DatasetProfile(dataset_timestamp=self._dataset_timestamp)
 
     def _has_segments(self) -> bool:
-        return self._schema is not None and self._schema.segments is not None
+        return self._schema is not None and bool(self._schema.segments)
 
     def _track_segments(self, data: TrackData) -> None:
         if self._schema is None:
