@@ -23,7 +23,7 @@ X = Predicate()
 
 
 # Turn on uncompounding of CounditionCountMetric
-uc._uncompound_condition_count_feature_flag = lambda: True
+uc._uncompound_condition_count_feature_flag = lambda *args, **kwargs: True
 
 
 try:
