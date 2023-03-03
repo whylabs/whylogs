@@ -394,7 +394,7 @@ def test_process_scalar_called_with_scalar_nonobject(
         (np.asarray([[1, 0, 0], [0, 1, 0], [0, 0, 1]]), True, True),
     ],
 )
-def test_process_scalar_called_with_ternsorable(value: Any, np_stubbed: bool, pd_stubbed: bool, monkeypatch) -> None:
+def test_process_scalar_called_with_tensorable(value: Any, np_stubbed: bool, pd_stubbed: bool, monkeypatch) -> None:
     monkeypatch.setattr("whylogs.core.preprocessing.np", NumpyStub() if np_stubbed else np)
     # the _process_scalar_value() code path doesn't use Pandas, just covering all cases out of paranoia
     monkeypatch.setattr("whylogs.core.preprocessing.pd", PandasStub() if pd_stubbed else pd)
