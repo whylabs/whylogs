@@ -442,10 +442,6 @@ class _UnknownType:
     pass
 
 
-# If we treat list[str] or np.ndarray(_, dtype=str) as bag of words, they
-# end up in list.objs
-
-
 @pytest.mark.parametrize(
     "value,np_stubbed,pd_stubbed",
     [
@@ -597,15 +593,6 @@ def test_apply_ndarray(column: np.ndarray) -> None:
 
     assert_list_view_is_all_nones(res.list)
     assert_pandas_view_is_all_nones(res.pandas)
-
-
-""" pandas implies numpy
-([1, 2, 3], True, False, [1, 2, 3], [], [], [], []),
-([4.0, 5.0, "a", "b"], True, False, [], [4.0, 5.0], ["a", "b"], [], []),
-([[1, 2, 3]], True, False, [], [], [], [], [[1, 2, 3]]),  # no numpy means no tensors
-([[[1, 0], [0, 1]]], True, False, [], [], [], [], [[[1, 0], [0, 1]]]),
-([_UnknownType, ["a", "b"]], True, False, [], [], [], [], [_UnknownType, ["a", "b"]]),
-"""
 
 
 @pytest.mark.parametrize(
