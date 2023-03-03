@@ -8,7 +8,7 @@ from whylogs.core.segmentation_partition import (
     SegmentationPartition,
     segment_on_column,
 )
-from whylogs.experimental.performance_estimation import AccuracyEstimator
+from whylogs.experimental.performance_estimation.estimators import AccuracyEstimator
 
 
 @pytest.fixture
@@ -109,8 +109,3 @@ def test_regression_estimation(acc_estimator, target_df):
     target_results = make_result_set(target_df)
     with pytest.raises(ValueError, match="Accuracy estimation currently supported for binary classification problems."):
         acc_estimator.estimate(target_results)
-
-
-def test_multi_class_estimation():
-    # todo: check for multi class once it's supported in whylogs
-    pass

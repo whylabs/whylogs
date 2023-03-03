@@ -24,6 +24,7 @@ from whylabs_client.model.column_schema import ColumnSchema
 from whylabs_client.rest import ForbiddenException  # type: ignore
 
 from whylogs import __version__ as _version
+from whylogs.api.logger import log
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
@@ -32,10 +33,15 @@ from whylogs.core.errors import BadConfigError
 from whylogs.core.feature_weights import FeatureWeights
 from whylogs.core.utils import deprecated_alias
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
+from whylogs.experimental.performance_estimation.estimation_results import (
+    EstimationResult,
+)
 from whylogs.migration.uncompound import (
     FeatureFlags,
     _uncompound_dataset_profile,
     _uncompound_metric_feature_flag,
+    _uncompound_performance_estimation_feature_flag,
+    _uncompound_performance_estimation_magic_string,
 )
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
@@ -426,6 +432,14 @@ class WhyLabsWriter(Writer):
 
         return self._tag_columns(columns, "input")
 
+    def write_estimation_result(self, file: EstimationResult, **kwargs: Any) -> Tuple[bool, str]:
+        if _uncompound_performance_estimation_feature_flag():
+            estimation_magic_string = _uncompound_performance_estimation_magic_string()
+            estimation_result_profile = log({f"{estimation_magic_string}accuracy": file.accuracy}).profile()
+            estimation_result_profile.set_dataset_timestamp(file.target_result_timestamp)
+            return self.write(estimation_result_profile.view())
+        return False, str("Performance estimation feature flag is not enabled")
+
     def write_feature_weights(self, file: FeatureWeights, **kwargs: Any) -> Tuple[bool, str]:
         """Put feature weights for the specified dataset.
 
@@ -467,6 +481,8 @@ class WhyLabsWriter(Writer):
     def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
         if isinstance(file, FeatureWeights):
             return self.write_feature_weights(file, **kwargs)
+        elif isinstance(file, EstimationResult):
+            return self.write_estimation_result(file, **kwargs)
 
         view = file.view() if isinstance(file, DatasetProfile) else file
         has_segments = isinstance(view, SegmentedDatasetProfileView)
