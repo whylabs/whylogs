@@ -178,6 +178,9 @@ Attributes
       :rtype: Tuple[bool, str]
 
 
+   .. py:method:: write_estimation_result(file: whylogs.experimental.performance_estimation.estimation_results.EstimationResult, **kwargs: Any) -> Tuple[bool, str]
+
+
    .. py:method:: write_feature_weights(file: whylogs.core.feature_weights.FeatureWeights, **kwargs: Any) -> Tuple[bool, str]
 
       Put feature weights for the specified dataset.

@@ -4,103 +4,13 @@
 .. py:module:: whylogs.experimental.performance_estimation
 
 
-Module Contents
----------------
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
 
-Classes
-~~~~~~~
-
-.. autoapisummary::
-
-   whylogs.experimental.performance_estimation.EstimationResult
-   whylogs.experimental.performance_estimation.PerformanceEstimator
-   whylogs.experimental.performance_estimation.AccuracyEstimator
-
-
-
-
-Attributes
-~~~~~~~~~~
-
-.. autoapisummary::
-
-   whylogs.experimental.performance_estimation.logger
-
-
-.. py:data:: logger
-
-   
-
-.. py:class:: EstimationResult
-
-   The result of a performance estimation.
-   accuracy: The estimated accuracy.
-   reference_partition_id: The partition id of the reference result set.
-   reference_result_timestamp: The timestamp of the reference result set.
-
-   .. py:attribute:: accuracy
-      :type: Optional[float]
-
-      
-
-   .. py:attribute:: reference_partition_id
-      :type: Optional[str]
-
-      
-
-   .. py:attribute:: reference_result_timestamp
-      :type: Optional[datetime.datetime]
-
-      
-
-
-.. py:class:: PerformanceEstimator(reference_result_set: whylogs.api.logger.result_set.SegmentedResultSet)
-
-   Bases: :py:obj:`abc.ABC`
-
-   Base class for performance estimators.
-
-   .. py:method:: estimate(target_result_set: whylogs.api.logger.result_set.SegmentedResultSet) -> EstimationResult
-      :abstractmethod:
-
-
-
-.. py:class:: AccuracyEstimator(reference_result_set: whylogs.api.logger.result_set.SegmentedResultSet)
-
-   Bases: :py:obj:`PerformanceEstimator`
-
-   Estimates the accuracy of a model based on the confusion matrix of the reference result set and the target result set.
-
-   The estimation is based on the individual performance of each segment of the reference result set. The reference accuracies
-   for each segment are weighted by the number of records in each segment in the target result set.
-   The estimated accuracy is the sum of the weighted accuracies of each segment.
-
-   Expects a single partition with mutually exclusive segments, and same set of segments in the reference and target result sets.
-
-   Supported for binary classification only.
-
-
-   .. rubric:: Examples
-
-   Create target and reference dataframes:
-
-   .. code-block:: python
-
-       from whylogs.experimental.performance_estimation import AccuracyEstimator
-       from whylogs.api.logger.result_set import SegmentedResultSet
-
-       estimator = AccuracyEstimator(reference_result_set: SegmentedResultSet = reference_results)
-
-       estimator_result = estimator.estimate(target_result_set: SegmentedResultSet = target_results)
-       print("Estimated accuracy: ", estimator_result.accuracy)
-
-   .. py:method:: estimate(target: whylogs.api.logger.result_set.SegmentedResultSet) -> EstimationResult
-
-      Estimate the overall accuracy of a target result set based on a reference result set.
-
-      Assumes the presence of a segmented column in the reference and target result sets.
-
-      returns: An EstimationResult object containing the estimated accuracy, partition's id and the profiles' dataset timestamp.
-
+   estimation_results/index.rst
+   estimators/index.rst
 
 
