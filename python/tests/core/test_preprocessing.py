@@ -127,7 +127,7 @@ class TestListElements(object):
         assert res.inf_count == 1
 
         assert res.numpy.ints.shape == (0,)
-        assert res.numpy.floats.tolist() == [np.inf]  # TODO: hmmm...
+        assert res.numpy.floats.tolist() == [np.inf]
         assert res.numpy.strings is None
 
         assert_list_view_is_all_nones(res.list)
