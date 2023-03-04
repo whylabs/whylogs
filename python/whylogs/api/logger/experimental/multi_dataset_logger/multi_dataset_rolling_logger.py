@@ -46,7 +46,7 @@ class DatasetProfileContainer:
         if self._has_segments() and schema is not None:  # Need the duplicate None check for type safety
             self._target = SegmentCache(schema=schema)
         else:
-            self._target = DatasetProfile(dataset_timestamp=self._dataset_timestamp)
+            self._target = DatasetProfile(dataset_timestamp=self._dataset_timestamp, schema=schema)
 
     def _has_segments(self) -> bool:
         return self._schema is not None and bool(self._schema.segments)
