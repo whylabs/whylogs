@@ -22,30 +22,35 @@ TEST_LOGGER = getLogger(__name__)
 FLOAT_TYPES = [float, np.float16, np.float32, np.float64, np.floating, np.float_, np.longdouble]
 
 
-def assert_zero_len(values: Optional[Union[List[Any], np.ndarray, pd.Series]]) -> None:
-    if values is None:
+def assert_subview_is_empty(subview: Optional[Union[List[Any], pd.Series, np.ndarray]]) -> None:
+    if subview is None:
         return
-    assert len(values) == 0
+    if isinstance(subview, list):
+        assert subview == []
+    if isinstance(subview, np.ndarray):
+        assert subview.shape == (0,)
+    if isinstance(subview, pd.Series):
+        assert len(subview) == 0
 
 
-def assert_list_view_is_all_nones(view: ListView) -> None:
-    assert view.ints is None
-    assert view.floats is None
-    assert view.strings is None
-    assert view.tensors is None
-    assert view.objs is None
+def assert_list_view_is_empty(view: ListView) -> None:
+    assert_subview_is_empty(view.ints)
+    assert_subview_is_empty(view.floats)
+    assert_subview_is_empty(view.strings)
+    assert_subview_is_empty(view.tensors)
+    assert_subview_is_empty(view.objs)
 
 
-def assert_pandas_view_is_all_nones(view: PandasView) -> None:
-    assert view.strings is None
-    assert view.tensors is None
-    assert view.objs is None
+def assert_pandas_view_is_empty(view: PandasView) -> None:
+    assert_subview_is_empty(view.strings)
+    assert_subview_is_empty(view.tensors)
+    assert_subview_is_empty(view.objs)
 
 
-def assert_numpy_view_is_all_nones(view: NumpyView) -> None:
-    assert view.ints is None
-    assert view.floats is None
-    assert view.strings is None
+def assert_numpy_view_is_empty(view: NumpyView) -> None:
+    assert_subview_is_empty(view.ints)
+    assert_subview_is_empty(view.floats)
+    assert_subview_is_empty(view.strings)
 
 
 class TestListElements(object):
@@ -56,23 +61,23 @@ class TestListElements(object):
 
         assert res.numpy.floats.tolist() == [1.0, 2.0]  # type: ignore
         assert res.numpy.ints.tolist() == [1, 2]  # type: ignore
-        assert res.numpy.strings is None
+        assert_subview_is_empty(res.numpy.strings)
 
         assert res.pandas.strings.tolist() == ["str"]  # type: ignore
-        assert_zero_len(res.pandas.tensors)
-        assert_zero_len(res.pandas.objs)  # type: ignore
+        assert_subview_is_empty(res.pandas.tensors)
+        assert_subview_is_empty(res.pandas.objs)
 
         assert res.null_count == 1
 
-        assert_list_view_is_all_nones(res.list)
+        assert_list_view_is_empty(res.list)
 
     def test_none_and_math_nan(self) -> None:
         mixed = pd.Series([None, math.nan, "hi"])
 
         res = PreprocessedColumn.apply(mixed)
         assert len(res.pandas.strings) == 1
-        assert_zero_len(res.pandas.tensors)
-        assert_zero_len(res.pandas.objs)  # type: ignore
+        assert_subview_is_empty(res.pandas.tensors)
+        assert_subview_is_empty(res.pandas.objs)  # type: ignore
         assert res.null_count == 2
         assert res.nan_count == 1
 
@@ -80,15 +85,15 @@ class TestListElements(object):
         assert res.numpy.floats.shape == (0,)
         assert res.numpy.strings is None
 
-        assert_list_view_is_all_nones(res.list)
+        assert_list_view_is_empty(res.list)
 
     def test_none_and_math_inf(self) -> None:
         mixed = pd.Series([math.inf, None])  # when all types are numeric None->NaN
 
         res = PreprocessedColumn.apply(mixed)
-        assert_zero_len(res.pandas.strings)
-        assert_zero_len(res.pandas.tensors)
-        assert_zero_len(res.pandas.objs)  # type: ignore
+        assert_subview_is_empty(res.pandas.strings)
+        assert_subview_is_empty(res.pandas.tensors)
+        assert_subview_is_empty(res.pandas.objs)
         assert res.null_count == 1
         assert res.nan_count == 1
         assert res.inf_count == 1
@@ -97,15 +102,15 @@ class TestListElements(object):
         assert res.numpy.floats.tolist() == [math.inf]
         assert res.numpy.strings is None
 
-        assert_list_view_is_all_nones(res.list)
+        assert_list_view_is_empty(res.list)
 
     def test_none_and_np_nan(self) -> None:
         mixed = pd.Series([np.nan, None, "test"])
 
         res = PreprocessedColumn.apply(mixed)
         assert len(res.pandas.strings) == 1
-        assert_zero_len(res.pandas.tensors)
-        assert_zero_len(res.pandas.objs)  # type: ignore
+        assert_subview_is_empty(res.pandas.tensors)
+        assert_subview_is_empty(res.pandas.objs)
         assert res.null_count == 2
         assert res.nan_count == 1
 
@@ -113,15 +118,15 @@ class TestListElements(object):
         assert res.numpy.floats.shape == (0,)
         assert res.numpy.strings is None
 
-        assert_list_view_is_all_nones(res.list)
+        assert_list_view_is_empty(res.list)
 
     def test_none_and_np_inf_mixed(self) -> None:
         mixed = pd.Series([np.inf, None, "t"])
 
         res = PreprocessedColumn.apply(mixed)
         assert len(res.pandas.strings) == 1
-        assert_zero_len(res.pandas.tensors)
-        assert_zero_len(res.pandas.objs)  # type: ignore
+        assert_subview_is_empty(res.pandas.tensors)
+        assert_subview_is_empty(res.pandas.objs)
         assert res.null_count == 1
         assert res.nan_count == 0
         assert res.inf_count == 1
@@ -130,15 +135,15 @@ class TestListElements(object):
         assert res.numpy.floats.tolist() == [np.inf]
         assert res.numpy.strings is None
 
-        assert_list_view_is_all_nones(res.list)
+        assert_list_view_is_empty(res.list)
 
     def test_none_and_np_inf_and_nan(self) -> None:
         mixed = pd.Series([np.inf, None, float("nan"), "t"])
 
         res = PreprocessedColumn.apply(mixed)
         assert len(res.pandas.strings) == 1
-        assert_zero_len(res.pandas.tensors)
-        assert_zero_len(res.pandas.objs)  # type: ignore
+        assert_subview_is_empty(res.pandas.tensors)
+        assert_subview_is_empty(res.pandas.objs)
         assert res.null_count == 2
         assert res.nan_count == 1
         assert res.inf_count == 1
@@ -147,26 +152,26 @@ class TestListElements(object):
         assert res.numpy.floats.tolist() == [np.inf]
         assert res.numpy.strings is None
 
-        assert_list_view_is_all_nones(res.list)
+        assert_list_view_is_empty(res.list)
 
     def test_bools_and_ints(self) -> None:
         mixed = pd.Series([True, True, False, 2, 1, 0])
 
         res = PreprocessedColumn.apply(mixed)
         TEST_LOGGER.info(f"{res}")
-        assert res.numpy.floats.tolist() == []  # type: ignore
+        assert_subview_is_empty(res.numpy.floats)
         assert res.numpy.ints.tolist() == [2, 1, 0]  # type: ignore
-        assert res.numpy.strings is None
+        assert_subview_is_empty(res.numpy.strings)
 
         assert res.bool_count == 3
         assert res.bool_count_where_true == 2
         assert res.null_count == 0
 
-        assert_zero_len(res.pandas.strings)  # type: ignore
-        assert_zero_len(res.pandas.objs)  # type: ignore
-        assert_zero_len(res.pandas.tensors)
+        assert_subview_is_empty(res.pandas.strings)
+        assert_subview_is_empty(res.pandas.objs)
+        assert_subview_is_empty(res.pandas.tensors)
 
-        assert_list_view_is_all_nones(res.list)
+        assert_list_view_is_empty(res.list)
 
     @pytest.mark.parametrize("data_type", FLOAT_TYPES)
     def test_floats_no_null(self, data_type) -> None:
@@ -174,15 +179,15 @@ class TestListElements(object):
         res = PreprocessedColumn.apply(floats)
 
         assert_series_equal(res.numpy.floats, floats)
-        assert res.numpy.ints is None
-        assert res.numpy.strings is None
+        assert_subview_is_empty(res.numpy.ints)
+        assert_subview_is_empty(res.numpy.strings)
 
-        assert_zero_len(res.pandas.tensors)
-        assert_zero_len(res.pandas.strings)
-        assert_zero_len(res.numpy.ints)
+        assert_subview_is_empty(res.pandas.tensors)
+        assert_subview_is_empty(res.pandas.strings)
+        assert_subview_is_empty(res.numpy.ints)
         assert res.null_count == 0
 
-        assert_list_view_is_all_nones(res.list)
+        assert_list_view_is_empty(res.list)
 
     @pytest.mark.parametrize("data_type", FLOAT_TYPES)
     def test_floats_with_null(self, data_type) -> None:
@@ -191,14 +196,14 @@ class TestListElements(object):
         assert res.null_count == 1
 
         assert_series_equal(res.numpy.floats, pd.Series([1.0, 2.0, 3.0]))
-        assert res.numpy.ints is None
-        assert res.numpy.strings is None
+        assert_subview_is_empty(res.numpy.ints)
+        assert_subview_is_empty(res.numpy.strings)
 
-        assert_zero_len(res.pandas.tensors)
-        assert_zero_len(res.pandas.objs)
-        assert_zero_len(res.pandas.strings)
+        assert_subview_is_empty(res.pandas.tensors)
+        assert_subview_is_empty(res.pandas.objs)
+        assert_subview_is_empty(res.pandas.strings)
 
-        assert_list_view_is_all_nones(res.list)
+        assert_list_view_is_empty(res.list)
 
     def test_strings(self) -> None:
         strings = pd.Series(["foo", "bar"])
@@ -207,14 +212,14 @@ class TestListElements(object):
         assert res.null_count == 0
 
         assert_series_equal(res.pandas.strings, strings)
-        assert_zero_len(res.pandas.tensors)
-        assert_zero_len(res.pandas.objs)
+        assert_subview_is_empty(res.pandas.tensors)
+        assert_subview_is_empty(res.pandas.objs)
 
-        assert_zero_len(res.numpy.floats)
-        assert_zero_len(res.numpy.ints)
-        assert res.numpy.strings is None
+        assert_subview_is_empty(res.numpy.floats)
+        assert_subview_is_empty(res.numpy.ints)
+        assert_subview_is_empty(res.numpy.strings)
 
-        assert_list_view_is_all_nones(res.list)
+        assert_list_view_is_empty(res.list)
 
     def test_strings_with_none(self) -> None:
         strings = pd.Series(["foo", "bar", None, None])
@@ -223,14 +228,14 @@ class TestListElements(object):
         assert res.null_count == 2
 
         assert_series_equal(res.pandas.strings, pd.Series(["foo", "bar"]))
-        assert_zero_len(res.pandas.objs)
-        assert_zero_len(res.pandas.tensors)
+        assert_subview_is_empty(res.pandas.objs)
+        assert_subview_is_empty(res.pandas.tensors)
 
-        assert_zero_len(res.numpy.floats)
-        assert_zero_len(res.numpy.ints)
+        assert_subview_is_empty(res.numpy.floats)
+        assert_subview_is_empty(res.numpy.ints)
         assert res.numpy.strings is None
 
-        assert_list_view_is_all_nones(res.list)
+        assert_list_view_is_empty(res.list)
 
 
 @pytest.mark.parametrize(
@@ -277,11 +282,11 @@ def test_process_scalar_called_with_scalar_nonobject(
             # Otherwise it goes to numpy view. Depending on np stubbing, the lack of
             # integers may end up as None or empty list/ndarray.
             if np_stubbed:
-                assert column.list.ints == []
-                assert column.numpy.ints is None
+                assert_subview_is_empty(column.list.ints)
+                assert_subview_is_empty(column.numpy.ints)
             else:
-                assert column.list.ints is None
-                assert column.numpy.ints.shape == (0,)
+                assert_subview_is_empty(column.list.ints)
+                assert_subview_is_empty(column.numpy.ints)
                 assert column.numpy.ints.dtype == np.dtype("int64")
         else:
             assert column.bool_count == 0
@@ -291,28 +296,28 @@ def test_process_scalar_called_with_scalar_nonobject(
             # numpy stubbing. In this case, the unused int view is None.
             if np_stubbed:
                 assert column.list.ints == [value]
-                assert column.numpy.ints is None
+                assert_subview_is_empty(column.numpy.ints)
             else:
-                assert column.list.ints is None
+                assert_subview_is_empty(column.list.ints)
                 assert column.numpy.ints == np.asarray([value], dtype=int)
 
         # TODO: should we make None/[] more consistent?
-        assert column.list.strings == []
-        assert column.list.tensors == []
-        assert column.list.objs == []
+        assert_subview_is_empty(column.list.strings)
+        assert_subview_is_empty(column.list.tensors)
+        assert_subview_is_empty(column.list.objs)
 
         # The empty float list goes to numpy view or list view depending on
         # numpy stubbing. Depending on np stubbing, the lack of floats may
         # end up as None or empty list/ndarray.
         if np_stubbed:
-            assert column.numpy.floats is None
-            assert column.list.floats == []
+            assert_subview_is_empty(column.numpy.floats)
+            assert_subview_is_empty(column.list.floats)
         else:
-            assert column.numpy.floats.shape == (0,)
+            assert_subview_is_empty(column.numpy.floats)
             assert column.numpy.floats.dtype == np.dtype("float64")
-            assert column.list.floats is None
+            assert_subview_is_empty(column.list.floats)
 
-        assert column.numpy.strings is None  # TODO: should strings be in NumpyView instead?
+        assert_subview_is_empty(column.numpy.strings)  # TODO: should strings be in NumpyView instead?
 
     elif isinstance(value, (float, Decimal)):
         assert column.bool_count == 0
@@ -322,24 +327,24 @@ def test_process_scalar_called_with_scalar_nonobject(
         # The empty/unused float/int components of list view and numpy view are None
         # or empty list/ndarray depending on numpy stubbing.
         if np_stubbed:
-            assert column.numpy.ints is None
-            assert column.numpy.floats is None
+            assert_subview_is_empty(column.numpy.ints)
+            assert_subview_is_empty(column.numpy.floats)
 
-            assert column.list.ints == []
+            assert_subview_is_empty(column.list.ints)
             assert column.list.floats == [value]
         else:
-            assert column.numpy.ints.shape == (0,)
+            assert_subview_is_empty(column.numpy.ints)
             assert column.numpy.ints.dtype == np.dtype("int64")
             assert column.numpy.floats == np.asarray([value], dtype=float)
 
-            assert column.list.ints is None
-            assert column.list.floats is None
+            assert_subview_is_empty(column.list.ints)
+            assert_subview_is_empty(column.list.floats)
 
-        assert column.list.strings == []
-        assert column.list.tensors == []
-        assert column.list.objs == []
+        assert_subview_is_empty(column.list.strings)
+        assert_subview_is_empty(column.list.tensors)
+        assert_subview_is_empty(column.list.objs)
 
-        assert column.numpy.strings is None
+        assert_subview_is_empty(column.numpy.strings)
 
     elif isinstance(value, (str)):
         assert column.bool_count == 0
@@ -349,28 +354,28 @@ def test_process_scalar_called_with_scalar_nonobject(
         # The empty/unused float/int components of list view and numpy view are None
         # or empty list/ndarray depending on numpy stubbing.
         if np_stubbed:
-            assert column.numpy.ints is None
-            assert column.numpy.floats is None
+            assert_subview_is_empty(column.numpy.ints)
+            assert_subview_is_empty(column.numpy.floats)
 
-            assert column.list.ints == []
-            assert column.list.floats == []
+            assert_subview_is_empty(column.list.ints)
+            assert_subview_is_empty(column.list.floats)
         else:
-            assert column.numpy.ints.shape == (0,)
+            assert_subview_is_empty(column.numpy.ints.shape)
             assert column.numpy.ints.dtype == np.dtype("int64")
-            assert column.numpy.floats.shape == (0,)
+            assert_subview_is_empty(column.numpy.floats)
             assert column.numpy.floats.dtype == np.dtype("float64")
 
-            assert column.list.ints is None
-            assert column.list.floats is None
+            assert_subview_is_empty(column.list.ints)
+            assert_subview_is_empty(column.list.floats)
 
         assert column.list.strings == [value]
-        assert column.list.tensors == []
-        assert column.list.objs == []
+        assert_subview_is_empty(column.list.tensors)
+        assert_subview_is_empty(column.list.objs)
 
-        assert column.numpy.strings is None  # TODO: should strings be in NumpyView instead?
+        assert_subview_is_empty(column.numpy.strings)  # TODO: should strings be in NumpyView instead?
 
     # scalar code path never produces Pandas
-    assert_pandas_view_is_all_nones(column.pandas)
+    assert_pandas_view_is_empty(column.pandas)
 
 
 @pytest.mark.parametrize(
@@ -407,35 +412,35 @@ def test_process_scalar_called_with_tensorable(value: Any, np_stubbed: bool, pd_
     # A single tensorizable ndarray or list goes to list view. Tensorizability requires np is not stubbed.
     # Untensorizable lists go to list view's object list.
     if np_stubbed:
-        assert column.list.tensors == []
+        assert_subview_is_empty(column.list.tensors)
         assert column.list.objs == [value]
     else:
         assert len(column.list.tensors) == 1
         assert column.list.tensors[0].tolist() == np.asarray(value).tolist()
-        assert column.list.objs == []
+        assert_subview_is_empty(column.list.objs)
 
     # The empty/unused float/int components of list view and numpy view are None
     # or empty list/ndarray depending on numpy stubbing.
     if np_stubbed:
-        assert column.numpy.ints is None
-        assert column.numpy.floats is None
+        assert_subview_is_empty(column.numpy.ints)
+        assert_subview_is_empty(column.numpy.floats)
 
-        assert column.list.ints == []
-        assert column.list.floats == []
+        assert_subview_is_empty(column.list.ints)
+        assert_subview_is_empty(column.list.floats)
     else:
-        assert column.numpy.ints.shape == (0,)
+        assert_subview_is_empty(column.numpy.ints)
         assert column.numpy.ints.dtype == np.dtype("int64")
-        assert column.numpy.floats.shape == (0,)
+        assert_subview_is_empty(column.numpy.floats)
         assert column.numpy.floats.dtype == np.dtype("float64")
 
-        assert column.list.ints is None
-        assert column.list.floats is None
+        assert_subview_is_empty(column.list.ints)
+        assert_subview_is_empty(column.list.floats)
 
-    assert column.list.strings == []
-    assert column.numpy.strings is None
+    assert_subview_is_empty(column.list.strings)
+    assert_subview_is_empty(column.numpy.strings)
 
     # scalar code path never produces Pandas
-    assert_pandas_view_is_all_nones(column.pandas)
+    assert_pandas_view_is_empty(column.pandas)
 
 
 class _UnknownType:
@@ -490,27 +495,27 @@ def test_process_scalar_called_with_scalar_object(value: Any, np_stubbed: bool, 
     # The empty/unused float/int components of list view and numpy view are None
     # or empty list/ndarray depending on numpy stubbing.
     if np_stubbed:
-        assert column.numpy.ints is None
-        assert column.numpy.floats is None
+        assert_subview_is_empty(column.numpy.ints)
+        assert_subview_is_empty(column.numpy.floats)
 
-        assert column.list.ints == []
-        assert column.list.floats == []
+        assert_subview_is_empty(column.list.ints)
+        assert_subview_is_empty(column.list.floats)
     else:
-        assert column.numpy.ints.shape == (0,)
+        assert_subview_is_empty(column.numpy.ints)
         assert column.numpy.ints.dtype == np.dtype("int64")
-        assert column.numpy.floats.shape == (0,)
+        assert_subview_is_empty(column.numpy.floats)
         assert column.numpy.floats.dtype == np.dtype("float64")
 
-        assert column.list.ints is None
-        assert column.list.floats is None
+        assert_subview_is_empty(column.list.ints)
+        assert_subview_is_empty(column.list.floats)
 
-    assert column.list.strings == []
-    assert column.list.tensors == []
+    assert_subview_is_empty(column.list.strings)
+    assert_subview_is_empty(column.list.tensors)
 
-    assert column.numpy.strings is None
+    assert_subview_is_empty(column.numpy.strings)
 
     # scalar code path never produces Pandas
-    assert_pandas_view_is_all_nones(column.pandas)
+    assert_pandas_view_is_empty(column.pandas)
 
 
 @pytest.mark.parametrize(
@@ -530,15 +535,15 @@ def test_apply_tensorable_series(column: List[Any]) -> None:
         Y = column[i] if isinstance(column[i], np.ndarray) else np.asarray(column[i])
         assert X.shape == Y.shape
 
-    assert res.numpy.floats.shape == (0,)
-    assert res.numpy.ints.shape == (0,)
-    assert res.numpy.strings is None
+    assert_subview_is_empty(res.numpy.floats)
+    assert_subview_is_empty(res.numpy.ints)
+    assert_subview_is_empty(res.numpy.strings)
 
-    assert len(res.pandas.strings) == 0
-    assert len(res.pandas.objs) == 0
+    assert_subview_is_empty(res.pandas.strings)
+    assert_subview_is_empty(res.pandas.objs)
 
     # list view is not used in the apply() code path
-    assert_list_view_is_all_nones(res.list)
+    assert_list_view_is_empty(res.list)
 
 
 @pytest.mark.parametrize(
@@ -554,15 +559,15 @@ def test_apply_nontensorable_series(column: Any) -> None:
     res = PreprocessedColumn.apply(pd.Series(column))
 
     assert len(res.pandas.objs) == len(column)
-    assert_zero_len(res.pandas.strings)
-    assert_zero_len(res.pandas.tensors)
+    assert_subview_is_empty(res.pandas.strings)
+    assert_subview_is_empty(res.pandas.tensors)
 
-    assert res.numpy.floats.shape == (0,)
-    assert res.numpy.ints.shape == (0,)
-    assert res.numpy.strings is None
+    assert_subview_is_empty(res.numpy.floats)
+    assert_subview_is_empty(res.numpy.ints)
+    assert_subview_is_empty(res.numpy.strings)
 
     # list view is not used in the apply() code path
-    assert_list_view_is_all_nones(res.list)
+    assert_list_view_is_empty(res.list)
 
 
 @pytest.mark.parametrize(
@@ -580,19 +585,19 @@ def test_apply_ndarray(column: np.ndarray) -> None:
 
     if issubclass(column.dtype.type, np.floating):
         assert res.numpy.floats.tolist() == column.tolist()
-        assert res.numpy.ints is None
-        assert res.numpy.strings is None
+        assert_subview_is_empty(res.numpy.ints)
+        assert_subview_is_empty(res.numpy.strings)
     elif issubclass(column.dtype.type, np.integer):
-        assert res.numpy.floats is None
+        assert_subview_is_empty(res.numpy.floats)
         assert res.numpy.ints.tolist() == column.tolist()
-        assert res.numpy.strings is None
+        assert_subview_is_empty(res.numpy.strings)
     else:
-        assert res.numpy.floats is None
-        assert res.numpy.ints is None
+        assert_subview_is_empty(res.numpy.floats)
+        assert_subview_is_empty(res.numpy.ints)
         assert res.numpy.strings.tolist() == column.tolist()
 
-    assert_list_view_is_all_nones(res.list)
-    assert_pandas_view_is_all_nones(res.pandas)
+    assert_list_view_is_empty(res.list)
+    assert_pandas_view_is_empty(res.pandas)
 
 
 @pytest.mark.parametrize(
@@ -640,19 +645,19 @@ def test_apply_list(
     monkeypatch.setattr("whylogs.core.preprocessing.pd", PandasStub() if pd_stubbed else pd)
     res = PreprocessedColumn.apply(column)
     if pd_stubbed:
-        assert_pandas_view_is_all_nones(res.pandas)
+        assert_pandas_view_is_empty(res.pandas)
 
         if np_stubbed:
-            assert_numpy_view_is_all_nones(res.numpy)
+            assert_numpy_view_is_empty(res.numpy)
             assert res.list.ints == ints
             assert res.list.floats == floats
         else:
             assert res.numpy.ints.tolist() == ints
             assert res.numpy.floats.tolist() == floats
-            assert res.numpy.strings is None
+            assert_subview_is_empty(res.numpy.strings)
 
-            assert res.list.ints is None
-            assert res.list.floats is None
+            assert_subview_is_empty(res.list.ints)
+            assert_subview_is_empty(res.list.floats)
 
         assert res.list.strings == strings
         assert len(res.list.tensors) == len(tensors)
@@ -662,11 +667,11 @@ def test_apply_list(
         assert res.list.objs == objs
 
     else:  # pandas is not stubbed; list is wrapped in pd.Series(column, dtype="object")
-        assert_list_view_is_all_nones(res.list)
+        assert_list_view_is_empty(res.list)
 
         assert res.numpy.ints.tolist() == ints
         assert res.numpy.floats.tolist() == floats
-        assert res.numpy.strings is None
+        assert_subview_is_empty(res.numpy.strings)
 
         assert res.pandas.strings.tolist() == strings
         assert res.pandas.objs.tolist() == objs
