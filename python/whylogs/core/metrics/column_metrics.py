@@ -19,6 +19,7 @@ class TypeCountersMetric(Metric):
     boolean: IntegralComponent
     string: IntegralComponent
     object: IntegralComponent
+    tensor: IntegralComponent
 
     @property
     def namespace(self) -> str:
@@ -31,6 +32,7 @@ class TypeCountersMetric(Metric):
             "boolean": self.boolean.value,
             "string": self.string.value,
             "object": self.object.value,
+            "tensor": self.tensor.value,
         }
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
@@ -71,6 +73,16 @@ class TypeCountersMetric(Metric):
         successes += string_count
         self.string.set(string_count + string_count_prev)
 
+        tensor_count = 0
+        tensor_count_prev = self.tensor.value
+        if data.pandas.tensors is not None:
+            tensor_count += len(data.pandas.tensors)
+        elif data.list.tensors is not None:
+            tensor_count += len(data.list.tensors)
+
+        successes += tensor_count
+        self.tensor.set(tensor_count + tensor_count_prev)
+
         objects = 0
         objects_prev = self.object.value
         if data.pandas.objs is not None:
@@ -90,6 +102,7 @@ class TypeCountersMetric(Metric):
             boolean=IntegralComponent(0),
             string=IntegralComponent(0),
             object=IntegralComponent(0),
+            tensor=IntegralComponent(0),
         )
 
 

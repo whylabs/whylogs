@@ -14,7 +14,7 @@ from whylogs.core.utils.utils import deprecated_alias
 from .column_profile import ColumnProfile
 from .input_resolver import _pandas_or_dict
 from .schema import DatasetSchema
-from .stubs import is_not_stub, np, pd
+from .stubs import pd
 from .view import DatasetProfileView
 
 logger = logging.getLogger(__name__)
@@ -131,16 +131,8 @@ class DatasetProfile(Writable):
             self._initialize_new_columns(tuple(new_cols))
 
         if row is not None:
-            if any(isinstance(v, list) for v in row.values()):
-                logger.warn(
-                    "It looks like you are logging a vector which isn't directly profiled in whylogs,"
-                    "try logging as a dataframe to get batch logging of individual rows or log the rows individually"
-                )
             for k in row.keys():
-                if is_not_stub(np.ndarray) and isinstance(row[k], np.ndarray):
-                    self._columns[k].track_column(row[k])
-                else:
-                    self._columns[k]._track_datum(row[k])
+                self._columns[k]._track_datum(row[k])
             return
         elif pandas is not None:
             # TODO: iterating over each column in order assumes single column metrics

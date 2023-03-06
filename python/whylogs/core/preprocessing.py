@@ -20,11 +20,12 @@ class ListView:
     ints: Optional[List[int]] = None
     floats: Optional[List[Union[float, Decimal]]] = None
     strings: Optional[List[str]] = None
+    tensors: Optional[List[np.ndarray]] = None
     objs: Optional[List[Any]] = None
 
     def iterables(self) -> List[List[Any]]:
         it_list = []
-        for lst in [self.ints, self.floats, self.strings, self.objs]:
+        for lst in [self.ints, self.floats, self.strings, self.tensors, self.objs]:
             if lst is not None and len(lst) > 0:
                 it_list.append(lst)
         return it_list
@@ -59,11 +60,12 @@ class NumpyView:
 @dataclass
 class PandasView:
     strings: Optional[pd.Series] = None
+    tensors: Optional[pd.Series] = None
     objs: Optional[pd.Series] = None
 
     def iterables(self) -> List[pd.Series]:
         it_list = []
-        for lst in [self.strings, self.objs]:
+        for lst in [self.strings, self.tensors, self.objs]:
             if lst is not None and len(lst) > 0:
                 it_list.append(lst)
         return it_list
@@ -154,18 +156,25 @@ class PreprocessedColumn:
         if parse_numeric_string:
             non_null_series = pd.to_numeric(non_null_series, errors="ignore")
 
+        # TODO: Do we want to parse numeric strings inside of tensors?
+
         float_mask = non_null_series.apply(lambda x: pdc.is_float(x) or pdc.is_decimal(x))
         bool_mask = non_null_series.apply(lambda x: pdc.is_bool(x))
         bool_mask_where_true = non_null_series.apply(lambda x: pdc.is_bool(x) and x)
         int_mask = non_null_series.apply(lambda x: pdc.is_number(x) and pdc.is_integer(x) and not pdc.is_bool(x))
         str_mask = non_null_series.apply(lambda x: isinstance(x, str))
+        tensor_mask = non_null_series.apply(
+            lambda x: isinstance(x, (list, np.ndarray)) and PreprocessedColumn._is_tensorable(x)
+        )
 
         floats = non_null_series[float_mask]
         ints = non_null_series[int_mask].astype(int)
         bool_count = non_null_series[bool_mask].count()
         bool_count_where_true = non_null_series[bool_mask_where_true].count()
         strings = non_null_series[str_mask]
-        objs = non_null_series[~(float_mask | str_mask | int_mask | bool_mask)]
+        tensors = non_null_series[tensor_mask]
+        tensors = pd.Series([x if isinstance(x, np.ndarray) else np.asarray(x) for x in tensors])
+        objs = non_null_series[~(float_mask | str_mask | int_mask | bool_mask | tensor_mask)]
 
         # convert numeric types to float if they are considered
         # Fractional types e.g. decimal.Decimal only if there are values
@@ -176,6 +185,7 @@ class PreprocessedColumn:
 
         self.numpy = NumpyView(floats=floats, ints=ints)
         self.pandas.strings = strings
+        self.pandas.tensors = tensors
         self.pandas.objs = objs
         self.bool_count = bool_count
         self.bool_count_where_true = bool_count_where_true
@@ -191,10 +201,12 @@ class PreprocessedColumn:
     @staticmethod
     def _process_scalar_value(value: Any) -> "PreprocessedColumn":
         result = PreprocessedColumn()
+        result.original = value
         result.len = 1
         int_list = []
         float_list = []
         string_list = []
+        tensor_list = []
         obj_list = []
         if isinstance(value, int):
             if isinstance(value, bool):
@@ -212,6 +224,10 @@ class PreprocessedColumn:
             float_list.append(value)
         elif isinstance(value, str):
             string_list.append(value)
+        elif isinstance(value, list) and PreprocessedColumn._is_tensorable(value):
+            tensor_list.append(np.asarray(value))
+        elif is_not_stub(np.ndarray) and PreprocessedColumn._is_tensorable(value):
+            tensor_list.append(value)
         elif value is not None:
             obj_list.append(value)
         else:
@@ -226,9 +242,11 @@ class PreprocessedColumn:
                     result.bool_count_where_true = 1
 
             result.numpy = NumpyView(ints=ints, floats=floats)
-            result.list = ListView(strings=string_list, objs=obj_list)
+            result.list = ListView(strings=string_list, tensors=tensor_list, objs=obj_list)
         else:
-            result.list = ListView(ints=int_list, floats=float_list, strings=string_list, objs=obj_list)
+            result.list = ListView(
+                ints=int_list, floats=float_list, strings=string_list, tensors=tensor_list, objs=obj_list
+            )
 
         return result
 
@@ -262,6 +280,7 @@ class PreprocessedColumn:
             int_list = []
             float_list: List[Union[float, Decimal]] = []
             string_list = []
+            tensor_list = []
             obj_list = []
             null_count = 0
             for x in data:
@@ -271,6 +290,10 @@ class PreprocessedColumn:
                     float_list.append(x)
                 elif isinstance(x, str):
                     string_list.append(x)
+                elif isinstance(x, list) and PreprocessedColumn._is_tensorable(x):
+                    tensor_list.append(np.asarray(x))
+                elif isinstance(x, np.ndarray) and PreprocessedColumn._is_tensorable(x):
+                    tensor_list.append(x)
                 elif x is not None:
                     obj_list.append(x)
                 else:
@@ -282,10 +305,12 @@ class PreprocessedColumn:
                 floats = np.asarray(float_list, dtype=float)
 
                 result.numpy = NumpyView(ints=ints, floats=floats)
-                result.list = ListView(strings=string_list, objs=obj_list)
+                result.list = ListView(strings=string_list, tensors=tensor_list, objs=obj_list)
                 return result
             else:
-                result.list = ListView(ints=int_list, floats=float_list, strings=string_list, objs=obj_list)
+                result.list = ListView(
+                    ints=int_list, floats=float_list, strings=string_list, tensors=tensor_list, objs=obj_list
+                )
                 return result
 
         if isinstance(data, Iterable) or isinstance(data, Iterator):
@@ -299,3 +324,15 @@ class PreprocessedColumn:
         logger.info(f"Warning single value passed as column data, wrapping type: {type(data)} in list")
         list_format = [data]
         return PreprocessedColumn.apply(list_format)
+
+    @staticmethod
+    def _is_tensorable(value: Union[np.ndarray, List[Any]]) -> bool:
+        if not is_not_stub(np.ndarray):
+            return False
+
+        maybe_tensor = value if isinstance(value, np.ndarray) else np.asarray(value)
+        return (
+            len(maybe_tensor.shape) > 0
+            and all([i > 0 for i in maybe_tensor.shape])
+            and np.issubdtype(maybe_tensor.dtype, np.number)
+        )

@@ -1,5 +1,6 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
+from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -140,12 +141,15 @@ class UpdatableSvdMetric(SvdMetric):
         return UpdatableSvdMetric(self.k, self.decay, MatrixComponent(new_U), MatrixComponent(new_S))
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
-        if not data.list.objs:
+        vectors = data.list.tensors if data.list.tensors else []
+        vectors = vectors + (data.pandas.tensors.tolist() if data.pandas.tensors else [])
+
+        if not vectors:
             return OperationResult.ok(0)
         k = self.k.value
         decay = self.decay.value
         vectors_processed = 0
-        for vector in data.list.objs:
+        for vector in vectors:
             if (not isinstance(vector, np.ndarray)) or vector.shape[0] < 2:
                 continue
 
@@ -187,6 +191,10 @@ class NlpConfig(MetricConfig):
 
     # The default will not allow updates or residual computation
     svd: SvdMetric = field(default_factory=SvdMetric.zero)
+
+
+def _all_strings(value: List[Any]) -> bool:
+    return all([isinstance(s, str) for s in value])
 
 
 @dataclass
@@ -234,31 +242,30 @@ class BagOfWordsMetric(MultiMetric):
         for key in self.submetrics[submetric].keys():
             self.submetrics[submetric][key].columnar_update(data)
 
-    # data.list.strings is the list of strings in a (single) document
-    # TODO: consider letting data.list.objs be a List[List[str]] representing a
-    #       batch of documents
+    def _process_document(self, document: List[str]) -> int:
+        term_lengths = [len(term) for term in document]
+        self._update_submetrics("term_length", PreprocessedColumn.apply(term_lengths))
+        if not self.fi_disabled:
+            nlp_data = PreprocessedColumn.apply(document)
+            self._update_submetrics("frequent_terms", nlp_data)
+
+        return len(document)
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
-        """
-        terms = (
-            data.pandas.strings.to_list() if data.pandas.strings is not None and not data.pandas.strings.empty else []
-        )
-        terms = (terms + data.list.strings) if data.list.strings else terms
-        terms = (terms + data.list.objs[0]) if data.list.objs else terms
-        terms = data.list.objs[0].tolist() if data.list.objs else None
-        """
-        if data.numpy.strings is None:
-            return OperationResult.ok(0)
-        terms = data.numpy.strings.tolist()
-        if terms:
-            term_lengths = [len(term) for term in terms]
-            self._update_submetrics("term_length", PreprocessedColumn.apply(term_lengths))
-            self._update_submetrics("doc_length", PreprocessedColumn.apply([len(terms)]))
-            if not self.fi_disabled:
-                nlp_data = PreprocessedColumn.apply(terms)
-                self._update_submetrics("frequent_terms", nlp_data)
+        # Should be data.list.objs  [ List[str] ] from scalar
+        #           data.pandas.obj Series[List[str]] from apply
+        doc_lengths = list()
+        if data.list.objs and isinstance(data.list.objs[0], list) and _all_strings(data.list.objs[0]):
+            doc_lengths.append(self._process_document(data.list.objs[0]))
 
-        return OperationResult.ok(1)
+        if data.pandas.objs is not None:
+            for document in data.pandas.objs:
+                if isinstance(document, list) and _all_strings(document):
+                    # TODO: batch these
+                    doc_lengths.append(self._process_document(document))
+
+        self._update_submetrics("doc_length", PreprocessedColumn.apply(doc_lengths))
+        return OperationResult.ok(len(doc_lengths))
 
     @classmethod
     def zero(cls, cfg: Optional[MetricConfig] = None) -> "BagOfWordsMetric":
@@ -307,18 +314,16 @@ class LsiMetric(MultiMetric):
         for key in self.submetrics[submetric].keys():
             self.submetrics[submetric][key].columnar_update(data)
 
-    # data.list.objs is as list of np.ndarray. Each ndarray represents one document's term vector.
+    # data.list.objs is a list of np.ndarray. Each ndarray represents one document's term vector.
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         self.svd.columnar_update(data)  # no-op if SVD is not updating
         residuals: List[float] = []
-        if not data.list.objs:
-            return OperationResult.ok(0)
-        for vector in data.list.objs:  # TODO: batch these
-            assert isinstance(vector, np.ndarray)
+        pandas_tensors = data.pandas.tensors if data.pandas.tensors is not None else []
+        for vector in chain(data.list.tensors or [], pandas_tensors):  # TODO: batch these?
             residuals.append(self.svd.residual(vector))
 
         self._update_submetrics("residual", PreprocessedColumn.apply(residuals))
-        return OperationResult.ok(len(data.list.objs))
+        return OperationResult.ok(len(residuals))
 
     @classmethod
     def zero(cls, cfg: Optional[MetricConfig] = None) -> "LsiMetric":
