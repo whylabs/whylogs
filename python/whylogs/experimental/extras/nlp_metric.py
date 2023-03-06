@@ -254,7 +254,6 @@ class BagOfWordsMetric(MultiMetric):
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         # Should be data.list.objs  [ List[str] ] from scalar
         #           data.pandas.obj Series[List[str]] from apply
-        print(data)
         doc_lengths = list()
         if data.list.objs and isinstance(data.list.objs[0], list) and _all_strings(data.list.objs[0]):
             doc_lengths.append(self._process_document(data.list.objs[0]))
