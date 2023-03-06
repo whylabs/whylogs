@@ -53,15 +53,11 @@ bump-major: ## Bump the major version (X._._) everywhere it appears in the proje
 	poetry run bumpversion major --allow-dirty
 
 bump-release: ## Convert the version into a release variant (_._._) everywhere it appears in the project
-	@$(call i, Bumping the major number)
+	@$(call i, Removing the dev build suffix)
 	poetry run bumpversion release --allow-dirty
 
-bump-dev: ## Convert the version into a dev variant (_._._-dev__) everywhere it appears in the project
-	@$(call i, Bumping the major number)
-	poetry run bumpversion dev --allow-dirty
-
 bump-build: ## Bump the build number (_._._-____XX) everywhere it appears in the project
-	@$(call i, Bumping the major number)
+	@$(call i, Bumping the build number)
 	poetry run bumpversion build --allow-dirty
 
 
