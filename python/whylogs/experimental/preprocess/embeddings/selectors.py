@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional, Tuple, Union
+from typing import List, Tuple, Union
 
 import numpy as np
 from sklearn.cluster import KMeans
