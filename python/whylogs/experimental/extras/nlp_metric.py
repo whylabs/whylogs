@@ -21,6 +21,10 @@ from whylogs.core.preprocessing import ListView, PreprocessedColumn
 from whylogs.core.proto import MetricMessage
 from whylogs.core.resolvers import Resolver, StandardResolver
 from whylogs.core.schema import ColumnSchema
+from whylogs.experimental.extras.embedding_metric import (
+    EmbeddingConfig,
+    EmbeddingMetric,
+)
 from whylogs.experimental.extras.matrix_component import MatrixComponent
 
 _SMALL = np.finfo(float).eps
@@ -178,7 +182,7 @@ class UpdatableSvdMetric(SvdMetric):
 
 
 @dataclass(frozen=True)
-class NlpConfig(MetricConfig):
+class NlpConfig(EmbeddingConfig):
     """
     If you pass in an UpdatableSvdMetric, the SVD will be updated along with the
     NlpMetric's residual distribution. A non-updatable SvdMetric will update the
@@ -281,34 +285,24 @@ class BagOfWordsMetric(MultiMetric):
 
 
 @dataclass
-class LsiMetric(MultiMetric):
+class NlpEmbeddingMetric(EmbeddingMetric):
     """
-    Natural language processing -- latent sematic indexing metric
+    Natural language processing -- embedding metric
     """
 
     svd: SvdMetric  # use an UpdatableSvdMetric to train while tracking, or SvdMetric if SVD is to be static
 
-    def __post_init__(self):
-        submetrics = {
-            "residual": {
-                "distribution": StandardMetric.distribution.zero(),
-                "counts": StandardMetric.counts.zero(),
-                "types": StandardMetric.types.zero(),
-                "cardinality": StandardMetric.cardinality.zero(),
-            },
-        }
-        super().__init__(submetrics)
-
     @property
     def namespace(self) -> str:
-        return "nlp_lsi"
+        return "nlp_embedding"
 
-    def merge(self, other: "LsiMetric") -> "LsiMetric":
-        result = super(LsiMetric, self).merge(other)  # update all of our submetrics
+    def merge(self, other: "NlpEmbeddingMetric") -> "NlpEmbeddingMetric":
+        result = super().merge(other)  # update all of our submetrics
         result.svd = self.svd.merge(other.svd)  # update if self.svd is updatable, else no-op
         return result
 
-    # MultiMetric {to,from}_protobuf(), to_summary_dict() -- you have to serialize LsiMetric.svd yourself if it updated
+    # MultiMetric {to,from}_protobuf(), to_summary_dict() -- you have to serialize
+    # NlpEmbeddingMetric.svd yourself if it updated
 
     def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
         for key in self.submetrics[submetric].keys():
@@ -316,6 +310,7 @@ class LsiMetric(MultiMetric):
 
     # data.list.objs is a list of np.ndarray. Each ndarray represents one document's term vector.
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
+<<<<<<< HEAD
         self.svd.columnar_update(data)  # no-op if SVD is not updating
         residuals: List[float] = []
         pandas_tensors = data.pandas.tensors if data.pandas.tensors is not None else []
@@ -324,19 +319,30 @@ class LsiMetric(MultiMetric):
 
         self._update_submetrics("residual", PreprocessedColumn.apply(residuals))
         return OperationResult.ok(len(residuals))
+=======
+        if not data.list.objs:
+            return OperationResult.ok(0)
+        self.svd.columnar_update(data)  # no-op if SVD is not updating
+        for vector in data.list.objs:  # TODO: batch these
+            assert isinstance(vector, np.ndarray)
+            X = (_reciprocal(self.svd.S) @ self.svd.U.transpose() @ vector).transpose()
+            super().columnar_update(PreprocessedColumn.apply(X))
+
+        return OperationResult.ok(len(data.list.objs))
+>>>>>>> a104e5c3... work
 
     @classmethod
-    def zero(cls, cfg: Optional[MetricConfig] = None) -> "LsiMetric":
+    def zero(cls, cfg: Optional[MetricConfig] = None) -> "NlpEmbeddingMetric":
         cfg = cfg or NlpConfig()
         if not isinstance(cfg, NlpConfig):
-            raise ValueError("LsiMetric.zero() requires an NlpConfig argument")
+            raise ValueError("NlpEmbeddingMetric.zero() requires an NlpConfig argument")
 
-        return LsiMetric(cfg.svd)
+        return NlpEmbeddingMetric(cfg.svd)
 
     @classmethod
-    def from_protobuf(cls, msg: MetricMessage) -> "LsiMetric":
+    def from_protobuf(cls, msg: MetricMessage) -> "NlpEmbeddingMetric":
         submetrics = cls.submetrics_from_protobuf(msg)
-        result = LsiMetric(SvdMetric.zero(SvdMetricConfig(0, 1.0)))  # not updatable, can't compute residuals
+        result = NlpEmbeddingMetric(SvdMetric.zero(SvdMetricConfig(0, 1.0)))  # not updatable, can't compute residuals
         result.submetrics = submetrics
         return result
 
@@ -350,7 +356,7 @@ class ResolverWrapper(Resolver):
         if name.endswith("_bag_of_words"):
             return {BagOfWordsMetric.get_namespace(): BagOfWordsMetric.zero(column_schema.cfg)}
         elif name.endswith("_lsi"):
-            return {LsiMetric.get_namespace(): LsiMetric.zero(column_schema.cfg)}
+            return {NlpEmbeddingMetric.get_namespace(): NlpEmbeddingMetric.zero(column_schema.cfg)}
         return self._resolver.resolve(name, why_type, column_schema)
 
 
@@ -421,7 +427,9 @@ class NlpLogger:
             list_view = ListView(objs=objs)
             column_data = PreprocessedColumn()
             column_data.list = list_view
-            lsi_metric = self._profile._columns[f"{self._column_prefix}_lsi"]._metrics[LsiMetric.get_namespace()]
+            lsi_metric = self._profile._columns[f"{self._column_prefix}_lsi"]._metrics[
+                NlpEmbeddingMetric.get_namespace()
+            ]
             lsi_metric.columnar_update(column_data)
 
         return ProfileResultSet(self._profile)
