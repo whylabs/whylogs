@@ -20,7 +20,7 @@ from whylogs.core.proto import (
     DatasetSegmentHeader,
     MetricComponentMessage,
 )
-from whylogs.core.stubs import pd
+from whylogs.core.stubs import is_not_stub, pd
 from whylogs.core.utils import (
     ensure_timezone,
     read_delimited_protobuf,
@@ -408,6 +408,9 @@ class DatasetProfileView(Writable):
                 sum_dict["column"] = col_name
                 sum_dict["type"] = SummaryType.COLUMN
                 all_dicts.append(dict(sorted(sum_dict.items())))
-            df = pd.DataFrame(all_dicts)
-            return df.set_index("column")
+            if is_not_stub(pd.Dataframe):
+                df = pd.DataFrame(all_dicts)
+                return df.set_index("column")
+            else:
+                raise ImportError("Pandas is not installed. Please install pandas to use this feature.")
         return pd.DataFrame(all_dicts)
