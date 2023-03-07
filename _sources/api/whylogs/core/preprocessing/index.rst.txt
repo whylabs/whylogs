@@ -49,6 +49,11 @@ Attributes
 
       
 
+   .. py:attribute:: tensors
+      :type: Optional[List[whylogs.core.stubs.np.ndarray]]
+
+      
+
    .. py:attribute:: objs
       :type: Optional[List[Any]]
 
@@ -86,6 +91,11 @@ Attributes
 .. py:class:: PandasView
 
    .. py:attribute:: strings
+      :type: Optional[whylogs.core.stubs.pd.Series]
+
+      
+
+   .. py:attribute:: tensors
       :type: Optional[whylogs.core.stubs.pd.Series]
 
       

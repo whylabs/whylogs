@@ -432,6 +432,7 @@
     <span class="n">boolean</span><span class="p">:</span> <span class="n">IntegralComponent</span>
     <span class="n">string</span><span class="p">:</span> <span class="n">IntegralComponent</span>
     <span class="nb">object</span><span class="p">:</span> <span class="n">IntegralComponent</span>
+    <span class="n">tensor</span><span class="p">:</span> <span class="n">IntegralComponent</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -444,6 +445,7 @@
             <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">boolean</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
             <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
             <span class="s2">&quot;object&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;tensor&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 <div class="viewcode-block" id="TypeCountersMetric.columnar_update"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.column_metrics.TypeCountersMetric.columnar_update">[docs]</a>    <span class="k">def</span> <span class="nf">columnar_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">PreprocessedColumn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OperationResult</span><span class="p">:</span>
@@ -484,6 +486,16 @@
         <span class="n">successes</span> <span class="o">+=</span> <span class="n">string_count</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">string_count</span> <span class="o">+</span> <span class="n">string_count_prev</span><span class="p">)</span>
 
+        <span class="n">tensor_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">tensor_count_prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">pandas</span><span class="o">.</span><span class="n">tensors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tensor_count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">pandas</span><span class="o">.</span><span class="n">tensors</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">tensors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tensor_count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">tensors</span><span class="p">)</span>
+
+        <span class="n">successes</span> <span class="o">+=</span> <span class="n">tensor_count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tensor</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">tensor_count</span> <span class="o">+</span> <span class="n">tensor_count_prev</span><span class="p">)</span>
+
         <span class="n">objects</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">objects_prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">value</span>
         <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">pandas</span><span class="o">.</span><span class="n">objs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -503,6 +515,7 @@
             <span class="n">boolean</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
             <span class="n">string</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
             <span class="nb">object</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+            <span class="n">tensor</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
         <span class="p">)</span></div></div>
 
 

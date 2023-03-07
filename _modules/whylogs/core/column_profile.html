@@ -480,12 +480,10 @@
 
 <div class="viewcode-block" id="ColumnProfile.to_protobuf"><a class="viewcode-back" href="../../../api/whylogs/core/index.html#whylogs.core.column_profile.ColumnProfile.to_protobuf">[docs]</a>    <span class="k">def</span> <span class="nf">to_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ColumnMessage</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_protobuf</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ColumnProfile.view"><a class="viewcode-back" href="../../../api/whylogs/core/index.html#whylogs.core.column_profile.ColumnProfile.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ColumnProfileView</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-
         <span class="k">return</span> <span class="n">ColumnProfileView</span><span class="p">(</span>
             <span class="n">metrics</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
             <span class="n">success_count</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_success_count</span><span class="p">,</span>

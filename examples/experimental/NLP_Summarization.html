@@ -679,23 +679,52 @@ div.rendered_html tbody tr:hover {
 </style>
 <blockquote>
 <div><p class="rubric" id="create-a-free-whylabs-account-to-get-more-value-out-of-whylogs">🚩 <em>Create a free WhyLabs account to get more value out of whylogs!</em></p>
-<p><em>Did you know you can store, visualize, and monitor whylogs profiles with the</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=NLP_Summarization">WhyLabs Observability Platform</a><em>? Sign up for a</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=NLP_Summarization">free WhyLabs account</a> <em>to leverage the power of whylogs and WhyLabs together!</em></p>
+<p><em>Did you know you can store, visualize, and monitor whylogs profiles with the</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=Schema_Configuration">WhyLabs Observability Platform</a><em>? Sign up for a</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=Schema_Configuration">free WhyLabs account</a> <em>to leverage the power of whylogs and WhyLabs together!</em></p>
 </div></blockquote>
 <section id="Document-Summarization-Example">
 <h1>Document Summarization Example<a class="headerlink" href="#Document-Summarization-Example" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/experimental/NLP_Summarization.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Schema_Configuration.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <p>In this example, we’ll look at how we might use whylogs to monitor a document summarization task.</p>
 <p>We’ll use <a class="reference external" href="https://www.nltk.org">NLTK</a> and <a class="reference external" href="https://www.crummy.com/software/BeautifulSoup/">BeautifulSoup</a> to do some of the basic NLP tasks, so let’s install the packages we’ll need now.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
-<span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="n">nltk</span>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="n">nltk</span>
 <span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="n">bs4</span>
-<span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="n">whylogs</span>
+<span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="n">whylogs</span><span class="p">[</span><span class="n">embeddings</span><span class="p">]</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Looking in indexes: https://pypi.org/simple, https://us-python.pkg.dev/colab-wheels/public/simple/
+Requirement already satisfied: nltk in /usr/local/lib/python3.8/dist-packages (3.7)
+Requirement already satisfied: joblib in /usr/local/lib/python3.8/dist-packages (from nltk) (1.2.0)
+Requirement already satisfied: click in /usr/local/lib/python3.8/dist-packages (from nltk) (8.1.3)
+Requirement already satisfied: regex&gt;=2021.8.3 in /usr/local/lib/python3.8/dist-packages (from nltk) (2022.6.2)
+Requirement already satisfied: tqdm in /usr/local/lib/python3.8/dist-packages (from nltk) (4.64.1)
+Looking in indexes: https://pypi.org/simple, https://us-python.pkg.dev/colab-wheels/public/simple/
+Requirement already satisfied: bs4 in /usr/local/lib/python3.8/dist-packages (0.0.1)
+Requirement already satisfied: beautifulsoup4 in /usr/local/lib/python3.8/dist-packages (from bs4) (4.6.3)
+Looking in indexes: https://pypi.org/simple, https://us-python.pkg.dev/colab-wheels/public/simple/
+Processing ./whylogs-1.1.28-py3-none-any.whl
+Collecting whylogs-sketching&gt;=3.4.1.dev3
+  Downloading whylogs_sketching-3.4.1.dev3-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (548 kB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">548.0/548.0 KB</span> <span class="ansi-red-fg">9.4 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>
+Requirement already satisfied: protobuf&gt;=3.19.4 in /usr/local/lib/python3.8/dist-packages (from whylogs==1.1.28) (3.19.6)
+Requirement already satisfied: typing-extensions&gt;=3.10 in /usr/local/lib/python3.8/dist-packages (from whylogs==1.1.28) (4.5.0)
+Requirement already satisfied: scikit-learn&lt;2.0.0,&gt;=1.0.2 in /usr/local/lib/python3.8/dist-packages (from whylogs==1.1.28) (1.2.1)
+Requirement already satisfied: joblib&gt;=1.1.1 in /usr/local/lib/python3.8/dist-packages (from scikit-learn&lt;2.0.0,&gt;=1.0.2-&gt;whylogs==1.1.28) (1.2.0)
+Requirement already satisfied: numpy&gt;=1.17.3 in /usr/local/lib/python3.8/dist-packages (from scikit-learn&lt;2.0.0,&gt;=1.0.2-&gt;whylogs==1.1.28) (1.22.4)
+Requirement already satisfied: scipy&gt;=1.3.2 in /usr/local/lib/python3.8/dist-packages (from scikit-learn&lt;2.0.0,&gt;=1.0.2-&gt;whylogs==1.1.28) (1.10.1)
+Requirement already satisfied: threadpoolctl&gt;=2.0.0 in /usr/local/lib/python3.8/dist-packages (from scikit-learn&lt;2.0.0,&gt;=1.0.2-&gt;whylogs==1.1.28) (3.1.0)
+Installing collected packages: whylogs-sketching, whylogs
+Successfully installed whylogs-1.1.28 whylogs-sketching-3.4.1.dev3
+</pre></div></div>
 </div>
 <p>We’ll use the NLTK Reuters corpus as the documents to summarize. As a trivial summarization algorithm, we’ll pull out the sentence that contains a document’s highest log-entropy weighted term as its summary. Let’s start by computing the term-frequency index for the corpus and the term global frequencies and entropies. We’ll use NLTK’s stemming, stopping, and tokenization for those calcuations, but return the unaltered sentence as the summary.</p>
 <div class="nbinput docutils container">
@@ -798,11 +827,10 @@ div.rendered_html tbody tr:hover {
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
 [nltk_data] Downloading package reuters to /root/nltk_data...
-[nltk_data]   Package reuters is already up-to-date!
 [nltk_data] Downloading package punkt to /root/nltk_data...
-[nltk_data]   Package punkt is already up-to-date!
+[nltk_data]   Unzipping tokenizers/punkt.zip.
 [nltk_data] Downloading package stopwords to /root/nltk_data...
-[nltk_data]   Package stopwords is already up-to-date!
+[nltk_data]   Unzipping corpora/stopwords.zip.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -875,7 +903,7 @@ div.rendered_html tbody tr:hover {
 <br/></pre></div>
 </div>
 </div>
-<p>We also need to attach the <code class="docutils literal notranslate"><span class="pre">BagOfWordsMetric</span></code> to the columns that represent our input articles and output summaries. Unfortunately, whylogs doesn’t fully understand bags of words as loggable values yet, so we’ll also bump up the Python logging level to suppress a spurious warning message.</p>
+<p>We also need to attach the <code class="docutils literal notranslate"><span class="pre">BagOfWordsMetric</span></code> to the columns that represent our input articles and output summaries. We log each document as a list of its tokens.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -928,7 +956,7 @@ div.rendered_html tbody tr:hover {
         <span class="n">stemmed</span> <span class="o">=</span> <span class="p">[</span><span class="n">STEMMER</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tokenized</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">max_term</span> <span class="ow">in</span> <span class="n">stemmed</span><span class="p">:</span>
             <span class="n">max_sentence</span> <span class="o">=</span> <span class="n">sentence</span>
-            <span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;article_bow&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tokens</span><span class="p">),</span> <span class="s2">&quot;summary_bow&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tokenized</span><span class="p">)})</span>
+            <span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;article_bow&quot;</span><span class="p">:</span> <span class="n">tokens</span><span class="p">,</span> <span class="s2">&quot;summary_bow&quot;</span><span class="p">:</span> <span class="n">tokenized</span><span class="p">})</span>
             <span class="k">break</span>
     <span class="c1"># max_sentence = max_sentence.replace(&quot;\n&quot;, &quot; &quot;)</span>
     <span class="c1"># print(f&quot;{max_weight} {max_term}:   {max_sentence}&quot;)</span>
@@ -993,14 +1021,14 @@ article_bow:
 
 summary_bow:
     nlp_bow/doc_length:counts/n: 500
-    nlp_bow/doc_length:distribution/mean: 21.563999999999997
-    nlp_bow/doc_length:distribution/stddev: 14.143903421899344
+    nlp_bow/doc_length:distribution/mean: 21.554000000000002
+    nlp_bow/doc_length:distribution/stddev: 14.143095074153782
     nlp_bow/doc_length:distribution/max: 176.0
     nlp_bow/doc_length:distribution/min: 1.0
-    nlp_bow/doc_length:distribution/median: 19.0
-    nlp_bow/term_length:counts/n: 10782
-    nlp_bow/term_length:distribution/mean: 5.414672602485621
-    nlp_bow/term_length:distribution/stddev: 2.5943471472281527
+    nlp_bow/doc_length:distribution/median: 18.0
+    nlp_bow/term_length:counts/n: 10777
+    nlp_bow/term_length:distribution/mean: 5.419690080727475
+    nlp_bow/term_length:distribution/stddev: 2.5998033619617535
     nlp_bow/term_length:distribution/max: 21.0
     nlp_bow/term_length:distribution/min: 1.0
     nlp_bow/term_length:distribution/median: 5.0
@@ -1041,10 +1069,10 @@ summary_bow:
         <span class="n">index</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">phrases</span><span class="p">))</span>
         <span class="n">left</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">nltk</span><span class="o">.</span><span class="n">word_tokenize</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">phrases</span><span class="p">[:</span><span class="n">index</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">)]</span>
         <span class="n">right</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">nltk</span><span class="o">.</span><span class="n">word_tokenize</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">phrases</span><span class="p">[</span><span class="n">index</span><span class="p">:]))]</span>
-        <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;split_bow&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">left</span><span class="p">)})</span>
-        <span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;split_bow&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">right</span><span class="p">)})</span>
+        <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;split_bow&quot;</span><span class="p">:</span> <span class="n">left</span><span class="p">})</span>
+        <span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;split_bow&quot;</span><span class="p">:</span> <span class="n">right</span><span class="p">})</span>
       <span class="k">else</span><span class="p">:</span>
-        <span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;split_bow&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tokens</span><span class="p">)})</span>
+        <span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;split_bow&quot;</span><span class="p">:</span> <span class="n">tokens</span><span class="p">})</span>
 
 <span class="n">view</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
 <span class="n">columns</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span>
@@ -1061,30 +1089,30 @@ summary_bow:
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 original_bow:
-    nlp_bow/doc_length:counts/n: 2837
-    nlp_bow/doc_length:distribution/mean: 25.89742685935848
-    nlp_bow/doc_length:distribution/stddev: 12.005011165947533
-    nlp_bow/doc_length:distribution/max: 194.0
-    nlp_bow/doc_length:distribution/min: 1.0
-    nlp_bow/doc_length:distribution/median: 25.0
-    nlp_bow/term_length:counts/n: 73471
-    nlp_bow/term_length:distribution/mean: 4.514352601706808
-    nlp_bow/term_length:distribution/stddev: 2.7094464333602195
-    nlp_bow/term_length:distribution/max: 24.0
-    nlp_bow/term_length:distribution/min: 1.0
-    nlp_bow/term_length:distribution/median: 4.0
-    frequent terms: [&#39;the&#39;, &#39;.&#39;, &#39;,&#39;, &#39;to&#39;, &#39;of&#39;, &#39;in&#39;, &#39;said&#39;, &#39;and&#39;, &#39;a&#39;, &#39;mln&#39;]
+    nlp_bow/doc_length:counts/n: 0
+    nlp_bow/doc_length:distribution/mean: 0.0
+    nlp_bow/doc_length:distribution/stddev: 0.0
+    nlp_bow/doc_length:distribution/max: nan
+    nlp_bow/doc_length:distribution/min: nan
+    nlp_bow/doc_length:distribution/median: None
+    nlp_bow/term_length:counts/n: 0
+    nlp_bow/term_length:distribution/mean: 0.0
+    nlp_bow/term_length:distribution/stddev: 0.0
+    nlp_bow/term_length:distribution/max: nan
+    nlp_bow/term_length:distribution/min: nan
+    nlp_bow/term_length:distribution/median: None
+    frequent terms: []
 
 split_bow:
-    nlp_bow/doc_length:counts/n: 4072
-    nlp_bow/doc_length:distribution/mean: 18.610265225933208
-    nlp_bow/doc_length:distribution/stddev: 13.298109555065722
-    nlp_bow/doc_length:distribution/max: 195.0
-    nlp_bow/doc_length:distribution/min: 1.0
-    nlp_bow/doc_length:distribution/median: 18.0
-    nlp_bow/term_length:counts/n: 75781
-    nlp_bow/term_length:distribution/mean: 4.389306026576576
-    nlp_bow/term_length:distribution/stddev: 2.703405605642433
+    nlp_bow/doc_length:counts/n: 4545
+    nlp_bow/doc_length:distribution/mean: 16.67216721672163
+    nlp_bow/doc_length:distribution/stddev: 13.849889480931045
+    nlp_bow/doc_length:distribution/max: 207.0
+    nlp_bow/doc_length:distribution/min: 0.0
+    nlp_bow/doc_length:distribution/median: 15.0
+    nlp_bow/term_length:counts/n: 75775
+    nlp_bow/term_length:distribution/mean: 4.389495216100277
+    nlp_bow/term_length:distribution/stddev: 2.7034094987711406
     nlp_bow/term_length:distribution/max: 24.0
     nlp_bow/term_length:distribution/min: 1.0
     nlp_bow/term_length:distribution/median: 4.0

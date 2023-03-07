@@ -940,15 +940,7 @@ You’ll have to manage that yourself.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.experimental.extras.nlp_metric.BagOfWordsMetric.columnar_update">
 <span class="sig-name descname"><span class="pre">columnar_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../core/preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><span class="pre">whylogs.core.preprocessing.PreprocessedColumn</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.OperationResult" title="whylogs.core.metrics.metrics.OperationResult"><span class="pre">whylogs.core.metrics.metrics.OperationResult</span></a></span></span><a class="headerlink" href="#whylogs.experimental.extras.nlp_metric.BagOfWordsMetric.columnar_update" title="Permalink to this definition">#</a></dt>
-<dd><dl class="simple">
-<dt>terms = (</dt><dd><p>data.pandas.strings.to_list() if data.pandas.strings is not None and not data.pandas.strings.empty else []</p>
-</dd>
-</dl>
-<p>)
-terms = (terms + data.list.strings) if data.list.strings else terms
-terms = (terms + data.list.objs[0]) if data.list.objs else terms
-terms = data.list.objs[0].tolist() if data.list.objs else None</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="../../../core/preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><em>whylogs.core.preprocessing.PreprocessedColumn</em></a>) – </p>
 </dd>

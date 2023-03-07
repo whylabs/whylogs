@@ -488,6 +488,11 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.preprocessing.ListView.tensors">
+<span class="sig-name descname"><span class="pre">tensors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">whylogs.core.stubs.np.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.preprocessing.ListView.tensors" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.ListView.objs">
 <span class="sig-name descname"><span class="pre">objs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.preprocessing.ListView.objs" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
@@ -550,6 +555,11 @@
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PandasView.strings">
 <span class="sig-name descname"><span class="pre">strings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">whylogs.core.stubs.pd.Series</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.preprocessing.PandasView.strings" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.preprocessing.PandasView.tensors">
+<span class="sig-name descname"><span class="pre">tensors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">whylogs.core.stubs.pd.Series</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.preprocessing.PandasView.tensors" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -727,6 +737,7 @@ We also track the null count and ensure that processed lists/Series don’t cont
 <li><a class="reference internal" href="#whylogs.core.preprocessing.ListView.ints">ints</a></li>
 <li><a class="reference internal" href="#whylogs.core.preprocessing.ListView.floats">floats</a></li>
 <li><a class="reference internal" href="#whylogs.core.preprocessing.ListView.strings">strings</a></li>
+<li><a class="reference internal" href="#whylogs.core.preprocessing.ListView.tensors">tensors</a></li>
 <li><a class="reference internal" href="#whylogs.core.preprocessing.ListView.objs">objs</a></li>
 <li><a class="reference internal" href="#whylogs.core.preprocessing.ListView.iterables">iterables</a></li>
 </ul>
@@ -741,6 +752,7 @@ We also track the null count and ensure that processed lists/Series don’t cont
 </li>
 <li><a class="reference internal" href="#whylogs.core.preprocessing.PandasView">PandasView</a><ul>
 <li><a class="reference internal" href="#whylogs.core.preprocessing.PandasView.strings">strings</a></li>
+<li><a class="reference internal" href="#whylogs.core.preprocessing.PandasView.tensors">tensors</a></li>
 <li><a class="reference internal" href="#whylogs.core.preprocessing.PandasView.objs">objs</a></li>
 <li><a class="reference internal" href="#whylogs.core.preprocessing.PandasView.iterables">iterables</a></li>
 </ul>

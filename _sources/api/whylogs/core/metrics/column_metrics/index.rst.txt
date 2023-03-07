@@ -54,6 +54,11 @@ Classes
 
       
 
+   .. py:attribute:: tensor
+      :type: whylogs.core.metrics.metric_components.IntegralComponent
+
+      
+
    .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
 
 
