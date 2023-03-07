@@ -126,7 +126,7 @@ class FlushMessage:
     Trigger a flush, converting all managed profiles to result sets and attempt to write them if there are writers.
     """
 
-    pass
+    raise NotImplementedError()
 
 
 @dataclass

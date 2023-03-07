@@ -197,7 +197,9 @@ class MissingMetric(Exception):
     The DatasetConstraint is responsible for handling this exception.
     """
 
-    pass
+    def __init__(self, message):
+        Exception.__init__(self, message)
+        self.message = message
 
 
 @dataclass(frozen=True)
