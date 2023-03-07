@@ -1,16 +1,22 @@
-from typing import Optional
+from abc import ABC, abstractmethod
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
 
-class ReferenceSelector:
+class ReferenceSelector(ABC):
     def __init__(self):
         self.n_references = 0
         self.ref_labels = None
 
-    def calculate_references(self, X: np.ndarray, y: Optional[np.ndarray]):
+    @abstractmethod
+    def calculate_references_unsupervised(self, X: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def calculate_references_supervised(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
         raise NotImplementedError()
 
 
@@ -21,7 +27,7 @@ class PCACentroidsSelector(ReferenceSelector):
         self.lower_percentile_limit = lower_percentile_limit
         self.upper_percentile_limit = upper_percentile_limit
 
-    def calculate_references(self, X: np.ndarray, y: Optional[np.ndarray]):
+    def calculate_references_supervised(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
         # Fit PCA
         pca = PCA(n_components=self.n_components)
         X_pca = pca.fit_transform(X)
@@ -46,28 +52,49 @@ class PCACentroidsSelector(ReferenceSelector):
 
         return raw_refs, self.ref_labels
 
+    def calculate_references_unsupervised(self, X: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
+        raise NotImplementedError()
+
+
+class KMeansSelector(ReferenceSelector):
+    def __init__(self, n_clusters: int = 8, kmeans_kwargs={}):
+        super().__init__()
+        self.n_clusters = n_clusters
+        self.kmeans_kwargs = kmeans_kwargs
+
+    def calculate_references_unsupervised(self, X: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
+        self.n_references = self.n_clusters
+        self.ref_labels = list(range(self.n_clusters))
+
+        # Find k-means clusters
+        kmeans = KMeans(n_clusters=self.n_clusters, **self.kmeans_kwargs)
+        kmeans.fit(X)
+        refs = kmeans.cluster_centers_
+        return refs, self.ref_labels
+
+    def calculate_references_supervised(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
+        raise NotImplementedError()
+
 
 class PCAKMeansSelector(ReferenceSelector):
     def __init__(self, n_clusters: int = 8, n_components: int = 2, kmeans_kwargs={}):
         super().__init__()
-        self.n_clusters = n_clusters
         self.n_components = n_components
-        self.kmeans_kwargs = kmeans_kwargs
+        self.kmeanie = KMeansSelector(n_clusters, kmeans_kwargs)
 
-    def calculate_references(self, X: np.ndarray, y: Optional[np.ndarray] = None):
-        self.n_references = self.n_clusters
-        self.ref_labels = list(range(self.n_clusters))
-
+    def calculate_references_unsupervised(self, X: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
         # Fit PCA first
         pca = PCA(n_components=self.n_components)
         X_pca = pca.fit_transform(X)
 
         # Find k-means clusters
-        kmeans = KMeans(n_clusters=self.n_clusters, **self.kmeans_kwargs)
-        kmeans.fit(X_pca)
-        refs = kmeans.cluster_centers_
+        refs, self.ref_labels = self.kmeanie.calculate_references_unsupervised(X_pca)
+        self.n_references = len(self.ref_labels)
 
         # Convert centroids back to raw space
         raw_refs = pca.inverse_transform(refs)
 
         return raw_refs, self.ref_labels
+
+    def calculate_references_supervised(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
+        raise NotImplementedError()
