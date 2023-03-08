@@ -82,9 +82,7 @@ def test_no_segments_schema() -> None:
 
     # Make a fancy embedding schema with no segmentation
     fake_embeddings: List[List[float]] = [[1.0 for i in range(0, 50)] for i in range(0, 30)]
-    references, _ = PCAKMeansSelector(n_clusters=8, n_components=20).calculate_references_unsupervised(
-        np.asarray(fake_embeddings)
-    )
+    references, _ = PCAKMeansSelector(n_clusters=8, n_components=20).calculate_references(np.asarray(fake_embeddings))
     config = EmbeddingConfig(
         references=references,
         labels=None,

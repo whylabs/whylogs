@@ -1,9 +1,12 @@
+import logging
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+
+logger = logging.getLogger(__name__)
 
 
 class ReferenceSelector(ABC):
@@ -12,11 +15,9 @@ class ReferenceSelector(ABC):
         self.ref_labels = None
 
     @abstractmethod
-    def calculate_references_unsupervised(self, X: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def calculate_references_supervised(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
+    def calculate_references(
+        self, X: np.ndarray, y: Optional[np.ndarray] = None
+    ) -> Tuple[np.ndarray, List[Union[int, str]]]:
         raise NotImplementedError()
 
 
@@ -27,7 +28,12 @@ class PCACentroidsSelector(ReferenceSelector):
         self.lower_percentile_limit = lower_percentile_limit
         self.upper_percentile_limit = upper_percentile_limit
 
-    def calculate_references_supervised(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
+    def calculate_references(
+        self, X: np.ndarray, y: Optional[np.ndarray] = None
+    ) -> Tuple[np.ndarray, List[Union[int, str]]]:
+        if y is None:
+            raise ValueError("PCACentroidSelector requires labels")
+
         # Fit PCA
         pca = PCA(n_components=self.n_components)
         X_pca = pca.fit_transform(X)
@@ -52,9 +58,6 @@ class PCACentroidsSelector(ReferenceSelector):
 
         return raw_refs, self.ref_labels
 
-    def calculate_references_unsupervised(self, X: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
-        raise NotImplementedError()
-
 
 class KMeansSelector(ReferenceSelector):
     def __init__(self, n_clusters: int = 8, kmeans_kwargs={}):
@@ -62,7 +65,12 @@ class KMeansSelector(ReferenceSelector):
         self.n_clusters = n_clusters
         self.kmeans_kwargs = kmeans_kwargs
 
-    def calculate_references_unsupervised(self, X: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
+    def calculate_references(
+        self, X: np.ndarray, y: Optional[np.ndarray] = None
+    ) -> Tuple[np.ndarray, List[Union[int, str]]]:
+        if y is not None:
+            logger.warn("KMeansSelector is unsupervised; ignoring labels")
+
         self.n_references = self.n_clusters
         self.ref_labels = list(range(self.n_clusters))
 
@@ -72,9 +80,6 @@ class KMeansSelector(ReferenceSelector):
         refs = kmeans.cluster_centers_
         return refs, self.ref_labels
 
-    def calculate_references_supervised(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
-        raise NotImplementedError()
-
 
 class PCAKMeansSelector(ReferenceSelector):
     def __init__(self, n_clusters: int = 8, n_components: int = 2, kmeans_kwargs={}):
@@ -82,19 +87,21 @@ class PCAKMeansSelector(ReferenceSelector):
         self.n_components = n_components
         self.kmeanie = KMeansSelector(n_clusters, kmeans_kwargs)
 
-    def calculate_references_unsupervised(self, X: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
+    def calculate_references(
+        self, X: np.ndarray, y: Optional[np.ndarray] = None
+    ) -> Tuple[np.ndarray, List[Union[int, str]]]:
+        if y is not None:
+            logger.warn("PCAKMeansSelector is unsupervised; ignoring labels")
+
         # Fit PCA first
         pca = PCA(n_components=self.n_components)
         X_pca = pca.fit_transform(X)
 
         # Find k-means clusters
-        refs, self.ref_labels = self.kmeanie.calculate_references_unsupervised(X_pca)
+        refs, self.ref_labels = self.kmeanie.calculate_references(X_pca)
         self.n_references = len(self.ref_labels)
 
         # Convert centroids back to raw space
         raw_refs = pca.inverse_transform(refs)
 
         return raw_refs, self.ref_labels
-
-    def calculate_references_supervised(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, List[Union[int, str]]]:
-        raise NotImplementedError()
