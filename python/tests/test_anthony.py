@@ -1,6 +1,7 @@
-
-
+import cProfile
+import pstats
 import time
+from io import StringIO
 
 #{"datasetId": "model-31", "timestamp": null, "single": null, "multiple": {"columns": ["embeddings"],
 
@@ -20,9 +21,7 @@ data = [
 import numpy as np
 import pandas as pd
 
-
 from whylogs.core.preprocessing import PreprocessedColumn
-
 
 def do_it_pandas0():
     series = pd.Series(data * 2000)
@@ -45,12 +44,23 @@ def do_it_pandas0_5():
 
 def do_it_pandas1():
     t0 = time.perf_counter()
-    for i in range(2000):
-        series = pd.Series(data)
+    profiler = cProfile.Profile()
+    series = pd.Series(data)
+    string_output_stream = StringIO()
+    profiler.enable()
+    for _ in range(2000):
         col = PreprocessedColumn.apply(series)
+    profiler.disable()
+    stats = pstats.Stats(profiler, stream=string_output_stream).sort_stats("tottime")
+    stats.print_stats(40)
+    # save the pstats so you can use flamegraph to turn the profile into an svg file
+    # flameprof pandas1.dmp > pandas1.svg
+    stats.dump_stats('pandas1.prof') 
+
     t1 = time.perf_counter()
     print(len(col.pandas.tensors), col.pandas.tensors[0].shape)
     print(f"pandas1 20K rows in {t1-t0:0.4f} sec")
+    print( f"\n{string_output_stream.getvalue()}")
 
  
 def do_it_pandas2():
@@ -111,7 +121,7 @@ def do_it_scalar2():
     t1 = time.perf_counter()
     print(f"* 20K x {col.list.tensors[0].shape} matrix in {t1-t0:0.4f} sec")
 
-
+"""
 print()
 for i in range(10):
     do_it_pandas0()
@@ -123,30 +133,20 @@ for i in range(10):
 
 """
 print()
-for i in range(10):
+# for i in range(10):
+for i in range(1):
     do_it_pandas1()
-
-
-print()
-for i in range(10):
-    do_it_pandas2()
-
-
-print()
-for i in range(10):
-    do_it_pandas3()
-
-
+"""
 print()
 for i in range(10):
     do_it_numpy1()
 
-"""
+
 
 print()
 for i in range(10):
     do_it_numpy2()
-"""
+
 
 
 print()
