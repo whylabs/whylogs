@@ -109,7 +109,4 @@ jobs:
 
           labels: |
             automated pr
-          team-reviewers: |
-            owners
-            maintainers
           draft: false
