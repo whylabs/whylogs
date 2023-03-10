@@ -14,14 +14,32 @@ Classes
 
    whylogs.experimental.preprocess.embeddings.selectors.ReferenceSelector
    whylogs.experimental.preprocess.embeddings.selectors.PCACentroidsSelector
+   whylogs.experimental.preprocess.embeddings.selectors.KMeansSelector
    whylogs.experimental.preprocess.embeddings.selectors.PCAKMeansSelector
 
 
 
 
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.preprocess.embeddings.selectors.logger
+
+
+.. py:data:: logger
+
+   
+
 .. py:class:: ReferenceSelector
 
-   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray])
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray] = None) -> Tuple[numpy.ndarray, List[Union[int, str]]]
       :abstractmethod:
 
 
@@ -30,7 +48,21 @@ Classes
 
    Bases: :py:obj:`ReferenceSelector`
 
-   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray])
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray] = None) -> Tuple[numpy.ndarray, List[Union[int, str]]]
+
+
+
+.. py:class:: KMeansSelector(n_clusters: int = 8, kmeans_kwargs={})
+
+   Bases: :py:obj:`ReferenceSelector`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray] = None) -> Tuple[numpy.ndarray, List[Union[int, str]]]
 
 
 
@@ -38,7 +70,10 @@ Classes
 
    Bases: :py:obj:`ReferenceSelector`
 
-   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray] = None)
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray] = None) -> Tuple[numpy.ndarray, List[Union[int, str]]]
 
 
 
