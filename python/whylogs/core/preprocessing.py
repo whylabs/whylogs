@@ -251,6 +251,46 @@ class PreprocessedColumn:
         return result
 
     @staticmethod
+    def _process_homogeneous_column(series: pd.Series) -> "PreprocessedColumn":
+        """
+        Column must be of homogeneous type. NaN, None, other missing data not allowed.
+        """
+
+        result = PreprocessedColumn()
+        result.original = series
+        result.len = len(series)
+        if series.empty:
+            return result
+
+        if pdc.is_numeric_dtype(series.dtype) and not pdc.is_bool_dtype(series.dtype):
+            if pdc.is_float_dtype(series.dtype):
+                result.numpy.floats = series.astype(float)
+                return result
+            else:
+                result.numpy.ints = series.astype(int)
+                return result
+
+        value = series[0]
+        if isinstance(value, str):
+            result.pandas.strings = series
+            return result
+        elif pdc.is_bool(value):
+            bool_mask_where_true = series.apply(lambda x: x)
+            result.bool_count = series.count()
+            result.bool_count_where_true = series[bool_mask_where_true].count()
+            return result
+        elif isinstance(value, (list, np.ndarray)) and PreprocessedColumn._is_tensorable(value):
+            if isinstance(value, np.ndarray):
+                result.pandas.tensors = series
+            else:
+                result.pandas.tensors = pd.Series([np.asarray(x) for x in series])
+            return result
+        else:
+            result.pandas.objs = series
+
+        return result
+
+    @staticmethod
     def apply(data: Any) -> "PreprocessedColumn":
         result = PreprocessedColumn()
         result.original = data

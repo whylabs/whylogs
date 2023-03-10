@@ -145,6 +145,7 @@ class TimedRollingLogger(Logger):
         *,
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Dict[str, Any]] = None,
+        fast: Optional[pd.DataFrame] = None,
         schema: Optional[DatasetSchema] = None,
     ) -> List[DatasetProfile]:
         if schema and schema is not self._schema:

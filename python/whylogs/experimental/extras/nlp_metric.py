@@ -3,8 +3,6 @@ from dataclasses import dataclass, field
 from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import numpy as np
-import scipy as sp
 
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
 from whylogs.core import DatasetProfile, DatasetSchema
@@ -21,6 +19,7 @@ from whylogs.core.preprocessing import ListView, PreprocessedColumn
 from whylogs.core.proto import MetricMessage
 from whylogs.core.resolvers import Resolver, StandardResolver
 from whylogs.core.schema import ColumnSchema
+from whylogs.core.stubs import np, sp
 from whylogs.experimental.extras.matrix_component import MatrixComponent
 
 _SMALL = np.finfo(float).eps

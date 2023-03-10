@@ -61,6 +61,10 @@ class ColumnProfile(object):
         ex_col = PreprocessedColumn.apply(series)
         self._process_extracted_column(ex_col)
 
+    def _track_homogeneous_column(self, series: Any) -> None:
+        ex_col = PreprocessedColumn._process_homogeneous_column(series)
+        self._process_extracted_column(ex_col)
+
     def _track_datum(self, value: Any) -> None:
         ex_col = PreprocessedColumn._process_scalar_value(value)
         self._process_extracted_column(ex_col)

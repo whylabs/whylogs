@@ -59,6 +59,7 @@ class Logger(ABC):
         *,
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Dict[str, Any]] = None,
+        fast: Optional[pd.DataFrame] = None,
         schema: Optional[DatasetSchema] = None,
     ) -> List[DatasetProfile]:
         pass
@@ -69,6 +70,7 @@ class Logger(ABC):
         *,
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Dict[str, Any]] = None,
+        fast: Optional[pd.DataFrame] = None,
         schema: Optional[DatasetSchema] = None,
         timestamp_ms: Optional[int] = None,  # Not the dataset timestamp, but the timestamp of the data
     ) -> ResultSet:
@@ -80,7 +82,7 @@ class Logger(ABC):
         """
         if self._is_closed:
             raise LoggingError("Cannot log to a closed logger")
-        if obj is None and pandas is None and row is None:
+        if obj is None and pandas is None and row is None and fast is None:
             # TODO: check for shell environment and emit more verbose error string to let user know how to correct.
             raise LoggingError("log() was called without passing in any input!")
 
@@ -90,10 +92,10 @@ class Logger(ABC):
         if active_schema and active_schema.segments:
             return segment_processing(active_schema, obj, pandas, row, self._segment_cache)
 
-        profiles = self._get_matching_profiles(obj, pandas=pandas, row=row, schema=active_schema)
+        profiles = self._get_matching_profiles(obj, pandas=pandas, row=row, fast=fast, schema=active_schema)
 
         for prof in profiles:
-            prof.track(obj, pandas=pandas, row=row)
+            prof.track(obj, pandas=pandas, row=row, fast=fast)
 
         return ProfileResultSet(profiles[0])
 
