@@ -16,11 +16,6 @@ except ImportError:  # noqa
     if _pd is not None:
         logger.error("Pandas is installed but numpy is not. Your environment is probably broken.")
 
-try:
-    import scipy as _sp
-except ImportError:  # noqa
-    _sp = None  # type: ignore
-
 
 class _StubClass:
     pass
@@ -45,11 +40,6 @@ class PandasStub(object):
     DataFrame: type = _StubClass
 
 
-@dataclass(frozen=True)
-class ScipyStub:
-    sparse: type = _StubClass
-
-
 def is_not_stub(stubbed_class: Any) -> bool:
     if stubbed_class and stubbed_class is not _StubClass and not isinstance(stubbed_class, (PandasStub, NumpyStub)):
         return True
@@ -62,9 +52,5 @@ if _np is None:
 if _pd is None:
     _pd = PandasStub()
 
-if _sp is None:
-    _sp = ScipyStub()
-
 np = _np
 pd = _pd
-sp = _sp

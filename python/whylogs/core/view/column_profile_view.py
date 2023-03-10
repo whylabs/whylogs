@@ -7,12 +7,6 @@ from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import _METRIC_DESERIALIZER_REGISTRY, Metric
 from whylogs.core.proto import ColumnMessage, MetricComponentMessage, MetricMessage
 
-# importing to trigger registration of non-standard metrics
-import whylogs.extras.image_metric
-import whylogs.experimental.extras.nlp_metric
-import whylogs.experimental.embedding_metric
-
-
 logger = logging.getLogger(__name__)
 
 METRIC = TypeVar("METRIC", bound=Metric)
