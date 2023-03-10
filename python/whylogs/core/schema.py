@@ -118,7 +118,13 @@ class DatasetSchema:
         copy.segments = self.segments.copy()
         return copy
 
-    def resolve(self, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None, fast: Optional[pd.DataFrame] = None) -> bool:
+    def resolve(
+        self,
+        *,
+        pandas: Optional[pd.DataFrame] = None,
+        row: Optional[Mapping[str, Any]] = None,
+        fast: Optional[pd.DataFrame] = None,
+    ) -> bool:
         if fast is not None:
             return self._resolve_pdf(fast)
 
