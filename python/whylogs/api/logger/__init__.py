@@ -31,10 +31,9 @@ def log(
     *,
     pandas: Optional[pd.DataFrame] = None,
     row: Optional[Dict[str, Any]] = None,
-    fast: Optional[pd.DataFrame] = None,
     schema: Optional[DatasetSchema] = None,
 ) -> ResultSet:
-    return TransientLogger(schema=schema).log(obj, pandas=pandas, row=row, fast=fast)
+    return TransientLogger(schema=schema).log(obj, pandas=pandas, row=row)
 
 
 def _log_with_metrics(

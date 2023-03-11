@@ -106,12 +106,11 @@ class DatasetProfile(Writable):
         *,
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Mapping[str, Any]] = None,
-        fast: Optional[pd.DataFrame] = None,
     ) -> None:
         try:
             self._is_active = True
             self._track_count += 1
-            self._do_track(obj, pandas=pandas, row=row, fast=fast)
+            self._do_track(obj, pandas=pandas, row=row)
         finally:
             self._is_active = False
 
@@ -121,31 +120,15 @@ class DatasetProfile(Writable):
         *,
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Mapping[str, Any]] = None,
-        fast: Optional[pd.DataFrame] = None,
     ) -> None:
         pandas, row = _pandas_or_dict(obj, pandas, row)
+
         # TODO: do this less frequently when operating at row level
-        dirty = self._schema.resolve(pandas=pandas, row=row, fast=fast)
+        dirty = self._schema.resolve(pandas=pandas, row=row)
         if dirty:
             schema_col_keys = self._schema.get_col_names()
             new_cols = (col for col in schema_col_keys if col not in self._columns)
             self._initialize_new_columns(tuple(new_cols))
-
-        if fast is not None:
-            if any([x is not None for x in [obj, pandas, row]]):
-                raise ValueError("Cannot pass both fast and other argument")
-            if fast.empty:
-                logger.warning("whylogs was passed an empty pandas DataFrame so nothing to profile in this call.")
-                return
-            for k in fast.keys():
-                column_values = fast.get(k)
-                if column_values is None:
-                    logger.error(
-                        f"whylogs was passed a pandas DataFrame with key [{k}] but DataFrame.get({k}) returned nothing!"
-                    )
-                else:
-                    self._columns[k]._track_homogeneous_column(column_values)
-            return
 
         if row is not None:
             for k in row.keys():
@@ -165,6 +148,9 @@ class DatasetProfile(Writable):
                     logger.error(
                         f"whylogs was passed a pandas DataFrame with key [{k}] but DataFrame.get({k}) returned nothing!"
                     )
+                    return
+                if k in self._schema.homogeneous_column_names:
+                    self._columns[k]._track_homogeneous_column(column_values)
                 else:
                     self._columns[k].track_column(column_values)
             return
