@@ -20,6 +20,8 @@ logger = getLogger(__name__)
 emit_usage("pyspark")
 
 try:  # type: ignore
+    from pyspark.ml.functions import vector_to_array
+    from pyspark.ml.linalg import VectorUDT
     from pyspark.sql import DataFrame as SparkDataFrame  # types: ignore
 except ImportError:  # noqa
     logger.error("No pyspark available")
@@ -82,6 +84,12 @@ def collect_segmented_column_profile_views(
 ) -> Dict[Segment, Dict[str, ColumnProfileView]]:
     if SparkDataFrame is None:
         logger.warning("Unable to load pyspark; install pyspark to get whylogs profiling support in spark environment.")
+    vector_columns = [
+        col_name for col_name in input_df.schema.names if isinstance(input_df.schema[col_name].dataType, VectorUDT)
+    ]
+    input_df_arrays = input_df
+    for col_name in vector_columns:
+        input_df_arrays = input_df_arrays.withColumn(col_name, vector_to_array(input_df_arrays[col_name]))
 
     cp = f"{SEGMENT_KEY_FIELD} string, {COL_NAME_FIELD} string, {COL_PROFILE_FIELD} binary"
     whylogs_pandas_map_profiler_with_schema = partial(whylogs_pandas_segmented_profiler, schema=schema)
