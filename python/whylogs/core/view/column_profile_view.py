@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional, TypeVar
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.errors import DeserializationError, UnsupportedError
 from whylogs.core.metrics import StandardMetric
+from whylogs.core.metrics.conformal_metric import ConformalMetric
 from whylogs.core.metrics.metrics import _METRIC_DESERIALIZER_REGISTRY, Metric
 from whylogs.core.proto import ColumnMessage, MetricComponentMessage, MetricMessage
 
@@ -129,7 +130,12 @@ class ColumnProfileView(object):
                 if m_name in _METRIC_DESERIALIZER_REGISTRY:
                     metric_class = _METRIC_DESERIALIZER_REGISTRY[m_name]
                 else:
-                    raise UnsupportedError(f"Unsupported metric: {m_name}")
+                    try:
+                        m_msg = MetricMessage(metric_components=metric_components)
+                        result_metrics[m_name] = ConformalMetric.deserialize(m_name, m_msg)
+                        continue
+                    except:  # noqa
+                        raise UnsupportedError(f"Unsupported metric: {m_name}")
             else:
                 metric_class = m_enum.value
 
