@@ -136,7 +136,7 @@ Classes
 
       
 
-   .. py:method:: residual(vector: numpy.ndarray) -> float
+   .. py:method:: residual(vector: whylogs.core.stubs.np.ndarray) -> float
 
       Retruns the residual of the vector given the current approximate SVD:
       residual = || U S S^{+} U' x - x || / || x ||  where x is the vector
@@ -216,7 +216,7 @@ Classes
       not updatable.
 
 
-   .. py:method:: residual(vector: numpy.ndarray) -> float
+   .. py:method:: residual(vector: whylogs.core.stubs.np.ndarray) -> float
 
       Retruns the residual of the vector given the current approximate SVD:
       residual = || U S S^{+} U' x - x || / || x ||  where x is the vector
@@ -448,7 +448,7 @@ Classes
 
 .. py:class:: NlpLogger(svd_class: Optional[type] = None, svd_config: Optional[SvdMetricConfig] = None, svd_state: Optional[whylogs.core.proto.MetricMessage] = None, schema: Optional[whylogs.core.DatasetSchema] = None, column_prefix: str = 'nlp')
 
-   .. py:method:: log(terms: Optional[Union[Dict[str, List[str]], List[str]]] = None, vector: Optional[Union[Dict[str, numpy.ndarray], numpy.ndarray]] = None) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: log(terms: Optional[Union[Dict[str, List[str]], List[str]]] = None, vector: Optional[Union[Dict[str, whylogs.core.stubs.np.ndarray], whylogs.core.stubs.np.ndarray]] = None) -> whylogs.api.logger.result_set.ResultSet
 
 
    .. py:method:: get_svd_state() -> whylogs.core.proto.MetricMessage

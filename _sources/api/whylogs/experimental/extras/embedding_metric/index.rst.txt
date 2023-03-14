@@ -69,7 +69,7 @@ Attributes
    be used, where n is the number of rows in the references matrix.
 
    .. py:attribute:: references
-      :type: numpy.ndarray
+      :type: whylogs.core.stubs.np.ndarray
 
       
 
