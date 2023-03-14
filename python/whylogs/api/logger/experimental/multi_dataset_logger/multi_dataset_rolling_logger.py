@@ -272,8 +272,8 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
         for dataset_timestamp, container in self._cache.items():
             self._logger.debug(f"Generating result set for dataset timestamp {dataset_timestamp}")
 
-            for pending in self._writers.values():
-                for writable in container.to_result_set().get_writables() or []:
+            for writable in container.to_result_set().get_writables() or []:
+                for pending in self._writers.values():
                     pending.append(PendingWritable(attempts=0, writable=writable))
 
         self._cache = {}
