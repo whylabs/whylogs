@@ -149,7 +149,16 @@ class DatasetProfile(Writable):
                         f"whylogs was passed a pandas DataFrame with key [{k}] but DataFrame.get({k}) returned nothing!"
                     )
                     return
-                if k in self._schema.homogeneous_column_names:
+
+                dtype = self._schema.types.get(k)
+                homogeneous = (
+                    dtype is not None and
+                    isinstance(dtype, tuple) and
+                    len(dtype) == 2 and
+                    isinstance(dtype[1], bool) and
+                    dtype[1]
+                )
+                if homogeneous:
                     self._columns[k]._track_homogeneous_column(column_values)
                 else:
                     self._columns[k].track_column(column_values)
