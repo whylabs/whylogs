@@ -2,16 +2,10 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 from whylogs.core.configs import SummaryConfig
-from whylogs.core.metrics.metric_components import IntegralComponent, MetricComponent
-from whylogs.core.metrics.metrics import (
-    Metric,
-    MetricConfig,
-    OperationResult,
-    register_metric,
-)
+from whylogs.core.metrics.metric_components import MetricComponent
+from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
-from whylogs.core.relations import Relation as Rel
 
 
 @dataclass(frozen=True)
@@ -20,7 +14,7 @@ class ConformalMetric(Metric):
 
     @classmethod
     def get_namespace(cls, config: Optional[MetricConfig] = None) -> str:
-        raise NotImplmentedError
+        raise NotImplementedError
 
     @property
     def namespace(self) -> str:
@@ -60,7 +54,7 @@ class ConformalMetric(Metric):
 
     @classmethod
     def deserialize(cls, namespace: str, msg: MetricMessage) -> "ConformalMetric":
-        chameleon = ConformalMetric(namespace)
+        chameleon = cls(namespace)
         for k, m in msg.metric_components.items():
             chameleon.__dict__[k] = MetricComponent.from_protobuf(m)
 

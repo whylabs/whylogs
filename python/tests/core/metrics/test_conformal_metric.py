@@ -1,12 +1,15 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
-import pytest
-from typing import Optional
 
 import whylogs as why
 from whylogs.core.metrics import IntsMetric, MetricConfig
 from whylogs.core.metrics.conformal_metric import ConformalMetric
-from whylogs.core.metrics.metric_components import MaxIntegralComponent, MinIntegralComponent
+from whylogs.core.metrics.metric_components import (
+    MaxIntegralComponent,
+    MinIntegralComponent,
+)
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
@@ -51,20 +54,21 @@ def test_conformal_metric_merge() -> None:
 
     merged_chameleon = chameleon1.merge(chameleon2)
     assert merged_ints.to_summary_dict() == merged_chameleon.to_summary_dict()
-    
+
 
 class UnknownMetric(IntsMetric):
     """
     The UnknownMetric is not registered, so it must be deserialized
     as a ConformalMetric.
     """
+
     @property
     def namespace(self) -> str:
         return "unknown"
 
     @classmethod
-    def zero(cls, config: Optional[MetricConfig]=None) -> "UnknownMetirc":
-        return UnknownMetric(MaxIntegralComponent(0), MinIntegralComponent(0))
+    def zero(cls, config: Optional[MetricConfig] = None) -> "UnknownMetric":
+        return cls(MaxIntegralComponent(0), MinIntegralComponent(0))
 
 
 def test_unknown_metric_deserialization() -> None:
