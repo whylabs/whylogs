@@ -78,7 +78,6 @@ def test_unknown_metric_deserialization() -> None:
     serialized = view.serialize()
     rehydrated = DatasetProfileView.deserialize(serialized)
     column = rehydrated.get_column("col1")
-    print(column.get_metric_names())
     metric = column.get_metric("unknown")
     assert isinstance(metric, ConformalMetric)
     assert metric.max.value == max(data)
