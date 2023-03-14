@@ -46,7 +46,7 @@ def test_conformal_metric_merge() -> None:
 
     msg = ints2.to_protobuf()
     chameleon2 = ConformalMetric.deserialize(ints2.namespace, msg)
-    merged_chameleon = chameleon2.merge(ints1)
+    merged_chameleon = ints1.merge(chameleon2)
     assert merged_ints.to_summary_dict() == merged_chameleon.to_summary_dict()
 
     merged_chameleon = chameleon1.merge(chameleon2)
