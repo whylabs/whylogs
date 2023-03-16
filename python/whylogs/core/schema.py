@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Mapping, Optional, TypeVar
 
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
+from whylogs.core.preprocessing import ColumnProperties
 from whylogs.core.resolvers import (
     DeclarativeResolver,
     Resolver,
@@ -99,7 +100,7 @@ class DatasetSchema:
             )
 
         for col, data_type in self.types.items():
-            if isinstance(data_type, tuple) and len(data_type) == 2 and isinstance(data_type[1], bool):
+            if isinstance(data_type, tuple) and len(data_type) == 2 and isinstance(data_type[1], ColumnProperties):
                 dtype = data_type[0]
             else:
                 dtype = data_type

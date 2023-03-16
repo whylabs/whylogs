@@ -9,6 +9,7 @@ from whylogs.core.metrics import Metric
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
 )
+from whylogs.core.preprocessing import ColumnProperties
 from whylogs.core.utils.utils import deprecated_alias
 
 from .column_profile import ColumnProfile
@@ -152,11 +153,11 @@ class DatasetProfile(Writable):
 
                 dtype = self._schema.types.get(k)
                 homogeneous = (
-                    dtype is not None and
-                    isinstance(dtype, tuple) and
-                    len(dtype) == 2 and
-                    isinstance(dtype[1], bool) and
-                    dtype[1]
+                    dtype is not None
+                    and isinstance(dtype, tuple)
+                    and len(dtype) == 2
+                    and isinstance(dtype[1], ColumnProperties)
+                    and dtype[1] == ColumnProperties.homogeneous
                 )
                 if homogeneous:
                     self._columns[k]._track_homogeneous_column(column_values)
