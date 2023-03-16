@@ -5,10 +5,10 @@ import pandas as pd
 import pytest
 
 import whylogs as why
-from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.relations import Not, Predicate
 from whylogs.core.schema import DatasetSchema
-from whylogs.core.validators import ConditionValidator
+from whylogs.core.validators import ConditionValidator, ConditionValidatorConfig
+import numpy as np
 
 X = Predicate()
 
@@ -26,9 +26,11 @@ number_conditions = {
 }
 
 
-def do_something_important(validator_name, condition_name: str, value: Any):
+def do_something_important(validator_name, condition_name: str, value: Any, row_id: Any = None):
     TEST_LOGGER.info(
-        "Validator: {}\n    Condition name {} failed for value {}".format(validator_name, condition_name, value)
+        "Validator: {}\n    Condition name {} failed for value {} and row_id {}".format(
+            validator_name, condition_name, value, row_id
+        )
     )
     return
 
@@ -90,12 +92,55 @@ def numbers():
 
 
 def test_condition_validator(credit_card_validator, transcriptions) -> None:
-    p_col = PreprocessedColumn.apply(transcriptions)
+    for data in [transcriptions, np.array(transcriptions), pd.Series(transcriptions)]:
+        credit_card_validator = ConditionValidator(
+            name="transcription_doesnt_contain_credit_card",
+            conditions=regex_conditions,
+            actions=[do_something_important],
+        )
+        credit_card_validator.columnar_validate(data)
+        summary = credit_card_validator.to_summary_dict()
+        assert summary["total_evaluations"] == 4
+        assert summary["noCreditCard"] == 1
 
-    credit_card_validator.columnar_validate(p_col)
-    summary = credit_card_validator.to_summary_dict()
-    assert summary["total_evaluations"] == 4
-    assert summary["noCreditCard"] == 1
+
+@pytest.mark.parametrize("identity,sampling", [(True, True), (False, True), (True, False), (False, False)])
+def test_condition_validator_with_row_ids(identity, sampling) -> None:
+    condition_count_config = ConditionValidatorConfig(identity_column="ids")
+    data = {"int_col": [f"c{x}" for x in range(100)], "ids": [f"i{x}" for x in range(100)]}
+    df = pd.DataFrame(data=data)
+    X = Predicate()
+    iseven_conditions = {"iseven": X.matches(".*\d*[02468]$")}
+
+    iseven_validator = ConditionValidator(
+        name="int_col",
+        conditions=iseven_conditions,
+        actions=[do_something_important],
+        enable_sampling=sampling,
+    )
+
+    validators = {"int_col": [iseven_validator]}
+    if identity:
+        schema = DatasetSchema(validators=validators, default_configs=condition_count_config)
+    else:
+        schema = DatasetSchema(validators=validators)
+    why.log(df, schema=schema)
+
+    summary = iseven_validator.to_summary_dict()
+    assert summary["total_evaluations"] == 100
+    assert summary["iseven"] == 50
+
+    if not sampling:
+        with pytest.raises(ValueError, match="Sampling is not enabled for this validator"):
+            iseven_validator.sample_failed_conditions()
+    else:
+        samples = iseven_validator.sample_failed_conditions()
+        assert len(samples) == 10
+        assert [x[-1] not in ["0", "2", "4", "6", "8"] for x in samples]
+        if identity:
+            assert samples[0][0] == "i"
+        else:
+            assert samples[0][0] == "c"
 
 
 def test_condition_validator_dataframe(credit_card_validator, transcriptions):
