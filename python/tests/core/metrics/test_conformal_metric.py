@@ -1,15 +1,19 @@
-from typing import Optional
+from dataclasses import dataclass
+from typing import Any, Dict, Optional
 
 import numpy as np
 import pandas as pd
 
 import whylogs as why
-from whylogs.core.metrics import IntsMetric, MetricConfig
+from whylogs.core.configs import SummaryConfig
+from whylogs.core.metrics import IntsMetric, Metric, MetricConfig
 from whylogs.core.metrics.conformal_metric import ConformalMetric
 from whylogs.core.metrics.metric_components import (
+    IntegralComponent,
     MaxIntegralComponent,
     MinIntegralComponent,
 )
+from whylogs.core.metrics.metrics import OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
@@ -54,6 +58,40 @@ def test_conformal_metric_merge() -> None:
 
     merged_chameleon = chameleon1.merge(chameleon2)
     assert merged_ints.to_summary_dict() == merged_chameleon.to_summary_dict()
+
+
+@dataclass
+class XYZMetric(Metric):
+    x: IntegralComponent
+    y: IntegralComponent
+    z: IntegralComponent
+
+    @property
+    def namespace(self) -> str:
+        return "xyz"
+
+    @classmethod
+    def zero(cls, config: Optional[MetricConfig] = None) -> "XYZMetric":
+        return cls(IntegralComponent(0), IntegralComponent(0), IntegralComponent(0))
+
+    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
+        raise NotImplementedError
+
+
+def test_conformal_metric_symmetric_set_difference_merge() -> None:
+    chameleon = ConformalMetric("xyz")
+    for component in ["w", "x", "y"]:
+        chameleon.__dict__[component] = IntegralComponent(1)
+    xyz = XYZMetric(IntegralComponent(1), IntegralComponent(1), IntegralComponent(1))
+    merged = chameleon.merge(xyz)
+    assert merged.namespace == "xyz"
+    assert merged.w.value == 1
+    assert merged.x.value == 2
+    assert merged.y.value == 2
+    assert merged.z.value == 1
 
 
 class UnknownMetric(IntsMetric):

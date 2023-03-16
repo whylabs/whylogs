@@ -20,18 +20,26 @@ class ConformalMetric(Metric):
     def namespace(self) -> str:
         return self._namespace
 
-    def merge(self, other: "ConformalMetric") -> "ConformalMetric":
+    # NOTE: This only works for metrics for which merge is strictly component-wise merging.
+    def merge(self, other: Metric) -> "ConformalMetric":
         if other.namespace != self._namespace:
             raise ValueError(f"Attempted to merge {self._namespace} with incompatible {other.namespace} metric")
 
-        # TODO: handle symmetric set difference
         res = ConformalMetric(self._namespace)
-        for k, v in self.__dict__.items():
-            if isinstance(v, MetricComponent):
-                res.__dict__[k] = v + other.__dict__[k]
+        components = set(self.__dict__.keys())
+        components.update(set(other.__dict__.keys()))
+        print(type(components))
+        for component in components:
+            if component not in other.__dict__:
+                res.__dict__[component] = self.__dict__[component]
+            elif component not in self.__dict__ and isinstance(other.__dict__[component], MetricComponent):
+                res.__dict__[component] = other.__dict__[component]
+            elif isinstance(other.__dict__[component], MetricComponent):
+                res.__dict__[component] = self.__dict__[component] + other.__dict__[component]
 
         return res
 
+    # TODO: move summarization to MetricComponent
     def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
         summary: Dict[str, Any] = {}
         for k, v in self.__dict__.items():
