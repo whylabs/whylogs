@@ -1,32 +1,33 @@
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Union, Optional
+from typing import Any, Callable, Dict, List, Optional, Union
+
+import whylogs_sketching as ds
 
 from whylogs.core.metrics.condition_count_metric import Condition
-from whylogs.core.validators.validator import Validator
 from whylogs.core.metrics.metrics import MetricConfig
 from whylogs.core.stubs import pd
-import whylogs_sketching as ds
+from whylogs.core.validators.validator import Validator
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
 class ConditionValidatorConfig(MetricConfig):
-    validator_sampling_size: int = 10
+    validator_sample_size: int = 10
     identity_column: Optional[str] = None
 
 
 @dataclass
 class ConditionValidator(Validator):
     conditions: Dict[str, Union[Condition, Callable[[Any], bool]]]
-    actions: List[Callable[[str, str, Any], None]]
+    actions: List[Callable[[str, str, Any, Any], None]]
     name: str
     total: int = 0
     failures: Dict[str, int] = field(default_factory=dict)
     enable_sampling: bool = True
-    _samples = []
-    _sampler = None
+    _samples: List[Any] = field(default_factory=list)
+    _sampler: Optional[ds.var_opt_sketch] = None
 
     def __post_init__(self):
         for cond_name in self.conditions.keys():
@@ -61,15 +62,16 @@ class ConditionValidator(Validator):
                 if not valid:
                     self.failures[cond_name] += 1
                     count_failures += 1
-                    if self.enable_sampling and validate_with_row_id:
+                    if self.enable_sampling and validate_with_row_id and isinstance(self._sampler, ds.var_opt_sketch):
                         self._sampler.update(identity_values[index])
-                    elif self.enable_sampling:  # if we don't have an identity column, sample the validated values
+                    # if we don't have an identity column, sample the validated values
+                    elif self.enable_sampling and isinstance(self._sampler, ds.var_opt_sketch):
                         self._sampler.update(x)
                     for action in self.actions:
                         if validate_with_row_id:
                             action(self.name, cond_name, x, identity_values[index])
                         else:
-                            action(self.name, cond_name, x)
+                            action(self.name, cond_name, x)  # type: ignore
 
         self.total = count
 

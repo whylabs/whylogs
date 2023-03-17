@@ -1,6 +1,7 @@
 from logging import getLogger
 from typing import Any
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -8,7 +9,6 @@ import whylogs as why
 from whylogs.core.relations import Not, Predicate
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.validators import ConditionValidator, ConditionValidatorConfig
-import numpy as np
 
 X = Predicate()
 
@@ -106,11 +106,14 @@ def test_condition_validator(credit_card_validator, transcriptions) -> None:
 
 @pytest.mark.parametrize("identity,sampling", [(True, True), (False, True), (True, False), (False, False)])
 def test_condition_validator_with_row_ids(identity, sampling) -> None:
-    condition_count_config = ConditionValidatorConfig(identity_column="ids")
+    if identity:
+        condition_count_config = ConditionValidatorConfig(identity_column="ids", validator_sample_size=7)
+    else:
+        condition_count_config = ConditionValidatorConfig(validator_sample_size=7)
     data = {"int_col": [f"c{x}" for x in range(100)], "ids": [f"i{x}" for x in range(100)]}
     df = pd.DataFrame(data=data)
     X = Predicate()
-    iseven_conditions = {"iseven": X.matches(".*\d*[02468]$")}
+    iseven_conditions = {"iseven": X.matches(r".*\d*[02468]$")}
 
     iseven_validator = ConditionValidator(
         name="int_col",
@@ -120,10 +123,7 @@ def test_condition_validator_with_row_ids(identity, sampling) -> None:
     )
 
     validators = {"int_col": [iseven_validator]}
-    if identity:
-        schema = DatasetSchema(validators=validators, default_configs=condition_count_config)
-    else:
-        schema = DatasetSchema(validators=validators)
+    schema = DatasetSchema(validators=validators, default_configs=condition_count_config)
     why.log(df, schema=schema)
 
     summary = iseven_validator.to_summary_dict()
@@ -135,12 +135,12 @@ def test_condition_validator_with_row_ids(identity, sampling) -> None:
             iseven_validator.sample_failed_conditions()
     else:
         samples = iseven_validator.sample_failed_conditions()
-        assert len(samples) == 10
+        assert len(samples) == 7
         assert [x[-1] not in ["0", "2", "4", "6", "8"] for x in samples]
         if identity:
             assert samples[0][0] == "i"
         else:
-            assert samples[0][0] == "c"
+            assert samples[0][0] == "c"  # if identity is not set, sample the validated column
 
 
 def test_condition_validator_dataframe(credit_card_validator, transcriptions):
