@@ -14,12 +14,31 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class ConditionValidatorConfig(MetricConfig):
+    """
+    Configuration for a condition validator.
+
+    Args:
+        validator_sample_size (int): The number of failed values to sample. Defaults to 10.
+        identity_column (Optional[str]): The name of the column to use as the identity column. Defaults to None.
+    """
+
     validator_sample_size: int = 10
     identity_column: Optional[str] = None
 
 
 @dataclass
 class ConditionValidator(Validator):
+    """
+    A validator that checks if a column satisfies a condition.
+
+    Args:
+        name (str): The name of the column to validate
+        conditions (Dict[str, Union[Condition, Callable[[Any], bool]]]): A dictionary of conditions to check.
+        actions (List[Callable[[str, str, Any, Any], None]]): A list of actions to take when a condition fails.
+        enable_sampling (bool): Whether to enable sampling of failed values. Defaults to True.
+
+    """
+
     conditions: Dict[str, Union[Condition, Callable[[Any], bool]]]
     actions: List[Callable[[str, str, Any, Any], None]]
     name: str
@@ -76,6 +95,12 @@ class ConditionValidator(Validator):
         self.total = count
 
     def sample_failed_conditions(self) -> List[Any]:
+        """
+        Returns a list of samples of failed values.
+        The number of samples is determined by the validator's sampling size, defined through the ConditionValidatorConfig.
+        If `identity_column` is set, the samples will be the identity values of the failed values. Otherwise, the samples will contain
+        the failed values themselves.
+        """
         if self._sampler is None:
             raise ValueError("Sampling is not enabled for this validator")
         return [sample[0] for sample in self._sampler.get_samples()]
