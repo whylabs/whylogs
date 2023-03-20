@@ -8,7 +8,9 @@ import pytest
 import whylogs as why
 from whylogs.core.relations import Not, Predicate
 from whylogs.core.schema import DatasetSchema
-from whylogs.core.validators import ConditionValidator, ConditionValidatorConfig
+from whylogs.core.validators import ConditionValidator
+from whylogs.core.metrics import MetricConfig
+
 
 X = Predicate()
 
@@ -107,9 +109,9 @@ def test_condition_validator(credit_card_validator, transcriptions) -> None:
 @pytest.mark.parametrize("identity,sampling", [(True, True), (False, True), (True, False), (False, False)])
 def test_condition_validator_with_row_ids(identity, sampling) -> None:
     if identity:
-        condition_count_config = ConditionValidatorConfig(identity_column="ids", validator_sample_size=7)
+        condition_count_config = MetricConfig(identity_column="ids", validator_sample_size=7)
     else:
-        condition_count_config = ConditionValidatorConfig(validator_sample_size=7)
+        condition_count_config = MetricConfig(validator_sample_size=7)
     data = {"int_col": [f"c{x}" for x in range(100)], "ids": [f"i{x}" for x in range(100)]}
     df = pd.DataFrame(data=data)
     X = Predicate()

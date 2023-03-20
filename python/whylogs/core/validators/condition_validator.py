@@ -12,20 +12,6 @@ from whylogs.core.validators.validator import Validator
 logger = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True)
-class ConditionValidatorConfig(MetricConfig):
-    """
-    Configuration for a condition validator.
-
-    Args:
-        validator_sample_size (int): The number of failed values to sample. Defaults to 10.
-        identity_column (Optional[str]): The name of the column to use as the identity column. Defaults to None.
-    """
-
-    validator_sample_size: int = 10
-    identity_column: Optional[str] = None
-
-
 @dataclass
 class ConditionValidator(Validator):
     """
@@ -97,7 +83,7 @@ class ConditionValidator(Validator):
     def sample_failed_conditions(self) -> List[Any]:
         """
         Returns a list of samples of failed values.
-        The number of samples is determined by the validator's sampling size, defined through the ConditionValidatorConfig.
+        The number of samples is determined by the validator's sampling size, defined through the MetricConfig.
         If `identity_column` is set, the samples will be the identity values of the failed values. Otherwise, the samples will contain
         the failed values themselves.
         """
