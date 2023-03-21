@@ -73,7 +73,7 @@ df = pd.read_csv("path/to/file.csv")
 results = why.log(df)
 ```
 
-And voilà, you now have a whylogs profile. To learn more about about a whylogs profile is and what you can do with it, read on.
+And voilà, you now have a whylogs profile. To learn more about what a whylogs profile is and what you can do with it, read on.
 
 ## Table of Contents
 
@@ -260,7 +260,7 @@ Below are benchmarks to demonstrate how efficient whylogs is at processing tabul
 
 ## Usage Statistics<a name="whylogs-profiles" />
 
-Starting with whylogs v1.0.0, whylogs by default collects anonymous information about a user’s environment. These usage statistics do not include any information about the user or the data that they are profiling, only the environment that the user in which the user is running whylogs.
+Starting with whylogs v1.0.0, whylogs by default collects anonymous information about a user’s environment. These usage statistics do not include any information about the users or the data they are profiling, only the environment in which the user is running whylogs.
 
 To read more about what usage statistics whylogs collects, check out the relevant [documentation](https://docs.whylabs.ai/docs/usage-statistics/).
 
