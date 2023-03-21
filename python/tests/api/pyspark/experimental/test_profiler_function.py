@@ -2,6 +2,7 @@ from decimal import Decimal
 from logging import getLogger
 from typing import Dict
 
+import numpy as np
 import pytest
 
 import whylogs as why
@@ -15,10 +16,17 @@ from whylogs.api.pyspark.experimental import (
 )
 from whylogs.core import ColumnProfileView, DatasetProfile, DatasetSchema, Resolver
 from whylogs.core.metrics import StandardMetric
+from whylogs.core.resolvers import STANDARD_RESOLVER, MetricSpec, ResolverSpec
+from whylogs.core.schema import DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentFilter, segment_on_column
 from whylogs.core.stubs import pd as pd
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
+from whylogs.experimental.extras.embedding_metric import (
+    DistanceFunction,
+    EmbeddingConfig,
+    EmbeddingMetric,
+)
 
 TEST_LOGGER = getLogger(__name__)
 
@@ -81,6 +89,24 @@ class TestPySpark(object):
         return input_df
 
     @pytest.fixture()
+    def embeddings_df(self, spark_session):
+        from pyspark.ml.feature import VectorAssembler
+
+        num_columns = 10
+        num_rows = 1000
+        input_columns = [str(i) for i in range(num_columns)]
+        vector_column_name = "v"
+
+        pdf = pd.DataFrame(np.random.random(size=(num_rows, num_columns)), columns=input_columns)
+
+        vectorize = VectorAssembler(inputCols=input_columns, outputCol=vector_column_name)
+
+        initial_df = spark_session.createDataFrame(data=pdf)
+
+        embeddings_df = vectorize.transform(initial_df)
+        return embeddings_df.select(vector_column_name)
+
+    @pytest.fixture()
     def segment_df(self, segment_columns, spark_session):
         segment_df = spark_session.createDataFrame(
             data=[
@@ -140,6 +166,71 @@ class TestPySpark(object):
         assert profile_view.get_column("1").get_metric_names() == []
         assert profile_view.get_column("2").get_metric_names() == []
         assert profile_view.get_column("3").get_metric_names() == []
+
+    def test_map_vectors(self, embeddings_df):
+        from pyspark.ml.functions import vector_to_array
+
+        arrays_df = embeddings_df.select(vector_to_array("v").alias("arrs"))
+        assert arrays_df is not None
+        TEST_LOGGER.info(arrays_df.printSchema())
+        TEST_LOGGER.info(arrays_df.show())
+        assert arrays_df.count() > 0
+        profile_view = collect_dataset_profile_view(input_df=arrays_df)
+        assert profile_view is not None
+
+    def test_pandas_udf_can_transform_and_profile_vectors(self, embeddings_df):
+        from pyspark.ml.functions import vector_to_array
+        from pyspark.ml.linalg import VectorUDT
+
+        col_name = "v"
+        number_of_tensors = embeddings_df.count()
+
+        # test pyspark whylogs profiling
+        has_vectors = isinstance(embeddings_df.schema[col_name].dataType, VectorUDT)
+        assert has_vectors
+        embeddings_df_arrs = embeddings_df.withColumn(col_name, vector_to_array(col_name))
+
+        array_df = embeddings_df_arrs.select(col_name)
+
+        profile_view = collect_dataset_profile_view(array_df)
+        assert profile_view is not None
+        TEST_LOGGER.info(profile_view.to_pandas())
+        for column_name in profile_view.get_columns():
+            TEST_LOGGER.info(f"column {column_name} -> {profile_view.get_column(column_name).to_summary_dict()}")
+
+        embeddings_column = profile_view.get_column(col_name)
+        tensors_profiled = embeddings_column.get_metric("types").tensor.value
+        assert number_of_tensors == tensors_profiled
+
+    def test_profile_vectors(self, embeddings_df):
+        col_name = "v"
+        number_of_tensors = embeddings_df.count()
+        profile_view = collect_dataset_profile_view(embeddings_df)
+        assert profile_view is not None
+        embeddings_column = profile_view.get_column(col_name)
+        tensors_profiled = embeddings_column.get_metric("types").tensor.value
+        assert number_of_tensors == tensors_profiled
+
+    def test_profile_vectors_with_embeddings_metric(self, embeddings_df):
+        col_name = "v"
+        number_of_tensors = embeddings_df.count()
+        config = EmbeddingConfig(
+            references=np.array([[0.1, -0.1, 0.1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 1, 1, 1]]),
+            labels=["B", "A"],
+            distance_fn=DistanceFunction.euclidean,
+        )
+        embeddings_resolver = ResolverSpec(column_name=col_name, metrics=[MetricSpec(EmbeddingMetric, config)])
+        schema = DeclarativeSchema(STANDARD_RESOLVER)
+        schema.add_resolver(embeddings_resolver)
+
+        profile_view = collect_dataset_profile_view(embeddings_df, schema=schema)
+        assert profile_view is not None
+        TEST_LOGGER.info(profile_view.to_pandas())
+        for column_name in profile_view.get_columns():
+            TEST_LOGGER.info(f"column {column_name} -> {profile_view.get_column(column_name).to_summary_dict()}")
+        embeddings_column = profile_view.get_column(col_name)
+        tensors_profiled = embeddings_column.get_metric("types").tensor.value
+        assert number_of_tensors == tensors_profiled
 
     def test_profile_segments_same_in_pyspark_and_local_python_log(self, segment_df):
         segment_column = "B"
