@@ -58,6 +58,7 @@ class MetricConfig:
     lower_case: bool = True  # Convert Unicode characters to lower-case before counting Unicode ranges
     normalize: bool = True  # Unicode normalize strings before counting Unicode ranges
     max_frequent_item_size: int = 128
+    identity_column: Optional[str] = None
 
 
 _METRIC_DESERIALIZER_REGISTRY: Dict[str, Type[METRIC]] = {}  # type: ignore
