@@ -128,6 +128,11 @@ Attributes
 
       
 
+   .. py:attribute:: identity_column
+      :type: Optional[str]
+
+      
+
 
 .. py:function:: custom_metric(metric: Type[METRIC]) -> Type[METRIC]
 

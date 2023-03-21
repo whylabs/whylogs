@@ -635,6 +635,11 @@ Classes
 
       
 
+   .. py:attribute:: identity_column
+      :type: Optional[str]
+
+      
+
 
 .. py:class:: UnicodeRangeMetric(submetrics: Dict[str, Dict[str, whylogs.core.metrics.Metric]])
 

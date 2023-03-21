@@ -31,8 +31,16 @@ Classes
 
    Bases: :py:obj:`whylogs.core.validators.validator.Validator`
 
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
+   A validator that checks if a column satisfies a condition.
+
+   :param name: The name of the column to validate
+   :type name: str
+   :param conditions: A dictionary of conditions to check.
+   :type conditions: Dict[str, Union[Condition, Callable[[Any], bool]]]
+   :param actions: A list of actions to take when a condition fails.
+   :type actions: List[Callable[[str, str, Any, Any], None]]
+   :param enable_sampling: Whether to enable sampling of failed values. Defaults to True.
+   :type enable_sampling: bool
 
    .. py:attribute:: conditions
       :type: Dict[str, Union[whylogs.core.metrics.condition_count_metric.Condition, Callable[[Any], bool]]]
@@ -40,7 +48,7 @@ Classes
       
 
    .. py:attribute:: actions
-      :type: List[Callable[[str, str, Any], None]]
+      :type: List[Callable[[str, str, Any, Any], None]]
 
       
 
@@ -60,7 +68,27 @@ Classes
 
       
 
-   .. py:method:: columnar_validate(data: whylogs.core.preprocessing.PreprocessedColumn) -> None
+   .. py:attribute:: enable_sampling
+      :type: bool
+      :value: True
+
+      
+
+   .. py:attribute:: sample_size
+      :type: int
+      :value: 10
+
+      
+
+   .. py:method:: columnar_validate(data: Any, identity_values: Any = None) -> None
+
+
+   .. py:method:: get_samples() -> List[Any]
+
+      Returns a list of samples of failed values.
+      The number of samples is determined by the validator's sampling size, defined through the MetricConfig.
+      If `identity_column` is set, the samples will be the identity values of the failed values. Otherwise, the samples will contain
+      the failed values themselves.
 
 
    .. py:method:: to_summary_dict() -> Dict[str, Any]

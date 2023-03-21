@@ -194,6 +194,11 @@ Attributes
 
       
 
+   .. py:attribute:: identity_column
+      :type: Optional[str]
+
+      
+
 
 .. py:class:: ImageMetric(submetrics: Dict[str, Dict[str, whylogs.core.metrics.metrics.Metric]], allowed_exif_tags: Optional[Set[str]] = None, forbidden_exif_tags: Optional[Set[str]] = None, submetric_schema: Optional[SubmetricSchema] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, fi_disabled: bool = False)
 

@@ -154,6 +154,11 @@ Attributes
 
       
 
+   .. py:attribute:: identity_column
+      :type: Optional[str]
+
+      
+
 
 .. py:class:: EmbeddingMetric(submetrics: Dict[str, Dict[str, whylogs.core.metrics.Metric]])
 

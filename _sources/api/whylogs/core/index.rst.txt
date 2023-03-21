@@ -102,7 +102,7 @@ Attributes
       Force emptying the cache and update the internal metrics.
 
 
-   .. py:method:: track_column(series: Any) -> None
+   .. py:method:: track_column(series: Any, identity_values: Any = None) -> None
 
 
    .. py:method:: to_protobuf() -> whylogs.core.proto.ColumnMessage
@@ -277,6 +277,11 @@ Attributes
    .. py:attribute:: max_frequent_item_size
       :type: int
       :value: 128
+
+      
+
+   .. py:attribute:: identity_column
+      :type: Optional[str]
 
       
 

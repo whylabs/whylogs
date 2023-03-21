@@ -158,6 +158,11 @@ Attributes
 
       
 
+   .. py:attribute:: identity_column
+      :type: Optional[str]
+
+      
+
 
 .. py:class:: ConditionCountMetric
 
