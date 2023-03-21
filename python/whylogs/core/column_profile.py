@@ -56,12 +56,8 @@ class ColumnProfile(object):
             self._success_count += res.successes
 
     def track_column(self, series: Any, identity_values: Any = None) -> None:
-        sampling_size = getattr(self._schema.cfg, "validator_sample_size", None)
         for validator in self._column_validators:
-            if sampling_size is None:
-                validator.columnar_validate(series, identity_values=identity_values)
-            else:
-                validator.columnar_validate(series, sampling_size=sampling_size, identity_values=identity_values)
+            validator.columnar_validate(series, identity_values=identity_values)
         ex_col = PreprocessedColumn.apply(series)
         self._process_extracted_column(ex_col)
 

@@ -5,7 +5,6 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import whylogs_sketching as ds
 
 from whylogs.core.metrics.condition_count_metric import Condition
-from whylogs.core.metrics.metrics import MetricConfig
 from whylogs.core.stubs import pd
 from whylogs.core.validators.validator import Validator
 
@@ -33,20 +32,23 @@ class ConditionValidator(Validator):
     enable_sampling: bool = True
     _samples: List[Any] = field(default_factory=list)
     _sampler: Optional[ds.var_opt_sketch] = None
+    sample_size: int = 10
 
     def __post_init__(self):
         for cond_name in self.conditions.keys():
             if cond_name not in self.failures:
                 self.failures[cond_name] = 0
+        if not isinstance(self.sample_size, int):
+            raise ValueError("sample_size must be an integer")
+        if self.enable_sampling:
+            self._sampler = ds.var_opt_sketch(k=self.sample_size)
 
-    def columnar_validate(self, data: Any, sampling_size: int = 10, identity_values: Any = None) -> None:
+    def columnar_validate(self, data: Any, identity_values: Any = None) -> None:
         count = 0
         count_failures = 0
         validate_with_row_id = False
-        if not isinstance(sampling_size, int):
-            raise ValueError("sampling_size must be an integer")
-        if self.enable_sampling:
-            self._sampler = ds.var_opt_sketch(k=sampling_size)
+        if self.enable_sampling and self._sampler is None:
+            self._sampler = ds.var_opt_sketch(k=self.sample_size)
         if pd.Series is not None and isinstance(identity_values, pd.Series):
             if len(identity_values) != len(data):
                 logger.warning("Identity values and data are not the same length. Skipping identity validation")
@@ -80,7 +82,7 @@ class ConditionValidator(Validator):
 
         self.total = count
 
-    def sample_failed_conditions(self) -> List[Any]:
+    def get_samples(self) -> List[Any]:
         """
         Returns a list of samples of failed values.
         The number of samples is determined by the validator's sampling size, defined through the MetricConfig.
