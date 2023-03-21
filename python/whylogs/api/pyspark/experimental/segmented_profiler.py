@@ -93,7 +93,7 @@ def collect_segmented_column_profile_views(
 
     cp = f"{SEGMENT_KEY_FIELD} string, {COL_NAME_FIELD} string, {COL_PROFILE_FIELD} binary"
     whylogs_pandas_map_profiler_with_schema = partial(whylogs_pandas_segmented_profiler, schema=schema)
-    segmented_profile_bytes_df = input_df.mapInPandas(whylogs_pandas_map_profiler_with_schema, schema=cp)  # type: ignore
+    segmented_profile_bytes_df = input_df_arrays.mapInPandas(whylogs_pandas_map_profiler_with_schema, schema=cp)  # type: ignore
     # aggregate by segment key first, then by column
     segment_column_profiles = segmented_profile_bytes_df.groupby(
         SEGMENT_KEY_FIELD, COL_NAME_FIELD
