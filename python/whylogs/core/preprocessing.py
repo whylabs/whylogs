@@ -173,7 +173,7 @@ class PreprocessedColumn:
         bool_count_where_true = non_null_series[bool_mask_where_true].count()
         strings = non_null_series[str_mask]
         tensors = non_null_series[tensor_mask]
-        tensors = pd.Series([x if isinstance(x, np.ndarray) else np.asarray(x) for x in tensors])
+        tensors = pd.Series([x if isinstance(x, np.ndarray) else np.asarray(x) for x in tensors], dtype="object")
         objs = non_null_series[~(float_mask | str_mask | int_mask | bool_mask | tensor_mask)]
 
         # convert numeric types to float if they are considered

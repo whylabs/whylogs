@@ -4,6 +4,7 @@ import pytest
 
 from whylogs.core import ColumnSchema
 from whylogs.core.metrics import ColumnCountsMetric, TypeCountersMetric
+from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.preprocessing import PreprocessedColumn
 
 INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]
@@ -67,3 +68,27 @@ def test_different_types_col_update_on_series(counts, data_type) -> None:
     assert counts.n.value == expected_int_count
     assert operation_result.ok
     assert operation_result.successes == integers_per_input
+
+
+def test_type_counts_with_and_without_tensor_field():
+    type_counts = TypeCountersMetric(
+        boolean=IntegralComponent(1),
+        integral=IntegralComponent(2),
+        fractional=IntegralComponent(3),
+        string=IntegralComponent(4),
+        object=IntegralComponent(5),
+    )
+    assert type_counts.tensor.value == 0
+    type_counts.tensor.set(1)
+    assert type_counts.boolean.value == 1
+    full_type_counts = TypeCountersMetric(
+        boolean=IntegralComponent(1),
+        integral=IntegralComponent(2),
+        fractional=IntegralComponent(3),
+        string=IntegralComponent(4),
+        object=IntegralComponent(5),
+        tensor=IntegralComponent(6),
+    )
+    assert full_type_counts.tensor.value == 6
+    merged_counts = full_type_counts.merge(type_counts)
+    assert merged_counts.tensor.value == 7

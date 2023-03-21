@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 
 from whylogs.core.configs import SummaryConfig
@@ -19,7 +19,7 @@ class TypeCountersMetric(Metric):
     boolean: IntegralComponent
     string: IntegralComponent
     object: IntegralComponent
-    tensor: IntegralComponent
+    tensor: IntegralComponent = field(default_factory=lambda: IntegralComponent(0))
 
     @property
     def namespace(self) -> str:
