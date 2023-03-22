@@ -66,7 +66,6 @@ class TestMlflowWriter(object):
     def test_write_leaves_existing_mlflow_runs_open(self, result_set, html_report):
         preexisting_run = mlflow.active_run()
         existing_run = preexisting_run or mlflow.start_run()
-
         run_id = existing_run.info.run_id
 
         result_set_writer = result_set.writer("mlflow")
