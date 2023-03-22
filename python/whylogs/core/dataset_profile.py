@@ -152,11 +152,11 @@ class DatasetProfile(Writable):
 
                 dtype = self._schema.types.get(k)
                 homogeneous = (
-                    dtype is not None and
-                    isinstance(dtype, tuple) and
-                    len(dtype) == 2 and
-                    isinstance(dtype[1], bool) and
-                    dtype[1]
+                    dtype is not None
+                    and isinstance(dtype, tuple)
+                    and len(dtype) == 2
+                    and isinstance(dtype[1], bool)
+                    and dtype[1]
                 )
                 if homogeneous:
                     self._columns[k]._track_homogeneous_column(column_values)
