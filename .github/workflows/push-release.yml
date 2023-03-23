@@ -30,7 +30,7 @@ jobs:
           version: "3.19.4"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache Python dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
