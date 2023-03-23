@@ -109,6 +109,14 @@ Here you will find experiments to benchmark different aspect of the whylogs pack
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | [Understanding Kolmogorov-Smirnov (KS) Tests for Data Drift on Profiled Data](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/benchmarks/KS_Profiling.ipynb) | Experiments comparing between Kolmogorov-Smirnov whylogs' implementation on profiled data and traditional implementation on complete data |
 
+## 📓 Tutorials
+
+Here you will find tutorials that can span two or more concepts discussed in the previous sections. These tutorials are meant to be a more in-depth, and possibly domain-specific, explanation of the concepts discussed in the previous sections.
+
+| Example                                                                                                                                                                | Description                                                                                               |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [Data Validation for Spark Dataframes with whylogs](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/tutorials/Pyspark_and_Constraints.ipynb) | Profile a Spark Dataframe and Perform Data Validation with Condition Count Metrics and Metric Constraints |
+
 ## Get in touch
 
 If you want to get more involved with whylogs adn interact with other practitioners, make sure to [join our community Slack](http://join.slack.whylabs.ai/)
