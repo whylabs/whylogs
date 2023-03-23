@@ -20,7 +20,7 @@ typing-extensions = {version = ">=3.10", markers = "python_version < \"4\""}
 # viz module. Everything after this should be optional
 pybars3 = { version = "^0.9", optional = true }
 ipython = { version = "*", optional = true }
-scipy = { version = ">=1.5", python = "<3.11", optional = true }
+scipy = { version = ">=1.5", python = "<4", optional = true }
 numpy = { version = "*", optional = true }
 
 # datasets module.
