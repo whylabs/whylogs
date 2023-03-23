@@ -1132,6 +1132,7 @@
       ]
     },
     {
+      "attachments": {},
       "cell_type": "markdown",
       "metadata": {
         "id": "pLdUNP_rLETA"
@@ -1144,7 +1145,7 @@
         "- I want to track other types of metrics, not only Condition Counts!\n",
         "    - Check the [Schema Configuration](https://whylogs.readthedocs.io/en/stable/examples/basic/Schema_Configuration.html) example!\n",
         "- Ok, I have counters. What now?\n",
-        "    - You can set constraints (such as `containsCreditCardNumber` should always be 0). Check the [Metric Constraints](https://whylogs.readthedocs.io/en/stable/examples/basic/Metric_Constraints.html) example!\n",
+        "    - You can set constraints (such as `containsCreditCardNumber` should always be 0). Check the [Metric Constraints](https://whylogs.readthedocs.io/en/stable/examples/advanced/Metric_Constraints.html) example!\n",
         "    - You can store it locally or on S3 for future inspection - Check the [Writing Profiles](https://whylogs.readthedocs.io/en/stable/examples/integrations/writers/Writing_Profiles.html) example!\n",
         "    - You can send your profiles to a monitoring platform, such as WhyLabs - Check the [Writing Profiles to WhyLabs](https://whylogs.readthedocs.io/en/stable/examples/integrations/writers/Writing_to_WhyLabs.html) example!"
       ]
