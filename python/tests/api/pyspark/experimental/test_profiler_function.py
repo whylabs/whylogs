@@ -1,3 +1,10 @@
+import sys
+
+import pytest
+
+if sys.implementation.version.major == 3 and sys.implementation.version.minor == 11:
+    pytest.skip("skipping spark tests on python 3.11", allow_module_level=True)
+
 from decimal import Decimal
 from logging import getLogger
 from typing import Dict

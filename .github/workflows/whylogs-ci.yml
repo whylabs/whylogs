@@ -13,7 +13,7 @@ defaults:
 
 env:
   CODECOV_UPLOAD: false
-  POETRY_VERSION: "1.2.1"
+  POETRY_VERSION: "1.4.1"
   PROTOC_VERSION: "3.19.4"
   PYPI_PUBLISH: false
   HEAP_APPID_DEV: "3422045963"
@@ -23,8 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest]
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v3
@@ -69,7 +69,7 @@ jobs:
           esac
 
       - name: Install dependencies
-        run: make install
+        run: make telemetry-opt-out install
 
       - name: Check virtualenv location
         run: |

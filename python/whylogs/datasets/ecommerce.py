@@ -39,7 +39,11 @@ class Ecommerce(Dataset):
         hour=0, minute=0, second=0, microsecond=0
     ) + timedelta(days=1)
     original: bool = False
-    dataset_config: DatasetConfig = EcommerceConfig()
+    dataset_config: Optional[DatasetConfig] = None
+
+    @classmethod
+    def config(cls) -> DatasetConfig:
+        return EcommerceConfig()
 
     def __init__(self, version: str = "base") -> None:
         """Initializes internal dataframes.
@@ -52,6 +56,8 @@ class Ecommerce(Dataset):
             The desired dataset's version, by default "base"
 
         """
+        if not self.dataset_config:
+            self.dataset_config = Ecommerce.config()
         if version not in self.dataset_config.available_versions:
             raise ValueError("Version not found in list of available versions.")
         self.version = version
@@ -78,12 +84,12 @@ class Ecommerce(Dataset):
 
     @classmethod
     def describe_versions(cls) -> Tuple[str]:
-        available_versions = cls.dataset_config.available_versions
+        available_versions = cls.config().available_versions
         return available_versions
 
     @classmethod
     def describe(cls) -> Optional[str]:
-        descr = resources.read_text(base_config.description_folder, cls.dataset_config.description_file)
+        descr = resources.read_text(base_config.description_folder, cls.config().description_file)
         return descr
 
     def get_baseline(self) -> Batch:
@@ -103,10 +109,13 @@ class Ecommerce(Dataset):
     def _validate_interval(self, interval: str) -> Tuple[int, str]:
         """Checks if desired interval are of acceptable units and inside maximum duration limits."""
         number_days, unit = _parse_interval(interval)
-        if number_days > self.dataset_config.max_interval:
-            raise ValueError("Maximum allowed interval for this dataset is {}".format(self.dataset_config.max_interval))
+        if self.dataset_config is None:
+            raise ValueError("default_config is unset for this dataset")
+        config: EcommerceConfig = self.dataset_config
+        if number_days > config.max_interval:
+            raise ValueError("Maximum allowed interval for this dataset is {}".format(config.max_interval))
         if unit != "D":
-            raise ValueError("Current accepted unit for this dataset is {}".format(self.dataset_config.base_unit))
+            raise ValueError("Current accepted unit for this dataset is {}".format(config.base_unit))
         return (number_days, unit)
 
     def get_inference_data(
@@ -172,8 +181,10 @@ class Ecommerce(Dataset):
             self.inference_interval = inference_interval
             self.number_days, self.unit = self._validate_interval(self.inference_interval)
         if original:
-            self.baseline_timestamp = self.dataset_config.baseline_start_timestamp[self.version]
-            self.inference_start_timestamp = self.dataset_config.inference_start_timestamp[self.version]
+            assert self.dataset_config is not None
+            config = self.dataset_config
+            self.baseline_timestamp = config.baseline_start_timestamp[self.version]
+            self.inference_start_timestamp = config.inference_start_timestamp[self.version]
             self.inference_df = _adjust_df_date(self.inference_df, self.inference_start_timestamp)
             self.baseline_df = _adjust_df_date(self.baseline_df, new_start_date=self.baseline_timestamp)
 
