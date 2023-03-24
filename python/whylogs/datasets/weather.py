@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
 from importlib import resources
 from logging import getLogger
@@ -50,7 +50,7 @@ class Weather(Dataset):
         hour=0, minute=0, second=0, microsecond=0
     ) + timedelta(days=1)
     original: bool = False
-    dataset_config: DatasetConfig = WeatherConfig()
+    dataset_config: DatasetConfig = field(default_factory=lambda: WeatherConfig())
 
     def __init__(self, version: str = "in_domain") -> None:
         """Initializes internal dataframes.
