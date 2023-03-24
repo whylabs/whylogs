@@ -19,15 +19,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.8"
           cache: poetry
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
@@ -75,15 +75,15 @@ jobs:
     needs: deploy
     steps:
       - uses: actions/checkout@v3
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.8"
           cache: poetry
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
-        with:
-          poetry-version: 1.2.1
       - name: install bump2version
         run: |
           pip install bump2version
