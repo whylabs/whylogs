@@ -55,7 +55,7 @@ jobs:
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
         with:
-          version: "3.19.4"
+          version: ${{ env.PROTOC_VERSION }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check Poetry version
@@ -113,7 +113,7 @@ jobs:
         shell: bash
         working-directory: java
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Change to Java dir
         run: |
           echo $(pwd)
@@ -151,10 +151,11 @@ jobs:
         python-version: ["3.9"]
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: poetry
       - uses: nikeee/setup-pandoc@v1
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
