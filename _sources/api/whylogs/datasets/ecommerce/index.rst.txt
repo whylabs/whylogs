@@ -91,9 +91,13 @@ Attributes
       
 
    .. py:attribute:: dataset_config
-      :type: whylogs.datasets.configs.DatasetConfig
+      :type: Optional[whylogs.datasets.configs.DatasetConfig]
 
       
+
+   .. py:method:: config() -> whylogs.datasets.configs.DatasetConfig
+      :classmethod:
+
 
    .. py:method:: describe_versions() -> Tuple[str]
       :classmethod:
