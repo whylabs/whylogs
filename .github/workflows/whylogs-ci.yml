@@ -38,7 +38,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: poetry
-      - run: echo 'cache hit ${{ steps.setup-python.outputs.cache-hit }}'
+      - run: echo 'python ${{ matrix.python-version }} poetry cache hit ${{ steps.setup-python.outputs.cache-hit }}'
 
       - name: Set up pre-commit cache
         uses: actions/cache@v3
@@ -160,9 +160,10 @@ jobs:
       - run: echo 'cache hit ${{ steps.docs.outputs.cache-hit }}'
       - name: test storing version
         id: version
-        run: whylogs_version=$(echo $GITHUB_REF | sed 's#.*/v##')
+        run: echo "whylogs_version=$(echo $GITHUB_REF | sed 's#.*/v##')" >> $GITHUB_ENV
+
       - name: test reading version
-        run: echo 'cache hit ${{ steps.version.outputs.whylogs_version }}'
+        run: echo 'whylogs version ${{ env.whylogs_version }}'
 
       - uses: nikeee/setup-pandoc@v1
       - name: Install Protoc
