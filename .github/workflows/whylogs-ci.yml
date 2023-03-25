@@ -158,14 +158,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: poetry
       - run: echo 'cache hit ${{ steps.docs.outputs.cache-hit }}'
-      - name: test storing version
-        run: |
-          echo "whylogs_version=$(echo $GITHUB_REF | sed 's#.*/v##')" >> $GITHUB_ENV
-          echo $whylogs_version
-
-      - name: test reading version
-        run: echo 'whylogs version ${{ env.whylogs_version }}'
-
       - uses: nikeee/setup-pandoc@v1
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
