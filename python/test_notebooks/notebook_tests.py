@@ -2,6 +2,7 @@ import os
 import subprocess
 
 import papermill as pm
+import pytest
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.join(TEST_DIR, os.pardir, os.pardir)
@@ -26,6 +27,7 @@ skip_notebooks = [
     "NLP_Summarization.ipynb",
     "Multi dataset logger.ipynb",
     "Pyspark_and_Constraints.ipynb",
+    "LocalStore_with_Constraints.ipynb", # skipped because it has over 4 minutes of thread.sleep in it
 ]
 
 
@@ -49,7 +51,7 @@ def process_notebook(notebook_filename):
     try:
         pm.execute_notebook(notebook_filename, OUTPUT_NOTEBOOK, timeout=180)
     except Exception as e:
-        print(f"Notebook: {notebook_filename} failed test with exception: {e}")
+        pytest.fail(f"Notebook: {notebook_filename} failed test with exception: {e}")
         raise
 
     print(f"Successfully executed {notebook_filename}")

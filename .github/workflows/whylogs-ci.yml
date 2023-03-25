@@ -159,13 +159,9 @@ jobs:
           cache: poetry
       - run: echo 'cache hit ${{ steps.docs.outputs.cache-hit }}'
       - name: test storing version
-        id: version
         run: |
-          whylogs_version=$(echo $GITHUB_REF | sed 's#.*/v##')
-          echo $whylogs_version
           echo "whylogs_version=$(echo $GITHUB_REF | sed 's#.*/v##')" >> $GITHUB_ENV
           echo $whylogs_version
-          echo 'whylogs version ${{ env.whylogs_version }}'
 
       - name: test reading version
         run: echo 'whylogs version ${{ env.whylogs_version }}'

@@ -83,7 +83,7 @@ jobs:
       - name: bump_mainline
         run: |
           # from refs/tags/v1.2.3 get 1.2.3
-          VERSION=$(echo $GITHUB_REF | sed 's#.*/v##')
+          echo "VERSION=$(echo $GITHUB_REF | sed 's#.*/v##')" >> $GITHUB_ENV
           echo $VERSION
           # git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # git config --local user.name "github-actions[bot]"
@@ -94,7 +94,7 @@ jobs:
         uses: peter-evans/create-pull-request@v4.1.1
         with:
           token: ${{ secrets.VERSION_UPDATE }}
-          commit-message: Update version ${{ env.VERSION }}
+          commit-message: Update version to ${{ env.VERSION }}
           committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           signoff: false
@@ -102,9 +102,6 @@ jobs:
           base: mainline
           delete-branch: true
           title: "Bump version to release version ${{ env.VERSION }}"
-          body: |
-            Update mainline version to match release
-            - bumped to release version
 
           labels: |
             automated pr
