@@ -37,7 +37,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: poetry
-      - run: echo 'cache hit: ${{ steps.setup-python.outputs.cache-hit }}'
+      - run: echo 'cache hit ${{ steps.setup-python.outputs.cache-hit }}'
 
       - name: Set up pre-commit cache
         uses: actions/cache@v3

@@ -37,7 +37,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: poetry
-      - run: echo 'cache hit: ${{ steps.setup-python.outputs.cache-hit }}'
+      - run: echo 'cache hit ${{ steps.setup-python.outputs.cache-hit }}'
 
       - name: Set up pre-commit cache
         uses: actions/cache@v3
@@ -156,7 +156,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: poetry
-      - run: echo 'cache hit: ${{ steps.docs.outputs.cache-hit }}'
+      - run: echo 'cache hit ${{ steps.docs.outputs.cache-hit }}'
+      - name: test storing version
+        id: version
+        run: whylogs_version=$(echo $GITHUB_REF | sed 's#.*/v##')
+      - name: test reading version
+        run: echo 'cache hit ${{ steps.version.outputs.whylogs_version }}'
+
       - uses: nikeee/setup-pandoc@v1
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
