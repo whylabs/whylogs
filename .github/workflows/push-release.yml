@@ -28,6 +28,7 @@ jobs:
         with:
           python-version: "3.8"
           cache: poetry
+      - run: echo 'cache hit: ${{ steps.setup-python.outputs.cache-hit }}'
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
