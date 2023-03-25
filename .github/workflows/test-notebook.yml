@@ -34,6 +34,7 @@ jobs:
           poetry-version: ${{ env.POETRY_VERSION }}
       - name: Setup Python with poetry cache
         uses: actions/setup-python@v4
+        id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
           cache: poetry

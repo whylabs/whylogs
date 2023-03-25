@@ -34,6 +34,7 @@ jobs:
           poetry-version: ${{ env.POETRY_VERSION }}
       - name: Set up python with poetry cache
         uses: actions/setup-python@v4
+        id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
           cache: poetry
@@ -41,7 +42,7 @@ jobs:
 
       - name: Set up pre-commit cache
         uses: actions/cache@v3
-        if: startsWith(runner.os, 'Linux') && ${{ matrix.python-version == 3.8 }}
+        if: startsWith(runner.os, 'Linux')
         with:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
@@ -78,7 +79,7 @@ jobs:
           esac
 
       - name: Run pre-commit checks
-        if: startsWith(runner.os, 'Linux') && ${{ matrix.python-version == 3.8 }}
+        if: ${{ matrix.python-version == 3.8 }}
         run: make pre-commit
 
       - name: Run build and test
