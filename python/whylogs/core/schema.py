@@ -11,8 +11,8 @@ from whylogs.core.metrics.condition_count_metric import (
 )
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import (
+    ConditionCountMetricSpec,
     DeclarativeResolver,
-    MetricSpec,
     Resolver,
     ResolverSpec,
     StandardResolver,
@@ -224,7 +224,7 @@ class DeclarativeSchema(DatasetSchema):
             column_name=column_name,
             column_type=column_type,
             metrics=[
-                MetricSpec(
+                ConditionCountMetricSpec(
                     ConditionCountMetric,
                     ConditionCountConfig(conditions=conditions),
                 ),

@@ -7,6 +7,10 @@ from typing_extensions import TypeAlias
 
 from whylogs.core.datatypes import AnyType, DataType, Fractional, Integral, String
 from whylogs.core.metrics import StandardMetric
+from whylogs.core.metrics.condition_count_metric import (
+    ConditionCountConfig,
+    ConditionCountMetric,
+)
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 
 logger = logging.getLogger(__name__)
@@ -97,6 +101,20 @@ class MetricSpec:
     def __post_init__(self):
         if not issubclass(self.metric, Metric):
             raise ValueError("MetricSpec: must supply a Metric subclass to MetricSpec")
+
+
+@dataclass
+class ConditionCountMetricSpec(MetricSpec):
+    """
+    Specify a ConditionCountMetric to instantiate.
+    """
+
+    metric: ConditionCountMetric
+    config: Optional[ConditionCountConfig] = None  # omit to use default MetricConfig
+
+    def __post_init__(self):
+        if not issubclass(self.metric, ConditionCountMetric):
+            raise ValueError("ConditionCountMetricSpec: must supply a ConditionCountMetric to MetricSpec")
 
 
 @dataclass
