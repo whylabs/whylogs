@@ -52,10 +52,6 @@ def test_merge() -> None:
     assert "foo" in metric.submetrics
 
     summary = metric.to_summary_dict()
-    print("summary:")
-    for k, v in summary.items():
-        print(f"  {k}: {v}")
-
     assert summary["fortytwo:counts/n"] == 2
     assert summary["fortytwo:types/integral"] == 2
     assert summary["fortytwo:types/string"] == 0
