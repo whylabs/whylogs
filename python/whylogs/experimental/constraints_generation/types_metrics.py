@@ -1,7 +1,8 @@
-from whylogs.core.view.column_profile_view import ColumnProfileView
+from typing import List
+
 from whylogs.core.constraints.factories import column_has_non_zero_types
 from whylogs.core.constraints.metric_constraints import MetricConstraint
-from typing import List
+from whylogs.core.view.column_profile_view import ColumnProfileView
 
 
 def generate_column_types_constraints(column_name: str, column_profile: ColumnProfileView) -> List[MetricConstraint]:

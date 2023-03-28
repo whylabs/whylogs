@@ -1,21 +1,19 @@
 import pandas as pd
 import pytest
+
 import whylogs as why
-import pandas as pd
 from whylogs.core.constraints import ConstraintsBuilder
-from whylogs.experimental.constraints_generation import generate_constraints_from_reference_profile
-from whylogs.core.relations import Predicate
 from whylogs.core.metrics.condition_count_metric import (
     Condition,
     ConditionCountConfig,
     ConditionCountMetric,
 )
-from whylogs.core.resolvers import (
-    STANDARD_RESOLVER,
-    MetricSpec,
-    ResolverSpec,
-)
+from whylogs.core.relations import Predicate
+from whylogs.core.resolvers import STANDARD_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
+from whylogs.experimental.constraints_generation import (
+    generate_constraints_from_reference_profile,
+)
 
 
 @pytest.fixture

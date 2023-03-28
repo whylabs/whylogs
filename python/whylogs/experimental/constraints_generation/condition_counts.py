@@ -1,7 +1,8 @@
-from whylogs.core.view.column_profile_view import ColumnProfileView
+from typing import List
+
 from whylogs.core.constraints.factories import condition_meets
 from whylogs.core.constraints.metric_constraints import MetricConstraint
-from typing import List
+from whylogs.core.view.column_profile_view import ColumnProfileView
 
 
 def generate_column_condition_count_constraints(
