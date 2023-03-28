@@ -1,10 +1,11 @@
 import logging
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Mapping, Optional, Set, TypeVar
+from typing import Any, Dict, List, Mapping, Optional, TypeVar
 
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
+from whylogs.core.preprocessing import ColumnProperties
 from whylogs.core.resolvers import (
     DeclarativeResolver,
     Resolver,
@@ -76,7 +77,6 @@ class DatasetSchema:
         schema_based_automerge: bool = False,
         segments: Optional[Dict[str, SegmentationPartition]] = None,
         validators: Optional[Dict[str, List[Validator]]] = None,
-        homogeneous_column_names: Set[str] = set(),
     ) -> None:
         self._columns = dict()
         self.types = types or dict()
@@ -87,7 +87,6 @@ class DatasetSchema:
         self.schema_based_automerge = schema_based_automerge
         self.segments = segments or dict()
         self.validators = validators or dict()
-        self.homogeneous_column_names = homogeneous_column_names
 
         if self.cache_size < 0:
             logger.warning("Negative cache size value. Disabling caching")
@@ -101,8 +100,13 @@ class DatasetSchema:
             )
 
         for col, data_type in self.types.items():
+            if isinstance(data_type, tuple) and len(data_type) == 2 and isinstance(data_type[1], ColumnProperties):
+                dtype = data_type[0]
+            else:
+                dtype = data_type
+
             self._columns[col] = ColumnSchema(
-                dtype=data_type,
+                dtype=dtype,
                 resolver=self.resolvers,
                 type_mapper=self.type_mapper,
                 cfg=self.default_configs,
@@ -228,7 +232,6 @@ class DeclarativeSchema(DatasetSchema):
         schema_based_automerge: bool = False,
         segments: Optional[Dict[str, SegmentationPartition]] = None,
         validators: Optional[Dict[str, List[Validator]]] = None,
-        homogeneous_column_names: Set[str] = set(),
     ) -> None:
         if not resolvers:
             logger.warning("No columns specified in DeclarativeSchema")
@@ -242,5 +245,4 @@ class DeclarativeSchema(DatasetSchema):
             schema_based_automerge=schema_based_automerge,
             segments=segments,
             validators=validators,
-            homogeneous_column_names=homogeneous_column_names,
         )

@@ -11,6 +11,7 @@ from pandas.testing import assert_series_equal
 
 import whylogs as why
 from whylogs.core.preprocessing import (
+    ColumnProperties,
     ListView,
     NumpyView,
     PandasView,
@@ -688,7 +689,8 @@ def test_apply_list(
 def test_homogeneous_column() -> None:
     d = {"col1": [1, 2, 3, 4], "col2": [5.0, 6.0, 7.0, 8.0], "col3": ["a", "b", "c", "d"]}
     df = pd.DataFrame(data=d)
-    schema = DeclarativeSchema(STANDARD_RESOLVER, homogeneous_column_names={"col1"})
+    types = {"col1": (int, ColumnProperties.homogeneous), "col2": (float, ColumnProperties.default)}
+    schema = DeclarativeSchema(STANDARD_RESOLVER, types=types)
     results = why.log(pandas=df, schema=schema)
     view = results.profile().view()
 
