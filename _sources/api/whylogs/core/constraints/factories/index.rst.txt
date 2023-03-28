@@ -42,6 +42,7 @@ Functions
    whylogs.core.constraints.factories.stddev_between_range
    whylogs.core.constraints.factories.frequent_strings_in_reference_set
    whylogs.core.constraints.factories.n_most_common_items_in_set
+   whylogs.core.constraints.factories.column_has_non_zero_types
    whylogs.core.constraints.factories.column_is_nullable_boolean
    whylogs.core.constraints.factories.column_is_nullable_datatype
    whylogs.core.constraints.factories.column_is_nullable_fractional
@@ -241,6 +242,9 @@ Attributes
    :type n: int
    :param reference_set: Reference set for applying the constraint
    :type reference_set: dict
+
+
+.. py:function:: column_has_non_zero_types(column_name: str, types_list: List[str]) -> whylogs.core.constraints.metric_constraints.MetricConstraint
 
 
 .. py:function:: column_is_nullable_boolean(column_name: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint

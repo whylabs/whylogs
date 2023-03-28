@@ -1,0 +1,28 @@
+:py:mod:`whylogs.experimental.constraints_generation.condition_counts`
+======================================================================
+
+.. py:module:: whylogs.experimental.constraints_generation.condition_counts
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.constraints_generation.condition_counts.generate_column_condition_count_constraints
+
+
+
+.. py:function:: generate_column_condition_count_constraints(column_name: str, column_profile: whylogs.core.view.column_profile_view.ColumnProfileView) -> List[whylogs.core.constraints.metric_constraints.MetricConstraint]
+
+   Generates constraints for the condition count metrics of a column.
+   :param column_name: Name of the column
+   :type column_name: str
+   :param column_profile: Profile of the column
+   :type column_profile: ColumnProfileView
+
+

@@ -13,6 +13,7 @@ Functions
 
 .. autoapisummary::
 
+   whylogs.core.constraints.factories.types_metrics.column_has_non_zero_types
    whylogs.core.constraints.factories.types_metrics.column_is_nullable_integral
    whylogs.core.constraints.factories.types_metrics.column_is_nullable_fractional
    whylogs.core.constraints.factories.types_metrics.column_is_nullable_boolean
@@ -20,6 +21,9 @@ Functions
    whylogs.core.constraints.factories.types_metrics.column_is_nullable_object
    whylogs.core.constraints.factories.types_metrics.column_is_nullable_datatype
 
+
+
+.. py:function:: column_has_non_zero_types(column_name: str, types_list: List[str]) -> whylogs.core.constraints.metric_constraints.MetricConstraint
 
 
 .. py:function:: column_is_nullable_integral(column_name: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint

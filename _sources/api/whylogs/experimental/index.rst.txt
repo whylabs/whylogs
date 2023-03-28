@@ -10,6 +10,7 @@ Subpackages
    :titlesonly:
    :maxdepth: 3
 
+   constraints_generation/index.rst
    performance_estimation/index.rst
 
 

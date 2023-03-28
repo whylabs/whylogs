@@ -197,6 +197,9 @@ Attributes
    .. py:method:: get_metric_selectors() -> List[MetricsSelector]
 
 
+   .. py:method:: add_constraints(constraints: List[Union[MetricConstraint, DatasetConstraint]]) -> ConstraintsBuilder
+
+
    .. py:method:: add_constraint(constraint: Union[MetricConstraint, DatasetConstraint], ignore_missing: bool = False) -> ConstraintsBuilder
 
 
