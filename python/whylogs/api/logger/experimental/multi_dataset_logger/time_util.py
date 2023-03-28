@@ -19,6 +19,7 @@ class TimeGranularity(Enum):
     Hour = "Hour"
     Day = "Day"
     Month = "Month"
+    Year = "Year"
 
 
 def truncate_time_ms(t: int, granularity: TimeGranularity) -> int:
@@ -31,7 +32,11 @@ def truncate_time_ms(t: int, granularity: TimeGranularity) -> int:
     elif granularity == TimeGranularity.Day:
         trunc = dt.replace(minute=0, hour=0)
     elif granularity == TimeGranularity.Month:
-        trunc = dt.replace(minute=0, hour=0, day=0)
+        trunc = dt.replace(minute=0, hour=0, day=1)
+    elif granularity == TimeGranularity.Year:
+        trunc = dt.replace(minute=0, hour=0, day=1, month=1)
+    else:
+        raise ValueError(f"Unsupported granularity: {granularity}")
 
     return int(trunc.timestamp() * 1000)
 
