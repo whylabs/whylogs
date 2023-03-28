@@ -152,6 +152,9 @@ test-notebooks: ## Run tests for the notebooks
 	@$(call i, Running notebook tests)
 	poetry run pytest --no-cov --maxfail=1 test_notebooks/notebook_tests.py
 
+telemetry-opt-out: ## create opt out file
+	@$(call i, Creating whylogs telemetry opt-out file)
+	mkdir ~/.whylogs && echo "" >> ~/.whylogs/disable_telemetry
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)

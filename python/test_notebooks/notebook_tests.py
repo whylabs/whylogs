@@ -25,6 +25,9 @@ skip_notebooks = [
     "whylogs_Audio_examples.ipynb",  # skipped because of Kaggle data download and API key for whylabs upload
     "NLP_Summarization.ipynb",
     "Multi dataset logger.ipynb",
+    "Pyspark_and_Constraints.ipynb",
+    "LocalStore_with_Constraints.ipynb",  # skipped because it has over 4 minutes of thread.sleep in it
+    "KS_Profiling.ipynb",  # skipped because this takes a few minutes to run
 ]
 
 
