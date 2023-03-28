@@ -28,14 +28,14 @@ def reference_profile_view():
     def even(x) -> bool:
         return x % 2 == 0
 
-    regex_conditions = {"legs_even": Condition(Predicate().is_(even))}
+    legs_conditions = {"legs_even": Condition(Predicate().is_(even))}
 
     legs_spec = ResolverSpec(
         column_name="legs",
         metrics=[
             MetricSpec(
                 ConditionCountMetric,
-                ConditionCountConfig(conditions=regex_conditions),
+                ConditionCountConfig(conditions=legs_conditions),
             ),
         ],
     )
@@ -62,4 +62,3 @@ def test_constraints_generation(reference_profile_view):
     assert report[4].name == "legs meets condition legs_even"
     assert report[5].name == "weight has no missing values"
     assert report[6].name == "weight types count non-zero for ['fractional']"
-    print("h")
