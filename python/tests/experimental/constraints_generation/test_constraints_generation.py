@@ -39,8 +39,7 @@ def reference_profile_view():
             ),
         ],
     )
-    schema = DeclarativeSchema(STANDARD_RESOLVER)
-    schema.add_resolver(legs_spec)
+    schema = DeclarativeSchema(STANDARD_RESOLVER + [legs_spec])
 
     results = why.log(df, schema=schema)
     profile_view = results.view()
