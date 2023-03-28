@@ -122,6 +122,9 @@ class DatasetProfile(Writable):
         row: Optional[Mapping[str, Any]] = None,
     ) -> None:
         pandas, row = _pandas_or_dict(obj, pandas, row)
+        if self._schema.augmenters:
+            pandas, row = self._schema._augment(pandas, row)
+
         col_id = getattr(self._schema.default_configs, "identity_column", None)
 
         # TODO: do this less frequently when operating at row level
