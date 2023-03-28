@@ -110,6 +110,11 @@ class ColumnProfileView(object):
 
     @classmethod
     def from_protobuf(cls, msg: ColumnMessage) -> "ColumnProfileView":
+        # importing to trigger registration of non-standard metrics
+        import whylogs.experimental.extras.embedding_metric  # noqa
+        import whylogs.experimental.extras.nlp_metric  # noqa
+        import whylogs.extras.image_metric  # noqa
+
         result_metrics: Dict[str, Metric] = {}
         metric_messages: Dict[str, Dict[str, MetricComponentMessage]] = {}
         for full_path, c_msg in msg.metric_components.items():

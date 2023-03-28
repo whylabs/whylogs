@@ -1,4 +1,22 @@
+from typing import List
+
 from ..metric_constraints import MetricConstraint, MetricsSelector
+
+
+def column_has_non_zero_types(column_name: str, types_list: List[str]) -> MetricConstraint:
+    def has_non_zero_types(x) -> bool:
+        types_dict = x.to_summary_dict()
+        for key in types_dict.keys():
+            if key in types_list and types_dict[key] == 0:
+                return False
+        return True
+
+    constraint = MetricConstraint(
+        name=f"{column_name} types count non-zero for {types_list}",
+        condition=has_non_zero_types,
+        metric_selector=MetricsSelector(column_name=column_name, metric_name="types"),
+    )
+    return constraint
 
 
 def column_is_nullable_integral(column_name: str) -> MetricConstraint:

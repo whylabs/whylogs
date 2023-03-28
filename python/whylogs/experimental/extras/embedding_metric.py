@@ -4,7 +4,6 @@ from enum import Enum
 from itertools import chain
 from typing import List, Optional
 
-import numpy as np
 from sklearn.metrics.pairwise import cosine_distances, euclidean_distances
 
 from whylogs.core.metrics import StandardMetric
@@ -12,6 +11,7 @@ from whylogs.core.metrics.metrics import MetricConfig, OperationResult, register
 from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
+from whylogs.core.stubs import np
 from whylogs.experimental.extras.matrix_component import MatrixComponent
 
 logger = logging.getLogger(__name__)
