@@ -2,6 +2,7 @@ import itertools
 import logging
 from dataclasses import dataclass
 from decimal import Decimal
+from enum import Enum
 from math import isinf, isnan
 from typing import Any, Iterable, Iterator, List, Optional, Union
 
@@ -13,6 +14,11 @@ try:
     import pandas.core.dtypes.common as pdc
 except:  # noqa
     pass
+
+
+class ColumnProperties(Enum):
+    default = 0
+    homogeneous = 1
 
 
 @dataclass
