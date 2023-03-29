@@ -195,7 +195,7 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
     def __init__(
         self,
         aggregate_by: TimeGranularity = TimeGranularity.Hour,
-        write_schedule: Schedule = Schedule(cadence=TimeGranularity.Minute, interval=10),
+        write_schedule: Optional[Schedule] = Schedule(cadence=TimeGranularity.Minute, interval=10),
         schema: Optional[DatasetSchema] = None,
         writers: List[Writer] = [],
     ) -> None:
@@ -209,13 +209,14 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
         self._schema: Optional[DatasetSchema] = schema
         self._store_list: List[ProfileStore] = []
 
-        if write_schedule.cadence == TimeGranularity.Second:
-            raise Exception("Minimum write schedule is five minutes.")
+        if write_schedule is not None:
+            if write_schedule.cadence == TimeGranularity.Second:
+                raise Exception("Minimum write schedule is five minutes.")
 
-        if write_schedule.cadence == TimeGranularity.Minute and write_schedule.interval < 5:
-            raise Exception("Minimum write schedule is five minutes.")
+            if write_schedule.cadence == TimeGranularity.Minute and write_schedule.interval < 5:
+                raise Exception("Minimum write schedule is five minutes.")
 
-        self._timer = FunctionTimer(write_schedule, self.flush)
+            self._timer = FunctionTimer(write_schedule, self.flush)
         super().__init__()
 
     def _process_message(self, message: Union[LoggerMessage, CloseMessage]) -> None:
@@ -256,7 +257,8 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
         message.result.set_result(status)
 
     def _process_close_message(self, message: CloseMessage) -> None:
-        self._timer.stop()
+        if self._timer is not None:
+            self._timer.stop()
         # Force wait for all writers to handle their pending items
         self._process_flush_message(FlushMessage())
         while self._has_pending():
