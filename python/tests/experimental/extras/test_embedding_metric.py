@@ -77,7 +77,6 @@ def test_embedding_metric_merge_happy_case() -> None:
     metric2.columnar_update(data)
     merged = metric1.merge(metric2)
     summary = merged.to_summary_dict()
-    print(summary)
     assert summary["A_distance:counts/n"] == 6
     assert summary["B_distance:counts/n"] == 6
     assert summary["A_distance:distribution/mean"] > 0
