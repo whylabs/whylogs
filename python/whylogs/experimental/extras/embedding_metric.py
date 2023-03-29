@@ -157,7 +157,7 @@ class EmbeddingMetric(MultiMetric):
                 self._update_submetrics(f"{self.labels[i]}_distance", PreprocessedColumn.apply(ref_dists[:, i]))
 
             closest = [self.labels[i] for i in ref_closest]
-            self._update_submetrics("closest", PreprocessedColumn.apply(np.asarray(closest)))
+            self._update_submetrics("closest", PreprocessedColumn.apply(closest))
             successes += 1
 
         return OperationResult(failures, successes)
