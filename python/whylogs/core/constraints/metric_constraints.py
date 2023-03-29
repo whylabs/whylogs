@@ -591,7 +591,11 @@ class Constraints:
 
 
 class ConstraintsBuilder:
-    def __init__(self, dataset_profile_view: DatasetProfileView, constraints: Optional[Constraints] = None) -> None:
+    def __init__(
+        self,
+        dataset_profile_view: DatasetProfileView,
+        constraints: Optional[Constraints] = None,
+    ) -> None:
         self._dataset_profile_view = dataset_profile_view
         if constraints is None:
             constraints = Constraints(dataset_profile_view=dataset_profile_view)
@@ -605,6 +609,11 @@ class ConstraintsBuilder:
             for metric_path in metric_component_paths:
                 selectors.append(MetricsSelector(metric_name=metric_path, column_name=column_name))
         return selectors
+
+    def add_constraints(self, constraints: List[Union[MetricConstraint, DatasetConstraint]]) -> "ConstraintsBuilder":
+        for constraint in constraints:
+            self.add_constraint(constraint)
+        return self
 
     def add_constraint(
         self, constraint: Union[MetricConstraint, DatasetConstraint], ignore_missing: bool = False

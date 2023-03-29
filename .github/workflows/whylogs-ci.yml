@@ -13,7 +13,7 @@ defaults:
 
 env:
   CODECOV_UPLOAD: false
-  POETRY_VERSION: "1.2.1"
+  POETRY_VERSION: "1.4.1"
   PROTOC_VERSION: "3.19.4"
   PYPI_PUBLISH: false
   HEAP_APPID_DEV: "3422045963"
@@ -23,39 +23,35 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest]
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+      - name: Set up python with poetry cache
+        uses: actions/setup-python@v4
+        id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Set up Poetry cache for Python dependencies
-        uses: actions/cache@v2
-        if: startsWith(runner.os, 'Linux')
-        with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: ${{ runner.os }}-poetry-
+          cache: poetry
+      - run: echo 'python ${{ matrix.python-version }} poetry cache hit ${{ steps.setup-python.outputs.cache-hit }}'
 
       - name: Set up pre-commit cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         if: startsWith(runner.os, 'Linux')
         with:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
           restore-keys: ${{ runner.os }}-pre-commit-
 
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
         with:
-          version: "3.19.4"
+          version: ${{ env.PROTOC_VERSION }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check Poetry version
@@ -69,7 +65,7 @@ jobs:
           esac
 
       - name: Install dependencies
-        run: make install
+        run: make telemetry-opt-out install
 
       - name: Check virtualenv location
         run: |
@@ -113,7 +109,7 @@ jobs:
         shell: bash
         working-directory: java
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Change to Java dir
         run: |
           echo $(pwd)
@@ -122,7 +118,7 @@ jobs:
         with:
           java-version: 8
       - name: Cache Gradle dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
@@ -151,28 +147,23 @@ jobs:
         python-version: ["3.9"]
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+      - uses: actions/setup-python@v4
+        id: docs
         with:
           python-version: ${{ matrix.python-version }}
+          cache: poetry
+      - run: echo 'cache hit ${{ steps.docs.outputs.cache-hit }}'
       - uses: nikeee/setup-pandoc@v1
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ env.PROTOC_VERSION }}
-
-      - name: Set up Poetry cache for Python dependencies
-        uses: actions/cache@v2
-        if: startsWith(runner.os, 'Linux')
-        with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: ${{ runner.os }}-poetry-
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
 
       - name: Install dependencies for generating docs
         run: poetry install --extras docs
