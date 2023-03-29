@@ -64,6 +64,11 @@ Functions
 
       
 
+   .. py:attribute:: Year
+      :value: 'Year'
+
+      
+
    .. py:method:: name()
 
       The name of the Enum member.

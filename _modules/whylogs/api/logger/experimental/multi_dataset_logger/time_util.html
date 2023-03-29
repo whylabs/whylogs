@@ -437,7 +437,8 @@
     <span class="n">Minute</span> <span class="o">=</span> <span class="s2">&quot;Minute&quot;</span>
     <span class="n">Hour</span> <span class="o">=</span> <span class="s2">&quot;Hour&quot;</span>
     <span class="n">Day</span> <span class="o">=</span> <span class="s2">&quot;Day&quot;</span>
-    <span class="n">Month</span> <span class="o">=</span> <span class="s2">&quot;Month&quot;</span></div>
+    <span class="n">Month</span> <span class="o">=</span> <span class="s2">&quot;Month&quot;</span>
+    <span class="n">Year</span> <span class="o">=</span> <span class="s2">&quot;Year&quot;</span></div>
 
 
 <div class="viewcode-block" id="truncate_time_ms"><a class="viewcode-back" href="../../../../../../api/whylogs/api/logger/experimental/multi_dataset_logger/time_util/index.html#whylogs.api.logger.experimental.multi_dataset_logger.time_util.truncate_time_ms">[docs]</a><span class="k">def</span> <span class="nf">truncate_time_ms</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">granularity</span><span class="p">:</span> <span class="n">TimeGranularity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -450,7 +451,11 @@
     <span class="k">elif</span> <span class="n">granularity</span> <span class="o">==</span> <span class="n">TimeGranularity</span><span class="o">.</span><span class="n">Day</span><span class="p">:</span>
         <span class="n">trunc</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">minute</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hour</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">granularity</span> <span class="o">==</span> <span class="n">TimeGranularity</span><span class="o">.</span><span class="n">Month</span><span class="p">:</span>
-        <span class="n">trunc</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">minute</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hour</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">trunc</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">minute</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hour</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">granularity</span> <span class="o">==</span> <span class="n">TimeGranularity</span><span class="o">.</span><span class="n">Year</span><span class="p">:</span>
+        <span class="n">trunc</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">minute</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hour</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported granularity: </span><span class="si">{</span><span class="n">granularity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">trunc</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span></div>
 
