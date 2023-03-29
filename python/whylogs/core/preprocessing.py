@@ -130,11 +130,11 @@ class PreprocessedColumn:
                 floats = non_null_series.astype(float)
                 inf_mask = floats.apply(lambda x: np.isinf(x))
                 self.inf_count = len(floats[inf_mask])
-                self.numpy.floats = floats
+                self.numpy.floats = floats.values
                 return
             else:
                 ints = non_null_series.astype(int)
-                self.numpy.ints = ints
+                self.numpy.ints = ints.values
                 return
 
         if series.hasnans:

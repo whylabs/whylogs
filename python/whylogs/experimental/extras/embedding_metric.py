@@ -156,6 +156,7 @@ class EmbeddingMetric(MultiMetric):
             for i in range(ref_dists.shape[1]):
                 self._update_submetrics(f"{self.labels[i]}_distance", PreprocessedColumn.apply(ref_dists[:, i]))
 
+            # TODO: We can replace with numpy version if we update whylogs-sketching fi.update_np to take strings
             closest = [self.labels[i] for i in ref_closest]
             self._update_submetrics("closest", PreprocessedColumn.apply(closest))
             successes += 1

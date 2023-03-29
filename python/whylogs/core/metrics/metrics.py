@@ -458,10 +458,12 @@ class FrequentItemsMetric(Metric):
         successes = 0
         for arr in [view.numpy.floats, view.numpy.ints]:
             if arr is not None:
-                if isinstance(arr, pd.Series):
-                    arr = arr.to_numpy()
                 self.frequent_strings.value.update_np(arr)
                 successes += len(arr)
+        # TODO: Include strings in above when we update whylogs-sketching fi.update_np to take strings
+        if view.numpy.strings is not None:
+            self.frequent_strings.value.update_np(view.numpy.strings.to_list())
+            successes += len(view.numpy.strings)
         if view.pandas.strings is not None:
             strings = [s[0 : self.max_frequent_item_size] for s in view.pandas.strings.to_list()]
             self.frequent_strings.value.update_str_list(strings)
