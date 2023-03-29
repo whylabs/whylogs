@@ -12,8 +12,8 @@ from whylogs.api.writer.mlflow import MlflowWriter
 class TestMlflowWriter(object):
     @classmethod
     def teardown_class(cls):
-        shutil.rmtree("mlruns")
-        shutil.rmtree("artifact_downloads")
+        shutil.rmtree("mlruns", ignore_errors=True)
+        shutil.rmtree("artifact_downloads", ignore_errors=True)
 
     @pytest.fixture
     def mlflow_writer(self):
@@ -62,3 +62,17 @@ class TestMlflowWriter(object):
         read_profile = why.read(path=f"{local_path}/profile_{timestamp}.bin")
         assert isinstance(read_profile, ViewResultSet)
         assert os.path.isfile(f"{local_path}/ProfileReport.html")
+
+    def test_write_leaves_existing_mlflow_runs_open(self, result_set, html_report):
+        preexisting_run = mlflow.active_run()
+        existing_run = preexisting_run or mlflow.start_run()
+        run_id = existing_run.info.run_id
+
+        result_set_writer = result_set.writer("mlflow")
+        result_set_writer.write()
+
+        assert mlflow.active_run()
+        assert mlflow.active_run().info.run_id == run_id
+        if not preexisting_run:
+            mlflow.end_run()
+        assert preexisting_run or not mlflow.active_run()

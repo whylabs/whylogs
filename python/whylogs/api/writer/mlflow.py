@@ -25,14 +25,15 @@ class MlflowWriter(Writer):
         dest: Optional[str] = None,
         **kwargs: Any,
     ) -> Tuple[bool, str]:
-        run = mlflow.active_run() or mlflow.start_run()
+        preexisting_run = mlflow.active_run()
+        run = preexisting_run or mlflow.start_run()
         self._run_id = run.info.run_id
         dest = dest or self._file_name or file.get_default_path()  # dest has a higher priority than file_name
         output = self._get_temp_directory(dest=dest)
         response = file.write(path=output)  # type: ignore
         mlflow.log_artifact(output, artifact_path=self._file_dir)
 
-        if self._end_run is True:
+        if self._end_run is True and not preexisting_run:
             mlflow.end_run()
         return response
 
