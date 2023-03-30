@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Dict, Optional
+from functools import reduce
+from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import Literal
 
@@ -17,6 +18,10 @@ from whylogs.api.logger.segment_processing import (
     _log_segment,
 )
 from whylogs.api.logger.transient import TransientLogger
+from whylogs.api.whylabs.session.notebook_logger import (
+    notebook_session_log,
+    notebook_session_log_comparison,
+)
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
@@ -24,6 +29,8 @@ from whylogs.core.model_performance_metrics.model_performance_metrics import (
 from whylogs.core.stubs import pd
 
 diagnostic_logger = logging.getLogger(__name__)
+
+Loggable = Union["pd.DataFrame", List[Dict[str, Any]]]
 
 
 def log(
@@ -33,8 +40,22 @@ def log(
     row: Optional[Dict[str, Any]] = None,
     schema: Optional[DatasetSchema] = None,
     name: Optional[str] = None,
+    multiple: Optional[Dict[str, Loggable]] = None,
 ) -> ResultSet:
-    return TransientLogger(schema=schema).log(obj, pandas=pandas, row=row, name=name)
+    if multiple is not None:
+        result_sets: Dict[str, ResultSet] = {}
+        for alias, d in multiple.items():
+            result_set = log(obj=d, schema=schema)
+            result_sets[alias] = result_set
+
+        # Return one result set with everything in it since we have to return result_sets
+        result_set = reduce(lambda r1, r2: r1.merge(r2), result_sets.values())
+        notebook_session_log_comparison(multiple, result_sets)
+        return result_set
+    else:
+        result_set = TransientLogger(schema=schema).log(obj, pandas=pandas, row=row, name=name)
+        notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
+        return result_set
 
 
 def _log_with_metrics(
