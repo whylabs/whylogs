@@ -17,8 +17,10 @@ These three functionalities enable a variety of use cases for data scientists, m
 """
 from .api import (
     ResultSet,
+    batch_log_reference,
     log,
     log_classification_metrics,
+    log_reference,
     log_regression_metrics,
     logger,
     profiling,
@@ -27,6 +29,7 @@ from .api import (
     write,
 )
 from .api.usage_stats import emit_usage as __emit_usage_stats
+from .api.whylabs import init
 from .core import DatasetProfileView
 from .migration.converters import v0_to_v1_view
 
@@ -53,6 +56,8 @@ __ALL__ = [
     ResultSet,
     DatasetProfileView,
     log,
+    log_reference,
+    batch_log_reference,
     log_classification_metrics,
     log_regression_metrics,
     logger,
@@ -62,6 +67,7 @@ __ALL__ = [
     profiling,
     v0_to_v1_view,
     __version__,
+    init,
 ]
 
 __emit_usage_stats("import")
