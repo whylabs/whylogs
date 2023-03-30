@@ -12,7 +12,7 @@ from whylogs.api.logger.segment_processing import segment_processing
 from whylogs.api.store import ProfileStore
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
-from whylogs.core import DatasetProfile, DatasetSchema
+from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
 
 from .future_util import wait_result
 from .message_processor import CloseMessage, MessageProcessor
@@ -102,6 +102,16 @@ class DatasetProfileContainer:
         finally:
             self._active = False
 
+    def to_views(self) -> List[DatasetProfileView]:
+        if isinstance(self._target, SegmentCache):
+            result_set = self._target.get_result_set(dataset_timestamp=self._dataset_timestamp)
+            segments = result_set.segments() or []
+            return [it for it in [result_set.view(segment) for segment in segments] if it is not None]
+        elif isinstance(self._target, DatasetProfile):
+            return [self._target.view()]
+
+        raise Exception("Unknown profile type")
+
 
 @dataclass
 class TrackMessage:
@@ -127,6 +137,11 @@ class FlushMessage:
     """
 
     pass
+
+
+@dataclass
+class GetResultsMessage:
+    result: Future[Dict[int, List[DatasetProfileView]]]
 
 
 @dataclass
@@ -169,7 +184,7 @@ class PendingWritable:
     writable: Writable
 
 
-LoggerMessage = Union[TrackMessage, FlushMessage, StatusMessage]
+LoggerMessage = Union[TrackMessage, FlushMessage, StatusMessage, GetResultsMessage]
 
 
 class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
@@ -228,9 +243,19 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
             self._process_close_message(message)
         elif isinstance(message, StatusMessage):
             self._process_status_message(message)
+        elif isinstance(message, GetResultsMessage):
+            self._process_get_results_message(message)
         else:
             # Safe guard for forgetting to handle a message in development
             raise Exception(f"Don't know how to handle message {message}")
+
+    def _process_get_results_message(self, message: GetResultsMessage) -> None:
+        items: Dict[int, List[DatasetProfileView]] = {}
+        for dataset_timestamp, container in self._cache.items():
+            self._logger.debug(f"Generating views for dataset timestamp {dataset_timestamp}")
+            items[dataset_timestamp] = container.to_views()
+
+        message.result.set_result(items)
 
     def _process_status_message(self, message: StatusMessage) -> None:
         profiles = 0
@@ -274,7 +299,8 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
         for dataset_timestamp, container in self._cache.items():
             self._logger.debug(f"Generating result set for dataset timestamp {dataset_timestamp}")
 
-            for writable in container.to_result_set().get_writables() or []:
+            result_set = container.to_result_set()
+            for writable in result_set.get_writables() or []:
                 for pending in self._writers.values():
                     pending.append(PendingWritable(attempts=0, writable=writable))
 
@@ -350,8 +376,8 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
             sync: Whether or not to perform this action synchronously. By default, this is an asynchronous operation.
                 You can make this synchronous in order to react to errors. Mostly useful when initially setting up
                 logging since the only errors that can be responded to are data format related.
-
         """
+
         result: Optional[Future[None]] = Future() if sync else None
         self.send(TrackMessage(data=data, timestamp_ms=timestamp_ms or current_time_ms(), result=result))
         if result is not None:
@@ -362,3 +388,11 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
         Flush the internal state, causing everything to be written using the configured writers.
         """
         self.send(FlushMessage())
+
+    def get_profile_views(self) -> Dict[int, List[DatasetProfileView]]:
+        """
+        Get all of the profile views for each dataset timestamp being maintained.
+        """
+        result: Future[Dict[int, List[DatasetProfileView]]] = Future()
+        self.send(GetResultsMessage(result))
+        return wait_result(result)
