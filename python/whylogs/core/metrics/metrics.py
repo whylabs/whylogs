@@ -273,7 +273,15 @@ class DistributionMetric(Metric):
                     if n_b > 1:
                         n_b = len(arr)
                         mean_b = arr.mean()
-                        m2_b = arr.var() * (n_b - 1)
+                        # NOTE: there was a bug in PreprocessedColumn that would sometimes put
+                        # pd.Series values in the numpy subviews. pandas and numpy have opposite
+                        # default degrees of freedom :( so this matches the behavior from before
+                        # the bug fix to make the numpy subviews always np.ndarray
+                        if isinstance(view.original, pd.Series):
+                            ddof = 1
+                        else:
+                            ddof = 0
+                        m2_b = arr.var(ddof=ddof) * (n_b - 1)
 
                         second = VarianceM2Result(n=n_b, mean=mean_b, m2=m2_b)
                         first = parallel_variance_m2(first=first, second=second)
@@ -462,7 +470,7 @@ class FrequentItemsMetric(Metric):
                 successes += len(arr)
         # TODO: Include strings in above when we update whylogs-sketching fi.update_np to take strings
         if view.numpy.strings is not None:
-            self.frequent_strings.value.update_np(view.numpy.strings.to_list())
+            self.frequent_strings.value.update_str_list(view.numpy.strings.tolist())
             successes += len(view.numpy.strings)
         if view.pandas.strings is not None:
             strings = [s[0 : self.max_frequent_item_size] for s in view.pandas.strings.to_list()]
@@ -538,6 +546,10 @@ class CardinalityMetric(Metric):
             if view.numpy.floats is not None:
                 self.hll.value.update_np(view.numpy.floats)
                 successes += len(view.numpy.floats)
+            if view.numpy.strings is not None:
+                self.hll.value.update_str_list(view.numpy.strings.tolist())
+                successes += len(view.numpy.strings)
+
         if view.pandas.strings is not None:
             self.hll.value.update_str_list(view.pandas.strings.to_list())
             successes += len(view.pandas.strings)
