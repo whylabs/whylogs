@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import Literal
 
@@ -17,6 +17,7 @@ from whylogs.api.logger.segment_processing import (
     _log_segment,
 )
 from whylogs.api.logger.transient import TransientLogger
+from whylogs.api.whylabs.session_manager import get_current_session
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
@@ -34,6 +35,68 @@ def log(
     schema: Optional[DatasetSchema] = None,
 ) -> ResultSet:
     return TransientLogger(schema=schema).log(obj, pandas=pandas, row=row)
+
+
+def log_reference(
+    alias: str,
+    obj: Any = None,
+    *,
+    pandas: Optional[pd.DataFrame] = None,
+    row: Optional[Dict[str, Any]] = None,
+    schema: Optional[DatasetSchema] = None,
+) -> ResultSet:
+    result_set = log(obj, pandas=pandas, row=row, schema=schema)
+
+    session = get_current_session()
+    if session is None:
+        diagnostic_logger.warning("😭 No active session found. Skipping reference profile upload.")
+        return result_set
+
+    profiles: Dict[str, ResultSet] = {}
+    profiles[alias] = result_set
+
+    try:
+        result = session.upload_reference_profiles(profiles)
+        print("Visualize and explore this profile with one-click")
+        print(f"🔍 {result.viewing_url}")
+    except Exception as e:
+        # Don't throw, just don't upload
+        diagnostic_logger.error(f"Failed to upload reference profile: {e}")
+
+    return result_set
+
+
+Loggable = Union[pd.DataFrame, Dict[str, Any], List[pd.DataFrame], List[Dict[str, Any]]]
+
+
+def batch_log_reference(
+    data: Dict[str, Loggable],
+    schema: Optional[DatasetSchema] = None,
+) -> List[ResultSet]:
+    result_sets: Dict[str, ResultSet] = {}
+    for alias, d in data.items():
+        result_sets[alias] = log(obj=d, schema=schema)
+
+    session = get_current_session()
+    if session is None:
+        diagnostic_logger.warning("😭 No active session found. Skipping reference profile upload.")
+        return list(result_sets.values())
+
+    try:
+        result = session.upload_reference_profiles(result_sets)
+        print("Visualize and explore the profiles with one-click")
+        print(f"🔍 {result.viewing_url}")
+
+        print()
+        print("Or view each profile individually")
+        for item in result.whylabs_response.references:
+            print(f" ⤷ {item.observatory_url}")
+
+    except Exception as e:
+        # Don't throw, just don't upload
+        diagnostic_logger.error(f"Failed to upload reference profile: {e}")
+
+    return list(result_sets.values())
 
 
 def _log_with_metrics(

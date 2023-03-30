@@ -11,7 +11,7 @@ import requests  # type: ignore
 import whylabs_client  # type: ignore
 from urllib3 import PoolManager, ProxyManager
 from whylabs_client import ApiClient, Configuration  # type: ignore
-from whylabs_client.api.feature_weights_api import FeatureWeightsApi
+from whylabs_client.api.feature_weights_api import FeatureWeightsApi  # type: ignore
 from whylabs_client.api.log_api import AsyncLogResponse  # type: ignore
 from whylabs_client.api.log_api import (
     LogApi,
@@ -19,8 +19,8 @@ from whylabs_client.api.log_api import (
     LogReferenceRequest,
     LogReferenceResponse,
 )
-from whylabs_client.api.models_api import ModelsApi
-from whylabs_client.model.column_schema import ColumnSchema
+from whylabs_client.api.models_api import ModelsApi  # type: ignore
+from whylabs_client.model.column_schema import ColumnSchema  # type: ignore
 from whylabs_client.rest import ForbiddenException  # type: ignore
 
 from whylogs import __version__ as _version
@@ -52,6 +52,7 @@ logger = logging.getLogger(__name__)
 
 API_KEY_ENV = "WHYLABS_API_KEY"
 
+# TODO share this client
 _API_CLIENT_CACHE: Dict[str, ApiClient] = dict()
 _UPLOAD_POOLER_CACHE: Dict[str, Union[PoolManager, ProxyManager]] = dict()
 
