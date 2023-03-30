@@ -135,7 +135,7 @@ class ResultSetWriter:
             logger.debug(f"About to write {len(files)} files:")
             # TODO: special handling of large number of files, handle throttling
             for view in files:
-                self._writer.write(profile=view, **kwargs)
+                self._writer.write(file=view, **kwargs)
             logger.debug(f"Completed writing {len(files)} files!")
 
 
