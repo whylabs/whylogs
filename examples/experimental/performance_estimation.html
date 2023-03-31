@@ -1119,7 +1119,7 @@ Day 0 accuracy - estimated: 0.6387135902595148
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.experimental.performance_estimation</span> <span class="kn">import</span> <span class="n">AccuracyEstimator</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.experimental.performance_estimation.estimators</span> <span class="kn">import</span> <span class="n">AccuracyEstimator</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># default=&#39;warn’</span>
@@ -1247,9 +1247,8 @@ Estimated MSE: 5.36355459317329e-05, Pre-deployment MSE: 0.0005099683612281597
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
-<span class="kn">from</span> <span class="nn">whylogs.experimental.performance_estimation</span> <span class="kn">import</span> <span class="n">AccuracyEstimator</span>
+<span class="kn">from</span> <span class="nn">whylogs.experimental.performance_estimation.estimators</span> <span class="kn">import</span> <span class="n">AccuracyEstimator</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span>
-<span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 
 <span class="n">writer</span> <span class="o">=</span> <span class="n">WhyLabsWriter</span><span class="p">()</span>
 <span class="n">estimator</span> <span class="o">=</span> <span class="n">AccuracyEstimator</span><span class="p">(</span><span class="n">reference_result_set</span> <span class="o">=</span> <span class="n">reference_results</span><span class="p">)</span>
