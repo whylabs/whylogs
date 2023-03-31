@@ -59,13 +59,13 @@ def assert_list_view_correct_types(view: ListView) -> None:
             assert isinstance(subview, list)
 
 
-def assert_numpy_view_correct_types(view: ListView) -> None:
+def assert_numpy_view_correct_types(view: NumpyView) -> None:
     for subview in [view.ints, view.floats, view.strings]:
         if subview is not None:
             assert isinstance(subview, np.ndarray)
 
 
-def assert_pandas_view_correct_types(view: ListView) -> None:
+def assert_pandas_view_correct_types(view: PandasView) -> None:
     for subview in [view.strings, view.tensors, view.objs]:
         if subview is not None:
             assert isinstance(subview, pd.Series)
