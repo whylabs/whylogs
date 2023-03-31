@@ -7,7 +7,7 @@ from whylogs.api.logger.experimental.multi_dataset_logger.time_util import (
     TimeGranularity,
 )
 
-# A sequence of times get instantiated, so we need global state for them
+# A sequence of timers get instantiated, so we need global state for them
 # to simulate universal time.
 
 _FAKE_TIMES: List[float] = []  # list of times (seconds) where the FakeTimer
