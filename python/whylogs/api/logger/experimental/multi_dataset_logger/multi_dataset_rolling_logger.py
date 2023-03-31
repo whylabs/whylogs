@@ -232,6 +232,11 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
                 raise Exception("Minimum write schedule is five minutes.")
 
             self._timer = FunctionTimer(write_schedule, self.flush)
+        else:
+            self._logger.warning(
+                "No write schedule defined for logger. Profiles will only be written after calls to flush()."
+            )
+
         super().__init__()
 
     def _process_message(self, message: Union[LoggerMessage, CloseMessage]) -> None:
