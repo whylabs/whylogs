@@ -291,7 +291,7 @@ class DistributionMetric(Metric):
                 n_b = len(lst)
                 if n_b > 1:
                     mean_b = statistics.mean(lst)
-                    m2_b = statistics.pvariance(lst) * (n_b)
+                    m2_b = statistics.variance(lst) * (n_b - 1)
                     second = VarianceM2Result(n=n_b, mean=mean_b, m2=m2_b)
 
                     first = parallel_variance_m2(first=first, second=second)

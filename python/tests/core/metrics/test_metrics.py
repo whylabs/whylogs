@@ -26,7 +26,7 @@ def test_distribution_metrics_numpy() -> None:
 
     assert dist.kll.value.get_n() == 100
     assert dist.mean.value == arr.mean()
-    assert dist.variance == arr.var()
+    assert dist.variance == arr.var(ddof=1)
 
     distribution_summary = dist.to_summary_dict()
     assert distribution_summary["q_01"] == 1.0
@@ -58,7 +58,7 @@ def test_distribution_variance_m2() -> None:
     list_test_input.list.ints = test_input
     n = len(test_input)
     mean = sum(test_input) / n
-    variance = statistics.variance(test_input)
+    variance = statistics.variance(test_input)  # sample variance, uses n-1 normalization
     m2 = (n - 1) * variance
     TEST_LOGGER.info(f"statistic package using input {test_input} has variance={variance}, m2={m2}, n={n}")
     pandas_test_input = PreprocessedColumn.apply(pd.Series(test_input))
@@ -100,7 +100,7 @@ def test_distribution_metrics_list() -> None:
 
     assert dist.kll.value.get_n() == 100
     assert dist.mean.value == np.array(data).mean()
-    assert dist.variance == np.array(data).var()
+    assert dist.variance == np.array(data).var(ddof=1)
 
 
 def test_distribution_metrics_mixed_np_and_list() -> None:
@@ -116,8 +116,8 @@ def test_distribution_metrics_mixed_np_and_list() -> None:
 
     assert dist.mean.value == np.array(np.concatenate([a, b])).mean()
 
-    m2_a = a.var() * (len(a) - 1)
-    m2_b = b.var() * (len(b) - 1)
+    m2_a = a.var(ddof=1) * (len(a) - 1)
+    m2_b = b.var(ddof=1) * (len(b) - 1)
     a_var = VarianceM2Result(n=len(a), mean=a.mean(), m2=m2_a)
     b_var = VarianceM2Result(n=len(b), mean=b.mean(), m2=m2_b)
     overall = parallel_variance_m2(first=a_var, second=b_var)
