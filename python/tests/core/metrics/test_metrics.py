@@ -1,4 +1,5 @@
 from logging import getLogger
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -14,6 +15,7 @@ from whylogs.core.metrics.metrics import (
 from whylogs.core.preprocessing import PreprocessedColumn
 
 TEST_LOGGER = getLogger(__name__)
+
 
 def test_distribution_metrics_numpy() -> None:
     dist = DistributionMetric.zero(MetricConfig())
@@ -43,19 +45,21 @@ def test_distribution_metrics_series() -> None:
     assert dist.mean.value == data.mean()
     assert dist.variance == data.var()
 
+
 def test_distribution_variance_m2() -> None:
     import statistics
+
     dist_list = DistributionMetric.zero(MetricConfig())
     dist_pandas = DistributionMetric.zero(MetricConfig())
     dist_numpy = DistributionMetric.zero(MetricConfig())
     test_input = [1, 2, 3, 4]
-    
+
     list_test_input = PreprocessedColumn()
     list_test_input.list.ints = test_input
     n = len(test_input)
     mean = sum(test_input) / n
     variance = statistics.variance(test_input)
-    m2 = (n-1) * variance
+    m2 = (n - 1) * variance
     TEST_LOGGER.info(f"statistic package using input {test_input} has variance={variance}, m2={m2}, n={n}")
     pandas_test_input = PreprocessedColumn.apply(pd.Series(test_input))
     numpy_test_input = PreprocessedColumn.apply(np.array(test_input))
@@ -75,7 +79,6 @@ def test_distribution_variance_m2() -> None:
     assert dist_list.avg == mean
     assert dist_pandas.avg == mean
     assert dist_numpy.avg == mean
-
 
 
 def test_distribution_metrics_indexed_series_single_row() -> None:
