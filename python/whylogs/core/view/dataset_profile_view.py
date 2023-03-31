@@ -231,12 +231,10 @@ class DatasetProfileView(Writable):
         tags: Optional[Dict[str, str]],
         metadata: Optional[Dict[str, str]],
     ) -> Optional[Dict[str, str]]:
-        # nothing to split, return (None, None)
-        # for use in serializing dataset property's tags and metadata
         if not tags:
             return dict(metadata) if metadata else None
         if not metadata:
-            return dict(tags) if tags else None
+            return dict(tags)
         merged_meta = dict()
         merged_meta.update(tags)
         merged_meta.update(metadata)
