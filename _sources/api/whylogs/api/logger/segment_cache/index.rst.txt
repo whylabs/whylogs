@@ -44,6 +44,9 @@ Attributes
    .. py:method:: get_segments() -> Dict[whylogs.core.segment.Segment, whylogs.core.dataset_profile.DatasetProfile]
 
 
+   .. py:method:: get_result_set(dataset_timestamp: Optional[datetime.datetime]) -> whylogs.api.logger.result_set.SegmentedResultSet
+
+
    .. py:method:: flush(dataset_timestamp: Optional[datetime.datetime]) -> whylogs.api.logger.result_set.SegmentedResultSet
 
 

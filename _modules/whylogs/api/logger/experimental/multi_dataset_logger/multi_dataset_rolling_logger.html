@@ -431,7 +431,7 @@
 <span class="kn">from</span> <span class="nn">whylogs.api.store</span> <span class="kn">import</span> <span class="n">ProfileStore</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer</span> <span class="kn">import</span> <span class="n">Writer</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer.writer</span> <span class="kn">import</span> <span class="n">Writable</span>
-<span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetSchema</span>
+<span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">DatasetSchema</span>
 
 <span class="kn">from</span> <span class="nn">.future_util</span> <span class="kn">import</span> <span class="n">wait_result</span>
 <span class="kn">from</span> <span class="nn">.message_processor</span> <span class="kn">import</span> <span class="n">CloseMessage</span><span class="p">,</span> <span class="n">MessageProcessor</span>
@@ -519,7 +519,17 @@
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">DatasetProfile</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">ProfileResultSet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_active</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_active</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="DatasetProfileContainer.to_views"><a class="viewcode-back" href="../../../../../../api/whylogs/api/logger/experimental/multi_dataset_logger/multi_dataset_rolling_logger/index.html#whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.DatasetProfileContainer.to_views">[docs]</a>    <span class="k">def</span> <span class="nf">to_views</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">SegmentCache</span><span class="p">):</span>
+            <span class="n">result_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">get_result_set</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span><span class="p">)</span>
+            <span class="n">segments</span> <span class="o">=</span> <span class="n">result_set</span><span class="o">.</span><span class="n">segments</span><span class="p">()</span> <span class="ow">or</span> <span class="p">[]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="p">[</span><span class="n">result_set</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span> <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">]</span> <span class="k">if</span> <span class="n">it</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">DatasetProfile</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">view</span><span class="p">()]</span>
+
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown profile type&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="TrackMessage"><a class="viewcode-back" href="../../../../../../api/whylogs/api/logger/experimental/multi_dataset_logger/multi_dataset_rolling_logger/index.html#whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.TrackMessage">[docs]</a><span class="nd">@dataclass</span>
@@ -546,6 +556,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="GetResultsMessage"><a class="viewcode-back" href="../../../../../../api/whylogs/api/logger/experimental/multi_dataset_logger/multi_dataset_rolling_logger/index.html#whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.GetResultsMessage">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">GetResultsMessage</span><span class="p">:</span>
+    <span class="n">result</span><span class="p">:</span> <span class="n">Future</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]]]</span></div>
 
 
 <div class="viewcode-block" id="LoggerStatus"><a class="viewcode-back" href="../../../../../../api/whylogs/api/logger/experimental/multi_dataset_logger/multi_dataset_rolling_logger/index.html#whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.LoggerStatus">[docs]</a><span class="nd">@dataclass</span>
@@ -588,7 +603,7 @@
     <span class="n">writable</span><span class="p">:</span> <span class="n">Writable</span></div>
 
 
-<span class="n">LoggerMessage</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">TrackMessage</span><span class="p">,</span> <span class="n">FlushMessage</span><span class="p">,</span> <span class="n">StatusMessage</span><span class="p">]</span>
+<span class="n">LoggerMessage</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">TrackMessage</span><span class="p">,</span> <span class="n">FlushMessage</span><span class="p">,</span> <span class="n">StatusMessage</span><span class="p">,</span> <span class="n">GetResultsMessage</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="MultiDatasetRollingLogger"><a class="viewcode-back" href="../../../../../../api/whylogs/api/logger/experimental/multi_dataset_logger/multi_dataset_rolling_logger/index.html#whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.MultiDatasetRollingLogger">[docs]</a><span class="k">class</span> <span class="nc">MultiDatasetRollingLogger</span><span class="p">(</span><span class="n">MessageProcessor</span><span class="p">[</span><span class="n">LoggerMessage</span><span class="p">]):</span>
@@ -614,7 +629,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">aggregate_by</span><span class="p">:</span> <span class="n">TimeGranularity</span> <span class="o">=</span> <span class="n">TimeGranularity</span><span class="o">.</span><span class="n">Hour</span><span class="p">,</span>
-        <span class="n">write_schedule</span><span class="p">:</span> <span class="n">Schedule</span> <span class="o">=</span> <span class="n">Schedule</span><span class="p">(</span><span class="n">cadence</span><span class="o">=</span><span class="n">TimeGranularity</span><span class="o">.</span><span class="n">Minute</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+        <span class="n">write_schedule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Schedule</span><span class="p">]</span> <span class="o">=</span> <span class="n">Schedule</span><span class="p">(</span><span class="n">cadence</span><span class="o">=</span><span class="n">TimeGranularity</span><span class="o">.</span><span class="n">Minute</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
         <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">writers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Writer</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -628,13 +643,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_store_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ProfileStore</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">if</span> <span class="n">write_schedule</span><span class="o">.</span><span class="n">cadence</span> <span class="o">==</span> <span class="n">TimeGranularity</span><span class="o">.</span><span class="n">Second</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Minimum write schedule is five minutes.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">write_schedule</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">write_schedule</span><span class="o">.</span><span class="n">cadence</span> <span class="o">==</span> <span class="n">TimeGranularity</span><span class="o">.</span><span class="n">Second</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Minimum write schedule is five minutes.&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">write_schedule</span><span class="o">.</span><span class="n">cadence</span> <span class="o">==</span> <span class="n">TimeGranularity</span><span class="o">.</span><span class="n">Minute</span> <span class="ow">and</span> <span class="n">write_schedule</span><span class="o">.</span><span class="n">interval</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Minimum write schedule is five minutes.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">write_schedule</span><span class="o">.</span><span class="n">cadence</span> <span class="o">==</span> <span class="n">TimeGranularity</span><span class="o">.</span><span class="n">Minute</span> <span class="ow">and</span> <span class="n">write_schedule</span><span class="o">.</span><span class="n">interval</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Minimum write schedule is five minutes.&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span> <span class="o">=</span> <span class="n">FunctionTimer</span><span class="p">(</span><span class="n">write_schedule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flush</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span> <span class="o">=</span> <span class="n">FunctionTimer</span><span class="p">(</span><span class="n">write_schedule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flush</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_process_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">LoggerMessage</span><span class="p">,</span> <span class="n">CloseMessage</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -646,9 +662,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_process_close_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">StatusMessage</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_process_status_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">GetResultsMessage</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process_get_results_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Safe guard for forgetting to handle a message in development</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Don&#39;t know how to handle message </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_process_get_results_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">GetResultsMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">items</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">dataset_timestamp</span><span class="p">,</span> <span class="n">container</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating views for dataset timestamp </span><span class="si">{</span><span class="n">dataset_timestamp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">items</span><span class="p">[</span><span class="n">dataset_timestamp</span><span class="p">]</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">to_views</span><span class="p">()</span>
+
+        <span class="n">message</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_process_status_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">StatusMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">profiles</span> <span class="o">=</span> <span class="mi">0</span>
@@ -675,7 +701,8 @@
         <span class="n">message</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_process_close_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">CloseMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="c1"># Force wait for all writers to handle their pending items</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_flush_message</span><span class="p">(</span><span class="n">FlushMessage</span><span class="p">())</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_pending</span><span class="p">():</span>
@@ -691,7 +718,8 @@
         <span class="k">for</span> <span class="n">dataset_timestamp</span><span class="p">,</span> <span class="n">container</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating result set for dataset timestamp </span><span class="si">{</span><span class="n">dataset_timestamp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">writable</span> <span class="ow">in</span> <span class="n">container</span><span class="o">.</span><span class="n">to_result_set</span><span class="p">()</span><span class="o">.</span><span class="n">get_writables</span><span class="p">()</span> <span class="ow">or</span> <span class="p">[]:</span>
+            <span class="n">result_set</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">to_result_set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">writable</span> <span class="ow">in</span> <span class="n">result_set</span><span class="o">.</span><span class="n">get_writables</span><span class="p">()</span> <span class="ow">or</span> <span class="p">[]:</span>
                 <span class="k">for</span> <span class="n">pending</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                     <span class="n">pending</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PendingWritable</span><span class="p">(</span><span class="n">attempts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">writable</span><span class="o">=</span><span class="n">writable</span><span class="p">))</span>
 
@@ -767,8 +795,8 @@
 <span class="sd">            sync: Whether or not to perform this action synchronously. By default, this is an asynchronous operation.</span>
 <span class="sd">                You can make this synchronous in order to react to errors. Mostly useful when initially setting up</span>
 <span class="sd">                logging since the only errors that can be responded to are data format related.</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">result</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Future</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Future</span><span class="p">()</span> <span class="k">if</span> <span class="n">sync</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">TrackMessage</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span> <span class="ow">or</span> <span class="n">current_time_ms</span><span class="p">(),</span> <span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -778,7 +806,15 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Flush the internal state, causing everything to be written using the configured writers.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">FlushMessage</span><span class="p">())</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">FlushMessage</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="MultiDatasetRollingLogger.get_profile_views"><a class="viewcode-back" href="../../../../../../api/whylogs/api/logger/experimental/multi_dataset_logger/multi_dataset_rolling_logger/index.html#whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.MultiDatasetRollingLogger.get_profile_views">[docs]</a>    <span class="k">def</span> <span class="nf">get_profile_views</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all of the profile views for each dataset timestamp being maintained.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span><span class="p">:</span> <span class="n">Future</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">Future</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">GetResultsMessage</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">wait_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div></div>
 </pre></div>
         </article>
       </div>

@@ -15,6 +15,7 @@ Classes
    whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.DatasetProfileContainer
    whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.TrackMessage
    whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.FlushMessage
+   whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.GetResultsMessage
    whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.LoggerStatus
    whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.StatusMessage
    whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger.PendingWritable
@@ -62,6 +63,9 @@ Attributes
       is inside when this is called.
 
 
+   .. py:method:: to_views() -> List[whylogs.core.DatasetProfileView]
+
+
 
 .. py:class:: TrackMessage
 
@@ -99,6 +103,14 @@ Attributes
 .. py:class:: FlushMessage
 
    Trigger a flush, converting all managed profiles to result sets and attempt to write them if there are writers.
+
+
+.. py:class:: GetResultsMessage
+
+   .. py:attribute:: result
+      :type: concurrent.futures.Future[Dict[int, List[whylogs.core.DatasetProfileView]]]
+
+      
 
 
 .. py:class:: LoggerStatus
@@ -183,7 +195,7 @@ Attributes
 
    
 
-.. py:class:: MultiDatasetRollingLogger(aggregate_by: whylogs.api.logger.experimental.multi_dataset_logger.time_util.TimeGranularity = TimeGranularity.Hour, write_schedule: whylogs.api.logger.experimental.multi_dataset_logger.time_util.Schedule = Schedule(cadence=TimeGranularity.Minute, interval=10), schema: Optional[whylogs.core.DatasetSchema] = None, writers: List[whylogs.api.writer.Writer] = [])
+.. py:class:: MultiDatasetRollingLogger(aggregate_by: whylogs.api.logger.experimental.multi_dataset_logger.time_util.TimeGranularity = TimeGranularity.Hour, write_schedule: Optional[whylogs.api.logger.experimental.multi_dataset_logger.time_util.Schedule] = Schedule(cadence=TimeGranularity.Minute, interval=10), schema: Optional[whylogs.core.DatasetSchema] = None, writers: List[whylogs.api.writer.Writer] = [])
 
    Bases: :py:obj:`whylogs.api.logger.experimental.multi_dataset_logger.message_processor.MessageProcessor`\ [\ :py:obj:`LoggerMessage`\ ]
 
@@ -245,6 +257,11 @@ Attributes
    .. py:method:: flush() -> None
 
       Flush the internal state, causing everything to be written using the configured writers.
+
+
+   .. py:method:: get_profile_views() -> Dict[int, List[whylogs.core.DatasetProfileView]]
+
+      Get all of the profile views for each dataset timestamp being maintained.
 
 
    .. py:method:: run() -> None
