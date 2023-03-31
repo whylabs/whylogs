@@ -215,6 +215,10 @@ def test_zero_and_merging() -> None:
     max2 = merged1_2.get_column("weight").get_metric("distribution").max
     assert max1 == max2
 
+    _assert_profiles_are_equal(view1, merged_zero_1)
+    _assert_profiles_are_equal(view2, merged_zero_2)
+    _assert_profiles_are_equal(merged1_2, merged_zero_1_2)
+
 
 def test_segmented_round_trip_metadata(tmp_path: str) -> None:
     df = pd.DataFrame(
