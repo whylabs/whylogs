@@ -1,3 +1,5 @@
+from logging import getLogger
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -12,6 +14,8 @@ from whylogs.core.metrics.metrics import (
 )
 from whylogs.core.preprocessing import PreprocessedColumn
 
+TEST_LOGGER = getLogger(__name__)
+
 
 def test_distribution_metrics_numpy() -> None:
     dist = DistributionMetric.zero(MetricConfig())
@@ -22,7 +26,7 @@ def test_distribution_metrics_numpy() -> None:
 
     assert dist.kll.value.get_n() == 100
     assert dist.mean.value == arr.mean()
-    assert dist.variance == arr.var()
+    assert dist.variance == arr.var(ddof=1)
 
     distribution_summary = dist.to_summary_dict()
     assert distribution_summary["q_01"] == 1.0
@@ -40,6 +44,41 @@ def test_distribution_metrics_series() -> None:
     assert dist.kll.value.get_n() == 100
     assert dist.mean.value == data.mean()
     assert dist.variance == data.var()
+
+
+def test_distribution_variance_m2() -> None:
+    import statistics
+
+    dist_list = DistributionMetric.zero(MetricConfig())
+    dist_pandas = DistributionMetric.zero(MetricConfig())
+    dist_numpy = DistributionMetric.zero(MetricConfig())
+    test_input = [1, 2, 3, 4]
+
+    list_test_input = PreprocessedColumn()
+    list_test_input.list.ints = test_input
+    n = len(test_input)
+    mean = sum(test_input) / n
+    variance = statistics.variance(test_input)  # sample variance, uses n-1 normalization
+    m2 = (n - 1) * variance
+    TEST_LOGGER.info(f"statistic package using input {test_input} has variance={variance}, m2={m2}, n={n}")
+    pandas_test_input = PreprocessedColumn.apply(pd.Series(test_input))
+    numpy_test_input = PreprocessedColumn.apply(np.array(test_input))
+    dist_list.columnar_update(list_test_input)
+    dist_pandas.columnar_update(pandas_test_input)
+    dist_numpy.columnar_update(numpy_test_input)
+
+    TEST_LOGGER.info(f"dist_list={dist_list.to_summary_dict()}")
+    TEST_LOGGER.info(f"dist_pandas={dist_pandas.to_summary_dict()}")
+    TEST_LOGGER.info(f"dist_numpy={dist_numpy.to_summary_dict()}")
+    assert dist_list.m2.value == m2
+    assert dist_pandas.m2.value == m2
+    assert dist_numpy.m2.value == m2
+    assert dist_list.variance == variance
+    assert dist_pandas.variance == variance
+    assert dist_numpy.variance == variance
+    assert dist_list.avg == mean
+    assert dist_pandas.avg == mean
+    assert dist_numpy.avg == mean
 
 
 def test_distribution_metrics_indexed_series_single_row() -> None:
@@ -61,7 +100,7 @@ def test_distribution_metrics_list() -> None:
 
     assert dist.kll.value.get_n() == 100
     assert dist.mean.value == np.array(data).mean()
-    assert dist.variance == np.array(data).var()
+    assert dist.variance == np.array(data).var(ddof=1)
 
 
 def test_distribution_metrics_mixed_np_and_list() -> None:
@@ -77,8 +116,8 @@ def test_distribution_metrics_mixed_np_and_list() -> None:
 
     assert dist.mean.value == np.array(np.concatenate([a, b])).mean()
 
-    m2_a = a.var() * (len(a) - 1)
-    m2_b = b.var() * (len(b) - 1)
+    m2_a = a.var(ddof=1) * (len(a) - 1)
+    m2_b = b.var(ddof=1) * (len(b) - 1)
     a_var = VarianceM2Result(n=len(a), mean=a.mean(), m2=m2_a)
     b_var = VarianceM2Result(n=len(b), mean=b.mean(), m2=m2_b)
     overall = parallel_variance_m2(first=a_var, second=b_var)
