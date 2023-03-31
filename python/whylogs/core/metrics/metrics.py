@@ -329,7 +329,7 @@ class DistributionMetric(Metric):
 
     @property
     def variance(self) -> float:
-        """Returns the population variance of the stream.
+        """Returns the sample variance of the stream.
 
         https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm
         """
