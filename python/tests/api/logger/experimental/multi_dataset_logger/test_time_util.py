@@ -1,6 +1,3 @@
-from threading import Timer
-from typing import Callable, List
-
 import utils as u
 
 from whylogs.api.logger.experimental.multi_dataset_logger.time_util import (

@@ -1,6 +1,5 @@
 from typing import Callable, List
 
-
 # A sequence of timers get instantiated, so we need global state for them
 # to simulate universal time.
 

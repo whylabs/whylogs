@@ -1,11 +1,10 @@
 import functools
 import math
 import os
-
 from datetime import datetime, timezone
 from os import listdir
 from os.path import isfile
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Optional, Tuple
 from unittest.mock import MagicMock
 
 import pandas as pd
@@ -94,7 +93,9 @@ def test_rolling(tmp_path: Any) -> None:
     with why.logger(mode="rolling", interval=1, when="S", base_name="test_base_name") as logger:
         logger.append_writer(writer=TestWriter(base_dir=tmp_path))
         logger.log(df)
-        u._FAKE_TIMES = [x / 10.0 for x in range(16)]  # run for 1.5s, might fire 1 or 2 times depending on initial_run_after
+        u._FAKE_TIMES = [
+            x / 10.0 for x in range(16)
+        ]  # run for 1.5s, might fire 1 or 2 times depending on initial_run_after
         u._TIME_INDEX = 0
         logger._scheduler._timer.start()
 
@@ -102,7 +103,9 @@ def test_rolling(tmp_path: Any) -> None:
         elapsed = u._FAKE_TIMES[-1]
         assert math.floor(elapsed) <= count_files(tmp_path) <= math.ceil(elapsed)
 
-        u._FAKE_TIMES = [1.5 + x / 10.0 for x in range(17)]  # run another 1.5s, fires 1 or 2 times depending on alignment
+        u._FAKE_TIMES = [
+            1.5 + x / 10.0 for x in range(17)
+        ]  # run another 1.5s, fires 1 or 2 times depending on alignment
         u._TIME_INDEX = 0
         logger.log(df)
         logger._scheduler._timer.start()
