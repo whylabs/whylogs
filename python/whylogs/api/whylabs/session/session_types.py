@@ -12,8 +12,6 @@ class NotSupported:
     Indicates that one of the session apis isn't supported for the current session type.
     """
 
-    pass
-
 
 class InteractiveLogger:
     """

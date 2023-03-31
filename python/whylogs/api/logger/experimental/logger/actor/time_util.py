@@ -99,6 +99,7 @@ class FunctionTimer:
         return self._timer.is_alive()
 
     def stop(self) -> None:
+        self._logger.info("Stopping timer")
         if not self._running:
             raise Exception("Timer already stopped")
         self._timer.cancel()

@@ -3,9 +3,7 @@ from concurrent.futures import Future
 import pytest
 
 try:
-    from whylogs.api.logger.experimental.multi_dataset_logger.future_util import (
-        wait_result,
-    )
+    from whylogs.api.logger.experimental.logger.actor.future_util import wait_result
 except Exception as e:
     if str(e) == "'type' object is not subscriptable":
         pytest.skip("Skipping module because of a pytest bug on older python versions.", allow_module_level=True)
