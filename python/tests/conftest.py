@@ -3,8 +3,10 @@
 isort:skip_file
 """
 import os
+import sys
 
 os.environ["TELEMETRY_DEV"] = "1"  # noqa: E402
+sys.path.append(os.path.join(os.path.dirname(__file__), 'helpers'))
 
 import pandas as pd
 import pytest
