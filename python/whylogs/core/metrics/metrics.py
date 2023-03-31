@@ -273,15 +273,7 @@ class DistributionMetric(Metric):
                     if n_b > 1:
                         n_b = len(arr)
                         mean_b = arr.mean()
-                        # NOTE: there was a bug in PreprocessedColumn that would sometimes put
-                        # pd.Series values in the numpy subviews. pandas and numpy have opposite
-                        # default degrees of freedom :( so this matches the behavior from before
-                        # the bug fix to make the numpy subviews always np.ndarray
-                        if isinstance(view.original, pd.Series):
-                            ddof = 1
-                        else:
-                            ddof = 0
-                        m2_b = arr.var(ddof=ddof) * (n_b - 1)
+                        m2_b = arr.var() * (n_b - 1)
 
                         second = VarianceM2Result(n=n_b, mean=mean_b, m2=m2_b)
                         first = parallel_variance_m2(first=first, second=second)
