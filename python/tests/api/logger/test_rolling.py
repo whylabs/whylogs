@@ -25,7 +25,7 @@ from whylogs.core.segmentation_partition import segment_on_column
 # A sequence of timers get instantiated, so we need global state for them
 # to simulate universal time.
 
-_FAKE_TIMES: List[float] = []  # list of times (seconds) where the FakeTimer
+_FAKE_TIMES: List[float] = []  # list of times (seconds) where the FakeTimer checks if it should execute
 _TIME_INDEX: int = 0  # where are we in the lsit of times
 
 
