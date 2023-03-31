@@ -1,10 +1,11 @@
+import functools
 import math
 import os
-import time
+
+# import time
 from datetime import datetime, timezone
 from os import listdir
 from os.path import isfile
-from threading import Timer
 from typing import Any, Callable, List, Optional, Tuple
 from unittest.mock import MagicMock
 
@@ -21,7 +22,6 @@ from whylogs.core.errors import BadConfigError
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.segmentation_partition import segment_on_column
 
-
 # A sequence of timers get instantiated, so we need global state for them
 # to simulate universal time.
 
@@ -34,6 +34,7 @@ class FakeTimer:
     Fake for threading.Timer, not threaded. Evaluates elapsed duration
     at times in the _FAKE_TIME list.
     """
+
     def __init__(self, interval: float, fn: Callable) -> None:
         self._interval = interval
         self._fn = fn
@@ -59,7 +60,7 @@ class FakeTimer:
         _TIME_INDEX = len(_FAKE_TIMES) + 1
 
 
-class TimerConext:
+class TimerContext:
     def __enter__(self) -> "TimerContext":
         self._prev_timer = Scheduler._TIMER
         Scheduler._TIMER = FakeTimer
@@ -69,11 +70,10 @@ class TimerConext:
         Scheduler._TIMER = self._prev_timer
 
 
-import functools
 def use_fake_time(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        with TimerConext():
+        with TimerContext():
             return f(*args, **kwargs)
 
     return wrapper
@@ -86,6 +86,7 @@ class TestWriter(LocalWriter):
     each other. So this appends a sequence number to the filename to
     prevent collisions.
     """
+
     def __init__(self, base_dir: Optional[str] = None, base_name: Optional[str] = None) -> None:
         super().__init__(base_dir, base_name)
         self._counter = 1
@@ -102,8 +103,6 @@ class TestWriter(LocalWriter):
         full_path = os.path.join(self._base_dir, dest)
         file.write(full_path, **kwargs)
         return True, full_path
-
-
 
 
 def test_closing(tmp_path: Any, lending_club_df: pd.DataFrame) -> None:
