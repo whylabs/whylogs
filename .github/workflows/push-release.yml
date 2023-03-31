@@ -77,17 +77,25 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.8"
-      - name: install bump2version
-        run: |
-          pip install bump2version
-      - name: bump_mainline
+          cache: poetry
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          version: ${{ env.PROTOC_VERSION }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: make telemetry-opt-out install
+      - name: bump2version mainline to latest release
         run: |
           # from refs/tags/v1.2.3 get 1.2.3
           echo "VERSION=$(echo $GITHUB_REF | sed 's#.*/v##')" >> $GITHUB_ENV
           echo $VERSION
           # git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # git config --local user.name "github-actions[bot]"
-          poetry run bump2version patch --verbose --allow-dirty  --no-tag --new-version $VERSION
+          poetry run bump2version -h
+          poetry run bump2version patch --verbose --allow-dirty --no-tag --new-version $VERSION
 
       - name: Create Pull Request
         id: cpr

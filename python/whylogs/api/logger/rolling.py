@@ -5,7 +5,7 @@ import os
 import time
 from datetime import datetime, timezone
 from threading import Timer
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Type
 
 from typing_extensions import Literal
 
@@ -27,7 +27,8 @@ class Scheduler(object):
     Schedule a function to be called repeatedly based on a schedule.
     """
 
-    _timer: Timer
+    _TIMER: Type = Timer
+    _timer: Any  # Timer
 
     def __init__(self, initial: float, interval: float, function: Callable, *args: Any, **kwargs: Any):
         self.initial = initial
@@ -50,7 +51,7 @@ class Scheduler(object):
             if not self._ran_initial:
                 interval = self.initial
                 self._ran_initial = True
-            self._timer = Timer(interval, self._run)
+            self._timer = Scheduler._TIMER(interval, self._run)
             self._timer.start()
             self.is_running = True
 
