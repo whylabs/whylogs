@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from threading import Timer
-from typing import Callable
+from typing import Callable, Type
 
 from dateutil import tz
 
@@ -55,17 +55,18 @@ class FunctionTimer:
     execute in five minutes, and then each hour after that.
     """
 
-    def __init__(self, schedule: Schedule, fn: Callable) -> None:
+    def __init__(self, schedule: Schedule, fn: Callable, timer_class: Type = Timer) -> None:
         self._logger = logging.getLogger(f"{type(self).__name__}_{id(self)}")
         self._fn = fn
         self._schedule = schedule
         self._running = True
+        self._timer_class = timer_class
         now = datetime.now(tz=tz.tzutc())
 
         # Convert each of the intervals into seconds
         if schedule.cadence == TimeGranularity.Second:
             self.repeat_interval = schedule.interval
-            next_second = (now + timedelta(minutes=self._schedule.interval)).replace(microsecond=0)
+            next_second = (now + timedelta(seconds=self._schedule.interval)).replace(microsecond=0)
             initial_interval = min(0, (next_second - now).seconds)
         elif schedule.cadence == TimeGranularity.Minute:
             self.repeat_interval = schedule.interval * 60
@@ -85,12 +86,12 @@ class FunctionTimer:
             raise Exception("Can't use Monthly schedule.")
 
         self._logger.debug(f"scheduled for {initial_interval} seconds from now")
-        self._timer = Timer(initial_interval, self._run)
+        self._timer = timer_class(initial_interval, self._run)
         self._timer.start()
 
     def _run(self) -> None:
         self._logger.debug(f"scheduled for {self.repeat_interval} seconds from now")
-        self._timer = Timer(self.repeat_interval, self._run)
+        self._timer = self._timer_class(self.repeat_interval, self._run)
         self._timer.start()
         self._fn()
 

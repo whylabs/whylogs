@@ -1,4 +1,4 @@
-import time
+import utils as u
 
 from whylogs.api.logger.experimental.multi_dataset_logger.time_util import (
     FunctionTimer,
@@ -41,8 +41,10 @@ def test_seconds_work() -> None:
             self.i += 1
 
     f = Foo()
-    t = FunctionTimer(Schedule(TimeGranularity.Second, 1), f.inc)
-    time.sleep(3)
+    # Simulate running for 3 seconds, so it should fire 3 times
+    u._FAKE_TIMES = [0, 0.5, 1, 1.9, 2, 2.1, 3]
+    u._TIME_INDEX = 0
+    t = FunctionTimer(Schedule(TimeGranularity.Second, 1), f.inc, u.FakeTimer)
     t.stop()
 
     assert f.i >= 3
