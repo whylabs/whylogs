@@ -285,7 +285,6 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/metric_components/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metric_components</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/multimetric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.multimetric</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/registry/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.registry</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/serializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.serializers</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/unicode_range/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.unicode_range</span></code></a></li>
 </ul>
@@ -509,8 +508,8 @@
     <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">kll_doubles_sketch</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">sketch</span><span class="p">)</span>
 
 
-<span class="nd">@_builtin_deserializer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;kll&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">_hll_merge</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">MetricComponentMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ds</span><span class="o">.</span><span class="n">hll_sketch</span><span class="p">:</span>
+<span class="nd">@_builtin_deserializer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;hll&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_hll</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">MetricComponentMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ds</span><span class="o">.</span><span class="n">hll_sketch</span><span class="p">:</span>
     <span class="n">field</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">WhichOneof</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">field</span> <span class="o">!=</span> <span class="s2">&quot;hll&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -519,8 +518,8 @@
     <span class="k">return</span> <span class="n">sketch</span>
 
 
-<span class="nd">@_builtin_deserializer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;kll&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">_fs_merge</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">MetricComponentMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ds</span><span class="o">.</span><span class="n">frequent_strings_sketch</span><span class="p">:</span>
+<span class="nd">@_builtin_deserializer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;fs&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_fs</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">MetricComponentMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ds</span><span class="o">.</span><span class="n">frequent_strings_sketch</span><span class="p">:</span>
     <span class="n">field</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">WhichOneof</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">field</span> <span class="o">!=</span> <span class="s2">&quot;frequent_items&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>

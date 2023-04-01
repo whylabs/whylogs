@@ -20,7 +20,6 @@ Submodules
    metric_components/index.rst
    metrics/index.rst
    multimetric/index.rst
-   registry/index.rst
    serializers/index.rst
    unicode_range/index.rst
 

@@ -285,7 +285,6 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/metric_components/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metric_components</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/multimetric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.multimetric</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/registry/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.registry</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/serializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.serializers</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/unicode_range/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.unicode_range</span></code></a></li>
 </ul>
@@ -645,6 +644,20 @@
             <span class="n">metadata</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">message_tags</span><span class="p">,</span> <span class="n">metadata</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_combine_tags_and_metadata</span><span class="p">(</span>
+        <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tags</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span> <span class="k">if</span> <span class="n">metadata</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">metadata</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
+        <span class="n">merged_meta</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">merged_meta</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
+        <span class="n">merged_meta</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">merged_meta</span>
+
     <span class="k">def</span> <span class="nf">_do_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_f</span><span class="p">:</span> <span class="n">BinaryIO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="n">all_metric_component_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="c1"># capture the list of all metric component paths</span>
@@ -747,10 +760,15 @@
             <span class="p">)</span>
 
         <span class="n">dataset_segment_header</span> <span class="o">=</span> <span class="n">read_delimited_protobuf</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">DatasetSegmentHeader</span><span class="p">)</span>
+
+        <span class="c1"># TODO: support result set reads for multi-segment files</span>
+        <span class="c1"># when we support serializing multi-segment files</span>
         <span class="k">if</span> <span class="n">dataset_segment_header</span><span class="o">.</span><span class="n">has_segments</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;File contains segments. Only first profile will be deserialized into this DatasetProfileView&quot;</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_segment_header</span><span class="o">.</span><span class="n">offsets</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;File contains more than one segment, but only first profile will be &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;deserialized into this DatasetProfileView: </span><span class="si">{</span><span class="n">dataset_segment_header</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
 
         <span class="n">dataset_profile_header</span> <span class="o">=</span> <span class="n">read_delimited_protobuf</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">DatasetProfileHeader</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">ByteSize</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -760,6 +778,9 @@
         <span class="p">)</span>
         <span class="n">creation_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span>
             <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">creation_timestamp</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span>
+        <span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">DatasetProfileView</span><span class="o">.</span><span class="n">_combine_tags_and_metadata</span><span class="p">(</span>
+            <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">tags</span><span class="p">,</span> <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">metadata</span>
         <span class="p">)</span>
         <span class="n">indexed_metric_paths</span> <span class="o">=</span> <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">indexed_metric_paths</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indexed_metric_paths</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -805,7 +826,10 @@
             <span class="n">column_msg</span> <span class="o">=</span> <span class="n">ColumnMessage</span><span class="p">(</span><span class="n">metric_components</span><span class="o">=</span><span class="n">all_metric_components</span><span class="p">)</span>
             <span class="n">columns</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnProfileView</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="n">column_msg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">DatasetProfileView</span><span class="p">(</span>
-            <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">,</span> <span class="n">creation_timestamp</span><span class="o">=</span><span class="n">creation_timestamp</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
+            <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">,</span>
+            <span class="n">creation_timestamp</span><span class="o">=</span><span class="n">creation_timestamp</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
