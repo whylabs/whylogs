@@ -90,8 +90,8 @@ def _kll(msg: MetricComponentMessage) -> ds.kll_doubles_sketch:
     return ds.kll_doubles_sketch.deserialize(msg.kll.sketch)
 
 
-@_builtin_deserializer(name="kll")
-def _hll_merge(msg: MetricComponentMessage) -> ds.hll_sketch:
+@_builtin_deserializer(name="hll")
+def _hll(msg: MetricComponentMessage) -> ds.hll_sketch:
     field = msg.WhichOneof("value")
     if field != "hll":
         raise ValueError(f"Unsupported field: {field}")
@@ -100,8 +100,8 @@ def _hll_merge(msg: MetricComponentMessage) -> ds.hll_sketch:
     return sketch
 
 
-@_builtin_deserializer(name="kll")
-def _fs_merge(msg: MetricComponentMessage) -> ds.frequent_strings_sketch:
+@_builtin_deserializer(name="fs")
+def _fs(msg: MetricComponentMessage) -> ds.frequent_strings_sketch:
     field = msg.WhichOneof("value")
     if field != "frequent_items":
         raise ValueError(f"Unsupported field: {field}")
