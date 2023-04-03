@@ -78,29 +78,36 @@ def _get_guest_session() -> GuestSession:
     return GuestSession(session_id=session_id)
 
 
-def create_session() -> Union[GuestSession, UserSession]:
+def create_session(anonymous: Optional[str] = None) -> Union[GuestSession, UserSession]:
+    if anonymous is None:
+        anonymous = input("Do you want to create an anonymous session? [True/False] (default: False) ")
+
     while True:
-        anonymous_session = input("Do you want to create an anonymous session? [y/n] (default: y) ")
-        if anonymous_session.lower() == "y" or anonymous_session.lower() == "":
+        if anonymous.lower() == "true":
             return _get_guest_session()
-        elif anonymous_session.lower() == "n" or anonymous_session is None:
+        elif anonymous.lower() == "false" or anonymous == "":
             return _get_logged_session()
         else:
             print("To login, let us know if you want to create an anonymous session!")
 
 
-class Session:
-    __instance: Optional[Union[GuestSession, UserSession]] = None
+class SessionManager:
+    __instance = None
 
-    def __init__(self):
-        if Session.__instance is not None:
+    def __init__(self, anonymous: Optional[str] = None):
+        self._anonymous = anonymous
+        if SessionManager.__instance is not None:
             raise Exception("There is an active Session, use Session.get_instance() instead")
         else:
-            Session.__instance = self
-            self.session = create_session()
+            SessionManager.__instance = self
+            self.session = create_session(anonymous=self._anonymous)
 
     @staticmethod
-    def get_instance():
-        if Session.__instance is None:
-            Session()
-        return Session.__instance
+    def get_instance(anonymous: Optional[str] = None):
+        if SessionManager.__instance is None:
+            SessionManager(anonymous=anonymous)
+        return SessionManager.__instance
+
+
+def init(anonymous: str = "False") -> None:
+    SessionManager.get_instance(anonymous=anonymous)
