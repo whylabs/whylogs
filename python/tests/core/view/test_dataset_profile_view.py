@@ -1,6 +1,7 @@
 import os.path
 import pickle
 import time
+from logging import getLogger
 
 import pandas as pd
 
@@ -9,6 +10,11 @@ from whylogs.core import DatasetProfile, DatasetProfileView
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
 )
+from whylogs.core.schema import DatasetSchema
+from whylogs.core.segmentation_partition import segment_on_column
+from whylogs.core.view.dataset_profile_view import _TAG_PREFIX
+
+TEST_LOGGER = getLogger(__name__)
 
 
 def _assert_profiles_are_equal(profile_a: DatasetProfileView, profile_b: DatasetProfileView) -> None:
@@ -212,3 +218,31 @@ def test_zero_and_merging() -> None:
     _assert_profiles_are_equal(view1, merged_zero_1)
     _assert_profiles_are_equal(view2, merged_zero_2)
     _assert_profiles_are_equal(merged1_2, merged_zero_1_2)
+
+
+def test_segmented_round_trip_metadata(tmp_path: str) -> None:
+    df = pd.DataFrame(
+        {
+            "animal": ["cat", "hawk", "snake", "cat"],
+            "legs": [4, 2, 0, 4],
+            "weight": [4.3, 1.8, 1.3, 4.1],
+            "A": [True, True, True, True],
+        }
+    )
+    output_file = os.path.join(tmp_path, "segmented_view.bin")
+    segment_column = "A"
+    results = why.log(df, schema=DatasetSchema(segments=segment_on_column(segment_column)))
+    status = results.writer("local").write(dest=output_file)
+    TEST_LOGGER.info("serialized segmented profile to {output_file}" f" has status: {status}")
+
+    view = DatasetProfileView.read(output_file)
+    TEST_LOGGER.info("round trip serialized and deserialized segmented profile" f" has metadata: {view._metadata}")
+    assert view._metadata is not None
+    segment_tag_metadata_key = _TAG_PREFIX + segment_column
+    assert segment_tag_metadata_key in view._metadata
+    assert view._metadata[segment_tag_metadata_key] == "True"
+    assert "segp_col" in view._metadata
+    assert view._metadata["segp_col"] == segment_column
+    assert "segp_name" in view._metadata
+    assert view._metadata["segp_name"] == segment_column
+    assert "segp_id" in view._metadata
