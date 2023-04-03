@@ -7,11 +7,6 @@ from typing_extensions import TypeAlias
 
 from whylogs.core.datatypes import AnyType, DataType, Fractional, Integral, String
 from whylogs.core.metrics import StandardMetric
-from whylogs.core.metrics.condition_count_metric import (
-    Condition,
-    ConditionCountConfig,
-    ConditionCountMetric,
-)
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 
 logger = logging.getLogger(__name__)
@@ -166,18 +161,6 @@ class DeclarativeResolver(Resolver):
                         result[spec.metric.get_namespace()] = spec.metric.zero(config)
 
         return result
-
-
-@dataclass(init=False)
-class ConditionCountMetricSpec(MetricSpec):
-    """
-    Specify a ConditionCountMetric to instantiate.
-    """
-
-    def __init__(self, conditions: Dict[str, Condition], config: Optional[ConditionCountConfig] = None):
-        self.metric = ConditionCountMetric
-        self.config = config if config else ConditionCountConfig()
-        self.config.conditions.update(conditions)
 
 
 # STANDARD_RESOLVER matches the default DatasetSchema/StandardResolver behavior

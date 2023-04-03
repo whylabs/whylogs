@@ -16,7 +16,6 @@ from whylogs.core.resolvers import (
     HISTOGRAM_COUNTING_TRACKING_RESOLVER,
     LIMITED_TRACKING_RESOLVER,
     STANDARD_RESOLVER,
-    ConditionCountMetricSpec,
     HistogramCountingTrackingResolver,
     LimitedTrackingResolver,
     MetricSpec,
@@ -24,6 +23,7 @@ from whylogs.core.resolvers import (
     StandardResolver,
 )
 from whylogs.core.schema import DeclarativeSchema
+from whylogs.core.specialized_resolvers import ConditionCountMetricSpec
 
 
 def test_declarative_schema() -> None:
