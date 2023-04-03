@@ -20,6 +20,7 @@ from .frequent_items import (
     n_most_common_items_in_set,
 )
 from .types_metrics import (
+    column_has_non_zero_types,
     column_is_nullable_boolean,
     column_is_nullable_datatype,
     column_is_nullable_fractional,
@@ -49,5 +50,6 @@ ALL = [
     column_is_nullable_fractional,
     column_is_nullable_object,
     column_is_nullable_string,
+    column_has_non_zero_types,
     condition_meets,
 ]
