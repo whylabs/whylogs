@@ -4,15 +4,10 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional, TypeVar
 
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
-from whylogs.core.metrics.condition_count_metric import (
-    Condition,
-    ConditionCountConfig,
-    ConditionCountMetric,
-)
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import (
-    ConditionCountMetricSpec,
     DeclarativeResolver,
+    MetricSpec,
     Resolver,
     ResolverSpec,
     StandardResolver,
@@ -217,20 +212,11 @@ class DeclarativeSchema(DatasetSchema):
     def add_resolver(self, resolver_spec: ResolverSpec):
         self.resolvers.add_resolver(resolver_spec)
 
-    def add_condition_count_metric(
-        self, conditions: Dict[str, Condition], column_name: Optional[str] = None, column_type: Optional[Any] = None
+    def add_resolver_spec(
+        self, column_name: Optional[str] = None, column_type: Optional[Any] = None, metrics: List[MetricSpec] = []
     ):
-        resolver_spec = ResolverSpec(
-            column_name=column_name,
-            column_type=column_type,
-            metrics=[
-                ConditionCountMetricSpec(
-                    ConditionCountMetric,
-                    ConditionCountConfig(conditions=conditions),
-                ),
-            ],
-        )
-        self.add_resolver(resolver_spec)
+        spec = ResolverSpec(column_name=column_name, column_type=column_type, metrics=metrics)
+        self.add_resolver(spec)
 
     def __init__(
         self,

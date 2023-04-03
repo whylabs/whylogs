@@ -16,6 +16,7 @@ from whylogs.core.resolvers import (
     HISTOGRAM_COUNTING_TRACKING_RESOLVER,
     LIMITED_TRACKING_RESOLVER,
     STANDARD_RESOLVER,
+    ConditionCountMetricSpec,
     HistogramCountingTrackingResolver,
     LimitedTrackingResolver,
     MetricSpec,
@@ -115,9 +116,7 @@ def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
     schema = DeclarativeSchema(STANDARD_RESOLVER)
     schema.add_resolver(legs_not_4_spec)
     schema.add_resolver(weights_not_4_2_spec)
-    schema.add_condition_count_metric(
-        column_name="animal", conditions=not_cat_condition
-    )  # easier way to add resolver for ccm
+    schema.add_resolver_spec(column_name="animal", metrics=[ConditionCountMetricSpec(not_cat_condition)])
 
     prof_view = why.log(pandas_dataframe, schema=schema).profile().view()
     colset = prof_view.to_pandas().columns
