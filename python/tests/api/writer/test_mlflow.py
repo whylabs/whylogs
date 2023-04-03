@@ -37,7 +37,7 @@ class TestMlflowWriter(object):
         assert default_dest in actual_url
 
         # modified with option
-        mlflow_writer.option(profile_dir="other", profile_name="profile_name")
+        mlflow_writer.option(file_dir="other", file_name="profile_name")
         actual_modified_url = mlflow_writer._get_temp_directory(dest=None)
         expected_modified_url = "other/profile_name"
         assert expected_modified_url in actual_modified_url

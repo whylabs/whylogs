@@ -40,5 +40,5 @@ class EstimationResultWriter:
         self._writer = writer
 
     def write(self, **kwargs: Any) -> None:
-        self._writer.write(profile=self._estimation_result, **kwargs)
+        self._writer.write(file=self._estimation_result, **kwargs)
         logger.debug("Completed writing estimation result!")
