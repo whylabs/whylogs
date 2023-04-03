@@ -33,6 +33,15 @@ class Logger(ABC):
         atexit.register(self.close)
         self._store_list: List[ProfileStore] = []
         self._segment_cache = None
+        self._check_whylogs_init()
+
+    def _check_whylogs_init(self) -> None:
+        from whylogs.api.whylabs.session_manager import SessionManager, UserSession
+        from whylogs.api.writer.whylabs import WhyLabsWriter
+
+        sm = SessionManager.get_instance()
+        if isinstance(sm.session, UserSession):
+            self._writers.append(WhyLabsWriter(org_id=sm.session.org_id, api_key=sm.session.api_key))
 
     def check_writer(self, _: Writer) -> None:
         """Checks if a writer is configured correctly for this class"""

@@ -182,3 +182,11 @@ def test_rolling_do_rollover():
     # these lines below fail as a comparison
     # now_plus_1h = now + datetime.timedelta(hours=1)
     # assert now.timestamp() == pytest.approx(now_plus_1h.timestamp())
+
+
+def test_configure_with_whylogs_init() -> None:
+    from whylogs.api.writer.whylabs import WhyLabsWriter
+
+    why.init()
+    logger = why.logger()
+    assert isinstance(logger._writers[0], WhyLabsWriter)
