@@ -3,8 +3,8 @@ from typing import Dict, Optional
 
 from whylogs.core.metrics.condition_count_metric import (
     Condition,
-    ConditionCountMetric,
     ConditionCountConfig,
+    ConditionCountMetric,
 )
 from whylogs.core.resolvers import MetricSpec
 
