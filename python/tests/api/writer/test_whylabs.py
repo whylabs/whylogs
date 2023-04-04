@@ -86,7 +86,7 @@ class TestWhylabsWriter(object):
         with pytest.raises(ValueError):
             del os.environ["WHYLABS_API_KEY"]
             writer: WhyLabsWriter = Writers.get("whylabs")
-            writer.write(profile=results.profile())
+            writer.write(file=results.profile())
         os.environ["WHYLABS_API_KEY"] = "01234567890.any"
 
     def test_put_feature_weight(self):
