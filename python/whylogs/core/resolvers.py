@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, TypeVar
 
@@ -148,7 +149,7 @@ class DeclarativeResolver(Resolver):
 
     def __init__(self, resolvers: List[ResolverSpec], default_config: Optional[MetricConfig] = None) -> None:
         # Validate resolvers -- must have name xor type, MetricSpec metrics must <: Metric
-        self._resolvers = resolvers.copy()
+        self._resolvers = deepcopy(resolvers)
 
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
         result: Dict[str, Metric] = {}

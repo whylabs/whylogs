@@ -23,7 +23,8 @@ from whylogs.core.resolvers import (
     ResolverSpec,
     StandardResolver,
 )
-from whylogs.core.schema import AugmenterSpec, DeclarativeSchema
+from whylogs.core.schema import DeclarativeSchema
+from whylogs.experimental.core.udf_schema import UdfSchema, UdfSpec
 
 
 def test_declarative_schema() -> None:
@@ -205,10 +206,10 @@ def test_resolvers() -> None:
             assert reference_metrics == declarative_metrics
 
 
-def test_augmenters_row() -> None:
-    schema = DeclarativeSchema(
+def test_udf_row() -> None:
+    schema = UdfSchema(
         STANDARD_RESOLVER,
-        augmenters=[AugmenterSpec(column_name="col1", callbacks={"col2": lambda x: x, "col3": lambda x: x})],
+        udf_specs=[UdfSpec(column_name="col1", udfs={"col2": lambda x: x, "col3": lambda x: x})],
     )
     data = {"col1": 42}
     results = why.log(row=data, schema=schema).view()
@@ -218,10 +219,10 @@ def test_augmenters_row() -> None:
     assert col1 == col2 == col3
 
 
-def test_augmenters_pandas() -> None:
-    schema = DeclarativeSchema(
+def test_udf_pandas() -> None:
+    schema = UdfSchema(
         STANDARD_RESOLVER,
-        augmenters=[AugmenterSpec(column_name="col1", callbacks={"col2": lambda x: x, "col3": lambda x: x})],
+        udf_specs=[UdfSpec(column_name="col1", udfs={"col2": lambda x: x, "col3": lambda x: x})],
     )
     data = pd.DataFrame({"col1": [42, 12, 7]})
     results = why.log(pandas=data, schema=schema).view()

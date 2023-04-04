@@ -1,7 +1,7 @@
 import logging
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, TypeVar
+from typing import Any, Dict, List, Mapping, Optional, Tuple, TypeVar
 
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
@@ -20,15 +20,6 @@ logger = logging.getLogger(__name__)
 LARGE_CACHE_SIZE_LIMIT = 1024 * 100
 
 T = TypeVar("T", bound="DatasetSchema")
-
-
-@dataclass
-class AugmenterSpec:
-    column_name: Optional[str] = None  # TODO: maybe make this a regex
-    column_type: Optional[Any] = None
-    callbacks: Dict[str, Callable[[Any], Any]] = field(
-        default_factory=dict
-    )  # new column name -> callable to compute new column value
 
 
 class DatasetSchema:
@@ -85,7 +76,6 @@ class DatasetSchema:
         schema_based_automerge: bool = False,
         segments: Optional[Dict[str, SegmentationPartition]] = None,
         validators: Optional[Dict[str, List[Validator]]] = None,
-        augmenters: List[AugmenterSpec] = [],
     ) -> None:
         self._columns = dict()
         self.types = types or dict()
@@ -96,7 +86,6 @@ class DatasetSchema:
         self.schema_based_automerge = schema_based_automerge
         self.segments = segments or dict()
         self.validators = validators or dict()
-        self.augmenters = augmenters
 
         if self.cache_size < 0:
             logger.warning("Negative cache size value. Disabling caching")
@@ -127,7 +116,6 @@ class DatasetSchema:
         copy = self.__class__(**args)
         copy._columns = deepcopy(self._columns)
         copy.segments = self.segments.copy()
-        copy.augmenters = self.augmenters  # TODO: copy?
         return copy
 
     def resolve(self, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool:
@@ -173,29 +161,10 @@ class DatasetSchema:
 
         return dirty
 
-    def _augment(
+    def _run_udfs(
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None
     ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
-        new_columns = dict(row) if row else None
-        if row is not None:
-            for column, value in row.items():
-                for augmenter in self.augmenters:
-                    col_name, col_type = augmenter.column_name, augmenter.column_type
-                    why_type = self.type_mapper(type(value))
-                    if (col_name and col_name == column) or (col_name is None and isinstance(col_type, why_type)):  # type: ignore
-                        for new_col, callback in augmenter.callbacks.items():
-                            new_columns[new_col] = callback(value)  # type: ignore
-
-        if pandas is not None:
-            for column in pandas.keys():
-                for augmenter in self.augmenters:
-                    col_name, col_type = augmenter.column_name, augmenter.column_type
-                    why_type = pandas.dtypes[column]
-                    if (col_name and col_name == column) or (col_name is None and isinstance(col_type, why_type)):  # type: ignore
-                        for new_col, callback in augmenter.callbacks.items():
-                            pandas[new_col] = pandas[column].map(callback)
-
-        return pandas, new_columns
+        raise NotImplementedError  # EXPERIMENTAL
 
     def get_col_names(self) -> tuple:
         return tuple(self._columns.keys())
@@ -257,7 +226,6 @@ class DeclarativeSchema(DatasetSchema):
         schema_based_automerge: bool = False,
         segments: Optional[Dict[str, SegmentationPartition]] = None,
         validators: Optional[Dict[str, List[Validator]]] = None,
-        augmenters: List[AugmenterSpec] = [],
     ) -> None:
         if not resolvers:
             logger.warning("No columns specified in DeclarativeSchema")
@@ -271,5 +239,4 @@ class DeclarativeSchema(DatasetSchema):
             schema_based_automerge=schema_based_automerge,
             segments=segments,
             validators=validators,
-            augmenters=augmenters,
         )
