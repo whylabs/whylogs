@@ -213,7 +213,7 @@ class DeclarativeSchema(DatasetSchema):
         self.resolvers.add_resolver(resolver_spec)
 
     def add_resolver_spec(
-        self, column_name: Optional[str] = None, column_type: Optional[Any] = None, metrics: List[MetricSpec] = []
+        self, column_name: Optional[str] = None, column_type: Optional[Any] = None, metrics: Optional[List[MetricSpec]] = None
     ):
         spec = ResolverSpec(column_name=column_name, column_type=column_type, metrics=metrics)
         self.add_resolver(spec)
