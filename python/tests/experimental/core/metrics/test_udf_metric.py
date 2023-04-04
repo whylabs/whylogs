@@ -1,18 +1,18 @@
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.experimental.core.metrics.callback_metric import (
-    CallbackMetric,
-    CallbackMetricConfig,
+from whylogs.experimental.core.metrics.udf_metric import (
+    UdfMetric,
+    UdfMetricConfig,
 )
 
 
-def test_callback_metric() -> None:
-    config = CallbackMetricConfig(
-        callbacks={
+def test_udf_metric() -> None:
+    config = UdfMetricConfig(
+        udfs={
             "fortytwo": lambda x: 42,
             "foo": lambda x: "bar",
         },
     )
-    metric = CallbackMetric.zero(config)
+    metric = UdfMetric.zero(config)
     metric.columnar_update(PreprocessedColumn.apply([0]))
     summary = metric.to_summary_dict()
 
@@ -34,21 +34,21 @@ def test_callback_metric() -> None:
 
 
 def test_merge() -> None:
-    config = CallbackMetricConfig(
-        callbacks={
+    config = UdfMetricConfig(
+        udfs={
             "fortytwo": lambda x: 42,
             "foo": lambda x: "bar",
         },
     )
-    metric1 = CallbackMetric.zero(config)
+    metric1 = UdfMetric.zero(config)
     metric1.columnar_update(PreprocessedColumn.apply([0]))
-    metric2 = CallbackMetric.zero(config)
+    metric2 = UdfMetric.zero(config)
     metric2.columnar_update(PreprocessedColumn.apply([0]))
     metric = metric1.merge(metric2)
-    assert isinstance(metric, CallbackMetric)
-    assert "fortytwo" in metric._callbacks
+    assert isinstance(metric, UdfMetric)
+    assert "fortytwo" in metric._udfs
     assert "fortytwo" in metric.submetrics
-    assert "foo" in metric._callbacks
+    assert "foo" in metric._udfs
     assert "foo" in metric.submetrics
 
     summary = metric.to_summary_dict()

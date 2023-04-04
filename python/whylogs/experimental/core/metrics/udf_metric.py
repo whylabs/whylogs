@@ -46,35 +46,35 @@ class DefaultSchema(SubmetricSchema):
 
 
 @dataclass(frozen=True)
-class CallbackMetricConfig(MetricConfig):
+class UdfMetricConfig(MetricConfig):
     """Maps feature name to callable that computes it"""
 
-    callbacks: Dict[str, Callable[[Any], Any]] = field(default_factory=dict)
+    udfs: Dict[str, Callable[[Any], Any]] = field(default_factory=dict)
     submetric_schema: SubmetricSchema = field(default_factory=DefaultSchema)
     type_mapper: TypeMapper = field(default_factory=StandardTypeMapper)
 
 
-class CallbackMetric(MultiMetric):
+class UdfMetric(MultiMetric):
     def __init__(
         self,
-        callbacks: Dict[str, Callable[[Any], Any]],
+        udfs: Dict[str, Callable[[Any], Any]],
         # discover these with resolver  submetrics: Dict[str, Dict[str, Metric]],  # feature name -> (namespace -> metric)
         submetric_schema: Optional[SubmetricSchema] = None,
         type_mapper: Optional[TypeMapper] = None,
         fi_disabled: bool = False,
     ):
         super().__init__(dict())  # submetrics)
-        self._callbacks = callbacks
+        self._udfs = udfs
         self._submetric_schema = submetric_schema or DefaultSchema()
         self._type_mapper = type_mapper or StandardTypeMapper()
         self._fi_disabled = fi_disabled
 
     @property
     def namespace(self) -> str:
-        return "callback"
+        return "udf"
 
-    def merge(self, other: "CallbackMetric") -> "CallbackMetric":
-        merged = CallbackMetric(self._callbacks, self._submetric_schema, self._type_mapper, self._fi_disabled)
+    def merge(self, other: "UdfMetric") -> "UdfMetric":
+        merged = UdfMetric(self._udfs, self._submetric_schema, self._type_mapper, self._fi_disabled)
         merged.submetrics = self.merge_submetrics(other)
         return merged
 
@@ -91,8 +91,8 @@ class CallbackMetric(MultiMetric):
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         count = 0
         for value in list(chain.from_iterable(view.raw_iterator())):
-            for submetric_name, callback in self._callbacks.items():
-                computed_value = callback(value)
+            for submetric_name, udf in self._udfs.items():
+                computed_value = udf(value)
                 if submetric_name not in self.submetrics:
                     self._add_submetric(submetric_name, computed_value)  # NOTE: assumes column is homogeneous-ish?
 
@@ -103,14 +103,14 @@ class CallbackMetric(MultiMetric):
         return OperationResult.ok(count)
 
     @classmethod
-    def zero(cls, config: Optional[MetricConfig] = None) -> "CallbackMetric":
-        config = config or CallbackMetricConfig()
-        if not isinstance(config, CallbackMetricConfig):
-            logger.error("CallbackMetric.zero() needs an CallbackMetricConfig")
-            config = CallbackMetricConfig()
+    def zero(cls, config: Optional[MetricConfig] = None) -> "UdfMetric":
+        config = config or UdfMetricConfig()
+        if not isinstance(config, UdfMetricConfig):
+            logger.error("UdfMetric.zero() needs an UdfMetricConfig")
+            config = UdfMetricConfig()
 
-        return CallbackMetric(
-            config.callbacks,
+        return UdfMetric(
+            config.udfs,
             config.submetric_schema,
             config.type_mapper,
             config.fi_disabled,
@@ -118,4 +118,4 @@ class CallbackMetric(MultiMetric):
 
 
 # Register it so Multimetric and ProfileView can deserialize
-register_metric(CallbackMetric)
+register_metric(UdfMetric)
