@@ -273,7 +273,7 @@ class DistributionMetric(Metric):
                     if n_b > 1:
                         n_b = len(arr)
                         mean_b = arr.mean()
-                        m2_b = arr.var() * (n_b - 1)
+                        m2_b = arr.var(ddof=1) * (n_b - 1)
 
                         second = VarianceM2Result(n=n_b, mean=mean_b, m2=m2_b)
                         first = parallel_variance_m2(first=first, second=second)
@@ -291,7 +291,7 @@ class DistributionMetric(Metric):
                 n_b = len(lst)
                 if n_b > 1:
                     mean_b = statistics.mean(lst)
-                    m2_b = statistics.pvariance(lst) * (n_b - 1)
+                    m2_b = statistics.variance(lst) * (n_b - 1)
                     second = VarianceM2Result(n=n_b, mean=mean_b, m2=m2_b)
 
                     first = parallel_variance_m2(first=first, second=second)
@@ -329,7 +329,7 @@ class DistributionMetric(Metric):
 
     @property
     def variance(self) -> float:
-        """Returns the population variance of the stream.
+        """Returns the sample variance of the stream.
 
         https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm
         """
@@ -458,10 +458,12 @@ class FrequentItemsMetric(Metric):
         successes = 0
         for arr in [view.numpy.floats, view.numpy.ints]:
             if arr is not None:
-                if isinstance(arr, pd.Series):
-                    arr = arr.to_numpy()
                 self.frequent_strings.value.update_np(arr)
                 successes += len(arr)
+        # TODO: Include strings in above when we update whylogs-sketching fi.update_np to take strings
+        if view.numpy.strings is not None:
+            self.frequent_strings.value.update_str_list(view.numpy.strings.tolist())
+            successes += len(view.numpy.strings)
         if view.pandas.strings is not None:
             strings = [s[0 : self.max_frequent_item_size] for s in view.pandas.strings.to_list()]
             self.frequent_strings.value.update_str_list(strings)
@@ -536,6 +538,10 @@ class CardinalityMetric(Metric):
             if view.numpy.floats is not None:
                 self.hll.value.update_np(view.numpy.floats)
                 successes += len(view.numpy.floats)
+            if view.numpy.strings is not None:
+                self.hll.value.update_str_list(view.numpy.strings.tolist())
+                successes += len(view.numpy.strings)
+
         if view.pandas.strings is not None:
             self.hll.value.update_str_list(view.pandas.strings.to_list())
             successes += len(view.pandas.strings)

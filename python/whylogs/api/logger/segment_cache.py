@@ -33,7 +33,7 @@ class SegmentCache(object):
     def get_segments(self) -> Dict[Segment, DatasetProfile]:
         return self._cache
 
-    def flush(self, dataset_timestamp: Optional[datetime]) -> SegmentedResultSet:
+    def get_result_set(self, dataset_timestamp: Optional[datetime]) -> SegmentedResultSet:
         segmented_profiles: Dict[str, Dict[Segment, DatasetProfile]] = dict()
         for segment_key in self._cache:
             segments = segmented_profiles.get(segment_key.parent_id)
@@ -45,7 +45,11 @@ class SegmentCache(object):
             segments[segment_key] = self._cache[segment_key]
 
         results = SegmentedResultSet(segments=segmented_profiles, partitions=list(self._schema.segments.values()))
-        self._cache = dict()
         if dataset_timestamp:
             results.set_dataset_timestamp(dataset_timestamp)
         return results
+
+    def flush(self, dataset_timestamp: Optional[datetime]) -> SegmentedResultSet:
+        result_set = self.get_result_set(dataset_timestamp)
+        self._cache = dict()
+        return result_set
