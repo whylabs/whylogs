@@ -1,8 +1,5 @@
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.experimental.core.metrics.udf_metric import (
-    UdfMetric,
-    UdfMetricConfig,
-)
+from whylogs.experimental.core.metrics.udf_metric import UdfMetric, UdfMetricConfig
 
 
 def test_udf_metric() -> None:
