@@ -71,6 +71,7 @@ class EmbeddingMetric(MultiMetric):
                 "distribution": StandardMetric.distribution.zero(),
                 "counts": StandardMetric.counts.zero(),
                 "types": StandardMetric.types.zero(),
+                "cardinality": StandardMetric.cardinality.zero(),
             }
             for label in self.labels
         }
@@ -80,6 +81,7 @@ class EmbeddingMetric(MultiMetric):
                     "frequent_items": StandardMetric.frequent_items.zero(),
                     "counts": StandardMetric.counts.zero(),
                     "types": StandardMetric.types.zero(),
+                    "cardinality": StandardMetric.cardinality.zero(),
                 }
             }
         )
