@@ -7,6 +7,7 @@ from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import (
     DeclarativeResolver,
+    MetricSpec,
     Resolver,
     ResolverSpec,
     StandardResolver,
@@ -210,6 +211,15 @@ class DeclarativeSchema(DatasetSchema):
 
     def add_resolver(self, resolver_spec: ResolverSpec):
         self.resolvers.add_resolver(resolver_spec)
+
+    def add_resolver_spec(
+        self,
+        column_name: Optional[str] = None,
+        column_type: Optional[Any] = None,
+        metrics: Optional[List[MetricSpec]] = None,
+    ):
+        spec = ResolverSpec(column_name=column_name, column_type=column_type, metrics=metrics or [])
+        self.add_resolver(spec)
 
     def __init__(
         self,
