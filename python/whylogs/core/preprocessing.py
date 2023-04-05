@@ -136,11 +136,11 @@ class PreprocessedColumn:
                 floats = non_null_series.astype(float)
                 inf_mask = floats.apply(lambda x: np.isinf(x))
                 self.inf_count = len(floats[inf_mask])
-                self.numpy.floats = floats
+                self.numpy.floats = floats.to_numpy()
                 return
             else:
                 ints = non_null_series.astype(int)
-                self.numpy.ints = ints
+                self.numpy.ints = ints.to_numpy()
                 return
 
         if series.hasnans:
@@ -189,7 +189,7 @@ class PreprocessedColumn:
             inf_mask = floats.apply(lambda x: np.isinf(x))
             self.inf_count = len(floats[inf_mask])
 
-        self.numpy = NumpyView(floats=floats, ints=ints)
+        self.numpy = NumpyView(floats=floats.to_numpy(), ints=ints.to_numpy())
         self.pandas.strings = strings
         self.pandas.tensors = tensors
         self.pandas.objs = objs

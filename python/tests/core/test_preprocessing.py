@@ -5,9 +5,9 @@ from logging import getLogger
 from typing import Any, List, Optional, Union
 
 import numpy as np
+import numpy.testing as npt
 import pandas as pd
 import pytest
-from pandas.testing import assert_series_equal
 
 import whylogs as why
 from whylogs.core.preprocessing import (
@@ -57,11 +57,36 @@ def assert_numpy_view_is_empty(view: NumpyView) -> None:
     assert_subview_is_empty(view.strings)
 
 
+def assert_list_view_correct_types(view: ListView) -> None:
+    for subview in [view.ints, view.floats, view.strings, view.tensors, view.objs]:
+        if subview is not None:
+            assert isinstance(subview, list)
+
+
+def assert_numpy_view_correct_types(view: NumpyView) -> None:
+    for subview in [view.ints, view.floats, view.strings]:
+        if subview is not None:
+            assert isinstance(subview, np.ndarray)
+
+
+def assert_pandas_view_correct_types(view: PandasView) -> None:
+    for subview in [view.strings, view.tensors, view.objs]:
+        if subview is not None:
+            assert isinstance(subview, pd.Series)
+
+
+def assert_correct_types(view: PreprocessedColumn) -> None:
+    assert_list_view_correct_types(view.list)
+    assert_numpy_view_correct_types(view.numpy)
+    assert_pandas_view_correct_types(view.pandas)
+
+
 class TestListElements(object):
     def test_floats_and_ints_and_str(self) -> None:
         mixed = pd.Series([1.0, 1, 2.0, 2, "str", None])
 
         res = PreprocessedColumn.apply(mixed)
+        assert_correct_types(res)
 
         assert res.numpy.floats.tolist() == [1.0, 2.0]  # type: ignore
         assert res.numpy.ints.tolist() == [1, 2]  # type: ignore
@@ -79,6 +104,7 @@ class TestListElements(object):
         mixed = pd.Series([None, math.nan, "hi"])
 
         res = PreprocessedColumn.apply(mixed)
+        assert_correct_types(res)
         assert len(res.pandas.strings) == 1
         assert_subview_is_empty(res.pandas.tensors)
         assert_subview_is_empty(res.pandas.objs)  # type: ignore
@@ -95,6 +121,7 @@ class TestListElements(object):
         mixed = pd.Series([math.inf, None])  # when all types are numeric None->NaN
 
         res = PreprocessedColumn.apply(mixed)
+        assert_correct_types(res)
         assert_subview_is_empty(res.pandas.strings)
         assert_subview_is_empty(res.pandas.tensors)
         assert_subview_is_empty(res.pandas.objs)
@@ -112,6 +139,7 @@ class TestListElements(object):
         mixed = pd.Series([np.nan, None, "test"])
 
         res = PreprocessedColumn.apply(mixed)
+        assert_correct_types(res)
         assert len(res.pandas.strings) == 1
         assert_subview_is_empty(res.pandas.tensors)
         assert_subview_is_empty(res.pandas.objs)
@@ -128,6 +156,7 @@ class TestListElements(object):
         mixed = pd.Series([np.inf, None, "t"])
 
         res = PreprocessedColumn.apply(mixed)
+        assert_correct_types(res)
         assert len(res.pandas.strings) == 1
         assert_subview_is_empty(res.pandas.tensors)
         assert_subview_is_empty(res.pandas.objs)
@@ -145,6 +174,7 @@ class TestListElements(object):
         mixed = pd.Series([np.inf, None, float("nan"), "t"])
 
         res = PreprocessedColumn.apply(mixed)
+        assert_correct_types(res)
         assert len(res.pandas.strings) == 1
         assert_subview_is_empty(res.pandas.tensors)
         assert_subview_is_empty(res.pandas.objs)
@@ -162,6 +192,7 @@ class TestListElements(object):
         mixed = pd.Series([True, True, False, 2, 1, 0])
 
         res = PreprocessedColumn.apply(mixed)
+        assert_correct_types(res)
         TEST_LOGGER.info(f"{res}")
         assert_subview_is_empty(res.numpy.floats)
         assert res.numpy.ints.tolist() == [2, 1, 0]  # type: ignore
@@ -181,8 +212,9 @@ class TestListElements(object):
     def test_floats_no_null(self, data_type) -> None:
         floats = pd.Series([1.0, 2.0, 3.0], dtype=data_type).astype(float)
         res = PreprocessedColumn.apply(floats)
+        assert_correct_types(res)
 
-        assert_series_equal(res.numpy.floats, floats)
+        npt.assert_array_equal(res.numpy.floats, floats.to_numpy())
         assert_subview_is_empty(res.numpy.ints)
         assert_subview_is_empty(res.numpy.strings)
 
@@ -197,9 +229,10 @@ class TestListElements(object):
     def test_floats_with_null(self, data_type) -> None:
         f_with_none = pd.Series([1.0, 2.0, 3.0, None], dtype=data_type)
         res = PreprocessedColumn.apply(f_with_none)
+        assert_correct_types(res)
         assert res.null_count == 1
 
-        assert_series_equal(res.numpy.floats, pd.Series([1.0, 2.0, 3.0]))
+        npt.assert_array_equal(res.numpy.floats, pd.Series([1.0, 2.0, 3.0]).to_numpy())
         assert_subview_is_empty(res.numpy.ints)
         assert_subview_is_empty(res.numpy.strings)
 
@@ -213,9 +246,10 @@ class TestListElements(object):
         strings = pd.Series(["foo", "bar"])
 
         res = PreprocessedColumn.apply(strings)
+        assert_correct_types(res)
         assert res.null_count == 0
 
-        assert_series_equal(res.pandas.strings, strings)
+        npt.assert_array_equal(res.pandas.strings, strings.to_numpy())
         assert_subview_is_empty(res.pandas.tensors)
         assert_subview_is_empty(res.pandas.objs)
 
@@ -229,9 +263,10 @@ class TestListElements(object):
         strings = pd.Series(["foo", "bar", None, None])
 
         res = PreprocessedColumn.apply(strings)
+        assert_correct_types(res)
         assert res.null_count == 2
 
-        assert_series_equal(res.pandas.strings, pd.Series(["foo", "bar"]))
+        npt.assert_array_equal(res.pandas.strings, pd.Series(["foo", "bar"]).to_numpy())
         assert_subview_is_empty(res.pandas.objs)
         assert_subview_is_empty(res.pandas.tensors)
 
@@ -275,6 +310,7 @@ def test_process_scalar_called_with_scalar_nonobject(
     monkeypatch.setattr("whylogs.core.preprocessing.pd", PandasStub() if pd_stubbed else pd)
 
     column = PreprocessedColumn._process_scalar_value(value)
+    assert_correct_types(column)
 
     if isinstance(value, (int)):
         if isinstance(value, (bool)):
@@ -409,6 +445,7 @@ def test_process_scalar_called_with_tensorable(value: Any, np_stubbed: bool, pd_
     monkeypatch.setattr("whylogs.core.preprocessing.pd", PandasStub() if pd_stubbed else pd)
 
     column = PreprocessedColumn._process_scalar_value(value)
+    assert_correct_types(column)
 
     assert column.bool_count == 0
     assert column.bool_count_where_true == 0
@@ -488,6 +525,7 @@ def test_process_scalar_called_with_scalar_object(value: Any, np_stubbed: bool, 
     monkeypatch.setattr("whylogs.core.preprocessing.pd", PandasStub() if pd_stubbed else pd)
 
     column = PreprocessedColumn._process_scalar_value(value)
+    assert_correct_types(column)
 
     assert column.bool_count == 0
     assert column.bool_count_where_true == 0
@@ -533,6 +571,7 @@ def test_process_scalar_called_with_scalar_object(value: Any, np_stubbed: bool, 
 )
 def test_apply_tensorable_series(column: List[Any]) -> None:
     res = PreprocessedColumn.apply(pd.Series(column))
+    assert_correct_types(res)
     assert len(res.pandas.tensors) == len(column)
     for i in range(len(column)):
         X = res.pandas.tensors[i]
@@ -561,6 +600,7 @@ def test_apply_tensorable_series(column: List[Any]) -> None:
 )
 def test_apply_nontensorable_series(column: Any) -> None:
     res = PreprocessedColumn.apply(pd.Series(column))
+    assert_correct_types(res)
 
     assert len(res.pandas.objs) == len(column)
     assert_subview_is_empty(res.pandas.strings)
@@ -586,6 +626,7 @@ def test_apply_nontensorable_series(column: Any) -> None:
 )
 def test_apply_ndarray(column: np.ndarray) -> None:
     res = PreprocessedColumn.apply(column)
+    assert_correct_types(res)
 
     if issubclass(column.dtype.type, np.floating):
         assert res.numpy.floats.tolist() == column.tolist()
@@ -648,6 +689,7 @@ def test_apply_list(
     monkeypatch.setattr("whylogs.core.preprocessing.np", NumpyStub() if np_stubbed else np)
     monkeypatch.setattr("whylogs.core.preprocessing.pd", PandasStub() if pd_stubbed else pd)
     res = PreprocessedColumn.apply(column)
+    assert_correct_types(res)
     if pd_stubbed:
         assert_pandas_view_is_empty(res.pandas)
 

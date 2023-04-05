@@ -508,7 +508,10 @@ class WhyLabsWriter(Writer):
             self._dataset_id = kwargs.get("dataset_id")
 
         with tempfile.NamedTemporaryFile() as tmp_file:
-            if has_segments:
+            # currently whylabs is not ingesting the v1 format of segmented profiles as segmented
+            # so we default to sending them as v0 profiles if the override `use_v0` is not defined,
+            # if `use_v0` is defined then pass that through to control the serialization format.
+            if has_segments and (kwargs.get("use_v0") is None or kwargs.get("use_v0")):
                 view.write(file=tmp_file, use_v0=True)
             else:
                 view.write(file=tmp_file)
