@@ -1,4 +1,5 @@
 import logging
+from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
 from itertools import chain
@@ -21,7 +22,7 @@ from whylogs.core.metrics.metrics import (
     OperationResult,
     register_metric,
 )
-from whylogs.core.metrics.multimetric import MultiMetric, SubmetricSchema
+from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
@@ -46,6 +47,7 @@ _DEFAULT_TAGS_ATTRIBUTES = [
     "ImagePixelHeight",
     "Colorspace",
 ]
+
 _IMAGE_HSV_CHANNELS = ["Hue", "Saturation", "Brightness"]
 _STATS_PROPERTIES = ["mean", "stddev"]
 _DEFAULT_STAT_ATTRIBUTES = [c + "." + s for c in _IMAGE_HSV_CHANNELS for s in _STATS_PROPERTIES]
@@ -64,7 +66,6 @@ def get_pil_image_statistics(
     Returns:
         Dict: of metadata
     """
-
     stats = Stat(img.convert("HSV"))
     metadata = {}
     for index in range(len(channels)):
@@ -120,6 +121,12 @@ def get_pil_image_metadata(img: ImageType) -> Dict:
     metadata.update(image_based_metadata(img))
     metadata.update(get_pil_image_statistics(img))
     return metadata
+
+
+class SubmetricSchema(ABC):
+    @abstractmethod
+    def resolve(self, name: str, why_type: DataType, fi_disabled: bool = False) -> Dict[str, Metric]:
+        raise NotImplementedError
 
 
 class ImageSubmetricSchema(SubmetricSchema):
@@ -213,7 +220,7 @@ class ImageMetric(MultiMetric):
                 metadata = get_pil_exif_metadata(image)
                 for name, value in metadata.items():
                     self._discover_exif_submetrics(name, value)  # EXIF tag discovery
-                    data = PreprocessedColumn.apply([metadata[name]])  # TODO: _process_scalar_value()?
+                    data = PreprocessedColumn.apply([metadata[name]])
                     self._update_relevant_submetrics(name, data)
 
                 image_data = get_pil_image_metadata(image)

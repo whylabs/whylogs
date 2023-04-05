@@ -31,16 +31,14 @@ class DefaultSchema(SubmetricSchema):
             "types": StandardMetric.types.zero(MetricConfig()),
             "cardinality": StandardMetric.cardinality.zero(MetricConfig()),
         }
+        if not fi_disabled:
+            metrics["frequent_items"] = StandardMetric.frequent_items.zero(MetricConfig())
 
         if isinstance(why_type, Integral):
             metrics["distribution"] = StandardMetric.distribution.zero(MetricConfig())
             metrics["ints"] = StandardMetric.ints.zero(MetricConfig())
-            if not fi_disabled:
-                metrics["frequent_items"] = StandardMetric.frequent_items.zero(MetricConfig())
         elif isinstance(why_type, Fractional):
             metrics["distribution"] = StandardMetric.distribution.zero(MetricConfig())
-        elif isinstance(why_type, String) and not fi_disabled:
-            metrics["frequent_items"] = StandardMetric.frequent_items.zero(MetricConfig())
 
         return metrics
 
