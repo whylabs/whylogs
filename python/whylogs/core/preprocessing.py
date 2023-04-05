@@ -276,6 +276,9 @@ class PreprocessedColumn:
                 result.numpy.ints = series.astype(int)
                 return result
 
+        # This code path is faster than _pandas_split() because it only does type
+        # checking on the first value of the column. It assumes all the values are
+        # the same type and none are missing.
         value = series[0]
         if isinstance(value, str):
             result.pandas.strings = series
