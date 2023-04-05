@@ -9,12 +9,16 @@ import numpy.testing as npt
 import pandas as pd
 import pytest
 
+import whylogs as why
 from whylogs.core.preprocessing import (
+    ColumnProperties,
     ListView,
     NumpyView,
     PandasView,
     PreprocessedColumn,
 )
+from whylogs.core.resolvers import STANDARD_RESOLVER
+from whylogs.core.schema import DeclarativeSchema
 from whylogs.core.stubs import NumpyStub, PandasStub
 
 TEST_LOGGER = getLogger(__name__)
@@ -722,6 +726,36 @@ def test_apply_list(
             X = res.pandas.tensors[i]
             Y = tensors[i]
             assert X.shape == Y.shape
+
+
+def test_homogeneous_column() -> None:
+    d = {"col1": [1, 2, 3, 4], "col2": [5.0, 6.0, 7.0, 8.0], "col3": ["a", "b", "c", "d"], "col4": [1, 2, 3, 4]}
+    df = pd.DataFrame(data=d)
+    types = {
+        "col1": (int, ColumnProperties.homogeneous),  # only this one should take the homogeneous code path
+        "col2": (float, ColumnProperties.default),
+        "col3": (str),
+        "col4": int,
+    }
+    schema = DeclarativeSchema(STANDARD_RESOLVER, types=types)
+    results = why.log(pandas=df, schema=schema)
+    view = results.profile().view()
+
+    summary = view.get_column("col1").to_summary_dict()
+    assert summary["counts/n"] == len(d["col1"])
+    assert summary["ints/max"] == max(d["col1"])
+
+    summary = view.get_column("col2").to_summary_dict()
+    assert summary["counts/n"] == len(d["col2"])
+    assert summary["distribution/max"] == max(d["col2"])
+
+    summary = view.get_column("col3").to_summary_dict()
+    assert summary["counts/n"] == len(d["col3"])
+    assert summary["types/string"] == len(d["col3"])
+
+    summary = view.get_column("col4").to_summary_dict()
+    assert summary["counts/n"] == len(d["col4"])
+    assert summary["ints/max"] == max(d["col4"])
 
 
 def test_apply_iterable() -> None:
