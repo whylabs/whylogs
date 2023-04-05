@@ -530,6 +530,7 @@
 <div class="viewcode-block" id="ColumnProfileView.from_protobuf"><a class="viewcode-back" href="../../../../api/whylogs/core/view/index.html#whylogs.core.ColumnProfileView.from_protobuf">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_protobuf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">ColumnMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ColumnProfileView&quot;</span><span class="p">:</span>
         <span class="c1"># importing to trigger registration of non-standard metrics</span>
+        <span class="kn">import</span> <span class="nn">whylogs.experimental.core.metrics.udf_metric</span>  <span class="c1"># noqa</span>
         <span class="kn">import</span> <span class="nn">whylogs.experimental.extras.embedding_metric</span>  <span class="c1"># noqa</span>
         <span class="kn">import</span> <span class="nn">whylogs.experimental.extras.nlp_metric</span>  <span class="c1"># noqa</span>
         <span class="kn">import</span> <span class="nn">whylogs.extras.image_metric</span>  <span class="c1"># noqa</span>

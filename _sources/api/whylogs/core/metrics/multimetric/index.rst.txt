@@ -12,6 +12,7 @@ Classes
 
 .. autoapisummary::
 
+   whylogs.core.metrics.multimetric.SubmetricSchema
    whylogs.core.metrics.multimetric.MultiMetric
 
 
@@ -29,6 +30,18 @@ Attributes
 .. py:data:: logger
 
    
+
+.. py:class:: SubmetricSchema
+
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, fi_disabled: bool = False) -> Dict[str, whylogs.core.metrics.Metric]
+      :abstractmethod:
+
+
 
 .. py:data:: MULTI_METRIC
 

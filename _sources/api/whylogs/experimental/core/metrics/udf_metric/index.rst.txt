@@ -1,7 +1,7 @@
-:py:mod:`whylogs.extras.image_metric`
-=====================================
+:py:mod:`whylogs.experimental.core.metrics.udf_metric`
+======================================================
 
-.. py:module:: whylogs.extras.image_metric
+.. py:module:: whylogs.experimental.core.metrics.udf_metric
 
 
 Module Contents
@@ -12,22 +12,10 @@ Classes
 
 .. autoapisummary::
 
-   whylogs.extras.image_metric.ImageSubmetricSchema
-   whylogs.extras.image_metric.ImageMetricConfig
-   whylogs.extras.image_metric.ImageMetric
+   whylogs.experimental.core.metrics.udf_metric.DefaultSchema
+   whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig
+   whylogs.experimental.core.metrics.udf_metric.UdfMetric
 
-
-
-Functions
-~~~~~~~~~
-
-.. autoapisummary::
-
-   whylogs.extras.image_metric.get_pil_image_statistics
-   whylogs.extras.image_metric.get_pil_exif_metadata
-   whylogs.extras.image_metric.image_based_metadata
-   whylogs.extras.image_metric.get_pil_image_metadata
-   whylogs.extras.image_metric.log_image
 
 
 
@@ -36,62 +24,14 @@ Attributes
 
 .. autoapisummary::
 
-   whylogs.extras.image_metric.logger
-   whylogs.extras.image_metric.ImageType
-   whylogs.extras.image_metric.DEFAULT_IMAGE_FEATURES
+   whylogs.experimental.core.metrics.udf_metric.logger
 
 
 .. py:data:: logger
 
    
 
-.. py:data:: ImageType
-
-   
-
-.. py:data:: DEFAULT_IMAGE_FEATURES
-   :type: List[str]
-   :value: []
-
-   
-
-.. py:function:: get_pil_image_statistics(img: PIL.Image.Image, channels: List[str] = _IMAGE_HSV_CHANNELS, image_stats: List[str] = _STATS_PROPERTIES) -> Dict
-
-   Compute statistics data for a PIL Image
-
-   :param img: PIL Image
-   :type img: ImageType
-
-   :returns: of metadata
-   :rtype: Dict
-
-
-.. py:function:: get_pil_exif_metadata(img: PIL.Image.Image) -> Dict
-
-   Grab EXIF metadata from image
-
-   :param img: PIL Image
-   :type img: ImageType
-
-   :returns: of metadata
-   :rtype: Dict
-
-
-.. py:function:: image_based_metadata(img)
-
-
-.. py:function:: get_pil_image_metadata(img: PIL.Image.Image) -> Dict
-
-   Grab statistics data from a PIL ImageStats.Stat
-
-   :param img: PIL Image
-   :type img: ImageType
-
-   :returns: of metadata
-   :rtype: Dict
-
-
-.. py:class:: ImageSubmetricSchema
+.. py:class:: DefaultSchema
 
    Bases: :py:obj:`whylogs.core.metrics.multimetric.SubmetricSchema`
 
@@ -102,17 +42,24 @@ Attributes
 
 
 
-.. py:class:: ImageMetricConfig
+.. py:class:: UdfMetricConfig
 
    Bases: :py:obj:`whylogs.core.metrics.metrics.MetricConfig`
 
-   .. py:attribute:: allowed_exif_tags
-      :type: Set[str]
+   Maps feature name to callable that computes it
+
+   .. py:attribute:: udfs
+      :type: Dict[str, Callable[[Any], Any]]
 
       
 
-   .. py:attribute:: forbidden_exif_tags
-      :type: Set[str]
+   .. py:attribute:: submetric_schema
+      :type: whylogs.core.metrics.multimetric.SubmetricSchema
+
+      
+
+   .. py:attribute:: type_mapper
+      :type: whylogs.core.datatypes.TypeMapper
 
       
 
@@ -187,7 +134,7 @@ Attributes
       
 
 
-.. py:class:: ImageMetric(submetrics: Dict[str, Dict[str, whylogs.core.metrics.metrics.Metric]], allowed_exif_tags: Optional[Set[str]] = None, forbidden_exif_tags: Optional[Set[str]] = None, submetric_schema: Optional[whylogs.core.metrics.multimetric.SubmetricSchema] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, fi_disabled: bool = False)
+.. py:class:: UdfMetric(udfs: Dict[str, Callable[[Any], Any]], submetric_schema: Optional[whylogs.core.metrics.multimetric.SubmetricSchema] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, fi_disabled: bool = False)
 
    Bases: :py:obj:`whylogs.core.metrics.multimetric.MultiMetric`
 
@@ -217,13 +164,13 @@ Attributes
 
       
 
-   .. py:method:: merge(other: ImageMetric) -> ImageMetric
+   .. py:method:: merge(other: UdfMetric) -> UdfMetric
 
 
    .. py:method:: columnar_update(view: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 
 
-   .. py:method:: zero(config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None) -> ImageMetric
+   .. py:method:: zero(config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None) -> UdfMetric
       :classmethod:
 
 
@@ -250,8 +197,5 @@ Attributes
    .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
       :classmethod:
 
-
-
-.. py:function:: log_image(images: Union[PIL.Image.Image, List[PIL.Image.Image], Dict[str, PIL.Image.Image]], default_column_prefix: str = 'image', schema: Optional[whylogs.core.schema.DatasetSchema] = None) -> whylogs.api.logger.result_set.ResultSet
 
 

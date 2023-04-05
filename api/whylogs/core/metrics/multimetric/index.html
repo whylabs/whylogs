@@ -439,7 +439,10 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.multimetric.MultiMetric" title="whylogs.core.metrics.multimetric.MultiMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiMetric</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.multimetric.SubmetricSchema" title="whylogs.core.metrics.multimetric.SubmetricSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubmetricSchema</span></code></a></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.metrics.multimetric.MultiMetric" title="whylogs.core.metrics.multimetric.MultiMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiMetric</span></code></a></p></td>
 <td><p>MultiMetric serves as a base class for custom metrics that consist</p></td>
 </tr>
 </tbody>
@@ -468,6 +471,31 @@
 <dt class="sig sig-object py" id="whylogs.core.metrics.multimetric.logger">
 <span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.multimetric.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#whylogs.core.metrics.multimetric.logger" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.metrics.multimetric.SubmetricSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.multimetric.</span></span><span class="sig-name descname"><span class="pre">SubmetricSchema</span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/multimetric.html#SubmetricSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.multimetric.SubmetricSchema" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/abc.html#abc.ABC" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.multimetric.SubmetricSchema.resolve">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">why_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../datatypes/index.html#whylogs.core.datatypes.DataType" title="whylogs.core.datatypes.DataType"><span class="pre">whylogs.core.datatypes.DataType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fi_disabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../index.html#whylogs.core.metrics.Metric" title="whylogs.core.metrics.Metric"><span class="pre">whylogs.core.metrics.Metric</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/multimetric.html#SubmetricSchema.resolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.multimetric.SubmetricSchema.resolve" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>why_type</strong> (<a class="reference internal" href="../../datatypes/index.html#whylogs.core.datatypes.DataType" title="whylogs.core.datatypes.DataType"><em>whylogs.core.datatypes.DataType</em></a>) – </p></li>
+<li><p><strong>fi_disabled</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference internal" href="../index.html#whylogs.core.metrics.Metric" title="whylogs.core.metrics.Metric">whylogs.core.metrics.Metric</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="whylogs.core.metrics.multimetric.MULTI_METRIC">
@@ -729,6 +757,10 @@ the Metric interface. Don’t use / or : in the subclass’ namespace.</p>
 <li><a class="reference internal" href="#classes">Classes</a></li>
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
 <li><a class="reference internal" href="#whylogs.core.metrics.multimetric.logger">logger</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.multimetric.SubmetricSchema">SubmetricSchema</a><ul>
+<li><a class="reference internal" href="#whylogs.core.metrics.multimetric.SubmetricSchema.resolve">resolve</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#whylogs.core.metrics.multimetric.MULTI_METRIC">MULTI_METRIC</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.multimetric.MultiMetric">MultiMetric</a><ul>
 <li><a class="reference internal" href="#whylogs.core.metrics.multimetric.MultiMetric.namespace">namespace</a></li>
