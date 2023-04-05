@@ -5,7 +5,6 @@ from typing import Any, Dict, List, Mapping, Optional, TypeVar
 
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
-from whylogs.core.preprocessing import ColumnProperties
 from whylogs.core.resolvers import (
     DeclarativeResolver,
     Resolver,
