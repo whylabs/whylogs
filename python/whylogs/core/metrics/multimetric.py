@@ -1,9 +1,10 @@
 import logging
-from abc import ABC
+from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Type, TypeVar
 
 from whylogs.core.configs import SummaryConfig
+from whylogs.core.datatypes import DataType
 from whylogs.core.errors import DeserializationError, UnsupportedError
 from whylogs.core.metrics import Metric
 from whylogs.core.metrics.metric_components import MetricComponent
@@ -12,6 +13,12 @@ from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricComponentMessage, MetricMessage
 
 logger = logging.getLogger(__name__)
+
+
+class SubmetricSchema(ABC):
+    @abstractmethod
+    def resolve(self, name: str, why_type: DataType, fi_disabled: bool = False) -> Dict[str, Metric]:
+        raise NotImplementedError
 
 
 MULTI_METRIC = TypeVar("MULTI_METRIC", bound="MultiMetric")
