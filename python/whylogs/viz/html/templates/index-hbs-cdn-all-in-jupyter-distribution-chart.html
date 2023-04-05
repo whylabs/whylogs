@@ -278,6 +278,18 @@
         return data
       }
 
+      function verticalLine(column) {
+        const line_data = [];
+        if (column?.vertical_line) {
+            line_data.push({
+              axisX: column?.vertical_line || 0,
+            });
+
+        } 
+
+        return line_data
+      }
+
       function generateDoubleHistogramChart(targetData, referenceData) {
         let histogramData = [],
             overlappedHistogramData = [];
@@ -285,6 +297,7 @@
 
         histogramData = chartData(targetData)
         overlappedHistogramData = chartData(referenceData)
+        lineData = verticalLine(targetData)
 
         const sizes = new GenerateChartParams($(window).height()-80, $(window).width(), histogramData, overlappedHistogramData)
         const {
@@ -315,6 +328,29 @@
               .attr("y", 10)
               .attr("fill", "currentColor")
               .attr("text-anchor", "start"))
+
+        svgEl.append("line")
+          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.BOTTOM})`)
+          .data(lineData)
+          .attr("x1", (d) => xScale(d.axisX))
+          .attr("y1", MARGIN.TOP + MARGIN.TOP)
+          .attr("x2", (d) => xScale(d.axisX))
+          .attr("y2", CHART_HEIGHT + MARGIN.TOP)
+          .style("stroke-width", 2)
+          .style("stroke", "#44C0E7")
+          .style("stroke-dasharray", (3,3))
+          .style("fill", "none");
+
+        svgEl.append("text")
+          .attr("transform", "rotate(-90)")
+          .data(lineData)
+          .attr("y", (d) => xScale(d.axisX) + MARGIN.LEFT)
+          .attr("x", 0 - (SVG_HEIGHT / 2))
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .text("single value")
+          .style("font-size", "15")
+          .style("opacity", "0.6")
 
         svgEl.append("text")
           .attr("transform",
