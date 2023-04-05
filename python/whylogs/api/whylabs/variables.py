@@ -24,8 +24,10 @@ class Variables:
     def get_password_from_keyring() -> str:
         api_key = keyring.get_password("whylabs", "api_key")
         if api_key is None:
-            api_key = Variables.get_variable_from_input(variable_name="api_key")
-            keyring.set_password("whylabs", "api_key", api_key)
+            raise ValueError(
+                "You must set your api_key either with keyring or the WHYLABS_API_KEY environment variable"
+            )
+        keyring.set_password("whylabs", "api_key", api_key)
         return api_key
 
     @staticmethod
