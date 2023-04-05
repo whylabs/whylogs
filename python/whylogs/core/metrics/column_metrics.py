@@ -111,8 +111,8 @@ class TypeCountersMetric(Metric):
 class ColumnCountsMetric(Metric):
     n: IntegralComponent
     null: IntegralComponent
-    nan: IntegralComponent
-    inf: IntegralComponent
+    nan: IntegralComponent = field(default_factory=lambda: IntegralComponent(0))
+    inf: IntegralComponent = field(default_factory=lambda: IntegralComponent(0))
 
     @property
     def namespace(self) -> str:
