@@ -92,3 +92,23 @@ def test_type_counts_with_and_without_tensor_field():
     assert full_type_counts.tensor.value == 6
     merged_counts = full_type_counts.merge(type_counts)
     assert merged_counts.tensor.value == 7
+
+
+def test_column_counts_with_and_without_nan_field():
+    column_counts = ColumnCountsMetric(
+        n=IntegralComponent(1),
+        null=IntegralComponent(2),
+    )
+    assert column_counts.nan.value == 0
+    assert column_counts.inf.value == 0
+    column_counts.nan.set(1)
+    assert column_counts.nan.value == 1
+    assert column_counts.null.value == 2
+    full_column_counts = ColumnCountsMetric(
+        n=IntegralComponent(1),
+        null=IntegralComponent(2),
+        nan=IntegralComponent(3),
+        inf=IntegralComponent(4),
+    )
+    assert full_column_counts.nan.value == 3
+    assert full_column_counts.inf.value == 4
