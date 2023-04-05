@@ -519,8 +519,13 @@
             <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">data_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="n">data_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># (dtype, property, ...)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="n">data_type</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnSchema</span><span class="p">(</span>
-                <span class="n">dtype</span><span class="o">=</span><span class="n">data_type</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
                 <span class="n">resolver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resolvers</span><span class="p">,</span>
                 <span class="n">type_mapper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">type_mapper</span><span class="p">,</span>
                 <span class="n">cfg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default_configs</span><span class="p">,</span>
@@ -538,7 +543,12 @@
         <span class="n">copy</span><span class="o">.</span><span class="n">segments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">segments</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">copy</span></div>
 
-<div class="viewcode-block" id="DatasetSchema.resolve"><a class="viewcode-back" href="../../../api/whylogs/core/schema/index.html#whylogs.api.logger.DatasetSchema.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">pandas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="DatasetSchema.resolve"><a class="viewcode-back" href="../../../api/whylogs/core/schema/index.html#whylogs.api.logger.DatasetSchema.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">pandas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">row</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">pandas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_pdf</span><span class="p">(</span><span class="n">pandas</span><span class="p">)</span>
 

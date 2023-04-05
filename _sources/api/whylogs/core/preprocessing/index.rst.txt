@@ -12,6 +12,7 @@ Classes
 
 .. autoapisummary::
 
+   whylogs.core.preprocessing.ColumnProperties
    whylogs.core.preprocessing.ListView
    whylogs.core.preprocessing.NumpyView
    whylogs.core.preprocessing.PandasView
@@ -31,6 +32,35 @@ Attributes
 .. py:data:: logger
 
    
+
+.. py:class:: ColumnProperties
+
+   Bases: :py:obj:`enum.Enum`
+
+   Generic enumeration.
+
+   Derive from this class to define new enumerations.
+
+   .. py:attribute:: default
+      :value: 0
+
+      
+
+   .. py:attribute:: homogeneous
+      :value: 1
+
+      
+
+   .. py:method:: name()
+
+      The name of the Enum member.
+
+
+   .. py:method:: value()
+
+      The value of the Enum member.
+
+
 
 .. py:class:: ListView
 
