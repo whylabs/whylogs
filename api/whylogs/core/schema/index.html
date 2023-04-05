@@ -342,6 +342,7 @@
 <li class="toctree-l4 current current-page"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../segment/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segment</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../segmentation_partition/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segmentation_partition</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../specialized_resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.specialized_resolvers</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../datasets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.datasets</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -706,6 +707,20 @@ in whylogs/python/tests/core/test_declarative_schema.py</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.schema.DeclarativeSchema.add_resolver_spec">
+<span class="sig-name descname"><span class="pre">add_resolver_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resolvers/index.html#whylogs.core.resolvers.MetricSpec" title="whylogs.core.resolvers.MetricSpec"><span class="pre">whylogs.core.resolvers.MetricSpec</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/whylogs/core/schema.html#DeclarativeSchema.add_resolver_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.schema.DeclarativeSchema.add_resolver_spec" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_name</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>column_type</strong> (<em>Optional</em><em>[</em><em>Any</em><em>]</em>) – </p></li>
+<li><p><strong>metrics</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="../resolvers/index.html#whylogs.core.resolvers.MetricSpec" title="whylogs.core.resolvers.MetricSpec"><em>whylogs.core.resolvers.MetricSpec</em></a><em>]</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.schema.DeclarativeSchema.copy">
 <span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.schema.DatasetSchema" title="whylogs.core.schema.DatasetSchema"><span class="pre">DatasetSchema</span></a></span></span><a class="headerlink" href="#whylogs.core.schema.DeclarativeSchema.copy" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a new instance of the same underlying schema</p>
@@ -873,6 +888,7 @@ in whylogs/python/tests/core/test_declarative_schema.py</p>
 </li>
 <li><a class="reference internal" href="#whylogs.core.schema.DeclarativeSchema">DeclarativeSchema</a><ul>
 <li><a class="reference internal" href="#whylogs.core.schema.DeclarativeSchema.add_resolver">add_resolver</a></li>
+<li><a class="reference internal" href="#whylogs.core.schema.DeclarativeSchema.add_resolver_spec">add_resolver_spec</a></li>
 <li><a class="reference internal" href="#whylogs.core.schema.DeclarativeSchema.copy">copy</a></li>
 <li><a class="reference internal" href="#whylogs.core.schema.DeclarativeSchema.resolve">resolve</a></li>
 <li><a class="reference internal" href="#whylogs.core.schema.DeclarativeSchema.get_col_names">get_col_names</a></li>

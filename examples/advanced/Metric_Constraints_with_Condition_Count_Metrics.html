@@ -342,6 +342,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/segment/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segment</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/segmentation_partition/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segmentation_partition</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/specialized_resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.specialized_resolvers</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/datasets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.datasets</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -692,7 +693,7 @@ div.rendered_html tbody tr:hover {
 <section id="Installing-whylogs">
 <h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
@@ -715,7 +716,7 @@ div.rendered_html tbody tr:hover {
 </ul>
 <p>Let’s first create a simple DataFrame to demonstrate:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -736,7 +737,7 @@ div.rendered_html tbody tr:hover {
 <h2>Defining the Relations<a class="headerlink" href="#Defining-the-Relations" title="Permalink to this headline">#</a></h2>
 <p>Let’s first define the relations that will actually check whether the value passes our constraint. For the date format validation, we’ll use the <strong>datetime</strong> module in a user defined function. As for the Regex pattern matching, we will use whylogs’ <code class="docutils literal notranslate"><span class="pre">Predicates</span></code> along with regular expressions, which allows us to build simple relations intuitively.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
@@ -752,9 +753,8 @@ div.rendered_html tbody tr:hover {
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<span class="n">X</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">()</span>
 <span class="c1"># matches accept a regex expression</span>
-<span class="n">matches_domain_url</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;^https:\/\/www.mydomain.com\/profile&quot;</span><span class="p">)</span>
+<span class="n">matches_domain_url</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;^https:\/\/www.mydomain.com\/profile&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -764,7 +764,7 @@ div.rendered_html tbody tr:hover {
 <p>Next, we need to define the actions that will be triggered whenever the conditions fail.</p>
 <p>We will define two placeholder functions that, in a real scenario, would execute the defined actions.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
@@ -788,7 +788,7 @@ div.rendered_html tbody tr:hover {
 <h2>Conditions = Relations + Actions<a class="headerlink" href="#Conditions-=-Relations-+-Actions" title="Permalink to this headline">#</a></h2>
 <p>Conditions are defined by the combination of a relation and a set of actions. Now that we have both relations and actions, we can create two sets of conditions - in this example, each set contain a single condition, but we could have multiple.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">Condition</span>
@@ -806,66 +806,25 @@ div.rendered_html tbody tr:hover {
 <h2>Passing the conditions to the Logger<a class="headerlink" href="#Passing-the-conditions-to-the-Logger" title="Permalink to this headline">#</a></h2>
 <p>Now, we need to let the logger aware of our Conditions. This can be done by creating a custom schema object that will be passed to <code class="docutils literal notranslate"><span class="pre">why.log()</span></code>.</p>
 <p>To create the schema object, we will use the <strong>Declarative Schema</strong>, which is an auxiliary class that will enable us to create a schema in a simple way.</p>
-<p>In this case, we want our schema to start with the default behavior (standard metrics for the default datatypes):</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">STANDARD_RESOLVER</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
-
-<span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>Now, we want to include additional resolvers to this schema, which will define the Conditions previously created.</p>
-<p>We have certain conditions for specific columns, so we need to bind those conditions to the proper columns. To do that, we’ll use <strong>ResolverSpec</strong> to create additional Resolvers that will later be added to our schema.</p>
+<p>In this case, we want our schema to start with the default behavior (standard metrics for the default datatypes). Then, we want to add two condition count metrics based on the conditions we defined earlier and the name of the column we want to bind those conditions to. We can do so by calling the schema’s <code class="docutils literal notranslate"><span class="pre">add_condition_count_metric</span></code> method:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">ResolverSpec</span><span class="p">,</span> <span class="n">MetricSpec</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Condition</span><span class="p">,</span>
-    <span class="n">ConditionCountConfig</span><span class="p">,</span>
-    <span class="n">ConditionCountMetric</span><span class="p">,</span>
-<span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">STANDARD_RESOLVER</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.specialized_resolvers</span> <span class="kn">import</span> <span class="n">ConditionCountMetricSpec</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
 
-<span class="n">subscription_has_date_format</span> <span class="o">=</span> <span class="n">ResolverSpec</span><span class="p">(</span>
-    <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;subscription_date&quot;</span><span class="p">,</span>
-    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">MetricSpec</span><span class="p">(</span>
-            <span class="n">ConditionCountMetric</span><span class="p">,</span>
-            <span class="n">ConditionCountConfig</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">has_date_format</span><span class="p">),</span>
-        <span class="p">),</span>
-    <span class="p">],</span>
-<span class="p">)</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
 
-<span class="n">url_matches_pattern</span> <span class="o">=</span> <span class="n">ResolverSpec</span><span class="p">(</span>
-    <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;url&quot;</span><span class="p">,</span>
-    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">MetricSpec</span><span class="p">(</span>
-            <span class="n">ConditionCountMetric</span><span class="p">,</span>
-            <span class="n">ConditionCountConfig</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">regex_conditions</span><span class="p">),</span>
-        <span class="p">),</span>
-    <span class="p">],</span>
-<span class="p">)</span>
-<br/></pre></div>
-</div>
-</div>
-<p>Ok, now we just have to add those resolvers to our existing schema:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">schema</span><span class="o">.</span><span class="n">add_resolver</span><span class="p">(</span><span class="n">subscription_has_date_format</span><span class="p">)</span>
-<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver</span><span class="p">(</span><span class="n">url_matches_pattern</span><span class="p">)</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;subscription_date&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">has_date_format</span><span class="p">)])</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">regex_conditions</span><span class="p">)])</span>
 </pre></div>
 </div>
 </div>
-<p>Finally, let’s pass the schema to why.log() and start logging our data:</p>
+<p>Now, let’s pass the schema to why.log() and start logging our data:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -901,7 +860,7 @@ Validator: condition_count
 <p>You can see that during the logging process, our actions were triggered whenever the condition failed. We can see the name of the failed condition and the specific value that triggered it.</p>
 <p>We see the actions were triggered, but we also expect the Condition Count Metrics to be generated. Let’s see if this is the case:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
@@ -909,7 +868,7 @@ Validator: condition_count
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -942,13 +901,13 @@ Validator: condition_count
       <th>distribution/mean</th>
       <th>distribution/median</th>
       <th>...</th>
-      <th>ints/min</th>
       <th>type</th>
       <th>types/boolean</th>
       <th>types/fractional</th>
       <th>types/integral</th>
       <th>types/object</th>
       <th>types/string</th>
+      <th>types/tensor</th>
       <th>condition_count/Y-m-d format</th>
       <th>condition_count/total</th>
       <th>condition_count/url_matches_domain</th>
@@ -992,11 +951,11 @@ Validator: condition_count
       <td>25.0</td>
       <td>25.0</td>
       <td>...</td>
-      <td>19.0</td>
       <td>SummaryType.COLUMN</td>
       <td>0</td>
       <td>0</td>
       <td>3</td>
+      <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>NaN</td>
@@ -1016,13 +975,13 @@ Validator: condition_count
       <td>0.0</td>
       <td>NaN</td>
       <td>...</td>
-      <td>NaN</td>
       <td>SummaryType.COLUMN</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>3</td>
+      <td>0</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1040,13 +999,13 @@ Validator: condition_count
       <td>0.0</td>
       <td>NaN</td>
       <td>...</td>
-      <td>NaN</td>
       <td>SummaryType.COLUMN</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>3</td>
+      <td>0</td>
       <td>1.0</td>
       <td>3.0</td>
       <td>NaN</td>
@@ -1064,20 +1023,20 @@ Validator: condition_count
       <td>0.0</td>
       <td>NaN</td>
       <td>...</td>
-      <td>NaN</td>
       <td>SummaryType.COLUMN</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>3</td>
+      <td>0</td>
       <td>NaN</td>
       <td>3.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
 </table>
-<p>4 rows × 33 columns</p>
+<p>4 rows × 34 columns</p>
 </div></div>
 </div>
 <p>At the far right of our summary dataframe, you can find the Condition Count Metrics: the <code class="docutils literal notranslate"><span class="pre">Y-m-d</span> <span class="pre">format</span></code> condition was met only once of a total of 3. The same happens for the <code class="docutils literal notranslate"><span class="pre">url_matches_domain</span></code>. Note that for columns where the condition was not defined, a <code class="docutils literal notranslate"><span class="pre">NaN</span></code> is displayed.</p>
@@ -1087,7 +1046,7 @@ Validator: condition_count
 <p>So far, we created Condition Count Metrics for both of the desired conditions. During the logging process, the set of actions defined for each of the conditions were triggered whenever the conditions failed to be met.</p>
 <p>Now, we wish to create Metric Constraints on top of the Condition Count Metrics, so we can generate a Constraints Report. This can be done by using the <code class="docutils literal notranslate"><span class="pre">condition_meets</span></code> helper constraint. You only need to specify the column name and the name of the condition you want to check:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">condition_meets</span>
@@ -1104,7 +1063,7 @@ Validator: condition_count
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1119,7 +1078,7 @@ Validator: condition_count
 <h3>Visualizing the Report<a class="headerlink" href="#Visualizing-the-Report" title="Permalink to this headline">#</a></h3>
 <p>You can visualize the Constraints Report as usual by calling <code class="docutils literal notranslate"><span class="pre">NotebookProfileVisualizer</span></code>’s <code class="docutils literal notranslate"><span class="pre">constraints_report</span></code>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
@@ -1130,7 +1089,7 @@ Validator: condition_count
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">

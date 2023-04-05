@@ -342,6 +342,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/segment/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segment</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/segmentation_partition/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segmentation_partition</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/specialized_resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.specialized_resolvers</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/datasets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.datasets</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -719,7 +720,7 @@ div.rendered_html tbody tr:hover {
 <section id="Installing-whylogs-and-importing-modules">
 <h2>Installing whylogs and importing modules<a class="headerlink" href="#Installing-whylogs-and-importing-modules" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
@@ -729,29 +730,19 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>Let’s import all the dependencies for this example upfront:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
-
-<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">ColumnSchema</span><span class="p">,</span> <span class="n">DatasetSchema</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">DataType</span>
-
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Condition</span><span class="p">,</span>
-    <span class="n">ConditionCountConfig</span><span class="p">,</span>
-    <span class="n">ConditionCountMetric</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">STANDARD_RESOLVER</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.specialized_resolvers</span> <span class="kn">import</span> <span class="n">ConditionCountMetricSpec</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">Fractional</span><span class="p">,</span> <span class="n">Integral</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">Condition</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Not</span><span class="p">,</span> <span class="n">Predicate</span>
-
-<span class="n">X</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
 </pre></div>
 </div>
 </div>
@@ -766,7 +757,7 @@ div.rendered_html tbody tr:hover {
 <p>Let’s create a simple dataframe.</p>
 <p>In this scenario, the <code class="docutils literal notranslate"><span class="pre">emails</span></code> column should have only a valid email, nothing else. As for the <code class="docutils literal notranslate"><span class="pre">trascriptions</span></code> column, we want to make sure existing credit card number was properly masked or removed.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
@@ -777,55 +768,95 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<p>whylogs use <code class="docutils literal notranslate"><span class="pre">Resolvers</span></code> in order to define how a column name or data type gets mapped to different metrics.</p>
-<p>To define our regex-matching constraints, we will create a CustomResolver. In this example, we want only ConditionCountMetrics to be mapped for every column:</p>
+<p>The conditions are defined through a whylogs’ <code class="docutils literal notranslate"><span class="pre">Condition</span></code> object. There are several different ways of assembling a condition. In the following example, we will define two different regex patterns, one for each column. Since we can define multiple conditions for a single column, we’ll assemble the conditions into dictionaries, where the key is the condition name. Each dictionary will be later attached to the relevant column.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;condition_count&quot;</span><span class="p">:</span> <span class="n">ConditionCountMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)}</span>
-</pre></div>
-</div>
-</div>
-<p>We now have to define the conditions themselves:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">conditions</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;containsEmail&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="s2">&quot;[\w.]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}&quot;</span><span class="p">)),</span>
-    <span class="s2">&quot;containsCreditCard&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;.*4[0-9]</span><span class="si">{12}</span><span class="s2">(?:[0-9]</span><span class="si">{3}</span><span class="s2">)?&quot;</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">emails_conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;containsEmail&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="s2">&quot;[\w.]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}&quot;</span><span class="p">)),</span>
+<span class="p">}</span>
+
+<span class="n">transcriptions_conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;containsCreditCard&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;.*4[0-9]</span><span class="si">{12}</span><span class="s2">(?:[0-9]</span><span class="si">{3}</span><span class="s2">)?&quot;</span><span class="p">))</span>
 <span class="p">}</span>
 </pre></div>
+</div>
+</div>
+<p>whylogs must be aware of those conditions while profiling the data. We can do that by creating a Standard Schema, and then simply adding the conditions to the schema with <code class="docutils literal notranslate"><span class="pre">add_resolver_spec</span></code>. That way, we can pass our enhanced schema when calling <code class="docutils literal notranslate"><span class="pre">why.log()</span></code> later.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;emails&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">emails_conditions</span><span class="p">)])</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;transcriptions&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">transcriptions_conditions</span><span class="p">)])</span>
+<br/></pre></div>
 </div>
 </div>
 <blockquote>
 <div><p>Note: The regex expressions are for demonstrational purposes only. These expressions are not general - there will be emails and credit cards whose patterns will not be met by the expression.</p>
 </div></blockquote>
-<p>In order to define the schema used to track metrics in whylogs, we use a <code class="docutils literal notranslate"><span class="pre">DatasetSchema</span></code>.</p>
-<p>In a <code class="docutils literal notranslate"><span class="pre">DatasetSchema</span></code>, we have information such as the resolver used and extra configurations needed.</p>
-<p>We’ll pass our custom resolver as our schema’s resolver and also pass the conditions we created as part of our schema’s configuration, like this:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">ConditionCountConfig</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">)</span>
-<span class="n">resolver</span> <span class="o">=</span> <span class="n">CustomResolver</span><span class="p">()</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">default_configs</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">resolvers</span><span class="o">=</span><span class="n">resolver</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
 <p>Now, we only need to pass our schema when logging our data. Let’s also take a look at the metrics, to make sure everythins was tracked correctly:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prof_view</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
-<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()[[</span><span class="s1">&#39;condition_count/containsEmail&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/containsCreditCard&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/total&#39;</span><span class="p">]]</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>condition_count/containsEmail</th>
+      <th>condition_count/containsCreditCard</th>
+      <th>condition_count/total</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>emails</th>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>transcriptions</th>
+      <td>NaN</td>
+      <td>1.0</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
 </div>
 <p>Let’s check the numbers:</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">emails</span></code> feature, only one occurence was met for <code class="docutils literal notranslate"><span class="pre">containsEmail</span></code>. That is expected, because the only valid row is the third one (“<a class="reference external" href="mailto:this&#46;is&#46;ok&#37;&#52;&#48;hotmail&#46;com">this<span>&#46;</span>is<span>&#46;</span>ok<span>&#64;</span>hotmail<span>&#46;</span>com</a>”). Others either don’t contain an email, are invalid emails or have extra text that are not an email (note we’re using <code class="docutils literal notranslate"><span class="pre">fullmatch</span></code> as the predicate for the email condition).</p>
@@ -841,49 +872,118 @@ div.rendered_html tbody tr:hover {
 <h2>2. Numerical Equalities and Inequalities<a class="headerlink" href="#2.-Numerical-Equalities-and-Inequalities" title="Permalink to this headline">#</a></h2>
 <p>For this one, let’s create integer and floats columns:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;ints&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">42</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
-    <span class="s2">&quot;floats&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">12.3</span><span class="p">,</span> <span class="mf">42.2</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">]</span>
+    <span class="s2">&quot;ints_column&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">42</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
+    <span class="s2">&quot;floats_column&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">12.3</span><span class="p">,</span> <span class="mf">42.2</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">]</span>
 
 <span class="p">}</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>As before, we want to create a <code class="docutils literal notranslate"><span class="pre">CustomResolver</span></code>, set our conditions and pass both to a <code class="docutils literal notranslate"><span class="pre">DatasetSchema</span></code>:</p>
+<p>As before, we will create our set of conditions for each column and pass both to our schema:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;condition_count&quot;</span><span class="p">:</span> <span class="n">ConditionCountMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)}</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ints_conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;equals42&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mi">42</span><span class="p">)),</span>
+    <span class="s2">&quot;lessthan5&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span>
+    <span class="s2">&quot;morethan40&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">40</span><span class="p">)),</span>
 
-<span class="n">conditions</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;equals42&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mi">42</span><span class="p">)),</span>
-    <span class="s2">&quot;equals42.2&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mf">42.2</span><span class="p">)),</span>
-    <span class="s2">&quot;lessthan5&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span>
-    <span class="s2">&quot;morethan40&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">40</span><span class="p">)),</span>
 <span class="p">}</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">ConditionCountConfig</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">)</span>
-<span class="n">resolver</span> <span class="o">=</span> <span class="n">CustomResolver</span><span class="p">()</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">default_configs</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">resolvers</span><span class="o">=</span><span class="n">resolver</span><span class="p">)</span>
-<br/><br/></pre></div>
+<span class="n">floats_conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;equals42.2&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mf">42.2</span><span class="p">)),</span>
+    <span class="s2">&quot;lessthan5&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span>
+    <span class="s2">&quot;morethan40&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">40</span><span class="p">)),</span>
+<span class="p">}</span>
+
+<span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">Integral</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">ints_conditions</span><span class="p">)])</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">Fractional</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">floats_conditions</span><span class="p">)])</span>
+</pre></div>
 </div>
 </div>
 <p>Let’s log and check the metrics:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prof_view</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
-<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()[[</span><span class="s1">&#39;types/fractional&#39;</span><span class="p">,</span><span class="s1">&#39;types/integral&#39;</span><span class="p">,</span><span class="s1">&#39;condition_count/lessthan5&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/morethan40&#39;</span><span class="p">,</span><span class="s1">&#39;condition_count/equals42&#39;</span><span class="p">,</span><span class="s1">&#39;condition_count/equals42.2&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/total&#39;</span><span class="p">]]</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>types/fractional</th>
+      <th>types/integral</th>
+      <th>condition_count/lessthan5</th>
+      <th>condition_count/morethan40</th>
+      <th>condition_count/equals42</th>
+      <th>condition_count/equals42.2</th>
+      <th>condition_count/total</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>floats_column</th>
+      <td>4</td>
+      <td>0</td>
+      <td>2</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>1.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>ints_column</th>
+      <td>0</td>
+      <td>4</td>
+      <td>2</td>
+      <td>1</td>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
 </div>
 <p>We can simply check the original data to verify that the metrics are correct. We used <code class="docutils literal notranslate"><span class="pre">equals</span></code>, <code class="docutils literal notranslate"><span class="pre">less_than</span></code> and <code class="docutils literal notranslate"><span class="pre">greater_than</span></code> in this example, but here’s the complete list of available relations:</p>
 <ul class="simple">
@@ -905,36 +1005,30 @@ div.rendered_html tbody tr:hover {
 <li><p>Value is NOT a certain number</p></li>
 </ul>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;condition_count&quot;</span><span class="p">:</span> <span class="n">ConditionCountMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)}</span>
-
-<span class="n">conditions</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;between10and50&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">50</span><span class="p">))),</span>
-    <span class="s2">&quot;outside10and50&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">or_</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">50</span><span class="p">))),</span>
-    <span class="s2">&quot;not_42&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Not</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mi">42</span><span class="p">))),</span>  <span class="c1"># could also use X.not_equal(42)  or  X.not_.equals(42)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;between10and50&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">50</span><span class="p">))),</span>
+    <span class="s2">&quot;outside10and50&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">or_</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">50</span><span class="p">))),</span>
+    <span class="s2">&quot;not_42&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Not</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mi">42</span><span class="p">))),</span>  <span class="c1"># could also use X.not_equal(42)  or  X.not_.equals(42)</span>
 <span class="p">}</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">ConditionCountConfig</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">)</span>
-<span class="n">resolver</span> <span class="o">=</span> <span class="n">CustomResolver</span><span class="p">()</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">default_configs</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">resolvers</span><span class="o">=</span><span class="n">resolver</span><span class="p">)</span>
-
+<span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;ints_column&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">conditions</span><span class="p">)])</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;floats_column&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">conditions</span><span class="p">)])</span>
 
 <span class="n">prof_view</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
-<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()[[</span><span class="s1">&#39;condition_count/between10and50&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/outside10and50&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/not_42&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/total&#39;</span><span class="p">]]</span>
 <br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-  <div id="df-e9b14aa9-2dcb-420c-ada4-a9d10e954ac3">
-    <div class="colab-df-container">
-      <div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -953,14 +1047,12 @@ div.rendered_html tbody tr:hover {
     <tr style="text-align: right;">
       <th></th>
       <th>condition_count/between10and50</th>
-      <th>condition_count/not_42</th>
       <th>condition_count/outside10and50</th>
+      <th>condition_count/not_42</th>
       <th>condition_count/total</th>
-      <th>type</th>
     </tr>
     <tr>
       <th>column</th>
-      <th></th>
       <th></th>
       <th></th>
       <th></th>
@@ -969,99 +1061,22 @@ div.rendered_html tbody tr:hover {
   </thead>
   <tbody>
     <tr>
-      <th>floats</th>
+      <th>floats_column</th>
+      <td>2</td>
       <td>2</td>
       <td>4</td>
-      <td>2</td>
       <td>4</td>
-      <td>SummaryType.COLUMN</td>
     </tr>
     <tr>
-      <th>ints</th>
+      <th>ints_column</th>
+      <td>2</td>
       <td>2</td>
       <td>3</td>
-      <td>2</td>
       <td>4</td>
-      <td>SummaryType.COLUMN</td>
     </tr>
   </tbody>
 </table>
-</div>
-      <button class="colab-df-convert" onclick="convertToInteractive('df-e9b14aa9-2dcb-420c-ada4-a9d10e954ac3')"
-              title="Convert this dataframe to an interactive table."
-              style="display:none;">
-
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
-       width="24px">
-    <path d="M0 0h24v24H0V0z" fill="none"/>
-    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
-  </svg>
-      </button>
-
-  <style>
-    .colab-df-container {
-      display:flex;
-      flex-wrap:wrap;
-      gap: 12px;
-    }
-
-    .colab-df-convert {
-      background-color: #E8F0FE;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      display: none;
-      fill: #1967D2;
-      height: 32px;
-      padding: 0 0 0 0;
-      width: 32px;
-    }
-
-    .colab-df-convert:hover {
-      background-color: #E2EBFA;
-      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
-      fill: #174EA6;
-    }
-
-    [theme=dark] .colab-df-convert {
-      background-color: #3B4455;
-      fill: #D2E3FC;
-    }
-
-    [theme=dark] .colab-df-convert:hover {
-      background-color: #434B5C;
-      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
-      fill: #FFFFFF;
-    }
-  </style>
-
-      <script>
-        const buttonEl =
-          document.querySelector('#df-e9b14aa9-2dcb-420c-ada4-a9d10e954ac3 button.colab-df-convert');
-        buttonEl.style.display =
-          google.colab.kernel.accessAllowed ? 'block' : 'none';
-
-        async function convertToInteractive(key) {
-          const element = document.querySelector('#df-e9b14aa9-2dcb-420c-ada4-a9d10e954ac3');
-          const dataTable =
-            await google.colab.kernel.invokeFunction('convertToInteractive',
-                                                     [key], {});
-          if (!dataTable) return;
-
-          const docLinkHtml = 'Like what you see? Visit the ' +
-            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
-            + ' to learn more about interactive tables.';
-          element.innerHTML = '';
-          dataTable['output_type'] = 'display_data';
-          await google.colab.output.renderOutput(dataTable, element);
-          const docLink = document.createElement('div');
-          docLink.innerHTML = docLinkHtml;
-          element.appendChild(docLink);
-        }
-      </script>
-    </div>
-  </div></div>
+</div></div>
 </div>
 <p>Available logical operators are: - <code class="docutils literal notranslate"><span class="pre">and_</span></code> - <code class="docutils literal notranslate"><span class="pre">or_</span></code> - <code class="docutils literal notranslate"><span class="pre">not_</span></code> - <code class="docutils literal notranslate"><span class="pre">Not</span></code></p>
 <p>Note that <code class="docutils literal notranslate"><span class="pre">and_</span></code>, <code class="docutils literal notranslate"><span class="pre">or_</span></code>, and <code class="docutils literal notranslate"><span class="pre">not_</span></code> are methods called on a <code class="docutils literal notranslate"><span class="pre">Predicate</span></code> and passed another <code class="docutils literal notranslate"><span class="pre">Predicate</span></code>, while <code class="docutils literal notranslate"><span class="pre">Not</span></code> is a function that takes a single <code class="docutils literal notranslate"><span class="pre">Predicate</span></code> argument. Even though we showed these operators with numerical features, this also works with regex matching conditions shown previously.</p>
@@ -1072,7 +1087,7 @@ div.rendered_html tbody tr:hover {
 <p>Let’s see a simple example: suppose we want to check if a certain number is even.</p>
 <p>We can define a <code class="docutils literal notranslate"><span class="pre">even</span></code> predicate function, as simple as:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">even</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1080,37 +1095,31 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<p>And then we proceed as usual, defining our resolver and conditions.</p>
+<p>And then we proceed as usual, defining our condition and adding it to the schema:</p>
 <p>We only have to pass the name of the function to <code class="docutils literal notranslate"><span class="pre">conditions</span></code> as a <code class="docutils literal notranslate"><span class="pre">Condition</span></code> object, like below:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;condition_count&quot;</span><span class="p">:</span> <span class="n">ConditionCountMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)}</span>
-
-<span class="n">conditions</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;isEven&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">is_</span><span class="p">(</span><span class="n">even</span><span class="p">)),</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;isEven&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">is_</span><span class="p">(</span><span class="n">even</span><span class="p">)),</span>
 <span class="p">}</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">ConditionCountConfig</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">)</span>
-<span class="n">resolver</span> <span class="o">=</span> <span class="n">CustomResolver</span><span class="p">()</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">default_configs</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">resolvers</span><span class="o">=</span><span class="n">resolver</span><span class="p">)</span>
-
+<span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;ints_column&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">conditions</span><span class="p">)])</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;floats_column&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">conditions</span><span class="p">)])</span>
 
 <span class="n">prof_view</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
-<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()[[</span><span class="s1">&#39;condition_count/isEven&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/total&#39;</span><span class="p">]]</span>
 <br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-  <div id="df-2592c9b8-9bb2-4345-ad73-92412b086290">
-    <div class="colab-df-container">
-      <div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -1130,106 +1139,27 @@ div.rendered_html tbody tr:hover {
       <th></th>
       <th>condition_count/isEven</th>
       <th>condition_count/total</th>
-      <th>type</th>
     </tr>
     <tr>
       <th>column</th>
-      <th></th>
       <th></th>
       <th></th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th>floats</th>
+      <th>floats_column</th>
       <td>0</td>
       <td>4</td>
-      <td>SummaryType.COLUMN</td>
     </tr>
     <tr>
-      <th>ints</th>
+      <th>ints_column</th>
       <td>3</td>
       <td>4</td>
-      <td>SummaryType.COLUMN</td>
     </tr>
   </tbody>
 </table>
-</div>
-      <button class="colab-df-convert" onclick="convertToInteractive('df-2592c9b8-9bb2-4345-ad73-92412b086290')"
-              title="Convert this dataframe to an interactive table."
-              style="display:none;">
-
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
-       width="24px">
-    <path d="M0 0h24v24H0V0z" fill="none"/>
-    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
-  </svg>
-      </button>
-
-  <style>
-    .colab-df-container {
-      display:flex;
-      flex-wrap:wrap;
-      gap: 12px;
-    }
-
-    .colab-df-convert {
-      background-color: #E8F0FE;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      display: none;
-      fill: #1967D2;
-      height: 32px;
-      padding: 0 0 0 0;
-      width: 32px;
-    }
-
-    .colab-df-convert:hover {
-      background-color: #E2EBFA;
-      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
-      fill: #174EA6;
-    }
-
-    [theme=dark] .colab-df-convert {
-      background-color: #3B4455;
-      fill: #D2E3FC;
-    }
-
-    [theme=dark] .colab-df-convert:hover {
-      background-color: #434B5C;
-      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
-      fill: #FFFFFF;
-    }
-  </style>
-
-      <script>
-        const buttonEl =
-          document.querySelector('#df-2592c9b8-9bb2-4345-ad73-92412b086290 button.colab-df-convert');
-        buttonEl.style.display =
-          google.colab.kernel.accessAllowed ? 'block' : 'none';
-
-        async function convertToInteractive(key) {
-          const element = document.querySelector('#df-2592c9b8-9bb2-4345-ad73-92412b086290');
-          const dataTable =
-            await google.colab.kernel.invokeFunction('convertToInteractive',
-                                                     [key], {});
-          if (!dataTable) return;
-
-          const docLinkHtml = 'Like what you see? Visit the ' +
-            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
-            + ' to learn more about interactive tables.';
-          element.innerHTML = '';
-          dataTable['output_type'] = 'display_data';
-          await google.colab.output.renderOutput(dataTable, element);
-          const docLink = document.createElement('div');
-          docLink.innerHTML = docLinkHtml;
-          element.appendChild(docLink);
-        }
-      </script>
-    </div>
-  </div></div>
+</div></div>
 </div>
 <section id="NLP-example">
 <h3>NLP example<a class="headerlink" href="#NLP-example" title="Permalink to this headline">#</a></h3>
@@ -1242,11 +1172,11 @@ div.rendered_html tbody tr:hover {
 </ul>
 <p>Let’s check these conditions for the data below:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;trasncriptions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;I AM BOB AND I LIKE TO SCREAM&quot;</span><span class="p">,</span><span class="s2">&quot;i am bob&quot;</span><span class="p">,</span><span class="s2">&quot;am alice and am xx years old&quot;</span><span class="p">,</span><span class="s2">&quot;am bob and am 42 years old&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;transcriptions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;I AM BOB AND I LIKE TO SCREAM&quot;</span><span class="p">,</span><span class="s2">&quot;i am bob&quot;</span><span class="p">,</span><span class="s2">&quot;am alice and am xx years old&quot;</span><span class="p">,</span><span class="s2">&quot;am bob and am 42 years old&quot;</span><span class="p">],</span>
     <span class="s2">&quot;ints&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span>
 <span class="p">}</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
@@ -1255,7 +1185,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>Once again, let’s define our function:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">preprocessed</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1278,34 +1208,27 @@ div.rendered_html tbody tr:hover {
 </div></blockquote>
 <p>The rest is the same as before:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;condition_count&quot;</span><span class="p">:</span> <span class="n">ConditionCountMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)}</span>
-
-<span class="n">conditions</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;isPreprocessed&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">is_</span><span class="p">(</span><span class="n">preprocessed</span><span class="p">)),</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;isPreprocessed&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">is_</span><span class="p">(</span><span class="n">preprocessed</span><span class="p">)),</span>
 <span class="p">}</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">ConditionCountConfig</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">)</span>
-<span class="n">resolver</span> <span class="o">=</span> <span class="n">CustomResolver</span><span class="p">()</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">default_configs</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">resolvers</span><span class="o">=</span><span class="n">resolver</span><span class="p">)</span>
-
+<span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;transcriptions&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">conditions</span><span class="p">)])</span>
 
 <span class="n">prof_view</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
-<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
-<br/></pre></div>
+<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()[[</span><span class="s1">&#39;condition_count/isPreprocessed&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/total&#39;</span><span class="p">]]</span>
+</pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-  <div id="df-9f91867e-56a1-4a62-aab4-0a0694efe063">
-    <div class="colab-df-container">
-      <div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -1325,106 +1248,27 @@ div.rendered_html tbody tr:hover {
       <th></th>
       <th>condition_count/isPreprocessed</th>
       <th>condition_count/total</th>
-      <th>type</th>
     </tr>
     <tr>
       <th>column</th>
-      <th></th>
       <th></th>
       <th></th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th>floats</th>
-      <td>0</td>
-      <td>4</td>
-      <td>SummaryType.COLUMN</td>
+      <th>ints</th>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
     <tr>
-      <th>ints</th>
-      <td>0</td>
-      <td>4</td>
-      <td>SummaryType.COLUMN</td>
+      <th>transcriptions</th>
+      <td>1.0</td>
+      <td>4.0</td>
     </tr>
   </tbody>
 </table>
-</div>
-      <button class="colab-df-convert" onclick="convertToInteractive('df-9f91867e-56a1-4a62-aab4-0a0694efe063')"
-              title="Convert this dataframe to an interactive table."
-              style="display:none;">
-
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
-       width="24px">
-    <path d="M0 0h24v24H0V0z" fill="none"/>
-    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
-  </svg>
-      </button>
-
-  <style>
-    .colab-df-container {
-      display:flex;
-      flex-wrap:wrap;
-      gap: 12px;
-    }
-
-    .colab-df-convert {
-      background-color: #E8F0FE;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      display: none;
-      fill: #1967D2;
-      height: 32px;
-      padding: 0 0 0 0;
-      width: 32px;
-    }
-
-    .colab-df-convert:hover {
-      background-color: #E2EBFA;
-      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
-      fill: #174EA6;
-    }
-
-    [theme=dark] .colab-df-convert {
-      background-color: #3B4455;
-      fill: #D2E3FC;
-    }
-
-    [theme=dark] .colab-df-convert:hover {
-      background-color: #434B5C;
-      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
-      fill: #FFFFFF;
-    }
-  </style>
-
-      <script>
-        const buttonEl =
-          document.querySelector('#df-9f91867e-56a1-4a62-aab4-0a0694efe063 button.colab-df-convert');
-        buttonEl.style.display =
-          google.colab.kernel.accessAllowed ? 'block' : 'none';
-
-        async function convertToInteractive(key) {
-          const element = document.querySelector('#df-9f91867e-56a1-4a62-aab4-0a0694efe063');
-          const dataTable =
-            await google.colab.kernel.invokeFunction('convertToInteractive',
-                                                     [key], {});
-          if (!dataTable) return;
-
-          const docLinkHtml = 'Like what you see? Visit the ' +
-            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
-            + ' to learn more about interactive tables.';
-          element.innerHTML = '';
-          dataTable['output_type'] = 'display_data';
-          await google.colab.output.renderOutput(dataTable, element);
-          const docLink = document.createElement('div');
-          docLink.innerHTML = docLinkHtml;
-          element.appendChild(docLink);
-        }
-      </script>
-    </div>
-  </div></div>
+</div></div>
 </div>
 <p>For the <code class="docutils literal notranslate"><span class="pre">transcriptions</span></code> feature, we can see that only the second row is properly preprocessed (“am alice and am xx years old”). The first one contained uppercase characters, the third contained a stopword and the last one contained digits. For the integers column, isPreprocessed returns 0, since it’s not a string value.</p>
 </section>
@@ -1441,7 +1285,7 @@ div.rendered_html tbody tr:hover {
 </li>
 <li><p>Ok, I have counters. What now?</p>
 <ul>
-<li><p>You can set constraints (such as <code class="docutils literal notranslate"><span class="pre">containsCreditCardNumber</span></code> should always be 0). Check the <a class="reference external" href="https://whylogs.readthedocs.io/en/stable/examples/advanced/Metric_Constraints.html">Metric Constraints</a> example!</p></li>
+<li><p>You can set constraints (such as <code class="docutils literal notranslate"><span class="pre">containsCreditCardNumber</span></code> should always be 0). Check the <a class="reference external" href="https://whylogs.readthedocs.io/en/stable/examples/advanced/Metric_Constraints_with_Condition_Count_Metrics.html">Metric Constraints with Condition Count Metrics</a> example!</p></li>
 <li><p>You can store it locally or on S3 for future inspection - Check the <a class="reference external" href="https://whylogs.readthedocs.io/en/stable/examples/integrations/writers/Writing_Profiles.html">Writing Profiles</a> example!</p></li>
 <li><p>You can send your profiles to a monitoring platform, such as WhyLabs - Check the <a class="reference external" href="https://whylogs.readthedocs.io/en/stable/examples/integrations/writers/Writing_to_WhyLabs.html">Writing Profiles to WhyLabs</a> example!</p></li>
 </ul>
@@ -1454,29 +1298,17 @@ div.rendered_html tbody tr:hover {
 <section id="Regex-example">
 <h3>Regex example<a class="headerlink" href="#Regex-example" title="Permalink to this headline">#</a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
-
 <span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
-
-<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">ColumnSchema</span><span class="p">,</span> <span class="n">DatasetSchema</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">DataType</span>
-
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Condition</span><span class="p">,</span>
-    <span class="n">ConditionCountConfig</span><span class="p">,</span>
-    <span class="n">ConditionCountMetric</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Not</span><span class="p">,</span> <span class="n">Predicate</span>
-
-<span class="n">X</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">STANDARD_RESOLVER</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.specialized_resolvers</span> <span class="kn">import</span> <span class="n">ConditionCountMetricSpec</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">Condition</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Predicate</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;emails&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;my email is my_email_1989@gmail.com&quot;</span><span class="p">,</span><span class="s2">&quot;invalidEmail@xyz.toolong&quot;</span><span class="p">,</span><span class="s2">&quot;this.is.ok@hotmail.com&quot;</span><span class="p">,</span><span class="s2">&quot;not an email&quot;</span><span class="p">],</span>
@@ -1484,31 +1316,29 @@ div.rendered_html tbody tr:hover {
 <span class="p">}</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">CustomResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;condition_count&quot;</span><span class="p">:</span> <span class="n">ConditionCountMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)}</span>
-
-<span class="n">conditions</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;containsEmail&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="s2">&quot;[\w.]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}&quot;</span><span class="p">)),</span>
-    <span class="s2">&quot;containsCreditCard&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;.*4[0-9]</span><span class="si">{12}</span><span class="s2">(?:[0-9]</span><span class="si">{3}</span><span class="s2">)?&quot;</span><span class="p">))</span>
+<span class="n">emails_conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;containsEmail&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="s2">&quot;[\w.]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}&quot;</span><span class="p">)),</span>
 <span class="p">}</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">ConditionCountConfig</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">)</span>
-<span class="n">resolver</span> <span class="o">=</span> <span class="n">CustomResolver</span><span class="p">()</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">default_configs</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">resolvers</span><span class="o">=</span><span class="n">resolver</span><span class="p">)</span>
+<span class="n">transcriptions_conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;containsCreditCard&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;.*4[0-9]</span><span class="si">{12}</span><span class="s2">(?:[0-9]</span><span class="si">{3}</span><span class="s2">)?&quot;</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;emails&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">emails_conditions</span><span class="p">)])</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;transcriptions&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">transcriptions_conditions</span><span class="p">)])</span>
 
 <span class="n">prof_view</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
-<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()[[</span><span class="s1">&#39;condition_count/containsEmail&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/containsCreditCard&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/total&#39;</span><span class="p">]]</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-  <div id="df-fd80b596-4462-432a-b0d8-0454ea183145">
-    <div class="colab-df-container">
-      <div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -1526,14 +1356,12 @@ div.rendered_html tbody tr:hover {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>condition_count/containsCreditCard</th>
       <th>condition_count/containsEmail</th>
+      <th>condition_count/containsCreditCard</th>
       <th>condition_count/total</th>
-      <th>type</th>
     </tr>
     <tr>
       <th>column</th>
-      <th></th>
       <th></th>
       <th></th>
       <th></th>
@@ -1542,159 +1370,72 @@ div.rendered_html tbody tr:hover {
   <tbody>
     <tr>
       <th>emails</th>
-      <td>0</td>
-      <td>1</td>
+      <td>1.0</td>
+      <td>NaN</td>
       <td>4</td>
-      <td>SummaryType.COLUMN</td>
     </tr>
     <tr>
       <th>transcriptions</th>
-      <td>1</td>
-      <td>0</td>
+      <td>NaN</td>
+      <td>1.0</td>
       <td>4</td>
-      <td>SummaryType.COLUMN</td>
     </tr>
   </tbody>
 </table>
-</div>
-      <button class="colab-df-convert" onclick="convertToInteractive('df-fd80b596-4462-432a-b0d8-0454ea183145')"
-              title="Convert this dataframe to an interactive table."
-              style="display:none;">
-
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
-       width="24px">
-    <path d="M0 0h24v24H0V0z" fill="none"/>
-    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
-  </svg>
-      </button>
-
-  <style>
-    .colab-df-container {
-      display:flex;
-      flex-wrap:wrap;
-      gap: 12px;
-    }
-
-    .colab-df-convert {
-      background-color: #E8F0FE;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      display: none;
-      fill: #1967D2;
-      height: 32px;
-      padding: 0 0 0 0;
-      width: 32px;
-    }
-
-    .colab-df-convert:hover {
-      background-color: #E2EBFA;
-      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
-      fill: #174EA6;
-    }
-
-    [theme=dark] .colab-df-convert {
-      background-color: #3B4455;
-      fill: #D2E3FC;
-    }
-
-    [theme=dark] .colab-df-convert:hover {
-      background-color: #434B5C;
-      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
-      fill: #FFFFFF;
-    }
-  </style>
-
-      <script>
-        const buttonEl =
-          document.querySelector('#df-fd80b596-4462-432a-b0d8-0454ea183145 button.colab-df-convert');
-        buttonEl.style.display =
-          google.colab.kernel.accessAllowed ? 'block' : 'none';
-
-        async function convertToInteractive(key) {
-          const element = document.querySelector('#df-fd80b596-4462-432a-b0d8-0454ea183145');
-          const dataTable =
-            await google.colab.kernel.invokeFunction('convertToInteractive',
-                                                     [key], {});
-          if (!dataTable) return;
-
-          const docLinkHtml = 'Like what you see? Visit the ' +
-            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
-            + ' to learn more about interactive tables.';
-          element.innerHTML = '';
-          dataTable['output_type'] = 'display_data';
-          await google.colab.output.renderOutput(dataTable, element);
-          const docLink = document.createElement('div');
-          docLink.innerHTML = docLinkHtml;
-          element.appendChild(docLink);
-        }
-      </script>
-    </div>
-  </div></div>
+</div></div>
 </div>
 </section>
 <section id="Equalities-Example">
 <h3>Equalities Example<a class="headerlink" href="#Equalities-Example" title="Permalink to this headline">#</a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
-
 <span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
-
-<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">ColumnSchema</span><span class="p">,</span> <span class="n">DatasetSchema</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">DataType</span>
-
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Condition</span><span class="p">,</span>
-    <span class="n">ConditionCountConfig</span><span class="p">,</span>
-    <span class="n">ConditionCountMetric</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Not</span><span class="p">,</span> <span class="n">Predicate</span>
-
-<span class="n">X</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">STANDARD_RESOLVER</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.specialized_resolvers</span> <span class="kn">import</span> <span class="n">ConditionCountMetricSpec</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">Fractional</span><span class="p">,</span> <span class="n">Integral</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">Condition</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Predicate</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;ints&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">42</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
-    <span class="s2">&quot;floats&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">12.3</span><span class="p">,</span> <span class="mf">42.2</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">]</span>
+    <span class="s2">&quot;ints_column&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">42</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
+    <span class="s2">&quot;floats_column&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">12.3</span><span class="p">,</span> <span class="mf">42.2</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">]</span>
 
 <span class="p">}</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">CustomResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;condition_count&quot;</span><span class="p">:</span> <span class="n">ConditionCountMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)}</span>
+<span class="n">ints_conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;equals42&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mi">42</span><span class="p">)),</span>
+    <span class="s2">&quot;lessthan5&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span>
+    <span class="s2">&quot;morethan40&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">40</span><span class="p">)),</span>
 
-<span class="n">conditions</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;equals42&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mi">42</span><span class="p">)),</span>
-    <span class="s2">&quot;equals42.2&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mf">42.2</span><span class="p">)),</span>
-    <span class="s2">&quot;lessthan5&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span>
-    <span class="s2">&quot;morethan40&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">40</span><span class="p">)),</span>
 <span class="p">}</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">ConditionCountConfig</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">)</span>
-<span class="n">resolver</span> <span class="o">=</span> <span class="n">CustomResolver</span><span class="p">()</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">default_configs</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">resolvers</span><span class="o">=</span><span class="n">resolver</span><span class="p">)</span>
+<span class="n">floats_conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;equals42.2&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mf">42.2</span><span class="p">)),</span>
+    <span class="s2">&quot;lessthan5&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span>
+    <span class="s2">&quot;morethan40&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">40</span><span class="p">)),</span>
+<span class="p">}</span>
+
+<span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">Integral</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">ints_conditions</span><span class="p">)])</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">Fractional</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">floats_conditions</span><span class="p">)])</span>
 
 <span class="n">prof_view</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
-<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
-</pre></div>
+<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()[[</span><span class="s1">&#39;types/fractional&#39;</span><span class="p">,</span><span class="s1">&#39;types/integral&#39;</span><span class="p">,</span><span class="s1">&#39;condition_count/lessthan5&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/morethan40&#39;</span><span class="p">,</span><span class="s1">&#39;condition_count/equals42&#39;</span><span class="p">,</span><span class="s1">&#39;condition_count/equals42.2&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/total&#39;</span><span class="p">]]</span>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-  <div id="df-806fa713-1cff-4453-9433-6c837790efe5">
-    <div class="colab-df-container">
-      <div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -1712,15 +1453,17 @@ div.rendered_html tbody tr:hover {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>condition_count/equals42</th>
-      <th>condition_count/equals42.2</th>
+      <th>types/fractional</th>
+      <th>types/integral</th>
       <th>condition_count/lessthan5</th>
       <th>condition_count/morethan40</th>
+      <th>condition_count/equals42</th>
+      <th>condition_count/equals42.2</th>
       <th>condition_count/total</th>
-      <th>type</th>
     </tr>
     <tr>
       <th>column</th>
+      <th></th>
       <th></th>
       <th></th>
       <th></th>
@@ -1731,164 +1474,74 @@ div.rendered_html tbody tr:hover {
   </thead>
   <tbody>
     <tr>
-      <th>floats</th>
+      <th>floats_column</th>
+      <td>4</td>
       <td>0</td>
-      <td>1</td>
       <td>2</td>
       <td>1</td>
+      <td>NaN</td>
+      <td>1.0</td>
       <td>4</td>
-      <td>SummaryType.COLUMN</td>
     </tr>
     <tr>
-      <th>ints</th>
-      <td>1</td>
+      <th>ints_column</th>
       <td>0</td>
+      <td>4</td>
       <td>2</td>
       <td>1</td>
+      <td>1.0</td>
+      <td>NaN</td>
       <td>4</td>
-      <td>SummaryType.COLUMN</td>
     </tr>
   </tbody>
 </table>
-</div>
-      <button class="colab-df-convert" onclick="convertToInteractive('df-806fa713-1cff-4453-9433-6c837790efe5')"
-              title="Convert this dataframe to an interactive table."
-              style="display:none;">
-
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
-       width="24px">
-    <path d="M0 0h24v24H0V0z" fill="none"/>
-    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
-  </svg>
-      </button>
-
-  <style>
-    .colab-df-container {
-      display:flex;
-      flex-wrap:wrap;
-      gap: 12px;
-    }
-
-    .colab-df-convert {
-      background-color: #E8F0FE;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      display: none;
-      fill: #1967D2;
-      height: 32px;
-      padding: 0 0 0 0;
-      width: 32px;
-    }
-
-    .colab-df-convert:hover {
-      background-color: #E2EBFA;
-      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
-      fill: #174EA6;
-    }
-
-    [theme=dark] .colab-df-convert {
-      background-color: #3B4455;
-      fill: #D2E3FC;
-    }
-
-    [theme=dark] .colab-df-convert:hover {
-      background-color: #434B5C;
-      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
-      fill: #FFFFFF;
-    }
-  </style>
-
-      <script>
-        const buttonEl =
-          document.querySelector('#df-806fa713-1cff-4453-9433-6c837790efe5 button.colab-df-convert');
-        buttonEl.style.display =
-          google.colab.kernel.accessAllowed ? 'block' : 'none';
-
-        async function convertToInteractive(key) {
-          const element = document.querySelector('#df-806fa713-1cff-4453-9433-6c837790efe5');
-          const dataTable =
-            await google.colab.kernel.invokeFunction('convertToInteractive',
-                                                     [key], {});
-          if (!dataTable) return;
-
-          const docLinkHtml = 'Like what you see? Visit the ' +
-            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
-            + ' to learn more about interactive tables.';
-          element.innerHTML = '';
-          dataTable['output_type'] = 'display_data';
-          await google.colab.output.renderOutput(dataTable, element);
-          const docLink = document.createElement('div');
-          docLink.innerHTML = docLinkHtml;
-          element.appendChild(docLink);
-        }
-      </script>
-    </div>
-  </div></div>
+</div></div>
 </div>
 </section>
 <section id="Logical-Operators-Example">
 <h3>Logical Operators Example<a class="headerlink" href="#Logical-Operators-Example" title="Permalink to this headline">#</a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
-
 <span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
-
-<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">ColumnSchema</span><span class="p">,</span> <span class="n">DatasetSchema</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">DataType</span>
-
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Condition</span><span class="p">,</span>
-    <span class="n">ConditionCountConfig</span><span class="p">,</span>
-    <span class="n">ConditionCountMetric</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Not</span><span class="p">,</span> <span class="n">Predicate</span>
-
-<span class="n">X</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">STANDARD_RESOLVER</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.specialized_resolvers</span> <span class="kn">import</span> <span class="n">ConditionCountMetricSpec</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">Condition</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Predicate</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Not</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;ints&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">42</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
-    <span class="s2">&quot;floats&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">12.3</span><span class="p">,</span> <span class="mf">42.2</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">]</span>
+    <span class="s2">&quot;ints_column&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">42</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
+    <span class="s2">&quot;floats_column&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">12.3</span><span class="p">,</span> <span class="mf">42.2</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">]</span>
 
 <span class="p">}</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">CustomResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;condition_count&quot;</span><span class="p">:</span> <span class="n">ConditionCountMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)}</span>
-
 <span class="n">conditions</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;between10and50&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">50</span><span class="p">))),</span>
-    <span class="s2">&quot;outside10and50&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">or_</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">50</span><span class="p">))),</span>
-    <span class="s2">&quot;not_42&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Not</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mi">42</span><span class="p">))),</span>
+    <span class="s2">&quot;between10and50&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">50</span><span class="p">))),</span>
+    <span class="s2">&quot;outside10and50&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">less_than</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">or_</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">greater_than</span><span class="p">(</span><span class="mi">50</span><span class="p">))),</span>
+    <span class="s2">&quot;not_42&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Not</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mi">42</span><span class="p">))),</span>  <span class="c1"># could also use X.not_equal(42)  or  X.not_.equals(42)</span>
 <span class="p">}</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">ConditionCountConfig</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">)</span>
-<span class="n">resolver</span> <span class="o">=</span> <span class="n">CustomResolver</span><span class="p">()</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">default_configs</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">resolvers</span><span class="o">=</span><span class="n">resolver</span><span class="p">)</span>
-
+<span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;ints_column&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">conditions</span><span class="p">)])</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;floats_column&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">conditions</span><span class="p">)])</span>
 
 <span class="n">prof_view</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
-<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
-<br/></pre></div>
+<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()[[</span><span class="s1">&#39;condition_count/between10and50&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/outside10and50&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/not_42&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/total&#39;</span><span class="p">]]</span>
+</pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-  <div id="df-f436c34d-7cbd-4388-9094-e85de1080bb6">
-    <div class="colab-df-container">
-      <div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -1907,14 +1560,12 @@ div.rendered_html tbody tr:hover {
     <tr style="text-align: right;">
       <th></th>
       <th>condition_count/between10and50</th>
-      <th>condition_count/not_42</th>
       <th>condition_count/outside10and50</th>
+      <th>condition_count/not_42</th>
       <th>condition_count/total</th>
-      <th>type</th>
     </tr>
     <tr>
       <th>column</th>
-      <th></th>
       <th></th>
       <th></th>
       <th></th>
@@ -1923,127 +1574,39 @@ div.rendered_html tbody tr:hover {
   </thead>
   <tbody>
     <tr>
-      <th>floats</th>
+      <th>floats_column</th>
+      <td>2</td>
       <td>2</td>
       <td>4</td>
-      <td>2</td>
       <td>4</td>
-      <td>SummaryType.COLUMN</td>
     </tr>
     <tr>
-      <th>ints</th>
+      <th>ints_column</th>
+      <td>2</td>
       <td>2</td>
       <td>3</td>
-      <td>2</td>
       <td>4</td>
-      <td>SummaryType.COLUMN</td>
     </tr>
   </tbody>
 </table>
-</div>
-      <button class="colab-df-convert" onclick="convertToInteractive('df-f436c34d-7cbd-4388-9094-e85de1080bb6')"
-              title="Convert this dataframe to an interactive table."
-              style="display:none;">
-
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
-       width="24px">
-    <path d="M0 0h24v24H0V0z" fill="none"/>
-    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
-  </svg>
-      </button>
-
-  <style>
-    .colab-df-container {
-      display:flex;
-      flex-wrap:wrap;
-      gap: 12px;
-    }
-
-    .colab-df-convert {
-      background-color: #E8F0FE;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      display: none;
-      fill: #1967D2;
-      height: 32px;
-      padding: 0 0 0 0;
-      width: 32px;
-    }
-
-    .colab-df-convert:hover {
-      background-color: #E2EBFA;
-      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
-      fill: #174EA6;
-    }
-
-    [theme=dark] .colab-df-convert {
-      background-color: #3B4455;
-      fill: #D2E3FC;
-    }
-
-    [theme=dark] .colab-df-convert:hover {
-      background-color: #434B5C;
-      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
-      fill: #FFFFFF;
-    }
-  </style>
-
-      <script>
-        const buttonEl =
-          document.querySelector('#df-f436c34d-7cbd-4388-9094-e85de1080bb6 button.colab-df-convert');
-        buttonEl.style.display =
-          google.colab.kernel.accessAllowed ? 'block' : 'none';
-
-        async function convertToInteractive(key) {
-          const element = document.querySelector('#df-f436c34d-7cbd-4388-9094-e85de1080bb6');
-          const dataTable =
-            await google.colab.kernel.invokeFunction('convertToInteractive',
-                                                     [key], {});
-          if (!dataTable) return;
-
-          const docLinkHtml = 'Like what you see? Visit the ' +
-            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
-            + ' to learn more about interactive tables.';
-          element.innerHTML = '';
-          dataTable['output_type'] = 'display_data';
-          await google.colab.output.renderOutput(dataTable, element);
-          const docLink = document.createElement('div');
-          docLink.innerHTML = docLinkHtml;
-          element.appendChild(docLink);
-        }
-      </script>
-    </div>
-  </div></div>
+</div></div>
 </div>
 </section>
 <section id="User-defined-function---even">
 <h3>User-defined function - even<a class="headerlink" href="#User-defined-function---even" title="Permalink to this headline">#</a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
-
-<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">ColumnSchema</span><span class="p">,</span> <span class="n">DatasetSchema</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">DataType</span>
-
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Condition</span><span class="p">,</span>
-    <span class="n">ConditionCountConfig</span><span class="p">,</span>
-    <span class="n">ConditionCountMetric</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Not</span><span class="p">,</span> <span class="n">Predicate</span>
-
-<span class="n">X</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">STANDARD_RESOLVER</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.specialized_resolvers</span> <span class="kn">import</span> <span class="n">ConditionCountMetricSpec</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">Condition</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Predicate</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
 
 <span class="k">def</span> <span class="nf">even</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">x</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
@@ -2062,38 +1625,35 @@ div.rendered_html tbody tr:hover {
     <span class="k">return</span> <span class="kc">True</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;trasncriptions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;I AM BOB AND I LIKE TO SCREAM&quot;</span><span class="p">,</span><span class="s2">&quot;i am bob&quot;</span><span class="p">,</span><span class="s2">&quot;am alice and am xx years old&quot;</span><span class="p">,</span><span class="s2">&quot;am bob and am 42 years old&quot;</span><span class="p">],</span>
-    <span class="s2">&quot;ints&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">42</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
-    <span class="s2">&quot;floats&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">12.3</span><span class="p">,</span> <span class="mf">42.2</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">]</span>
+    <span class="s2">&quot;transcriptions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;I AM BOB AND I LIKE TO SCREAM&quot;</span><span class="p">,</span><span class="s2">&quot;i am bob&quot;</span><span class="p">,</span><span class="s2">&quot;am alice and am xx years old&quot;</span><span class="p">,</span><span class="s2">&quot;am bob and am 42 years old&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;ints_column&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">42</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
+    <span class="s2">&quot;floats_column&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">12.3</span><span class="p">,</span> <span class="mf">42.2</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">]</span>
 <span class="p">}</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">CustomResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;condition_count&quot;</span><span class="p">:</span> <span class="n">ConditionCountMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)}</span>
-
-<span class="n">conditions</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;isPreprocessed&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">is_</span><span class="p">(</span><span class="n">preprocessed</span><span class="p">)),</span>
-    <span class="s2">&quot;isEven&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">is_</span><span class="p">(</span><span class="n">even</span><span class="p">))</span>
+<span class="n">transcriptions_conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;isPreprocessed&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">is_</span><span class="p">(</span><span class="n">preprocessed</span><span class="p">)),</span>
+<span class="p">}</span>
+<span class="n">numerical_conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;isEven&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">is_</span><span class="p">(</span><span class="n">even</span><span class="p">)),</span>
 <span class="p">}</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">ConditionCountConfig</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">)</span>
-<span class="n">resolver</span> <span class="o">=</span> <span class="n">CustomResolver</span><span class="p">()</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">default_configs</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">resolvers</span><span class="o">=</span><span class="n">resolver</span><span class="p">)</span>
-
+<span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;ints_column&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">numerical_conditions</span><span class="p">)])</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;floats_column&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">numerical_conditions</span><span class="p">)])</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;transcriptions&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">transcriptions_conditions</span><span class="p">)])</span>
 
 <span class="n">prof_view</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
-<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
-<br/></pre></div>
+<span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()[[</span><span class="s1">&#39;condition_count/isPreprocessed&#39;</span><span class="p">,</span><span class="s1">&#39;condition_count/isEven&#39;</span><span class="p">,</span> <span class="s1">&#39;condition_count/total&#39;</span><span class="p">]]</span>
+</pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-  <div id="df-5f8813de-2372-495d-bf77-3e8e459efd37">
-    <div class="colab-df-container">
-      <div>
+<div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -2111,14 +1671,12 @@ div.rendered_html tbody tr:hover {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>condition_count/isEven</th>
       <th>condition_count/isPreprocessed</th>
+      <th>condition_count/isEven</th>
       <th>condition_count/total</th>
-      <th>type</th>
     </tr>
     <tr>
       <th>column</th>
-      <th></th>
       <th></th>
       <th></th>
       <th></th>
@@ -2126,104 +1684,26 @@ div.rendered_html tbody tr:hover {
   </thead>
   <tbody>
     <tr>
-      <th>floats</th>
-      <td>0</td>
-      <td>0</td>
+      <th>floats_column</th>
+      <td>NaN</td>
+      <td>0.0</td>
       <td>4</td>
-      <td>SummaryType.COLUMN</td>
     </tr>
     <tr>
-      <th>ints</th>
-      <td>3</td>
-      <td>0</td>
+      <th>ints_column</th>
+      <td>NaN</td>
+      <td>3.0</td>
       <td>4</td>
-      <td>SummaryType.COLUMN</td>
     </tr>
     <tr>
-      <th>trasncriptions</th>
-      <td>0</td>
-      <td>1</td>
+      <th>transcriptions</th>
+      <td>1.0</td>
+      <td>NaN</td>
       <td>4</td>
-      <td>SummaryType.COLUMN</td>
     </tr>
   </tbody>
 </table>
-</div>
-      <button class="colab-df-convert" onclick="convertToInteractive('df-5f8813de-2372-495d-bf77-3e8e459efd37')"
-              title="Convert this dataframe to an interactive table."
-              style="display:none;">
-
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
-       width="24px">
-    <path d="M0 0h24v24H0V0z" fill="none"/>
-    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
-  </svg>
-      </button>
-
-  <style>
-    .colab-df-container {
-      display:flex;
-      flex-wrap:wrap;
-      gap: 12px;
-    }
-
-    .colab-df-convert {
-      background-color: #E8F0FE;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      display: none;
-      fill: #1967D2;
-      height: 32px;
-      padding: 0 0 0 0;
-      width: 32px;
-    }
-
-    .colab-df-convert:hover {
-      background-color: #E2EBFA;
-      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
-      fill: #174EA6;
-    }
-
-    [theme=dark] .colab-df-convert {
-      background-color: #3B4455;
-      fill: #D2E3FC;
-    }
-
-    [theme=dark] .colab-df-convert:hover {
-      background-color: #434B5C;
-      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
-      fill: #FFFFFF;
-    }
-  </style>
-
-      <script>
-        const buttonEl =
-          document.querySelector('#df-5f8813de-2372-495d-bf77-3e8e459efd37 button.colab-df-convert');
-        buttonEl.style.display =
-          google.colab.kernel.accessAllowed ? 'block' : 'none';
-
-        async function convertToInteractive(key) {
-          const element = document.querySelector('#df-5f8813de-2372-495d-bf77-3e8e459efd37');
-          const dataTable =
-            await google.colab.kernel.invokeFunction('convertToInteractive',
-                                                     [key], {});
-          if (!dataTable) return;
-
-          const docLinkHtml = 'Like what you see? Visit the ' +
-            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
-            + ' to learn more about interactive tables.';
-          element.innerHTML = '';
-          dataTable['output_type'] = 'display_data';
-          await google.colab.output.renderOutput(dataTable, element);
-          const docLink = document.createElement('div');
-          docLink.innerHTML = docLinkHtml;
-          element.appendChild(docLink);
-        }
-      </script>
-    </div>
-  </div></div>
+</div></div>
 </div>
 </section>
 </section>

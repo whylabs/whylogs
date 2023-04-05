@@ -342,6 +342,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/segment/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segment</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/segmentation_partition/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.segmentation_partition</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/specialized_resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.specialized_resolvers</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/datasets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.datasets</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -727,7 +728,7 @@ div.rendered_html tbody tr:hover {
 <h2>Installing the extra dependency<a class="headerlink" href="#Installing-the-extra-dependency" title="Permalink to this headline">#</a></h2>
 <p>As we want to enable users to have exactly what they need to use from whylogs, the <code class="docutils literal notranslate"><span class="pre">pyspark</span></code> integration comes as an extra dependency. In order to have it available, simply uncomment and run the following cell:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
@@ -759,7 +760,7 @@ div.rendered_html tbody tr:hover {
 <h2>Creating the PySpark dataframe<a class="headerlink" href="#Creating-the-PySpark-dataframe" title="Permalink to this headline">#</a></h2>
 <p>This is a relatively small dataset, so we can run this example locally.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkFiles</span>
@@ -774,22 +775,20 @@ div.rendered_html tbody tr:hover {
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
+<div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-23/03/23 13:43:31 WARN SparkContext: The path https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/Listings/airbnb_listings.parquet has been added already. Overwriting of added paths is not supported in the current version.
-23/03/23 15:02:41 WARN HeartbeatReceiver: Removing executor driver with no recent heartbeats: 150378 ms exceeds timeout 120000 ms
-23/03/23 15:02:41 WARN SparkContext: Killing executors is not supported by current scheduler.
+
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark_dataframe</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">vertical</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
@@ -813,8 +812,16 @@ only showing top 1 row
 
 </pre></div></div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark_dataframe</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
@@ -854,23 +861,16 @@ root
 </ul>
 <p>As opposed to the other constraints, that can be checked against aggregate metrics, these two need to be checked against individual values. For that, we will create two condition count metrics. Later on, we will create metric constraints based on these metrics.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[63]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.relations</span> <span class="kn">import</span> <span class="n">Predicate</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Condition</span><span class="p">,</span>
-    <span class="n">ConditionCountConfig</span><span class="p">,</span>
-    <span class="n">ConditionCountMetric</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">Condition</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">STANDARD_RESOLVER</span><span class="p">,</span>
-    <span class="n">MetricSpec</span><span class="p">,</span>
-    <span class="n">ResolverSpec</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">STANDARD_RESOLVER</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.specialized_resolvers</span> <span class="kn">import</span> <span class="n">ConditionCountMetricSpec</span>
 
 <span class="k">def</span> <span class="nf">date_format</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="n">date_format</span> <span class="o">=</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span>
@@ -880,64 +880,32 @@ root
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<span class="n">X</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">()</span>
-
-<span class="n">date_format_condition</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;is_date_format&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">is_</span><span class="p">(</span><span class="n">date_format</span><span class="p">))</span>
-<span class="p">}</span>
-
-<span class="n">date_format_spec</span> <span class="o">=</span> <span class="n">ResolverSpec</span><span class="p">(</span>
-    <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;last_review&quot;</span><span class="p">,</span>
-    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">MetricSpec</span><span class="p">(</span>
-            <span class="n">ConditionCountMetric</span><span class="p">,</span>
-            <span class="n">ConditionCountConfig</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">date_format_condition</span><span class="p">),</span>
-        <span class="p">),</span>
-    <span class="p">],</span>
-<span class="p">)</span>
-<br/></pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[64]:
+<span class="n">last_review_conditions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;is_date_format&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">is_</span><span class="p">(</span><span class="n">date_format</span><span class="p">))}</span>
+<span class="n">listing_url_conditions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;url_matches_airbnb_domain&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;^https:\/\/www.airbnb.com\/rooms&quot;</span><span class="p">))}</span>
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">()</span>
+</div>
+<p>Now that we have the our set of conditions for both columns, we can create the condition count metrics. We can do so by creating a Standard Schema and then extending it by adding the condition count metrics with <code class="docutils literal notranslate"><span class="pre">add_condition_count_metrics</span></code>:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
 
-<span class="n">regex_conditions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;url_matches_airbnb_domain&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="s2">&quot;^https:\/\/www.airbnb.com\/rooms&quot;</span><span class="p">))}</span>
-
-<span class="n">email_domain_spec</span> <span class="o">=</span> <span class="n">ResolverSpec</span><span class="p">(</span>
-    <span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;listing_url&quot;</span><span class="p">,</span>
-    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">MetricSpec</span><span class="p">(</span>
-            <span class="n">ConditionCountMetric</span><span class="p">,</span>
-            <span class="n">ConditionCountConfig</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">regex_conditions</span><span class="p">),</span>
-        <span class="p">),</span>
-    <span class="p">],</span>
-<span class="p">)</span>
-<br/></pre></div>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;last_review&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">last_review_conditions</span><span class="p">)])</span>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;listing_url&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">listing_url_conditions</span><span class="p">)])</span>
+</pre></div>
 </div>
 </div>
 <blockquote>
 <div><p>To know more about condition count metrics and how to use them, check out the <a class="reference external" href="https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Metric_Constraints_with_Condition_Count_Metrics.ipynb">Metric Constraints with Condition Count Metrics</a> example.</p>
 </div></blockquote>
-<p>Now that we have the Resolver Specifications for both conditions, we can extend the StandardResolver to add those Resolver. We can use <code class="docutils literal notranslate"><span class="pre">DeclarativeSchema</span></code> to do so:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[66]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
-<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver</span><span class="p">(</span><span class="n">date_format_spec</span><span class="p">)</span>
-<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver</span><span class="p">(</span><span class="n">email_domain_spec</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
 </section>
 <section id="Profiling-the-PySpark-DataFrame">
 <h2>Profiling the PySpark DataFrame<a class="headerlink" href="#Profiling-the-PySpark-DataFrame" title="Permalink to this headline">#</a></h2>
 <p>Now, we can use the schema to pass to our logger through <code class="docutils literal notranslate"><span class="pre">collect_dataset_profile_view</span></code></p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.pyspark.experimental</span> <span class="kn">import</span> <span class="n">collect_dataset_profile_view</span>
@@ -956,7 +924,7 @@ root
 </div>
 <p>This will create a profile with the standard metrics, as well as the two condition count metrics that we created. As a sanity check, let’s see the metrics for the <code class="docutils literal notranslate"><span class="pre">last_review</span></code> column:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_profile_view</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="s2">&quot;last_review&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_metric_names</span><span class="p">()</span>
@@ -964,7 +932,7 @@ root
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -982,7 +950,7 @@ root
 <h2>Creating and Visualizing Metric Constraints<a class="headerlink" href="#Creating-and-Visualizing-Metric-Constraints" title="Permalink to this headline">#</a></h2>
 <p>We have all that we need to build our set of constraints. We will use out-of-the-box factory constraints to do that:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">condition_meets</span>
@@ -1011,7 +979,7 @@ root
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1024,7 +992,7 @@ root
  ReportResult(name=&#39;longitude is in range [-44,-43]&#39;, passed=1, failed=0, summary=None),
  ReportResult(name=&#39;id has no missing values&#39;, passed=1, failed=0, summary=None),
  ReportResult(name=&#39;reviews_per_month standard deviation between 0.8 and 1.1 (inclusive)&#39;, passed=1, failed=0, summary=None),
- ReportResult(name=&#34;room_type values in set {&#39;Hotel room&#39;, &#39;Private room&#39;, &#39;Shared room&#39;, &#39;Entire home/apt&#39;}&#34;, passed=1, failed=0, summary=None)]
+ ReportResult(name=&#34;room_type values in set {&#39;Shared room&#39;, &#39;Hotel room&#39;, &#39;Private room&#39;, &#39;Entire home/apt&#39;}&#34;, passed=1, failed=0, summary=None)]
 </pre></div></div>
 </div>
 <blockquote>
@@ -1032,7 +1000,7 @@ root
 </div></blockquote>
 <p>Now, we can visualize the constraints report using the <strong>Notebook Profile Visualizer</strong>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
@@ -1042,8 +1010,16 @@ root
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Connection error. Skip stats collection.
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1714,7 +1690,7 @@ root
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;last_review meets condition is_date_format&quot;, 1, 0, {&quot;metric&quot;: &quot;condition_count&quot;, &quot;total&quot;: 16465, &quot;is_date_format&quot;: 16465}], [&quot;last_review has no missing values&quot;, 0, 1, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 26106, &quot;null&quot;: 9641, &quot;nan&quot;: 0, &quot;inf&quot;: 0}], [&quot;listing_url meets condition url_matches_airbnb_domain&quot;, 1, 0, {&quot;metric&quot;: &quot;condition_count&quot;, &quot;total&quot;: 26106, &quot;url_matches_airbnb_domain&quot;: 26106}], [&quot;listing_url has no missing values&quot;, 1, 0, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 26106, &quot;null&quot;: 0, &quot;nan&quot;: 0, &quot;inf&quot;: 0}], [&quot;latitude is in range [-24,-22]&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: -22.965736037217624, &quot;stddev&quot;: 0.03505941949491759, &quot;n&quot;: 26106, &quot;max&quot;: -22.74982, &quot;min&quot;: -23.07292, &quot;q_01&quot;: -23.0281, &quot;q_05&quot;: -23.01208, &quot;q_10&quot;: -23.00703, &quot;q_25&quot;: -22.98455, &quot;median&quot;: -22.97163, &quot;q_75&quot;: -22.95097, &quot;q_90&quot;: -22.91732, &quot;q_95&quot;: -22.90992, &quot;q_99&quot;: -22.83999}], [&quot;longitude is in range [-44,-43]&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: -43.24905026415256, &quot;stddev&quot;: 0.0965622753402193, &quot;n&quot;: 26106, &quot;max&quot;: -43.10486, &quot;min&quot;: -43.70479, &quot;q_01&quot;: -43.52235, &quot;q_05&quot;: -43.4598, &quot;q_10&quot;: -43.40786, &quot;q_25&quot;: -43.30468, &quot;median&quot;: -43.19643, &quot;q_75&quot;: -43.18635, &quot;q_90&quot;: -43.17741, &quot;q_95&quot;: -43.17485, &quot;q_99&quot;: -43.16925}], [&quot;id has no missing values&quot;, 1, 0, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 26106, &quot;null&quot;: 0, &quot;nan&quot;: 0, &quot;inf&quot;: 0}], [&quot;reviews_per_month standard deviation between 0.8 and 1.1 (inclusive)&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 0.6285800182204677, &quot;stddev&quot;: 0.8569652523205165, &quot;n&quot;: 16465, &quot;max&quot;: 25.0, &quot;min&quot;: 0.01, &quot;q_01&quot;: 0.02, &quot;q_05&quot;: 0.03, &quot;q_10&quot;: 0.05, &quot;q_25&quot;: 0.09, &quot;median&quot;: 0.27, &quot;q_75&quot;: 0.9, &quot;q_90&quot;: 1.7, &quot;q_95&quot;: 2.32, &quot;q_99&quot;: 3.81}], [&quot;room_type values in set {&#x27;Hotel room&#x27;, &#x27;Private room&#x27;, &#x27;Shared room&#x27;, &#x27;Entire home/apt&#x27;}&quot;, 1, 0, {&quot;metric&quot;: &quot;frequent_items&quot;, &quot;frequent_strings_top_10&quot;: [&quot;Entire home/apt:18876&quot;, &quot;Private room:6512&quot;, &quot;Shared room:604&quot;, &quot;Hotel room:114&quot;]}]];
+      const context = [[&quot;last_review meets condition is_date_format&quot;, 1, 0, {&quot;metric&quot;: &quot;condition_count&quot;, &quot;total&quot;: 16465, &quot;is_date_format&quot;: 16465}], [&quot;last_review has no missing values&quot;, 0, 1, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 26106, &quot;null&quot;: 9641, &quot;nan&quot;: 0, &quot;inf&quot;: 0}], [&quot;listing_url meets condition url_matches_airbnb_domain&quot;, 1, 0, {&quot;metric&quot;: &quot;condition_count&quot;, &quot;total&quot;: 26106, &quot;url_matches_airbnb_domain&quot;: 26106}], [&quot;listing_url has no missing values&quot;, 1, 0, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 26106, &quot;null&quot;: 0, &quot;nan&quot;: 0, &quot;inf&quot;: 0}], [&quot;latitude is in range [-24,-22]&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: -22.965736037217624, &quot;stddev&quot;: 0.03505941949491759, &quot;n&quot;: 26106, &quot;max&quot;: -22.74982, &quot;min&quot;: -23.07292, &quot;q_01&quot;: -23.02806, &quot;q_05&quot;: -23.01204, &quot;q_10&quot;: -23.00693, &quot;q_25&quot;: -22.98454, &quot;median&quot;: -22.97157, &quot;q_75&quot;: -22.95076, &quot;q_90&quot;: -22.91718, &quot;q_95&quot;: -22.90981, &quot;q_99&quot;: -22.83753}], [&quot;longitude is in range [-44,-43]&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: -43.24905026415256, &quot;stddev&quot;: 0.0965622753402193, &quot;n&quot;: 26106, &quot;max&quot;: -43.10486, &quot;min&quot;: -43.70479, &quot;q_01&quot;: -43.52144, &quot;q_05&quot;: -43.45984, &quot;q_10&quot;: -43.40554, &quot;q_25&quot;: -43.30428, &quot;median&quot;: -43.19638, &quot;q_75&quot;: -43.18631, &quot;q_90&quot;: -43.17741, &quot;q_95&quot;: -43.17483, &quot;q_99&quot;: -43.16903}], [&quot;id has no missing values&quot;, 1, 0, {&quot;metric&quot;: &quot;counts&quot;, &quot;n&quot;: 26106, &quot;null&quot;: 0, &quot;nan&quot;: 0, &quot;inf&quot;: 0}], [&quot;reviews_per_month standard deviation between 0.8 and 1.1 (inclusive)&quot;, 1, 0, {&quot;metric&quot;: &quot;distribution&quot;, &quot;mean&quot;: 0.6285800182204677, &quot;stddev&quot;: 0.8569652523205165, &quot;n&quot;: 16465, &quot;max&quot;: 25.0, &quot;min&quot;: 0.01, &quot;q_01&quot;: 0.02, &quot;q_05&quot;: 0.03, &quot;q_10&quot;: 0.05, &quot;q_25&quot;: 0.09, &quot;median&quot;: 0.27, &quot;q_75&quot;: 0.91, &quot;q_90&quot;: 1.7, &quot;q_95&quot;: 2.32, &quot;q_99&quot;: 3.81}], [&quot;room_type values in set {&#x27;Shared room&#x27;, &#x27;Hotel room&#x27;, &#x27;Private room&#x27;, &#x27;Entire home/apt&#x27;}&quot;, 1, 0, {&quot;metric&quot;: &quot;frequent_items&quot;, &quot;frequent_strings_top_10&quot;: [&quot;Entire home/apt:18876&quot;, &quot;Private room:6512&quot;, &quot;Shared room:604&quot;, &quot;Hotel room:114&quot;]}]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);

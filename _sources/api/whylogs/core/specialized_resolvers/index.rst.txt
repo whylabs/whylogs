@@ -1,0 +1,36 @@
+:py:mod:`whylogs.core.specialized_resolvers`
+============================================
+
+.. py:module:: whylogs.core.specialized_resolvers
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.specialized_resolvers.ConditionCountMetricSpec
+
+
+
+
+.. py:class:: ConditionCountMetricSpec(conditions: Dict[str, whylogs.core.metrics.condition_count_metric.Condition], config: Optional[whylogs.core.metrics.condition_count_metric.ConditionCountConfig] = None)
+
+   Bases: :py:obj:`whylogs.core.resolvers.MetricSpec`
+
+   Specify a Metric to instantiate.
+
+   .. py:attribute:: metric
+      :type: Any
+
+      
+
+   .. py:attribute:: config
+      :type: Optional[whylogs.core.metrics.metrics.MetricConfig]
+
+      
+
+

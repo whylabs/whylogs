@@ -41,6 +41,7 @@ Submodules
    schema/index.rst
    segment/index.rst
    segmentation_partition/index.rst
+   specialized_resolvers/index.rst
 
 
 Package Contents
