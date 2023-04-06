@@ -9,6 +9,7 @@ from whylogs.core.metrics import Metric
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
 )
+from whylogs.core.preprocessing import ColumnProperties
 from whylogs.core.utils.utils import deprecated_alias
 
 from .column_profile import ColumnProfile
@@ -122,6 +123,7 @@ class DatasetProfile(Writable):
         row: Optional[Mapping[str, Any]] = None,
     ) -> None:
         pandas, row = _pandas_or_dict(obj, pandas, row)
+        col_id = getattr(self._schema.default_configs, "identity_column", None)
 
         # TODO: do this less frequently when operating at row level
         dirty = self._schema.resolve(pandas=pandas, row=row)
@@ -131,6 +133,11 @@ class DatasetProfile(Writable):
             self._initialize_new_columns(tuple(new_cols))
 
         if row is not None:
+            if col_id is not None:
+                logger.warning(
+                    "validation with identity column is not supported for row level tracking.\
+                    Validation will be performed without identity column"
+                )
             for k in row.keys():
                 self._columns[k]._track_datum(row[k])
             return
@@ -148,8 +155,28 @@ class DatasetProfile(Writable):
                     logger.error(
                         f"whylogs was passed a pandas DataFrame with key [{k}] but DataFrame.get({k}) returned nothing!"
                     )
+                    return
+
+                dtype = self._schema.types.get(k)
+                homogeneous = (
+                    dtype is not None
+                    and isinstance(dtype, tuple)
+                    and len(dtype) == 2
+                    and isinstance(dtype[1], ColumnProperties)
+                    and dtype[1] == ColumnProperties.homogeneous
+                )
+                if homogeneous:
+                    self._columns[k]._track_homogeneous_column(column_values)
                 else:
-                    self._columns[k].track_column(column_values)
+                    id_values = pandas.get(col_id)
+                    if col_id is not None and id_values is None:
+                        logger.warning(
+                            f"identity column was passed as {col_id} but column was not found in the dataframe."
+                        )
+                    if col_id is not None and id_values is not None:
+                        self._columns[k].track_column(column_values, id_values)
+                    else:
+                        self._columns[k].track_column(column_values)
             return
 
         raise NotImplementedError

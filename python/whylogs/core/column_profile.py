@@ -54,11 +54,15 @@ class ColumnProfile(object):
             res = metric.columnar_update(extracted_column)
             self._failure_count += res.failures
             self._success_count += res.successes
-        for validator in self._column_validators:
-            validator.columnar_validate(extracted_column)
 
-    def track_column(self, series: Any) -> None:
+    def track_column(self, series: Any, identity_values: Any = None) -> None:
+        for validator in self._column_validators:
+            validator.columnar_validate(series, identity_values=identity_values)
         ex_col = PreprocessedColumn.apply(series)
+        self._process_extracted_column(ex_col)
+
+    def _track_homogeneous_column(self, series: Any) -> None:
+        ex_col = PreprocessedColumn._process_homogeneous_column(series)
         self._process_extracted_column(ex_col)
 
     def _track_datum(self, value: Any) -> None:

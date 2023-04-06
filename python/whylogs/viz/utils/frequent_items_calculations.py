@@ -34,6 +34,8 @@ def get_frequent_stats(column_view: ColumnProfileView, config: Optional[SummaryC
     target_cnt_metric = column_view.get_metric("counts")
     target_count = target_cnt_metric.n.value
     target_card_metric = column_view.get_metric("cardinality")
+    if not target_card_metric:
+        return None
     target_unique_count = int(target_card_metric.hll.value.get_estimate())
 
     target_frequent_stats: FrequentStats = {

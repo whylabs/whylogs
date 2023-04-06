@@ -4,7 +4,6 @@ from enum import Enum
 from itertools import chain
 from typing import List, Optional
 
-import numpy as np
 from sklearn.metrics.pairwise import cosine_distances, euclidean_distances
 
 from whylogs.core.metrics import StandardMetric
@@ -12,6 +11,7 @@ from whylogs.core.metrics.metrics import MetricConfig, OperationResult, register
 from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
+from whylogs.core.stubs import np
 from whylogs.experimental.extras.matrix_component import MatrixComponent
 
 logger = logging.getLogger(__name__)
@@ -71,6 +71,7 @@ class EmbeddingMetric(MultiMetric):
                 "distribution": StandardMetric.distribution.zero(),
                 "counts": StandardMetric.counts.zero(),
                 "types": StandardMetric.types.zero(),
+                "cardinality": StandardMetric.cardinality.zero(),
             }
             for label in self.labels
         }
@@ -80,6 +81,7 @@ class EmbeddingMetric(MultiMetric):
                     "frequent_items": StandardMetric.frequent_items.zero(),
                     "counts": StandardMetric.counts.zero(),
                     "types": StandardMetric.types.zero(),
+                    "cardinality": StandardMetric.cardinality.zero(),
                 }
             }
         )
@@ -151,13 +153,12 @@ class EmbeddingMetric(MultiMetric):
 
             ref_dists = self.distance_fn(matrix, self.references.value)  # type: ignore
             ref_closest = np.argmin(ref_dists, axis=1)
+
             for i in range(ref_dists.shape[1]):
-                self._update_submetrics(
-                    f"{self.labels[i]}_distance", PreprocessedColumn.apply(ref_dists[:, i].tolist())
-                )
+                self._update_submetrics(f"{self.labels[i]}_distance", PreprocessedColumn.apply(ref_dists[:, i]))
 
             closest = [self.labels[i] for i in ref_closest]
-            self._update_submetrics("closest", PreprocessedColumn.apply(closest))
+            self._update_submetrics("closest", PreprocessedColumn.apply(np.asarray(closest)))
             successes += 1
 
         return OperationResult(failures, successes)

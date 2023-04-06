@@ -1,9 +1,12 @@
+import logging
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+
+logger = logging.getLogger(__name__)
 
 
 class ReferenceSelector(ABC):
@@ -11,9 +14,10 @@ class ReferenceSelector(ABC):
         self.n_references = 0
         self.ref_labels = None
 
-    # FIXME: labels are probably not Any
     @abstractmethod
-    def calculate_references(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> Tuple[np.ndarray, List[Any]]:
+    def calculate_references(
+        self, X: np.ndarray, y: Optional[np.ndarray] = None
+    ) -> Tuple[np.ndarray, List[Union[int, str]]]:
         raise NotImplementedError()
 
 
@@ -59,7 +63,12 @@ class KMeansSelector(ReferenceSelector):
         self.n_clusters = n_clusters
         self.kmeans_kwargs = kmeans_kwargs
 
-    def calculate_references(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> Tuple[np.ndarray, List[Any]]:
+    def calculate_references(
+        self, X: np.ndarray, y: Optional[np.ndarray] = None
+    ) -> Tuple[np.ndarray, List[Union[int, str]]]:
+        if y is not None:
+            logger.warn("KMeansSelector is unsupervised; ignoring labels")
+
         self.n_references = self.n_clusters
         self.ref_labels = list(range(self.n_clusters))  # TODO: throw if y is not None?
 
@@ -76,7 +85,12 @@ class PCAKMeansSelector(ReferenceSelector):
         self.n_components = n_components
         self.kmeanie = KMeansSelector(n_clusters, kmeans_kwargs)
 
-    def calculate_references(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> Tuple[np.ndarray, List[Any]]:
+    def calculate_references(
+        self, X: np.ndarray, y: Optional[np.ndarray] = None
+    ) -> Tuple[np.ndarray, List[Union[int, str]]]:
+        if y is not None:
+            logger.warn("PCAKMeansSelector is unsupervised; ignoring labels")
+
         # Fit PCA first
         pca = PCA(n_components=self.n_components)
         X_pca = pca.fit_transform(X)

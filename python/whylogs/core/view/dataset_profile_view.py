@@ -20,7 +20,7 @@ from whylogs.core.proto import (
     DatasetSegmentHeader,
     MetricComponentMessage,
 )
-from whylogs.core.stubs import pd
+from whylogs.core.stubs import is_not_stub, pd
 from whylogs.core.utils import (
     ensure_timezone,
     read_delimited_protobuf,
@@ -226,6 +226,20 @@ class DatasetProfileView(Writable):
             metadata.pop(key)
         return message_tags, metadata
 
+    @staticmethod
+    def _combine_tags_and_metadata(
+        tags: Optional[Dict[str, str]],
+        metadata: Optional[Dict[str, str]],
+    ) -> Optional[Dict[str, str]]:
+        if not tags:
+            return dict(metadata) if metadata else None
+        if not metadata:
+            return dict(tags)
+        merged_meta = dict()
+        merged_meta.update(tags)
+        merged_meta.update(metadata)
+        return merged_meta
+
     def _do_write(self, out_f: BinaryIO) -> Tuple[bool, str]:
         all_metric_component_names = set()
         # capture the list of all metric component paths
@@ -328,10 +342,15 @@ class DatasetProfileView(Writable):
             )
 
         dataset_segment_header = read_delimited_protobuf(f, DatasetSegmentHeader)
+
+        # TODO: support result set reads for multi-segment files
+        # when we support serializing multi-segment files
         if dataset_segment_header.has_segments:
-            logger.warning(
-                "File contains segments. Only first profile will be deserialized into this DatasetProfileView"
-            )
+            if len(dataset_segment_header.offsets.values()) > 1:
+                logger.warning(
+                    "File contains more than one segment, but only first profile will be "
+                    f"deserialized into this DatasetProfileView: {dataset_segment_header}"
+                )
 
         dataset_profile_header = read_delimited_protobuf(f, DatasetProfileHeader)
         if dataset_profile_header.ByteSize() == 0:
@@ -341,6 +360,9 @@ class DatasetProfileView(Writable):
         )
         creation_timestamp = datetime.fromtimestamp(
             dataset_profile_header.properties.creation_timestamp / 1000.0, tz=timezone.utc
+        )
+        metadata = DatasetProfileView._combine_tags_and_metadata(
+            dataset_profile_header.properties.tags, dataset_profile_header.properties.metadata
         )
         indexed_metric_paths = dataset_profile_header.indexed_metric_paths
         if len(indexed_metric_paths) < 1:
@@ -386,7 +408,10 @@ class DatasetProfileView(Writable):
             column_msg = ColumnMessage(metric_components=all_metric_components)
             columns[col_name] = ColumnProfileView.from_protobuf(column_msg)
         return DatasetProfileView(
-            columns=columns, dataset_timestamp=dataset_timestamp, creation_timestamp=creation_timestamp
+            columns=columns,
+            dataset_timestamp=dataset_timestamp,
+            creation_timestamp=creation_timestamp,
+            metadata=metadata,
         )
 
     def __getstate__(self) -> bytes:
@@ -408,6 +433,9 @@ class DatasetProfileView(Writable):
                 sum_dict["column"] = col_name
                 sum_dict["type"] = SummaryType.COLUMN
                 all_dicts.append(dict(sorted(sum_dict.items())))
-            df = pd.DataFrame(all_dicts)
-            return df.set_index("column")
+            if is_not_stub(pd.DataFrame):
+                df = pd.DataFrame(all_dicts)
+                return df.set_index("column")
+            else:
+                raise ImportError("Pandas is not installed. Please install pandas to use this feature.")
         return pd.DataFrame(all_dicts)

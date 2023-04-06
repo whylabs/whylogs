@@ -64,7 +64,7 @@ def _kll_merge(lhs: ds.kll_doubles_sketch, rhs: ds.kll_doubles_sketch) -> ds.kll
     return kll_copy
 
 
-@_typed_aggregator(mtype=ds.hll_sketch, name="kll")
+@_typed_aggregator(mtype=ds.hll_sketch, name="hll")
 def _hll_merge(lhs: ds.hll_sketch, rhs: ds.hll_sketch) -> ds.hll_sketch:
     lg_k = max(lhs.lg_config_k, rhs.lg_config_k)
     tg_type = lhs.tgt_type
@@ -78,7 +78,7 @@ def _hll_merge(lhs: ds.hll_sketch, rhs: ds.hll_sketch) -> ds.hll_sketch:
     return copy.get_result(tg_type)
 
 
-@_typed_aggregator(mtype=ds.frequent_strings_sketch, name="kll")
+@_typed_aggregator(mtype=ds.frequent_strings_sketch, name="fs")
 def _fs_merge(lhs: ds.frequent_strings_sketch, rhs: ds.frequent_strings_sketch) -> ds.frequent_strings_sketch:
     copy = ds.frequent_strings_sketch.deserialize(lhs.serialize())
     copy.merge(rhs)

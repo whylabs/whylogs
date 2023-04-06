@@ -5,7 +5,7 @@ src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 src.proto.v0.dir := ../proto/v0
 src.proto.v0 := $(shell find $(src.proto.v0.dir) -type f -name "*.proto")
-version := 1.1.28
+version := 1.1.34
 
 dist.dir := dist
 egg.dir := .eggs
@@ -152,6 +152,9 @@ test-notebooks: ## Run tests for the notebooks
 	@$(call i, Running notebook tests)
 	poetry run pytest --no-cov --maxfail=1 test_notebooks/notebook_tests.py
 
+telemetry-opt-out: ## create opt out file
+	@$(call i, Creating whylogs telemetry opt-out file)
+	mkdir ~/.whylogs && echo "" >> ~/.whylogs/disable_telemetry
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)

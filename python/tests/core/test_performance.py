@@ -29,12 +29,12 @@ _TEST_RESOLVERS = [HistogramCountingTrackingResolver(), LimitedTrackingResolver(
 
 # TODO: this is from the baseline benchmark, but its not integrated with our metrics
 @dataclass
-class TestHistogramMetric:
+class CustomHistogramMetric:
     histogram: ds.kll_floats_sketch = field(
         default=ds.kll_floats_sketch(MetricConfig.kll_k),
     )
 
-    def track(self, val: Any) -> "TestHistogramMetric":
+    def track(self, val: Any) -> "CustomHistogramMetric":
         if pd.isna(val):
             return self
         self.histogram.update(val)
@@ -111,11 +111,11 @@ def test_track_baseline_benchmark() -> None:
 
         profiler = cProfile.Profile()
         string_output_stream = StringIO()
-        baseline_metric = TestHistogramMetric()
+        baseline_metric = CustomHistogramMetric()
         profiler.enable()
         for column_index in range(num_columns):
             column_name = str(column_index)
-            baseline_metric = TestHistogramMetric()
+            baseline_metric = CustomHistogramMetric()
             col_df = pd.DataFrame(np.random.random(size=(num_rows, 1)), columns=[column_name])
             if column_index == 0:
                 TEST_LOGGER.info(f"using the following trackers {baseline_metric}")

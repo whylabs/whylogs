@@ -23,6 +23,7 @@ from whylogs.core.preprocessing import ListView, PreprocessedColumn
 from whylogs.core.proto import MetricMessage
 from whylogs.core.resolvers import Resolver, StandardResolver
 from whylogs.core.schema import ColumnSchema
+from whylogs.core.stubs import np, sp
 from whylogs.experimental.extras.embedding_metric import (
     EmbeddingConfig,
     EmbeddingMetric,
