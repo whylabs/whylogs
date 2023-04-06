@@ -4,8 +4,6 @@ from itertools import chain
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import numpy as np
-import scipy as sp
 from pybloomfilter import BloomFilter
 
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
