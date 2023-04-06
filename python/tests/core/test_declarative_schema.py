@@ -24,6 +24,7 @@ from whylogs.core.resolvers import (
     StandardResolver,
 )
 from whylogs.core.schema import DeclarativeSchema
+from whylogs.core.specialized_resolvers import ConditionCountMetricSpec
 from whylogs.experimental.core.udf_schema import UdfSchema, UdfSpec
 
 
@@ -90,6 +91,10 @@ def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
         "not_4.3": Condition(lambda x: x != 4.3),
     }
 
+    not_cat_condition = {
+        "not_cat": Condition(lambda x: x != "cat"),
+    }
+
     legs_not_4_spec = ResolverSpec(
         column_name="legs",
         metrics=[
@@ -113,6 +118,7 @@ def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
     schema = DeclarativeSchema(STANDARD_RESOLVER)
     schema.add_resolver(legs_not_4_spec)
     schema.add_resolver(weights_not_4_2_spec)
+    schema.add_resolver_spec(column_name="animal", metrics=[ConditionCountMetricSpec(not_cat_condition)])
 
     prof_view = why.log(pandas_dataframe, schema=schema).profile().view()
     colset = prof_view.to_pandas().columns
@@ -123,7 +129,7 @@ def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
     num_freq_items_components = len(StandardMetric.frequent_items.value.zero().to_summary_dict().keys())
     num_card_components = len(StandardMetric.cardinality.value.zero().to_summary_dict().keys())
     num_int_components = len(StandardMetric.ints.value.zero().to_summary_dict().keys())
-    num_cond_components = 3  # total, not_4, not_4.3
+    num_cond_components = 4  # total, not_4, not_4.3, not_3.6
 
     expected_column_count = (
         num_count_components
@@ -137,7 +143,12 @@ def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
 
     # - 1 for 'type' column, which is from Pandas, not whylogs
     assert len(colset) - 1 == expected_column_count
-    assert {"condition_count/not_4", "condition_count/not_4.3", "condition_count/total"}.issubset(colset)
+    assert {
+        "condition_count/not_4",
+        "condition_count/not_4.3",
+        "condition_count/not_cat",
+        "condition_count/total",
+    }.issubset(colset)
 
 
 def test_additional_metrics_nonexistent(pandas_dataframe):
