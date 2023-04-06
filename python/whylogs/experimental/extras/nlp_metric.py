@@ -1,10 +1,12 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
 from itertools import chain
+from tempfile import NamedTemporaryFile
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import scipy as sp
+from pybloomfilter import BloomFilter
 
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
 from whylogs.core import DatasetProfile, DatasetSchema
@@ -145,16 +147,12 @@ class UpdatableSvdMetric(SvdMetric):
         return UpdatableSvdMetric(self.k, self.decay, MatrixComponent(new_U), MatrixComponent(new_S))
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
-        vectors = data.list.tensors if data.list.tensors else []
-        vectors = vectors + (data.pandas.tensors.tolist() if data.pandas.tensors else [])
-
-        if not vectors:
-            return OperationResult.ok(0)
         k = self.k.value
         decay = self.decay.value
         vectors_processed = 0
-        for vector in vectors:
-            if (not isinstance(vector, np.ndarray)) or vector.shape[0] < 2:
+        pandas_tensors = data.pandas.tensors if data.pandas.tensors is not None else []
+        for vector in chain(data.list.tensors or [], pandas_tensors):
+            if False:  # wrong size, n or nxm should match U.shape[0]
                 continue
 
             # TODO: batch this
@@ -193,12 +191,47 @@ class NlpConfig(EmbeddingConfig):
     You'll have to manage that yourself.
     """
 
+    # TODO: transpose reference matrix in __post_init__?
+
     # The default will not allow updates or residual computation
     svd: SvdMetric = field(default_factory=SvdMetric.zero)
 
 
 def _all_strings(value: List[Any]) -> bool:
     return all([isinstance(s, str) for s in value])
+
+
+BLOOM_DIR: Optional[str] = None  # defualt directory for vocabulary backing files
+BLOOM_PREFIX: Optional[str] = None  # vocabulary backing file prefix
+BLOOM_SUFFIX: Optional[str] = None  # vocabulary backing file suffix
+
+
+def _get_temp_file_name() -> str:
+    with NamedTemporaryFile(prefix=BLOOM_PREFIX, suffix=BLOOM_SUFFIX, dir=BLOOM_DIR, delete=False) as tf:
+        name = tf.name
+    return name
+
+
+@dataclass(frozen=True)
+class BagOfWordsConfig(MetricConfig):
+    filename: Optional[str] = None
+    vocabulary: Optional[BloomFilter] = None
+
+    @classmethod
+    def set_vocabulary(
+        cls, vocab: List[str], error_rate: float = 0.00001, filename: Optional[str] = None
+    ) -> "BagOfWordsConfig":
+        filename = filename or _get_temp_file_name()
+        vocabulary = BloomFilter(len(vocab), error_rate, filename)
+        for v in vocab:
+            vocabulary.add(v)
+        vocabulary.sync()
+        return BagOfWordsConfig(filename=filename, vocabulary=vocabulary)
+
+    @classmethod
+    def load_vocabulary(cls, filename: str) -> "BagOfWordsConfig":
+        vocabulary = BloomFilter.open(filename, "r")
+        return BagOfWordsConfig(filename=filename, vocabulary=vocabulary)
 
 
 @dataclass
@@ -208,6 +241,7 @@ class BagOfWordsMetric(MultiMetric):
     """
 
     fi_disabled: bool = False
+    vocabulary: Optional[BloomFilter] = None
 
     def __post_init__(self):
         submetrics = {
@@ -236,45 +270,79 @@ class BagOfWordsMetric(MultiMetric):
             # for key in ["doc_length", "term_length"]:
             #    submetrics[key]["frequent_items"] = StandardMetric.frequent_items.zero()
 
+        if self.vocabulary is not None:
+            submetrics["out_of_vocab"] = {
+                "distribution": StandardMetric.distribution.zero(),
+                "counts": StandardMetric.counts.zero(),
+                "types": StandardMetric.types.zero(),
+                "cardinality": StandardMetric.cardinality.zero(),
+                "ints": StandardMetric.ints.zero(),
+            }
+
         super().__init__(submetrics)
 
     @property
     def namespace(self) -> str:
         return "nlp_bow"
 
+    def merge(self, other: "BagOfWordsMetric") -> "BagOfWordsMetric":
+        merged = super().merge(other)
+        if self.vocabulary is not None:
+            merged.vocabulary = self.vocabulary
+
+        return merged
+
     def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
         for key in self.submetrics[submetric].keys():
             self.submetrics[submetric][key].columnar_update(data)
 
-    def _process_document(self, document: List[str]) -> int:
+    def _process_document(self, document: List[str]) -> Tuple[int, int]:
         term_lengths = [len(term) for term in document]
         self._update_submetrics("term_length", PreprocessedColumn.apply(term_lengths))
         if not self.fi_disabled:
             nlp_data = PreprocessedColumn.apply(document)
             self._update_submetrics("frequent_terms", nlp_data)
 
-        return len(document)
+        oov_count = 0
+        if self.vocabulary is not None:
+            for term in document:
+                if term not in self.vocabulary:
+                    oov_count += 1
+
+        return len(document), oov_count
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         # Should be data.list.objs  [ List[str] ] from scalar
         #           data.pandas.obj Series[List[str]] from apply
         doc_lengths = list()
+        oov_counts = list()
         if data.list.objs and isinstance(data.list.objs[0], list) and _all_strings(data.list.objs[0]):
-            doc_lengths.append(self._process_document(data.list.objs[0]))
+            doc_len, oov_count = self._process_document(data.list.objs[0])
+            doc_lengths.append(doc_len)
+            oov_counts.append(oov_count)
 
         if data.pandas.objs is not None:
             for document in data.pandas.objs:
                 if isinstance(document, list) and _all_strings(document):
                     # TODO: batch these
-                    doc_lengths.append(self._process_document(document))
+                    doc_len, oov_count = self._process_document(document)
+                    doc_lengths.append(doc_len)
+                    oov_counts.append(oov_count)
 
         self._update_submetrics("doc_length", PreprocessedColumn.apply(doc_lengths))
+        if self.vocabulary is not None:
+            self._update_submetrics("out_of_vocab", PreprocessedColumn.apply(oov_counts))
+
         return OperationResult.ok(len(doc_lengths))
 
     @classmethod
     def zero(cls, cfg: Optional[MetricConfig] = None) -> "BagOfWordsMetric":
-        cfg = cfg or MetricConfig()
-        return BagOfWordsMetric(cfg.fi_disabled)
+        cfg = cfg or BagOfWordsConfig()
+        if not isinstance(cfg, BagOfWordsConfig):
+            raise ValueError("BagOfWordsMetric.zero() requires a BagOfWordsConfig argument")
+
+        bow = BagOfWordsMetric(cfg.fi_disabled, cfg.vocabulary)
+        return bow
 
     @classmethod
     def from_protobuf(cls, msg: MetricMessage) -> "BagOfWordsMetric":
@@ -304,32 +372,16 @@ class NlpEmbeddingMetric(EmbeddingMetric):
     # MultiMetric {to,from}_protobuf(), to_summary_dict() -- you have to serialize
     # NlpEmbeddingMetric.svd yourself if it updated
 
-    def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
-        for key in self.submetrics[submetric].keys():
-            self.submetrics[submetric][key].columnar_update(data)
-
-    # data.list.objs is a list of np.ndarray. Each ndarray represents one document's term vector.
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
-<<<<<<< HEAD
         self.svd.columnar_update(data)  # no-op if SVD is not updating
-        residuals: List[float] = []
+        vectors_processed = 0
         pandas_tensors = data.pandas.tensors if data.pandas.tensors is not None else []
         for vector in chain(data.list.tensors or [], pandas_tensors):  # TODO: batch these?
-            residuals.append(self.svd.residual(vector))
-
-        self._update_submetrics("residual", PreprocessedColumn.apply(residuals))
-        return OperationResult.ok(len(residuals))
-=======
-        if not data.list.objs:
-            return OperationResult.ok(0)
-        self.svd.columnar_update(data)  # no-op if SVD is not updating
-        for vector in data.list.objs:  # TODO: batch these
-            assert isinstance(vector, np.ndarray)
             X = (_reciprocal(self.svd.S) @ self.svd.U.transpose() @ vector).transpose()
-            super().columnar_update(PreprocessedColumn.apply(X))
+            super().columnar_update(PreprocessedColumn._process_scalar_value(X))
+            vectors_processed += 1
 
-        return OperationResult.ok(len(data.list.objs))
->>>>>>> a104e5c3... work
+        return OperationResult.ok(vectors_processed)
 
     @classmethod
     def zero(cls, cfg: Optional[MetricConfig] = None) -> "NlpEmbeddingMetric":
