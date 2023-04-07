@@ -147,6 +147,23 @@ fugue = [
 embeddings = [
   "scikit-learn"
 ]
+all = [
+  "scikit-learn",
+  "fugue",
+  "Pillow",
+  "mlflow-skinny",
+  "boto3",
+  "google-cloud-storage",
+  "pandas",
+  "pyarrow",
+  "pyspark",
+  "ipython",
+  "pybars3",
+  "numpy",
+  "scipy",
+  "whylabs-client",
+  "requests",
+]
 
 [tool.poetry.group.dev.dependencies]
 types-urllib3 = "^1.26.25.5"
