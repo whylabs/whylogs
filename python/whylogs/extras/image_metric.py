@@ -34,7 +34,7 @@ try:
     from PIL.TiffImagePlugin import IFDRational
     from PIL.TiffTags import TAGS
 except ImportError as e:
-    ImageType = None
+    ImageType = None  # type: ignore
     logger.warning(str(e))
     logger.warning("Unable to load PIL; install Pillow for image support")
 
