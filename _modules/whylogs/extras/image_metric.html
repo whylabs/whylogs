@@ -486,6 +486,8 @@
 
     <span class="n">stats</span> <span class="o">=</span> <span class="n">Stat</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;HSV&quot;</span><span class="p">))</span>
     <span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="s2">&quot;entropy&quot;</span><span class="p">):</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;entropy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">entropy</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)):</span>
         <span class="k">for</span> <span class="n">statistic_name</span> <span class="ow">in</span> <span class="n">image_stats</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">statistic_name</span><span class="p">):</span>
