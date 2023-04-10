@@ -148,11 +148,30 @@ fugue = [
   "fugue",
 ]
 embeddings = [
-  "scikit-learn"
+  "scikit-learn",
+  "numpy",
 ]
 nlp = [
   "scikit-learn",
   "numpy",
+  "pybloomfiltermmap3",
+]
+all = [
+  "scikit-learn",
+  "fugue",
+  "Pillow",
+  "mlflow-skinny",
+  "boto3",
+  "google-cloud-storage",
+  "pandas",
+  "pyarrow",
+  "pyspark",
+  "ipython",
+  "pybars3",
+  "numpy",
+  "scipy",
+  "whylabs-client",
+  "requests",
   "pybloomfiltermmap3",
 ]
 

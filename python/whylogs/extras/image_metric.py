@@ -34,7 +34,7 @@ try:
     from PIL.TiffImagePlugin import IFDRational
     from PIL.TiffTags import TAGS
 except ImportError as e:
-    ImageType = None
+    ImageType = None  # type: ignore
     logger.warning(str(e))
     logger.warning("Unable to load PIL; install Pillow for image support")
 
@@ -67,6 +67,8 @@ def get_pil_image_statistics(
 
     stats = Stat(img.convert("HSV"))
     metadata = {}
+    if hasattr(img, "entropy"):
+        metadata["entropy"] = img.entropy()
     for index in range(len(channels)):
         for statistic_name in image_stats:
             if hasattr(stats, statistic_name):

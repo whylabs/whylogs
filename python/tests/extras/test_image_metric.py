@@ -136,6 +136,14 @@ def test_log_image() -> None:
     assert results.get_column("image").to_summary_dict()["image/ImagePixelWidth:distribution/mean"] > 0
 
 
+def test_log_image_with_entropy() -> None:
+    image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
+    img = image_loader(image_path)
+    results = log_image(img).view()
+    logger.info(results.get_column("image").to_summary_dict())
+    assert results.get_column("image").to_summary_dict()["image/entropy:distribution/mean"] > 0
+
+
 def test_log_interface() -> None:
     image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
     img = image_loader(image_path)
