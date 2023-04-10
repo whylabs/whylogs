@@ -87,16 +87,12 @@ jobs:
 
       - name: Install dependencies
         run: make telemetry-opt-out install
-      - name: bump2version mainline to latest release
+      - name: read current version
         run: |
           # from refs/tags/v1.2.3 get 1.2.3
           echo "VERSION=$(echo $GITHUB_REF | sed 's#.*/v##')" >> $GITHUB_ENV
-          echo $VERSION
-          # git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # git config --local user.name "github-actions[bot]"
-          poetry run bump2version -h
-          poetry run bump2version --verbose --allow-dirty --no-tag --new-version $VERSION patch
-
+      - name: bump2version mainline to new release version
+        run: poetry run bump2version patch --verbose --allow-dirty --no-tag --new-version ${{ env.VERSION }}
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v4.1.1

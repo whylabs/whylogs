@@ -22,7 +22,7 @@ def _get_compiled_template(template_name: str) -> "Callable":
         logger.warning("Unable to load pybars; install pybars3 to load profile directly from the current session ")
         return lambda _: None  # returns a no-op lambda
 
-    with open(template_path, "r+t") as file_with_template:
+    with open(template_path, "rt") as file_with_template:
         source = file_with_template.read()
     return Compiler().compile(source)
 
