@@ -42,7 +42,7 @@ Attributes
    .. py:method:: option(**kwargs: Any) -> ResultSetWriter
 
 
-   .. py:method:: write(**kwargs: Any) -> None
+   .. py:method:: write(**kwargs: Any) -> List
 
 
 
