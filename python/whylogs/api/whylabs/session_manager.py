@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
 
-import keyring
 from whylabs_client.api.sessions_api import (
     CreateSessionRequest,
     CreateSessionResponse,
@@ -13,12 +12,14 @@ from whylabs_client.api.sessions_api import (
 )
 from whylabs_client.api_client import ApiClient, Configuration
 
-from .auth_file import get_auth_file_path, get_configparser_object
+from .auth_file import get_auth_file_path
 from .notebook_check import is_notebook
 from .variables import Variables
 
-_auth_path = get_auth_file_path(auth_path=Path(f"{Path.home()}/.whylabs/auth.ini"))
-DEFAULT_WHYLABS_HOST = "https://api.whylabsapp.com/"
+DEFAULT_PATH = os.getenv("WHYLOGS_CONFIG_PATH") or f"{Path.home()}/.whylabs/auth.ini"
+_auth_path = get_auth_file_path(auth_path=Path(DEFAULT_PATH))
+
+DEFAULT_WHYLABS_HOST = "https://api.whylabsapp.com"
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -35,9 +36,8 @@ class UserSession:
     api_key: str
 
     def __post_init__(self):
-        if not is_notebook():
-            Variables.set_variable_to_config_file(key="org_id", value=self.org_id, auth_path=_auth_path)
-            keyring.set_password("whylabs", "api_key", self.api_key)
+        Variables.set_variable_to_config_file(key="org_id", value=self.org_id, auth_path=_auth_path)
+        Variables.set_variable_to_config_file(key="api_key", value=self.api_key, auth_path=_auth_path)
 
 
 def _create_session_id(user_id: str) -> str:
@@ -52,28 +52,27 @@ def _create_session_id(user_id: str) -> str:
     return response.id
 
 
-def _get_logged_session() -> UserSession:
-    api_key = os.getenv("WHYLABS_API_KEY")
-    org_id = os.getenv("ORG_ID")
+def _get_logged_session(auth_path: Path = _auth_path) -> UserSession:
+    api_key = os.getenv("WHYLABS_API_KEY") or Variables.get_variable_from_config_file(
+        auth_path=auth_path, key="api_key"
+    )
+    org_id = os.getenv("ORG_ID") or Variables.get_variable_from_config_file(auth_path=auth_path, key="org_id")
 
     if is_notebook():
         api_key = api_key or Variables.get_variable_from_input(variable_name="api_key")
         org_id = org_id or Variables.get_variable_from_input(variable_name="org_id")
 
-    if not is_notebook():
-        config_object = get_configparser_object(auth_path=_auth_path)
-        api_key = api_key or Variables.get_password_from_keyring()
-        org_id = org_id or Variables.get_variable_from_config_file(config=config_object, key="org_id")
-
     if api_key is None or org_id is None:
-        raise ValueError("You must define your WHYLABS_API_KEY and ORG_ID environment variables")
+        raise ValueError(
+            f"You must define your WHYLABS_API_KEY and ORG_ID environment variables,"
+            f" or set them on an ini file on {auth_path}"
+        )
 
     return UserSession(org_id=org_id, api_key=api_key)
 
 
 def _get_guest_session() -> GuestSession:
-    config = get_configparser_object(auth_path=_auth_path)
-    session_id = Variables.get_variable_from_config_file(config=config, key="session_id")
+    session_id = Variables.get_variable_from_config_file(auth_path=_auth_path, key="session_id")
     if session_id is None:
         user_id = str(uuid.uuid4())
         session_id = _create_session_id(user_id=user_id)
@@ -81,7 +80,7 @@ def _get_guest_session() -> GuestSession:
 
 
 def create_session(anonymous: Optional[bool] = None) -> Union[GuestSession, UserSession]:
-    if is_notebook() is True:
+    if is_notebook() is True and anonymous is None:
         while True:
             anonymous_input = input("Do you want to create an anonymous session? [True/False] (default: False) ")
             if anonymous_input.lower() == "true":
@@ -115,5 +114,5 @@ class SessionManager:
         return SessionManager.__instance
 
 
-def init(anonymous: bool = False) -> None:
+def init(anonymous: Optional[bool] = None) -> None:
     SessionManager.get_instance(anonymous=anonymous)
