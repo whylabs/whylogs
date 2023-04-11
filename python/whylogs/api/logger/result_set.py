@@ -126,17 +126,20 @@ class ResultSetWriter:
         self._writer.option(**kwargs)
         return self
 
-    def write(self, **kwargs: Any) -> None:
+    def write(self, **kwargs: Any) -> List:
         # multi-profile writer
         files = self._result_set.get_writables()
+        statuses = list()
         if not files:
             logger.warning("Attempt to write a result set with no writables returned, nothing written!")
         else:
             logger.debug(f"About to write {len(files)} files:")
             # TODO: special handling of large number of files, handle throttling
             for view in files:
-                self._writer.write(file=view, **kwargs)
+                response = self._writer.write(file=view, **kwargs)
+                statuses.append(response)
             logger.debug(f"Completed writing {len(files)} files!")
+        return statuses
 
 
 class ResultSetReader:
