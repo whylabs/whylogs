@@ -192,6 +192,10 @@ class NotebookProfileVisualizer:
 
             ref_features[feature_name]["histogram"] = ref_histogram
             target_features[feature_name]["histogram"] = target_histogram
+            if target_histogram["n"] == 1:
+                # in the degenerate case when the target is a single value, it will be hidden
+                # so here we draw a vertical line, using the max (which is the observed value)
+                target_features[feature_name]["vertical_line"] = target_histogram["max"]
             histogram_chart = template(
                 {
                     "profile_from_whylogs": json.dumps(target_features),

@@ -45,7 +45,7 @@ class TypeCountersMetric(Metric):
         integral = 0
         if data.numpy.ints is not None:
             integral += len(data.numpy.ints)
-        elif data.list.ints is not None:
+        if data.list.ints is not None:
             integral += len(data.list.ints)
         successes += integral
         self.integral.set(integral + integral_prev)
@@ -54,7 +54,7 @@ class TypeCountersMetric(Metric):
         fractional_prev = self.fractional.value
         if data.numpy.floats is not None:
             fractional += len(data.numpy.floats)
-        elif data.list.floats is not None:
+        if data.list.floats is not None:
             fractional += len(data.list.floats)
         successes += fractional
         self.fractional.set(fractional + fractional_prev)
@@ -67,9 +67,10 @@ class TypeCountersMetric(Metric):
         string_count_prev = self.string.value
         if data.pandas.strings is not None:
             string_count += len(data.pandas.strings)
-        elif data.list.strings is not None:
+        if data.list.strings is not None:
             string_count += len(data.list.strings)
-
+        if data.numpy.strings is not None:
+            string_count += len(data.numpy.strings)
         successes += string_count
         self.string.set(string_count + string_count_prev)
 
@@ -77,7 +78,7 @@ class TypeCountersMetric(Metric):
         tensor_count_prev = self.tensor.value
         if data.pandas.tensors is not None:
             tensor_count += len(data.pandas.tensors)
-        elif data.list.tensors is not None:
+        if data.list.tensors is not None:
             tensor_count += len(data.list.tensors)
 
         successes += tensor_count
@@ -87,7 +88,7 @@ class TypeCountersMetric(Metric):
         objects_prev = self.object.value
         if data.pandas.objs is not None:
             objects += len(data.pandas.objs)
-        elif data.list.objs is not None:
+        if data.list.objs is not None:
             objects += len(data.list.objs)
 
         successes += objects
@@ -110,8 +111,8 @@ class TypeCountersMetric(Metric):
 class ColumnCountsMetric(Metric):
     n: IntegralComponent
     null: IntegralComponent
-    nan: IntegralComponent
-    inf: IntegralComponent
+    nan: IntegralComponent = field(default_factory=lambda: IntegralComponent(0))
+    inf: IntegralComponent = field(default_factory=lambda: IntegralComponent(0))
 
     @property
     def namespace(self) -> str:

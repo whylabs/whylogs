@@ -9,6 +9,7 @@ from whylogs.core.metrics import Metric
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
 )
+from whylogs.core.preprocessing import ColumnProperties
 from whylogs.core.utils.utils import deprecated_alias
 
 from .column_profile import ColumnProfile
@@ -154,6 +155,18 @@ class DatasetProfile(Writable):
                     logger.error(
                         f"whylogs was passed a pandas DataFrame with key [{k}] but DataFrame.get({k}) returned nothing!"
                     )
+                    return
+
+                dtype = self._schema.types.get(k)
+                homogeneous = (
+                    dtype is not None
+                    and isinstance(dtype, tuple)
+                    and len(dtype) == 2
+                    and isinstance(dtype[1], ColumnProperties)
+                    and dtype[1] == ColumnProperties.homogeneous
+                )
+                if homogeneous:
+                    self._columns[k]._track_homogeneous_column(column_values)
                 else:
                     id_values = pandas.get(col_id)
                     if col_id is not None and id_values is None:

@@ -7,6 +7,7 @@ from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import (
     DeclarativeResolver,
+    MetricSpec,
     Resolver,
     ResolverSpec,
     StandardResolver,
@@ -99,8 +100,13 @@ class DatasetSchema:
             )
 
         for col, data_type in self.types.items():
+            if isinstance(data_type, tuple):
+                dtype = data_type[0]  # (dtype, property, ...)
+            else:
+                dtype = data_type
+
             self._columns[col] = ColumnSchema(
-                dtype=data_type,
+                dtype=dtype,
                 resolver=self.resolvers,
                 type_mapper=self.type_mapper,
                 cfg=self.default_configs,
@@ -118,7 +124,12 @@ class DatasetSchema:
         copy.segments = self.segments.copy()
         return copy
 
-    def resolve(self, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool:
+    def resolve(
+        self,
+        *,
+        pandas: Optional[pd.DataFrame] = None,
+        row: Optional[Mapping[str, Any]] = None,
+    ) -> bool:
         if pandas is not None:
             return self._resolve_pdf(pandas)
 
@@ -210,6 +221,15 @@ class DeclarativeSchema(DatasetSchema):
 
     def add_resolver(self, resolver_spec: ResolverSpec):
         self.resolvers.add_resolver(resolver_spec)
+
+    def add_resolver_spec(
+        self,
+        column_name: Optional[str] = None,
+        column_type: Optional[Any] = None,
+        metrics: Optional[List[MetricSpec]] = None,
+    ):
+        spec = ResolverSpec(column_name=column_name, column_type=column_type, metrics=metrics or [])
+        self.add_resolver(spec)
 
     def __init__(
         self,

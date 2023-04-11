@@ -171,7 +171,7 @@ class SegmentedDatasetProfileView(Writable):
                 tags=segment_message_tags,
             )
 
-            logger.warn(f"constructed DatasetProperties for segmented profile file: {properties}")
+            logger.info(f"Constructed DatasetProperties for segmented profile file: {properties}")
 
             dataset_header = DatasetProfileHeader(
                 column_offsets=column_chunk_offsets,
