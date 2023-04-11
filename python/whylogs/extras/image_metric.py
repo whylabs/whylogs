@@ -1,5 +1,4 @@
 import logging
-from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
 from itertools import chain
@@ -22,7 +21,7 @@ from whylogs.core.metrics.metrics import (
     OperationResult,
     register_metric,
 )
-from whylogs.core.metrics.multimetric import MultiMetric
+from whylogs.core.metrics.multimetric import MultiMetric, SubmetricSchema
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
@@ -35,7 +34,7 @@ try:
     from PIL.TiffImagePlugin import IFDRational
     from PIL.TiffTags import TAGS
 except ImportError as e:
-    ImageType = None
+    ImageType = None  # type: ignore
     logger.warning(str(e))
     logger.warning("Unable to load PIL; install Pillow for image support")
 
@@ -68,6 +67,8 @@ def get_pil_image_statistics(
 
     stats = Stat(img.convert("HSV"))
     metadata = {}
+    if hasattr(img, "entropy"):
+        metadata["entropy"] = img.entropy()
     for index in range(len(channels)):
         for statistic_name in image_stats:
             if hasattr(stats, statistic_name):
@@ -121,12 +122,6 @@ def get_pil_image_metadata(img: ImageType) -> Dict:
     metadata.update(image_based_metadata(img))
     metadata.update(get_pil_image_statistics(img))
     return metadata
-
-
-class SubmetricSchema(ABC):
-    @abstractmethod
-    def resolve(self, name: str, why_type: DataType, fi_disabled: bool = False) -> Dict[str, Metric]:
-        raise NotImplementedError
 
 
 class ImageSubmetricSchema(SubmetricSchema):
@@ -220,7 +215,7 @@ class ImageMetric(MultiMetric):
                 metadata = get_pil_exif_metadata(image)
                 for name, value in metadata.items():
                     self._discover_exif_submetrics(name, value)  # EXIF tag discovery
-                    data = PreprocessedColumn.apply([metadata[name]])
+                    data = PreprocessedColumn.apply([metadata[name]])  # TODO: _process_scalar_value()?
                     self._update_relevant_submetrics(name, data)
 
                 image_data = get_pil_image_metadata(image)
