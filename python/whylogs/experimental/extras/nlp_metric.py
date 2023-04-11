@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+import pybloom
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.configs import SummaryConfig
@@ -195,6 +196,32 @@ def _all_strings(value: List[Any]) -> bool:
     return all([isinstance(s, str) for s in value])
 
 
+@dataclass(frozen=True)
+class BagOfWordsConfig(MetricConfig):
+    filename: Optional[str] = None
+    vocabulary: Optional[pybloom.BloomFilter] = None
+
+    @classmethod
+    def set_vocabulary(
+        cls, vocabulary: List[str], error_rate: float=0.0001, filename: Optional[str]=None
+    ) -> "BagOfWordsConfig":
+        bf = pybloom.BloomFilter(len(vocabulary), error_rate)
+        for term in vocabulary:
+            bf.add(term)
+
+        if filename:
+            with open(filename, "wb") as f:
+                bf.tofile(f)
+
+        return BagOfWordsConfig(filename=filename, vocabulary=bf)
+
+    @classmethod
+    def load_vocabulary(cls, filename: str) -> "BagOfWordsConfig":
+        with open(filename) as f:
+            return BagOfWordsConfig(filename, pybloom.BloomFilter.fromfile(f))
+        
+        
+
 @dataclass
 class BagOfWordsMetric(MultiMetric):
     """
@@ -202,6 +229,7 @@ class BagOfWordsMetric(MultiMetric):
     """
 
     fi_disabled: bool = False
+    vocabulary: Optional[pybloom.BloomFilter] = None
 
     def __post_init__(self):
         submetrics = {
@@ -230,45 +258,80 @@ class BagOfWordsMetric(MultiMetric):
             # for key in ["doc_length", "term_length"]:
             #    submetrics[key]["frequent_items"] = StandardMetric.frequent_items.zero()
 
+        if self.vocabulary is not None:
+            submetrics["out_of_vocab"] = {
+                "distribution": StandardMetric.distribution.zero(),
+                "counts": StandardMetric.counts.zero(),
+                "types": StandardMetric.types.zero(),
+                "cardinality": StandardMetric.cardinality.zero(),
+                "ints": StandardMetric.ints.zero(),
+            }
+
         super().__init__(submetrics)
 
     @property
     def namespace(self) -> str:
         return "nlp_bow"
 
+    def merge(self, other: "BagOfWordsMetric") -> "BagOfWordsMetric":
+        merged = super().merge(other)
+        if self.vocabulary is not None:  # or other.vcoabulary is not None:
+            # raise ValueError if the vocabularies aren't the same, or union them
+            merged.vocabulary = self.vocabulary
+
+        return merged
+
     def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
         for key in self.submetrics[submetric].keys():
             self.submetrics[submetric][key].columnar_update(data)
 
-    def _process_document(self, document: List[str]) -> int:
+    def _process_document(self, document: List[str]) -> Tuple[int, int]:
         term_lengths = [len(term) for term in document]
         self._update_submetrics("term_length", PreprocessedColumn.apply(term_lengths))
         if not self.fi_disabled:
             nlp_data = PreprocessedColumn.apply(document)
             self._update_submetrics("frequent_terms", nlp_data)
 
-        return len(document)
+        oov_count = 0
+        if self.vocabulary is not None:
+            for term in document:
+                if term not in self.vocabulary:  # oov_count = oov_count if self.vocabulary.add(term) else oov_count + 1
+                    oov_count += 1
+
+        return len(document), oov_count
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         # Should be data.list.objs  [ List[str] ] from scalar
         #           data.pandas.obj Series[List[str]] from apply
         doc_lengths = list()
+        oov_counts = list()
         if data.list.objs and isinstance(data.list.objs[0], list) and _all_strings(data.list.objs[0]):
-            doc_lengths.append(self._process_document(data.list.objs[0]))
+            doc_len, oov_count = self._process_document(data.list.objs[0])
+            doc_lengths.append(doc_len)
+            oov_counts.append(oov_count)
 
         if data.pandas.objs is not None:
             for document in data.pandas.objs:
                 if isinstance(document, list) and _all_strings(document):
                     # TODO: batch these
-                    doc_lengths.append(self._process_document(document))
+                    doc_len, oov_count = self._process_document(document)
+                    doc_lengths.append(doc_len)
+                    oov_counts.append(oov_count)
 
         self._update_submetrics("doc_length", PreprocessedColumn.apply(doc_lengths))
+        if self.vocabulary is not None:
+            self._update_submetrics("out_of_vocab", PreprocessedColumn.apply(oov_counts))
+
         return OperationResult.ok(len(doc_lengths))
 
     @classmethod
     def zero(cls, cfg: Optional[MetricConfig] = None) -> "BagOfWordsMetric":
-        cfg = cfg or MetricConfig()
-        return BagOfWordsMetric(cfg.fi_disabled)
+        cfg = cfg or BagOfWordsConfig()
+        if not isinstance(cfg, BagOfWordsConfig):
+            raise ValueError("BagOfWordsMetric.zero() requires a BagOfWordsConfig argument")
+
+        bow = BagOfWordsMetric(cfg.fi_disabled, cfg.vocabulary)
+        return bow
 
     @classmethod
     def from_protobuf(cls, msg: MetricMessage) -> "BagOfWordsMetric":

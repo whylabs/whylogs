@@ -68,6 +68,9 @@ scikit-learn = [
 fugue = {version = "^0.8.1", optional = true}
 requests = "^2.27"
 
+# NLP related dependencies
+pybloom3 = {version = "^0.0.3", optional = true}
+
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
 black = { version = "^22.10.0", allow-prereleases = true }
@@ -145,7 +148,13 @@ fugue = [
   "fugue",
 ]
 embeddings = [
-  "scikit-learn"
+  "scikit-learn",
+  "numpy",
+]
+nlp = [
+  "scikit-learn",
+  "numpy",
+  "pybloom3",
 ]
 all = [
   "scikit-learn",
@@ -163,6 +172,7 @@ all = [
   "scipy",
   "whylabs-client",
   "requests",
+  "pybloom3",
 ]
 
 [tool.poetry.group.dev.dependencies]
