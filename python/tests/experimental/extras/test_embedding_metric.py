@@ -32,8 +32,11 @@ def test_embedding_metric_row() -> None:
     assert summary["embedding/B_distance:counts/n"] == 3
     assert summary["embedding/A_distance:distribution/mean"] > 0
     assert summary["embedding/B_distance:distribution/mean"] > 0
+    assert summary["embedding/A_distance:cardinality/est"] > 0
+    assert summary["embedding/B_distance:cardinality/est"] > 0
     assert summary["embedding/closest:counts/n"] == 3
     assert summary["embedding/closest:frequent_items/frequent_strings"] != []
+    assert summary["embedding/closest:cardinality/est"] > 0
 
 
 def test_embedding_metric_pandas() -> None:

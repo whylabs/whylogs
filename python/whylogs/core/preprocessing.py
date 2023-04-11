@@ -2,6 +2,7 @@ import itertools
 import logging
 from dataclasses import dataclass
 from decimal import Decimal
+from enum import Enum
 from math import isinf, isnan
 from typing import Any, Iterable, Iterator, List, Optional, Union
 
@@ -13,6 +14,11 @@ try:
     import pandas.core.dtypes.common as pdc
 except:  # noqa
     pass
+
+
+class ColumnProperties(Enum):
+    default = 0
+    homogeneous = 1
 
 
 @dataclass
@@ -247,6 +253,49 @@ class PreprocessedColumn:
             result.list = ListView(
                 ints=int_list, floats=float_list, strings=string_list, tensors=tensor_list, objs=obj_list
             )
+
+        return result
+
+    @staticmethod
+    def _process_homogeneous_column(series: pd.Series) -> "PreprocessedColumn":
+        """
+        Column must be of homogeneous type. NaN, None, other missing data not allowed.
+        """
+
+        result = PreprocessedColumn()
+        result.original = series
+        result.len = len(series)
+        if series.empty:
+            return result
+
+        if pdc.is_numeric_dtype(series.dtype) and not pdc.is_bool_dtype(series.dtype):
+            if pdc.is_float_dtype(series.dtype):
+                result.numpy.floats = series.astype(float)
+                return result
+            else:
+                result.numpy.ints = series.astype(int)
+                return result
+
+        # This code path is faster than _pandas_split() because it only does type
+        # checking on the first value of the column. It assumes all the values are
+        # the same type and none are missing.
+        value = series[0]
+        if isinstance(value, str):
+            result.pandas.strings = series
+            return result
+        elif pdc.is_bool(value):
+            bool_mask_where_true = series.apply(lambda x: x)
+            result.bool_count = series.count()
+            result.bool_count_where_true = series[bool_mask_where_true].count()
+            return result
+        elif isinstance(value, (list, np.ndarray)) and PreprocessedColumn._is_tensorable(value):
+            if isinstance(value, np.ndarray):
+                result.pandas.tensors = series
+            else:
+                result.pandas.tensors = pd.Series([np.asarray(x) for x in series])
+            return result
+        else:
+            result.pandas.objs = series
 
         return result
 

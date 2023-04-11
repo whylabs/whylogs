@@ -26,15 +26,15 @@ class TestLocalWriter(object):
         return profile_view
 
     def test_write_response(self, local_writer, mocked_profile_view):
-        response = local_writer.write(profile=mocked_profile_view, dest=None)
+        response = local_writer.write(file=mocked_profile_view, dest=None)
         assert response[0] is True
 
     def test_should_write_to_default_dir_if_dest_is_none(self, local_writer, mocked_profile_view):
-        local_writer.write(profile=mocked_profile_view, dest=None)
+        local_writer.write(file=mocked_profile_view, dest=None)
         mocked_profile_view.write.assert_called_once_with("test_dir/test_name.bin")
 
     def test_should_write_to_defined_destination(self, local_writer, mocked_profile_view):
-        local_writer.write(profile=mocked_profile_view, dest="some_dest.bin")
+        local_writer.write(file=mocked_profile_view, dest="some_dest.bin")
         mocked_profile_view.write.assert_called_once_with("test_dir/some_dest.bin")
 
     def test_should_write_html_report_locally(self, html_report):
