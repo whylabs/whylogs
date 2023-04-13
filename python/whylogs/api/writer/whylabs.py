@@ -57,9 +57,13 @@ _UPLOAD_POOLER_CACHE: Dict[str, Union[PoolManager, ProxyManager]] = dict()
 
 _US_WEST2_DOMAIN = "songbird-20201223060057342600000001.s3.us-west-2.amazonaws.com"
 _S3_PUBLIC_DOMAIN = os.environ.get("_WHYLABS_PRIVATE_S3_DOMAIN") or _US_WEST2_DOMAIN
+_WHYLABS_SKIP_CONFIG_READ = os.environ.get("_WHYLABS_SKIP_CONFIG_READ") or False
 
 
 def _check_whylabs_condition_count_uncompound() -> bool:
+    global _WHYLABS_SKIP_CONFIG_READ
+    if _WHYLABS_SKIP_CONFIG_READ:
+        return True
     whylabs_config_url = (
         "https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_config/whylabs_condition_count_disabled"
     )
@@ -73,13 +77,15 @@ def _check_whylabs_condition_count_uncompound() -> bool:
                 "found the whylabs condition count disabled file so running uncompound on condition count metrics"
             )
             return True
+        elif response.status_code == 404:
+            logger.info("no whylabs condition count disabled so sending condition count metrics as v1.")
+            return False
         else:
-            logger.info(
-                f"Got response code {response.status_code} but expected 200, so allowing condition count upload to whylabs uncompounded!"
-            )
+            logger.info(f"Got response code {response.status_code} but expected 200, so running uncompound")
     except Exception:
         logger.warning("Error trying to read whylabs config, falling back to defaults for uncompounding")
-    return False
+    _WHYLABS_SKIP_CONFIG_READ = True
+    return True
 
 
 def _validate_api_key(api_key: Optional[str]) -> str:
