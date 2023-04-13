@@ -1,6 +1,7 @@
 import os
-import pandas as pd
 import tempfile
+
+import pandas as pd
 
 import whylogs as why
 from whylogs.core.metrics.metrics import MetricConfig
@@ -10,8 +11,8 @@ from whylogs.core.schema import DeclarativeSchema
 from whylogs.experimental.extras.nlp_metric import (
     BagOfWordsConfig,
     BagOfWordsMetric,
-    save_vocabulary,
     get_vocabulary,
+    save_vocabulary,
 )
 
 
@@ -158,4 +159,3 @@ def test_profile_vocab() -> None:
     vocab = get_vocabulary(view, "words")
     for t in doc:
         assert t in vocab
-

@@ -212,9 +212,9 @@ class BagOfWordsConfig(MetricConfig):
     def set_vocabulary(
         cls,
         vocabulary: List[str],
-        error_rate: float=0.0001,
-        filename: Optional[str]=None,
-        config: Optional[MetricConfig]=None
+        error_rate: float = 0.0001,
+        filename: Optional[str] = None,
+        config: Optional[MetricConfig] = None,
     ) -> "BagOfWordsConfig":
         bf = BloomFilter(len(vocabulary), error_rate)
         for term in vocabulary:
@@ -227,15 +227,15 @@ class BagOfWordsConfig(MetricConfig):
         return BagOfWordsConfig(**config.__dict__, _vocabulary=bf)
 
     @classmethod
-    def load_vocabulary(cls, filename: str, config: Optional[MetricConfig]=None) -> "BagOfWordsConfig":
+    def load_vocabulary(cls, filename: str, config: Optional[MetricConfig] = None) -> "BagOfWordsConfig":
         with open(filename, "rb") as f:
-             bf = BloomFilter.fromfile(f)
+            bf = BloomFilter.fromfile(f)
         config = config or MetricConfig()
         return BagOfWordsConfig(**config.__dict__, _vocabulary=bf)
 
     @classmethod
     def init_vocabulary(
-        cls, capacity: int=200000, error_rate: float=0.0001, config: Optional[MetricConfig]=None
+        cls, capacity: int = 200000, error_rate: float = 0.0001, config: Optional[MetricConfig] = None
     ) -> "BagOfWordsConfig":
         bf = BloomFilter(capacity, error_rate)
         config = config or MetricConfig()
