@@ -3,7 +3,8 @@ from dataclasses import dataclass, field
 from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import pybloom
+from pybloom import BloomFilter
+
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.configs import SummaryConfig
@@ -20,6 +21,7 @@ from whylogs.core.proto import MetricMessage
 from whylogs.core.resolvers import Resolver, StandardResolver
 from whylogs.core.schema import ColumnSchema
 from whylogs.core.stubs import np, sp
+from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.experimental.extras.matrix_component import MatrixComponent
 
 _SMALL = np.finfo(float).eps
@@ -196,31 +198,49 @@ def _all_strings(value: List[Any]) -> bool:
     return all([isinstance(s, str) for s in value])
 
 
+def save_vocabulary(vocabulary: BloomFilter, filename: str) -> None:
+    with open(filename, "wb") as f:
+        vocabulary.tofile(f)
+
+
 @dataclass(frozen=True)
 class BagOfWordsConfig(MetricConfig):
-    filename: Optional[str] = None
-    vocabulary: Optional[pybloom.BloomFilter] = None
+    _vocabulary: Optional[BloomFilter] = None
+    update_vocab: bool = False
 
     @classmethod
     def set_vocabulary(
-        cls, vocabulary: List[str], error_rate: float=0.0001, filename: Optional[str]=None
+        cls,
+        vocabulary: List[str],
+        error_rate: float=0.0001,
+        filename: Optional[str]=None,
+        config: Optional[MetricConfig]=None
     ) -> "BagOfWordsConfig":
-        bf = pybloom.BloomFilter(len(vocabulary), error_rate)
+        bf = BloomFilter(len(vocabulary), error_rate)
         for term in vocabulary:
             bf.add(term)
 
         if filename:
-            with open(filename, "wb") as f:
-                bf.tofile(f)
+            bf.save_vocabulary(filename)
 
-        return BagOfWordsConfig(filename=filename, vocabulary=bf)
+        config = config or MetricConfig()
+        return BagOfWordsConfig(**config.__dict__, _vocabulary=bf)
 
     @classmethod
-    def load_vocabulary(cls, filename: str) -> "BagOfWordsConfig":
-        with open(filename) as f:
-            return BagOfWordsConfig(filename, pybloom.BloomFilter.fromfile(f))
-        
-        
+    def load_vocabulary(cls, filename: str, config: Optional[MetricConfig]=None) -> "BagOfWordsConfig":
+        with open(filename, "rb") as f:
+             bf = BloomFilter.fromfile(f)
+        config = config or MetricConfig()
+        return BagOfWordsConfig(**config.__dict__, _vocabulary=bf)
+
+    @classmethod
+    def init_vocabulary(
+        cls, capacity: int=200000, error_rate: float=0.0001, config: Optional[MetricConfig]=None
+    ) -> "BagOfWordsConfig":
+        bf = BloomFilter(capacity, error_rate)
+        config = config or MetricConfig()
+        return BagOfWordsConfig(**config.__dict__, _vocabulary=bf, update_vocab=True)
+
 
 @dataclass
 class BagOfWordsMetric(MultiMetric):
@@ -229,7 +249,8 @@ class BagOfWordsMetric(MultiMetric):
     """
 
     fi_disabled: bool = False
-    vocabulary: Optional[pybloom.BloomFilter] = None
+    vocabulary: Optional[BloomFilter] = None
+    update_vocab: bool = False
 
     def __post_init__(self):
         submetrics = {
@@ -276,9 +297,17 @@ class BagOfWordsMetric(MultiMetric):
     def merge(self, other: "BagOfWordsMetric") -> "BagOfWordsMetric":
         merged = super().merge(other)
         if self.vocabulary is not None:  # or other.vcoabulary is not None:
-            # raise ValueError if the vocabularies aren't the same, or union them
-            merged.vocabulary = self.vocabulary
+            if other.vocabulary is None:
+                merged.vocabulary = self.vocabulary.copy()
+            else:
+                merged.vocabulary = self.vocabulary.union(other.vocabulary)
+        elif other.vocabulary is not None:
+            merged.vocabulary = other.vocabulary.copy()
+        else:
+            merged.vocabulary = None
 
+        merged.fi_disabled = self.fi_disabled and other.fi_disabled
+        merged.update_vocab = self.update_vocab and other.update_vocab
         return merged
 
     def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
@@ -295,6 +324,8 @@ class BagOfWordsMetric(MultiMetric):
         oov_count = 0
         if self.vocabulary is not None:
             for term in document:
+                if self.update_vocab:
+                    self.vocabulary.add(term)
                 if term not in self.vocabulary:  # oov_count = oov_count if self.vocabulary.add(term) else oov_count + 1
                     oov_count += 1
 
@@ -330,7 +361,8 @@ class BagOfWordsMetric(MultiMetric):
         if not isinstance(cfg, BagOfWordsConfig):
             raise ValueError("BagOfWordsMetric.zero() requires a BagOfWordsConfig argument")
 
-        bow = BagOfWordsMetric(cfg.fi_disabled, cfg.vocabulary)
+        vocab = None if cfg._vocabulary is None else cfg._vocabulary.copy()
+        bow = BagOfWordsMetric(cfg.fi_disabled, vocab, cfg.update_vocab)
         return bow
 
     @classmethod
@@ -339,6 +371,21 @@ class BagOfWordsMetric(MultiMetric):
         result = BagOfWordsMetric()
         result.submetrics = submetrics
         return result
+
+
+def get_vocabulary(profile: Union[DatasetProfile, DatasetProfileView], column_name: str) -> BloomFilter:
+    if isinstance(profile, DatasetProfile):
+        profile = profile.view()
+
+    column = profile.get_column(column_name)
+    if column is None:
+        raise ValueError(f"Couldn't find column {column_name} in profile")
+
+    metric = column.get_metric(BagOfWordsMetric.get_namespace())
+    if metric is None:
+        raise ValueError(f"BagOfWordsMetric not found in column {column_name}")
+
+    return metric.vocabulary
 
 
 @dataclass

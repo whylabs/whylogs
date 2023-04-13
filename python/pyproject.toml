@@ -69,7 +69,7 @@ fugue = {version = "^0.8.1", optional = true}
 requests = "^2.27"
 
 # NLP related dependencies
-pybloom3 = {version = "^0.0.3", optional = true}
+pybloom3-richard = {version = "^0.0.1", optional = true}
 
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
@@ -154,7 +154,7 @@ embeddings = [
 nlp = [
   "scikit-learn",
   "numpy",
-  "pybloom3",
+  "pybloom3-richard",
 ]
 all = [
   "scikit-learn",
