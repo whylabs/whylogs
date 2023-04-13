@@ -619,13 +619,17 @@ class WhyLabsWriter(Writer):
         self._validate_org_and_dataset()
 
         logger.debug("Generating the upload URL")
-        upload_url = self._get_upload_url(dataset_timestamp=dataset_timestamp)
+        upload_url, profile_id = self._get_upload_url(dataset_timestamp=dataset_timestamp)
         try:
             if profile_file:
-                return self._put_file(profile_file, upload_url, dataset_timestamp)
+                status, reason = self._put_file(profile_file, upload_url, dataset_timestamp)
+                logger.debug(f"copied file {upload_url} status {status}:{reason}")
+                return status, profile_id
             elif profile_path:
                 with open(profile_path, "rb") as f:
-                    return self._put_file(f, upload_url, dataset_timestamp)
+                    status, reason = self._put_file(f, upload_url, dataset_timestamp)
+                    logger.debug(f"copied file {upload_url} status {status}:{reason}")
+                    return status, profile_id
         except requests.RequestException as e:
             logger.info(
                 f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
@@ -777,15 +781,16 @@ class WhyLabsWriter(Writer):
             )
             raise e
 
-    def _get_upload_url(self, dataset_timestamp: int) -> str:
+    def _get_upload_url(self, dataset_timestamp: int) -> Tuple[str, str]:
         if self._reference_profile_name is not None:
             request = self._build_log_reference_request(dataset_timestamp, alias=self._reference_profile_name)
             res = self._post_log_reference(request=request, dataset_timestamp=dataset_timestamp)
-            upload_url = res["upload_url"]
         else:
             request = self._build_log_async_request(dataset_timestamp)
             res = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
-            upload_url = res["upload_url"]
+
+        upload_url = res["upload_url"]
+        profile_id = res["id"]
 
         if self._s3_private_domain:
             if _S3_PUBLIC_DOMAIN not in upload_url:
@@ -795,4 +800,4 @@ class WhyLabsWriter(Writer):
             upload_url = upload_url.replace(_S3_PUBLIC_DOMAIN, self._s3_private_domain)
             logger.debug(f"Replaced URL with our private domain. New URL: {upload_url}")
 
-        return upload_url
+        return upload_url, profile_id
