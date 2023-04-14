@@ -2,6 +2,7 @@ import os
 import tempfile
 
 import pandas as pd
+import pytest
 
 import whylogs as why
 from whylogs.core.metrics.metrics import MetricConfig
@@ -53,9 +54,11 @@ def test_oov_known_vocab() -> None:
     schema = DeclarativeSchema(resolvers)
     doc = ["a", "b", "c", "1", "2", "a", "c", "2"]
     profile = why.log(row={"words": doc}, schema=schema)
-    assert len(config._vocabulary) == len(vocab)
     view = profile.view()
     column = view.get_column("words")
+    metric = column.get_metric("nlp_bow")
+    for t in vocab:
+        assert t in metric.vocabulary
     summary = column.to_summary_dict()
 
     assert summary["nlp_bow/out_of_vocab:distribution/n"] == 1
@@ -74,8 +77,9 @@ def test_oov_known_vocab() -> None:
     assert summary["nlp_bow/doc_length:ints/max"] == len(doc)
 
 
-def test_oov_learn_vocab() -> None:
-    config = BagOfWordsConfig.init_vocabulary()
+@pytest.mark.parametrize("count_new_terms", [(True), (False)])
+def test_oov_learn_vocab(count_new_terms) -> None:
+    config = BagOfWordsConfig.init_vocabulary(new_terms_oov=count_new_terms)
     resolvers = [ResolverSpec(column_name="words", metrics=[MetricSpec(BagOfWordsMetric, config)])]
     schema = DeclarativeSchema(resolvers)
     doc = ["a", "b", "c", "1", "2", "a", "c", "2"]
@@ -87,10 +91,10 @@ def test_oov_learn_vocab() -> None:
     summary = column.to_summary_dict()
 
     assert summary["nlp_bow/out_of_vocab:distribution/n"] == 1
-    assert summary["nlp_bow/out_of_vocab:distribution/min"] == 0
-    assert summary["nlp_bow/out_of_vocab:distribution/max"] == 0
-    assert summary["nlp_bow/out_of_vocab:ints/min"] == 0
-    assert summary["nlp_bow/out_of_vocab:ints/max"] == 0
+    assert summary["nlp_bow/out_of_vocab:distribution/min"] == (len(set(doc)) if count_new_terms else 0)
+    assert summary["nlp_bow/out_of_vocab:distribution/max"] == (len(set(doc)) if count_new_terms else 0)
+    assert summary["nlp_bow/out_of_vocab:ints/min"] == (len(set(doc)) if count_new_terms else 0)
+    assert summary["nlp_bow/out_of_vocab:ints/max"] == (len(set(doc)) if count_new_terms else 0)
     assert summary["nlp_bow/out_of_vocab:counts/n"] == 1
 
     assert summary["nlp_bow/doc_length:distribution/min"] == len(doc)

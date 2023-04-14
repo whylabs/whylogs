@@ -207,6 +207,7 @@ def save_vocabulary(vocabulary: BloomFilter, filename: str) -> None:
 class BagOfWordsConfig(MetricConfig):
     _vocabulary: Optional[BloomFilter] = None
     update_vocab: bool = False
+    new_terms_oov: bool = False
 
     @classmethod
     def set_vocabulary(
@@ -214,6 +215,8 @@ class BagOfWordsConfig(MetricConfig):
         vocabulary: List[str],
         error_rate: float = 0.0001,
         filename: Optional[str] = None,
+        update_vocab: bool = False,
+        new_terms_oov: bool = False,
         config: Optional[MetricConfig] = None,
     ) -> "BagOfWordsConfig":
         bf = BloomFilter(len(vocabulary), error_rate)
@@ -221,25 +224,39 @@ class BagOfWordsConfig(MetricConfig):
             bf.add(term)
 
         if filename:
-            bf.save_vocabulary(filename)
+            save_vocabulary(bf, filename)
 
         config = config or MetricConfig()
-        return BagOfWordsConfig(**config.__dict__, _vocabulary=bf)
+        return BagOfWordsConfig(
+            **config.__dict__, _vocabulary=bf, update_vocab=update_vocab, new_terms_oov=new_terms_oov
+        )
 
     @classmethod
-    def load_vocabulary(cls, filename: str, config: Optional[MetricConfig] = None) -> "BagOfWordsConfig":
+    def load_vocabulary(
+        cls,
+        filename: str,
+        update_vocab: bool = False,
+        new_terms_oov: bool = False,
+        config: Optional[MetricConfig] = None,
+    ) -> "BagOfWordsConfig":
         with open(filename, "rb") as f:
             bf = BloomFilter.fromfile(f)
         config = config or MetricConfig()
-        return BagOfWordsConfig(**config.__dict__, _vocabulary=bf)
+        return BagOfWordsConfig(
+            **config.__dict__, _vocabulary=bf, update_vocab=update_vocab, new_terms_oov=new_terms_oov
+        )
 
     @classmethod
     def init_vocabulary(
-        cls, capacity: int = 200000, error_rate: float = 0.0001, config: Optional[MetricConfig] = None
+        cls,
+        capacity: int = 200000,
+        error_rate: float = 0.0001,
+        new_terms_oov: bool = False,
+        config: Optional[MetricConfig] = None,
     ) -> "BagOfWordsConfig":
         bf = BloomFilter(capacity, error_rate)
         config = config or MetricConfig()
-        return BagOfWordsConfig(**config.__dict__, _vocabulary=bf, update_vocab=True)
+        return BagOfWordsConfig(**config.__dict__, _vocabulary=bf, update_vocab=True, new_terms_oov=new_terms_oov)
 
 
 @dataclass
@@ -251,6 +268,7 @@ class BagOfWordsMetric(MultiMetric):
     fi_disabled: bool = False
     vocabulary: Optional[BloomFilter] = None
     update_vocab: bool = False
+    new_terms_oov: bool = False
 
     def __post_init__(self):
         submetrics = {
@@ -308,6 +326,7 @@ class BagOfWordsMetric(MultiMetric):
 
         merged.fi_disabled = self.fi_disabled and other.fi_disabled
         merged.update_vocab = self.update_vocab and other.update_vocab
+        merged.new_terms_oov = self.new_terms_oov and other.new_terms_oov
         return merged
 
     def _update_submetrics(self, submetric: str, data: PreprocessedColumn) -> None:
@@ -325,9 +344,11 @@ class BagOfWordsMetric(MultiMetric):
         if self.vocabulary is not None:
             for term in document:
                 if self.update_vocab:
-                    self.vocabulary.add(term)
-                if term not in self.vocabulary:  # oov_count = oov_count if self.vocabulary.add(term) else oov_count + 1
-                    oov_count += 1
+                    new_term = (not self.vocabulary.add(term)) and self.new_terms_oov
+                else:
+                    new_term = term not in self.vocabulary
+
+                oov_count += 1 if new_term else 0
 
         return len(document), oov_count
 
@@ -362,7 +383,7 @@ class BagOfWordsMetric(MultiMetric):
             raise ValueError("BagOfWordsMetric.zero() requires a BagOfWordsConfig argument")
 
         vocab = None if cfg._vocabulary is None else cfg._vocabulary.copy()
-        bow = BagOfWordsMetric(cfg.fi_disabled, vocab, cfg.update_vocab)
+        bow = BagOfWordsMetric(cfg.fi_disabled, vocab, cfg.update_vocab, cfg.new_terms_oov)
         return bow
 
     @classmethod
