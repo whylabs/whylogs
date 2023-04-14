@@ -345,18 +345,18 @@ css = ["tinycss2 (>=1.1.0,<1.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.26.112"
+version = "1.26.113"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "boto3-1.26.112-py3-none-any.whl", hash = "sha256:03c2e1ddd29d993a6ab9b8a8fe184027957fc32bd405c496ad0c30311445925f"},
-    {file = "boto3-1.26.112.tar.gz", hash = "sha256:4ea3319bba2e8ff7cd9560259ae64f073c7fb6312158aa375777687231cabe69"},
+    {file = "boto3-1.26.113-py3-none-any.whl", hash = "sha256:631db554cf9d98a2d29c0533a7020cf967b6800437be36e4335e654a480dfcdf"},
+    {file = "boto3-1.26.113.tar.gz", hash = "sha256:0de50b90e14e1dc3037d302f45edbf7b342ba2540f464e9ce60bad12651f02e1"},
 ]
 
 [package.dependencies]
-botocore = ">=1.29.112,<1.30.0"
+botocore = ">=1.29.113,<1.30.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.6.0,<0.7.0"
 
@@ -365,14 +365,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.29.112"
+version = "1.29.113"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "botocore-1.29.112-py3-none-any.whl", hash = "sha256:2cbaddb09b46dcb0a05490724d51acb224d3a8df433c347f995b4d78bfb02c8a"},
-    {file = "botocore-1.29.112.tar.gz", hash = "sha256:1f52d9371d7b5ee30a53dcef7954c3cf22e04b131cfab5268035f3299ccde9e1"},
+    {file = "botocore-1.29.113-py3-none-any.whl", hash = "sha256:d927c1fbf5f5caf7937b5f53eb158c708bcbe3b6aa6d46e1fbd353241f21b5b0"},
+    {file = "botocore-1.29.113.tar.gz", hash = "sha256:acfee1faaa3ef2a6931fe574c092f596afb48f3c49e054aec7cfa8494227c031"},
 ]
 
 [package.dependencies]
@@ -2701,14 +2701,14 @@ files = [
 
 [[package]]
 name = "py4j"
-version = "0.10.9.5"
+version = "0.10.9.7"
 description = "Enables Python programs to dynamically access arbitrary Java objects"
 category = "main"
 optional = true
 python-versions = "*"
 files = [
-    {file = "py4j-0.10.9.5-py2.py3-none-any.whl", hash = "sha256:52d171a6a2b031d8a5d1de6efe451cf4f5baff1a2819aabc3741c8406539ba04"},
-    {file = "py4j-0.10.9.5.tar.gz", hash = "sha256:276a4a3c5a2154df1860ef3303a927460e02e97b047dc0a47c1c3fb8cce34db6"},
+    {file = "py4j-0.10.9.7-py2.py3-none-any.whl", hash = "sha256:85defdfd2b2376eb3abf5ca6474b51ab7e0de341c75a02f46dc9b5976f5a5c1b"},
+    {file = "py4j-0.10.9.7.tar.gz", hash = "sha256:0b6e5315bb3ada5cf62ac651d107bb2ebc02def3dee9d9548e3baac644ea8dbb"},
 ]
 
 [[package]]
@@ -2938,23 +2938,24 @@ files = [
 
 [[package]]
 name = "pyspark"
-version = "3.3.2"
+version = "3.4.0"
 description = "Apache Spark Python API"
 category = "main"
 optional = true
 python-versions = ">=3.7"
 files = [
-    {file = "pyspark-3.3.2.tar.gz", hash = "sha256:0dfd5db4300c1f6cc9c16d8dbdfb82d881b4b172984da71344ede1a9d4893da8"},
+    {file = "pyspark-3.4.0.tar.gz", hash = "sha256:167a23e11854adb37f8602de6fcc3a4f96fd5f1e323b9bb83325f38408c5aafd"},
 ]
 
 [package.dependencies]
-py4j = "0.10.9.5"
+py4j = "0.10.9.7"
 
 [package.extras]
+connect = ["googleapis-common-protos (>=1.56.4)", "grpcio (>=1.48.1)", "grpcio-status (>=1.48.1)", "numpy (>=1.15)", "pandas (>=1.0.5)", "pyarrow (>=1.0.0)"]
 ml = ["numpy (>=1.15)"]
 mllib = ["numpy (>=1.15)"]
 pandas-on-spark = ["numpy (>=1.15)", "pandas (>=1.0.5)", "pyarrow (>=1.0.0)"]
-sql = ["pandas (>=1.0.5)", "pyarrow (>=1.0.0)"]
+sql = ["numpy (>=1.15)", "pandas (>=1.0.5)", "pyarrow (>=1.0.0)"]
 
 [[package]]
 name = "pytest"
@@ -4332,7 +4333,7 @@ name = "whylabs-client"
 version = "0.4.5"
 description = "WhyLabs API client"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.6"
 files = [
     {file = "whylabs-client-0.4.5.tar.gz", hash = "sha256:c453fe83301f87c0a5fca060068786689032354ba0b8b2bd5bcc686d12be2f53"},
@@ -4515,4 +4516,4 @@ whylabs = ["requests", "whylabs-client"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.1, <4"
-content-hash = "7e3a6f91b0031489aca70b110c7878304c9c1601fc19791413ce4a79ac8d9e7f"
+content-hash = "80f4657b1bb187f6a0719298cbe3763f0bc52d74f33b8d5074e106b96aa1dbd4"
