@@ -116,7 +116,6 @@ viz = [
     "numpy",
     "scipy",
     "Pillow",
-    "whylabs-client",
     "requests",
 ]
 spark = [
@@ -133,7 +132,7 @@ s3 = [
   "boto3"
 ]
 whylabs = [
-  "whylabs-client", "requests"
+  "requests"
 ]
 mlflow = [
   "mlflow-skinny"
@@ -161,7 +160,6 @@ all = [
   "pybars3",
   "numpy",
   "scipy",
-  "whylabs-client",
   "requests",
 ]
 
