@@ -1,17 +1,9 @@
 import logging
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional
 
-from whylogs.core.datatypes import (
-    DataType,
-    Fractional,
-    Integral,
-    StandardTypeMapper,
-    String,
-    TypeMapper,
-)
-from whylogs.core.metrics import StandardMetric
+from whylogs.core.datatypes import DataType, StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import (
     Metric,
     MetricConfig,
@@ -20,29 +12,30 @@ from whylogs.core.metrics.metrics import (
 )
 from whylogs.core.metrics.multimetric import MultiMetric, SubmetricSchema
 from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.resolvers import STANDARD_RESOLVER, ResolverSpec, _allowed_metric
 
 logger = logging.getLogger(__name__)
 
 
-class DefaultSchema(SubmetricSchema):
+class DeclarativeSubmetricSchema(SubmetricSchema):
+    def __init__(self, resolvers: List[ResolverSpec], default_config: Optional[MetricConfig] = None) -> None:
+        self._default_config = default_config or MetricConfig()
+        self._resolvers = resolvers.copy()
+
     def resolve(self, name: str, why_type: DataType, fi_disabled: bool = False) -> Dict[str, Metric]:
-        metrics: Dict[str, Metric] = {
-            "counts": StandardMetric.counts.zero(MetricConfig()),
-            "types": StandardMetric.types.zero(MetricConfig()),
-            "cardinality": StandardMetric.cardinality.zero(MetricConfig()),
-        }
+        result: Dict[str, Metric] = {}
+        for resolver_spec in self._resolvers:
+            col_name, col_type = resolver_spec.column_name, resolver_spec.column_type
+            if (col_name and col_name == name) or (col_name is None and isinstance(why_type, col_type)):  # type: ignore
+                for spec in resolver_spec.metrics:
+                    config = spec.config or self._default_config
+                    if _allowed_metric(config, spec.metric):
+                        result[spec.metric.get_namespace()] = spec.metric.zero(config)
 
-        if isinstance(why_type, Integral):
-            metrics["distribution"] = StandardMetric.distribution.zero(MetricConfig())
-            metrics["ints"] = StandardMetric.ints.zero(MetricConfig())
-            if not fi_disabled:
-                metrics["frequent_items"] = StandardMetric.frequent_items.zero(MetricConfig())
-        elif isinstance(why_type, Fractional):
-            metrics["distribution"] = StandardMetric.distribution.zero(MetricConfig())
-        elif isinstance(why_type, String) and not fi_disabled:
-            metrics["frequent_items"] = StandardMetric.frequent_items.zero(MetricConfig())
+        return result
 
-        return metrics
+
+DefaultSchema = DeclarativeSubmetricSchema(STANDARD_RESOLVER)
 
 
 @dataclass(frozen=True)
@@ -50,7 +43,7 @@ class UdfMetricConfig(MetricConfig):
     """Maps feature name to callable that computes it"""
 
     udfs: Dict[str, Callable[[Any], Any]] = field(default_factory=dict)
-    submetric_schema: SubmetricSchema = field(default_factory=DefaultSchema)
+    submetric_schema: SubmetricSchema = field(default_factory=lambda: DefaultSchema)
     type_mapper: TypeMapper = field(default_factory=StandardTypeMapper)
 
 
