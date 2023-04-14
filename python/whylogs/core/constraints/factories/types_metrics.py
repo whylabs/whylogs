@@ -19,6 +19,22 @@ def column_has_non_zero_types(column_name: str, types_list: List[str]) -> Metric
     return constraint
 
 
+def column_has_zero_count_types(column_name: str, types_list: List[str]) -> MetricConstraint:
+    def has_zero_types(x) -> bool:
+        types_dict = x.to_summary_dict()
+        for key in types_dict.keys():
+            if key in types_list and types_dict[key] != 0:
+                return False
+        return True
+
+    constraint = MetricConstraint(
+        name=f"{column_name} types count zero for {types_list}",
+        condition=has_zero_types,
+        metric_selector=MetricsSelector(column_name=column_name, metric_name="types"),
+    )
+    return constraint
+
+
 def column_is_nullable_integral(column_name: str) -> MetricConstraint:
     return column_is_nullable_datatype(column_name=column_name, datatype="integral")
 
