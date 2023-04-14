@@ -76,22 +76,22 @@ class TestSessionManager:
         with pytest.raises(Exception):
             SessionManager()
 
-    # def test_why_init(self):
-    #     import whylogs as why
+    def test_why_init(self):
+        import whylogs as why
 
-    #     why.init(anonymous=False)
+        why.init()
 
-    #     with pytest.raises(Exception):
-    #         SessionManager(anonymous=False)
+        with pytest.raises(Exception):
+            SessionManager(anonymous=False)
 
-    # def test_why_init_anonymous(self):
-    #     import whylogs as why
+    def test_why_init_anonymous(self):
+        import whylogs as why
 
-    #     why.init(anonymous=True)
+        why.init(anonymous=True)
 
-    #     config = configparser.ConfigParser()
-    #     config.read(_auth_path)
-    #     assert config.get("whylabs", "session_id")
+        config = configparser.ConfigParser()
+        config.read(_auth_path)
+        assert config.get("whylabs", "session_id")
 
 
 def test_logged_session_with_config_file():

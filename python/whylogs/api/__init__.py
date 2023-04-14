@@ -9,8 +9,7 @@ from .logger import (
     reader,
     write,
 )
-
-# from .whylabs.session_manager import init
+from .whylabs.session_manager import init
 
 __ALL__ = [
     log,
@@ -22,5 +21,5 @@ __ALL__ = [
     write,
     profiling,
     ResultSet,
-    # init,
+    init,
 ]

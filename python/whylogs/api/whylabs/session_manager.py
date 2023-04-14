@@ -80,16 +80,6 @@ def _get_guest_session() -> GuestSession:
 
 
 def create_session(anonymous: Optional[bool] = None) -> Union[GuestSession, UserSession]:
-    if is_notebook() is True and anonymous is None:
-        while True:
-            anonymous_input = input("Do you want to create an anonymous session? [True/False] (default: False) ")
-            if anonymous_input.lower() == "true":
-                return _get_guest_session()
-            elif anonymous_input.lower() in ["false", ""]:
-                return _get_logged_session()
-            else:
-                logger.error("To login, let us know if you want to create an anonymous session!")
-
     if not anonymous:
         return _get_logged_session()
     else:
@@ -112,6 +102,12 @@ class SessionManager:
         if SessionManager.__instance is None:
             SessionManager(anonymous=anonymous)
         return SessionManager.__instance
+
+    @staticmethod
+    def is_active() -> bool:
+        if SessionManager.__instance is None:
+            return False
+        return True
 
 
 def init(anonymous: Optional[bool] = None) -> None:

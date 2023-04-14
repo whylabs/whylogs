@@ -15,8 +15,9 @@ These three functionalities enable a variety of use cases for data scientists, m
 * Tracking data for ML experiments
 * And many more...
 """
-from .api import (  # init,
+from .api import (
     ResultSet,
+    init,
     log,
     log_classification_metrics,
     log_regression_metrics,
@@ -62,7 +63,7 @@ __ALL__ = [
     profiling,
     v0_to_v1_view,
     __version__,
-    # init,
+    init,
 ]
 
 __emit_usage_stats("import")
