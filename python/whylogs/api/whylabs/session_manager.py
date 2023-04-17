@@ -48,7 +48,7 @@ def _create_session_id(user_id: str) -> str:
     api = SessionsApi(client)
     response: CreateSessionResponse = api.create_session(CreateSessionRequest(user_id))
 
-    logger.info(f"Created session {response.id}")
+    logger.debug(f"Created session {response.id}")
     return response.id
 
 
@@ -111,6 +111,4 @@ class SessionManager:
 
 
 def init(anonymous: Optional[bool] = None) -> None:
-    logger.info("I am being executed")
-    print("Print execution")
     SessionManager.get_instance(anonymous=anonymous)

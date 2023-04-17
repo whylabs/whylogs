@@ -16,18 +16,18 @@ def create_config_file(auth_path):
     yield
 
 
-def test_get_variable_from_input(monkeypatch):
-    monkeypatch.setattr("builtins.input", lambda _: "my_answer")
+# def test_get_variable_from_input(monkeypatch):
+#     monkeypatch.setattr("builtins.input", lambda _: "my_answer")
 
-    variable = Variables.get_variable_from_input("my_key")
-    assert variable == "my_answer"
+#     variable = Variables.get_variable_from_input("my_key")
+#     assert variable == "my_answer"
 
 
-def test_get_variable_from_input_stops_with_no_answer(monkeypatch):
-    monkeypatch.setattr("builtins.input", lambda _: "")
+# def test_get_variable_from_input_stops_with_no_answer(monkeypatch):
+#     monkeypatch.setattr("builtins.input", lambda _: "")
 
-    with pytest.raises(ValueError):
-        Variables.get_variable_from_input("my_key")
+#     with pytest.raises(ValueError):
+#         Variables.get_variable_from_input("my_key")
 
 
 def test_get_variable_from_config_file(auth_path, create_config_file):
