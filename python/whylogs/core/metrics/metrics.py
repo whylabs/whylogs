@@ -646,3 +646,9 @@ class CustomMetricBase(Metric, ABC):
     def from_protobuf(cls: Type[METRIC], msg: MetricMessage) -> METRIC:
         my_struct = msg.metric_components[_STRUCT_NAME].dataclass_param
         return cls(**my_struct)
+
+
+@dataclass
+class CardinalityThresholds:
+    few: int = 50
+    proportionately_few: float = 0.01

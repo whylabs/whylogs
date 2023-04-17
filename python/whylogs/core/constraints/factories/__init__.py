@@ -29,6 +29,9 @@ from .types_metrics import (
     column_is_nullable_object,
     column_is_nullable_string,
 )
+from .multi_metrics import (
+    column_is_probably_unique,
+)
 
 ALL = [
     greater_than_number,
@@ -55,4 +58,5 @@ ALL = [
     column_has_zero_count_types,
     condition_meets,
     condition_never_meets,
+    column_is_probably_unique,
 ]
