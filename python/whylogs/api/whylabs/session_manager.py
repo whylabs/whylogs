@@ -13,7 +13,7 @@ from whylabs_client.api.sessions_api import (
 from whylabs_client.api_client import ApiClient, Configuration
 
 from .auth_file import get_auth_file_path
-from .notebook_check import is_notebook
+from .notebook_check import is_git_actions, is_notebook
 from .variables import Variables
 
 DEFAULT_PATH = os.getenv("WHYLOGS_CONFIG_PATH") or f"{Path.home()}/.whylabs/auth.ini"
@@ -58,7 +58,7 @@ def _get_logged_session(auth_path: Path = _auth_path) -> UserSession:
     )
     org_id = os.getenv("ORG_ID") or Variables.get_variable_from_config_file(auth_path=auth_path, key="org_id")
 
-    if is_notebook():
+    if is_notebook() and not is_git_actions():
         api_key = api_key or Variables.get_variable_from_input(variable_name="api_key")
         org_id = org_id or Variables.get_variable_from_input(variable_name="org_id")
 

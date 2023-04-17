@@ -7,13 +7,13 @@ from .auth_file import get_configparser_object
 class Variables:
     @staticmethod
     def get_variable_from_input(variable_name: str) -> str:
-        variable = ""
-        # retry_count = 0
-        # while not variable:
-        #     variable = input(f"What is your {variable_name}? ")
-        #     retry_count += 1
-        #     if retry_count > 3:
-        #         raise ValueError(f"You must set your {variable_name} through the input")
+        variable = None
+        retry_count = 0
+        while retry_count < 3:
+            variable = input(f"What is your {variable_name}? ")
+            retry_count += 1
+        if not variable:
+            raise ValueError(f"You must define a {variable_name}")
         return variable
 
     @staticmethod
