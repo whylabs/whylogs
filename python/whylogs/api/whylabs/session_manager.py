@@ -111,4 +111,6 @@ class SessionManager:
 
 
 def init(anonymous: Optional[bool] = None) -> None:
+    logger.info("I am being executed")
+    print("Print execution")
     SessionManager.get_instance(anonymous=anonymous)
