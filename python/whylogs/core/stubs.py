@@ -86,7 +86,7 @@ if _sklp is None:
     _sklp = ScikitLearnStub()
 
 if _sklc is None:
-    _skld = ScikitLearnStub()
+    _sklc = ScikitLearnStub()
 
 if _skld is None:
     _skld = ScikitLearnStub()
