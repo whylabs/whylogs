@@ -68,7 +68,7 @@ class ScikitLearnStub:
 
 
 def is_not_stub(stubbed_class: Any) -> bool:
-    if stubbed_class and stubbed_class is not _StubClass and not isinstance(stubbed_class, (PandasStub, NumpyStub)):
+    if stubbed_class and stubbed_class is not _StubClass and not isinstance(stubbed_class, (PandasStub, NumpyStub, ScipyStub, ScikitLearnStub)):
         return True
     return False
 
