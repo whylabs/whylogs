@@ -21,6 +21,15 @@ try:
 except ImportError:  # noqa
     _sp = None  # type: ignore
 
+try:
+    import sklearn.cluster as _sklc
+    import sklearn.decomposition as _skld
+    import sklearn.metrics.pairwise as _sklp
+except ImportError:  # noqa
+    _sklp = None  # type: ignore
+    _sklc = None  # type: ignore
+    _skld = None  # type: ignore
+
 
 class _StubClass:
     pass
@@ -50,6 +59,14 @@ class ScipyStub:
     sparse: type = _StubClass
 
 
+@dataclass(frozen=True)
+class ScikitLearnStub:
+    cosine_distances: type = _StubClass
+    euclidean_distances: type = _StubClass
+    KMeans: type = _StubClass
+    PCA: type = _StubClass
+
+
 def is_not_stub(stubbed_class: Any) -> bool:
     if stubbed_class and stubbed_class is not _StubClass and not isinstance(stubbed_class, (PandasStub, NumpyStub)):
         return True
@@ -65,6 +82,19 @@ if _pd is None:
 if _sp is None:
     _sp = ScipyStub()
 
+if _sklp is None:
+    _sklp = ScikitLearnStub()
+
+if _sklc is None:
+    _skld = ScikitLearnStub()
+
+if _skld is None:
+    _skld = ScikitLearnStub()
+
+
 np = _np
 pd = _pd
 sp = _sp
+sklp = _sklp
+sklc = _sklc
+skld = _skld
