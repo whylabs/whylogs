@@ -13,7 +13,7 @@ from whylabs_client.api.sessions_api import (
 from whylabs_client.api_client import ApiClient, Configuration
 
 from .auth_file import get_auth_file_path
-from .notebook_check import is_git_actions, is_notebook
+from .notebook_check import is_notebook
 from .variables import Variables
 
 DEFAULT_PATH = os.getenv("WHYLOGS_CONFIG_PATH") or f"{Path.home()}/.whylabs/auth.ini"
@@ -52,13 +52,13 @@ def _create_session_id(user_id: str) -> str:
     return response.id
 
 
-def _get_logged_session(auth_path: Path = _auth_path) -> UserSession:
+def _get_logged_session(auth_path: Path = _auth_path, interactive: bool = False) -> UserSession:
     api_key = os.getenv("WHYLABS_API_KEY") or Variables.get_variable_from_config_file(
         auth_path=auth_path, key="api_key"
     )
     org_id = os.getenv("ORG_ID") or Variables.get_variable_from_config_file(auth_path=auth_path, key="org_id")
 
-    if is_notebook() and not is_git_actions():
+    if is_notebook() and interactive is True:
         api_key = api_key or Variables.get_variable_from_input(variable_name="api_key")
         org_id = org_id or Variables.get_variable_from_input(variable_name="org_id")
 
@@ -79,9 +79,9 @@ def _get_guest_session() -> GuestSession:
     return GuestSession(session_id=session_id)
 
 
-def create_session(anonymous: Optional[bool] = None) -> Union[GuestSession, UserSession]:
+def create_session(anonymous: Optional[bool] = None, interactive: bool = False) -> Union[GuestSession, UserSession]:
     if not anonymous:
-        return _get_logged_session()
+        return _get_logged_session(interactive=interactive)
     else:
         return _get_guest_session()
 
@@ -89,18 +89,19 @@ def create_session(anonymous: Optional[bool] = None) -> Union[GuestSession, User
 class SessionManager:
     __instance = None
 
-    def __init__(self, anonymous: Optional[bool] = None):
+    def __init__(self, anonymous: Optional[bool] = None, interactive: bool = False):
         self._anonymous = anonymous
+        self._interactive = interactive
         if SessionManager.__instance is not None:
             raise Exception("There is an active Session, use Session.get_instance() instead")
         else:
             SessionManager.__instance = self
-            self.session = create_session(anonymous=self._anonymous)
+            self.session = create_session(anonymous=self._anonymous, interactive=self._interactive)
 
     @staticmethod
-    def get_instance(anonymous: Optional[bool] = None):
+    def get_instance(anonymous: Optional[bool] = None, interactive: bool = False):
         if SessionManager.__instance is None:
-            SessionManager(anonymous=anonymous)
+            SessionManager(anonymous=anonymous, interactive=interactive)
         return SessionManager.__instance
 
     @staticmethod
@@ -110,5 +111,5 @@ class SessionManager:
         return True
 
 
-def init(anonymous: Optional[bool] = None) -> None:
-    SessionManager.get_instance(anonymous=anonymous)
+def init(anonymous: Optional[bool] = None, interactive: bool = False) -> None:
+    SessionManager.get_instance(anonymous=anonymous, interactive=interactive)
