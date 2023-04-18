@@ -144,7 +144,8 @@ fugue = [
   "fugue",
 ]
 embeddings = [
-  "scikit-learn"
+  "numpy",
+  "scikit-learn",
 ]
 all = [
   "scikit-learn",
