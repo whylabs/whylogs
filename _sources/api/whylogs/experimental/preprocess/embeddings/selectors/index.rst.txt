@@ -39,7 +39,7 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray] = None) -> Tuple[numpy.ndarray, List[Union[int, str]]]
+   .. py:method:: calculate_references(X: whylogs.core.stubs.np.ndarray, y: Optional[whylogs.core.stubs.np.ndarray] = None) -> Tuple[whylogs.core.stubs.np.ndarray, List[Union[int, str]]]
       :abstractmethod:
 
 
@@ -51,7 +51,7 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray] = None) -> Tuple[numpy.ndarray, List[Union[int, str]]]
+   .. py:method:: calculate_references(X: whylogs.core.stubs.np.ndarray, y: Optional[whylogs.core.stubs.np.ndarray] = None) -> Tuple[whylogs.core.stubs.np.ndarray, List[Union[int, str]]]
 
 
 
@@ -62,7 +62,7 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray] = None) -> Tuple[numpy.ndarray, List[Union[int, str]]]
+   .. py:method:: calculate_references(X: whylogs.core.stubs.np.ndarray, y: Optional[whylogs.core.stubs.np.ndarray] = None) -> Tuple[whylogs.core.stubs.np.ndarray, List[Union[int, str]]]
 
 
 
@@ -73,7 +73,7 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: calculate_references(X: numpy.ndarray, y: Optional[numpy.ndarray] = None) -> Tuple[numpy.ndarray, List[Union[int, str]]]
+   .. py:method:: calculate_references(X: whylogs.core.stubs.np.ndarray, y: Optional[whylogs.core.stubs.np.ndarray] = None) -> Tuple[whylogs.core.stubs.np.ndarray, List[Union[int, str]]]
 
 
 
