@@ -1,10 +1,10 @@
 from typing import List
 
-from whylogs.core.view.column_profile_view import ColumnProfileView
-from whylogs.core.constraints.metric_constraints import MetricConstraint
-from whylogs.core.constraints.factories import frequent_strings_in_reference_set
 from whylogs.core import CardinalityThresholds
+from whylogs.core.constraints.factories import frequent_strings_in_reference_set
+from whylogs.core.constraints.metric_constraints import MetricConstraint
 from whylogs.core.utils import get_cardinality_estimate
+from whylogs.core.view.column_profile_view import ColumnProfileView
 
 
 def generate_column_frequent_items_constraints(

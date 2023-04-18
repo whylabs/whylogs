@@ -1,11 +1,15 @@
+from math import isnan
 from typing import List
 
-from whylogs.core.constraints.factories import is_non_negative, is_in_range
-from whylogs.core.constraints.metric_constraints import MetricConstraint
-from whylogs.core.view.column_profile_view import ColumnProfileView
-from whylogs.core.utils import is_probably_unique, get_distribution_metrics, get_cardinality_estimate
 from whylogs.core import CardinalityThresholds
-from math import isnan
+from whylogs.core.constraints.factories import is_in_range, is_non_negative
+from whylogs.core.constraints.metric_constraints import MetricConstraint
+from whylogs.core.utils import (
+    get_cardinality_estimate,
+    get_distribution_metrics,
+    is_probably_unique,
+)
+from whylogs.core.view.column_profile_view import ColumnProfileView
 
 
 def generate_column_distribution_constraints(

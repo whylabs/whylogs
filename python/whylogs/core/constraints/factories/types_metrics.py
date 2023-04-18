@@ -1,5 +1,7 @@
 from typing import List
 
+from whylogs.core.metrics.column_metrics import TypeCountersMetric
+
 from ..metric_constraints import MetricConstraint, MetricsSelector
 
 
@@ -27,8 +29,10 @@ def column_has_zero_count_types(column_name: str, types_list: List[str]) -> Metr
                 return False
         return True
 
+    all_types = TypeCountersMetric.zero().to_summary_dict().keys()
+    complement_types = list(set(all_types) - set(types_list))
     constraint = MetricConstraint(
-        name=f"{column_name} types count zero for {types_list}",
+        name=f"{column_name} allows for types {complement_types}",
         condition=has_zero_types,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="types"),
     )

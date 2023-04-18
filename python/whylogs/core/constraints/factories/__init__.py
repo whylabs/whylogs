@@ -19,6 +19,7 @@ from .frequent_items import (
     frequent_strings_in_reference_set,
     n_most_common_items_in_set,
 )
+from .multi_metrics import column_is_probably_unique
 from .types_metrics import (
     column_has_non_zero_types,
     column_has_zero_count_types,
@@ -28,9 +29,6 @@ from .types_metrics import (
     column_is_nullable_integral,
     column_is_nullable_object,
     column_is_nullable_string,
-)
-from .multi_metrics import (
-    column_is_probably_unique,
 )
 
 ALL = [

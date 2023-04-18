@@ -1,8 +1,9 @@
 from typing import Optional, Tuple, Union
 
+from typing_extensions import TypedDict
+
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView
-from typing_extensions import TypedDict
 
 
 def get_distribution_metrics(
@@ -30,14 +31,15 @@ def is_probably_unique(column_profile: ColumnProfileView) -> bool:
 
 
 class CardinalityEstimate(TypedDict):
-    est: float
-    unique_pct: float
+    est: Optional[float]
+    unique_pct: Optional[float]
 
 
-def get_cardinality_estimate(column_profile: ColumnProfileView) -> float:
+def get_cardinality_estimate(column_profile: ColumnProfileView) -> CardinalityEstimate:
     cardinality = column_profile.get_metric("cardinality")
     counts = column_profile.get_metric("counts")
-    est_value, est_ratio = None, None
+    est_value: Optional[float] = None
+    est_ratio: Optional[float] = None
     if cardinality is not None:
         est_value = cardinality.to_summary_dict().get("est", None)
     if cardinality is not None and counts is not None:

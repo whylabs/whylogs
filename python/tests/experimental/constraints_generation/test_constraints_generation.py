@@ -82,27 +82,63 @@ def target_profile_view():
     return profile_view
 
 
-@pytest.mark.parametrize(
-    "constraint_name,passed",
-    [
+def test_constraints_generation(reference_profile_view, target_profile_view):
+    constraints_assertions = [
         ("animal has no missing values", 1),
-        ("animal types count zero for ['integral', 'fractional', 'boolean', 'object', 'tensor']", 1),
+        ("animal allows for types ['string']", 1),
         ("legs has no missing values", 1),
-        ("legs types count zero for ['fractional', 'boolean', 'string', 'object', 'tensor']", 1),
+        ("legs allows for types ['integral']", 1),
         ("legs meets condition legs_even", 1),
         ("legs never meets condition legs_odd", 1),
         ("legs is non negative", 1),
         ("weight has no missing values", 1),
-        ("weight types count zero for ['integral', 'boolean', 'string', 'object', 'tensor']", 0),
+        ("weight allows for types ['fractional']", 0),
         ("weight is non negative", 1),
-    ],
-)
-def test_constraints_generation(reference_profile_view, target_profile_view, constraint_name, passed):
+        ("weight is probably unique", 1),
+    ]
+
     suggested_constraints = generate_constraints_from_reference_profile(reference_profile_view=reference_profile_view)
     builder = ConstraintsBuilder(dataset_profile_view=target_profile_view)
     builder.add_constraints(suggested_constraints)
     constraints = builder.build()
     report = constraints.generate_constraints_report()
-    # get element in report with name constraint_name
-    constraint = next((c for c in report if c.name == constraint_name), None)
-    assert constraint and constraint.passed == passed
+    for constraint_name, passed in constraints_assertions:
+        constraint = next((c for c in report if c.name == constraint_name), None)
+        assert constraint and constraint.passed == passed
+
+
+def test_items_in_set_constraint():
+    data = {"animal": ["cat", "hawk"] * 1000}
+    target_data = {"animal": ["snake", "mosquito"] * 1000}
+
+    ref_df = pd.DataFrame(data)
+    target_df = pd.DataFrame(target_data)
+    ref = why.log(ref_df).view()
+    target = why.log(target_df).view()
+    suggested_constraints = generate_constraints_from_reference_profile(reference_profile_view=ref)
+    builder = ConstraintsBuilder(dataset_profile_view=target)
+    builder.add_constraints(suggested_constraints)
+    constraints = builder.build()
+    report = constraints.generate_constraints_report()
+    constraint = next((c for c in report if c.name == "animal values in set {'cat', 'hawk'}"), None)
+    assert constraint and constraint.passed == 0
+
+
+def test_inclusion_and_exclusion_lists(reference_profile_view, target_profile_view):
+    suggested_constraints = generate_constraints_from_reference_profile(
+        reference_profile_view=reference_profile_view, included_columns=["animal"]
+    )
+    builder = ConstraintsBuilder(dataset_profile_view=target_profile_view)
+    builder.add_constraints(suggested_constraints)
+    constraints = builder.build()
+    report = constraints.generate_constraints_report()
+    assert all(["animal" in c.name for c in report])
+
+    suggested_constraints = generate_constraints_from_reference_profile(
+        reference_profile_view=reference_profile_view, excluded_columns=["legs", "weight"]
+    )
+    builder = ConstraintsBuilder(dataset_profile_view=target_profile_view)
+    builder.add_constraints(suggested_constraints)
+    constraints = builder.build()
+    report = constraints.generate_constraints_report()
+    assert all(["animal" in c.name for c in report])
