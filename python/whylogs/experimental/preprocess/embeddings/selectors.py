@@ -83,7 +83,7 @@ class PCAKMeansSelector(ReferenceSelector):
     def __init__(self, n_clusters: int = 8, n_components: int = 2, kmeans_kwargs={}):
         super().__init__()
         self.n_components = n_components
-        self.kmeanie = sklc.KMeansSelector(n_clusters, kmeans_kwargs)
+        self.kmeanie = KMeansSelector(n_clusters, kmeans_kwargs)
 
     def calculate_references(
         self, X: np.ndarray, y: Optional[np.ndarray] = None
