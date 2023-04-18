@@ -12,9 +12,9 @@ from whylabs_client.api.sessions_api import (
 )
 from whylabs_client.api_client import ApiClient, Configuration
 
-from .auth_file import get_auth_file_path
-from .notebook_check import is_notebook
-from .variables import Variables
+from whylogs.api.whylabs.auth_file import get_auth_file_path
+from whylogs.api.whylabs.notebook_check import is_notebook
+from whylogs.api.whylabs.variables import Variables
 
 DEFAULT_PATH = os.getenv("WHYLOGS_CONFIG_PATH") or f"{Path.home()}/.whylabs/auth.ini"
 _auth_path = get_auth_file_path(auth_path=Path(DEFAULT_PATH))
