@@ -151,12 +151,18 @@ class EmbeddingMetric(MultiMetric):
 
             ref_dists = self.distance_fn(matrix, self.references.value)  # type: ignore
             ref_closest = np.argmin(ref_dists, axis=1)
-
-            # TODO: reshape into a vector?
-            for i in range(ref_dists.shape[1]):
-                self._update_submetrics(f"{self.labels[i]}_distance", PreprocessedColumn.apply(ref_dists[:, i]))
+            ref_closest_dists = np.min(ref_dists, axis=1)
+            print("ref_dists:", ref_dists.shape, ref_dists[0])
+            print("ref_closest:", ref_closest.shape, ref_closest[0])
+            print("ref_closest_dists:", ref_closest_dists.shape, ref_closest_dists[0])
+    
 
             closest = [self.labels[i] for i in ref_closest]
+            print("filtered", closest == "0", ref_dists[closest == 0, 0].shape)
+            # TODO: reshape into a vector?
+            for i in range(ref_dists.shape[1]):
+                self._update_submetrics(f"{self.labels[i]}_distance", PreprocessedColumn.apply(ref_dists[closest[i] == i, i]))
+            
             self._update_submetrics("closest", PreprocessedColumn.apply(closest))
             successes += 1
 
