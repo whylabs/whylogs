@@ -2,9 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple, Union
 
-import numpy as np
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
+from whylogs.core.stubs import np, sklc, skld
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +33,7 @@ class PCACentroidsSelector(ReferenceSelector):
             raise ValueError("PCACentroidSelector requires labels")
 
         # Fit PCA
-        pca = PCA(n_components=self.n_components)
+        pca = skld.PCA(n_components=self.n_components)
         X_pca = pca.fit_transform(X)
 
         # Find centroids for each label in PCA space
@@ -75,7 +73,7 @@ class KMeansSelector(ReferenceSelector):
         self.ref_labels = list(range(self.n_clusters))
 
         # Find k-means clusters
-        kmeans = KMeans(n_clusters=self.n_clusters, **self.kmeans_kwargs)
+        kmeans = sklc.KMeans(n_clusters=self.n_clusters, **self.kmeans_kwargs)
         kmeans.fit(X)
         refs = kmeans.cluster_centers_
         return refs, self.ref_labels
@@ -94,7 +92,7 @@ class PCAKMeansSelector(ReferenceSelector):
             logger.warn("PCAKMeansSelector is unsupervised; ignoring labels")
 
         # Fit PCA first
-        pca = PCA(n_components=self.n_components)
+        pca = skld.PCA(n_components=self.n_components)
         X_pca = pca.fit_transform(X)
 
         # Find k-means clusters
