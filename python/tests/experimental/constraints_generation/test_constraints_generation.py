@@ -120,7 +120,7 @@ def test_items_in_set_constraint():
     builder.add_constraints(suggested_constraints)
     constraints = builder.build()
     report = constraints.generate_constraints_report()
-    constraint = next((c for c in report if c.name == "animal values in set {'cat', 'hawk'}"), None)
+    constraint = next((c for c in report if "animal values in set" in c.name), None)
     assert constraint and constraint.passed == 0
 
 
