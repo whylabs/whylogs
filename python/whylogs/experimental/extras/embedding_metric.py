@@ -4,22 +4,20 @@ from enum import Enum
 from itertools import chain
 from typing import List, Optional
 
-from sklearn.metrics.pairwise import cosine_distances, euclidean_distances
-
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import MetricConfig, OperationResult, register_metric
 from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
-from whylogs.core.stubs import np
+from whylogs.core.stubs import np, sklp
 from whylogs.experimental.extras.matrix_component import MatrixComponent
 
 logger = logging.getLogger(__name__)
 
 
 class DistanceFunction(Enum):
-    euclidean = euclidean_distances
-    cosine = cosine_distances
+    euclidean = sklp.euclidean_distances
+    cosine = sklp.cosine_distances
 
 
 @dataclass(frozen=True)
