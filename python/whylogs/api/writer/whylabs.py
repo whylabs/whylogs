@@ -252,6 +252,9 @@ class WhyLabsWriter(Writer):
             _UPLOAD_POOLER_CACHE[pooler_cache_key] = pool
         else:
             self._s3_pool = pool
+        if self._api_client.configuration and self._api_client.configuration.proxy:
+            logger.info("Custom proxy url copied to s3 pool manager {self._api_client.configuration.proxy}")
+            self._s3_pool.proxy = self._api_client.configuration.proxy
 
     @property
     def key_id(self) -> str:
