@@ -1,6 +1,3 @@
-from typing import Union
-
-from whylogs.core.constraints import MetricConstraint
 from whylogs.core.constraints import (
     DatasetConstraint,
     MetricConstraint,
