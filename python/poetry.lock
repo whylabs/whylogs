@@ -4219,14 +4219,14 @@ watchdog = ["watchdog"]
 
 [[package]]
 name = "whylabs-client"
-version = "0.4.5"
+version = "0.4.6"
 description = "WhyLabs API client"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "whylabs-client-0.4.5.tar.gz", hash = "sha256:c453fe83301f87c0a5fca060068786689032354ba0b8b2bd5bcc686d12be2f53"},
-    {file = "whylabs_client-0.4.5-py3-none-any.whl", hash = "sha256:028f0099a1d3c648e6fe703bac21a268d59f4c635043345e644ef76195da5896"},
+    {file = "whylabs-client-0.4.6.tar.gz", hash = "sha256:35e724e738afbe1fdf09ec84bb1b4f065d907b2c519caff2f366e9346a4fbc4e"},
+    {file = "whylabs_client-0.4.6-py3-none-any.whl", hash = "sha256:91e931f9b98e077c2dfb8b67e890af9297cb451e4bc58d77d16b43f4e1db789b"},
 ]
 
 [package.dependencies]
@@ -4391,7 +4391,7 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 all = ["Pillow", "boto3", "fugue", "google-cloud-storage", "ipython", "mlflow-skinny", "numpy", "numpy", "pandas", "pyarrow", "pybars3", "pyspark", "requests", "scikit-learn", "scikit-learn", "scipy", "scipy"]
 datasets = ["pandas"]
 docs = ["furo", "ipython_genutils", "myst-parser", "nbconvert", "nbsphinx", "sphinx", "sphinx-autoapi", "sphinx-autobuild", "sphinx-copybutton", "sphinx-inline-tabs", "sphinxext-opengraph"]
-embeddings = ["scikit-learn", "scikit-learn"]
+embeddings = ["numpy", "numpy", "scikit-learn", "scikit-learn"]
 fugue = ["fugue"]
 gcs = ["google-cloud-storage"]
 image = ["Pillow"]
@@ -4404,4 +4404,4 @@ whylabs = ["requests"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.1, <4"
-content-hash = "f982b9ea29c16e5650e87ab305916861c2fa381f2f16d514c068788369e15e59"
+content-hash = "e07af8160cd9bc897685682e48186d9543fc227cab5fb41d0690f3d14a821857"
