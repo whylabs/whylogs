@@ -314,7 +314,7 @@ class BagOfWordsMetric(MultiMetric):
 
     def merge(self, other: "BagOfWordsMetric") -> "BagOfWordsMetric":
         merged = super().merge(other)
-        if self.vocabulary is not None:  # or other.vcoabulary is not None:
+        if self.vocabulary is not None:
             if other.vocabulary is None:
                 merged.vocabulary = self.vocabulary.copy()
             else:
