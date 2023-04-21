@@ -1,5 +1,7 @@
 from typing import Optional, Tuple, Union
 
+from typing_extensions import TypedDict
+
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView
 
@@ -17,3 +19,31 @@ def get_distribution_metrics(
     max_val = distribution_metric.kll.value.get_max_value()
     range_val = max_val - min_val
     return min_val, max_val, range_val
+
+
+def is_probably_unique(column_profile: ColumnProfileView) -> bool:
+    cardinality = column_profile.get_metric("cardinality").to_summary_dict()
+    counts = column_profile.get_metric("counts").to_summary_dict()
+    if "cardinality" in column_profile.get_metric_names() and "counts" in column_profile.get_metric_names():
+        if cardinality["lower_1"] <= counts["n"] - counts["null"] <= cardinality["upper_1"]:
+            return True
+    return False
+
+
+class CardinalityEstimate(TypedDict):
+    est: Optional[float]
+    unique_pct: Optional[float]
+
+
+def get_cardinality_estimate(column_profile: ColumnProfileView) -> CardinalityEstimate:
+    cardinality = column_profile.get_metric("cardinality")
+    counts = column_profile.get_metric("counts")
+    est_value: Optional[float] = None
+    est_ratio: Optional[float] = None
+    if cardinality is not None:
+        est_value = cardinality.to_summary_dict().get("est", None)
+    if cardinality is not None and counts is not None:
+        n_value = counts.to_summary_dict().get("n", None) - counts.to_summary_dict().get("null", None)
+        if n_value is not None and est_value is not None:
+            est_ratio = est_value / n_value
+    return CardinalityEstimate(est=est_value, unique_pct=est_ratio)

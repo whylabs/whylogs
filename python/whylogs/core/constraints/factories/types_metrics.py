@@ -1,5 +1,7 @@
 from typing import List
 
+from whylogs.core.metrics.column_metrics import TypeCountersMetric
+
 from ..metric_constraints import MetricConstraint, MetricsSelector
 
 
@@ -14,6 +16,24 @@ def column_has_non_zero_types(column_name: str, types_list: List[str]) -> Metric
     constraint = MetricConstraint(
         name=f"{column_name} types count non-zero for {types_list}",
         condition=has_non_zero_types,
+        metric_selector=MetricsSelector(column_name=column_name, metric_name="types"),
+    )
+    return constraint
+
+
+def column_has_zero_count_types(column_name: str, types_list: List[str]) -> MetricConstraint:
+    def has_zero_types(x) -> bool:
+        types_dict = x.to_summary_dict()
+        for key in types_dict.keys():
+            if key in types_list and types_dict[key] != 0:
+                return False
+        return True
+
+    all_types = TypeCountersMetric.zero().to_summary_dict().keys()
+    complement_types = list(set(all_types) - set(types_list))
+    constraint = MetricConstraint(
+        name=f"{column_name} allows for types {complement_types}",
+        condition=has_zero_types,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="types"),
     )
     return constraint
