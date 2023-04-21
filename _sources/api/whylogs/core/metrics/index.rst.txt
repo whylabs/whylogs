@@ -266,6 +266,12 @@ Classes
    .. py:method:: to_summary_dict(cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
 
 
+   .. py:method:: get_upper_bound(number_of_standard_deviations: int) -> Optional[float]
+
+
+   .. py:method:: get_lower_bound(number_of_standard_deviations: int) -> Optional[float]
+
+
    .. py:method:: zero(config: Optional[MetricConfig] = None) -> CardinalityMetric
       :classmethod:
 
@@ -392,6 +398,9 @@ Classes
 
 
    .. py:method:: merge(other: DistributionMetric) -> DistributionMetric
+
+
+   .. py:method:: get_quantile(quantile: float) -> Optional[float]
 
 
    .. py:method:: zero(config: Optional[MetricConfig] = None) -> DistributionMetric

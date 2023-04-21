@@ -1162,6 +1162,19 @@ inheritance.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.metrics.DistributionMetric.get_quantile">
+<span class="sig-name descname"><span class="pre">get_quantile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/metrics.html#DistributionMetric.get_quantile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.metrics.DistributionMetric.get_quantile" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>quantile</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.metrics.DistributionMetric.zero">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zero</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><span class="pre">MetricConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.metrics.metrics.DistributionMetric" title="whylogs.core.metrics.metrics.DistributionMetric"><span class="pre">DistributionMetric</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/metrics.html#DistributionMetric.zero"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.metrics.DistributionMetric.zero" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -1456,6 +1469,32 @@ inheritance.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.metrics.CardinalityMetric.get_upper_bound">
+<span class="sig-name descname"><span class="pre">get_upper_bound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_of_standard_deviations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/metrics.html#CardinalityMetric.get_upper_bound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.metrics.CardinalityMetric.get_upper_bound" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>number_of_standard_deviations</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.metrics.CardinalityMetric.get_lower_bound">
+<span class="sig-name descname"><span class="pre">get_lower_bound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_of_standard_deviations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/metrics.html#CardinalityMetric.get_lower_bound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.metrics.CardinalityMetric.get_lower_bound" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>number_of_standard_deviations</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1839,6 +1878,7 @@ by calling register_metric()</p>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.DistributionMetric.to_summary_dict">to_summary_dict</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.DistributionMetric.columnar_update">columnar_update</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.DistributionMetric.merge">merge</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.metrics.DistributionMetric.get_quantile">get_quantile</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.DistributionMetric.zero">zero</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.DistributionMetric.get_namespace">get_namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.DistributionMetric.to_protobuf">to_protobuf</a></li>
@@ -1876,6 +1916,8 @@ by calling register_metric()</p>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.CardinalityMetric.hll">hll</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.CardinalityMetric.columnar_update">columnar_update</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.CardinalityMetric.to_summary_dict">to_summary_dict</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.metrics.CardinalityMetric.get_upper_bound">get_upper_bound</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.metrics.CardinalityMetric.get_lower_bound">get_lower_bound</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.CardinalityMetric.zero">zero</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.CardinalityMetric.get_namespace">get_namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.CardinalityMetric.merge">merge</a></li>
