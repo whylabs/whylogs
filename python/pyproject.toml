@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "1.1.36"
+version = "1.1.37"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -116,7 +116,6 @@ viz = [
     "numpy",
     "scipy",
     "Pillow",
-    "whylabs-client",
     "requests",
 ]
 spark = [
@@ -133,7 +132,7 @@ s3 = [
   "boto3"
 ]
 whylabs = [
-  "whylabs-client", "requests"
+  "requests"
 ]
 mlflow = [
   "mlflow-skinny"
@@ -145,7 +144,8 @@ fugue = [
   "fugue",
 ]
 embeddings = [
-  "scikit-learn"
+  "numpy",
+  "scikit-learn",
 ]
 all = [
   "scikit-learn",
@@ -161,7 +161,6 @@ all = [
   "pybars3",
   "numpy",
   "scipy",
-  "whylabs-client",
   "requests",
 ]
 
