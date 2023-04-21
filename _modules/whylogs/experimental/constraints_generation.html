@@ -268,6 +268,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../api/whylogs/core/constraints/factories/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/whylogs/core/constraints/factories/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/whylogs/core/constraints/factories/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/whylogs/core/constraints/factories/multi_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.multi_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/whylogs/core/constraints/factories/types_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.types_metrics</span></code></a></li>
 </ul>
 </li>
@@ -349,6 +350,9 @@
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../../api/whylogs/experimental/constraints_generation/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/experimental/constraints_generation/condition_counts/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.condition_counts</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/experimental/constraints_generation/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.count_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/experimental/constraints_generation/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.distribution_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/experimental/constraints_generation/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.frequent_items</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/experimental/constraints_generation/multi_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.multi_metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/experimental/constraints_generation/types_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.types_metrics</span></code></a></li>
 </ul>
 </li>
@@ -417,7 +421,7 @@
         </div>
         <article role="main">
           <h1>Source code for whylogs.experimental.constraints_generation</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.core.constraints.metric_constraints</span> <span class="kn">import</span> <span class="n">MetricConstraint</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.view.dataset_profile_view</span> <span class="kn">import</span> <span class="n">DatasetProfileView</span>
@@ -427,25 +431,56 @@
 <span class="kn">from</span> <span class="nn">whylogs.experimental.constraints_generation.count_metrics</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">generate_column_count_constraints</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.experimental.constraints_generation.distribution_metrics</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">generate_column_distribution_constraints</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.experimental.constraints_generation.frequent_items</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">generate_column_frequent_items_constraints</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.experimental.constraints_generation.multi_metrics</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">generate_column_multi_metrics_constraints</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.experimental.constraints_generation.types_metrics</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">generate_column_types_constraints</span><span class="p">,</span>
 <span class="p">)</span>
 
 
-<div class="viewcode-block" id="generate_constraints_from_reference_profile"><a class="viewcode-back" href="../../../api/whylogs/experimental/constraints_generation/index.html#whylogs.experimental.constraints_generation.generate_constraints_from_reference_profile">[docs]</a><span class="k">def</span> <span class="nf">generate_constraints_from_reference_profile</span><span class="p">(</span><span class="n">reference_profile_view</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">MetricConstraint</span><span class="p">]:</span>
+<div class="viewcode-block" id="generate_constraints_from_reference_profile"><a class="viewcode-back" href="../../../api/whylogs/experimental/constraints_generation/index.html#whylogs.experimental.constraints_generation.generate_constraints_from_reference_profile">[docs]</a><span class="k">def</span> <span class="nf">generate_constraints_from_reference_profile</span><span class="p">(</span>
+    <span class="n">reference_profile_view</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">,</span>
+    <span class="n">included_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">excluded_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">MetricConstraint</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generates constraints from a reference profile view.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    reference_profile_view : DatasetProfileView</span>
 <span class="sd">        Reference profile view</span>
+<span class="sd">    included_columns : Optional[List[str]], optional</span>
+<span class="sd">        List of columns to include, by default None</span>
+<span class="sd">    excluded_columns : Optional[List[str]], optional</span>
+<span class="sd">        List of columns to exclude, by default None</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    List[MetricConstraint]</span>
+<span class="sd">        List of generated constraints</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">included_columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">excluded_columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of `included_columns` or `excluded_columns` can be specified.&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">reference_profile_view</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Reference profile view is not set.&quot;</span><span class="p">)</span>
     <span class="n">constraints</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">reference_column_profiles</span> <span class="o">=</span> <span class="n">reference_profile_view</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column_profile</span> <span class="ow">in</span> <span class="n">reference_column_profiles</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">included_columns</span> <span class="ow">and</span> <span class="n">column_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">included_columns</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">excluded_columns</span> <span class="ow">and</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">excluded_columns</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">multi_metric_constraints</span> <span class="o">=</span> <span class="n">generate_column_multi_metrics_constraints</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">column_profile</span><span class="p">)</span>
+        <span class="n">constraints</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">multi_metric_constraints</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;counts&quot;</span> <span class="ow">in</span> <span class="n">column_profile</span><span class="o">.</span><span class="n">get_metric_names</span><span class="p">():</span>
             <span class="n">column_count_constraint</span> <span class="o">=</span> <span class="n">generate_column_count_constraints</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">column_profile</span><span class="p">)</span>
             <span class="n">constraints</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">column_count_constraint</span><span class="p">)</span>
@@ -455,6 +490,13 @@
         <span class="k">if</span> <span class="s2">&quot;condition_count&quot;</span> <span class="ow">in</span> <span class="n">column_profile</span><span class="o">.</span><span class="n">get_metric_names</span><span class="p">():</span>
             <span class="n">column_condition_count_constraint</span> <span class="o">=</span> <span class="n">generate_column_condition_count_constraints</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">column_profile</span><span class="p">)</span>
             <span class="n">constraints</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">column_condition_count_constraint</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;distribution&quot;</span> <span class="ow">in</span> <span class="n">column_profile</span><span class="o">.</span><span class="n">get_metric_names</span><span class="p">():</span>
+            <span class="n">column_distribution_constraint</span> <span class="o">=</span> <span class="n">generate_column_distribution_constraints</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">column_profile</span><span class="p">)</span>
+            <span class="n">constraints</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">column_distribution_constraint</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;frequent_items&quot;</span> <span class="ow">in</span> <span class="n">column_profile</span><span class="o">.</span><span class="n">get_metric_names</span><span class="p">():</span>
+            <span class="n">column_frequent_items_constraint</span> <span class="o">=</span> <span class="n">generate_column_frequent_items_constraints</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">column_profile</span><span class="p">)</span>
+            <span class="n">constraints</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">column_frequent_items_constraint</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">constraints</span></div>
 
 

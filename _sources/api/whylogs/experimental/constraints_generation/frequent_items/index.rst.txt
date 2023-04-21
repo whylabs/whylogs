@@ -1,0 +1,22 @@
+:py:mod:`whylogs.experimental.constraints_generation.frequent_items`
+====================================================================
+
+.. py:module:: whylogs.experimental.constraints_generation.frequent_items
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.constraints_generation.frequent_items.generate_column_frequent_items_constraints
+
+
+
+.. py:function:: generate_column_frequent_items_constraints(column_name: str, column_profile: whylogs.core.view.column_profile_view.ColumnProfileView) -> List[whylogs.core.constraints.metric_constraints.MetricConstraint]
+
+

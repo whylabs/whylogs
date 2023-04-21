@@ -58,6 +58,7 @@ Classes
    whylogs.core.MetricGetter
    whylogs.core.ProfileGetter
    whylogs.core.MetricConfig
+   whylogs.core.CardinalityThresholds
    whylogs.core.ModelPerformanceMetrics
    whylogs.core.Predicate
    whylogs.core.Resolver
@@ -283,6 +284,21 @@ Attributes
 
    .. py:attribute:: identity_column
       :type: Optional[str]
+
+      
+
+
+.. py:class:: CardinalityThresholds
+
+   .. py:attribute:: few
+      :type: int
+      :value: 50
+
+      
+
+   .. py:attribute:: proportionately_few
+      :type: float
+      :value: 0.01
 
       
 

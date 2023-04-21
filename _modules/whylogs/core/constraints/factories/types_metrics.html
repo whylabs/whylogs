@@ -268,6 +268,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../../../api/whylogs/core/constraints/factories/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../../../api/whylogs/core/constraints/factories/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../../../api/whylogs/core/constraints/factories/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../../api/whylogs/core/constraints/factories/multi_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.multi_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../../../api/whylogs/core/constraints/factories/types_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.types_metrics</span></code></a></li>
 </ul>
 </li>
@@ -349,6 +350,9 @@
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../../../../api/whylogs/experimental/constraints_generation/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../../../api/whylogs/experimental/constraints_generation/condition_counts/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.condition_counts</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../../api/whylogs/experimental/constraints_generation/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.count_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../api/whylogs/experimental/constraints_generation/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.distribution_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../api/whylogs/experimental/constraints_generation/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.frequent_items</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../../api/whylogs/experimental/constraints_generation/multi_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.multi_metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../../api/whylogs/experimental/constraints_generation/types_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.types_metrics</span></code></a></li>
 </ul>
 </li>
@@ -419,6 +423,8 @@
           <h1>Source code for whylogs.core.constraints.factories.types_metrics</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.column_metrics</span> <span class="kn">import</span> <span class="n">TypeCountersMetric</span>
+
 <span class="kn">from</span> <span class="nn">..metric_constraints</span> <span class="kn">import</span> <span class="n">MetricConstraint</span><span class="p">,</span> <span class="n">MetricsSelector</span>
 
 
@@ -433,6 +439,24 @@
     <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> types count non-zero for </span><span class="si">{</span><span class="n">types_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="n">condition</span><span class="o">=</span><span class="n">has_non_zero_types</span><span class="p">,</span>
+        <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;types&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span></div>
+
+
+<div class="viewcode-block" id="column_has_zero_count_types"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/types_metrics/index.html#whylogs.core.constraints.factories.column_has_zero_count_types">[docs]</a><span class="k">def</span> <span class="nf">column_has_zero_count_types</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">types_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">has_zero_types</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">types_dict</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">types_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">types_list</span> <span class="ow">and</span> <span class="n">types_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="n">all_types</span> <span class="o">=</span> <span class="n">TypeCountersMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">()</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">complement_types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_types</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">types_list</span><span class="p">))</span>
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> allows for types </span><span class="si">{</span><span class="n">complement_types</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="n">has_zero_types</span><span class="p">,</span>
         <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;types&quot;</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">constraint</span></div>

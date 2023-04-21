@@ -268,6 +268,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../../api/whylogs/core/constraints/factories/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../../api/whylogs/core/constraints/factories/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../../api/whylogs/core/constraints/factories/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../api/whylogs/core/constraints/factories/multi_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.multi_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../../api/whylogs/core/constraints/factories/types_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.types_metrics</span></code></a></li>
 </ul>
 </li>
@@ -349,6 +350,9 @@
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../../../api/whylogs/experimental/constraints_generation/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/experimental/constraints_generation/condition_counts/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.condition_counts</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/experimental/constraints_generation/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.count_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/experimental/constraints_generation/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.distribution_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/experimental/constraints_generation/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.frequent_items</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/experimental/constraints_generation/multi_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.multi_metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/experimental/constraints_generation/types_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.types_metrics</span></code></a></li>
 </ul>
 </li>
@@ -419,7 +423,7 @@
           <h1>Source code for whylogs.experimental.constraints_generation.condition_counts</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 
-<span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">condition_meets</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">condition_meets</span><span class="p">,</span> <span class="n">condition_never_meets</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.constraints.metric_constraints</span> <span class="kn">import</span> <span class="n">MetricConstraint</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.view.column_profile_view</span> <span class="kn">import</span> <span class="n">ColumnProfileView</span>
 
@@ -440,6 +444,8 @@
     <span class="k">for</span> <span class="n">condition</span><span class="p">,</span> <span class="n">matches</span> <span class="ow">in</span> <span class="n">condition_count_metric</span><span class="o">.</span><span class="n">matches</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">matches</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">condition_count_metric</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
             <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">condition_meets</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">condition_name</span><span class="o">=</span><span class="n">condition</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">matches</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">condition_never_meets</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">condition_name</span><span class="o">=</span><span class="n">condition</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">constraints</span></div>
 </pre></div>
         </article>

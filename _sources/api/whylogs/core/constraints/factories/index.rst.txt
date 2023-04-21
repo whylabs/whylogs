@@ -15,6 +15,7 @@ Submodules
    count_metrics/index.rst
    distribution_metrics/index.rst
    frequent_items/index.rst
+   multi_metrics/index.rst
    types_metrics/index.rst
 
 
@@ -29,6 +30,7 @@ Functions
 
    whylogs.core.constraints.factories.distinct_number_in_range
    whylogs.core.constraints.factories.condition_meets
+   whylogs.core.constraints.factories.condition_never_meets
    whylogs.core.constraints.factories.count_below_number
    whylogs.core.constraints.factories.no_missing_values
    whylogs.core.constraints.factories.null_percentage_below_number
@@ -42,7 +44,9 @@ Functions
    whylogs.core.constraints.factories.stddev_between_range
    whylogs.core.constraints.factories.frequent_strings_in_reference_set
    whylogs.core.constraints.factories.n_most_common_items_in_set
+   whylogs.core.constraints.factories.column_is_probably_unique
    whylogs.core.constraints.factories.column_has_non_zero_types
+   whylogs.core.constraints.factories.column_has_zero_count_types
    whylogs.core.constraints.factories.column_is_nullable_boolean
    whylogs.core.constraints.factories.column_is_nullable_datatype
    whylogs.core.constraints.factories.column_is_nullable_fractional
@@ -75,6 +79,16 @@ Attributes
 .. py:function:: condition_meets(column_name: str, condition_name: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint
 
    Checks that all values in column match predicate
+
+   :param column_name: Name of the column to apply the constraint to
+   :type column_name: str
+   :param condition_name: Name of the condition that will be applied to each value of the column
+   :type condition_name: str
+
+
+.. py:function:: condition_never_meets(column_name: str, condition_name: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Checks that no values in column match predicate
 
    :param column_name: Name of the column to apply the constraint to
    :type column_name: str
@@ -244,7 +258,13 @@ Attributes
    :type reference_set: dict
 
 
+.. py:function:: column_is_probably_unique(column_name: str) -> whylogs.core.constraints.MetricConstraint
+
+
 .. py:function:: column_has_non_zero_types(column_name: str, types_list: List[str]) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+
+.. py:function:: column_has_zero_count_types(column_name: str, types_list: List[str]) -> whylogs.core.constraints.metric_constraints.MetricConstraint
 
 
 .. py:function:: column_is_nullable_boolean(column_name: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint

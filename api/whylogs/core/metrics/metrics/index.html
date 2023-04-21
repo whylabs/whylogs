@@ -277,6 +277,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../constraints/factories/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../constraints/factories/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../constraints/factories/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../constraints/factories/multi_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.multi_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../constraints/factories/types_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.types_metrics</span></code></a></li>
 </ul>
 </li>
@@ -358,6 +359,9 @@
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../../experimental/constraints_generation/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../experimental/constraints_generation/condition_counts/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.condition_counts</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../experimental/constraints_generation/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.count_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../experimental/constraints_generation/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.distribution_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../experimental/constraints_generation/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.frequent_items</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../experimental/constraints_generation/multi_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.multi_metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../experimental/constraints_generation/types_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.types_metrics</span></code></a></li>
 </ul>
 </li>
@@ -465,6 +469,9 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.metrics.CustomMetricBase" title="whylogs.core.metrics.metrics.CustomMetricBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CustomMetricBase</span></code></a></p></td>
 <td><p>You can use this as a base class for custom metrics that don't use</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.metrics.metrics.CardinalityThresholds" title="whylogs.core.metrics.metrics.CardinalityThresholds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CardinalityThresholds</span></code></a></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -1647,6 +1654,21 @@ by calling register_metric()</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.metrics.metrics.CardinalityThresholds">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.metrics.</span></span><span class="sig-name descname"><span class="pre">CardinalityThresholds</span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/metrics.html#CardinalityThresholds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.metrics.CardinalityThresholds" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.metrics.CardinalityThresholds.few">
+<span class="sig-name descname"><span class="pre">few</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">50</span></em><a class="headerlink" href="#whylogs.core.metrics.metrics.CardinalityThresholds.few" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.metrics.CardinalityThresholds.proportionately_few">
+<span class="sig-name descname"><span class="pre">proportionately_few</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.01</span></em><a class="headerlink" href="#whylogs.core.metrics.metrics.CardinalityThresholds.proportionately_few" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 </section>
@@ -1872,6 +1894,11 @@ by calling register_metric()</p>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.CustomMetricBase.merge">merge</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.CustomMetricBase.columnar_update">columnar_update</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.metrics.CustomMetricBase.zero">zero</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#whylogs.core.metrics.metrics.CardinalityThresholds">CardinalityThresholds</a><ul>
+<li><a class="reference internal" href="#whylogs.core.metrics.metrics.CardinalityThresholds.few">few</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.metrics.CardinalityThresholds.proportionately_few">proportionately_few</a></li>
 </ul>
 </li>
 </ul>

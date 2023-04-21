@@ -1,0 +1,22 @@
+:py:mod:`whylogs.core.constraints.factories.multi_metrics`
+==========================================================
+
+.. py:module:: whylogs.core.constraints.factories.multi_metrics
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.constraints.factories.multi_metrics.column_is_probably_unique
+
+
+
+.. py:function:: column_is_probably_unique(column_name: str) -> whylogs.core.constraints.MetricConstraint
+
+

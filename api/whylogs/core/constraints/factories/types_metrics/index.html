@@ -11,7 +11,7 @@
 <meta property="og:url" content="https://whylogs.readthedocs.io/api/whylogs/core/constraints/factories/types_metrics/index.html" />
   
 <meta property="og:description" content="Module Contents: Functions:" />
-  <link rel="index" title="Index" href="../../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../../search.html" /><link rel="next" title="whylogs.core.constraints.metric_constraints" href="../../metric_constraints/index.html" /><link rel="prev" title="whylogs.core.constraints.factories.frequent_items" href="../frequent_items/index.html" />
+  <link rel="index" title="Index" href="../../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../../search.html" /><link rel="next" title="whylogs.core.constraints.metric_constraints" href="../../metric_constraints/index.html" /><link rel="prev" title="whylogs.core.constraints.factories.multi_metrics" href="../multi_metrics/index.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
         <title>whylogs.core.constraints.factories.types_metrics - whylogs v1.1.37</title>
@@ -277,6 +277,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="../frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../multi_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.multi_metrics</span></code></a></li>
 <li class="toctree-l6 current current-page"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.types_metrics</span></code></a></li>
 </ul>
 </li>
@@ -358,6 +359,9 @@
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../../../experimental/constraints_generation/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../../experimental/constraints_generation/condition_counts/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.condition_counts</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../experimental/constraints_generation/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.count_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../experimental/constraints_generation/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.distribution_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../experimental/constraints_generation/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.frequent_items</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../experimental/constraints_generation/multi_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.multi_metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../experimental/constraints_generation/types_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.constraints_generation.types_metrics</span></code></a></li>
 </ul>
 </li>
@@ -442,22 +446,25 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_has_non_zero_types" title="whylogs.core.constraints.factories.types_metrics.column_has_non_zero_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_has_non_zero_types</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_integral" title="whylogs.core.constraints.factories.types_metrics.column_is_nullable_integral"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_integral</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_has_zero_count_types" title="whylogs.core.constraints.factories.types_metrics.column_has_zero_count_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_has_zero_count_types</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_fractional" title="whylogs.core.constraints.factories.types_metrics.column_is_nullable_fractional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_fractional</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_integral" title="whylogs.core.constraints.factories.types_metrics.column_is_nullable_integral"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_integral</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_boolean" title="whylogs.core.constraints.factories.types_metrics.column_is_nullable_boolean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_boolean</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_fractional" title="whylogs.core.constraints.factories.types_metrics.column_is_nullable_fractional"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_fractional</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_string" title="whylogs.core.constraints.factories.types_metrics.column_is_nullable_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_string</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_boolean" title="whylogs.core.constraints.factories.types_metrics.column_is_nullable_boolean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_boolean</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_object" title="whylogs.core.constraints.factories.types_metrics.column_is_nullable_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_object</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_string" title="whylogs.core.constraints.factories.types_metrics.column_is_nullable_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_string</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_datatype" title="whylogs.core.constraints.factories.types_metrics.column_is_nullable_datatype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_datatype</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_object" title="whylogs.core.constraints.factories.types_metrics.column_is_nullable_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_object</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_datatype" title="whylogs.core.constraints.factories.types_metrics.column_is_nullable_datatype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">column_is_nullable_datatype</span></code></a>(...)</p></td>
 <td><p>Check if column contains only records of specific datatype.</p></td>
 </tr>
 </tbody>
@@ -466,6 +473,22 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="whylogs.core.constraints.factories.types_metrics.column_has_non_zero_types">
 <span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.types_metrics.</span></span><span class="sig-name descname"><span class="pre">column_has_non_zero_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">types_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/core/constraints/factories/types_metrics.html#column_has_non_zero_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.types_metrics.column_has_non_zero_types" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>types_list</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint">whylogs.core.constraints.metric_constraints.MetricConstraint</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.factories.types_metrics.column_has_zero_count_types">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.types_metrics.</span></span><span class="sig-name descname"><span class="pre">column_has_zero_count_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">types_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/core/constraints/factories/types_metrics.html#column_has_zero_count_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.types_metrics.column_has_zero_count_types" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -581,14 +604,14 @@ Datatypes can be: integral, fractional, boolean, string, object.</p>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../frequent_items/index.html">
+          <a class="prev-page" href="../multi_metrics/index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></div>
+                <div class="title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.multi_metrics</span></code></div>
                 
               </div>
             </a>
@@ -653,6 +676,7 @@ Datatypes can be: integral, fractional, boolean, string, object.</p>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#functions">Functions</a><ul>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_has_non_zero_types">column_has_non_zero_types</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_has_zero_count_types">column_has_zero_count_types</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_integral">column_is_nullable_integral</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_fractional">column_is_nullable_fractional</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.types_metrics.column_is_nullable_boolean">column_is_nullable_boolean</a></li>

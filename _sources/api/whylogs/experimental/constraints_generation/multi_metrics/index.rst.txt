@@ -1,0 +1,22 @@
+:py:mod:`whylogs.experimental.constraints_generation.multi_metrics`
+===================================================================
+
+.. py:module:: whylogs.experimental.constraints_generation.multi_metrics
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.constraints_generation.multi_metrics.generate_column_multi_metrics_constraints
+
+
+
+.. py:function:: generate_column_multi_metrics_constraints(column_name: str, column_profile: whylogs.core.view.column_profile_view.ColumnProfileView) -> List[whylogs.core.constraints.metric_constraints.MetricConstraint]
+
+

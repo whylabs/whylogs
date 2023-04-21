@@ -14,12 +14,23 @@ Functions
 .. autoapisummary::
 
    whylogs.core.constraints.factories.condition_counts.condition_meets
+   whylogs.core.constraints.factories.condition_counts.condition_never_meets
 
 
 
 .. py:function:: condition_meets(column_name: str, condition_name: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint
 
    Checks that all values in column match predicate
+
+   :param column_name: Name of the column to apply the constraint to
+   :type column_name: str
+   :param condition_name: Name of the condition that will be applied to each value of the column
+   :type condition_name: str
+
+
+.. py:function:: condition_never_meets(column_name: str, condition_name: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Checks that no values in column match predicate
 
    :param column_name: Name of the column to apply the constraint to
    :type column_name: str

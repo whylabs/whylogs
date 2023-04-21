@@ -21,6 +21,7 @@ Classes
    whylogs.core.metrics.metrics.FrequentItemsMetric
    whylogs.core.metrics.metrics.CardinalityMetric
    whylogs.core.metrics.metrics.CustomMetricBase
+   whylogs.core.metrics.metrics.CardinalityThresholds
 
 
 
@@ -565,5 +566,20 @@ Attributes
       :classmethod:
       :abstractmethod:
 
+
+
+.. py:class:: CardinalityThresholds
+
+   .. py:attribute:: few
+      :type: int
+      :value: 50
+
+      
+
+   .. py:attribute:: proportionately_few
+      :type: float
+      :value: 0.01
+
+      
 
 

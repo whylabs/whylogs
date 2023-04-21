@@ -12,6 +12,9 @@ Submodules
 
    condition_counts/index.rst
    count_metrics/index.rst
+   distribution_metrics/index.rst
+   frequent_items/index.rst
+   multi_metrics/index.rst
    types_metrics/index.rst
 
 
@@ -35,6 +38,9 @@ Functions
 
    whylogs.experimental.constraints_generation.generate_column_condition_count_constraints
    whylogs.experimental.constraints_generation.generate_column_count_constraints
+   whylogs.experimental.constraints_generation.generate_column_distribution_constraints
+   whylogs.experimental.constraints_generation.generate_column_frequent_items_constraints
+   whylogs.experimental.constraints_generation.generate_column_multi_metrics_constraints
    whylogs.experimental.constraints_generation.generate_column_types_constraints
    whylogs.experimental.constraints_generation.generate_constraints_from_reference_profile
 
@@ -144,6 +150,21 @@ Functions
    :type column_profile: ColumnProfileView
 
 
+.. py:function:: generate_column_distribution_constraints(column_name: str, column_profile: whylogs.core.view.column_profile_view.ColumnProfileView) -> List[whylogs.core.constraints.metric_constraints.MetricConstraint]
+
+   Generates constraints for the count metrics of a column.
+   :param column_name: Name of the column
+   :type column_name: str
+   :param column_profile: Profile of the column
+   :type column_profile: ColumnProfileView
+
+
+.. py:function:: generate_column_frequent_items_constraints(column_name: str, column_profile: whylogs.core.view.column_profile_view.ColumnProfileView) -> List[whylogs.core.constraints.metric_constraints.MetricConstraint]
+
+
+.. py:function:: generate_column_multi_metrics_constraints(column_name: str, column_profile: whylogs.core.view.column_profile_view.ColumnProfileView) -> List[whylogs.core.constraints.metric_constraints.MetricConstraint]
+
+
 .. py:function:: generate_column_types_constraints(column_name: str, column_profile: whylogs.core.view.column_profile_view.ColumnProfileView) -> List[whylogs.core.constraints.metric_constraints.MetricConstraint]
 
    Generates constraints for the types metrics of a column.
@@ -153,10 +174,18 @@ Functions
    :type column_profile: ColumnProfileView
 
 
-.. py:function:: generate_constraints_from_reference_profile(reference_profile_view: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> List[whylogs.core.constraints.metric_constraints.MetricConstraint]
+.. py:function:: generate_constraints_from_reference_profile(reference_profile_view: whylogs.core.view.dataset_profile_view.DatasetProfileView, included_columns: Optional[List[str]] = None, excluded_columns: Optional[List[str]] = None) -> List[whylogs.core.constraints.metric_constraints.MetricConstraint]
 
    Generates constraints from a reference profile view.
+
    :param reference_profile_view: Reference profile view
    :type reference_profile_view: DatasetProfileView
+   :param included_columns: List of columns to include, by default None
+   :type included_columns: Optional[List[str]], optional
+   :param excluded_columns: List of columns to exclude, by default None
+   :type excluded_columns: Optional[List[str]], optional
+
+   :returns: List of generated constraints
+   :rtype: List[MetricConstraint]
 
 
