@@ -162,7 +162,7 @@ def generate_udf_schema() -> List[ResolverSpec]:
         config = UdfMetricConfig(
             udfs = udfs,
             submetric_schema = _col_name_submetric_schema.get(col_name) or DefaultSchema,
-            type_mapper = _col_name_type_mapper.get(col_name) or StandardTypeMapper,
+            type_mapper = _col_name_type_mapper.get(col_name) or StandardTypeMapper(),
         )
         resolvers.append(ResolverSpec(col_name, None, [MetricSpec(UdfMetric, config)]))
     return resolvers

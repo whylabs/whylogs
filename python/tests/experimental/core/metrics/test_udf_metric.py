@@ -81,7 +81,7 @@ def add5(x):
     return x + 5
 
 
-#@register_metric_udf("col1")
+@register_metric_udf("col1")
 def tostr(x):
     return str(x)
 
