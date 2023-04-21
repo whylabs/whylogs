@@ -347,68 +347,49 @@ class DistributionMetric(Metric):
     def avg(self) -> float:
         return self.mean.value
 
+    def get_quantile(self, quantile: float) -> Optional[float]:
+        result = None
+        if quantile < 0 or quantile > 1:
+            raise ValueError(f"quantile={quantile} is not supported, please specify a value between 0 and 1 inclusive.")
+        if self.n > 0:
+            result = self.kll.value.get_quantiles([quantile])[0]
+        return result
+
     @property
     def median(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.5])[0]
-        return result
+        return self.get_quantile(0.5)
 
     @property
     def q_01(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.01])[0]
-        return result
+        return self.get_quantile(0.01)
 
     @property
     def q_05(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.05])[0]
-        return result
+        return self.get_quantile(0.05)
 
     @property
     def q_10(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.1])[0]
-        return result
+        return self.get_quantile(0.1)
 
     @property
     def q_25(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.25])[0]
-        return result
+        return self.get_quantile(0.25)
 
     @property
     def q_75(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.75])[0]
-        return result
+        return self.get_quantile(0.75)
 
     @property
     def q_90(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.90])[0]
-        return result
+        return self.get_quantile(0.9)
 
     @property
     def q_95(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.95])[0]
-        return result
+        return self.get_quantile(0.95)
 
     @property
     def q_99(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.99])[0]
-        return result
+        return self.get_quantile(0.99)
 
     @property
     def max(self) -> float:
@@ -588,21 +569,27 @@ class CardinalityMetric(Metric):
 
         return result
 
-    @property
-    def upper_1(self) -> Optional[float]:
+    def get_upper_bound(self, number_of_standard_deviations: int) -> Optional[float]:
         result = None
         if not self.hll.value.is_empty():
-            result = self.hll.value.get_upper_bound(1)
+            result = self.hll.value.get_upper_bound(number_of_standard_deviations)
 
         return result
+
+    def get_lower_bound(self, number_of_standard_deviations: int) -> Optional[float]:
+        result = None
+        if not self.hll.value.is_empty():
+            result = self.hll.value.get_lower_bound(number_of_standard_deviations)
+
+        return result
+
+    @property
+    def upper_1(self) -> Optional[float]:
+        return self.get_upper_bound(1)
 
     @property
     def lower_1(self) -> Optional[float]:
-        result = None
-        if not self.hll.value.is_empty():
-            result = self.hll.value.get_lower_bound(1)
-
-        return result
+        return self.get_lower_bound(1)
 
     @classmethod
     def zero(cls, config: Optional[MetricConfig] = None) -> "CardinalityMetric":
