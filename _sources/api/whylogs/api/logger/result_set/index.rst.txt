@@ -144,6 +144,9 @@ Attributes
    .. py:method:: merge(other: ResultSet) -> ViewResultSet
 
 
+   .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
+
+
    .. py:method:: read(multi_profile_file: str) -> ResultSet
       :staticmethod:
 
@@ -156,9 +159,6 @@ Attributes
 
 
    .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
-
-
-   .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
