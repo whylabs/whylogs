@@ -49,8 +49,9 @@ def get_client(session_manager: SessionManager) -> ApiClient:
     return client
 
 
-def get_sessions_api(client: ApiClient) -> SessionsApi:
-    return SessionsApi(client)
+def get_sessions_api(session_manager: SessionManager) -> SessionsApi:
+    api_client = get_client(session_manager=session_manager)
+    return SessionsApi(api_client)
 
 
 def create_upload_references_url(
@@ -100,11 +101,8 @@ def validate_and_get_session_manager() -> SessionManager:
     return sm
 
 
-# TODO make sure return response is actually useful
-
-
-def validate_references_list(references: List[DataInput]) -> None:
-    if isinstance(references, dict):
+def validate_references_list(references: List[DataInput]) -> List[DataInput]:
+    if isinstance(references, DataInput):
         references = [references]
 
     if not isinstance(references, List):
@@ -117,6 +115,8 @@ def validate_references_list(references: List[DataInput]) -> None:
     if len(references) > 3:
         raise ValueError("You can only set 3 reference profiles at once")
 
+    return references
+
 
 def turn_value_into_timestamp(datetime_value: Optional[datetime] = None) -> int:
     datetime_value = datetime_value or datetime.now()
@@ -124,14 +124,13 @@ def turn_value_into_timestamp(datetime_value: Optional[datetime] = None) -> int:
 
 
 def log_references(references: List[DataInput]):
-    validate_references_list(references=references)
+    references = validate_references_list(references=references)
 
     for data_input in references:
         data_input.dataset_timestamp = turn_value_into_timestamp(datetime_value=data_input.dataset_timestamp)  # type: ignore
 
     sm = validate_and_get_session_manager()
-    api_client = get_client(session_manager=sm)
-    api = get_sessions_api(client=api_client)
+    api = get_sessions_api(session_manager=sm)
 
     url_info = create_upload_references_url(api=api, session_manager=sm, references=references)
 
