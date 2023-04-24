@@ -3,8 +3,8 @@ from typing import List
 from whylogs.core.constraints.factories import column_is_probably_unique
 from whylogs.core.constraints.metric_constraints import MetricConstraint
 from whylogs.core.utils import is_probably_unique
-from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.utils.stats_calculations import only_null_values
+from whylogs.core.view.column_profile_view import ColumnProfileView
 
 
 def generate_column_multi_metrics_constraints(
