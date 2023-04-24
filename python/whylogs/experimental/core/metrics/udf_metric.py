@@ -13,7 +13,12 @@ from whylogs.core.metrics.metrics import (
 )
 from whylogs.core.metrics.multimetric import MultiMetric, SubmetricSchema
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.resolvers import MetricSpec, STANDARD_RESOLVER, ResolverSpec, _allowed_metric
+from whylogs.core.resolvers import (
+    STANDARD_RESOLVER,
+    MetricSpec,
+    ResolverSpec,
+    _allowed_metric,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -119,15 +124,18 @@ _col_name_submetrics: Dict[str, List[Tuple[str, Callable[[Any], Any]]]] = defaul
 _col_name_submetric_schema: Dict[str, SubmetricSchema] = dict()
 _col_name_type_mapper: Dict[str, TypeMapper] = dict()
 
+_col_type_submetrics: Dict[DataType, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
+_col_type_submetric_schema: Dict[DataType, SubmetricSchema] = dict()
+_col_type_type_mapper: Dict[DataType, TypeMapper] = dict()
+
 
 def register_metric_udf(
     col_name: Optional[str] = None,
     col_type: Optional[DataType] = None,
     submetric_name: Optional[str] = None,
     submetric_schema: Optional[SubmetricSchema] = None,
-    type_mapper: Optional[TypeMapper] = None    
+    type_mapper: Optional[TypeMapper] = None,
 ) -> Callable[[Any], Any]:
-
     def decorator_register(func):
         global _col_name_submetrics, _col_name_submetric_schema, _col_name_type_mapper
 
@@ -148,21 +156,45 @@ def register_metric_udf(
                 if col_name in _col_name_type_mapper:
                     logger.warn(f"Overwriting UdfMetric type mapper for column {col_name}")
                 _col_name_type_mapper[col_name] = type_mapper
+        else:
+            _col_type_submetrics[col_type].append((subname, func))
+            if submetric_schema is not None:
+                if col_type in _col_type_submetric_schema:
+                    logger.warn(f"Overwriting submetric schema for column type {col_type}")
+                _col_type_submetric_schema[col_type] = submetric_schema
+            if type_mapper is not None:
+                if col_type in _col_type_type_mapper:
+                    logger.warn(f"Overwriting UdfMetric type mapper for column type {col_type}")
+                _col_type_type_mapper[col_type] = type_mapper
+
         return func
 
     return decorator_register
 
 
 def generate_udf_schema() -> List[ResolverSpec]:
-    resolvers: List[RespoverSpec] = list()
+    resolvers: List[ResolverSpec] = list()
+    udfs: Dict[str, Callable[[Any], Any]]
     for col_name, submetrics in _col_name_submetrics.items():
-        udfs: Dict[str, Callable[[Any], Any]] = dict()
+        udfs = dict()
         for submetric in submetrics:
             udfs[submetric[0]] = submetric[1]
         config = UdfMetricConfig(
-            udfs = udfs,
-            submetric_schema = _col_name_submetric_schema.get(col_name) or DefaultSchema,
-            type_mapper = _col_name_type_mapper.get(col_name) or StandardTypeMapper(),
+            udfs=udfs,
+            submetric_schema=_col_name_submetric_schema.get(col_name) or DefaultSchema,
+            type_mapper=_col_name_type_mapper.get(col_name) or StandardTypeMapper(),
         )
         resolvers.append(ResolverSpec(col_name, None, [MetricSpec(UdfMetric, config)]))
+
+    for col_type, submetrics in _col_type_submetrics.items():
+        udfs = dict()
+        for submetric in submetrics:
+            udfs[submetric[0]] = submetric[1]
+        config = UdfMetricConfig(
+            udfs=udfs,
+            submetric_schema=_col_type_submetric_schema.get(col_type) or DefaultSchema,
+            type_mapper=_col_type_type_mapper.get(col_type) or StandardTypeMapper(),
+        )
+        resolvers.append(ResolverSpec(None, col_type, [MetricSpec(UdfMetric, config)]))
+
     return resolvers
