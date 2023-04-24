@@ -45,5 +45,17 @@ def get_cardinality_estimate(column_profile: ColumnProfileView) -> CardinalityEs
     if cardinality is not None and counts is not None:
         n_value = counts.to_summary_dict().get("n", None) - counts.to_summary_dict().get("null", None)
         if n_value is not None and est_value is not None:
-            est_ratio = est_value / n_value
+            try:
+                est_ratio = est_value / n_value
+            except ZeroDivisionError:
+                est_ratio = None
     return CardinalityEstimate(est=est_value, unique_pct=est_ratio)
+
+
+def only_null_values(column_profile: ColumnProfileView) -> bool:
+    counts = column_profile.get_metric("counts")
+    if counts is not None:
+        counts_summary = counts.to_summary_dict()
+        if counts_summary.get("n", None) == counts_summary.get("null", None):
+            return True
+    return False
