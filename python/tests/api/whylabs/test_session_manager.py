@@ -22,11 +22,9 @@ class TestSessionManager:
     def setup_class(cls):
         os.environ["WHYLABS_API_KEY"] = "api_key"
         os.environ["ORG_ID"] = "org_id"
-        os.environ["WHYLABS_API_ENDPOINT"] = "https://songbird.development.whylabsdev.com"
 
     @classmethod
     def teardown_class(cls):
-        del os.environ["WHYLABS_API_ENDPOINT"]
         del os.environ["WHYLABS_API_KEY"]
         del os.environ["ORG_ID"]
         os.remove(_auth_path)
