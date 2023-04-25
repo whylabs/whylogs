@@ -21,5 +21,6 @@ def generate_column_types_constraints(column_name: str, column_profile: ColumnPr
     for key, component in vars(types_metric).items():
         if component.value == 0:
             zero_empty_types.append(key)
-    constraints.append(column_has_zero_count_types(column_name=column_name, types_list=zero_empty_types))
+    if zero_empty_types:
+        constraints.append(column_has_zero_count_types(column_name=column_name, types_list=zero_empty_types))
     return constraints
