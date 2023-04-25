@@ -12,10 +12,20 @@ Classes
 
 .. autoapisummary::
 
-   whylogs.experimental.core.metrics.udf_metric.DefaultSchema
+   whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema
    whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig
    whylogs.experimental.core.metrics.udf_metric.UdfMetric
 
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.core.metrics.udf_metric.default_schema
+   whylogs.experimental.core.metrics.udf_metric.register_metric_udf
+   whylogs.experimental.core.metrics.udf_metric.generate_udf_schema
 
 
 
@@ -31,22 +41,47 @@ Attributes
 
    
 
-.. py:class:: DefaultSchema
+.. py:class:: DeclarativeSubmetricSchema(resolvers: List[whylogs.core.resolvers.ResolverSpec], default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None)
 
    Bases: :py:obj:`whylogs.core.metrics.multimetric.SubmetricSchema`
 
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
+   The DeclarativeSubmetricSchema allows one to customize the set of metrics
+   tracked for each UDF computed by a UdfMetric. Pass its constructor a list
+   of ResolverSpecs, which specify the UDF name or data type to
+   match and the list of MetricSpecs to instantiate for matching UDFs.
+   Each MetricSpec specifies the Metric class and MetricConfig to
+   instantiate. Omit the MetricSpec::config to use the default MetricConfig.
+
+   For example, DeclarativeSubmetricSchema(resolvers=STANDARD_RESOLVER) implements
+   the same schema as DatasetSchema(), i.e., using the default MetricConfig,
+   StandardTypeMapper, StandardResolver, etc.  STANDARD_RESOLVER is defined
+   in whylogs/python/whylogs/core/resolvers.py
 
    .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, fi_disabled: bool = False) -> Dict[str, whylogs.core.metrics.metrics.Metric]
 
+
+
+.. py:function:: default_schema() -> DeclarativeSubmetricSchema
 
 
 .. py:class:: UdfMetricConfig
 
    Bases: :py:obj:`whylogs.core.metrics.metrics.MetricConfig`
 
-   Maps feature name to callable that computes it
+   Configure UDFs & submetrics for UdfMetric
+
+   .. attribute:: udfs
+
+      Maps submetric name to the UDF that computes the value to track
+
+   .. attribute:: submetric_schema [optional]
+
+      determines the set of metrics tracked for
+      each computed value
+
+   .. attribute:: type_mapper [optional]
+
+      maps Python types to whylogs DataType
 
    .. py:attribute:: udfs
       :type: Dict[str, Callable[[Any], Any]]
@@ -138,22 +173,16 @@ Attributes
 
    Bases: :py:obj:`whylogs.core.metrics.multimetric.MultiMetric`
 
-   MultiMetric serves as a base class for custom metrics that consist
-   of one or more metrics. It is handy when you need to do some
-   processing of the logged values and track several metrics on
-   the results. The sub-metrics must either be a StandardMetric, or tagged
-   as a @custom_metric or registered via register_metric(). Note that
-   MultiMetric is neither, so it cannot be nested.
+   Applies the specified UDFs to the input column values and tracks the metrics
+   specified by the submetric_schema to their output.
 
-   Typically you will need to override namespace(); columnar_update(), calling
-   it on the submetrics as needed; and the zero() method to return an
-   appropriate "empty" instance of your metric. You will need to override from_protobuf()
-   and merge() if your subclass __init__() method takes arguments different than
-   MultiMetrtic's. You can use the submetrics_from_protbuf() and merge_submetrics()
-   helper methods to implement them. The MultiMetric class will handle the rest of
-   the Metric interface. Don't use / or : in the subclass' namespace.
-
-   See UnicodeRangeMetric for an example.
+   :param udfs: map of submetric name to UDF to compute value to track
+   :param submetric_schema [optional]: determines the set of metrics to track for
+                                       each UDF output. Defaults to STANDARD_RESOLVER
+   :param type_mapper [optional]: maps Python types to whylogs DataType. Defaults
+                                  to StandardTypeMapper
+   :param fi_disabled [optional]: Should FrequentItemsMetric tracking be disabled.
+                                  Defaults to False
 
    .. py:property:: namespace
       :type: str
@@ -197,5 +226,55 @@ Attributes
    .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
       :classmethod:
 
+
+
+.. py:function:: register_metric_udf(col_name: Optional[str] = None, col_type: Optional[whylogs.core.datatypes.DataType] = None, submetric_name: Optional[str] = None, submetric_schema: Optional[whylogs.core.metrics.multimetric.SubmetricSchema] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None) -> Callable[[Any], Any]
+
+   Decorator to easily configure UdfMetrics for your data set. Decorate your UDF
+   functions, then call generate_udf_schema() to generate a list of ResolverSpecs
+   that include the UdfMetrics configured by your decorator parameters.
+
+   You must specify exactly one of either col_name or col_type. col_name will attach
+   a UdfMetric to the named input column. col_type will attach a UdfMetric to all
+   input columns of the specified type. The decorated function will automatically
+   be a UDF in the UdfMetric.
+
+   Specify submetric_name to give the output of the UDf a name. submetric_name
+   defautls to the name of the decorated function. Note that all lambdas are
+   named "lambda" so omitting submetric_name on more than one lambda will result
+   in name collisions.
+
+   You can optionally pass submetric_schema to specify and configure the metrics
+   to be tracked for each UDF. This defualts to the STANDARD_RESOLVER metrics.
+
+   You can optionally pass type_mapper to control how Python types are mapped to
+   whylogs DataTypes. This defaults to the StandardTypeMapper.
+
+
+.. py:function:: generate_udf_schema() -> List[whylogs.core.resolvers.ResolverSpec]
+
+   Generates a list of ResolverSpecs that implement the UdfMetrics specified
+   by the @register_metric_ud decorators. The result only includes the UdfMetric,
+   so you may want to append it to a list of ResolverSpecs defining the other
+   metrics you wish to track.
+
+   For example:
+
+   @register_metric_udf(col_name="col1")
+   def add5(x):
+       return x + 5
+
+   @register_metric_udf(col_type=String)
+   def upper(x):
+       return x.upper()
+
+   schema = DeclarativeSchema(STANDARD_RESOLVER + generate_udf_schema())
+   why.log(data, schema=schema)
+
+   This will attach a UdfMetric to column "col1" that will include a submetric
+   named "add5" tracking the values in "col1" incremented by 5, and a UdfMetric
+   for each string column that will include a submetric named "upper" tracking
+   the uppercased strings in the input columns. Since these are appended to the
+   STANDARD_RESOLVER, the default metrics are also tracked for every column.
 
 

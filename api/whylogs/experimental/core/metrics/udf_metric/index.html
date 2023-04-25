@@ -10,7 +10,7 @@
   
 <meta property="og:url" content="https://whylogs.readthedocs.io/api/whylogs/experimental/core/metrics/udf_metric/index.html" />
   
-<meta property="og:description" content="Module Contents: Classes: Attributes:" />
+<meta property="og:description" content="Module Contents: Classes: Functions: Attributes:" />
   <link rel="index" title="Index" href="../../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../../search.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
@@ -443,14 +443,36 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.DefaultSchema" title="whylogs.experimental.core.metrics.udf_metric.DefaultSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DefaultSchema</span></code></a></p></td>
-<td><p>Helper class that provides a standard way to create an ABC using</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema" title="whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeclarativeSubmetricSchema</span></code></a></p></td>
+<td><p>The DeclarativeSubmetricSchema allows one to customize the set of metrics</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig" title="whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UdfMetricConfig</span></code></a></p></td>
-<td><p>Maps feature name to callable that computes it</p></td>
+<td><p>Configure UDFs &amp; submetrics for UdfMetric</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.UdfMetric" title="whylogs.experimental.core.metrics.udf_metric.UdfMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UdfMetric</span></code></a></p></td>
-<td><p>MultiMetric serves as a base class for custom metrics that consist</p></td>
+<td><p>Applies the specified UDFs to the input column values and tracks the metrics</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">#</a></h3>
+<div class="table-wrapper longtable docutils container">
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.default_schema" title="whylogs.experimental.core.metrics.udf_metric.default_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_schema</span></code></a>(→ DeclarativeSubmetricSchema)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.register_metric_udf" title="whylogs.experimental.core.metrics.udf_metric.register_metric_udf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register_metric_udf</span></code></a>(→ Callable[[Any], Any])</p></td>
+<td><p>Decorator to easily configure UdfMetrics for your data set. Decorate your UDF</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.generate_udf_schema" title="whylogs.experimental.core.metrics.udf_metric.generate_udf_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_udf_schema</span></code></a>(...)</p></td>
+<td><p>Generates a list of ResolverSpecs that implement the UdfMetrics specified</p></td>
 </tr>
 </tbody>
 </table>
@@ -477,14 +499,30 @@
 <dd></dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.DefaultSchema">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.experimental.core.metrics.udf_metric.</span></span><span class="sig-name descname"><span class="pre">DefaultSchema</span></span><a class="reference internal" href="../../../../../../_modules/whylogs/experimental/core/metrics/udf_metric.html#DefaultSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.DefaultSchema" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.experimental.core.metrics.udf_metric.</span></span><span class="sig-name descname"><span class="pre">DeclarativeSubmetricSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolvers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../../core/resolvers/index.html#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><span class="pre">whylogs.core.resolvers.ResolverSpec</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><span class="pre">whylogs.core.metrics.metrics.MetricConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../../_modules/whylogs/experimental/core/metrics/udf_metric.html#DeclarativeSubmetricSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../../../../core/metrics/multimetric/index.html#whylogs.core.metrics.multimetric.SubmetricSchema" title="whylogs.core.metrics.multimetric.SubmetricSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.core.metrics.multimetric.SubmetricSchema</span></code></a></p>
-<p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
+<p>The DeclarativeSubmetricSchema allows one to customize the set of metrics
+tracked for each UDF computed by a UdfMetric. Pass its constructor a list
+of ResolverSpecs, which specify the UDF name or data type to
+match and the list of MetricSpecs to instantiate for matching UDFs.
+Each MetricSpec specifies the Metric class and MetricConfig to
+instantiate. Omit the MetricSpec::config to use the default MetricConfig.</p>
+<p>For example, DeclarativeSubmetricSchema(resolvers=STANDARD_RESOLVER) implements
+the same schema as DatasetSchema(), i.e., using the default MetricConfig,
+StandardTypeMapper, StandardResolver, etc.  STANDARD_RESOLVER is defined
+in whylogs/python/whylogs/core/resolvers.py</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resolvers</strong> (<em>List</em><em>[</em><a class="reference internal" href="../../../../core/resolvers/index.html#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><em>whylogs.core.resolvers.ResolverSpec</em></a><em>]</em>) – </p></li>
+<li><p><strong>default_config</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../../../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><em>whylogs.core.metrics.metrics.MetricConfig</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.DefaultSchema.resolve">
-<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">why_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../../core/datatypes/index.html#whylogs.core.datatypes.DataType" title="whylogs.core.datatypes.DataType"><span class="pre">whylogs.core.datatypes.DataType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fi_disabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><span class="pre">whylogs.core.metrics.metrics.Metric</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/experimental/core/metrics/udf_metric.html#DefaultSchema.resolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.DefaultSchema.resolve" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema.resolve">
+<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">why_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../../core/datatypes/index.html#whylogs.core.datatypes.DataType" title="whylogs.core.datatypes.DataType"><span class="pre">whylogs.core.datatypes.DataType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fi_disabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><span class="pre">whylogs.core.metrics.metrics.Metric</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/experimental/core/metrics/udf_metric.html#DeclarativeSubmetricSchema.resolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema.resolve" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -501,14 +539,43 @@ inheritance.</p>
 
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.default_schema">
+<span class="sig-prename descclassname"><span class="pre">whylogs.experimental.core.metrics.udf_metric.</span></span><span class="sig-name descname"><span class="pre">default_schema</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema" title="whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema"><span class="pre">DeclarativeSubmetricSchema</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/experimental/core/metrics/udf_metric.html#default_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.default_schema" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema" title="whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema">DeclarativeSubmetricSchema</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.experimental.core.metrics.udf_metric.</span></span><span class="sig-name descname"><span class="pre">UdfMetricConfig</span></span><a class="reference internal" href="../../../../../../_modules/whylogs/experimental/core/metrics/udf_metric.html#UdfMetricConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../../../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics.MetricConfig</span></code></a></p>
-<p>Maps feature name to callable that computes it</p>
+<p>Configure UDFs &amp; submetrics for UdfMetric</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig.udfs">
-<span class="sig-name descname"><span class="pre">udfs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig.udfs" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">udfs</span></span><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig.udfs" title="Permalink to this definition">#</a></dt>
+<dd><p>Maps submetric name to the UDF that computes the value to track</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">submetric_schema</span> <span class="pre">[optional]</span></span></dt>
+<dd><p>determines the set of metrics tracked for
+each computed value</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">type_mapper</span> <span class="pre">[optional]</span></span></dt>
+<dd><p>maps Python types to whylogs DataType</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">udfs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id0" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -587,24 +654,18 @@ inheritance.</p>
 <dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.UdfMetric">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.experimental.core.metrics.udf_metric.</span></span><span class="sig-name descname"><span class="pre">UdfMetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">udfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">submetric_schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../../core/metrics/multimetric/index.html#whylogs.core.metrics.multimetric.SubmetricSchema" title="whylogs.core.metrics.multimetric.SubmetricSchema"><span class="pre">whylogs.core.metrics.multimetric.SubmetricSchema</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_mapper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../../core/datatypes/index.html#whylogs.core.datatypes.TypeMapper" title="whylogs.core.datatypes.TypeMapper"><span class="pre">whylogs.core.datatypes.TypeMapper</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fi_disabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../../_modules/whylogs/experimental/core/metrics/udf_metric.html#UdfMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.UdfMetric" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../../../../core/metrics/multimetric/index.html#whylogs.core.metrics.multimetric.MultiMetric" title="whylogs.core.metrics.multimetric.MultiMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.core.metrics.multimetric.MultiMetric</span></code></a></p>
-<p>MultiMetric serves as a base class for custom metrics that consist
-of one or more metrics. It is handy when you need to do some
-processing of the logged values and track several metrics on
-the results. The sub-metrics must either be a StandardMetric, or tagged
-as a &#64;custom_metric or registered via register_metric(). Note that
-MultiMetric is neither, so it cannot be nested.</p>
-<p>Typically you will need to override namespace(); columnar_update(), calling
-it on the submetrics as needed; and the zero() method to return an
-appropriate “empty” instance of your metric. You will need to override from_protobuf()
-and merge() if your subclass __init__() method takes arguments different than
-MultiMetrtic’s. You can use the submetrics_from_protbuf() and merge_submetrics()
-helper methods to implement them. The MultiMetric class will handle the rest of
-the Metric interface. Don’t use / or : in the subclass’ namespace.</p>
-<p>See UnicodeRangeMetric for an example.</p>
+<p>Applies the specified UDFs to the input column values and tracks the metrics
+specified by the submetric_schema to their output.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>udfs</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>udfs</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – map of submetric name to UDF to compute value to track</p></li>
+<li><p><strong>[</strong><strong>optional</strong><strong>]</strong> (<em>fi_disabled</em>) – determines the set of metrics to track for
+each UDF output. Defaults to STANDARD_RESOLVER</p></li>
+<li><p><strong>[</strong><strong>optional</strong><strong>]</strong> – maps Python types to whylogs DataType. Defaults
+to StandardTypeMapper</p></li>
+<li><p><strong>[</strong><strong>optional</strong><strong>]</strong> – Should FrequentItemsMetric tracking be disabled.
+Defaults to False</p></li>
 <li><p><strong>submetric_schema</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../../../../core/metrics/multimetric/index.html#whylogs.core.metrics.multimetric.SubmetricSchema" title="whylogs.core.metrics.multimetric.SubmetricSchema"><em>whylogs.core.metrics.multimetric.SubmetricSchema</em></a><em>]</em>) – </p></li>
 <li><p><strong>type_mapper</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../../../../core/datatypes/index.html#whylogs.core.datatypes.TypeMapper" title="whylogs.core.datatypes.TypeMapper"><em>whylogs.core.datatypes.TypeMapper</em></a><em>]</em>) – </p></li>
 <li><p><strong>fi_disabled</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
@@ -752,6 +813,72 @@ the Metric interface. Don’t use / or : in the subclass’ namespace.</p>
 
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.register_metric_udf">
+<span class="sig-prename descclassname"><span class="pre">whylogs.experimental.core.metrics.udf_metric.</span></span><span class="sig-name descname"><span class="pre">register_metric_udf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../../core/datatypes/index.html#whylogs.core.datatypes.DataType" title="whylogs.core.datatypes.DataType"><span class="pre">whylogs.core.datatypes.DataType</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">submetric_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">submetric_schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../../core/metrics/multimetric/index.html#whylogs.core.metrics.multimetric.SubmetricSchema" title="whylogs.core.metrics.multimetric.SubmetricSchema"><span class="pre">whylogs.core.metrics.multimetric.SubmetricSchema</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_mapper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../../core/datatypes/index.html#whylogs.core.datatypes.TypeMapper" title="whylogs.core.datatypes.TypeMapper"><span class="pre">whylogs.core.datatypes.TypeMapper</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/experimental/core/metrics/udf_metric.html#register_metric_udf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.register_metric_udf" title="Permalink to this definition">#</a></dt>
+<dd><p>Decorator to easily configure UdfMetrics for your data set. Decorate your UDF
+functions, then call generate_udf_schema() to generate a list of ResolverSpecs
+that include the UdfMetrics configured by your decorator parameters.</p>
+<p>You must specify exactly one of either col_name or col_type. col_name will attach
+a UdfMetric to the named input column. col_type will attach a UdfMetric to all
+input columns of the specified type. The decorated function will automatically
+be a UDF in the UdfMetric.</p>
+<p>Specify submetric_name to give the output of the UDf a name. submetric_name
+defautls to the name of the decorated function. Note that all lambdas are
+named “lambda” so omitting submetric_name on more than one lambda will result
+in name collisions.</p>
+<p>You can optionally pass submetric_schema to specify and configure the metrics
+to be tracked for each UDF. This defualts to the STANDARD_RESOLVER metrics.</p>
+<p>You can optionally pass type_mapper to control how Python types are mapped to
+whylogs DataTypes. This defaults to the StandardTypeMapper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>col_name</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>col_type</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../../../../core/datatypes/index.html#whylogs.core.datatypes.DataType" title="whylogs.core.datatypes.DataType"><em>whylogs.core.datatypes.DataType</em></a><em>]</em>) – </p></li>
+<li><p><strong>submetric_name</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>submetric_schema</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../../../../core/metrics/multimetric/index.html#whylogs.core.metrics.multimetric.SubmetricSchema" title="whylogs.core.metrics.multimetric.SubmetricSchema"><em>whylogs.core.metrics.multimetric.SubmetricSchema</em></a><em>]</em>) – </p></li>
+<li><p><strong>type_mapper</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../../../../core/datatypes/index.html#whylogs.core.datatypes.TypeMapper" title="whylogs.core.datatypes.TypeMapper"><em>whylogs.core.datatypes.TypeMapper</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Callable[[Any], Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.generate_udf_schema">
+<span class="sig-prename descclassname"><span class="pre">whylogs.experimental.core.metrics.udf_metric.</span></span><span class="sig-name descname"><span class="pre">generate_udf_schema</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../../core/resolvers/index.html#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><span class="pre">whylogs.core.resolvers.ResolverSpec</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/experimental/core/metrics/udf_metric.html#generate_udf_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.generate_udf_schema" title="Permalink to this definition">#</a></dt>
+<dd><p>Generates a list of ResolverSpecs that implement the UdfMetrics specified
+by the &#64;register_metric_ud decorators. The result only includes the UdfMetric,
+so you may want to append it to a list of ResolverSpecs defining the other
+metrics you wish to track.</p>
+<p>For example:</p>
+<p>&#64;register_metric_udf(col_name=”col1”)
+def add5(x):</p>
+<blockquote>
+<div><p>return x + 5</p>
+</div></blockquote>
+<p>&#64;register_metric_udf(col_type=String)
+def upper(x):</p>
+<blockquote>
+<div><p>return x.upper()</p>
+</div></blockquote>
+<p>schema = DeclarativeSchema(STANDARD_RESOLVER + generate_udf_schema())
+why.log(data, schema=schema)</p>
+<p>This will attach a UdfMetric to column “col1” that will include a submetric
+named “add5” tracking the values in “col1” incremented by 5, and a UdfMetric
+for each string column that will include a submetric named “upper” tracking
+the uppercased strings in the input columns. Since these are appended to the
+STANDARD_RESOLVER, the default metrics are also tracked for every column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="../../../../core/resolvers/index.html#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec">whylogs.core.resolvers.ResolverSpec</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 </section>
@@ -823,14 +950,17 @@ the Metric interface. Don’t use / or : in the subclass’ namespace.</p>
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.experimental.core.metrics.udf_metric</span></code></a><ul>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
 <li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.logger">logger</a></li>
-<li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.DefaultSchema">DefaultSchema</a><ul>
-<li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.DefaultSchema.resolve">resolve</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema">DeclarativeSubmetricSchema</a><ul>
+<li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema.resolve">resolve</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.default_schema">default_schema</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig">UdfMetricConfig</a><ul>
 <li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig.udfs">udfs</a></li>
+<li><a class="reference internal" href="#id0">udfs</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig.submetric_schema">submetric_schema</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig.type_mapper">type_mapper</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig.hll_lg_k">hll_lg_k</a></li>
@@ -862,6 +992,8 @@ the Metric interface. Don’t use / or : in the subclass’ namespace.</p>
 <li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.UdfMetric.get_namespace">get_namespace</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.register_metric_udf">register_metric_udf</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.generate_udf_schema">generate_udf_schema</a></li>
 </ul>
 </li>
 </ul>
