@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass, field
+from functools import partial
 from itertools import chain
 from typing import Any, Callable, Dict, List, Optional
 
@@ -35,7 +36,7 @@ class DeclarativeSubmetricSchema(SubmetricSchema):
         return result
 
 
-DefaultSchema = DeclarativeSubmetricSchema(STANDARD_RESOLVER)
+DefaultSchema = partial(DeclarativeSubmetricSchema, resolvers=STANDARD_RESOLVER)
 
 
 @dataclass(frozen=True)
@@ -43,7 +44,7 @@ class UdfMetricConfig(MetricConfig):
     """Maps feature name to callable that computes it"""
 
     udfs: Dict[str, Callable[[Any], Any]] = field(default_factory=dict)
-    submetric_schema: SubmetricSchema = field(default_factory=lambda: DefaultSchema)
+    submetric_schema: SubmetricSchema = field(default_factory=DefaultSchema)
     type_mapper: TypeMapper = field(default_factory=StandardTypeMapper)
 
 
