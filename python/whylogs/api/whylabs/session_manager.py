@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
 
+from whylabs_client import ApiException
 from whylabs_client.api.sessions_api import (
     CreateSessionRequest,
     CreateSessionResponse,
@@ -44,12 +45,16 @@ def _create_session_id(user_id: str) -> str:
     config = Configuration()
     config.host = os.getenv("WHYLABS_API_ENDPOINT") or DEFAULT_WHYLABS_HOST
 
-    client = ApiClient(config)
-    api = SessionsApi(client)
-    response: CreateSessionResponse = api.create_session(CreateSessionRequest(user_id))
+    try:
+        client = ApiClient(config)
+        api = SessionsApi(client)
+        response: CreateSessionResponse = api.create_session(CreateSessionRequest(user_id))
 
-    logger.debug(f"Created session {response.id}")
-    return response.id
+        logger.debug(f"Created session {response.id}")
+        return response.id
+    except ApiException as e:
+        logger.error(e)
+        raise e
 
 
 def _get_logged_session(auth_path: Path = _auth_path, interactive: bool = False) -> UserSession:
