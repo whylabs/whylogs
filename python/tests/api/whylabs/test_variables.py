@@ -30,6 +30,13 @@ def test_get_variable_from_input_stops_with_no_answer(monkeypatch):
         Variables.get_variable_from_input("my_key")
 
 
+def test_get_variable_from_getpass(monkeypatch):
+    monkeypatch.setattr("getpass.getpass", lambda _: "value")
+
+    result = Variables.get_variable_from_getpass("some_var")
+    assert result == "value"
+
+
 def test_get_variable_from_config_file(auth_path, create_config_file):
     result = Variables.get_variable_from_config_file(auth_path=auth_path, key="my_key")
 

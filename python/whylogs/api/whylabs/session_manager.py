@@ -42,7 +42,7 @@ class UserSession:
 
 def _create_session_id(user_id: str) -> str:
     config = Configuration()
-    config.host = os.getenv("WHYLABS_HOST") or DEFAULT_WHYLABS_HOST
+    config.host = os.getenv("WHYLABS_API_ENDPOINT") or DEFAULT_WHYLABS_HOST
 
     client = ApiClient(config)
     api = SessionsApi(client)
@@ -59,7 +59,7 @@ def _get_logged_session(auth_path: Path = _auth_path, interactive: bool = False)
     org_id = os.getenv("ORG_ID") or Variables.get_variable_from_config_file(auth_path=auth_path, key="org_id")
 
     if is_notebook() and interactive is True:
-        api_key = api_key or Variables.get_variable_from_input(variable_name="api_key")
+        api_key = api_key or Variables.get_variable_from_getpass(variable_name="api_key")
         org_id = org_id or Variables.get_variable_from_input(variable_name="org_id")
 
     if api_key is None or org_id is None:
