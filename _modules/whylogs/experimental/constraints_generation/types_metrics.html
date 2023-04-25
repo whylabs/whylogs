@@ -444,7 +444,8 @@
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">component</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="n">types_metric</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">zero_empty_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-    <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">column_has_zero_count_types</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">types_list</span><span class="o">=</span><span class="n">zero_empty_types</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">zero_empty_types</span><span class="p">:</span>
+        <span class="n">constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">column_has_zero_count_types</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">types_list</span><span class="o">=</span><span class="n">zero_empty_types</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">constraints</span></div>
 </pre></div>
         </article>
