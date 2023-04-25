@@ -1,7 +1,6 @@
 import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
-from functools import partial
 from itertools import chain
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -56,7 +55,8 @@ class DeclarativeSubmetricSchema(SubmetricSchema):
         return result
 
 
-DefaultSchema = partial(DeclarativeSubmetricSchema, resolvers=STANDARD_RESOLVER)
+def default_schema() -> DeclarativeSubmetricSchema:
+    return DeclarativeSubmetricSchema(STANDARD_RESOLVER)
 
 
 @dataclass(frozen=True)
@@ -74,7 +74,7 @@ class UdfMetricConfig(MetricConfig):
     """
 
     udfs: Dict[str, Callable[[Any], Any]] = field(default_factory=dict)
-    submetric_schema: SubmetricSchema = field(default_factory=DefaultSchema)
+    submetric_schema: SubmetricSchema = field(default_factory=default_schema)
     type_mapper: TypeMapper = field(default_factory=StandardTypeMapper)
 
 
@@ -106,7 +106,7 @@ class UdfMetric(MultiMetric):
     ):
         super().__init__(dict())  # submetrics)
         self._udfs = udfs
-        self._submetric_schema = submetric_schema or DefaultSchema()
+        self._submetric_schema = submetric_schema or default_schema()
         self._type_mapper = type_mapper or StandardTypeMapper()
         self._fi_disabled = fi_disabled
 
@@ -271,7 +271,7 @@ def generate_udf_schema() -> List[ResolverSpec]:
             udfs[submetric[0]] = submetric[1]
         config = UdfMetricConfig(
             udfs=udfs,
-            submetric_schema=_col_name_submetric_schema.get(col_name) or DefaultSchema,
+            submetric_schema=_col_name_submetric_schema.get(col_name) or default_schema(),
             type_mapper=_col_name_type_mapper.get(col_name) or StandardTypeMapper(),
         )
         resolvers.append(ResolverSpec(col_name, None, [MetricSpec(UdfMetric, config)]))
@@ -282,7 +282,7 @@ def generate_udf_schema() -> List[ResolverSpec]:
             udfs[submetric[0]] = submetric[1]
         config = UdfMetricConfig(
             udfs=udfs,
-            submetric_schema=_col_type_submetric_schema.get(col_type) or DefaultSchema,
+            submetric_schema=_col_type_submetric_schema.get(col_type) or default_schema(),
             type_mapper=_col_type_type_mapper.get(col_type) or StandardTypeMapper(),
         )
         resolvers.append(ResolverSpec(None, col_type, [MetricSpec(UdfMetric, config)]))
