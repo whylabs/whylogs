@@ -1,8 +1,8 @@
 import logging
+from collections import defaultdict
 from dataclasses import dataclass, field
-from functools import partial
 from itertools import chain
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from whylogs.core.datatypes import DataType, StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import (
@@ -13,12 +13,31 @@ from whylogs.core.metrics.metrics import (
 )
 from whylogs.core.metrics.multimetric import MultiMetric, SubmetricSchema
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.resolvers import STANDARD_RESOLVER, ResolverSpec, _allowed_metric
+from whylogs.core.resolvers import (
+    STANDARD_RESOLVER,
+    MetricSpec,
+    ResolverSpec,
+    _allowed_metric,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class DeclarativeSubmetricSchema(SubmetricSchema):
+    """
+    The DeclarativeSubmetricSchema allows one to customize the set of metrics
+    tracked for each UDF computed by a UdfMetric. Pass its constructor a list
+    of ResolverSpecs, which specify the UDF name or data type to
+    match and the list of MetricSpecs to instantiate for matching UDFs.
+    Each MetricSpec specifies the Metric class and MetricConfig to
+    instantiate. Omit the MetricSpec::config to use the default MetricConfig.
+
+    For example, DeclarativeSubmetricSchema(resolvers=STANDARD_RESOLVER) implements
+    the same schema as DatasetSchema(), i.e., using the default MetricConfig,
+    StandardTypeMapper, StandardResolver, etc.  STANDARD_RESOLVER is defined
+    in whylogs/python/whylogs/core/resolvers.py
+    """
+
     def __init__(self, resolvers: List[ResolverSpec], default_config: Optional[MetricConfig] = None) -> None:
         self._default_config = default_config or MetricConfig()
         self._resolvers = resolvers.copy()
@@ -36,19 +55,47 @@ class DeclarativeSubmetricSchema(SubmetricSchema):
         return result
 
 
-DefaultSchema = partial(DeclarativeSubmetricSchema, resolvers=STANDARD_RESOLVER)
+def default_schema() -> DeclarativeSubmetricSchema:
+    return DeclarativeSubmetricSchema(STANDARD_RESOLVER)
 
 
 @dataclass(frozen=True)
 class UdfMetricConfig(MetricConfig):
-    """Maps feature name to callable that computes it"""
+    """
+    Configure UDFs & submetrics for UdfMetric
+
+    Attributes:
+       udfs: Maps submetric name to the UDF that computes the value to track
+
+       submetric_schema [optional]: determines the set of metrics tracked for
+           each computed value
+
+       type_mapper [optional]: maps Python types to whylogs DataType
+    """
 
     udfs: Dict[str, Callable[[Any], Any]] = field(default_factory=dict)
-    submetric_schema: SubmetricSchema = field(default_factory=DefaultSchema)
+    submetric_schema: SubmetricSchema = field(default_factory=default_schema)
     type_mapper: TypeMapper = field(default_factory=StandardTypeMapper)
 
 
 class UdfMetric(MultiMetric):
+    """
+    Applies the specified UDFs to the input column values and tracks the metrics
+    specified by the submetric_schema to their output.
+
+    Args:
+        udfs: map of submetric name to UDF to compute value to track
+
+        submetric_schema [optional]: determines the set of metrics to track for
+            each UDF output. Defaults to STANDARD_RESOLVER
+
+        type_mapper [optional]: maps Python types to whylogs DataType. Defaults
+            to StandardTypeMapper
+
+        fi_disabled [optional]: Should FrequentItemsMetric tracking be disabled.
+            Defaults to False
+    """
+
     def __init__(
         self,
         udfs: Dict[str, Callable[[Any], Any]],
@@ -59,7 +106,7 @@ class UdfMetric(MultiMetric):
     ):
         super().__init__(dict())  # submetrics)
         self._udfs = udfs
-        self._submetric_schema = submetric_schema or DefaultSchema()
+        self._submetric_schema = submetric_schema or default_schema()
         self._type_mapper = type_mapper or StandardTypeMapper()
         self._fi_disabled = fi_disabled
 
@@ -113,3 +160,131 @@ class UdfMetric(MultiMetric):
 
 # Register it so Multimetric and ProfileView can deserialize
 register_metric(UdfMetric)
+
+
+_col_name_submetrics: Dict[str, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
+_col_name_submetric_schema: Dict[str, SubmetricSchema] = dict()
+_col_name_type_mapper: Dict[str, TypeMapper] = dict()
+
+_col_type_submetrics: Dict[DataType, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
+_col_type_submetric_schema: Dict[DataType, SubmetricSchema] = dict()
+_col_type_type_mapper: Dict[DataType, TypeMapper] = dict()
+
+
+def register_metric_udf(
+    col_name: Optional[str] = None,
+    col_type: Optional[DataType] = None,
+    submetric_name: Optional[str] = None,
+    submetric_schema: Optional[SubmetricSchema] = None,
+    type_mapper: Optional[TypeMapper] = None,
+) -> Callable[[Any], Any]:
+    """
+    Decorator to easily configure UdfMetrics for your data set. Decorate your UDF
+    functions, then call generate_udf_schema() to generate a list of ResolverSpecs
+    that include the UdfMetrics configured by your decorator parameters.
+
+    You must specify exactly one of either col_name or col_type. col_name will attach
+    a UdfMetric to the named input column. col_type will attach a UdfMetric to all
+    input columns of the specified type. The decorated function will automatically
+    be a UDF in the UdfMetric.
+
+    Specify submetric_name to give the output of the UDf a name. submetric_name
+    defautls to the name of the decorated function. Note that all lambdas are
+    named "lambda" so omitting submetric_name on more than one lambda will result
+    in name collisions.
+
+    You can optionally pass submetric_schema to specify and configure the metrics
+    to be tracked for each UDF. This defualts to the STANDARD_RESOLVER metrics.
+
+    You can optionally pass type_mapper to control how Python types are mapped to
+    whylogs DataTypes. This defaults to the StandardTypeMapper.
+    """
+
+    def decorator_register(func):
+        global _col_name_submetrics, _col_name_submetric_schema, _col_name_type_mapper
+
+        if col_name is not None and col_type is not None:
+            raise ValueError("Only specify one of column name or type")
+
+        if col_name is None and col_type is None:
+            raise ValueError("Must specify one of column name or type")
+
+        subname = submetric_name or func.__name__
+        if col_name is not None:
+            _col_name_submetrics[col_name].append((subname, func))
+            if submetric_schema is not None:
+                if col_name in _col_name_submetric_schema:
+                    logger.warn(f"Overwriting submetric schema for column {col_name}")
+                _col_name_submetric_schema[col_name] = submetric_schema
+            if type_mapper is not None:
+                if col_name in _col_name_type_mapper:
+                    logger.warn(f"Overwriting UdfMetric type mapper for column {col_name}")
+                _col_name_type_mapper[col_name] = type_mapper
+        else:
+            _col_type_submetrics[col_type].append((subname, func))
+            if submetric_schema is not None:
+                if col_type in _col_type_submetric_schema:
+                    logger.warn(f"Overwriting submetric schema for column type {col_type}")
+                _col_type_submetric_schema[col_type] = submetric_schema
+            if type_mapper is not None:
+                if col_type in _col_type_type_mapper:
+                    logger.warn(f"Overwriting UdfMetric type mapper for column type {col_type}")
+                _col_type_type_mapper[col_type] = type_mapper
+
+        return func
+
+    return decorator_register
+
+
+def generate_udf_schema() -> List[ResolverSpec]:
+    """
+    Generates a list of ResolverSpecs that implement the UdfMetrics specified
+    by the @register_metric_ud decorators. The result only includes the UdfMetric,
+    so you may want to append it to a list of ResolverSpecs defining the other
+    metrics you wish to track.
+
+    For example:
+
+    @register_metric_udf(col_name="col1")
+    def add5(x):
+        return x + 5
+
+    @register_metric_udf(col_type=String)
+    def upper(x):
+        return x.upper()
+
+    schema = DeclarativeSchema(STANDARD_RESOLVER + generate_udf_schema())
+    why.log(data, schema=schema)
+
+    This will attach a UdfMetric to column "col1" that will include a submetric
+    named "add5" tracking the values in "col1" incremented by 5, and a UdfMetric
+    for each string column that will include a submetric named "upper" tracking
+    the uppercased strings in the input columns. Since these are appended to the
+    STANDARD_RESOLVER, the default metrics are also tracked for every column.
+    """
+
+    resolvers: List[ResolverSpec] = list()
+    udfs: Dict[str, Callable[[Any], Any]]
+    for col_name, submetrics in _col_name_submetrics.items():
+        udfs = dict()
+        for submetric in submetrics:
+            udfs[submetric[0]] = submetric[1]
+        config = UdfMetricConfig(
+            udfs=udfs,
+            submetric_schema=_col_name_submetric_schema.get(col_name) or default_schema(),
+            type_mapper=_col_name_type_mapper.get(col_name) or StandardTypeMapper(),
+        )
+        resolvers.append(ResolverSpec(col_name, None, [MetricSpec(UdfMetric, config)]))
+
+    for col_type, submetrics in _col_type_submetrics.items():
+        udfs = dict()
+        for submetric in submetrics:
+            udfs[submetric[0]] = submetric[1]
+        config = UdfMetricConfig(
+            udfs=udfs,
+            submetric_schema=_col_type_submetric_schema.get(col_type) or default_schema(),
+            type_mapper=_col_type_type_mapper.get(col_type) or StandardTypeMapper(),
+        )
+        resolvers.append(ResolverSpec(None, col_type, [MetricSpec(UdfMetric, config)]))
+
+    return resolvers
