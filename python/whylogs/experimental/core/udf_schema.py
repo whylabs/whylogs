@@ -3,7 +3,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple
 
-from whylogs.core.datatypes import TypeMapper
+from whylogs.core.datatypes import DataType, TypeMapper
 from whylogs.core.metrics.metrics import MetricConfig
 from whylogs.core.resolvers import ResolverSpec
 from whylogs.core.schema import DatasetSchema, DeclarativeSchema
