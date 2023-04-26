@@ -10,6 +10,7 @@ from whylogs.core.predicate_parser import _METRIC_REF, _PROFILE_REF, _tokenize
 from whylogs.core.utils import deprecated
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.core.configs import SummaryConfig
 
 logger = getLogger(__name__)
 
@@ -275,11 +276,12 @@ class PrefixCondition:
     in client code.
     """
 
-    def __init__(self, expression: str) -> None:
+    def __init__(self, expression: str, cfg: Optional[SummaryConfig] = None) -> None:
         self._expression = expression
         self._tokens = _tokenize(expression)
         self._profile = None
         self._metric_map: Dict[str, Metric] = dict()
+        self._cfg = cfg or SummaryConfig()
 
     def _interpret(self, i: int) -> Tuple[Any, int]:  # noqa: C901
         token = self._tokens[i]
@@ -301,7 +303,7 @@ class PrefixCondition:
             metric_name, component_name = path.split("/", 1)
             try:
                 metric = self._profile.get_column(column_name).get_metric(metric_name)  # type: ignore
-                summary = metric.to_summary_dict()
+                summary = metric.to_summary_dict(self._cfg)
             except:  # noqa
                 raise MissingMetric(token)
 

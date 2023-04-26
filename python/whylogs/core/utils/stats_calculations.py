@@ -4,6 +4,7 @@ from typing_extensions import TypedDict
 
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView
+from whylogs.core.configs import SummaryConfig
 
 
 def get_distribution_metrics(
@@ -21,11 +22,11 @@ def get_distribution_metrics(
     return min_val, max_val, range_val
 
 
-def is_probably_unique(column_profile: ColumnProfileView) -> bool:
-    cardinality = column_profile.get_metric("cardinality").to_summary_dict()
+def is_probably_unique(column_profile: ColumnProfileView, hll_stddev: int = 3) -> bool:
+    cardinality = column_profile.get_metric("cardinality").to_summary_dict(SummaryConfig(hll_stddev=hll_stddev))
     counts = column_profile.get_metric("counts").to_summary_dict()
     if "cardinality" in column_profile.get_metric_names() and "counts" in column_profile.get_metric_names():
-        if cardinality["lower_1"] <= counts["n"] - counts["null"] <= cardinality["upper_1"]:
+        if cardinality[f"lower_{hll_stddev}"] <= counts["n"] - counts["null"] <= cardinality[f"upper_{hll_stddev}"]:
             return True
     return False
 

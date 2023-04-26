@@ -3,13 +3,15 @@ from whylogs.core.constraints import (
     MetricConstraint,
     PrefixCondition,
 )
+from whylogs.core.configs import SummaryConfig
 
 
-def column_is_probably_unique(column_name: str) -> MetricConstraint:
+def column_is_probably_unique(column_name: str, hll_stddev: int = 3) -> MetricConstraint:
     is_probably_unique_constraint = DatasetConstraint(
         name=f"{column_name} is probably unique",
         condition=PrefixCondition(
-            f"and <= :{column_name}:cardinality/lower_1 :{column_name}:counts/n <= :{column_name}:counts/n :{column_name}:cardinality/upper_1"
+            f"and <= :{column_name}:cardinality/lower_{hll_stddev} - :{column_name}:counts/n :{column_name}:counts/null  <= - :{column_name}:counts/n :{column_name}:counts/null :{column_name}:cardinality/upper_{hll_stddev}",
+            cfg=SummaryConfig(hll_stddev=hll_stddev),
         ),
     )
     return is_probably_unique_constraint
