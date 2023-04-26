@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class UdfSpec:
     column_name: Optional[str] = None  # TODO: maybe make this a regex
-    column_type: Optional[Any] = None
+    column_type: Optional[DataType] = None
     udfs: Dict[str, Callable[[Any], Any]] = field(
         default_factory=dict
     )  # new column name -> callable to compute new column value
