@@ -53,31 +53,37 @@ class UdfSchema(DeclarativeSchema):
         copy.udf_specs = deepcopy(self.udf_specs)
         return copy
 
+    def _run_udfs_on_row(self, row: Mapping[str, Any], new_columns: Mapping[str, Any]) -> None:
+        for column, value in row.items():
+            for udf_spec in self.udf_specs:
+                col_name, col_type = udf_spec.column_name, udf_spec.column_type
+                why_type = self.type_mapper(type(value))
+                if col_name == column or (col_name is None and isinstance(col_type, why_type)):
+                    for new_col, udf in udf_spec.udfs.items():
+                        if new_col in new_columns:
+                            logger.info(f"UDF {udf.__name__} overwriting column {new_col}")
+                        new_columns[new_col] = udf(value)  # type: ignore
+
+    def _run_udfs_on_dataframe(self, pandas: pd.DataFrame, new_df: pd.DataFrame) -> None:
+        for column in pandas.keys():
+            for udf_spec in self.udf_specs:
+                col_name, col_type = udf_spec.column_name, udf_spec.column_type
+                why_type = pandas.dtypes[column]
+                if col_name == column or (col_name is None and isinstance(col_type, why_type)):
+                    for new_col, udf in udf_spec.udfs.items():
+                        if new_col in new_df.keys():
+                            logger.info(f"UDF {udf.__name__} overwriting column {new_col}")
+                        new_df[new_col] = pandas[column].map(udf)
+
     def _run_udfs(
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None
     ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
         new_columns = deepcopy(row) if row else None
         new_df = pd.DataFrame(pandas) if pandas is not None else None
         if row is not None:
-            for column, value in row.items():
-                for udf_spec in self.udf_specs:
-                    col_name, col_type = udf_spec.column_name, udf_spec.column_type
-                    why_type = self.type_mapper(type(value))
-                    if col_name == column or (col_name is None and isinstance(col_type, why_type)):  # type: ignore
-                        for new_col, udf in udf_spec.udfs.items():
-                            if new_col in row:
-                                logger.info(f"Overwriting column {new_col}")
-                            new_columns[new_col] = udf(value)  # type: ignore
+            self._run_udfs_on_row(row, new_columns)  # type: ignore
 
         if pandas is not None:
-            for column in pandas.keys():
-                for udf_spec in self.udf_specs:
-                    col_name, col_type = udf_spec.column_name, udf_spec.column_type
-                    why_type = pandas.dtypes[column]
-                    if col_name == column or (col_name is None and isinstance(col_type, why_type)):  # type: ignore
-                        for new_col, udf in udf_spec.udfs.items():
-                            if new_col in pandas.keys():
-                                logger.info(f"Overwriting column {new_col}")
-                            new_df[new_col] = pandas[column].map(udf)
+            self._run_udfs_on_dataframe(pandas, new_df)
 
         return new_df, new_columns
