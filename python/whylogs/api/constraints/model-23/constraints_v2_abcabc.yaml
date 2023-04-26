@@ -1,0 +1,28 @@
+id: "model-23"
+version: 1
+hash: abcabc231 # maybe from git?
+
+constraints:
+  column_1:
+    type: int
+    metrics:
+      - distribution
+      - counts
+    checks:
+      - no_missing_values
+      - greater_than_number: 12
+      - smaller_than_number: reference.column_1.min
+
+  column_3:
+    type: string
+    metrics: frequent_items
+    checks:
+      - n_most_common_items_in_set:
+        items_number: 5
+        reference_set:
+          - "snake"
+          - "bird"
+
+validators:
+  - validator_1: some_validator_id_to_be_pulled
+  - validator_2: other_validator_id_to_be_pulled
