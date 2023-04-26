@@ -1,0 +1,40 @@
+[1mdiff --git a/python/whylogs/api/constraints/model-23/constraints_v1_1d3k.yaml b/python/whylogs/api/constraints/model-23/constraints_v2_abcabc.yaml[m
+[1mindex 7a57ea2ad..17fed164d 100644[m
+[1m--- a/python/whylogs/api/constraints/model-23/constraints_v1_1d3k.yaml[m
+[1m+++ b/python/whylogs/api/constraints/model-23/constraints_v2_abcabc.yaml[m
+[36m@@ -1,6 +1,6 @@[m
+ id: "model-23"[m
+ version: 1[m
+[31m-hash: 1d3kml3fkm # maybe from git?[m
+[32m+[m[32mhash: abcabc231 # maybe from git?[m
+ [m
+ constraints:[m
+   column_1:[m
+[36m@@ -13,19 +13,15 @@[m [mconstraints:[m
+       - greater_than_number: 12[m
+       - smaller_than_number: reference.column_1.min[m
+ [m
+[31m-  column_2:[m
+[31m-    type: float[m
+[31m-    metrics: distribution[m
+[32m+[m[32m  column_3:[m
+[32m+[m[32m    type: string[m
+[32m+[m[32m    metrics: frequent_items[m
+     checks:[m
+[31m-      - null_values_below_number: 10[m
+[31m-      - mean_between_range:[m
+[31m-        upper: 10.11[m
+[31m-        lower: 0.2[m
+[31m-      - quantile_between_range:[m
+[31m-        quantile: 0.5[m
+[31m-        lower: 1.0[m
+[31m-        upper: 2.224[m
+[31m-        inclusive: true[m
+[32m+[m[32m      - n_most_common_items_in_set:[m
+[32m+[m[32m        items_number: 5[m
+[32m+[m[32m        reference_set:[m
+[32m+[m[32m          - "snake"[m
+[32m+[m[32m          - "bird"[m
+ [m
+ validators:[m
+   - validator_1: some_validator_id_to_be_pulled[m

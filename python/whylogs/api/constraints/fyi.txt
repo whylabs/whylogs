@@ -1,0 +1,5 @@
+To generate the diff file, I have:
+
+1. Commited the files to git (add + commit)
+2. Used `git diff --color HEAD:python/whylogs/api/constraints/model-23/constraints_v1_1d3k.yaml python/whylogs/api/constraints/model-23/constraints_v2_abcabc.yaml > python/whylogs/api/constraints/model-23/diff.txt`
+3. Opened `python/whylogs/api/constraints/model-23/diff.txt` with `cat`
