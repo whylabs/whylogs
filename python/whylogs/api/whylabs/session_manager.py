@@ -76,7 +76,7 @@ def _get_logged_session(auth_path: Path = _auth_path, interactive: bool = False)
     return UserSession(org_id=org_id, api_key=api_key)
 
 
-def _get_guest_session() -> GuestSession:
+def _get_or_create_guest_session() -> GuestSession:
     session_id = Variables.get_variable_from_config_file(auth_path=_auth_path, key="session_id")
     if session_id is None:
         user_id = str(uuid.uuid4())
@@ -84,11 +84,13 @@ def _get_guest_session() -> GuestSession:
     return GuestSession(session_id=session_id)
 
 
-def create_session(anonymous: Optional[bool] = None, interactive: bool = False) -> Union[GuestSession, UserSession]:
+def get_or_create_session(
+    anonymous: Optional[bool] = None, interactive: bool = False
+) -> Union[GuestSession, UserSession]:
     if not anonymous:
         return _get_logged_session(interactive=interactive)
     else:
-        return _get_guest_session()
+        return _get_or_create_guest_session()
 
 
 class SessionManager:
@@ -101,7 +103,7 @@ class SessionManager:
             raise Exception("There is an active Session, use Session.get_instance() instead")
         else:
             SessionManager.__instance = self
-            self.session = create_session(anonymous=self._anonymous, interactive=self._interactive)
+            self.session = get_or_create_session(anonymous=self._anonymous, interactive=self._interactive)
 
     @staticmethod
     def get_instance(anonymous: Optional[bool] = None, interactive: bool = False):

@@ -11,9 +11,9 @@ from whylogs.api.whylabs.session_manager import (
     UserSession,
     _auth_path,
     _create_session_id,
-    _get_guest_session,
     _get_logged_session,
-    create_session,
+    _get_or_create_guest_session,
+    get_or_create_session,
 )
 
 
@@ -36,7 +36,7 @@ class TestSessionManager:
         assert "session-" in session_id
 
     def test_get_guest_session(self):
-        session = _get_guest_session()
+        session = _get_or_create_guest_session()
         assert isinstance(session, GuestSession)
         assert "session-" in session.session_id
 
@@ -45,7 +45,7 @@ class TestSessionManager:
 
         assert config.get("whylabs", "session_id") == session.session_id
 
-        new_session = _get_guest_session()
+        new_session = _get_or_create_guest_session()
         assert new_session.session_id == session.session_id
 
     def test_logged_session_with_env_var(self):
@@ -56,10 +56,10 @@ class TestSessionManager:
         assert session.api_key == "api_key"
 
     def test_create_session(self):
-        logged_session = create_session(anonymous=False)
+        logged_session = get_or_create_session(anonymous=False)
         assert isinstance(logged_session, UserSession)
 
-        anon_session = create_session(anonymous=True)
+        anon_session = get_or_create_session(anonymous=True)
         assert isinstance(anon_session, GuestSession)
 
     def test_session_manager_singleton(self):
