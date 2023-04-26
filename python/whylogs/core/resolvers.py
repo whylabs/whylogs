@@ -148,8 +148,8 @@ class DeclarativeResolver(Resolver):
         self._resolvers.append(resolver_spec)
 
     def __init__(self, resolvers: List[ResolverSpec], default_config: Optional[MetricConfig] = None) -> None:
-        # Validate resolvers -- must have name xor type, MetricSpec metrics must <: Metric
         self._resolvers = deepcopy(resolvers)
+        self._default_config = default_config
 
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
         result: Dict[str, Metric] = {}
@@ -157,7 +157,7 @@ class DeclarativeResolver(Resolver):
             col_name, col_type = resolver_spec.column_name, resolver_spec.column_type
             if (col_name and col_name == name) or (col_name is None and isinstance(why_type, col_type)):  # type: ignore
                 for spec in resolver_spec.metrics:
-                    config = spec.config or column_schema.cfg
+                    config = spec.config or self._default_config or column_schema.cfg
                     if _allowed_metric(config, spec.metric):
                         result[spec.metric.get_namespace()] = spec.metric.zero(config)
 
