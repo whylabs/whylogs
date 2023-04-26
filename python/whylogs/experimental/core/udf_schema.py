@@ -63,7 +63,7 @@ class UdfSchema(DeclarativeSchema):
                 for udf_spec in self.udf_specs:
                     col_name, col_type = udf_spec.column_name, udf_spec.column_type
                     why_type = self.type_mapper(type(value))
-                    if (col_name and col_name == column) or (col_name is None and isinstance(col_type, why_type)):  # type: ignore
+                    if col_name == column or (col_name is None and isinstance(col_type, why_type)):  # type: ignore
                         for new_col, udf in udf_spec.udfs.items():
                             if new_col in row:
                                 logger.info(f"Overwriting column {new_col}")
