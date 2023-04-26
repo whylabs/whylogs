@@ -68,6 +68,9 @@ scikit-learn = [
 fugue = {version = "^0.8.1", optional = true}
 requests = "^2.27"
 
+# confighub related dependencies
+semantic-version = {version = "^2.10.0", optional = true}
+
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
 black = { version = "^22.10.0", allow-prereleases = true }
@@ -147,6 +150,9 @@ embeddings = [
   "numpy",
   "scikit-learn",
 ]
+confighub = [
+  "semantic-version",
+]
 all = [
   "scikit-learn",
   "fugue",
@@ -162,6 +168,7 @@ all = [
   "numpy",
   "scipy",
   "requests",
+  "semantic-version",
 ]
 
 [tool.poetry.group.dev.dependencies]
