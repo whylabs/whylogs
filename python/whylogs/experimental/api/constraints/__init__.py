@@ -18,13 +18,28 @@ logger = getLogger(__name__)
 
 
 constraints_mapping = {
-    "no_missing_values": no_missing_values,
-    "is_in_range": is_in_range,
-    "column_is_probably_unique": column_is_probably_unique,
-    "distinct_number_in_range": distinct_number_in_range,
-    "count_below_number": count_below_number,
-    "is_non_negative": is_non_negative,
-    "condition_meets": condition_meets,
+    "no_missing_values": {
+        "constraint_function": no_missing_values,
+        "whylabs_datatypes": ["string", "integral", "fractional", "bool", "unknown"],
+    },
+    "is_in_range": {"constraint_function": is_in_range, "whylabs_datatypes": ["integral", "fractional"]},
+    "column_is_probably_unique": {
+        "constraint_function": column_is_probably_unique,
+        "whylabs_datatypes": ["string", "integral"],
+    },
+    "distinct_number_in_range": {
+        "constraints_function": distinct_number_in_range,
+        "whylabs_datatypes": ["string", "integral"],
+    },
+    "count_below_number": {
+        "constraints_function": count_below_number,
+        "whylabs_datatypes": ["string", "integral", "fractional", "bool", "unknown"],
+    },
+    "is_non_negative": {"constraints_function": is_non_negative, "whylabs_datatypes": ["integral", "fractional"]},
+    "condition_meets": {
+        "constraints_function": condition_meets,
+        "whylabs_datatypes": ["string", "integral", "fractional", "bool", "unknown"],
+    },
 }
 
 
@@ -35,7 +50,7 @@ def assemble_constraint(constraint_dict: dict) -> Optional[TypedDict]:
         returned_constraint = DatasetConstraint(condition=condition, name=constraint_dict.get("name"))
         return returned_constraint
     if constraint_dict.get("factory") in constraints_mapping:
-        constraint_function = constraints_mapping[constraint_dict.get("factory")]
+        constraint_function = constraints_mapping[constraint_dict.get("factory")]["constraint_function"]
         constraint_dict.pop("factory")
         constraint_dict.pop("metric")
         if constraint_dict.get("name"):

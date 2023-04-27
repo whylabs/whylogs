@@ -15,3 +15,7 @@ class Constraints(BaseModel):
 
 class EntitySchema(BaseModel):
     entity_schema: List[Dict]
+
+
+class ConstraintsPerDatatype(BaseModel):
+    constraints_per_datatype: Dict[str, List]

@@ -1,9 +1,10 @@
 import os
 
 from fastapi import APIRouter
-from whylogs.experimental.constraints_hub.backend.models import EntitySchema
+from whylogs.experimental.constraints_hub.backend.models import EntitySchema, ConstraintsPerDatatype
 import whylabs_client
 from whylabs_client.api import models_api
+from whylogs.experimental.api.constraints import constraints_mapping
 
 # from .models import Constraints
 
@@ -78,7 +79,15 @@ def get_column_types_to_constraints() -> None:
         ...
     }
     """
-    pass
+    whylabs_datatypes = ["integral", "fractional", "bool", "string", "unknown", "null"]
+    constraints_per_type = {}
+    for datatype in whylabs_datatypes:
+        constraints_list = []
+        for constraint_name, constraint in constraints_mapping.items():
+            if datatype in constraint["whylabs_datatypes"]:
+                constraints_list.append(constraint_name)
+        constraints_per_type[datatype] = constraints_list
+    return {"constraints_per_datatype": constraints_per_type}
 
 
 @router.post("/save")
