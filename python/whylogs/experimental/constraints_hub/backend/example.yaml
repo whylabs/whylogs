@@ -1,0 +1,32 @@
+id: "model-23"
+version: 1
+hash: 1d3kml3fkm # maybe from git?
+
+constraints:
+  column_1:
+    type: int
+    metrics:
+      - distribution
+      - counts
+    checks:
+      - no_missing_values
+      - greater_than_number: 12
+      - smaller_than_number: reference.column_1.min
+
+  column_2:
+    type: float
+    metrics: distribution
+    checks:
+      - null_values_below_number: 10
+      - mean_between_range:
+        upper: 10.11
+        lower: 0.2
+      - quantile_between_range:
+        quantile: 0.5
+        lower: 1.0
+        upper: 2.224
+        inclusive: true
+
+validators:
+  - validator_1: some_validator_id_to_be_pulled
+  - validator_2: other_validator_id_to_be_pulled
