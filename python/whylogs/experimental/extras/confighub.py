@@ -59,15 +59,14 @@ class ConfigStore(ABC):
 
 
 class LocalGitConfigStore(ConfigStore):
-    _repo_path = "/tmp"
-
     def _run_commands(self, commands: List[str]) -> None:
         for command in commands:
             output = os.popen(f"cd {self._path}; {command}")
             logger.debug(f"{command}: {output.read()}")
 
-    def __init__(self, org_id: str, dataset_id: str, what: str):
+    def __init__(self, org_id: str, dataset_id: str, what: str, repo_path: str = "/tmp"):
         super().__init__(org_id, dataset_id, what)
+        self._repo_path = repo_path
         self._path = f"{self._repo_path}/{org_id}/{dataset_id}"
         if not os.path.isdir(self._path):
             os.makedirs(self._path)
