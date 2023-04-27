@@ -2,7 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from queue import Empty, Full, Queue
 from threading import Event, Thread
-from typing import Generic, TypeVar, Union
+from typing import Generic, TypeVar, Union, List
 
 
 class CloseMessage:
@@ -12,15 +12,16 @@ class CloseMessage:
 MessageType = TypeVar("MessageType")
 
 
-class MessageProcessor(ABC, Generic[MessageType], Thread):
-    def __init__(self) -> None:
+class ActorThread(ABC, Generic[MessageType], Thread):
+    def __init__(self, auto_start: bool = True) -> None:
         super().__init__()
         self._logger = logging.getLogger(f"{type(self).__name__}_{id(self)}")
         self._queue: Queue[Union[MessageType, CloseMessage]] = Queue(100_000)
         self.daemon = True
         self._is_done = Event()
         self._closed = False
-        self.start()
+        if auto_start:
+            self.start()
 
     def run(self) -> None:
         self._process_messages()
@@ -43,6 +44,22 @@ class MessageProcessor(ABC, Generic[MessageType], Thread):
     @abstractmethod
     def _process_message(self, message: Union[MessageType, CloseMessage]) -> None:
         pass
+
+    def send_many(self, message: List[Union[MessageType, CloseMessage]]) -> None:
+        if self._closed:
+            raise Exception("Logger is closed")
+
+        for message in message:
+            if isinstance(message, CloseMessage):
+                self._closed = True
+
+        done = False
+        while not done:
+            try:
+                self._queue.put_many(message, timeout=0.1)
+                done = True
+            except Full:
+                self._logger.warn("Message queue full, trying again")
 
     def send(self, message: Union[MessageType, CloseMessage]) -> None:
         if self._closed:

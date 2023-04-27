@@ -53,3 +53,32 @@ class SegmentCache(object):
         result_set = self.get_result_set(dataset_timestamp)
         self._cache = dict()
         return result_set
+
+
+from typing import Dict, TypedDict
+
+class MetricConfig(TypedDict):
+    # etc
+    pass
+
+class Config(TypedDict):
+    ignore_unknown: bool
+    # etc
+
+config: Config = {
+    "ignore_unknown": False,
+    "col1": {
+        "metrics": {
+            "distribution": True,
+            "condition_count": {
+                "below 42": lambda x: x < 42,
+                "above 42": lambda x: x > 42,
+            },
+        }
+    },
+    "col2": {
+        "metrics": {
+            "frequent_items": True
+        }
+    }
+}

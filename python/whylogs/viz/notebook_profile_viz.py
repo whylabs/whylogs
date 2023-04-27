@@ -268,6 +268,22 @@ class NotebookProfileVisualizer:
             logger.error("This method has to get target Dataset Profile View")
             raise e
 
+    def summary_drift_html(self, height: Optional[str] = None) -> str:
+        if not self._target_view or not self._ref_view:
+            logger.error("This method has to get both target and reference profiles")
+            raise ValueError
+        page_spec = PageSpecEnum.SUMMARY_REPORT.value
+        template = _get_compiled_template(page_spec.html)
+
+        profiles_summary = generate_summaries_with_drift_score(
+            self._target_view, self._ref_view, config=None, drift_map=self._drift_map
+        )
+
+        content = template(profiles_summary)
+        return f"""<iframe srcdoc="{html.escape(content)}" width=100% height=100% frameBorder=0></iframe>"""
+        # iframe = f"""<div></div><iframe srcdoc="{html.escape(template)}" width=100% height={height} frameBorder=0></iframe>"""
+        # return template(profiles_summary)
+
     def summary_drift_report(self, height: Optional[str] = None) -> HTML:
         """Generate drift report between target and reference profiles.
 

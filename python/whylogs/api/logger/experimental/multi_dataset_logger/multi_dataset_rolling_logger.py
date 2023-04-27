@@ -15,7 +15,7 @@ from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
 
 from .future_util import wait_result
-from .message_processor import CloseMessage, MessageProcessor
+from .actor_thread import CloseMessage, ActorThread
 from .time_util import (
     FunctionTimer,
     Schedule,
@@ -187,7 +187,7 @@ class PendingWritable:
 LoggerMessage = Union[TrackMessage, FlushMessage, StatusMessage, GetResultsMessage]
 
 
-class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
+class MultiDatasetRollingLogger(ActorThread[LoggerMessage]):
     """
     A logger that manages profiles and segments for various dataset timestamps.
 
@@ -213,6 +213,7 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
         write_schedule: Optional[Schedule] = Schedule(cadence=TimeGranularity.Minute, interval=10),
         schema: Optional[DatasetSchema] = None,
         writers: List[Writer] = [],
+        auto_start: bool = True,
     ) -> None:
         self._aggregate_by = aggregate_by
         self._cache: Dict[int, DatasetProfileContainer] = {}
@@ -228,8 +229,8 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
             if write_schedule.cadence == TimeGranularity.Second:
                 raise Exception("Minimum write schedule is five minutes.")
 
-            if write_schedule.cadence == TimeGranularity.Minute and write_schedule.interval < 5:
-                raise Exception("Minimum write schedule is five minutes.")
+            # if write_schedule.cadence == TimeGranularity.Minute and write_schedule.interval < 5:
+                # raise Exception("Minimum write schedule is five minutes.")
 
             self._timer = FunctionTimer(write_schedule, self.flush)
         else:
@@ -237,9 +238,12 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
                 "No write schedule defined for logger. Profiles will only be written after calls to flush()."
             )
 
-        super().__init__()
+        super().__init__(auto_start)
+        import os 
+        self._logger.debug(f'Created thread logger, pid f{os.getpid()}')
 
     def _process_message(self, message: Union[LoggerMessage, CloseMessage]) -> None:
+        print(f"Processing message {message}")
         if isinstance(message, TrackMessage):
             self._process_track_message(message)
         elif isinstance(message, FlushMessage):
