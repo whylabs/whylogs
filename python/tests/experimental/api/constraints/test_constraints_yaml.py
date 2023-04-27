@@ -1,4 +1,9 @@
+import os
+import tempfile
+
 import pandas as pd
+import pytest
+import yaml
 
 import whylogs as why
 from whylogs.core.constraints import ConstraintsBuilder
@@ -10,18 +15,13 @@ from whylogs.core.metrics.condition_count_metric import (
 from whylogs.core.relations import Predicate
 from whylogs.core.resolvers import STANDARD_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
+from whylogs.experimental.api.constraints import ConstraintTranslator
 from whylogs.experimental.constraints_generation import (
     generate_constraints_from_reference_profile,
 )
-import yaml
-import pytest
-import os
-import tempfile
-
-from whylogs.experimental.api.constraints import ConstraintTranslator
 
 yaml_string = """\
-    
+
 id: "model-23"
 version: 1
 hash: abcabc231 # maybe from git?
@@ -65,7 +65,7 @@ constraints:
     :animal:cardinality/upper_1
   name: animal is probably unique
   metric: dataset-metric
-    
+
     """
 
 

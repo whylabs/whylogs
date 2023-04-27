@@ -1,5 +1,6 @@
-from ..metric_constraints import MetricConstraint, MetricsSelector
 from whylogs.core.constraints.metric_constraints import ConstraintsParams
+
+from ..metric_constraints import MetricConstraint, MetricsSelector
 
 
 class ConditionMeetsParams(ConstraintsParams):

@@ -4,7 +4,9 @@ from copy import deepcopy
 from dataclasses import dataclass
 from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
 from typing_extensions import TypedDict
+
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.predicate_parser import _METRIC_REF, _PROFILE_REF, _tokenize
 from whylogs.core.utils import deprecated
@@ -461,11 +463,17 @@ class PrefixCondition:
 
 
 def _make_report(
-    column_name: str, constraint_name: str, result: bool, with_summary: bool, metric_summary: Optional[Dict[str, Any]]
+    column_name: Optional[str],
+    constraint_name: str,
+    result: bool,
+    with_summary: bool,
+    metric_summary: Optional[Dict[str, Any]],
 ) -> ReportResult:
     if not result:
         if with_summary:
-            return ReportResult(name=constraint_name, passed=0, failed=1, summary=metric_summary, column_name=column_name)
+            return ReportResult(
+                name=constraint_name, passed=0, failed=1, summary=metric_summary, column_name=column_name
+            )
         return ReportResult(name=constraint_name, passed=0, failed=1, summary=None, column_name=column_name)
 
     if with_summary:
@@ -510,10 +518,10 @@ class Constraints:
         return True
 
     @deprecated(message="Please use generate_constraints_report()")
-    def report(self, profile_view: Optional[DatasetProfileView] = None) -> List[Tuple[str, int, int]]:
+    def report(self, profile_view: Optional[DatasetProfileView] = None) -> List[Tuple[Optional[str], str, int, int]]:
         profile = self._resolve_profile_view(profile_view)
         column_names = self.column_constraints.keys()
-        results: List[Tuple[str, int, int]] = []
+        results: List[Tuple[Optional[str], str, int, int]] = []
         for column_name in column_names:
             columnar_constraints = self.column_constraints[column_name]
             for constraint_name, metric_constraint in columnar_constraints.items():

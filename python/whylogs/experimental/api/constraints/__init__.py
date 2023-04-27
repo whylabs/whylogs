@@ -1,18 +1,24 @@
-from typing_extensions import TypedDict
-from typing import Optional, Union, List
-from whylogs.core.constraints.factories import (
-    no_missing_values,
-    is_in_range,
-    distinct_number_in_range,
-    count_below_number,
-    is_non_negative,
-    condition_meets,
-)
-from whylogs.core.constraints.factories import column_is_probably_unique
 from logging import getLogger
-from whylogs.core.constraints import PrefixCondition
-from whylogs.core.constraints.metric_constraints import Constraints, MetricConstraint, DatasetConstraint
+from typing import List, Optional, Union
+
 import yaml
+from typing_extensions import TypedDict
+
+from whylogs.core.constraints import PrefixCondition
+from whylogs.core.constraints.factories import (
+    column_is_probably_unique,
+    condition_meets,
+    count_below_number,
+    distinct_number_in_range,
+    is_in_range,
+    is_non_negative,
+    no_missing_values,
+)
+from whylogs.core.constraints.metric_constraints import (
+    Constraints,
+    DatasetConstraint,
+    MetricConstraint,
+)
 
 logger = getLogger(__name__)
 

@@ -34,7 +34,9 @@ def test_n_most_common_items_in_set(builder):
     constraint = builder.build()
     assert constraint.validate()
     # ReportResult(name, passed, failed, summary)
-    assert constraint.generate_constraints_report() == [("animal", f"animal 1-most common items in set {ref_set}", 1, 0, None)]
+    assert constraint.generate_constraints_report() == [
+        ("animal", f"animal 1-most common items in set {ref_set}", 1, 0, None)
+    ]
 
     other_set = {"elephant"}
 
