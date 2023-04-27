@@ -1,13 +1,16 @@
+from typing import Any, Tuple
+
 from whylabs.api.writer.whylabs import WhyLabsWriter
 from whylabs.experimental.extras import ConfigHub
 
-from whylogs.core.utils import deprecated_alias
-from typing import Tuple
 from whylogs.api.writer.writer import Writable
 from whylogs.core.constraints.metric_constraints import Constraints
+from whylogs.core.dataset_profile import DatasetProfile
+from whylogs.core.utils import deprecated_alias
+from whylogs.core.view.dataset_profile_view import DatasetProfileView
+
 
 class CnWriter(WhyLabsWriter):
-
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
         if isinstance(file, (DatasetProfile, DatasetProfileView)):
