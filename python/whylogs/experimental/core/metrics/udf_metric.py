@@ -19,6 +19,7 @@ from whylogs.core.resolvers import (
     ResolverSpec,
     _allowed_metric,
 )
+from whylogs.core.schema import DatasetSchema, DeclarativeSchema
 
 logger = logging.getLogger(__name__)
 
@@ -288,3 +289,7 @@ def generate_udf_schema() -> List[ResolverSpec]:
         resolvers.append(ResolverSpec(None, col_type, [MetricSpec(UdfMetric, config)]))
 
     return resolvers
+
+
+def standard_udf_schema() -> DatasetSchema:
+    return DeclarativeSchema(STANDARD_RESOLVER + generate_udf_schema())
