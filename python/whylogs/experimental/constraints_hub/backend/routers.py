@@ -12,10 +12,6 @@ from whylogs.experimental.api.constraints import ConstraintTranslator
 
 router = APIRouter()
 
-os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-HVB9AM"
-os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "model-56"
-os.environ["WHYLABS_API_ENDPOINT"] = "https://songbird.development.whylabsdev.com"
-os.environ["WHYLABS_API_KEY"] = "z8fYdnQwHr.ibJaqDpZSsZd9dpo5ILyKlOgwXWPV7LGvtIsyqFUs54MGUsHMNz6q"
 original_constraints = [no_missing_values("legs")]
 updated_constraints = original_constraints.copy()
 
