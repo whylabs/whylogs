@@ -1,4 +1,3 @@
-from whylogs.api.logger.experimental.multi_dataset_logger.actor_process import start_actor
 from faster_fifo import Queue
 from whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger import (
     MultiDatasetRollingLogger,
@@ -16,7 +15,7 @@ import os
 import logging
 
 
-def init_logging():
+def init_logging() -> None:
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
     # formatter = DefaultFormatter("%(levelprefix)s [%(asctime)s %(name)s] %(message)s", datefmt="%d-%m-%Y-%H:%M:%S")
@@ -45,15 +44,13 @@ schedule = Schedule(cadence=TimeGranularity.Minute, interval=1)
 # )
 
 
-queue = Queue(1000 * 1000)
 logger = ProcessLogger(
     aggregate_by=TimeGranularity.Hour,
     write_schedule=schedule,
-    writers=[writer],
-    queue=queue
+    writers=[writer]
     # Can optionally provide a dataset schema here as well.
 )
-start_actor(logger)
+logger.start_process()
 
 data: TrackData = [
     {"col1": 2, "col2": 6.0, "col3": "FOO"},

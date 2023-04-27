@@ -43,13 +43,12 @@ Loggable = Union[pd.DataFrame, Dict[str, Any]]
 class ProcessLogger(ActorProcess[MessageType]):
     def __init__(
         self,
-        queue: Queue,
         aggregate_by: TimeGranularity = TimeGranularity.Hour,
         write_schedule: Optional[Schedule] = Schedule(cadence=TimeGranularity.Minute, interval=10),
         schema: Optional[DatasetSchema] = None,
         writers: List[Writer] = [],
     ) -> None:
-        super().__init__(queue)
+        super().__init__()
         self.loggers: Dict[str, MultiDatasetRollingLogger] = {}
         self.writers = writers
         self.write_schedule = write_schedule

@@ -15,6 +15,7 @@ from whylogs.api.logger.experimental.multi_dataset_logger.signal_util import sus
 MessageType = TypeVar("MessageType")
 
 _DEFAULT_POLL_WAIT_SECONDS = 0.1
+_DEFAULT_QUEUE_SiZE = 1000 * 1000 * 1000
 
 
 class CloseMessage:
@@ -22,8 +23,8 @@ class CloseMessage:
 
 
 class ActorProcess(Process, ABC, Generic[MessageType]):
-    def __init__(self, queue: Queue) -> None:
-        self.queue = queue
+    def __init__(self) -> None:
+        self.queue = Queue(_DEFAULT_QUEUE_SiZE)
         self._logger = logging.getLogger(f"{type(self).__name__}_{id(self)}")
         self._work_done_signal = Event()
         super().__init__()
@@ -135,8 +136,7 @@ class ActorProcess(Process, ABC, Generic[MessageType]):
         )
         self._work_done_signal.wait()
 
-
-def start_actor(actor: ActorProcess) -> None:
-    actor.daemon = True
-    actor.start()
-    actor.join(0.1)
+    def start_process(self) -> None:
+        self.daemon = True
+        self.start()
+        self.join(0.1)
