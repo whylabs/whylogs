@@ -7,6 +7,7 @@ from whylogs.core.constraints.factories import (
     count_below_number,
     is_non_negative,
     condition_meets,
+    frequent_strings_in_reference_set,
 )
 from whylogs.core.constraints.factories import column_is_probably_unique
 from logging import getLogger
@@ -25,6 +26,7 @@ constraints_mapping = {
     "count_below_number": count_below_number,
     "is_non_negative": is_non_negative,
     "condition_meets": condition_meets,
+    "frequent_strings_in_reference_set": frequent_strings_in_reference_set,
 }
 
 

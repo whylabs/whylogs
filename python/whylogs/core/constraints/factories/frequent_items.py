@@ -1,6 +1,11 @@
 from whylogs.core.configs import SummaryConfig
 
 from ..metric_constraints import MetricConstraint, MetricsSelector
+from whylogs.core.constraints.metric_constraints import ConstraintsParams
+
+
+class FrequentStringsInSetParams(ConstraintsParams):
+    reference_set: dict
 
 
 def frequent_strings_in_reference_set(column_name: str, reference_set: dict) -> MetricConstraint:
@@ -23,6 +28,9 @@ def frequent_strings_in_reference_set(column_name: str, reference_set: dict) -> 
 
     constraint_name = f"{column_name} values in set {reference_set}"
     constraint = MetricConstraint(name=constraint_name, condition=labels_in_set, metric_selector=frequent_strings)
+    constraint._set_params(
+        FrequentStringsInSetParams(factory="frequent_strings_in_reference_set", reference_set=reference_set)
+    )
     return constraint
 
 
