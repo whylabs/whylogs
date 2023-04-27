@@ -51,6 +51,10 @@ def smaller_than_number(column_name: str, number: float, skip_missing: bool = Tr
     return constraint
 
 
+class IsNonNegativeParams(ConstraintsParams):
+    pass
+
+
 def is_non_negative(column_name: str, skip_missing: bool = True) -> MetricConstraint:
     """Checks if a column is non negative
 
@@ -68,6 +72,7 @@ def is_non_negative(column_name: str, skip_missing: bool = True) -> MetricConstr
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         require_column_existence=not skip_missing,
     )
+    constraint._set_params(IsNonNegativeParams(factory="is_non_negative"))
     return constraint
 
 

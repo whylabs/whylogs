@@ -28,6 +28,10 @@ def no_missing_values(column_name: str) -> MetricConstraint:
     return constraint
 
 
+class CountBelowNumber(ConstraintsParams):
+    number: int
+
+
 def count_below_number(column_name: str, number: int) -> MetricConstraint:
     """Number of elements in a column must be below given number.
 
@@ -47,6 +51,7 @@ def count_below_number(column_name: str, number: int) -> MetricConstraint:
         condition=is_count_below,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="counts"),
     )
+    constraint._set_params(CountBelowNumber(factory="count_below_number", number=number))
     return constraint
 
 

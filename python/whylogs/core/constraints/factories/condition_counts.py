@@ -1,4 +1,9 @@
 from ..metric_constraints import MetricConstraint, MetricsSelector
+from whylogs.core.constraints.metric_constraints import ConstraintsParams
+
+
+class ConditionMeetsParams(ConstraintsParams):
+    condition_name: str
 
 
 def condition_meets(column_name: str, condition_name: str) -> MetricConstraint:
@@ -22,6 +27,7 @@ def condition_meets(column_name: str, condition_name: str) -> MetricConstraint:
         condition=matches_all,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="condition_count"),
     )
+    constraint._set_params(ConditionMeetsParams(factory="condition_meets", condition_name=condition_name))
     return constraint
 
 

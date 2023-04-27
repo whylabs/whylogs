@@ -1,7 +1,13 @@
 from typing_extensions import TypedDict
 from typing import Optional, Union, List
-from whylogs.core.constraints.factories import no_missing_values
-from whylogs.core.constraints.factories import is_in_range
+from whylogs.core.constraints.factories import (
+    no_missing_values,
+    is_in_range,
+    distinct_number_in_range,
+    count_below_number,
+    is_non_negative,
+    condition_meets,
+)
 from whylogs.core.constraints.factories import column_is_probably_unique
 from logging import getLogger
 from whylogs.core.constraints import PrefixCondition
@@ -15,6 +21,10 @@ constraints_mapping = {
     "no_missing_values": no_missing_values,
     "is_in_range": is_in_range,
     "column_is_probably_unique": column_is_probably_unique,
+    "distinct_number_in_range": distinct_number_in_range,
+    "count_below_number": count_below_number,
+    "is_non_negative": is_non_negative,
+    "condition_meets": condition_meets,
 }
 
 

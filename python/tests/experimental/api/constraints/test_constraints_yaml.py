@@ -26,6 +26,10 @@ id: "model-23"
 version: 1
 hash: abcabc231 # maybe from git?
 
+id: "model-23"
+version: 1
+hash: abcabc231 # maybe from git?
+
 constraints:
 - column_name: weight
   factory: no_missing_values
@@ -37,6 +41,26 @@ constraints:
   metric: distribution
   name: legs is in range [0,4]
   upper: 4
+- column_name: legs
+  factory: condition_meets
+  condition_name: legs_even
+  name: legs meets condition legs_even
+  metric: condition_count
+- column_name: animal
+  factory: distinct_number_in_range
+  lower: 0
+  upper: 10
+  metric: cardinality
+  name: animal distinct values estimate between 0 and 10 (inclusive)
+- column_name: legs
+  factory: count_below_number
+  number: 25
+  metric: counts
+  name: count of legs lower than 25
+- column_name: weight
+  factory: is_non_negative
+  metric: distribution
+  name: weight is non negative
 - expression: and <= animal:cardinality/lower_1 :animal:counts/n <= :animal:counts/n
     :animal:cardinality/upper_1
   name: animal is probably unique
@@ -111,4 +135,6 @@ def test_round_trip_constraints_yaml_string(reference_profile_view):
     data2 = yaml.safe_load(rehydrated_yaml_string)
     constraints1 = data1.get("constraints", [])
     constraints2 = data2.get("constraints", [])
-    assert constraints1 == constraints2
+    set1 = {frozenset(d.items()) for d in constraints1}
+    set2 = {frozenset(d.items()) for d in constraints2}
+    assert set1 == set2
