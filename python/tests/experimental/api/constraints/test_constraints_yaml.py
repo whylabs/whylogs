@@ -18,7 +18,7 @@ import pytest
 import os
 import tempfile
 
-from whylogs.experimental.api.constraints import read_constraints_from_yaml, write_constraints_to_yaml
+from whylogs.experimental.api.constraints import ConstraintTranslator
 
 yaml_string = """\
     
@@ -27,18 +27,20 @@ version: 1
 hash: abcabc231 # maybe from git?
 
 constraints:
-  - factory: no_missing_values
-    name: blugabluga
-    column_name: weight
-    metric: counts
-  - factory: is_in_range
-    column_name: legs
-    metric: distribution
-    lower: 0
-    upper: 4
-  - factory: column_is_probably_unique
-    column_name: animal
-    metric: multi-metric    
+- column_name: weight
+  factory: no_missing_values
+  metric: counts
+  name: customname
+- column_name: legs
+  factory: is_in_range
+  lower: 0
+  metric: distribution
+  name: legs is in range [0,4]
+  upper: 4
+- expression: and <= animal:cardinality/lower_1 :animal:counts/n <= :animal:counts/n
+    :animal:cardinality/upper_1
+  name: animal is probably unique
+  metric: dataset-metric
     
     """
 
@@ -76,7 +78,8 @@ def reference_profile_view():
     return profile_view
 
 
-def test_round_trip_constraints_yaml(reference_profile_view):
+def test_round_trip_constraints_yaml_file(reference_profile_view):
+    translator = ConstraintTranslator()
     with tempfile.TemporaryDirectory() as temp_dir:
         input_yaml_name = "example.yaml"
         output_yaml_name = "example2.yaml"
@@ -86,12 +89,26 @@ def test_round_trip_constraints_yaml(reference_profile_view):
         # Write the YAML string to a file
         with open(yaml_path, "w") as file:
             file.write(yaml_string)
-        constraints = read_constraints_from_yaml(os.path.join(temp_dir, input_yaml_name))
+        constraints = translator.read_constraints_from_yaml(os.path.join(temp_dir, input_yaml_name))
         builder = ConstraintsBuilder(dataset_profile_view=reference_profile_view)
         builder.add_constraints(constraints)
         rehydrated_constraints = builder.build()
-        write_constraints_to_yaml(
+        translator.write_constraints_to_yaml(
             constraints=rehydrated_constraints, output_path=os.path.join(temp_dir, output_yaml_name)
         )
-        constraints_out = read_constraints_from_yaml(os.path.join(temp_dir, output_yaml_name))
+        constraints_out = translator.read_constraints_from_yaml(os.path.join(temp_dir, output_yaml_name))
         assert len(constraints) == len(constraints_out)
+
+
+def test_round_trip_constraints_yaml_string(reference_profile_view):
+    translator = ConstraintTranslator()
+    constraints = translator.read_constraints_from_yaml(input_str=yaml_string)
+    builder = ConstraintsBuilder(dataset_profile_view=reference_profile_view)
+    builder.add_constraints(constraints)
+    rehydrated_constraints = builder.build()
+    rehydrated_yaml_string = translator.write_constraints_to_yaml(constraints=rehydrated_constraints, output_str=True)
+    data1 = yaml.safe_load(yaml_string)
+    data2 = yaml.safe_load(rehydrated_yaml_string)
+    constraints1 = data1.get("constraints", [])
+    constraints2 = data2.get("constraints", [])
+    assert constraints1 == constraints2

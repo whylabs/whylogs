@@ -12,9 +12,7 @@ class ColumnIsProbablyUniqueParams(ConstraintsParams):
 
 def column_is_probably_unique(column_name: str) -> MetricConstraint:
     constraint_name = f"{column_name} is probably unique"
-    constraint_params = ColumnIsProbablyUniqueParams(
-        column_name=column_name, name=constraint_name, factory="column_is_probably_unique", metric="multi-metric"
-    )
+    constraint_params = ColumnIsProbablyUniqueParams(factory="column_is_probably_unique")
     is_probably_unique_constraint = DatasetConstraint(
         name=constraint_name,
         condition=PrefixCondition(

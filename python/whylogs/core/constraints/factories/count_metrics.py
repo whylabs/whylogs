@@ -24,9 +24,7 @@ def no_missing_values(column_name: str) -> MetricConstraint:
         condition=Require("null").equals(0),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="counts"),
     )
-    constraint._set_params(
-        NoMissingValues(column_name=column_name, name=constraint_name, metric="counts", factory="no_missing_values")
-    )
+    constraint._set_params(NoMissingValues(factory="no_missing_values"))
     return constraint
 
 

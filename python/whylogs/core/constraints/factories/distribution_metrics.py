@@ -104,9 +104,6 @@ def is_in_range(
     )
     constraint._set_params(
         IsInRangeParams(
-            name=constraint_name,
-            metric="distribution",
-            column_name=column_name,
             factory="is_in_range",
             lower=lower,
             upper=upper,

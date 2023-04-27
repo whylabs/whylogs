@@ -18,10 +18,7 @@ ReportResult = namedtuple("ReportResult", "name passed failed summary")
 
 
 class ConstraintsParams(TypedDict):
-    column_name: str
-    metric: str
     factory: str
-    name: Optional[str]
 
 
 @dataclass
