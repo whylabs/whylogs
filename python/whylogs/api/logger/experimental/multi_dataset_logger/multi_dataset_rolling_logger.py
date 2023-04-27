@@ -213,7 +213,6 @@ class MultiDatasetRollingLogger(ActorThread[LoggerMessage]):
         write_schedule: Optional[Schedule] = Schedule(cadence=TimeGranularity.Minute, interval=10),
         schema: Optional[DatasetSchema] = None,
         writers: List[Writer] = [],
-        auto_start: bool = True,
     ) -> None:
         self._aggregate_by = aggregate_by
         self._cache: Dict[int, DatasetProfileContainer] = {}
@@ -238,7 +237,7 @@ class MultiDatasetRollingLogger(ActorThread[LoggerMessage]):
                 "No write schedule defined for logger. Profiles will only be written after calls to flush()."
             )
 
-        super().__init__(auto_start)
+        super().__init__()
         import os 
         self._logger.debug(f'Created thread logger, pid f{os.getpid()}')
 

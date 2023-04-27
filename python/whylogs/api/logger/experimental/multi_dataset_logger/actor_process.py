@@ -1,7 +1,5 @@
 from faster_fifo import Queue
 import signal
-from .signal_util import suspended_signals
-from .list_util import type_batched_items
 from typing import Optional
 import time
 import os
@@ -11,10 +9,12 @@ from typing import TypeVar, Generic, List, Type, Union
 from multiprocessing import Process, Event
 from queue import Empty, Full
 
+from whylogs.api.logger.experimental.multi_dataset_logger.list_util import type_batched_items
+from whylogs.api.logger.experimental.multi_dataset_logger.signal_util import suspended_signals
+
 MessageType = TypeVar("MessageType")
 
 _DEFAULT_POLL_WAIT_SECONDS = 0.1
-_DEFAULT_QUEUE_SIZE_BYTES = 1000 * 1000 * 1000
 
 
 class CloseMessage:
@@ -22,15 +22,11 @@ class CloseMessage:
 
 
 class ActorProcess(Process, ABC, Generic[MessageType]):
-    def __init__(self, queue: Queue, auto_start: bool = True) -> None:
-        # self.queue = Queue(_DEFAULT_QUEUE_SIZE_BYTES)
+    def __init__(self, queue: Queue) -> None:
         self.queue = queue
         self._logger = logging.getLogger(f"{type(self).__name__}_{id(self)}")
         self._work_done_signal = Event()
         super().__init__()
-
-        # if auto_start:
-            # _start_logging_process(self)
 
     def send(self, message: Union[CloseMessage, MessageType]) -> None:
         if self.queue.is_closed():
@@ -59,10 +55,6 @@ class ActorProcess(Process, ABC, Generic[MessageType]):
 
     @abstractmethod
     def process_batch(self, batch: List[MessageType], batch_type: Type) -> None:
-        pass
-
-    @abstractmethod
-    def after_start(self) -> None:
         pass
 
     def _polling_condition(self, batch_len: int, max: int, last_message_time: float, remaining: int) -> bool:
@@ -120,7 +112,6 @@ class ActorProcess(Process, ABC, Generic[MessageType]):
         self._work_done_signal.set()
 
     def run(self) -> None:
-        self.after_start()
         try:
             with suspended_signals(signal.SIGINT, signal.SIGTERM):
                 self.process_messages()
@@ -134,7 +125,7 @@ class ActorProcess(Process, ABC, Generic[MessageType]):
             self._logger.info("Process shutting down.")
             os._exit(0)  # Not sure why I need this but I definitely do
 
-    def close(self) -> None:
+    def shutdown(self) -> None:
         if self.pid is None:
             raise Exception("Process hasn't been started yet.")
         self._logger.info("Sending Close message to work queue.")
@@ -145,8 +136,7 @@ class ActorProcess(Process, ABC, Generic[MessageType]):
         self._work_done_signal.wait()
 
 
-def _start_logging_process(proc: ActorProcess) -> None:
-    proc.daemon = True
-    proc.start()
-    proc.join(0.1)
-    print(f"Started process {proc.pid}")
+def start_actor(actor: ActorProcess) -> None:
+    actor.daemon = True
+    actor.start()
+    actor.join(0.1)

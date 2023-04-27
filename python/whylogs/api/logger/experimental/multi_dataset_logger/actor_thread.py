@@ -13,15 +13,14 @@ MessageType = TypeVar("MessageType")
 
 
 class ActorThread(ABC, Generic[MessageType], Thread):
-    def __init__(self, auto_start: bool = True) -> None:
+    def __init__(self, ) -> None:
         super().__init__()
         self._logger = logging.getLogger(f"{type(self).__name__}_{id(self)}")
         self._queue: Queue[Union[MessageType, CloseMessage]] = Queue(100_000)
         self.daemon = True
         self._is_done = Event()
         self._closed = False
-        if auto_start:
-            self.start()
+        self.start()
 
     def run(self) -> None:
         self._process_messages()

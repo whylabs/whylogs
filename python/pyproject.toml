@@ -68,6 +68,8 @@ scikit-learn = [
 fugue = {version = "^0.8.1", optional = true}
 requests = "^2.27"
 faster-fifo = "^1.4.5"
+orjson = "^3.8.10"
+pydantic = "^1.10.7"
 
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
