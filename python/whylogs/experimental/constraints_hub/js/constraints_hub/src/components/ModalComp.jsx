@@ -27,18 +27,63 @@ const ModalComp = ({ data, setData, dataEdit, isOpen, onClose }) => {
     },
   ]
 
-  const columnTypesToConstraints = {
-    str: ["frequent_items_n_max"],
-    float: ["smaller_than_number", "greater_than_number", "mean_between_range"],
-    int: ["null_count", "null_count_ratio"],
+  const columnTypesToConstraints = new Map([
+    ["str", ["frequent_items_n_max"]],
+    [
+      "float",
+      ["smaller_than_number", "greater_than_number", "mean_between_range"],
+    ],
+    [
+      "int",
+      [
+        "null_count",
+        "smaller_than_number",
+        "greater_than_number",
+        "mean_between_range",
+      ],
+    ],
+  ])
+  const constraintsToValues = new Map([
+    ["smaller_than_number", ["number"]],
+    ["greater_than_number", ["number"]],
+    ["null_count", ["number"]],
+    ["mean_between_range", ["upper", "lower"]],
+  ])
+
+  const [column, setColumn] = useState(dataEdit.column || undefined)
+  const [constraint, setConstraint] = useState(dataEdit.constraint || "")
+  const [cons_value, setConsValue] = useState(dataEdit.cons_value || {})
+
+  const renderConstraints = () => {
+    if (!column) return null
+    const constraints = columnTypesToConstraints.get(column.col_type)
+    return constraints.map((option) => <option value={option}>{option}</option>)
   }
 
-  const [column, setColumn] = useState(dataEdit.column || "")
-  const [constraint, setConstraint] = useState(dataEdit.constraint || "")
-  const [cons_value, setConsValue] = useState(dataEdit.cons_value || "")
+  const handleConsValue = (target) => {
+    setConsValue({ ...cons_value, [target.name]: target.value })
+  }
+
+  const renderConstraintValues = () => {
+    if (!constraint) return null
+
+    const constraint_value = constraintsToValues.get(constraint)
+
+    return constraint_value?.map((input) => (
+      <FormLabel>
+        {input}
+        <Input
+          type="text"
+          name={input}
+          value={cons_value[input]}
+          onChange={(e) => handleConsValue(e.target)}
+        />
+      </FormLabel>
+    ))
+  }
 
   const handleSave = () => {
-    if (!column || !constraint || !cons_value) return
+    if (!column || !constraint || !cons_value) return null
 
     if (Object.keys(dataEdit).length) {
       data[dataEdit.index] = { column, constraint, cons_value }
@@ -68,13 +113,18 @@ const ModalComp = ({ data, setData, dataEdit, isOpen, onClose }) => {
                 <FormLabel>Column</FormLabel>
                 <Select
                   placeholder="Select a column"
-                  value={column}
-                  onChange={(e) => setColumn(e.target.value)}
+                  value={column?.col_name}
+                  onChange={(e) =>
+                    setColumn(
+                      columnOptions.find(
+                        (option) => option.col_name == e.target.value
+                      )
+                    )
+                  }
                 >
                   {columnOptions.map((option) => (
                     <option value={option.col_name}>{option.col_name}</option>
                   ))}
-                  ;
                 </Select>
               </Box>
               <Box>
@@ -84,18 +134,12 @@ const ModalComp = ({ data, setData, dataEdit, isOpen, onClose }) => {
                   value={constraint}
                   onChange={(e) => setConstraint(e.target.value)}
                 >
-                  {/* {columnTypesToConstraints[column].map((option) => (
-                            <option value={option}>{option}</option>
-                        ))}; */}
+                  {renderConstraints()}
                 </Select>
               </Box>
               <Box>
                 <FormLabel>Values</FormLabel>
-                <Input
-                  type="text"
-                  value={cons_value}
-                  onChange={(e) => setConsValue(e.target.value)}
-                />
+                {renderConstraintValues()}
               </Box>
             </FormControl>
           </ModalBody>

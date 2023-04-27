@@ -65,9 +65,9 @@ const App = () => {
             <Tbody>
               {data.map(({ column, constraint, cons_value }, index) => (
                 <Tr key={index} cursor="pointer " _hover={{ bg: "gray.100" }}>
-                  <Td>{column}</Td>
+                  <Td>{column.col_name}</Td>
                   <Td>{constraint}</Td>
-                  <Td>{cons_value}</Td>
+                  <Td>{JSON.stringify(cons_value)}</Td>
                   <Td p={0}>
                     <EditIcon
                       fontSize={20}
