@@ -4,7 +4,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
-
+from typing_extensions import TypedDict
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.predicate_parser import _METRIC_REF, _PROFILE_REF, _tokenize
 from whylogs.core.utils import deprecated
@@ -15,6 +15,13 @@ logger = getLogger(__name__)
 
 
 ReportResult = namedtuple("ReportResult", "name passed failed summary")
+
+
+class ConstraintsParams(TypedDict):
+    column_name: str
+    metric: str
+    factory: str
+    name: Optional[str]
 
 
 @dataclass
@@ -73,6 +80,7 @@ class MetricConstraint:
     name: str
     metric_selector: MetricsSelector
     require_column_existence: bool = True
+    _params: Optional[Dict[str, Any]] = None
 
     def _validate_metrics(self, metrics: List[Metric]) -> bool:
         for metric in metrics:
@@ -85,6 +93,10 @@ class MetricConstraint:
             metric_summary = pretty_display(metrics[0].namespace, metrics[0].to_summary_dict())
             return metric_summary
         return None
+
+    def _set_params(self, params: Dict[str, Any]) -> "MetricConstraint":
+        self._params = params
+        return self
 
     @deprecated(message="Please use validate_profile()")
     def validate(self, dataset_profile: DatasetProfileView) -> bool:
@@ -213,6 +225,7 @@ class DatasetConstraint:
     condition: Callable[[DatasetProfileView], Tuple[bool, Dict[str, Metric]]]
     name: str
     require_column_existence: bool = True  # Applies to all columns referenced in the constraint
+    _params: Optional[Dict[str, Any]] = None
 
     def _get_metric_summary(self, metrics: Dict[str, Metric]) -> Optional[Dict[str, Any]]:
         summary: Dict[str, Any] = dict()

@@ -2,6 +2,7 @@ from typing import Union
 
 from whylogs.core.constraints import MetricConstraint, MetricsSelector
 from whylogs.core.relations import Require
+from whylogs.core.constraints.metric_constraints import ConstraintsParams
 
 
 def greater_than_number(column_name: str, number: Union[float, int], skip_missing: bool = True) -> MetricConstraint:
@@ -70,6 +71,11 @@ def is_non_negative(column_name: str, skip_missing: bool = True) -> MetricConstr
     return constraint
 
 
+class IsInRangeParams(ConstraintsParams):
+    lower: float
+    upper: float
+
+
 def is_in_range(
     column_name: str, lower: Union[float, int], upper: Union[float, int], skip_missing: bool = True
 ) -> MetricConstraint:
@@ -89,12 +95,22 @@ def is_in_range(
         If skip_missing is True, missing distribution metrics will make the check pass.
         If False, the check will fail on missing metrics, such as on an empty dataset
     """
-
+    constraint_name = f"{column_name} is in range [{lower},{upper}]"
     constraint = MetricConstraint(
-        name=f"{column_name} is in range [{lower},{upper}]",
+        name=constraint_name,
         condition=Require("min").greater_or_equals(lower).and_(Require("max").less_or_equals(upper)),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         require_column_existence=not skip_missing,
+    )
+    constraint._set_params(
+        IsInRangeParams(
+            name=constraint_name,
+            metric="distribution",
+            column_name=column_name,
+            factory="is_in_range",
+            lower=lower,
+            upper=upper,
+        )
     )
     return constraint
 
