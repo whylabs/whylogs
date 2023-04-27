@@ -1,9 +1,9 @@
 from typing import Union
 
+from whylogs.core.constraints.metric_constraints import ConstraintsParams
 from whylogs.core.metrics.metrics import CardinalityMetric
 
 from ..metric_constraints import MetricConstraint, MetricsSelector
-from whylogs.core.constraints.metric_constraints import ConstraintsParams
 
 
 class DistinctNumberInRangeParams(ConstraintsParams):
