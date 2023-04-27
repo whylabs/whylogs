@@ -28,16 +28,16 @@ constraints_mapping = {
         "whylabs_datatypes": ["string", "integral"],
     },
     "distinct_number_in_range": {
-        "constraints_function": distinct_number_in_range,
+        "constraint_function": distinct_number_in_range,
         "whylabs_datatypes": ["string", "integral"],
     },
     "count_below_number": {
-        "constraints_function": count_below_number,
+        "constraint_function": count_below_number,
         "whylabs_datatypes": ["string", "integral", "fractional", "bool", "unknown"],
     },
-    "is_non_negative": {"constraints_function": is_non_negative, "whylabs_datatypes": ["integral", "fractional"]},
+    "is_non_negative": {"constraint_function": is_non_negative, "whylabs_datatypes": ["integral", "fractional"]},
     "condition_meets": {
-        "constraints_function": condition_meets,
+        "constraint_function": condition_meets,
         "whylabs_datatypes": ["string", "integral", "fractional", "bool", "unknown"],
     },
 }
@@ -94,13 +94,19 @@ class ConstraintTranslator:
             return None
 
     def write_constraints_to_yaml(
-        self, constraints: Constraints, output_path: Optional[str] = None, output_str: Optional[bool] = False
+        self,
+        constraints: List[Union[MetricConstraint, DatasetConstraint]],
+        output_path: Optional[str] = None,
+        output_str: Optional[bool] = False,
+        org_id: Optional[str] = None,
+        dataset_id: Optional[str] = None,
     ):
         if output_path is None and output_str is None:
             raise ValueError("Must provide either output_path or output_str.")
         constraints_list = []
-        for column_name, column_constraints in constraints.column_constraints.items():
-            for constraint_name, constraint in column_constraints.items():
+        for constraint in constraints:
+            constraint_name = constraint.name
+            if isinstance(constraint, MetricConstraint):
                 if constraint._params and constraint._params.get("factory"):
                     constraint_params = constraint._params
                     try:
@@ -108,28 +114,27 @@ class ConstraintTranslator:
                     except:
                         raise ValueError(f"Metric selector not found for constraint {constraint_name}.")
                     constraint_params["name"] = constraint_name
-                    constraint_params["column_name"] = column_name
+                    constraint_params["column_name"] = constraint.metric_selector.column_name
                     constraints_list.append(constraint_params)
                 else:
-                    logger.warning(
-                        f"Constraint {constraint_name} for column {column_name} - no parameters found. Skipping."
-                    )
-        for dataset_constraint in constraints.dataset_constraints:
-            constraint_params = {"metric": "dataset-metric"}
-            if dataset_constraint.condition and isinstance(dataset_constraint.condition, PrefixCondition):
-                constraint_params["name"] = dataset_constraint.name
-                constraint_params["expression"] = dataset_constraint.condition._expression
-                constraints_list.append(constraint_params)
-            # todo: unclear if we need this
-            # elif dataset_constraint._params and constraint._params.get("factory"):
-            #     constraint_params = dataset_constraint._params
-            #     constraint_params["name"] = dataset_constraint.name
-            #     constraints_list.append(constraint_params)
-            else:
-                logger.warning(f"Constraint {constraint_name} - no parameters found. Skipping.")
-        if constraints_list:
-            if output_str:
-                return yaml.dump({"constraints": constraints_list})
-            else:
-                with open(output_path, "w") as f:
-                    yaml.dump({"constraints": constraints_list}, f)
+                    logger.warning(f"Constraint {constraint_name} - no parameters found. Skipping.")
+
+            elif isinstance(constraint, DatasetConstraint):
+                constraint_params = {"metric": "dataset-metric"}
+                if constraint.condition and isinstance(constraint.condition, PrefixCondition):
+                    constraint_params["name"] = constraint.name
+                    constraint_params["expression"] = constraint.condition._expression
+                    constraints_list.append(constraint_params)
+                else:
+                    logger.warning(f"Constraint {constraint_name} - no parameters found. Skipping.")
+
+        to_dump = {"constraints": constraints_list}
+        if org_id:
+            to_dump["org_id"] = org_id
+        if dataset_id:
+            to_dump["dataset_id"] = dataset_id
+        if output_str:
+            return yaml.dump(to_dump)
+        else:
+            with open(output_path, "w") as f:
+                yaml.dump(to_dump, f)

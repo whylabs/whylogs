@@ -5,10 +5,19 @@ from whylogs.experimental.constraints_hub.backend.models import EntitySchema, Co
 import whylabs_client
 from whylabs_client.api import models_api
 from whylogs.experimental.api.constraints import constraints_mapping
+from whylogs.core.constraints.factories import no_missing_values
+from whylogs.experimental.api.constraints import ConstraintTranslator
 
 # from .models import Constraints
 
 router = APIRouter()
+
+os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-HVB9AM"
+os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "model-56"
+os.environ["WHYLABS_API_ENDPOINT"] = "https://songbird.development.whylabsdev.com"
+os.environ["WHYLABS_API_KEY"] = "z8fYdnQwHr.ibJaqDpZSsZd9dpo5ILyKlOgwXWPV7LGvtIsyqFUs54MGUsHMNz6q"
+original_constraints = [no_missing_values("legs")]
+updated_constraints = original_constraints.copy()
 
 
 @router.on_event("startup")
@@ -92,5 +101,9 @@ def get_column_types_to_constraints() -> None:
 
 @router.post("/save")
 def save_constraint_to_file() -> None:
+    translator = ConstraintTranslator()
+    yaml_string = translator.write_constraints_to_yaml(
+        constraints=updated_constraints, output_str=True, org_id=org_id, dataset_id=dataset_id
+    )
     # salvar as alterações no YAML construido
-    pass
+    return {"yaml_string": yaml_string}
