@@ -7,11 +7,18 @@ from whylabs_client.api import models_api
 from whylogs.experimental.api.constraints import constraints_mapping
 from whylogs.core.constraints.factories import no_missing_values
 from whylogs.experimental.api.constraints import ConstraintTranslator
+from semantic_version import Version
+from whylogs.experimental.extras.confighub import LocalGitConfigStore
+from semantic_version import Version
 
 # from .models import Constraints
 
 router = APIRouter()
 
+os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-HVB9AM"
+os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "model-56"
+os.environ["WHYLABS_API_ENDPOINT"] = "https://songbird.development.whylabsdev.com"
+os.environ["WHYLABS_API_KEY"] = "z8fYdnQwHr.ibJaqDpZSsZd9dpo5ILyKlOgwXWPV7LGvtIsyqFUs54MGUsHMNz6q"
 original_constraints = [no_missing_values("legs")]
 updated_constraints = original_constraints.copy()
 
@@ -22,6 +29,8 @@ def get_environment_variables():
     global dataset_id
     global api_endpoint
     global api_key
+    global cs
+    global translator
     try:
         org_id = os.environ["WHYLABS_DEFAULT_ORG_ID"]
         dataset_id = os.environ["WHYLABS_DEFAULT_DATASET_ID"]
@@ -31,6 +40,19 @@ def get_environment_variables():
         raise Exception(
             "you must define WHYLABS_DEFAULT_ORG_ID, WHYLABS_DEFAULT_DATASET_ID and WHYLABS_API_KEY environment variables"
         )
+    translator = ConstraintTranslator()
+    storage_folder_name = "constraints_storage"
+    local_storage_folder = os.path.join(os.getcwd(), storage_folder_name)
+    cs = LocalGitConfigStore(org_id, dataset_id, "constraints", repo_path=local_storage_folder)
+    cs.create()
+    cur_ver = cs.get_version_of_latest()
+    if cur_ver == Version("0.0.0"):
+        content = translator.write_constraints_to_yaml(
+            constraints=[], org_id=org_id, dataset_id=dataset_id, output_str=True
+        )
+        new_ver = cur_ver.next_major()
+        cs.propose_version(content, new_ver, "testing new version")
+        cs.commit_version(new_ver)
 
 
 @router.get("/entity_schema")
@@ -75,6 +97,12 @@ def get_entity_schema() -> EntitySchema:  # Constraints:
         return {"entity_schema": column_list}
 
 
+@router.get("/latest_version")
+def get_latest_version() -> None:
+    latest_yaml = cs.get_latest()
+    return {"constraints_yaml": str(latest_yaml)}
+
+
 @router.get("/types_to_constraints")
 def get_column_types_to_constraints() -> None:
     """
@@ -97,7 +125,6 @@ def get_column_types_to_constraints() -> None:
 
 @router.post("/save")
 def save_constraint_to_file() -> None:
-    translator = ConstraintTranslator()
     yaml_string = translator.write_constraints_to_yaml(
         constraints=updated_constraints, output_str=True, org_id=org_id, dataset_id=dataset_id
     )
