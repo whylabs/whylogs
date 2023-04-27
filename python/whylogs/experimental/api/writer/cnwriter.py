@@ -5,10 +5,11 @@ from whylabs.experimental.extras import ConfigStore
 from whylabs_client import ApiClient
 
 from whylogs.api.writer.writer import Writable
-from whylogs.core.constraints.metric_constraints import Constraints
+from whylogs.core.constraints import ConstraintsBuilder
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.utils import deprecated_alias
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.experimental.api.constraints import ConstraintTranslator
 
 
 class CnWriter(WhyLabsWriter):
@@ -41,7 +42,7 @@ class CnWriter(WhyLabsWriter):
             and self._cn_store.exists()
         ):
             constraints_str = self._cn_store.get_latest()
-            constraints = read_constraints_from_yaml(input_str=constraints_str)
+            constraints = ConstraintTranslator().read_constraints_from_yaml(input_str=constraints_str)
             builder = ConstraintsBuilder(file)
             builder.add_constraints(constraints)
             file += builder.whylabs_report(file)  # create report columns and append to profile
