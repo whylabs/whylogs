@@ -242,7 +242,6 @@ class MultiDatasetRollingLogger(ActorThread[LoggerMessage]):
         self._logger.debug(f'Created thread logger, pid f{os.getpid()}')
 
     def _process_message(self, message: Union[LoggerMessage, CloseMessage]) -> None:
-        print(f"Processing message {message}")
         if isinstance(message, TrackMessage):
             self._process_track_message(message)
         elif isinstance(message, FlushMessage):

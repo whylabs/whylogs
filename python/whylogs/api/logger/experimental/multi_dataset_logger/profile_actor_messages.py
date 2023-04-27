@@ -79,6 +79,12 @@ class LogRequest(BaseModel):
 
 
 @dataclass
+class LogMessage:
+    request_time: int
+    log: LogRequestDict
+
+
+@dataclass
 class RawLogMessage:
     request: bytes
     request_time: int

@@ -18,6 +18,7 @@ from .actor_process import ActorProcess, CloseMessage
 
 from .profile_actor_messages import (
     LogEmbeddingRequestDict,
+    LogMessage,
     LogRequestDict,
     PublishMessage,
     RawLogEmbeddingsMessage,
@@ -32,7 +33,9 @@ from .profile_actor_messages import (
     reduce_log_requests,
 )
 
-MessageType = Union[PublishMessage, RawLogMessage, RawLogEmbeddingsMessage, RawPubSubMessage, RawPubSubEmbeddingMessage]
+MessageType = Union[
+    PublishMessage, RawLogMessage, RawLogEmbeddingsMessage, RawPubSubMessage, RawPubSubEmbeddingMessage, LogMessage
+]
 
 DataTypes = Union[str, int, float, bool, List[float], List[int], List[str]]
 
@@ -74,6 +77,8 @@ class ProcessLogger(ActorProcess[MessageType]):
     def process_batch(self, batch: List[MessageType], batch_type: Type) -> None:
         if batch_type == PublishMessage:
             self.process_publish_message(cast(List[PublishMessage], batch))
+        elif batch_type == LogMessage:
+            self.process_log_messages(cast(List[LogMessage], batch))
         elif batch_type == RawLogMessage:
             self.process_raw_log_dicts(cast(List[RawLogMessage], batch))
         elif batch_type == RawLogEmbeddingsMessage:
@@ -107,6 +112,11 @@ class ProcessLogger(ActorProcess[MessageType]):
             if msg is not None
         ]
         self.process_log_embeddings_dicts(pubsub)
+
+    def process_log_messages(self, messages: List[LogMessage]) -> None:
+        self._logger.info("Processing log message")
+        log_dicts = [msg for msg in [m.log for m in messages] if msg is not None]
+        self.process_log_dicts(log_dicts)
 
     def process_raw_log_dicts(self, messages: List[RawLogMessage]) -> None:
         self._logger.info("Processing raw log request message")

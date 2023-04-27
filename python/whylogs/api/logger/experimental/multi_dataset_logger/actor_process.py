@@ -25,7 +25,7 @@ class CloseMessage:
 class ActorProcess(Process, ABC, Generic[MessageType]):
     def __init__(self) -> None:
         self.queue = Queue(_DEFAULT_QUEUE_SiZE)
-        self._logger = logging.getLogger(f"{type(self).__name__}_{id(self)}")
+        self._logger = logging.getLogger(f"{type(self).__name__}")
         self._work_done_signal = Event()
         super().__init__()
 
@@ -126,7 +126,7 @@ class ActorProcess(Process, ABC, Generic[MessageType]):
             self._logger.info("Process shutting down.")
             os._exit(0)  # Not sure why I need this but I definitely do
 
-    def shutdown(self) -> None:
+    def close(self) -> None:
         if self.pid is None:
             raise Exception("Process hasn't been started yet.")
         self._logger.info("Sending Close message to work queue.")
@@ -136,7 +136,7 @@ class ActorProcess(Process, ABC, Generic[MessageType]):
         )
         self._work_done_signal.wait()
 
-    def start_process(self) -> None:
+    def start(self) -> None:
         self.daemon = True
-        self.start()
+        super().start()
         self.join(0.1)

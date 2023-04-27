@@ -70,6 +70,7 @@ requests = "^2.27"
 faster-fifo = "^1.4.5"
 orjson = "^3.8.10"
 pydantic = "^1.10.7"
+py4j = "^0.10.9.7"
 
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
@@ -153,6 +154,7 @@ embeddings = [
 
 [tool.poetry.group.dev.dependencies]
 types-urllib3 = "^1.26.25.5"
+coloredlogs = "^15.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

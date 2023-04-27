@@ -1,12 +1,15 @@
 from faster_fifo import Queue
+import coloredlogs
 from whylogs.api.logger.experimental.multi_dataset_logger.multi_dataset_rolling_logger import (
     MultiDatasetRollingLogger,
     TrackData,
 )
 from whylogs.api.logger.experimental.multi_dataset_logger.process_logger import ProcessLogger
 from whylogs.api.logger.experimental.multi_dataset_logger.profile_actor_messages import (
+    LogMessage,
     LogRequest,
     LogMultiple,
+    LogRequestDict,
     RawLogMessage,
 )
 from whylogs.api.logger.experimental.multi_dataset_logger.time_util import TimeGranularity, Schedule, current_time_ms
@@ -16,6 +19,7 @@ import logging
 
 
 def init_logging() -> None:
+    coloredlogs.install()
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
     # formatter = DefaultFormatter("%(levelprefix)s [%(asctime)s %(name)s] %(message)s", datefmt="%d-%m-%Y-%H:%M:%S")
@@ -36,21 +40,12 @@ writer = WhyLabsWriter(
 )
 schedule = Schedule(cadence=TimeGranularity.Minute, interval=1)
 
-# logger = MultiDatasetRollingLogger(
-#     aggregate_by=TimeGranularity.Hour,
-#     write_schedule=schedule,
-#     writers=[writer],
-#     # Can optionally provide a dataset schema here as well.
-# )
-
-
 logger = ProcessLogger(
     aggregate_by=TimeGranularity.Hour,
     write_schedule=schedule,
     writers=[writer]
-    # Can optionally provide a dataset schema here as well.
 )
-logger.start_process()
+logger.start()
 
 data: TrackData = [
     {"col1": 2, "col2": 6.0, "col3": "FOO"},
@@ -74,16 +69,32 @@ request = LogRequest(
     ),
 )
 
-print(
-    bytes(request.json(), 'utf-8'),
-)
-
-# logger.log(data)
-message = RawLogMessage(
+raw_message = RawLogMessage(
     request=bytes(request.json(),  'utf-8'),
     request_time=current_time_ms(),
 )
+
+
+log : LogRequestDict = {
+    "datasetId": "model-48",
+    "timestamp": current_time_ms(),
+    "multiple": {
+        "columns": ["col1", "col2", "col6"],
+        "data": [
+            [2, 6.0, "FOO"],
+            [57, 7.0, "BAR"],
+            [2, 9.0, "FOO"],
+            [60, 1.1, "FOO"],
+        ],
+    }
+}
+
+message = LogMessage(
+    request_time=current_time_ms(),
+    log=log
+)
 logger.send(message)
-# logger.send(TrackMessage(data=data, timestamp_ms=current_time_ms(), result=None))
-# logger.flush()
-logger.shutdown()
+logger.send(message)
+logger.send(message)
+
+logger.close()
