@@ -28,6 +28,13 @@ def test_ctor():
         assert cs.get_version_of_latest() == Version("0.0.0")
         assert cs.get_latest() == ""
 
+    # test auto-create
+    with TemporaryDirectory(dir="/tmp") as prefix:
+        cs = LocalGitConfigStore("my_org", "my_model", "test", True, prefix)
+        assert cs.exists()
+        assert cs.get_version_of_latest() == Version("0.0.0")
+        assert cs.get_latest() == ""
+
 
 def test_update_workflow():
     with TemporaryDirectory(dir="/tmp") as prefix:
