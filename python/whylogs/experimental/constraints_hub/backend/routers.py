@@ -54,17 +54,19 @@ def get_entity_schema() -> EntitySchema:  # Constraints:
         except whylabs_client.ApiException as e:
             print("Exception when calling ModelsApi->list_models: %s\n" % e)
             return e
-        columns_entity = {}
+        column_list = []
         for column_name, column_dict in api_response["columns"].items():
             if column_name[0] != "Ω":
-                column_info = {
-                    "classifier": column_dict.classifier,
-                    "data_type": column_dict.data_type,
-                    "discreteness": column_dict.discreteness,
-                }
-                column_scheme = {column_name: column_info}
-                columns_entity.update(column_scheme)
-        return {"columns": columns_entity}
+                column_scheme = {"column_name": column_name}
+                column_scheme.update(
+                    {
+                        "classifier": column_dict.classifier,
+                        "data_type": column_dict.data_type,
+                        "discreteness": column_dict.discreteness,
+                    }
+                )
+                column_list.append(column_scheme)
+        return {"entity_schema": column_list}
 
 
 @router.get("/types_to_constraints")

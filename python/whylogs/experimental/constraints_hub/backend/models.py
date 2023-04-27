@@ -14,4 +14,4 @@ class Constraints(BaseModel):
 
 
 class EntitySchema(BaseModel):
-    columns: Dict[str, Dict]
+    entity_schema: List[Dict]
