@@ -11,7 +11,7 @@ def test_frequent_strings_in_reference_set(builder):
     constraint = builder.build()
     assert constraint.validate()
     # ReportResult(name, passed, failed, summary)
-    assert constraint.generate_constraints_report() == [(f"animal values in set {ref_set}", 1, 0, None)]
+    assert constraint.generate_constraints_report() == [("animal", f"animal values in set {ref_set}", 1, 0, None)]
 
     other_set = {"elephant"}
 
@@ -20,8 +20,8 @@ def test_frequent_strings_in_reference_set(builder):
     assert not constraint.validate()
     # ReportResult(name, passed, failed, summary)
     assert constraint.generate_constraints_report() == [
-        (f"animal values in set {ref_set}", 1, 0, None),
-        (f"animal values in set {other_set}", 0, 1, None),
+        ("animal", f"animal values in set {ref_set}", 1, 0, None),
+        ("animal", f"animal values in set {other_set}", 0, 1, None),
     ]
     for x, y in zip(constraint.report(), constraint.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
@@ -34,7 +34,7 @@ def test_n_most_common_items_in_set(builder):
     constraint = builder.build()
     assert constraint.validate()
     # ReportResult(name, passed, failed, summary)
-    assert constraint.generate_constraints_report() == [(f"animal 1-most common items in set {ref_set}", 1, 0, None)]
+    assert constraint.generate_constraints_report() == [("animal", f"animal 1-most common items in set {ref_set}", 1, 0, None)]
 
     other_set = {"elephant"}
 
@@ -42,8 +42,8 @@ def test_n_most_common_items_in_set(builder):
     constraint = builder.build()
     assert not constraint.validate()
     assert constraint.generate_constraints_report() == [
-        (f"animal 1-most common items in set {ref_set}", 1, 0, None),
-        (f"animal 1-most common items in set {other_set}", 0, 1, None),
+        ("animal", f"animal 1-most common items in set {ref_set}", 1, 0, None),
+        ("animal", f"animal 1-most common items in set {other_set}", 0, 1, None),
     ]
     for x, y in zip(constraint.report(), constraint.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])

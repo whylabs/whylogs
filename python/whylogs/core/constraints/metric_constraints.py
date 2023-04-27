@@ -14,7 +14,7 @@ from whylogs.core.view.dataset_profile_view import DatasetProfileView
 logger = getLogger(__name__)
 
 
-ReportResult = namedtuple("ReportResult", "name passed failed summary")
+ReportResult = namedtuple("ReportResult", "column_name name passed failed summary")
 
 
 class ConstraintsParams(TypedDict):
@@ -461,16 +461,16 @@ class PrefixCondition:
 
 
 def _make_report(
-    constraint_name: str, result: bool, with_summary: bool, metric_summary: Optional[Dict[str, Any]]
+    column_name: str, constraint_name: str, result: bool, with_summary: bool, metric_summary: Optional[Dict[str, Any]]
 ) -> ReportResult:
     if not result:
         if with_summary:
-            return ReportResult(name=constraint_name, passed=0, failed=1, summary=metric_summary)
-        return ReportResult(name=constraint_name, passed=0, failed=1, summary=None)
+            return ReportResult(name=constraint_name, passed=0, failed=1, summary=metric_summary, column_name=column_name)
+        return ReportResult(name=constraint_name, passed=0, failed=1, summary=None, column_name=column_name)
 
     if with_summary:
-        return ReportResult(name=constraint_name, passed=1, failed=0, summary=metric_summary)
-    return ReportResult(name=constraint_name, passed=1, failed=0, summary=None)
+        return ReportResult(name=constraint_name, passed=1, failed=0, summary=metric_summary, column_name=column_name)
+    return ReportResult(name=constraint_name, passed=1, failed=0, summary=None, column_name=column_name)
 
 
 class Constraints:
@@ -520,16 +520,16 @@ class Constraints:
                 (result, _) = metric_constraint.validate_profile(profile)
                 if not result:
                     logger.info(f"{constraint_name} failed on column {column_name}")
-                    results.append((constraint_name, 0, 1))
+                    results.append((column_name, constraint_name, 0, 1))
                 else:
-                    results.append((constraint_name, 1, 0))
+                    results.append((column_name, constraint_name, 1, 0))
         for constraint in self.dataset_constraints:
             result, _ = constraint.validate_profile(profile)
             if not result:
                 logger.info(f"{constraint.name} failed on dataset")
-                results.append((constraint.name, 0, 1))
+                results.append((None, constraint.name, 0, 1))
             else:
-                results.append((constraint.name, 1, 0))
+                results.append((None, constraint.name, 1, 0))
 
         if len(results) == 0:
             logger.warning("report was called with empty set of constraints!")
@@ -538,13 +538,14 @@ class Constraints:
 
     def _generate_metric_report(
         self,
+        column_name: str,
         profile_view: DatasetProfileView,
         metric_constraint: MetricConstraint,
         constraint_name: str,
         with_summary: bool,
     ) -> ReportResult:
         (result, metric_summary) = metric_constraint.validate_profile(profile_view)
-        return _make_report(constraint_name, result, with_summary, metric_summary)
+        return _make_report(column_name, constraint_name, result, with_summary, metric_summary)
 
     def _generate_dataset_report(
         self,
@@ -553,7 +554,7 @@ class Constraints:
         with_summary: bool,
     ) -> ReportResult:
         (result, summary) = constraint.validate_profile(profile_view)
-        return _make_report(constraint.name, result, with_summary, summary)
+        return _make_report(None, constraint.name, result, with_summary, summary)
 
     def generate_constraints_report(
         self, profile_view: Optional[DatasetProfileView] = None, with_summary=False
@@ -566,6 +567,7 @@ class Constraints:
             columnar_constraints = self.column_constraints[column_name]
             for constraint_name, metric_constraint in columnar_constraints.items():
                 metric_report = self._generate_metric_report(
+                    column_name=column_name,
                     profile_view=profile,
                     metric_constraint=metric_constraint,
                     constraint_name=constraint_name,

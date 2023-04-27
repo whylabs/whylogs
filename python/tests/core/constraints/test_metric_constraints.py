@@ -111,7 +111,7 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
     assert constraints_valid
     assert len(report_results) == 2
     # ReportResult(name, passed, failed, summary)
-    assert report_results[0] == ("legs less than 12", 1, 0, None)
+    assert report_results[0] == ("legs", "legs less than 12", 1, 0, None)
     for x, y in zip(constraints.report(), constraints.generate_constraints_report()):
         assert (x[0], x[1], x[2]) == (y[0], y[1], y[2])
 
@@ -148,7 +148,7 @@ def test_multicolumn_constraints(caplog, pandas_constraint_dataframe) -> None:
     TEST_LOGGER.info(f"constraints report is: {report_results}")
     assert constraints_valid
     assert len(report_results) == 1
-    assert report_results[0] == ("legs less than weight", 1, 0)
+    assert report_results[0] == ("legs", "legs less than weight", 1, 0)
 
 
 def test_dataset_constraints(pandas_constraint_dataframe) -> None:
@@ -180,9 +180,9 @@ def test_dataset_constraints(pandas_constraint_dataframe) -> None:
     assert not constraints_valid
     assert len(report_results) == 3
     # ReportResult(name, passed, failed, summary)
-    assert report_results[0] == ("multi_column_agreement", 1, 0, None)
-    assert report_results[1] == ("same_column_agreement", 1, 0, None)
-    assert report_results[2] == ("failing_constraint", 0, 1, None)
+    assert report_results[0] == (None, "multi_column_agreement", 1, 0, None)
+    assert report_results[1] == (None, "same_column_agreement", 1, 0, None)
+    assert report_results[2] == (None, "failing_constraint", 0, 1, None)
 
 
 def test_same_constraint_on_multiple_columns(profile_view):
@@ -225,13 +225,13 @@ def test_same_constraint_on_multiple_columns(profile_view):
     # ReportResult(name, passed, failed, summary)
     assert sorted(report) == sorted(
         [
-            ("not_null", 0, 1, None),
-            ("greater_than_zero", 1, 0, None),
-            ("greater_than_number", 0, 1, None),
-            ("greater_than_number", 0, 1, None),
-            ("not_null", 1, 0, None),
-            ("not_null", 1, 0, None),
-            ("greater_than_zero", 0, 1, None),
+            ("weight", "not_null", 0, 1, None),
+            ("weight", "greater_than_zero", 1, 0, None),
+            ("weight", "greater_than_number", 0, 1, None),
+            ("legs", "greater_than_number", 0, 1, None),
+            ("animal", "not_null", 1, 0, None),
+            ("legs", "not_null", 1, 0, None),
+            ("legs", "greater_than_zero", 0, 1, None),
         ]
     )
     for x, y in zip(constraints.report(), constraints.generate_constraints_report()):
@@ -247,7 +247,7 @@ def test_constraints_report(pandas_constraint_dataframe) -> None:
     constraints = builder.build()
     report = constraints.generate_constraints_report(with_summary=True)
     assert isinstance(report[0], ReportResult)
-    assert len(report[0]) == 4
+    assert len(report[0]) == 5
     assert report[0].name == "legs greater than number 6"
     assert report[0].passed == 0
     assert report[0].failed == 1
