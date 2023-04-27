@@ -9,13 +9,25 @@ logger = logging.getLogger(__name__)
 
 
 class ConfigStore(ABC):
-    def __init__(self, org_id: str, dataset_id: str, what: str):
+    def __init__(self, org_id: str, dataset_id: str, what: str, create: bool = False):
         """
         what in {"constraints", "validators", ... }
         """
         self._org_id = org_id
         self._dataset_id = dataset_id
         self._what = what
+        if create and not self.exists():
+            self.create()
+
+    @abstractmethod
+    def exists(self) -> bool:
+        """Returns True iff the store exists"""
+        return False
+
+    @abstractmethod
+    def create(self) -> None:
+        """Create the store if it doesn't already exist"""
+        pass
 
     @abstractmethod
     def get_latest(self) -> str:
@@ -64,10 +76,12 @@ class LocalGitConfigStore(ConfigStore):
             output = os.popen(f"cd {self._path}; {command}")
             logger.debug(f"{command}: {output.read()}")
 
-    def __init__(self, org_id: str, dataset_id: str, what: str, repo_path: str = "/tmp"):
-        super().__init__(org_id, dataset_id, what)
+    def __init__(self, org_id: str, dataset_id: str, what: str, create: bool = False, repo_path: str = "/tmp"):
         self._repo_path = repo_path
         self._path = f"{self._repo_path}/{org_id}/{dataset_id}"
+        super().__init__(org_id, dataset_id, what, create)
+
+    def create(self) -> None:
         if not os.path.isdir(self._path):
             os.makedirs(self._path)
             cmds = [
@@ -78,6 +92,9 @@ class LocalGitConfigStore(ConfigStore):
                 "git tag 0.0.0",
             ]
             self._run_commands(cmds)
+
+    def exists(self) -> bool:
+        return os.path.isdir(self._path)  # not the most throrough test...
 
     def _read_version(self, version: str) -> str:
         cmds = [

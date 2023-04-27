@@ -9,7 +9,10 @@ from whylogs.experimental.extras.confighub import LocalGitConfigStore
 def test_ctor():
     with TemporaryDirectory(dir="/tmp") as prefix:
         # create empty repo at prefix/my_org/my_model
-        cs = LocalGitConfigStore("my_org", "my_model", "test", prefix)
+        cs = LocalGitConfigStore("my_org", "my_model", "test", repo_path=prefix)
+        assert not cs.exists()
+        cs.create()
+        assert cs.exists()
         assert os.path.isdir(f"{prefix}/my_org/my_model")
         assert os.path.isfile(f"{prefix}/my_org/my_model/test")
         assert cs.get_available_versions() == [Version("0.0.0")]
@@ -17,7 +20,8 @@ def test_ctor():
         assert cs.get_latest() == ""
 
         # repeat with existing directory
-        cs = LocalGitConfigStore("my_org", "my_model", "test", prefix)
+        cs = LocalGitConfigStore("my_org", "my_model", "test", repo_path=prefix)
+        assert cs.exists()
         assert os.path.isdir(f"{prefix}/my_org/my_model")
         assert os.path.isfile(f"{prefix}/my_org/my_model/test")
         assert cs.get_available_versions() == [Version("0.0.0")]
@@ -28,7 +32,8 @@ def test_ctor():
 def test_update_workflow():
     with TemporaryDirectory(dir="/tmp") as prefix:
         # create empty repo
-        cs = LocalGitConfigStore("my_org", "my_model", "test", prefix)
+        cs = LocalGitConfigStore("my_org", "my_model", "test", True, prefix)
+        assert cs.exists()
 
         # propose version 1.0.0 for review
         cur_ver = cs.get_version_of_latest()
