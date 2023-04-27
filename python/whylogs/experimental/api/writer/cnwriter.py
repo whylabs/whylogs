@@ -41,7 +41,9 @@ class CnWriter(WhyLabsWriter):
             and self._cn_store.exists()
         ):
             constraints_str = self._cn_store.get_latest()
-            constraints = Constraints.deserialize(constraints_str)
-            file += constraints.report_columns(file)
+            constraints = read_constraints_from_yaml(constraints_str)
+            builder = ConstraintsBuilder(file)
+            builder.add_constraints(constraints)
+            file += builder.whylabs_report(file)  # create report columns and append to profile
 
         return super().write(file, **kwargs)
