@@ -105,6 +105,7 @@ class ConstraintTranslator:
         output_path: Optional[str] = None,
         output_str: Optional[bool] = False,
         org_id: Optional[str] = None,
+        version: Optional[str] = None,
         dataset_id: Optional[str] = None,
     ):
         if output_path is None and output_str is None:
@@ -139,6 +140,8 @@ class ConstraintTranslator:
             to_dump["org_id"] = org_id
         if dataset_id:
             to_dump["dataset_id"] = dataset_id
+        if version:
+            to_dump["version"] = version
         if output_str:
             return yaml.dump(to_dump)
         else:
