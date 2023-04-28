@@ -33,33 +33,38 @@ const ModalComp = ({ data, setData, dataEdit, isOpen, onClose }) => {
   const [constraint, setConstraint] = useState(dataEdit.constraint || "")
   const [cons_value, setConsValue] = useState(dataEdit.cons_value || {})
 
-
   const renderConstraints = () => {
     if (!column || !columnTypesToConstraints) return null
     const constraints = columnTypesToConstraints.get(column.data_type)
-    return constraints?.map((option) => <option value={option}>{option}</option>)
+    return constraints?.map((option) => (
+      <option value={option}>{option}</option>
+    ))
   }
 
   const handleConsValue = (target) => {
     setConsValue({ ...cons_value, [target.name]: target.value })
   }
 
-  const [constraintParameters] = useFetchData(
-    "http://localhost:8000/get_params",
-    {"my_string": constraint}
-  )
+  // TODO this API call started to bring empty arrays on my last commit,
+  // didn't have time to debug it before demo-time, sorry :(
+
+  // const [constraintParameters] = useFetchData(
+  //   "http://localhost:8000/get_params",
+  //   {"my_string": constraint}
+  // )
+
+  // const constraintsToValues = new Map([
+  //   [constraint, [constraintParameters?.parameters]]
+  // ])
 
   const constraintsToValues = new Map([
-    [constraint, [constraintParameters?.parameters]]
+    ["no_missing_value", []],
+    ["is_in_range", ["lower", "upper"]],
   ])
-
-
 
   const renderConstraintValues = () => {
     if (!constraint) return null
-    console.log(constraintsToValues)
     const constraint_value = constraintsToValues.get(constraint)
-    console.log(constraint_value)
 
     return constraint_value?.map((input) => (
       <FormLabel>
@@ -115,7 +120,9 @@ const ModalComp = ({ data, setData, dataEdit, isOpen, onClose }) => {
                   }
                 >
                   {columnOptions?.map((option) => (
-                    <option value={option.column_name}>{option.column_name}</option>
+                    <option value={option.column_name}>
+                      {option.column_name}
+                    </option>
                   ))}
                 </Select>
               </Box>
