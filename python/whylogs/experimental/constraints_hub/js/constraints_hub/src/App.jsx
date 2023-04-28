@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import ModalComp from "./components/ModalComp"
+import { getData } from "./hooks/GetData"
 
 const App = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -32,13 +33,18 @@ const App = () => {
     const newArray = data.filter(
       (item) =>
         item.column !== column &&
-        item.constraint != constraint &&
-        item.cons_value
+        item.constraint !== constraint &&
+        item.cons_value !== cons_value
     )
 
     setData(newArray)
 
     localStorage.setItem("constraint_set", JSON.stringify(newArray))
+  }
+
+  const handlePush = () => {
+    // console.log(getData("http://localhost:8000/types_to_constraints"))
+    console.log(JSON.parse(localStorage.getItem("constraint_set")))
   }
 
   return (
@@ -90,8 +96,16 @@ const App = () => {
             </Tbody>
           </Table>
         </Box>
-        <Button colorScheme="blue" onClick={() => [setDataEdit({}), onOpen()]}>
+        <Button
+          colorScheme="blue"
+          onClick={() => [setDataEdit({}), onOpen()]}
+          mx={2}
+        >
           NEW CONSTRAINT
+        </Button>
+
+        <Button colorScheme="purple" onClick={handlePush()} mx={2}>
+          PUSH
         </Button>
       </Box>
       {isOpen && (

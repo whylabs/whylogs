@@ -2,17 +2,12 @@ import os
 
 import whylabs_client
 from fastapi import APIRouter
+from semantic_version import Version
 from whylabs_client.api import models_api
 
 from whylogs.core.constraints.factories import no_missing_values
-from whylogs.experimental.api.constraints import (
-    ConstraintTranslator,
-    constraints_mapping,
-)
-from whylogs.experimental.constraints_hub.backend.models import (
-    ConstraintsPerDatatype,
-    EntitySchema,
-)
+from whylogs.experimental.api.constraints import ConstraintTranslator
+from whylogs.experimental.extras.confighub import LocalGitConfigStore
 
 # from .models import Constraints
 
@@ -28,6 +23,8 @@ def get_environment_variables():
     global dataset_id
     global api_endpoint
     global api_key
+    global cs
+    global translator
     try:
         org_id = os.environ["WHYLABS_DEFAULT_ORG_ID"]
         dataset_id = os.environ["WHYLABS_DEFAULT_DATASET_ID"]
@@ -37,6 +34,19 @@ def get_environment_variables():
         raise Exception(
             "you must define WHYLABS_DEFAULT_ORG_ID, WHYLABS_DEFAULT_DATASET_ID and WHYLABS_API_KEY environment variables"
         )
+    translator = ConstraintTranslator()
+    storage_folder_name = "constraints_storage"
+    local_storage_folder = os.path.join(os.getcwd(), storage_folder_name)
+    cs = LocalGitConfigStore(org_id, dataset_id, "constraints", repo_path=local_storage_folder)
+    cs.create()
+    cur_ver = cs.get_version_of_latest()
+    if cur_ver == Version("0.0.0"):
+        new_ver = cur_ver.next_major()
+        content = translator.write_constraints_to_yaml(
+            constraints=[], org_id=org_id, dataset_id=dataset_id, output_str=True, version=str(new_ver)
+        )
+        cs.propose_version(content, new_ver, "testing new version")
+        cs.commit_version(new_ver)
 
 
 @router.get("/entity_schema")
@@ -81,6 +91,12 @@ def get_entity_schema() -> EntitySchema:  # Constraints:
         return {"entity_schema": column_list}
 
 
+@router.get("/latest_version")
+def get_latest_version() -> None:
+    latest_yaml = cs.get_latest()
+    return {"constraints_yaml": str(latest_yaml)}
+
+
 @router.get("/types_to_constraints")
 def get_column_types_to_constraints() -> None:
     """
@@ -103,7 +119,6 @@ def get_column_types_to_constraints() -> None:
 
 @router.post("/save")
 def save_constraint_to_file() -> None:
-    translator = ConstraintTranslator()
     yaml_string = translator.write_constraints_to_yaml(
         constraints=updated_constraints, output_str=True, org_id=org_id, dataset_id=dataset_id
     )
