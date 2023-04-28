@@ -1,25 +1,21 @@
 import os
-
+import yaml
+import json
+from fastapi import APIRouter, Body
+from whylogs.experimental.constraints_hub.backend.models import EntitySchema, JsonConstraint
 import whylabs_client
 from fastapi import APIRouter
 from semantic_version import Version
 from whylabs_client.api import models_api
-
-from whylogs.core.constraints.factories import no_missing_values
-from whylogs.experimental.api.constraints import (
-    ConstraintTranslator,
-    constraints_mapping,
-)
-from whylogs.experimental.constraints_hub.backend.models import (
-    ConstraintsPerDatatype,
-    EntitySchema,
-)
+from whylogs.experimental.api.constraints import constraints_mapping
+from whylogs.experimental.api.constraints import ConstraintTranslator
+from semantic_version import Version
 from whylogs.experimental.extras.confighub import LocalGitConfigStore
+from semantic_version import Version
+from typing_extensions import Annotated
 
+# from .models import Constraints
 router = APIRouter()
-
-original_constraints = [no_missing_values("legs")]
-updated_constraints = original_constraints.copy()
 
 
 @router.on_event("startup")
@@ -99,7 +95,8 @@ def get_entity_schema() -> EntitySchema:  # Constraints:
 @router.get("/latest_version")
 def get_latest_version() -> None:
     latest_yaml = cs.get_latest()
-    return {"constraints_yaml": str(latest_yaml)}
+    yaml_data = yaml.load(latest_yaml, Loader=yaml.FullLoader)
+    return {"constraints_json": json.dumps(yaml_data)}
 
 
 @router.get("/types_to_constraints")
@@ -122,10 +119,48 @@ def get_column_types_to_constraints() -> None:
     return {"constraints_per_datatype": constraints_per_type}
 
 
-@router.post("/save")
-def save_constraint_to_file() -> None:
-    yaml_string = translator.write_constraints_to_yaml(
-        constraints=updated_constraints, output_str=True, org_id=org_id, dataset_id=dataset_id
+yaml_example = """
+
+constraints:
+- column_name: weight
+  factory: no_missing_values
+  metric: counts
+  name: customname
+
+    """
+
+constraint_example = """
+{"constraints": [{"column_name": "weight", "factory": "no_missing_values", "metric": "counts", "name": "customname"}]}
+"""
+
+
+@router.post("/push_constraints")
+def push_constraints(
+    json_constraint: Annotated[JsonConstraint, Body(example={"constraints_json": constraint_example})]
+) -> None:
+    json_string = json_constraint.constraints_json
+    json_data = json.loads(json_string)
+    yaml_string = yaml.dump(json_data)
+
+    constraints = translator.read_constraints_from_yaml(input_str=yaml_string)
+    cur_ver = cs.get_version_of_latest()
+    new_ver = cur_ver.next_major()
+    content = translator.write_constraints_to_yaml(
+        constraints=constraints, org_id=org_id, dataset_id=dataset_id, output_str=True, version=str(new_ver)
     )
-    # salvar as alterações no YAML construido
-    return {"yaml_string": yaml_string}
+    cs.propose_version(content, new_ver, "testing new version")
+    cs.commit_version(new_ver)
+    return {"version": str(new_ver)}
+
+
+@router.get("/get_params/")
+async def get_params(my_string: str) -> None:
+    """For the moment, it works with: no_missing_values, is_in_range, column_is_probably_unique,
+    distinct_number_in_range, count_below_number, is_non_negative, condition_meets"""
+    constraint_info = constraints_mapping.get(my_string)
+    if constraint_info:
+        parameters_class = constraint_info.get("parameters")
+        field_types = {k: v.__name__ for k, v in parameters_class.__annotations__.items()}
+        field_types.pop("factory")
+        return {"parameters": field_types}
+    return {}

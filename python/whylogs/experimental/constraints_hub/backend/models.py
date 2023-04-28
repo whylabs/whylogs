@@ -19,3 +19,7 @@ class EntitySchema(BaseModel):
 
 class ConstraintsPerDatatype(BaseModel):
     constraints_per_datatype: Dict[str, List]
+
+
+class JsonConstraint(BaseModel):
+    constraints_json: str
