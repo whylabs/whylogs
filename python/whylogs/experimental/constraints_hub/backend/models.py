@@ -21,5 +21,5 @@ class ConstraintsPerDatatype(BaseModel):
     constraints_per_datatype: Dict[str, List]
 
 
-class YamlConstraint(BaseModel):
-    constraints_yaml: str
+class JsonConstraint(BaseModel):
+    constraints_json: str
