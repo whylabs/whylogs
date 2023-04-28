@@ -13,9 +13,22 @@ from semantic_version import Version
 from whylogs.experimental.extras.confighub import LocalGitConfigStore
 from semantic_version import Version
 from typing_extensions import Annotated
+import requests
+import tempfile
+import whylogs as why
+from whylogs.core.constraints import ConstraintsBuilder
+from whylogs.viz import NotebookProfileVisualizer
+from fastapi.responses import HTMLResponse
 
 # from .models import Constraints
 router = APIRouter()
+
+constraint_example = """
+{"constraints": [{"column_name": "weight", "factory": "no_missing_values", "metric": "counts", "name": "customname"}]}
+"""
+constraint_example2 = {
+    "constraints": [{"column_name": "weight", "factory": "no_missing_values", "metric": "counts", "name": "customname"}]
+}
 
 
 @router.on_event("startup")
@@ -99,6 +112,73 @@ def get_latest_version() -> None:
     return {"constraints_json": json.dumps(yaml_data)}
 
 
+def get_ref_id():
+    ref_id = ""
+    url = f"{api_endpoint}/v0/organizations/{org_id}/dataset-profiles/models/{dataset_id}/reference-profiles"
+    headers = {"accept": "application/json", "X-API-Key": api_key}
+    params = {"from_epoch": "1577836800000", "to_epoch": "1893456000000"}
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code == 200:
+        if len(response.json()) >= 1:
+            ref_id = response.json()[0]["id"]
+    else:
+        raise ValueError("Error getting list of reference profiles")
+    return {"latest_reference_profile_id": ref_id}
+
+
+@router.get("/get_reference_profile")
+def get_reference_profile() -> None:
+    """If reference profile is not found, will return {"latest_reference_profile_id": ""}"""
+    return get_ref_id()
+
+
+@router.post("/constraints_report_on_reference_profile")
+def generate_constraints_report_on_reference(
+    json_constraint: Annotated[JsonConstraint, Body(example={"constraints_json": constraint_example})]
+) -> None:
+    ref_id = get_ref_id().get("latest_reference_profile_id")
+    html_content = ""
+    if ref_id:
+        url = (
+            f"{api_endpoint}/v0/organizations/{org_id}/dataset-profiles/models/{dataset_id}/reference-profiles/{ref_id}"
+        )
+        headers = {
+            "accept": "application/json",
+            "X-API-Key": api_key,
+        }
+        response = requests.get(url, headers=headers)
+    else:
+        raise ValueError("Error getting reference profile - make sure it exists")
+    download_url = response.json()["downloadUrl"]
+    profile_response = requests.get(download_url)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        filename = f"{temp_dir}/ref.bin"
+        with open(filename, "wb") as file:
+            file.write(profile_response.content)
+        ref_prof = why.read(filename)
+
+    json_string = json_constraint.constraints_json
+    json_data = json.loads(json_string)
+    yaml_string = yaml.dump(json_data)
+
+    constraints = translator.read_constraints_from_yaml(input_str=yaml_string)
+    builder = ConstraintsBuilder(dataset_profile_view=ref_prof.view())
+    builder.add_constraints(constraints)
+    rehydrated_constraints = builder.build()
+    visualization = NotebookProfileVisualizer()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        html_filename = f"{temp_dir}/report"
+        visualization.write(
+            rendered_html=visualization.constraints_report(rehydrated_constraints),
+            html_file_name=html_filename,
+        )
+
+        with open(f"{html_filename}.html") as f:
+            html_content = f.read()
+    print(rehydrated_constraints.generate_constraints_report())
+    return HTMLResponse(content=html_content)
+
+
 @router.get("/types_to_constraints")
 def get_column_types_to_constraints() -> None:
     """
@@ -129,18 +209,14 @@ constraints:
 
     """
 
-constraint_example = """
-{"constraints": [{"column_name": "weight", "factory": "no_missing_values", "metric": "counts", "name": "customname"}]}
-"""
-
 
 @router.post("/push_constraints")
 def push_constraints(
-    json_constraint: Annotated[JsonConstraint, Body(example={"constraints_json": constraint_example})]
+    json_constraint: Annotated[dict, Body(..., example={"constraints_json": constraint_example2})]
 ) -> None:
-    json_string = json_constraint.constraints_json
-    json_data = json.loads(json_string)
-    yaml_string = yaml.dump(json_data)
+    # json_string = json_constraint.constraints_json
+    # json_data = json.loads(json_string)
+    yaml_string = yaml.dump(json_constraint["constraints_json"])
 
     constraints = translator.read_constraints_from_yaml(input_str=yaml_string)
     cur_ver = cs.get_version_of_latest()
