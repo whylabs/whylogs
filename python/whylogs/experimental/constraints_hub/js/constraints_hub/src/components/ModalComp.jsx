@@ -14,35 +14,30 @@ import {
   Select,
 } from "@chakra-ui/react"
 import { useState } from "react"
+import { getData } from "../hooks/GetData"
 
 const ModalComp = ({ data, setData, dataEdit, isOpen, onClose }) => {
+  // TODO Fetch this from entity schema API
   const columnOptions = [
     {
       col_name: "col1",
-      col_type: "float",
+      col_type: "integral",
     },
     {
       col_name: "col2",
-      col_type: "int",
+      col_type: "fractional",
     },
   ]
 
-  const columnTypesToConstraints = new Map([
-    ["str", ["frequent_items_n_max"]],
-    [
-      "float",
-      ["smaller_than_number", "greater_than_number", "mean_between_range"],
-    ],
-    [
-      "int",
-      [
-        "null_count",
-        "smaller_than_number",
-        "greater_than_number",
-        "mean_between_range",
-      ],
-    ],
-  ])
+  const columnTypesToConstraints = new Map(
+    // TODO either fetch results eagerly or treat it with Promises
+    Object.entries(
+      getData("http://localhost:8000/types_to_constraints")
+        .constraints_per_datatype
+    )
+  )
+
+  // TODO Fetch this from API
   const constraintsToValues = new Map([
     ["smaller_than_number", ["number"]],
     ["greater_than_number", ["number"]],

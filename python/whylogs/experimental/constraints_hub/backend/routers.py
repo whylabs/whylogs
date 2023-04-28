@@ -16,8 +16,6 @@ from whylogs.experimental.constraints_hub.backend.models import (
 )
 from whylogs.experimental.extras.confighub import LocalGitConfigStore
 
-# from .models import Constraints
-
 router = APIRouter()
 
 original_constraints = [no_missing_values("legs")]

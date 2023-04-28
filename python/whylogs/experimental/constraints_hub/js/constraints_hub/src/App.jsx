@@ -43,8 +43,7 @@ const App = () => {
   }
 
   const handlePush = () => {
-    // console.log(getData("http://localhost:8000/types_to_constraints"))
-    console.log(JSON.parse(localStorage.getItem("constraint_set")))
+    // TODO
   }
 
   return (
