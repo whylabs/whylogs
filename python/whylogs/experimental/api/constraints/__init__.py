@@ -6,6 +6,8 @@ from typing_extensions import TypedDict
 
 from whylogs.core.constraints import PrefixCondition
 from whylogs.core.constraints.factories import (
+    IsInRangeParams,
+    NoMissingValues,
     column_is_probably_unique,
     condition_meets,
     count_below_number,
@@ -27,8 +29,13 @@ constraints_mapping = {
     "no_missing_values": {
         "constraint_function": no_missing_values,
         "whylabs_datatypes": ["string", "integral", "fractional", "bool", "unknown"],
+        "parameters": NoMissingValues,
     },
-    "is_in_range": {"constraint_function": is_in_range, "whylabs_datatypes": ["integral", "fractional"]},
+    "is_in_range": {
+        "constraint_function": is_in_range,
+        "whylabs_datatypes": ["integral", "fractional"],
+        "parameters": IsInRangeParams,
+    },
     "column_is_probably_unique": {
         "constraint_function": column_is_probably_unique,
         "whylabs_datatypes": ["string", "integral"],
@@ -105,6 +112,7 @@ class ConstraintTranslator:
         output_path: Optional[str] = None,
         output_str: Optional[bool] = False,
         org_id: Optional[str] = None,
+        version: Optional[str] = None,
         dataset_id: Optional[str] = None,
     ):
         if output_path is None and output_str is None:
@@ -139,6 +147,8 @@ class ConstraintTranslator:
             to_dump["org_id"] = org_id
         if dataset_id:
             to_dump["dataset_id"] = dataset_id
+        if version:
+            to_dump["version"] = version
         if output_str:
             return yaml.dump(to_dump)
         else:
