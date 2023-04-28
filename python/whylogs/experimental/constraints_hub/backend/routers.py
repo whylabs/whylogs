@@ -20,7 +20,6 @@ from fastapi.responses import HTMLResponse
 
 # from .models import Constraints
 router = APIRouter()
-
 constraint_example = """
 {"constraints": [{"column_name": "weight", "factory": "no_missing_values", "metric": "counts", "name": "customname"}]}
 """
@@ -106,8 +105,8 @@ def get_entity_schema() -> EntitySchema:  # Constraints:
 @router.get("/latest_version")
 def get_latest_version() -> None:
     latest_yaml = cs.get_latest()
-    yaml_data = yaml.load(latest_yaml, Loader=yaml.FullLoader)
-    return {"constraints_json": json.dumps(yaml_data)}
+    data = yaml.load(latest_yaml, Loader=yaml.FullLoader)
+    return {"constraints_json": data}
 
 
 def get_ref_id():
