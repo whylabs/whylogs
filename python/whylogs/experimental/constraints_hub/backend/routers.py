@@ -1,7 +1,7 @@
 import os
 
-from fastapi import APIRouter
-from whylogs.experimental.constraints_hub.backend.models import EntitySchema, ConstraintsPerDatatype
+from fastapi import APIRouter, Body
+from whylogs.experimental.constraints_hub.backend.models import EntitySchema, ConstraintsPerDatatype, YamlConstraint
 import whylabs_client
 from whylabs_client.api import models_api
 from whylogs.experimental.api.constraints import constraints_mapping
@@ -10,6 +10,7 @@ from whylogs.experimental.api.constraints import ConstraintTranslator
 from semantic_version import Version
 from whylogs.experimental.extras.confighub import LocalGitConfigStore
 from semantic_version import Version
+from typing_extensions import Annotated
 
 # from .models import Constraints
 
@@ -124,5 +125,33 @@ def save_constraint_to_file() -> None:
     yaml_string = translator.write_constraints_to_yaml(
         constraints=updated_constraints, output_str=True, org_id=org_id, dataset_id=dataset_id
     )
+
     # salvar as alterações no YAML construido
     return {"yaml_string": yaml_string}
+
+
+yaml_example = """
+
+constraints:
+- column_name: weight
+  factory: no_missing_values
+  metric: counts
+  name: customname
+
+    """
+
+
+@router.post("/push_constraints")
+def push_constraints(
+    yaml_constraint: Annotated[YamlConstraint, Body(example={"constraints_yaml": yaml_example})]
+) -> None:
+    yaml_string = yaml_constraint.constraints_yaml
+    constraints = translator.read_constraints_from_yaml(input_str=yaml_string)
+    cur_ver = cs.get_version_of_latest()
+    new_ver = cur_ver.next_major()
+    content = translator.write_constraints_to_yaml(
+        constraints=constraints, org_id=org_id, dataset_id=dataset_id, output_str=True, version=str(new_ver)
+    )
+    cs.propose_version(content, new_ver, "testing new version")
+    cs.commit_version(new_ver)
+    return {"version": str(new_ver)}
