@@ -28,26 +28,13 @@ const ModalComp = ({ data, setData, dataEdit, isOpen, onClose }) => {
       col_type: "fractional",
     },
   ]
-  
-  
-  const { fetchData } = useFetchData("http://localhost:8000/types_to_constraints")
-  const [columnTypesDict, setColumnTypesDict] = useState({}) 
 
-  useEffect(() => {
-    (async () => {
-      const response = await fetchData();
-      setColumnTypesDict(response)
-    })()
-  }, [])
-
-  console.log(columnTypesDict)
-
-
-
-
-  const columnTypesToConstraints = new Map(Object.entries(columnTypesDict?.constraints_per_datatype ?? {}))
-
-  
+  const [columnTypesDict] = useFetchData(
+    "http://localhost:8000/types_to_constraints"
+  )
+  const columnTypesToConstraints = new Map(
+    Object.entries(columnTypesDict?.constraints_per_datatype ?? {})
+  )
 
   // TODO Fetch this from API
   const constraintsToValues = new Map([
