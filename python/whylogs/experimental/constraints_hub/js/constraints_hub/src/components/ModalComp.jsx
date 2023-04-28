@@ -38,10 +38,10 @@ const ModalComp = ({ data, setData, dataEdit, isOpen, onClose }) => {
 
   // TODO Fetch this from API
   const constraintsToValues = new Map([
-    ["smaller_than_number", ["number"]],
-    ["greater_than_number", ["number"]],
-    ["null_count", ["number"]],
-    ["mean_between_range", ["upper", "lower"]],
+    ["no_mising_values", []],
+    ["is_in_range", ["lower", "upper"]],
+    ["column_is_probably_unique", []],
+    ["distinct_number_in_range", ["upper", "lower"]],
   ])
 
   const [column, setColumn] = useState(dataEdit.column || undefined)
@@ -58,9 +58,10 @@ const ModalComp = ({ data, setData, dataEdit, isOpen, onClose }) => {
     setConsValue({ ...cons_value, [target.name]: target.value })
   }
 
+
   const renderConstraintValues = () => {
     if (!constraint) return null
-
+    
     const constraint_value = constraintsToValues.get(constraint)
 
     return constraint_value?.map((input) => (

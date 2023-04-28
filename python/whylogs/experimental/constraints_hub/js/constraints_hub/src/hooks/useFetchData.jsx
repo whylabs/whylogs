@@ -1,15 +1,15 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
 
-export function useFetchData(url) {
+export function useFetchData(url, params = {}) {
   const fetchData = async () => {
-    const response = await axios.get(url)
+    const response = await axios.get(url, { params })
     return response?.data ?? {}
   }
   const [columnTypesDict, setColumnTypesDict] = useState({})
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       const response = await fetchData()
       setColumnTypesDict(response)
     })()
@@ -17,14 +17,4 @@ export function useFetchData(url) {
 
   return [columnTypesDict]
 
-  // const [data, setData] = useState(null)
-
-  // useEffect(() => {
-  //   axios.get(url)
-  //     .then(response => {
-  //       setData(response.data)
-  //     })
-  // }, [])
-
-  return { fetchData }
 }
