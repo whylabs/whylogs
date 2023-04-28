@@ -13,8 +13,8 @@ import {
   Box,
   Select,
 } from "@chakra-ui/react"
-import { useState } from "react"
-import { getData } from "../hooks/GetData"
+import { useState, useEffect } from "react"
+import { useFetchData } from "../hooks/useFetchData"
 
 const ModalComp = ({ data, setData, dataEdit, isOpen, onClose }) => {
   // TODO Fetch this from entity schema API
@@ -28,14 +28,26 @@ const ModalComp = ({ data, setData, dataEdit, isOpen, onClose }) => {
       col_type: "fractional",
     },
   ]
+  
+  
+  const { fetchData } = useFetchData("http://localhost:8000/types_to_constraints")
+  const [columnTypesDict, setColumnTypesDict] = useState({}) 
 
-  const columnTypesToConstraints = new Map(
-    // TODO either fetch results eagerly or treat it with Promises
-    Object.entries(
-      getData("http://localhost:8000/types_to_constraints")
-        .constraints_per_datatype
-    )
-  )
+  useEffect(() => {
+    (async () => {
+      const response = await fetchData();
+      setColumnTypesDict(response)
+    })()
+  }, [])
+
+  console.log(columnTypesDict)
+
+
+
+
+  const columnTypesToConstraints = new Map(Object.entries(columnTypesDict?.constraints_per_datatype ?? {}))
+
+  
 
   // TODO Fetch this from API
   const constraintsToValues = new Map([
@@ -50,7 +62,7 @@ const ModalComp = ({ data, setData, dataEdit, isOpen, onClose }) => {
   const [cons_value, setConsValue] = useState(dataEdit.cons_value || {})
 
   const renderConstraints = () => {
-    if (!column) return null
+    if (!column || !columnTypesToConstraints) return null
     const constraints = columnTypesToConstraints.get(column.col_type)
     return constraints.map((option) => <option value={option}>{option}</option>)
   }

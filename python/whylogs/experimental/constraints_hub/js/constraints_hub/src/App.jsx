@@ -10,11 +10,9 @@ import {
   Th,
   Tbody,
   Td,
-  useBreakpointValue,
 } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import ModalComp from "./components/ModalComp"
-import { getData } from "./hooks/GetData"
 
 const App = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -43,7 +41,7 @@ const App = () => {
   }
 
   const handlePush = () => {
-    // TODO
+    console.log("// TODO")
   }
 
   return (
@@ -103,7 +101,7 @@ const App = () => {
           NEW CONSTRAINT
         </Button>
 
-        <Button colorScheme="purple" onClick={handlePush()} mx={2}>
+        <Button colorScheme="purple" onClick={() => handlePush()} mx={2}>
           PUSH
         </Button>
       </Box>
