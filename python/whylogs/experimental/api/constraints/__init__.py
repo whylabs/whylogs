@@ -6,6 +6,8 @@ from typing_extensions import TypedDict
 
 from whylogs.core.constraints import PrefixCondition
 from whylogs.core.constraints.factories import (
+    IsInRangeParams,
+    NoMissingValues,
     column_is_probably_unique,
     condition_meets,
     count_below_number,
@@ -27,8 +29,13 @@ constraints_mapping = {
     "no_missing_values": {
         "constraint_function": no_missing_values,
         "whylabs_datatypes": ["string", "integral", "fractional", "bool", "unknown"],
+        "parameters": NoMissingValues,
     },
-    "is_in_range": {"constraint_function": is_in_range, "whylabs_datatypes": ["integral", "fractional"]},
+    "is_in_range": {
+        "constraint_function": is_in_range,
+        "whylabs_datatypes": ["integral", "fractional"],
+        "parameters": IsInRangeParams,
+    },
     "column_is_probably_unique": {
         "constraint_function": column_is_probably_unique,
         "whylabs_datatypes": ["string", "integral"],

@@ -1,7 +1,7 @@
 import os
 
 from fastapi import APIRouter, Body
-from whylogs.experimental.constraints_hub.backend.models import EntitySchema, ConstraintsPerDatatype, YamlConstraint
+from whylogs.experimental.constraints_hub.backend.models import EntitySchema, YamlConstraint
 import whylabs_client
 from whylabs_client.api import models_api
 from whylogs.experimental.api.constraints import constraints_mapping
@@ -155,3 +155,15 @@ def push_constraints(
     cs.propose_version(content, new_ver, "testing new version")
     cs.commit_version(new_ver)
     return {"version": str(new_ver)}
+
+
+@router.get("/get_params/")
+async def get_params(my_string: str) -> None:
+    """For the moment, it only works with: no_missing_values and is_in_range"""
+    constraint_info = constraints_mapping.get(my_string)
+    if constraint_info:
+        parameters_class = constraint_info.get("parameters")
+        field_types = {k: v.__name__ for k, v in parameters_class.__annotations__.items()}
+        field_types.pop("factory")
+        return {"parameters": field_types}
+    return {}
