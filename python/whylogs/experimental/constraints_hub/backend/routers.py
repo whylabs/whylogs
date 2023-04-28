@@ -131,7 +131,7 @@ def get_reference_profile() -> None:
 
 @router.post("/constraints_report_on_reference_profile")
 def generate_constraints_report_on_reference(
-    json_constraint: Annotated[JsonConstraint, Body(example={"constraints_json": constraint_example})]
+    json_constraint: Annotated[dict, Body(..., example={"constraints_json": constraint_example2})]
 ) -> None:
     ref_id = get_ref_id().get("latest_reference_profile_id")
     html_content = ""
@@ -154,9 +154,7 @@ def generate_constraints_report_on_reference(
             file.write(profile_response.content)
         ref_prof = why.read(filename)
 
-    json_string = json_constraint.constraints_json
-    json_data = json.loads(json_string)
-    yaml_string = yaml.dump(json_data)
+    yaml_string = yaml.dump(json_constraint["constraints_json"])
 
     constraints = translator.read_constraints_from_yaml(input_str=yaml_string)
     builder = ConstraintsBuilder(dataset_profile_view=ref_prof.view())
