@@ -629,13 +629,13 @@
 
       Handlebars.registerHelper("alertLIst", function (column) {
         let alertListItem = column.map((value) => {
-          if (value[1][0]) {
-            let alertListValue = value[1].map((cstr)=>{
-              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false), value[3])
+          if (value[2][0]) {
+            let alertListValue = value[2].map((cstr)=>{
+              return alertListElement(value[1],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false), value[4])
             })
             return alertListValue.join(' ')
           } else {
-            return alertListElement('', value[0], value[2] === 0 ||  (failedConstraints++, false), value[3])
+            return alertListElement('', value[1], value[3] === 0 ||  (failedConstraints++, false), value[4])
           }
         })
          $(document).ready(() => {
