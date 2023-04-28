@@ -8,12 +8,17 @@ from whylogs.core.constraints import PrefixCondition
 from whylogs.core.constraints.factories import (
     IsInRangeParams,
     NoMissingValues,
+    ColumnIsProbablyUniqueParams,
     column_is_probably_unique,
     condition_meets,
+    ConditionMeetsParams,
     count_below_number,
+    CountBelowNumber,
     distinct_number_in_range,
+    DistinctNumberInRangeParams,
     is_in_range,
     is_non_negative,
+    IsNonNegativeParams,
     no_missing_values,
 )
 from whylogs.core.constraints.metric_constraints import (
@@ -39,19 +44,27 @@ constraints_mapping = {
     "column_is_probably_unique": {
         "constraint_function": column_is_probably_unique,
         "whylabs_datatypes": ["string", "integral"],
+        "parameters": ColumnIsProbablyUniqueParams,
     },
     "distinct_number_in_range": {
         "constraint_function": distinct_number_in_range,
         "whylabs_datatypes": ["string", "integral"],
+        "parameters": DistinctNumberInRangeParams,
     },
     "count_below_number": {
         "constraint_function": count_below_number,
         "whylabs_datatypes": ["string", "integral", "fractional", "bool", "unknown"],
+        "parameters": CountBelowNumber,
     },
-    "is_non_negative": {"constraint_function": is_non_negative, "whylabs_datatypes": ["integral", "fractional"]},
+    "is_non_negative": {
+        "constraint_function": is_non_negative,
+        "whylabs_datatypes": ["integral", "fractional"],
+        "parameters": IsNonNegativeParams,
+    },
     "condition_meets": {
         "constraint_function": condition_meets,
         "whylabs_datatypes": ["string", "integral", "fractional", "bool", "unknown"],
+        "parameters": ConditionMeetsParams,
     },
 }
 

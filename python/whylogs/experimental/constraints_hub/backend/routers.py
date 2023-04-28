@@ -13,7 +13,6 @@ from semantic_version import Version
 from typing_extensions import Annotated
 
 # from .models import Constraints
-
 router = APIRouter()
 
 
@@ -154,7 +153,8 @@ def push_constraints(
 
 @router.get("/get_params/")
 async def get_params(my_string: str) -> None:
-    """For the moment, it only works with: no_missing_values and is_in_range"""
+    """For the moment, it works with: no_missing_values, is_in_range, column_is_probably_unique,
+    distinct_number_in_range, count_below_number, is_non_negative, condition_meets"""
     constraint_info = constraints_mapping.get(my_string)
     if constraint_info:
         parameters_class = constraint_info.get("parameters")
