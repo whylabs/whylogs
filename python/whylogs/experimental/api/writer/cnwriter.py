@@ -1,11 +1,10 @@
 from typing import Any, Dict, List, Optional, Tuple
 
-from whylabs.api.writer.whylabs import WhyLabsWriter
-from whylabs.experimental.extras import ConfigStore
 from whylabs_client import ApiClient
 
 import whylogs as why
 
+from whylogs.api.writer.whylabs import WhyLabsWriter
 from whylogs.api.writer.writer import Writable
 from whylogs.core.constraints import ConstraintsBuilder
 from whylogs.core.constraints.metric_constraints import ReportResult
@@ -13,6 +12,7 @@ from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.utils import deprecated_alias
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.experimental.api.constraints import ConstraintTranslator
+from whylogs.experimental.extras.confighub import ConfigStore
 
 
 # TODO: maybe move these to whylogs/migrate/uncompound.py ?
@@ -24,7 +24,7 @@ def _uncompound_report(reports: List[ReportResult]) -> Dict[str, int]:
     result: Dict[str, int] = dict()
     for report in reports:
         if report.column_name is not None:
-            name_componenets = [
+            name_components = [
                 _uncompounded_column_prefix(),
                 "column_constraint",
                 report.column_name,
@@ -39,7 +39,7 @@ def _uncompound_report(reports: List[ReportResult]) -> Dict[str, int]:
                 "failed",
             ]
         uncompounded_name = ".".join(name_components)
-        result[uncomponded_name] = report.failed
+        result[uncompounded_name] = report.failed
     return result
 
 
