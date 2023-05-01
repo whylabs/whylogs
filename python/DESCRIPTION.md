@@ -55,11 +55,10 @@ These three functionalities enable a variety of use cases for data scientists, m
 ## Quickstart
 
 Install whylogs using the pip package manager in a terminal by running:
+
 ```
 pip install whylogs
 ```
-
-
 
 Then you can log data in python as simply as this:
 
