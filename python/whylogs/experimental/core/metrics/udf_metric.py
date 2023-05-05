@@ -236,12 +236,12 @@ def register_metric_udf(
     return decorator_register
 
 
-def generate_udf_schema() -> List[ResolverSpec]:
+def generate_udf_metric_schema(non_udf_resolvers: List[ResolverSpec] = STANDARD_RESOLVER) -> List[ResolverSpec]:
     """
     Generates a list of ResolverSpecs that implement the UdfMetrics specified
-    by the @register_metric_ud decorators. The result only includes the UdfMetric,
-    so you may want to append it to a list of ResolverSpecs defining the other
-    metrics you wish to track.
+    by the @register_metric_ud decorators (in additon to any non_udf_resolvers
+    passed in). The result only includes the UdfMetric, so you may want to append
+    it to a list of ResolverSpecs defining the other metrics you wish to track.
 
     For example:
 
@@ -253,7 +253,7 @@ def generate_udf_schema() -> List[ResolverSpec]:
     def upper(x):
         return x.upper()
 
-    schema = DeclarativeSchema(STANDARD_RESOLVER + generate_udf_schema())
+    schema = DeclarativeSchema(generate_udf_metric_schema())
     why.log(data, schema=schema)
 
     This will attach a UdfMetric to column "col1" that will include a submetric
@@ -287,4 +287,4 @@ def generate_udf_schema() -> List[ResolverSpec]:
         )
         resolvers.append(ResolverSpec(None, col_type, [MetricSpec(UdfMetric, config)]))
 
-    return resolvers
+    return non_udf_resolvers + resolvers
