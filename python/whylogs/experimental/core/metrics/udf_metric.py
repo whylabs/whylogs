@@ -202,6 +202,7 @@ def register_metric_udf(
 
     def decorator_register(func):
         global _col_name_submetrics, _col_name_submetric_schema, _col_name_type_mapper
+        global _col_type_submetrics, _col_type_submetric_schema, _col_type_type_mapper
 
         if col_name is not None and col_type is not None:
             raise ValueError("Only specify one of column name or type")
