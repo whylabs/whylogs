@@ -188,7 +188,7 @@ def register_metric_udf(
     input columns of the specified type. The decorated function will automatically
     be a UDF in the UdfMetric.
 
-    Specify submetric_name to give the output of the UDf a name. submetric_name
+    Specify submetric_name to give the output of the UDF a name. submetric_name
     defautls to the name of the decorated function. Note that all lambdas are
     named "lambda" so omitting submetric_name on more than one lambda will result
     in name collisions.
