@@ -25,20 +25,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+@dataclass
 class GuestSession:
-    def __init__(self, session_id: str):
-        self.session_id = session_id
-        Variables.set_variable_to_config_file(key="session_id", value=self.session_id, auth_path=_auth_path)
+    session_id: str
 
 
 @dataclass
 class UserSession:
     org_id: str
     api_key: str
-
-    def __post_init__(self):
-        Variables.set_variable_to_config_file(key="org_id", value=self.org_id, auth_path=_auth_path)
-        Variables.set_variable_to_config_file(key="api_key", value=self.api_key, auth_path=_auth_path)
 
 
 def _create_session_id(user_id: str) -> str:
@@ -57,15 +52,19 @@ def _create_session_id(user_id: str) -> str:
         raise e
 
 
-def _get_logged_session(auth_path: Path = _auth_path, interactive: bool = False) -> UserSession:
+def _get_logged_session(auth_path: Path = _auth_path) -> UserSession:
     api_key = os.getenv("WHYLABS_API_KEY") or Variables.get_variable_from_config_file(
         auth_path=auth_path, key="api_key"
     )
     org_id = os.getenv("ORG_ID") or Variables.get_variable_from_config_file(auth_path=auth_path, key="org_id")
 
-    if is_notebook() and interactive is True:
-        api_key = api_key or Variables.get_variable_from_getpass(variable_name="api_key")
-        org_id = org_id or Variables.get_variable_from_input(variable_name="org_id")
+    if is_notebook():
+        if api_key is None:
+            api_key = Variables.get_variable_from_getpass(variable_name="api_key")
+            Variables.set_variable_to_config_file(key="api_key", value=api_key, auth_path=_auth_path)
+        if org_id is None:
+            org_id = Variables.get_variable_from_input(variable_name="org_id")
+            Variables.set_variable_to_config_file(key="org_id", value=org_id, auth_path=_auth_path)
 
     if api_key is None or org_id is None:
         raise ValueError(
@@ -81,14 +80,13 @@ def _get_or_create_guest_session() -> GuestSession:
     if session_id is None:
         user_id = str(uuid.uuid4())
         session_id = _create_session_id(user_id=user_id)
+        Variables.set_variable_to_config_file(key="session_id", value=session_id, auth_path=_auth_path)
     return GuestSession(session_id=session_id)
 
 
-def get_or_create_session(
-    anonymous: Optional[bool] = None, interactive: bool = False
-) -> Union[GuestSession, UserSession]:
+def get_or_create_session(anonymous: Optional[bool] = None) -> Union[GuestSession, UserSession]:
     if not anonymous:
-        return _get_logged_session(interactive=interactive)
+        return _get_logged_session()
     else:
         return _get_or_create_guest_session()
 
@@ -96,19 +94,18 @@ def get_or_create_session(
 class SessionManager:
     __instance = None
 
-    def __init__(self, anonymous: Optional[bool] = None, interactive: bool = False):
+    def __init__(self, anonymous: Optional[bool] = None):
         self._anonymous = anonymous
-        self._interactive = interactive
         if SessionManager.__instance is not None:
             raise Exception("There is an active Session, use Session.get_instance() instead")
         else:
             SessionManager.__instance = self
-            self.session = get_or_create_session(anonymous=self._anonymous, interactive=self._interactive)
+            self.session = get_or_create_session(anonymous=self._anonymous)
 
     @staticmethod
-    def get_instance(anonymous: Optional[bool] = None, interactive: bool = False):
+    def get_instance(anonymous: Optional[bool] = None):
         if SessionManager.__instance is None:
-            SessionManager(anonymous=anonymous, interactive=interactive)
+            SessionManager(anonymous=anonymous)
         return SessionManager.__instance
 
     @staticmethod
@@ -118,5 +115,5 @@ class SessionManager:
         return True
 
 
-def init(anonymous: Optional[bool] = None, interactive: bool = False) -> None:
-    SessionManager.get_instance(anonymous=anonymous, interactive=interactive)
+def init(anonymous: Optional[bool] = None) -> None:
+    SessionManager.get_instance(anonymous=anonymous)
