@@ -6,11 +6,11 @@ import pytest
 
 from whylogs.api.whylabs.auth_file import _create_blank_auth_file
 from whylogs.api.whylabs.session_manager import (
+    ApiKeySession,
     GuestSession,
     SessionManager,
-    UserSession,
-    _auth_path,
     _create_session_id,
+    _get_default_authentication_path,
     _get_logged_session,
     _get_or_create_guest_session,
     get_or_create_session,
@@ -18,6 +18,8 @@ from whylogs.api.whylabs.session_manager import (
 
 
 class TestSessionManager:
+    _auth_path = _get_default_authentication_path()
+
     @classmethod
     def setup_class(cls):
         os.environ["WHYLABS_API_KEY"] = "api_key"
@@ -27,8 +29,8 @@ class TestSessionManager:
     def teardown_class(cls):
         del os.environ["WHYLABS_API_KEY"]
         del os.environ["ORG_ID"]
-        os.remove(_auth_path)
-        os.rmdir(_auth_path.parent)
+        os.remove(cls._auth_path)
+        os.rmdir(cls._auth_path.parent)
 
     def test_create_session_id(self):
         user_id = str(uuid.uuid4())
@@ -41,7 +43,7 @@ class TestSessionManager:
         assert "session-" in session.session_id
 
         config = configparser.ConfigParser()
-        config.read(_auth_path)
+        config.read(self._auth_path)
 
         assert config.get("whylabs", "session_id") == session.session_id
 
@@ -51,20 +53,20 @@ class TestSessionManager:
     def test_logged_session_with_env_var(self):
         session = _get_logged_session()
 
-        assert isinstance(session, UserSession)
+        assert isinstance(session, ApiKeySession)
         assert session.org_id == "org_id"
         assert session.api_key == "api_key"
 
     def test_create_session(self):
         logged_session = get_or_create_session(anonymous=False)
-        assert isinstance(logged_session, UserSession)
+        assert isinstance(logged_session, ApiKeySession)
 
         anon_session = get_or_create_session(anonymous=True)
         assert isinstance(anon_session, GuestSession)
 
     def test_session_manager_singleton(self):
         sm = SessionManager.get_instance(anonymous=False)
-        assert isinstance(sm.session, UserSession)
+        assert isinstance(sm.session, ApiKeySession)
 
         new_sm = SessionManager.get_instance(anonymous=True)
         assert new_sm == sm
@@ -88,11 +90,12 @@ class TestSessionManager:
         why.init(anonymous=True)
 
         config = configparser.ConfigParser()
-        config.read(_auth_path)
+        config.read(self._auth_path)
         assert config.get("whylabs", "session_id")
 
 
 def test_logged_session_with_config_file():
+    _auth_path = _get_default_authentication_path()
     _create_blank_auth_file(auth_path=_auth_path)
     config = configparser.ConfigParser()
     config.read(_auth_path)
