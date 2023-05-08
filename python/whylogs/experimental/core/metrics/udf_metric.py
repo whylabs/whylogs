@@ -19,6 +19,7 @@ from whylogs.core.resolvers import (
     ResolverSpec,
     _allowed_metric,
 )
+from whylogs.core.schema import DeclarativeSchema
 
 logger = logging.getLogger(__name__)
 
@@ -237,13 +238,11 @@ def register_metric_udf(
     return decorator_register
 
 
-def generate_udf_metric_schema(non_udf_resolvers: List[ResolverSpec] = STANDARD_RESOLVER) -> List[ResolverSpec]:
+def generate_udf_metric_schema(non_udf_resolvers: List[ResolverSpec] = STANDARD_RESOLVER) -> DeclarativeSchema:
     """
-    Generates a list of ResolverSpecs that implement the UdfMetrics specified
+    Generates a DeclarativeSchema that implement the UdfMetrics specified
     by the @register_metric_udf decorators (in additon to any non_udf_resolvers
-    passed in). The result only includes the UdfMetric, so you may want to pass
-    a list of ResolverSpecs in non_udf_resolvers defining the other metrics you
-    wish to track.
+    passed in).
 
     For example:
 
@@ -255,8 +254,7 @@ def generate_udf_metric_schema(non_udf_resolvers: List[ResolverSpec] = STANDARD_
     def upper(x):
         return x.upper()
 
-    schema = DeclarativeSchema(generate_udf_metric_schema())
-    why.log(data, schema=schema)
+    why.log(data, schema=generate_udf_metric_schema())
 
     This will attach a UdfMetric to column "col1" that will include a submetric
     named "add5" tracking the values in "col1" incremented by 5, and a UdfMetric
@@ -289,4 +287,4 @@ def generate_udf_metric_schema(non_udf_resolvers: List[ResolverSpec] = STANDARD_
         )
         resolvers.append(ResolverSpec(None, col_type, [MetricSpec(UdfMetric, config)]))
 
-    return non_udf_resolvers + resolvers
+    return DeclarativeSchema(non_udf_resolvers + resolvers)
