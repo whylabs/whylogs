@@ -105,8 +105,8 @@ class SessionManager:
         if SessionManager.__instance is not None:
             raise Exception("There is an active Session, use Session.get_instance() instead")
         else:
-            SessionManager.__instance = self
             self.session = get_or_create_session(anonymous=self._anonymous)
+            SessionManager.__instance = self
 
     @staticmethod
     def get_instance(anonymous: Optional[bool] = None):
