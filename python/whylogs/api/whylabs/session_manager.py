@@ -56,25 +56,26 @@ def _create_session_id(user_id: str) -> str:
 
 
 def _get_logged_session(auth_path: Optional[Path] = None) -> ApiKeySession:
-    _auth_path = _get_default_authentication_path()
+    api_key = os.getenv("WHYLABS_API_KEY")
+    org_id = os.getenv("ORG_ID")
 
-    api_key = os.getenv("WHYLABS_API_KEY") or Variables.get_variable_from_config_file(
-        auth_path=auth_path, key="api_key"
-    )
-    org_id = os.getenv("ORG_ID") or Variables.get_variable_from_config_file(auth_path=auth_path, key="org_id")
+    if api_key is None or org_id is None:
+        _auth_path = _get_default_authentication_path()
+        api_key = api_key or Variables.get_variable_from_config_file(auth_path=auth_path, key="api_key")
+        org_id = org_id or Variables.get_variable_from_config_file(auth_path=auth_path, key="org_id")
 
-    if is_notebook():
-        if api_key is None:
-            api_key = Variables.get_variable_from_getpass(variable_name="api_key")
-            Variables.set_variable_to_config_file(key="api_key", value=api_key, auth_path=_auth_path)
-        if org_id is None:
-            org_id = Variables.get_variable_from_input(variable_name="org_id")
-            Variables.set_variable_to_config_file(key="org_id", value=org_id, auth_path=_auth_path)
+        if is_notebook():
+            if api_key is None:
+                api_key = Variables.get_variable_from_getpass(variable_name="api_key")
+                Variables.set_variable_to_config_file(key="api_key", value=api_key, auth_path=_auth_path)
+            if org_id is None:
+                org_id = Variables.get_variable_from_input(variable_name="org_id")
+                Variables.set_variable_to_config_file(key="org_id", value=org_id, auth_path=_auth_path)
 
     if api_key is None or org_id is None:
         raise ValueError(
             f"You must define your WHYLABS_API_KEY and ORG_ID environment variables,"
-            f" or set them on an ini file on {auth_path}"
+            f" or set them on a config file on {auth_path}"
         )
 
     return ApiKeySession(org_id=org_id, api_key=api_key)
