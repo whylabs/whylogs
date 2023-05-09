@@ -238,11 +238,12 @@ def register_metric_udf(
     return decorator_register
 
 
-def generate_udf_metric_schema(non_udf_resolvers: List[ResolverSpec] = STANDARD_RESOLVER) -> DeclarativeSchema:
+def generate_udf_schema() -> List[ResolverSpec]:
     """
-    Generates a DeclarativeSchema that implement the UdfMetrics specified
-    by the @register_metric_udf decorators (in additon to any non_udf_resolvers
-    passed in).
+    Generates a list of ResolverSpecs that implement the UdfMetrics specified
+    by the @register_metric_ud decorators. The result only includes the UdfMetric,
+    so you may want to append it to a list of ResolverSpecs defining the other
+    metrics you wish to track.
 
     For example:
 
@@ -254,7 +255,8 @@ def generate_udf_metric_schema(non_udf_resolvers: List[ResolverSpec] = STANDARD_
     def upper(x):
         return x.upper()
 
-    why.log(data, schema=generate_udf_metric_schema())
+    schema = DeclarativeSchema(STANDARD_RESOLVER + generate_udf_schema())
+    why.log(data, schema=schema)
 
     This will attach a UdfMetric to column "col1" that will include a submetric
     named "add5" tracking the values in "col1" incremented by 5, and a UdfMetric
@@ -286,5 +288,37 @@ def generate_udf_metric_schema(non_udf_resolvers: List[ResolverSpec] = STANDARD_
             type_mapper=_col_type_type_mapper.get(col_type) or StandardTypeMapper(),
         )
         resolvers.append(ResolverSpec(None, col_type, [MetricSpec(UdfMetric, config)]))
+
+    return resolvers
+
+
+def udf_metric_schema(non_udf_resolvers: Optional[List[ResolverSpec]] = None) -> DeclarativeSchema:
+    """
+    Generates a DeclarativeSchema that implement the UdfMetrics specified
+    by the @register_metric_udf decorators (in additon to any non_udf_resolvers
+    passed in).
+
+    For example:
+
+    @register_metric_udf(col_name="col1")
+    def add5(x):
+        return x + 5
+
+    @register_metric_udf(col_type=String)
+    def upper(x):
+        return x.upper()
+
+    why.log(data, schema=udf_metric_schema())
+
+    This will attach a UdfMetric to column "col1" that will include a submetric
+    named "add5" tracking the values in "col1" incremented by 5, and a UdfMetric
+    for each string column that will include a submetric named "upper" tracking
+    the uppercased strings in the input columns. Since these are appended to the
+    STANDARD_RESOLVER, the default metrics are also tracked for every column.
+    """
+
+    resolvers = generate_udf_schema()
+    if non_udf_resolvers is None:
+        non_udf_resolvers = STANDARD_RESOLVER
 
     return DeclarativeSchema(non_udf_resolvers + resolvers)
