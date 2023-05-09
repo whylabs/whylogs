@@ -19,6 +19,7 @@ from whylogs.core.resolvers import (
     ResolverSpec,
     _allowed_metric,
 )
+from whylogs.core.schema import DeclarativeSchema
 
 logger = logging.getLogger(__name__)
 
@@ -188,7 +189,7 @@ def register_metric_udf(
     input columns of the specified type. The decorated function will automatically
     be a UDF in the UdfMetric.
 
-    Specify submetric_name to give the output of the UDf a name. submetric_name
+    Specify submetric_name to give the output of the UDF a name. submetric_name
     defautls to the name of the decorated function. Note that all lambdas are
     named "lambda" so omitting submetric_name on more than one lambda will result
     in name collisions.
@@ -202,6 +203,7 @@ def register_metric_udf(
 
     def decorator_register(func):
         global _col_name_submetrics, _col_name_submetric_schema, _col_name_type_mapper
+        global _col_type_submetrics, _col_type_submetric_schema, _col_type_type_mapper
 
         if col_name is not None and col_type is not None:
             raise ValueError("Only specify one of column name or type")
@@ -288,3 +290,35 @@ def generate_udf_schema() -> List[ResolverSpec]:
         resolvers.append(ResolverSpec(None, col_type, [MetricSpec(UdfMetric, config)]))
 
     return resolvers
+
+
+def udf_metric_schema(non_udf_resolvers: Optional[List[ResolverSpec]] = None) -> DeclarativeSchema:
+    """
+    Generates a DeclarativeSchema that implement the UdfMetrics specified
+    by the @register_metric_udf decorators (in additon to any non_udf_resolvers
+    passed in).
+
+    For example:
+
+    @register_metric_udf(col_name="col1")
+    def add5(x):
+        return x + 5
+
+    @register_metric_udf(col_type=String)
+    def upper(x):
+        return x.upper()
+
+    why.log(data, schema=udf_metric_schema())
+
+    This will attach a UdfMetric to column "col1" that will include a submetric
+    named "add5" tracking the values in "col1" incremented by 5, and a UdfMetric
+    for each string column that will include a submetric named "upper" tracking
+    the uppercased strings in the input columns. Since these are appended to the
+    STANDARD_RESOLVER, the default metrics are also tracked for every column.
+    """
+
+    resolvers = generate_udf_schema()
+    if non_udf_resolvers is None:
+        non_udf_resolvers = STANDARD_RESOLVER
+
+    return DeclarativeSchema(non_udf_resolvers + resolvers)
