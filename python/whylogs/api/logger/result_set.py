@@ -254,6 +254,14 @@ class ViewResultSet(ResultSet):
             logger.warning(f"Merging potentially incompatible ViewResultSet and {type(other)}")
         return ViewResultSet(lhs_view.merge(other.view()))
 
+    def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
+        ensure_timezone(dataset_timestamp)
+        view = self.view()
+        if view is None:
+            raise ValueError("Cannot set timestamp on a view result set without a view!")
+        else:
+            view.set_dataset_timestamp(dataset_timestamp)
+
 
 class ProfileResultSet(ResultSet):
     def __init__(self, profile: DatasetProfile) -> None:

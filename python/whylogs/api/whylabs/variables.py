@@ -1,3 +1,4 @@
+import getpass
 from pathlib import Path
 from typing import Optional
 
@@ -8,6 +9,13 @@ class Variables:
     @staticmethod
     def get_variable_from_input(variable_name: str) -> str:
         variable = input(f"What is your {variable_name}? ")
+        if not variable:
+            raise ValueError(f"You must define a {variable_name}")
+        return variable
+
+    @staticmethod
+    def get_variable_from_getpass(variable_name: str) -> str:
+        variable = getpass.getpass(f"What is your {variable_name}? ")
         if not variable:
             raise ValueError(f"You must define a {variable_name}")
         return variable
