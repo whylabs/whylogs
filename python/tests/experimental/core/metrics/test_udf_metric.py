@@ -3,13 +3,11 @@ import pandas as pd
 import whylogs as why
 from whylogs.core.datatypes import String
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.resolvers import STANDARD_RESOLVER
-from whylogs.core.schema import DeclarativeSchema
 from whylogs.experimental.core.metrics.udf_metric import (
     UdfMetric,
     UdfMetricConfig,
-    generate_udf_schema,
     register_metric_udf,
+    udf_metric_schema,
 )
 
 
@@ -98,9 +96,8 @@ def upper(x):
 
 
 def test_decorator() -> None:
-    schema = DeclarativeSchema(STANDARD_RESOLVER + generate_udf_schema())
     data = pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6], "col3": [7, 8, 9], "col4": ["a", "b", "c"]})
-    view = why.log(data, schema=schema).profile().view()
+    view = why.log(data, schema=udf_metric_schema()).profile().view()
     col1_view = view.get_column("col1")
     col2_view = view.get_column("col2")
     col3_view = view.get_column("col3")
