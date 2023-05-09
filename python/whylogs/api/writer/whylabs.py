@@ -52,6 +52,7 @@ logger = logging.getLogger(__name__)
 
 API_KEY_ENV = "WHYLABS_API_KEY"
 
+# TODO share this client
 _API_CLIENT_CACHE: Dict[str, ApiClient] = dict()
 _UPLOAD_POOLER_CACHE: Dict[str, Union[PoolManager, ProxyManager]] = dict()
 
