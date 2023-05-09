@@ -474,6 +474,9 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.generate_udf_schema" title="whylogs.experimental.core.metrics.udf_metric.generate_udf_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_udf_schema</span></code></a>(...)</p></td>
 <td><p>Generates a list of ResolverSpecs that implement the UdfMetrics specified</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.udf_metric_schema" title="whylogs.experimental.core.metrics.udf_metric.udf_metric_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">udf_metric_schema</span></code></a>(→ whylogs.core.schema.DeclarativeSchema)</p></td>
+<td><p>Generates a DeclarativeSchema that implement the UdfMetrics specified</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -823,7 +826,7 @@ that include the UdfMetrics configured by your decorator parameters.</p>
 a UdfMetric to the named input column. col_type will attach a UdfMetric to all
 input columns of the specified type. The decorated function will automatically
 be a UDF in the UdfMetric.</p>
-<p>Specify submetric_name to give the output of the UDf a name. submetric_name
+<p>Specify submetric_name to give the output of the UDF a name. submetric_name
 defautls to the name of the decorated function. Note that all lambdas are
 named “lambda” so omitting submetric_name on more than one lambda will result
 in name collisions.</p>
@@ -875,6 +878,39 @@ STANDARD_RESOLVER, the default metrics are also tracked for every column.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[<a class="reference internal" href="../../../../core/resolvers/index.html#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec">whylogs.core.resolvers.ResolverSpec</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.udf_metric_schema">
+<span class="sig-prename descclassname"><span class="pre">whylogs.experimental.core.metrics.udf_metric.</span></span><span class="sig-name descname"><span class="pre">udf_metric_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">non_udf_resolvers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../../core/resolvers/index.html#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><span class="pre">whylogs.core.resolvers.ResolverSpec</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../../../core/schema/index.html#whylogs.core.schema.DeclarativeSchema" title="whylogs.core.schema.DeclarativeSchema"><span class="pre">whylogs.core.schema.DeclarativeSchema</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/experimental/core/metrics/udf_metric.html#udf_metric_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.udf_metric_schema" title="Permalink to this definition">#</a></dt>
+<dd><p>Generates a DeclarativeSchema that implement the UdfMetrics specified
+by the &#64;register_metric_udf decorators (in additon to any non_udf_resolvers
+passed in).</p>
+<p>For example:</p>
+<p>&#64;register_metric_udf(col_name=”col1”)
+def add5(x):</p>
+<blockquote>
+<div><p>return x + 5</p>
+</div></blockquote>
+<p>&#64;register_metric_udf(col_type=String)
+def upper(x):</p>
+<blockquote>
+<div><p>return x.upper()</p>
+</div></blockquote>
+<p>why.log(data, schema=udf_metric_schema())</p>
+<p>This will attach a UdfMetric to column “col1” that will include a submetric
+named “add5” tracking the values in “col1” incremented by 5, and a UdfMetric
+for each string column that will include a submetric named “upper” tracking
+the uppercased strings in the input columns. Since these are appended to the
+STANDARD_RESOLVER, the default metrics are also tracked for every column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>non_udf_resolvers</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="../../../../core/resolvers/index.html#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><em>whylogs.core.resolvers.ResolverSpec</em></a><em>]</em><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../../../../core/schema/index.html#whylogs.core.schema.DeclarativeSchema" title="whylogs.core.schema.DeclarativeSchema">whylogs.core.schema.DeclarativeSchema</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -994,6 +1030,7 @@ STANDARD_RESOLVER, the default metrics are also tracked for every column.</p>
 </li>
 <li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.register_metric_udf">register_metric_udf</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.generate_udf_schema">generate_udf_schema</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.udf_metric_schema">udf_metric_schema</a></li>
 </ul>
 </li>
 </ul>

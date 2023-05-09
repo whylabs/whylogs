@@ -442,6 +442,7 @@
     <span class="n">ResolverSpec</span><span class="p">,</span>
     <span class="n">_allowed_metric</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -611,7 +612,7 @@
 <span class="sd">    input columns of the specified type. The decorated function will automatically</span>
 <span class="sd">    be a UDF in the UdfMetric.</span>
 
-<span class="sd">    Specify submetric_name to give the output of the UDf a name. submetric_name</span>
+<span class="sd">    Specify submetric_name to give the output of the UDF a name. submetric_name</span>
 <span class="sd">    defautls to the name of the decorated function. Note that all lambdas are</span>
 <span class="sd">    named &quot;lambda&quot; so omitting submetric_name on more than one lambda will result</span>
 <span class="sd">    in name collisions.</span>
@@ -625,6 +626,7 @@
 
     <span class="k">def</span> <span class="nf">decorator_register</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
         <span class="k">global</span> <span class="n">_col_name_submetrics</span><span class="p">,</span> <span class="n">_col_name_submetric_schema</span><span class="p">,</span> <span class="n">_col_name_type_mapper</span>
+        <span class="k">global</span> <span class="n">_col_type_submetrics</span><span class="p">,</span> <span class="n">_col_type_submetric_schema</span><span class="p">,</span> <span class="n">_col_type_type_mapper</span>
 
         <span class="k">if</span> <span class="n">col_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">col_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only specify one of column name or type&quot;</span><span class="p">)</span>
@@ -711,6 +713,38 @@
         <span class="n">resolvers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ResolverSpec</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">col_type</span><span class="p">,</span> <span class="p">[</span><span class="n">MetricSpec</span><span class="p">(</span><span class="n">UdfMetric</span><span class="p">,</span> <span class="n">config</span><span class="p">)]))</span>
 
     <span class="k">return</span> <span class="n">resolvers</span></div>
+
+
+<div class="viewcode-block" id="udf_metric_schema"><a class="viewcode-back" href="../../../../../api/whylogs/experimental/core/metrics/udf_metric/index.html#whylogs.experimental.core.metrics.udf_metric.udf_metric_schema">[docs]</a><span class="k">def</span> <span class="nf">udf_metric_schema</span><span class="p">(</span><span class="n">non_udf_resolvers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DeclarativeSchema</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a DeclarativeSchema that implement the UdfMetrics specified</span>
+<span class="sd">    by the @register_metric_udf decorators (in additon to any non_udf_resolvers</span>
+<span class="sd">    passed in).</span>
+
+<span class="sd">    For example:</span>
+
+<span class="sd">    @register_metric_udf(col_name=&quot;col1&quot;)</span>
+<span class="sd">    def add5(x):</span>
+<span class="sd">        return x + 5</span>
+
+<span class="sd">    @register_metric_udf(col_type=String)</span>
+<span class="sd">    def upper(x):</span>
+<span class="sd">        return x.upper()</span>
+
+<span class="sd">    why.log(data, schema=udf_metric_schema())</span>
+
+<span class="sd">    This will attach a UdfMetric to column &quot;col1&quot; that will include a submetric</span>
+<span class="sd">    named &quot;add5&quot; tracking the values in &quot;col1&quot; incremented by 5, and a UdfMetric</span>
+<span class="sd">    for each string column that will include a submetric named &quot;upper&quot; tracking</span>
+<span class="sd">    the uppercased strings in the input columns. Since these are appended to the</span>
+<span class="sd">    STANDARD_RESOLVER, the default metrics are also tracked for every column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">resolvers</span> <span class="o">=</span> <span class="n">generate_udf_schema</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">non_udf_resolvers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">non_udf_resolvers</span> <span class="o">=</span> <span class="n">STANDARD_RESOLVER</span>
+
+    <span class="k">return</span> <span class="n">DeclarativeSchema</span><span class="p">(</span><span class="n">non_udf_resolvers</span> <span class="o">+</span> <span class="n">resolvers</span><span class="p">)</span></div>
 </pre></div>
         </article>
       </div>

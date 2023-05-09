@@ -26,6 +26,7 @@ Functions
    whylogs.experimental.core.metrics.udf_metric.default_schema
    whylogs.experimental.core.metrics.udf_metric.register_metric_udf
    whylogs.experimental.core.metrics.udf_metric.generate_udf_schema
+   whylogs.experimental.core.metrics.udf_metric.udf_metric_schema
 
 
 
@@ -239,7 +240,7 @@ Attributes
    input columns of the specified type. The decorated function will automatically
    be a UDF in the UdfMetric.
 
-   Specify submetric_name to give the output of the UDf a name. submetric_name
+   Specify submetric_name to give the output of the UDF a name. submetric_name
    defautls to the name of the decorated function. Note that all lambdas are
    named "lambda" so omitting submetric_name on more than one lambda will result
    in name collisions.
@@ -270,6 +271,31 @@ Attributes
 
    schema = DeclarativeSchema(STANDARD_RESOLVER + generate_udf_schema())
    why.log(data, schema=schema)
+
+   This will attach a UdfMetric to column "col1" that will include a submetric
+   named "add5" tracking the values in "col1" incremented by 5, and a UdfMetric
+   for each string column that will include a submetric named "upper" tracking
+   the uppercased strings in the input columns. Since these are appended to the
+   STANDARD_RESOLVER, the default metrics are also tracked for every column.
+
+
+.. py:function:: udf_metric_schema(non_udf_resolvers: Optional[List[whylogs.core.resolvers.ResolverSpec]] = None) -> whylogs.core.schema.DeclarativeSchema
+
+   Generates a DeclarativeSchema that implement the UdfMetrics specified
+   by the @register_metric_udf decorators (in additon to any non_udf_resolvers
+   passed in).
+
+   For example:
+
+   @register_metric_udf(col_name="col1")
+   def add5(x):
+       return x + 5
+
+   @register_metric_udf(col_type=String)
+   def upper(x):
+       return x.upper()
+
+   why.log(data, schema=udf_metric_schema())
 
    This will attach a UdfMetric to column "col1" that will include a submetric
    named "add5" tracking the values in "col1" incremented by 5, and a UdfMetric
