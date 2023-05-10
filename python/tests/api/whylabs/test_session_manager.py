@@ -11,8 +11,8 @@ from whylogs.api.whylabs.session_manager import (
     SessionManager,
     _create_session_id,
     _get_default_authentication_path,
-    _get_logged_session,
-    _get_or_create_guest_session,
+    _create_logged_session,
+    _create_whylabs_guest_session,
     _get_or_create_session,
 )
 
@@ -38,7 +38,7 @@ class TestSessionManager:
         assert "session-" in session_id
 
     def test_get_guest_session(self):
-        session = _get_or_create_guest_session()
+        session = _create_whylabs_guest_session()
         assert isinstance(session, GuestSession)
         assert "session-" in session.session_id
 
@@ -47,11 +47,11 @@ class TestSessionManager:
 
         assert config.get("whylabs", "session_id") == session.session_id
 
-        new_session = _get_or_create_guest_session()
+        new_session = _create_whylabs_guest_session()
         assert new_session.session_id == session.session_id
 
     def test_logged_session_with_env_var(self):
-        session = _get_logged_session()
+        session = _create_logged_session()
 
         assert isinstance(session, ApiKeySession)
         assert session.org_id == "org_id"
@@ -104,7 +104,7 @@ def test_logged_session_with_config_file():
     with open(_auth_path, "w") as configfile:
         config.write(configfile)
 
-    session = _get_logged_session(auth_path=_auth_path)
+    session = _create_logged_session(auth_path=_auth_path)
 
     assert session.org_id == "my_org_id"
     assert session.api_key == "my_api_key"

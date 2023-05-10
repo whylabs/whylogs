@@ -2,7 +2,7 @@ import configparser
 
 import pytest
 
-from whylogs.api.whylabs.variables import Variables
+from whylogs.api.whylabs.config import ConfigFile
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def create_config_file(auth_path):
 def test_get_variable_from_input(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "my_answer")
 
-    variable = Variables.get_variable_from_input("my_key")
+    variable = ConfigFile.get_variable_from_input("my_key")
     assert variable == "my_answer"
 
 
@@ -27,24 +27,24 @@ def test_get_variable_from_input_stops_with_no_answer(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "")
 
     with pytest.raises(ValueError):
-        Variables.get_variable_from_input("my_key")
+        ConfigFile.get_variable_from_input("my_key")
 
 
 def test_get_variable_from_getpass(monkeypatch):
     monkeypatch.setattr("getpass.getpass", lambda _: "value")
 
-    result = Variables.get_variable_from_getpass("some_var")
+    result = ConfigFile.get_variable_from_getpass("some_var")
     assert result == "value"
 
 
 def test_get_variable_from_config_file(auth_path, create_config_file):
-    result = Variables.get_variable_from_config_file(auth_path=auth_path, key="my_key")
+    result = ConfigFile.get_variable_from_config_file(auth_path=auth_path, key="my_key")
 
     assert result == "result"
 
 
 def test_set_variable_on_config_file(auth_path, create_config_file):
-    Variables.set_variable_to_config_file(auth_path=auth_path, key="my_key", value="other_value")
+    ConfigFile.set_variable_to_config_file(auth_path=auth_path, key="my_key", value="other_value")
 
     config = configparser.ConfigParser()
     config.read(auth_path)

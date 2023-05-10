@@ -1,126 +1,159 @@
 import logging
-import os
 import uuid
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Optional, Union
+from typing import List, Optional, Dict
 
 from whylabs_client import ApiException  # type: ignore
 from whylabs_client.api.sessions_api import (  # type: ignore
     CreateSessionRequest,
+    LogReferenceRequest,
+    BatchLogReferenceRequest,
+    BatchLogSessionReferenceResponse,
     CreateSessionResponse,
     SessionsApi,
 )
-from whylabs_client.api_client import ApiClient, Configuration  # type: ignore
+from whylabs_client.api_client import ApiClient, Configuration
+from whylogs.api.logger.result_set import ResultSet  # type: ignore
 
-from whylogs.api.whylabs.auth_file import get_auth_file_path
-from whylogs.api.whylabs.notebook_check import is_notebook
-from whylogs.api.whylabs.variables import Variables
+from whylogs.api.whylabs.config import SessionConfig
+from whylogs.core.dataset_profile import DatasetProfile
+from abc import ABC, abstractmethod
 
-DEFAULT_WHYLABS_HOST = "https://api.whylabsapp.com"
+
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class GuestSession:
-    session_id: str
+class SessionAPI(ABC):
+    @abstractmethod
+    def upload_reference_profiles(self, profile_aliases: Dict[str, ResultSet]) -> None:
+        pass
 
 
-@dataclass
+class GuestSession(SessionAPI):
+    def __init__(self, config: SessionConfig, whylabs_client: ApiClient) -> None:
+        """
+        Get a guest session that uses the id that is in the env, or the config if there is no env.
+        If neither exist then this will attempt to create a new session and store the id in the config,
+        which does require a successful service call to whylabs.
+        """
+        session_id = config.get_session_id()
+        self._config = config
+        self._whylabs_session_api = SessionsApi(whylabs_client)
+        if session_id is None:
+            # TODO throws, need to determine what to do here without interrupting user session
+            session_id = self._create_session_id()
+            config.set_session_id(session_id)
+
+        self.session_id = session_id
+
+    def _create_session_id(self) -> str:
+        try:
+            response: CreateSessionResponse = self._whylabs_session_api.create_session(
+                CreateSessionRequest(str(uuid.uuid4()))
+            )
+            logger.debug(f"Created session {response.id}")
+            return response.id
+        except ApiException as e:
+            logger.error(e)
+            raise e
+
+    def upload_reference_profiles(self, profile_aliases: Dict[str, ResultSet]) -> None:
+        requests: List[LogReferenceRequest] = []
+        for alias, _profile in profile_aliases.items():
+            requests.append(LogReferenceRequest(alias=alias, datasetTimestamp=0))
+
+        try:
+            request = BatchLogReferenceRequest(session_id=self.session_id, references=requests)
+            response: BatchLogSessionReferenceResponse = (
+                self._whylabs_session_api.batch_create_reference_profile_upload(
+                    batch_log_reference_request=request, session_id=self.session_id
+                )
+            )
+
+            url: str = response.observatory_url  # url where the profiles can be viewed
+            print(response)
+        except ApiException as e:
+            logger.error(e)
+            raise e
+
+
 class ApiKeySession:
-    org_id: str
-    api_key: str
+    def __init__(self, config: SessionConfig) -> None:
+        self.api_key = config.get_or_prompt_api_key()
+        self.org_id = config.get_or_prompt_org_id()
+
+        # TODO if these are none do we ever want to persist them?
+
+        if self.api_key is None:
+            logger.warning("No api key found, will not be able to send data to whylabs")
+
+        if self.org_id is None:
+            logger.warning("No org id found, will not be able to send data to whylabs")
+
+    def upload_reference_profiles(self, profile_aliases: Dict[str, ResultSet]) -> None:
+        # TODO support later
+        raise NotImplementedError()
 
 
-def _get_default_authentication_path() -> Path:
-    default_path = os.getenv("WHYLOGS_CONFIG_PATH") or f"{Path.home()}/.whylabs/auth.ini"
-    auth_path = get_auth_file_path(auth_path=Path(default_path))
-    return auth_path
+class Session(SessionAPI):
+    guest_session: Optional[GuestSession]
+    api_key_session: Optional[ApiKeySession]
 
+    def __init__(self, guest_session: Optional[GuestSession], api_key_session: Optional[ApiKeySession]):
+        self.guest_session = guest_session
+        self.api_key_session = api_key_session
 
-def _create_session_id(user_guid: str) -> str:
-    config = Configuration()
-    config.host = os.getenv("WHYLABS_API_ENDPOINT") or DEFAULT_WHYLABS_HOST
-
-    try:
-        client = ApiClient(config)
-        api = SessionsApi(client)
-        response: CreateSessionResponse = api.create_session(CreateSessionRequest(user_guid))
-
-        logger.debug(f"Created session {response.id}")
-        return response.id
-    except ApiException as e:
-        logger.error(e)
-        raise e
-
-
-def _get_logged_session(auth_path: Optional[Path] = None) -> ApiKeySession:
-    api_key = os.getenv("WHYLABS_API_KEY")
-    org_id = os.getenv("ORG_ID")
-
-    if api_key is None or org_id is None:
-        _auth_path = _get_default_authentication_path()
-        api_key = api_key or Variables.get_variable_from_config_file(auth_path=auth_path, key="api_key")
-        org_id = org_id or Variables.get_variable_from_config_file(auth_path=auth_path, key="org_id")
-
-        if is_notebook():
-            if api_key is None:
-                api_key = Variables.get_variable_from_getpass(variable_name="api_key")
-                Variables.set_variable_to_config_file(key="api_key", value=api_key, auth_path=_auth_path)
-            if org_id is None:
-                org_id = Variables.get_variable_from_input(variable_name="org_id")
-                Variables.set_variable_to_config_file(key="org_id", value=org_id, auth_path=_auth_path)
-
-    if api_key is None or org_id is None:
-        raise ValueError(
-            f"You must define your WHYLABS_API_KEY and ORG_ID environment variables,"
-            f" or set them on a config file on {auth_path}"
-        )
-
-    return ApiKeySession(org_id=org_id, api_key=api_key)
-
-
-def _get_or_create_guest_session() -> GuestSession:
-    auth_path = _get_default_authentication_path()
-    session_id = Variables.get_variable_from_config_file(auth_path=auth_path, key="session_id")
-    if session_id is None:
-        user_guid = str(uuid.uuid4())
-        session_id = _create_session_id(user_guid=user_guid)
-        Variables.set_variable_to_config_file(key="session_id", value=session_id, auth_path=auth_path)
-    return GuestSession(session_id=session_id)
-
-
-def _get_or_create_session(anonymous: Optional[bool] = None) -> Union[GuestSession, ApiKeySession]:
-    if not anonymous:
-        return _get_logged_session()
-    else:
-        return _get_or_create_guest_session()
+    def upload_reference_profiles(self, profile_aliases: Dict[str, ResultSet]) -> None:
+        if self.guest_session:
+            self.guest_session.upload_reference_profiles(profile_aliases)
+        elif self.api_key_session:
+            self.api_key_session.upload_reference_profiles(profile_aliases)
+        else:
+            raise Exception("No session found, cannot upload reference profiles")
 
 
 class SessionManager:
-    __instance: Optional['SessionManager'] = None
+    __instance: Optional["SessionManager"] = None
 
     def __init__(self, anonymous: Optional[bool] = None):
-        if SessionManager.__instance is not None:
-            raise Exception("There is an active Session, use get_instance() instead")
+        self._config = SessionConfig()
 
-        self.session = _get_or_create_session(anonymous=anonymous)
+        client_config = Configuration()
+        client_config.host = self._config.get_whylabs_endpoint()
+        self._whylabs_client = ApiClient(client_config)
+
+        if not anonymous:
+            self.session = Session(api_key_session=ApiKeySession(self._config), guest_session=None)
+        else:
+            self.session = Session(api_key_session=None, guest_session=GuestSession(self._config, self._whylabs_client))
 
     @staticmethod
-    def get_instance(anonymous: Optional[bool] = None) -> 'SessionManager':
-        if SessionManager.__instance is not None:
-            return SessionManager.__instance
+    def init(anonymous: Optional[bool] = None) -> None:
+        if SessionManager.__instance is None:
+            SessionManager.__instance = SessionManager(anonymous=anonymous)
 
-        manager = SessionManager(anonymous=anonymous)
-        SessionManager.__instance = manager
-        return manager
+        logger.warning("SessionManager is already initialized. Ignoring call to init()")
+
+    @staticmethod
+    def get_instance() -> Optional["SessionManager"]:
+        return SessionManager.__instance
 
     @staticmethod
     def is_active() -> bool:
-        if SessionManager.__instance is None:
-            return False
-        return True
+        return SessionManager.get_instance() is not None
 
 
+#  TODO consider allowing reinitialization, it's annoying to reload the entire notebook because you mess this up
 def init(anonymous: Optional[bool] = None) -> None:
-    SessionManager.get_instance(anonymous=anonymous)
+    try:
+        SessionManager.init(anonymous=anonymous)
+    except Exception as e:
+        logger.warning(f"Could not initialize session: {e}")
+
+
+def get_current_session() -> Optional[Session]:
+    manager = SessionManager.get_instance()
+    if manager is not None:
+        return manager.session
+
+    logger.warning("No session is initialized. Call whylogs.init(anonymous=True) to create a guest session.")
+    return None

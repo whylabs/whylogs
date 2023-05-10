@@ -17,6 +17,7 @@ from whylogs.api.logger.segment_processing import (
     _log_segment,
 )
 from whylogs.api.logger.transient import TransientLogger
+from whylogs.api.whylabs.session_manager import get_current_session
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
@@ -34,6 +35,35 @@ def log(
     schema: Optional[DatasetSchema] = None,
 ) -> ResultSet:
     return TransientLogger(schema=schema).log(obj, pandas=pandas, row=row)
+
+
+def log_reference(
+    alias: str,
+    obj: Any = None,
+    *,
+    pandas: Optional[pd.DataFrame] = None,
+    row: Optional[Dict[str, Any]] = None,
+    schema: Optional[DatasetSchema] = None,
+) -> ResultSet:
+    result_set = log(obj, pandas=pandas, row=row, schema=schema)
+
+    session = get_current_session()
+    if session is None:
+        diagnostic_logger.warning("No active session found. Skipping reference profile upload.")
+        return result_set
+
+    result_set.get_writables()
+
+    profiles: Dict[str, ResultSet] = {}
+    profiles[alias] = result_set
+
+    try:
+        session.upload_reference_profiles(profiles)
+    except Exception as e:
+        # Don't throw, just don't upload
+        diagnostic_logger.error(f"Failed to upload reference profile: {e}")
+
+    return result_set
 
 
 def _log_with_metrics(
