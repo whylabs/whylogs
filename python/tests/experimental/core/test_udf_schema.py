@@ -36,8 +36,8 @@ def test_udf_row() -> None:
     data = {"col1": 42}
     results = why.log(row=data, schema=schema).view()
     col1 = results.get_column("col1").to_summary_dict()
-    col2 = results.get_column("col2").to_summary_dict()
-    col3 = results.get_column("col3").to_summary_dict()
+    col2 = results.get_column("col1.col2").to_summary_dict()
+    col3 = results.get_column("col1.col3").to_summary_dict()
     assert col1 == col2 == col3
 
 
@@ -49,6 +49,6 @@ def test_udf_pandas() -> None:
     data = pd.DataFrame({"col1": [42, 12, 7]})
     results = why.log(pandas=data, schema=schema).view()
     col1 = results.get_column("col1").to_summary_dict()
-    col2 = results.get_column("col2").to_summary_dict()
-    col3 = results.get_column("col3").to_summary_dict()
+    col2 = results.get_column("col1.col2").to_summary_dict()
+    col3 = results.get_column("col1.col3").to_summary_dict()
     assert col1 == col2 == col3

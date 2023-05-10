@@ -37,13 +37,15 @@ def _apply_udfs_on_row(value: Any, column: str, udfs: Dict, new_columns: Mapping
     for new_col, udf in udfs.items():
         if new_col in new_columns:
             logger.warning(f"UDF {udf.__name__} overwriting column {new_col}")
-        new_columns[f"{new_col}.{new_col}"] = udf(value)  # type: ignore
+        print(f"{new_col}({value}) -> {udf(value)}")
+        new_columns[f"{column}.{new_col}"] = udf(value)  # type: ignore
 
 
 def _apply_udfs_on_dataframe(pandas: pd.DataFrame, column: str, udfs: Dict, new_df: pd.DataFrame) -> None:
     for new_col, udf in udfs.items():
         if new_col in new_df.keys():
             logger.warning(f"UDF {udf.__name__} overwriting column {new_col}")
+        print(f"{new_col}(df[{column}]) -> {column}.{new_col}")
         new_df[f"{column}.{new_col}"] = pandas[column].map(udf)
 
 
@@ -89,16 +91,20 @@ class UdfSchema(DeclarativeSchema):
         for column, value in row.items():
             why_type = self.type_mapper(type(value))
             if column in self.name_udfs:
+                print(f"applying named row UDFs on {column}")
                 _apply_udfs_on_row(value, column, self.name_udfs[column], new_columns)
             elif why_type in self.type_udfs:
+                print(f"applying typed row UDFs on {column}")
                 _apply_udfs_on_row(value, column, self.type_udfs[why_type], new_columns)
 
     def _run_udfs_on_dataframe(self, pandas: pd.DataFrame, new_df: pd.DataFrame) -> None:
         for column in pandas.keys():
             why_type = pandas.dtypes[column]
             if column in self.name_udfs:
+                print(f"applying named pandas UDFs on {column}")
                 _apply_udfs_on_dataframe(pandas, column, self.name_udfs[column], new_df)
             elif why_type in self.type_udfs:
+                print(f"applying typed pandas UDFs on {column}")
                 _apply_udfs_on_dataframe(pandas, column, self.type_udfs[why_type], new_df)
 
     def _run_udfs(

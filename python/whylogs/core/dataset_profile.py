@@ -123,7 +123,13 @@ class DatasetProfile(Writable):
         row: Optional[Mapping[str, Any]] = None,
     ) -> None:
         pandas, row = _pandas_or_dict(obj, pandas, row)
+        print("before")
+        print(row)
+        print(pandas)
         pandas, row = self._schema._run_udfs(pandas, row)
+        print("after")
+        print(row)
+        print(pandas)
         col_id = getattr(self._schema.default_configs, "identity_column", None)
 
         # TODO: do this less frequently when operating at row level
