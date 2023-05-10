@@ -123,9 +123,7 @@ class DatasetProfile(Writable):
         row: Optional[Mapping[str, Any]] = None,
     ) -> None:
         pandas, row = _pandas_or_dict(obj, pandas, row)
-        if "udf_specs" in self._schema.__dict__ and self._schema.udf_specs:  # type: ignore
-            pandas, row = self._schema._run_udfs(pandas, row)
-
+        pandas, row = self._schema._run_udfs(pandas, row)
         col_id = getattr(self._schema.default_configs, "identity_column", None)
 
         # TODO: do this less frequently when operating at row level

@@ -1,11 +1,12 @@
 import logging
+from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple
+from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Union
 
 from whylogs.core.datatypes import DataType, TypeMapper
 from whylogs.core.metrics.metrics import MetricConfig
-from whylogs.core.resolvers import ResolverSpec
+from whylogs.core.resolvers import STANDARD_RESOLVER, ResolverSpec
 from whylogs.core.schema import DatasetSchema, DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
@@ -16,11 +17,34 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class UdfSpec:
-    column_name: Optional[str] = None  # TODO: maybe make this a regex
+    column_name: Optional[Union[str, List[str]]] = None  # TODO: maybe make this a regex
     column_type: Optional[DataType] = None
     udfs: Dict[str, Callable[[Any], Any]] = field(
         default_factory=dict
     )  # new column name -> callable to compute new column value
+
+    def __post_init__(self):
+        if self.column_name and self.column_type:
+            logger.warning(f"UdfSpec: column {self.column_name} also specified type, name takes precedence")
+        if not (self.column_name or self.column_type):
+            raise ValueError("UdfSpec: specification must supply name or type")
+
+        if self.column_type and not issubclass(self.column_type, DataType):
+            raise ValueError("UdfSpec: column type must be a DataType")
+
+
+def _apply_udfs_on_row(value: Any, column: str, udfs: Dict, new_columns: Mapping[str, Any]) -> None:
+    for new_col, udf in udfs.items():
+        if new_col in new_columns:
+            logger.warning(f"UDF {udf.__name__} overwriting column {new_col}")
+        new_columns[f"{new_col}.{new_col}"] = udf(value)  # type: ignore
+
+
+def _apply_udfs_on_dataframe(pandas: pd.DataFrame, column: str, udfs: Dict, new_df: pd.DataFrame) -> None:
+    for new_col, udf in udfs.items():
+        if new_col in new_df.keys():
+            logger.warning(f"UDF {udf.__name__} overwriting column {new_col}")
+        new_df[f"{column}.{new_col}"] = pandas[column].map(udf)
 
 
 class UdfSchema(DeclarativeSchema):
@@ -46,34 +70,36 @@ class UdfSchema(DeclarativeSchema):
             segments=segments,
             validators=validators,
         )
-        self.udf_specs = udf_specs or []
+        self.name_udfs = dict()
+        self.type_udfs = dict()
+        udf_specs = udf_specs if udf_specs else []
+        for spec in udf_specs:
+            if spec.column_name:
+                self.name_udfs[spec.column_name] = spec.udfs
+            else:
+                self.type_udfs[spec.column_type] = spec.udfs
 
     def copy(self) -> DatasetSchema:
         copy = super().copy()
-        copy.udf_specs = deepcopy(self.udf_specs)
+        copy.name_udf_specs = self.name_udfs.copy()
+        copy.type_udf_specs = self.name_udfs.copy()
         return copy
 
     def _run_udfs_on_row(self, row: Mapping[str, Any], new_columns: Mapping[str, Any]) -> None:
         for column, value in row.items():
-            for udf_spec in self.udf_specs:
-                col_name, col_type = udf_spec.column_name, udf_spec.column_type
-                why_type = self.type_mapper(type(value))
-                if col_name == column or (col_name is None and isinstance(col_type, why_type)):
-                    for new_col, udf in udf_spec.udfs.items():
-                        if new_col in new_columns:
-                            logger.info(f"UDF {udf.__name__} overwriting column {new_col}")
-                        new_columns[new_col] = udf(value)  # type: ignore
+            why_type = self.type_mapper(type(value))
+            if column in self.name_udfs:
+                _apply_udfs_on_row(value, column, self.name_udfs[column], new_columns)
+            elif why_type in self.type_udfs:
+                _apply_udfs_on_row(value, column, self.type_udfs[why_type], new_columns)
 
     def _run_udfs_on_dataframe(self, pandas: pd.DataFrame, new_df: pd.DataFrame) -> None:
         for column in pandas.keys():
-            for udf_spec in self.udf_specs:
-                col_name, col_type = udf_spec.column_name, udf_spec.column_type
-                why_type = pandas.dtypes[column]
-                if col_name == column or (col_name is None and isinstance(col_type, why_type)):
-                    for new_col, udf in udf_spec.udfs.items():
-                        if new_col in new_df.keys():
-                            logger.info(f"UDF {udf.__name__} overwriting column {new_col}")
-                        new_df[new_col] = pandas[column].map(udf)
+            why_type = pandas.dtypes[column]
+            if column in self.name_udfs:
+                _apply_udfs_on_dataframe(pandas, column, self.name_udfs[column], new_df)
+            elif why_type in self.type_udfs:
+                _apply_udfs_on_dataframe(pandas, column, self.type_udfs[why_type], new_df)
 
     def _run_udfs(
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None
@@ -87,3 +113,79 @@ class UdfSchema(DeclarativeSchema):
             self._run_udfs_on_dataframe(pandas, new_df)
 
         return new_df, new_columns
+
+
+_col_name_udfs: Dict[str, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
+_col_type_udfs: Dict[DataType, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
+
+
+def register_dataset_udf(
+    col_name: Optional[str] = None,
+    col_type: Optional[DataType] = None,
+    udf_name: Optional[str] = None,
+) -> Callable[[Any], Any]:
+    """
+    Decorator to easily configure UDFs for your data set. Decorate your UDF
+    functions, then call generate_udf_dataset_schema() to generate a list of ResolverSpecs
+    that includes the UDFs configured by your decorator parameters.
+
+    You must specify exactly one of either col_name or col_type. col_name will attach
+    a UDF to the named input column. col_type will attach a UDF to all
+    input columns of the specified type. The decorated function will automatically
+    be a UDF in the UdfSchema.
+
+    Specify udf_name to give the output of the UDF a name. udf_name
+    defautls to the name of the decorated function. Note that all lambdas are
+    named "lambda" so omitting udf_name on more than one lambda will result
+    in name collisions.
+    """
+
+    def decorator_register(func):
+        global _col_name_udfs, _col_type_udfs
+
+        if col_name is not None and col_type is not None:
+            raise ValueError("Only specify one of column name or type")
+
+        if col_name is None and col_type is None:
+            raise ValueError("Must specify one of column name or type")
+
+        name = udf_name or func.__name__
+        if col_name is not None:
+            _col_name_udfs[col_name].append((name, func))
+        else:
+            _col_type_udfs[col_type].append((name, func))
+
+        return func
+
+    return decorator_register
+
+
+def generate_udf_dataset_schema(
+    resolvers: List[ResolverSpec] = STANDARD_RESOLVER, other_udf_specs: Optional[List[UdfSpec]] = None
+) -> List[UdfSpec]:
+    """
+    Generates a list of ResolverSpecs that implement the UDFs specified
+    by the @register_dataset_udf decorators. You can provide a list of
+    other_udf_specs to include in addition to those UDFs registered via
+    the decorator.
+
+    For example:
+
+    @register_dataset_udf(col_name="col1")
+    def add5(x):
+        return x + 5
+
+    @register_dataset_udf(col_type=String)
+    def upper(x):
+        return x.upper()
+
+    schema = DeclarativeSchema(STANDARD_RESOLVER, udf_specs=generate_udf_specs())
+    why.log(data, schema=schema)
+
+    This will attach a UDF to column "col1" that will generate a new column
+    named "col1.add5" containing the values in "col1" incremented by 5, and a UdfMetric
+    for each string column that will include a submetric named "<source>.upper" tracking
+    the uppercased strings in the input columns. Since these are appended to the
+    STANDARD_RESOLVER, the default metrics are also tracked for every column.
+    """
+    return []

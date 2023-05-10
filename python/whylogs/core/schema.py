@@ -175,7 +175,7 @@ class DatasetSchema:
     def _run_udfs(
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None
     ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
-        raise NotImplementedError  # EXPERIMENTAL
+        return pandas, row
 
     def get_col_names(self) -> tuple:
         return tuple(self._columns.keys())
