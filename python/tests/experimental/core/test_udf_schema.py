@@ -1,31 +1,14 @@
 import pandas as pd
-import pytest
 
 import whylogs as why
-from whylogs.core import DatasetSchema
-from whylogs.core.datatypes import Fractional, String
-from whylogs.core.metrics import MetricConfig, StandardMetric
-from whylogs.core.metrics.column_metrics import ColumnCountsMetric, TypeCountersMetric
-from whylogs.core.metrics.condition_count_metric import (
-    Condition,
-    ConditionCountConfig,
-    ConditionCountMetric,
+from whylogs.core.datatypes import String
+from whylogs.core.resolvers import STANDARD_RESOLVER
+from whylogs.experimental.core.udf_schema import (
+    UdfSchema,
+    UdfSpec,
+    generate_udf_specs,
+    register_dataset_udf,
 )
-from whylogs.core.metrics.condition_count_metric import Relation as Rel
-from whylogs.core.metrics.condition_count_metric import relation as rel
-from whylogs.core.resolvers import (
-    HISTOGRAM_COUNTING_TRACKING_RESOLVER,
-    LIMITED_TRACKING_RESOLVER,
-    STANDARD_RESOLVER,
-    HistogramCountingTrackingResolver,
-    LimitedTrackingResolver,
-    MetricSpec,
-    ResolverSpec,
-    StandardResolver,
-)
-from whylogs.core.schema import DeclarativeSchema
-from whylogs.core.specialized_resolvers import ConditionCountMetricSpec
-from whylogs.experimental.core.udf_schema import UdfSchema, UdfSpec
 
 
 def test_udf_row() -> None:
@@ -52,3 +35,36 @@ def test_udf_pandas() -> None:
     col2 = results.get_column("col1.col2").to_summary_dict()
     col3 = results.get_column("col1.col3").to_summary_dict()
     assert col1 == col2 == col3
+
+
+@register_dataset_udf("col1")
+def add5(x):
+    return x + 5
+
+
+@register_dataset_udf(col_type=String, udf_name="upper case")
+def upper(x):
+    return x.upper()
+
+
+def test_decorator_pandas() -> None:
+    schema = UdfSchema(STANDARD_RESOLVER, udf_specs=generate_udf_specs())
+    data = pd.DataFrame({"col1": [42, 12, 7], "col2": ["a", "b", "c"]})
+    results = why.log(pandas=data, schema=schema).view()
+    col1_summary = results.get_column("col1").to_summary_dict()
+    assert "distribution/n" in col1_summary
+    col3_summary = results.get_column("col1.add5").to_summary_dict()
+    assert "distribution/n" in col3_summary
+    col4_summary = results.get_column("col2.upper case").to_summary_dict()
+    assert "cardinality/est" in col4_summary
+
+
+def test_decorator_row() -> None:
+    schema = UdfSchema(STANDARD_RESOLVER, udf_specs=generate_udf_specs())
+    results = why.log(row={"col1": 42, "col2": "a"}, schema=schema).view()
+    col1_summary = results.get_column("col1").to_summary_dict()
+    assert "distribution/n" in col1_summary
+    col3_summary = results.get_column("col1.add5").to_summary_dict()
+    assert "distribution/n" in col3_summary
+    col4_summary = results.get_column("col2.upper case").to_summary_dict()
+    assert "cardinality/est" in col4_summary

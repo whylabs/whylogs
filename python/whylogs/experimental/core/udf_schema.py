@@ -37,7 +37,6 @@ def _apply_udfs_on_row(value: Any, column: str, udfs: Dict, new_columns: Mapping
     for new_col, udf in udfs.items():
         if new_col in new_columns:
             logger.warning(f"UDF {udf.__name__} overwriting column {new_col}")
-        print(f"{new_col}({value}) -> {udf(value)}")
         new_columns[f"{column}.{new_col}"] = udf(value)  # type: ignore
 
 
@@ -45,7 +44,6 @@ def _apply_udfs_on_dataframe(pandas: pd.DataFrame, column: str, udfs: Dict, new_
     for new_col, udf in udfs.items():
         if new_col in new_df.keys():
             logger.warning(f"UDF {udf.__name__} overwriting column {new_col}")
-        print(f"{new_col}(df[{column}]) -> {column}.{new_col}")
         new_df[f"{column}.{new_col}"] = pandas[column].map(udf)
 
 
@@ -91,21 +89,21 @@ class UdfSchema(DeclarativeSchema):
         for column, value in row.items():
             why_type = self.type_mapper(type(value))
             if column in self.name_udfs:
-                print(f"applying named row UDFs on {column}")
                 _apply_udfs_on_row(value, column, self.name_udfs[column], new_columns)
-            elif why_type in self.type_udfs:
-                print(f"applying typed row UDFs on {column}")
-                _apply_udfs_on_row(value, column, self.type_udfs[why_type], new_columns)
+            else:
+                for key in self.type_udfs.keys():
+                    if isinstance(why_type, key):  # type: ignore
+                        _apply_udfs_on_row(value, column, self.type_udfs[key], new_columns)
 
     def _run_udfs_on_dataframe(self, pandas: pd.DataFrame, new_df: pd.DataFrame) -> None:
         for column in pandas.keys():
-            why_type = pandas.dtypes[column]
+            why_type = self.type_mapper(pandas.dtypes[column])
             if column in self.name_udfs:
-                print(f"applying named pandas UDFs on {column}")
                 _apply_udfs_on_dataframe(pandas, column, self.name_udfs[column], new_df)
-            elif why_type in self.type_udfs:
-                print(f"applying typed pandas UDFs on {column}")
-                _apply_udfs_on_dataframe(pandas, column, self.type_udfs[why_type], new_df)
+            else:
+                for key in self.type_udfs.keys():
+                    if isinstance(why_type, key):  # type: ignore
+                        _apply_udfs_on_dataframe(pandas, column, self.type_udfs[key], new_df)
 
     def _run_udfs(
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None
@@ -126,7 +124,7 @@ _col_type_udfs: Dict[DataType, List[Tuple[str, Callable[[Any], Any]]]] = default
 
 
 def register_dataset_udf(
-    col_name: Optional[str] = None,
+    col_name: Optional[Union[str, List[str]]] = None,
     col_type: Optional[DataType] = None,
     udf_name: Optional[str] = None,
 ) -> Callable[[Any], Any]:
@@ -166,9 +164,26 @@ def register_dataset_udf(
     return decorator_register
 
 
+def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None) -> List[UdfSpec]:
+    specs = other_udf_specs or []
+    for col_name, udf_speclets in _col_name_udfs.items():
+        udfs = dict()
+        for speclet in udf_speclets:
+            udfs[speclet[0]] = speclet[1]
+        specs.append(UdfSpec(col_name, None, udfs))
+
+    for col_type, udf_speclets in _col_type_udfs.items():
+        udfs = dict()
+        for speclet in udf_speclets:
+            udfs[speclet[0]] = speclet[1]
+        specs.append(UdfSpec(None, col_type, udfs))
+
+    return specs
+
+
 def generate_udf_dataset_schema(
-    resolvers: List[ResolverSpec] = STANDARD_RESOLVER, other_udf_specs: Optional[List[UdfSpec]] = None
-) -> List[UdfSpec]:
+    resolvers: Optional[List[ResolverSpec]] = None, other_udf_specs: Optional[List[UdfSpec]] = None
+) -> UdfSchema:
     """
     Generates a list of ResolverSpecs that implement the UDFs specified
     by the @register_dataset_udf decorators. You can provide a list of
@@ -194,4 +209,5 @@ def generate_udf_dataset_schema(
     the uppercased strings in the input columns. Since these are appended to the
     STANDARD_RESOLVER, the default metrics are also tracked for every column.
     """
-    return []
+    resolvers = resolvers or STANDARD_RESOLVER
+    return UdfSchema(resolvers, udf_specs=generate_udf_specs(other_udf_specs))
