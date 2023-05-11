@@ -115,7 +115,6 @@ viz = [
     "numpy",
     "scipy",
     "Pillow",
-    "requests",
 ]
 spark = [
     "pyarrow",
@@ -131,7 +130,6 @@ s3 = [
   "boto3"
 ]
 whylabs = [
-  "requests"
 ]
 mlflow = [
   "mlflow-skinny"
@@ -160,7 +158,6 @@ all = [
   "pybars3",
   "numpy",
   "scipy",
-  "requests",
 ]
 
 [tool.poetry.group.dev.dependencies]
