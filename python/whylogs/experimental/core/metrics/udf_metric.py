@@ -20,6 +20,8 @@ from whylogs.core.resolvers import (
     _allowed_metric,
 )
 from whylogs.core.schema import DeclarativeSchema
+from whylogs.core.segmentation_partition import SegmentationPartition
+from whylogs.core.validators.validator import Validator
 
 logger = logging.getLogger(__name__)
 
@@ -238,6 +240,7 @@ def register_metric_udf(
     return decorator_register
 
 
+# TODO: s/generate_udf_schema/generate_udf_resolvers/
 def generate_udf_schema() -> List[ResolverSpec]:
     """
     Generates a list of ResolverSpecs that implement the UdfMetrics specified
@@ -292,7 +295,16 @@ def generate_udf_schema() -> List[ResolverSpec]:
     return resolvers
 
 
-def udf_metric_schema(non_udf_resolvers: Optional[List[ResolverSpec]] = None) -> DeclarativeSchema:
+def udf_metric_schema(
+    non_udf_resolvers: Optional[List[ResolverSpec]] = None,
+    types: Optional[Dict[str, Any]] = None,
+    default_config: Optional[MetricConfig] = None,
+    type_mapper: Optional[TypeMapper] = None,
+    cache_size: int = 1024,
+    schema_based_automerge: bool = False,
+    segments: Optional[Dict[str, SegmentationPartition]] = None,
+    validators: Optional[Dict[str, List[Validator]]] = None,
+) -> DeclarativeSchema:
     """
     Generates a DeclarativeSchema that implement the UdfMetrics specified
     by the @register_metric_udf decorators (in additon to any non_udf_resolvers
@@ -318,7 +330,15 @@ def udf_metric_schema(non_udf_resolvers: Optional[List[ResolverSpec]] = None) ->
     """
 
     resolvers = generate_udf_schema()
-    if non_udf_resolvers is None:
-        non_udf_resolvers = STANDARD_RESOLVER
+    non_udf_resolvers = non_udf_resolvers or STANDARD_RESOLVER
 
-    return DeclarativeSchema(non_udf_resolvers + resolvers)
+    return DeclarativeSchema(
+        non_udf_resolvers + resolvers,
+        types,
+        default_config,
+        type_mapper,
+        cache_size,
+        schema_based_automerge,
+        segments,
+        validators,
+    )
