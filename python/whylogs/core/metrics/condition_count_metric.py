@@ -67,6 +67,7 @@ class Condition:
 @dataclass(frozen=True)
 class ConditionCountConfig(MetricConfig):
     conditions: Dict[str, Condition] = field(default_factory=dict)
+    hide_from_profile: bool = False
 
 
 @dataclass(frozen=True)
@@ -74,6 +75,7 @@ class ConditionCountMetric(Metric):
     conditions: Dict[str, Condition]
     total: IntegralComponent
     matches: Dict[str, IntegralComponent] = field(default_factory=dict)
+    hide_from_profile: bool = False
 
     @property
     def namespace(self) -> str:
@@ -152,8 +154,7 @@ class ConditionCountMetric(Metric):
             raise ValueError("ConditionCountMetric.zero() requires ConditionCountConfig argument")
 
         return ConditionCountMetric(
-            conditions=copy(config.conditions),
-            total=IntegralComponent(0),
+            conditions=copy(config.conditions), total=IntegralComponent(0), hide_from_profile=config.hide_from_profile
         )
 
     def to_protobuf(self) -> MetricMessage:

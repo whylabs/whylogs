@@ -114,7 +114,7 @@ def _uncompound_multimetric(col_name: str, metric_name: str, metric: MultiMetric
 def _uncompound_condition_count(
     col_name: str, metric_name: str, metric: ConditionCountMetric, flags: Optional[FeatureFlags] = None
 ) -> Dict[str, ColumnProfileView]:
-    if not _uncompound_condition_count_feature_flag(flags):
+    if metric.hide_from_profile or not _uncompound_condition_count_feature_flag(flags):
         return dict()
 
     result: Dict[str, ColumnProfileView] = dict()

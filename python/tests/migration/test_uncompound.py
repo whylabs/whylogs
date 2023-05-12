@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+import pytest
 from PIL import Image
 
 import whylogs as why
@@ -86,12 +87,13 @@ def test_uncompounded_image_profile() -> None:
     assert set(uncomp1.get_columns()) == set(uncompM.get_columns())
 
 
-def test_uncompounded_condition_count() -> None:
+@pytest.mark.parametrize("hide", [True, False])
+def test_uncompounded_condition_count(hide: bool) -> None:
     conditions = {
         "alpha": Condition(X.matches("[a-zA-Z]+")),
         "digit": Condition(X.matches("[0-9]+")),
     }
-    config = ConditionCountConfig(conditions=conditions)
+    config = ConditionCountConfig(conditions=conditions, hide_from_profile=hide)
     schema = DeclarativeSchema(
         [
             ResolverSpec(
@@ -114,15 +116,19 @@ def test_uncompounded_condition_count() -> None:
     assert metric.matches["digit"].value == 1
 
     uncompounded = _uncompound_dataset_profile(profile)
-    assert len(uncompounded.get_columns().keys()) == 1 + 3 * len(metric.matches.keys())
+    assert len(uncompounded.get_columns().keys()) == 1 if hide else 1 + 3 * len(metric.matches.keys())
+
     for cond_name in ["alpha", "digit"]:
         for component_name in ["total", "matches", "non_matches"]:
             column_name = f"{_condition_count_magic_string()}col1.{cond_name}.{component_name}"
-            metric = uncompounded._columns[column_name]._metrics["counts"]
-            if component_name == "total":
-                assert metric.n.value == 2
+            if not hide:
+                metric = uncompounded._columns[column_name]._metrics["counts"]
+                if component_name == "total":
+                    assert metric.n.value == 2
+                else:
+                    assert metric.n.value == 1
+                assert metric.null.value == 0
+                assert metric.nan.value == 0
+                assert metric.inf.value == 0
             else:
-                assert metric.n.value == 1
-            assert metric.null.value == 0
-            assert metric.nan.value == 0
-            assert metric.inf.value == 0
+                assert column_name not in uncompounded._columns
