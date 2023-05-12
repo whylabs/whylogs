@@ -1,4 +1,5 @@
 import logging
+import sys
 from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -73,13 +74,13 @@ class UdfSchema(DeclarativeSchema):
             validators=validators,
         )
         self.name_udfs: Dict[str, Dict[str, Callable]] = defaultdict(dict)
-        self.type_udfs: Dict[DataType, Dict[str, Callable]] = defaultdict(dict)
+        self.type_udfs: Dict[str, Dict[str, Callable]] = defaultdict(dict)
         udf_specs = udf_specs if udf_specs else []
         for spec in udf_specs:
             if spec.column_name:
                 self.name_udfs[spec.column_name].update(spec.udfs)
             else:
-                self.type_udfs[spec.column_type].update(spec.udfs)
+                self.type_udfs[spec.column_type.__name__].update(spec.udfs)  # type: ignore
 
     def copy(self) -> DatasetSchema:
         copy = super().copy()
@@ -89,23 +90,19 @@ class UdfSchema(DeclarativeSchema):
 
     def _run_udfs_on_row(self, row: Mapping[str, Any], new_columns: Mapping[str, Any]) -> None:
         for column, value in row.items():
-            why_type = self.type_mapper(type(value))
+            why_type = type(self.type_mapper(type(value))).__name__
             if column in self.name_udfs:
                 _apply_udfs_on_row(value, column, self.name_udfs[column], new_columns)
-            else:
-                for key in self.type_udfs.keys():
-                    if isinstance(why_type, key):  # type: ignore
-                        _apply_udfs_on_row(value, column, self.type_udfs[key], new_columns)
+            elif why_type in self.type_udfs:
+                _apply_udfs_on_row(value, column, self.type_udfs[why_type], new_columns)
 
     def _run_udfs_on_dataframe(self, pandas: pd.DataFrame, new_df: pd.DataFrame) -> None:
         for column in pandas.keys():
-            why_type = self.type_mapper(pandas.dtypes[column])
+            why_type = type(self.type_mapper(pandas.dtypes[column])).__name__
             if column in self.name_udfs:
                 _apply_udfs_on_dataframe(pandas, column, self.name_udfs[column], new_df)
-            else:
-                for key in self.type_udfs.keys():
-                    if isinstance(why_type, key):  # type: ignore
-                        _apply_udfs_on_dataframe(pandas, column, self.type_udfs[key], new_df)
+            elif why_type in self.type_udfs:
+                _apply_udfs_on_dataframe(pandas, column, self.type_udfs[why_type], new_df)
 
     def _run_udfs(
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None
@@ -122,7 +119,7 @@ class UdfSchema(DeclarativeSchema):
 
 
 _col_name_udfs: Dict[str, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
-_col_type_udfs: Dict[DataType, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
+_col_type_udfs: Dict[str, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
 
 
 def register_dataset_udf(
@@ -159,7 +156,7 @@ def register_dataset_udf(
         if col_name is not None:
             _col_name_udfs[col_name].append((name, func))
         else:
-            _col_type_udfs[col_type].append((name, func))
+            _col_type_udfs[col_type.__name__].append((name, func))
 
         return func
 
@@ -178,7 +175,7 @@ def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None) -> List[
         udfs = dict()
         for speclet in udf_speclets:
             udfs[speclet[0]] = speclet[1]
-        specs.append(UdfSpec(None, col_type, udfs))
+        specs.append(UdfSpec(None, getattr(sys.modules["whylogs.core.datatypes"], col_type), udfs))
 
     return specs
 
