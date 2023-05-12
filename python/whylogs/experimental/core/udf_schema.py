@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class UdfSpec:
-    column_name: Optional[Union[str, List[str]]] = None  # TODO: maybe make this a regex
+    column_name: Optional[str] = None  # Optional[Union[str, List[str]]] = None  # TODO: maybe make this a regex
     column_type: Optional[DataType] = None
     udfs: Dict[str, Callable[[Any], Any]] = field(
         default_factory=dict
@@ -37,6 +37,7 @@ def _apply_udfs_on_row(value: Any, column: str, udfs: Dict, new_columns: Mapping
     for new_col, udf in udfs.items():
         if new_col in new_columns:
             logger.warning(f"UDF {udf.__name__} overwriting column {new_col}")
+        # TODO: try/catch
         new_columns[f"{column}.{new_col}"] = udf(value)  # type: ignore
 
 
@@ -44,6 +45,7 @@ def _apply_udfs_on_dataframe(pandas: pd.DataFrame, column: str, udfs: Dict, new_
     for new_col, udf in udfs.items():
         if new_col in new_df.keys():
             logger.warning(f"UDF {udf.__name__} overwriting column {new_col}")
+        # TODO: try/catch
         new_df[f"{column}.{new_col}"] = pandas[column].map(udf)
 
 
@@ -70,14 +72,14 @@ class UdfSchema(DeclarativeSchema):
             segments=segments,
             validators=validators,
         )
-        self.name_udfs = dict()
-        self.type_udfs = dict()
+        self.name_udfs: Dict[str, Dict[str, Callable]] = defaultdict(dict)
+        self.type_udfs: Dict[DataType, Dict[str, Callable]] = defaultdict(dict)
         udf_specs = udf_specs if udf_specs else []
         for spec in udf_specs:
             if spec.column_name:
-                self.name_udfs[spec.column_name] = spec.udfs
+                self.name_udfs[spec.column_name].update(spec.udfs)
             else:
-                self.type_udfs[spec.column_type] = spec.udfs
+                self.type_udfs[spec.column_type].update(spec.udfs)
 
     def copy(self) -> DatasetSchema:
         copy = super().copy()
@@ -165,7 +167,7 @@ def register_dataset_udf(
 
 
 def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None) -> List[UdfSpec]:
-    specs = other_udf_specs or []
+    specs = list(other_udf_specs) if other_udf_specs else []
     for col_name, udf_speclets in _col_name_udfs.items():
         udfs = dict()
         for speclet in udf_speclets:

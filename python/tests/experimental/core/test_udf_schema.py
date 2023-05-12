@@ -47,8 +47,13 @@ def upper(x):
     return x.upper()
 
 
+def square(x):
+    return x * x
+
+
 def test_decorator_pandas() -> None:
-    schema = UdfSchema(STANDARD_RESOLVER, udf_specs=generate_udf_specs())
+    extra_spec = UdfSpec("col1", None, {"sqr": square})
+    schema = UdfSchema(STANDARD_RESOLVER, udf_specs=generate_udf_specs([extra_spec]))
     data = pd.DataFrame({"col1": [42, 12, 7], "col2": ["a", "b", "c"]})
     results = why.log(pandas=data, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
@@ -57,10 +62,13 @@ def test_decorator_pandas() -> None:
     assert "distribution/n" in col3_summary
     col4_summary = results.get_column("col2.upper case").to_summary_dict()
     assert "cardinality/est" in col4_summary
+    col5_summary = results.get_column("col1.sqr").to_summary_dict()
+    assert "distribution/n" in col5_summary
 
 
 def test_decorator_row() -> None:
-    schema = UdfSchema(STANDARD_RESOLVER, udf_specs=generate_udf_specs())
+    extra_spec = UdfSpec("col1", None, {"sqr": square})
+    schema = UdfSchema(STANDARD_RESOLVER, udf_specs=generate_udf_specs([extra_spec]))
     results = why.log(row={"col1": 42, "col2": "a"}, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
     assert "distribution/n" in col1_summary
@@ -68,3 +76,5 @@ def test_decorator_row() -> None:
     assert "distribution/n" in col3_summary
     col4_summary = results.get_column("col2.upper case").to_summary_dict()
     assert "cardinality/est" in col4_summary
+    col5_summary = results.get_column("col1.sqr").to_summary_dict()
+    assert "distribution/n" in col5_summary
