@@ -164,6 +164,31 @@ def register_dataset_udf(
 
 
 def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None) -> List[UdfSpec]:
+    """
+    Generates a list UdfSpecs that implement the UDFs specified
+    by the @register_dataset_udf decorators. You can provide a list of
+    other_udf_specs to include in addition to those UDFs registered via
+    the decorator.
+
+    For example:
+
+    @register_dataset_udf(col_name="col1")
+    def add5(x):
+        return x + 5
+
+    @register_dataset_udf(col_type=String)
+    def upper(x):
+        return x.upper()
+
+    schema = UdfSchema(STANDARD_RESOLVER, udf_specs=generate_udf_specs())
+    why.log(data, schema=schema)
+
+    This will attach a UDF to column "col1" that will generate a new column
+    named "col1.add5" containing the values in "col1" incremented by 5, and a UdfMetric
+    for each string column that will include a submetric named "<source>.upper" tracking
+    the uppercased strings in the input columns. Since these are appended to the
+    STANDARD_RESOLVER, the default metrics are also tracked for every column.
+    """
     specs = list(other_udf_specs) if other_udf_specs else []
     for col_name, udf_speclets in _col_name_udfs.items():
         udfs = dict()
@@ -181,32 +206,25 @@ def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None) -> List[
 
 
 def generate_udf_dataset_schema(
-    resolvers: Optional[List[ResolverSpec]] = None, other_udf_specs: Optional[List[UdfSpec]] = None
+    other_udf_specs: Optional[List[UdfSpec]] = None,
+    resolvers: Optional[List[ResolverSpec]] = None,
+    types: Optional[Dict[str, Any]] = None,
+    default_config: Optional[MetricConfig] = None,
+    type_mapper: Optional[TypeMapper] = None,
+    cache_size: int = 1024,
+    schema_based_automerge: bool = False,
+    segments: Optional[Dict[str, SegmentationPartition]] = None,
+    validators: Optional[Dict[str, List[Validator]]] = None,
 ) -> UdfSchema:
-    """
-    Generates a list of ResolverSpecs that implement the UDFs specified
-    by the @register_dataset_udf decorators. You can provide a list of
-    other_udf_specs to include in addition to those UDFs registered via
-    the decorator.
-
-    For example:
-
-    @register_dataset_udf(col_name="col1")
-    def add5(x):
-        return x + 5
-
-    @register_dataset_udf(col_type=String)
-    def upper(x):
-        return x.upper()
-
-    schema = DeclarativeSchema(STANDARD_RESOLVER, udf_specs=generate_udf_specs())
-    why.log(data, schema=schema)
-
-    This will attach a UDF to column "col1" that will generate a new column
-    named "col1.add5" containing the values in "col1" incremented by 5, and a UdfMetric
-    for each string column that will include a submetric named "<source>.upper" tracking
-    the uppercased strings in the input columns. Since these are appended to the
-    STANDARD_RESOLVER, the default metrics are also tracked for every column.
-    """
     resolvers = resolvers or STANDARD_RESOLVER
-    return UdfSchema(resolvers, udf_specs=generate_udf_specs(other_udf_specs))
+    return UdfSchema(
+        resolvers,
+        types,
+        default_config,
+        type_mapper,
+        cache_size,
+        schema_based_automerge,
+        segments,
+        validators,
+        generate_udf_specs(other_udf_specs),
+    )

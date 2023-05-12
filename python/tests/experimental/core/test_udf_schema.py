@@ -6,7 +6,7 @@ from whylogs.core.resolvers import STANDARD_RESOLVER
 from whylogs.experimental.core.udf_schema import (
     UdfSchema,
     UdfSpec,
-    generate_udf_specs,
+    generate_udf_dataset_schema,
     register_dataset_udf,
 )
 
@@ -53,7 +53,8 @@ def square(x):
 
 def test_decorator_pandas() -> None:
     extra_spec = UdfSpec("col1", None, {"sqr": square})
-    schema = UdfSchema(STANDARD_RESOLVER, udf_specs=generate_udf_specs([extra_spec]))
+    schema = generate_udf_dataset_schema([extra_spec], STANDARD_RESOLVER)
+    # schema = UdfSchema(STANDARD_RESOLVER, udf_specs=generate_udf_specs([extra_spec]))
     data = pd.DataFrame({"col1": [42, 12, 7], "col2": ["a", "b", "c"]})
     results = why.log(pandas=data, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
@@ -68,7 +69,8 @@ def test_decorator_pandas() -> None:
 
 def test_decorator_row() -> None:
     extra_spec = UdfSpec("col1", None, {"sqr": square})
-    schema = UdfSchema(STANDARD_RESOLVER, udf_specs=generate_udf_specs([extra_spec]))
+    schema = generate_udf_dataset_schema([extra_spec], STANDARD_RESOLVER)
+    # schema = UdfSchema(STANDARD_RESOLVER, udf_specs=generate_udf_specs([extra_spec]))
     results = why.log(row={"col1": 42, "col2": "a"}, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
     assert "distribution/n" in col1_summary
