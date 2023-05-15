@@ -146,6 +146,7 @@ class UdfSchema(DeclarativeSchema):
 _col_name_udfs: Dict[str, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
 _col_type_udfs: Dict[str, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
 _multicolumn_udfs: List[UdfSpec] = []
+_resolver_specs: List[ResolverSpec] = []
 
 
 def register_dataset_udf(
@@ -171,7 +172,7 @@ def register_dataset_udf(
     """
 
     def decorator_register(func):
-        global _col_name_udfs, _col_type_udfs, _multicolumn_udfs
+        global _col_name_udfs, _col_type_udfs, _metric_specs, _multicolumn_udfs
 
         if col_name is not None and col_type is not None:
             raise ValueError("Only specify one of column name or type")
@@ -179,15 +180,20 @@ def register_dataset_udf(
         if col_name is None and col_type is None:
             raise ValueError("Must specify one of column name or type")
 
+        if metrics and col_type:
+            raise ValueError("You cannot specify both metrics and column type")
+
         name = udf_name or func.__name__
         if isinstance(col_name, list):
             _multicolumn_udfs.append(UdfSpec(col_name, None, {name: func}))
-            return func
-
-        if col_name is not None:
+        elif col_name is not None:
             _col_name_udfs[col_name].append((name, func))
         else:
             _col_type_udfs[col_type.__name__].append((name, func))
+
+        if metrics:
+            output_name = name if isinstance(col_name, list) else f"{col_name}.{name}"
+            _resolver_specs.append(ResolverSpec(output_name, None, deepcopy(metrics)))
 
         return func
 
@@ -248,9 +254,9 @@ def generate_udf_dataset_schema(
     segments: Optional[Dict[str, SegmentationPartition]] = None,
     validators: Optional[Dict[str, List[Validator]]] = None,
 ) -> UdfSchema:
-    resolvers = resolvers or STANDARD_RESOLVER
+    resolver_specs = resolvers + _resolver_specs if resolvers else STANDARD_RESOLVER + _resolver_specs
     return UdfSchema(
-        resolvers,
+        resolver_specs,
         types,
         default_config,
         type_mapper,
