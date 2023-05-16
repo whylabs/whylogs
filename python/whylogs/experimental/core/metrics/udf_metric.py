@@ -133,18 +133,28 @@ class UdfMetric(MultiMetric):
             metric.columnar_update(data)
 
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
-        count = 0
+        successes = 0
+        failures = 0
         for value in list(chain.from_iterable(view.raw_iterator())):
+            ok = True
             for submetric_name, udf in self._udfs.items():
-                computed_value = udf(value)
-                if submetric_name not in self.submetrics:
-                    self._add_submetric(submetric_name, computed_value)  # NOTE: assumes column is homogeneous-ish?
+                try:
+                    computed_value = udf(value)
+                    if submetric_name not in self.submetrics:
+                        self._add_submetric(submetric_name, computed_value)  # NOTE: assumes column is homogeneous-ish?
 
-                data = PreprocessedColumn._process_scalar_value(computed_value)
-                self._update_relevant_submetrics(submetric_name, data)
+                    data = PreprocessedColumn._process_scalar_value(computed_value)
+                    self._update_relevant_submetrics(submetric_name, data)
+                except Exception:  # noqa
+                    logger.exception(f"UDF {submetric_name} evaluation failed")
+                    ok = False
 
-            count += 1
-        return OperationResult.ok(count)
+            if ok:
+                successes += 1
+            else:
+                failures += 1
+
+        return OperationResult(failures, successes)
 
     @classmethod
     def zero(cls, config: Optional[MetricConfig] = None) -> "UdfMetric":
