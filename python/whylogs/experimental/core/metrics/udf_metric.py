@@ -20,6 +20,8 @@ from whylogs.core.resolvers import (
     _allowed_metric,
 )
 from whylogs.core.schema import DeclarativeSchema
+from whylogs.core.segmentation_partition import SegmentationPartition
+from whylogs.core.validators.validator import Validator
 
 logger = logging.getLogger(__name__)
 
@@ -131,18 +133,28 @@ class UdfMetric(MultiMetric):
             metric.columnar_update(data)
 
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
-        count = 0
+        successes = 0
+        failures = 0
         for value in list(chain.from_iterable(view.raw_iterator())):
+            ok = True
             for submetric_name, udf in self._udfs.items():
-                computed_value = udf(value)
-                if submetric_name not in self.submetrics:
-                    self._add_submetric(submetric_name, computed_value)  # NOTE: assumes column is homogeneous-ish?
+                try:
+                    computed_value = udf(value)
+                    if submetric_name not in self.submetrics:
+                        self._add_submetric(submetric_name, computed_value)  # NOTE: assumes column is homogeneous-ish?
 
-                data = PreprocessedColumn._process_scalar_value(computed_value)
-                self._update_relevant_submetrics(submetric_name, data)
+                    data = PreprocessedColumn._process_scalar_value(computed_value)
+                    self._update_relevant_submetrics(submetric_name, data)
+                except Exception:  # noqa
+                    logger.exception(f"UDF {submetric_name} evaluation failed")
+                    ok = False
 
-            count += 1
-        return OperationResult.ok(count)
+            if ok:
+                successes += 1
+            else:
+                failures += 1
+
+        return OperationResult(failures, successes)
 
     @classmethod
     def zero(cls, config: Optional[MetricConfig] = None) -> "UdfMetric":
@@ -238,6 +250,7 @@ def register_metric_udf(
     return decorator_register
 
 
+# TODO: s/generate_udf_schema/generate_udf_resolvers/
 def generate_udf_schema() -> List[ResolverSpec]:
     """
     Generates a list of ResolverSpecs that implement the UdfMetrics specified
@@ -292,7 +305,16 @@ def generate_udf_schema() -> List[ResolverSpec]:
     return resolvers
 
 
-def udf_metric_schema(non_udf_resolvers: Optional[List[ResolverSpec]] = None) -> DeclarativeSchema:
+def udf_metric_schema(
+    non_udf_resolvers: Optional[List[ResolverSpec]] = None,
+    types: Optional[Dict[str, Any]] = None,
+    default_config: Optional[MetricConfig] = None,
+    type_mapper: Optional[TypeMapper] = None,
+    cache_size: int = 1024,
+    schema_based_automerge: bool = False,
+    segments: Optional[Dict[str, SegmentationPartition]] = None,
+    validators: Optional[Dict[str, List[Validator]]] = None,
+) -> DeclarativeSchema:
     """
     Generates a DeclarativeSchema that implement the UdfMetrics specified
     by the @register_metric_udf decorators (in additon to any non_udf_resolvers
@@ -318,7 +340,15 @@ def udf_metric_schema(non_udf_resolvers: Optional[List[ResolverSpec]] = None) ->
     """
 
     resolvers = generate_udf_schema()
-    if non_udf_resolvers is None:
-        non_udf_resolvers = STANDARD_RESOLVER
+    non_udf_resolvers = non_udf_resolvers or STANDARD_RESOLVER
 
-    return DeclarativeSchema(non_udf_resolvers + resolvers)
+    return DeclarativeSchema(
+        non_udf_resolvers + resolvers,
+        types,
+        default_config,
+        type_mapper,
+        cache_size,
+        schema_based_automerge,
+        segments,
+        validators,
+    )
