@@ -279,7 +279,7 @@ Attributes
    STANDARD_RESOLVER, the default metrics are also tracked for every column.
 
 
-.. py:function:: udf_metric_schema(non_udf_resolvers: Optional[List[whylogs.core.resolvers.ResolverSpec]] = None) -> whylogs.core.schema.DeclarativeSchema
+.. py:function:: udf_metric_schema(non_udf_resolvers: Optional[List[whylogs.core.resolvers.ResolverSpec]] = None, types: Optional[Dict[str, Any]] = None, default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Optional[Dict[str, List[whylogs.core.validators.validator.Validator]]] = None) -> whylogs.core.schema.DeclarativeSchema
 
    Generates a DeclarativeSchema that implement the UdfMetrics specified
    by the @register_metric_udf decorators (in additon to any non_udf_resolvers
