@@ -1,4 +1,5 @@
 import logging
+import time
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -20,6 +21,7 @@ from whylabs_client.api_client import ApiClient, Configuration  # type: ignore
 from whylogs.api.logger.result_set import ResultSet
 from whylogs.api.whylabs.config import SessionConfig
 from whylogs.api.whylabs.notebook_check import is_notebook
+from whylogs.api.whylabs.notebook_logger import init_notebook_logging, notebook_log
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 logger = logging.getLogger(__name__)
@@ -48,15 +50,33 @@ class GuestSession(Session):
         self._whylabs_session_api = SessionsApi(whylabs_client)
         self._user_guid = self._get_or_create_user_guid()
         self._session_id = self._get_or_create_session_id()
+        config_path = config.get_config_file_path()
+        notebook_log(f"Initialized anonymous session with id {self._session_id} in config {config_path}")
 
-        if is_notebook():
-            print(f"Initialized anonymous session with id {self._session_id}")
+    def _validate_config_session(self) -> Optional[str]:
+        """
+        Look up the current config value for the session and make sure it's still valid by
+        calling WhyLabs. If it's not valid, remove it from the config and return None.
+        """
+        session_id = self._config.get_session_id()
+
+        if session_id is None:
+            return None
+
+        if not self._validate_session_id(session_id):
+            self._config.remove_session_id()
+            notebook_log(f"Session {session_id} is no longer valid. Generating a new one.")
+            return None
+        else:
+            return session_id
 
     def _get_or_create_session_id(self) -> str:
-        session_id = self._config.get_session_id()
+        session_id = self._validate_config_session()
+
         if session_id is None:
             session_id = self._create_session_id()
             self._config.set_session_id(session_id)
+
         return session_id
 
     def _get_or_create_user_guid(self) -> str:
@@ -67,6 +87,21 @@ class GuestSession(Session):
             self._config.set_user_guid(user_guid)
 
         return user_guid
+
+    def _validate_session_id(self, session_id: str) -> bool:
+        """
+        Check to see if the session id is valid by calling WhyLabs.
+        """
+        try:
+            request = BatchLogReferenceRequest(
+                session_id=session_id, references=[LogReferenceRequest(alias="test", datasetTimestamp=0)]
+            )
+            self._whylabs_session_api.batch_create_reference_profile_upload(
+                batch_log_reference_request=request, session_id=session_id
+            )
+            return True
+        except ApiException:
+            return False
 
     def _create_session_id(self) -> str:
         try:
@@ -97,7 +132,8 @@ class GuestSession(Session):
             for ref in references:
                 if ref.alias not in profile_aliases:
                     # Should not be possible. WhyLabs api should echo each of the supplied aliases back
-                    raise ValueError(f"WhyLabs returned extra alias {ref.alias}. This is a WhyLabs bug.")
+                    logger.warning(f"WhyLabs returned extra alias {ref.alias}. This is a WhyLabs bug.")
+                    continue
 
                 result_set = profile_aliases[ref.alias]
                 writables = result_set.get_writables()
@@ -110,9 +146,11 @@ class GuestSession(Session):
                     view = cast(DatasetProfileView, writables[0])  # TODO Jamie, is this right?
                     r.put(ref.upload_url, data=view.serialize())
                 else:
+                    # TODO support segments here
                     logger.warning(f"Segments aren't supported in the log_reference api yet, skipping {ref.alias}")
                     continue
 
+            time.sleep(2)
             return UploadReferenceResult(viewing_url=viewing_url, whylabs_response=response)
         except ApiException as e:
             logger.error(e)
@@ -135,7 +173,7 @@ class ApiKeySession(Session):
             logger.warning("No org id found in session or configuration, will not be able to send data to whylabs.")
 
         if is_notebook():
-            print(f"Initialized whylabs session with for org {self.org_id}")
+            notebook_log(f"Initialized whylabs session with for org {self.org_id}")
 
     def upload_reference_profiles(self, profile_aliases: Dict[str, ResultSet]) -> UploadReferenceResult:
         # TODO support later
@@ -158,6 +196,7 @@ class SessionManager:
     @staticmethod
     def init(anonymous: bool = False) -> None:
         if SessionManager.__instance is None:
+            init_notebook_logging()
             SessionManager.__instance = SessionManager(anonymous=anonymous)
         else:
             logger.warning("SessionManager is already initialized. Ignoring call to init()")

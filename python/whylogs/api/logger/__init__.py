@@ -17,6 +17,7 @@ from whylogs.api.logger.segment_processing import (
     _log_segment,
 )
 from whylogs.api.logger.transient import TransientLogger
+from whylogs.api.whylabs.notebook_logger import notebook_log
 from whylogs.api.whylabs.session_manager import get_current_session
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
@@ -49,7 +50,7 @@ def log_reference(
 
     session = get_current_session()
     if session is None:
-        diagnostic_logger.warning("😭 No active session found. Skipping reference profile upload.")
+        notebook_log("😭 No active session found. Skipping reference profile upload.")
         return result_set
 
     profiles: Dict[str, ResultSet] = {}
@@ -57,8 +58,8 @@ def log_reference(
 
     try:
         result = session.upload_reference_profiles(profiles)
-        print("Visualize and explore this profile with one-click")
-        print(f"🔍 {result.viewing_url}")
+        notebook_log("Visualize and explore this profile with one-click")
+        notebook_log(f"🔍 {result.viewing_url}")
     except Exception as e:
         # Don't throw, just don't upload
         diagnostic_logger.error(f"Failed to upload reference profile: {e}")
@@ -84,11 +85,11 @@ def batch_log_reference(
 
     try:
         result = session.upload_reference_profiles(result_sets)
-        print("Visualize and explore the profiles with one-click")
-        print(f"🔍 {result.viewing_url}")
+        notebook_log("Visualize and explore the profiles with one-click")
+        notebook_log(f"🔍 {result.viewing_url}")
 
-        print()
-        print("Or view each profile individually")
+        notebook_log()
+        notebook_log("Or view each profile individually")
         for item in result.whylabs_response.references:
             print(f" ⤷ {item.observatory_url}")
 

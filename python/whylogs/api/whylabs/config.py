@@ -74,6 +74,9 @@ class SessionConfig:
         else:
             return value
 
+    def _remove_value(self, key: ConfigVariableName) -> None:
+        ConfigFile.remove_variable_from_config_file(self._config_parser, self.auth_path, key)
+
     def _set_value(self, key: ConfigVariableName, value: str) -> None:
         ConfigFile.set_variable_to_config_file(
             parser=self._config_parser,
@@ -139,6 +142,9 @@ class SessionConfig:
     def set_session_id(self, sessionId: str) -> None:
         self._set_value(ConfigVariableName.SESSION_ID, sessionId)
 
+    def remove_session_id(self) -> None:
+        self._remove_value(ConfigVariableName.SESSION_ID)
+
 
 _CONFIG_WHYLABS_SECTION = "whylabs"
 
@@ -174,5 +180,11 @@ class ConfigFile:
     @staticmethod
     def set_variable_to_config_file(parser: ConfigParser, auth_path: Path, key: ConfigVariableName, value: str) -> None:
         parser.set(_CONFIG_WHYLABS_SECTION, key.value, value)
+        with open(auth_path, "w") as configfile:
+            parser.write(configfile)
+
+    @staticmethod
+    def remove_variable_from_config_file(parser: ConfigParser, auth_path: Path, key: ConfigVariableName) -> None:
+        parser.remove_option(_CONFIG_WHYLABS_SECTION, key.value)
         with open(auth_path, "w") as configfile:
             parser.write(configfile)
