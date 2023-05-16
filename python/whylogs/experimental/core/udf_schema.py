@@ -172,8 +172,8 @@ class UdfSchema(DeclarativeSchema):
         return new_df, new_columns
 
 
-_col_name_udfs: Dict[str, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
-_col_type_udfs: Dict[str, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
+_col_name_udfs: Dict[str, Dict[str, Callable[[Any], Any]]] = defaultdict(dict)
+_col_type_udfs: Dict[str, Dict[str, Callable[[Any], Any]]] = defaultdict(dict)
 _multicolumn_udfs: List[UdfSpec] = []
 _resolver_specs: List[ResolverSpec] = []
 
@@ -216,9 +216,9 @@ def register_dataset_udf(
         if isinstance(col_name, list):
             _multicolumn_udfs.append(UdfSpec(col_name, None, {name: func}))
         elif col_name is not None:
-            _col_name_udfs[col_name].append((name, func))
+            _col_name_udfs[col_name][name] = func
         else:
-            _col_type_udfs[col_type.__name__].append((name, func))
+            _col_type_udfs[col_type.__name__][name] = func
 
         if metrics:
             output_name = name if isinstance(col_name, list) else f"{col_name}.{name}"
@@ -257,16 +257,10 @@ def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None) -> List[
     """
     specs = list(other_udf_specs) if other_udf_specs else []
     specs += _multicolumn_udfs
-    for col_name, udf_speclets in _col_name_udfs.items():
-        udfs = dict()
-        for speclet in udf_speclets:
-            udfs[speclet[0]] = speclet[1]
+    for col_name, udfs in _col_name_udfs.items():
         specs.append(UdfSpec(col_name, None, udfs))
 
-    for col_type, udf_speclets in _col_type_udfs.items():
-        udfs = dict()
-        for speclet in udf_speclets:
-            udfs[speclet[0]] = speclet[1]
+    for col_type, udfs in _col_type_udfs.items():
         specs.append(UdfSpec(None, getattr(sys.modules["whylogs.core.datatypes"], col_type), udfs))
 
     return specs
