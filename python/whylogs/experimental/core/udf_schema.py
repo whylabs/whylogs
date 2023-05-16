@@ -18,6 +18,20 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class UdfSpec:
+    """
+    Defines UDFs to apply to matching input columns. If column_name is a string,
+    the udfs will be applied to the named columns. The UDFs are passed the single
+    value in the column as input. If column_name is a list of strings, the UDF is
+    passed a dictionary or dataframe with the named columns available (the UDF will
+    not be called unless all the named columns are available). If column_name is None,
+    input columns can be matched by column_type.
+
+    In the cases where there's a single input column (column_name is a stirng or
+    matching by column_type), the new column name is f"{input_column_name}.{udf_key}",
+    where udf_key is the key in the dictionary of UDFs. If column_name is a list of
+    stings (even of length 1), the new column name is just the udf_key.
+    """
+
     column_name: Optional[Union[str, List[str]]] = None
     column_type: Optional[DataType] = None
     udfs: Dict[str, Callable[[Any], Any]] = field(
@@ -41,30 +55,45 @@ class UdfSpec:
 def _apply_udfs_on_row(value: Any, column: Optional[str], udfs: Dict, new_columns: Dict[str, Any]) -> None:
     if column is None:  # multi-column UDF
         for new_col, udf in udfs.items():
-            new_columns[new_col] = udf(value)
+            try:
+                new_columns[new_col] = udf(value)
+            except Exception:  # noqa
+                logger.exception(f"Evaluating multi-column UDF {new_col} failed")
         return
 
     for new_col, udf in udfs.items():
         if new_col in new_columns:
             logger.warning(f"UDF {udf.__name__} overwriting column {new_col}")
-        # TODO: try/catch
-        new_columns[f"{column}.{new_col}"] = udf(value)  # type: ignore
+        try:
+            new_columns[f"{column}.{new_col}"] = udf(value)  # type: ignore
+        except Exception:  # noqa
+            logger.exception(f"Evaluating UDF {new_col} failed on column {column}")
 
 
 def _apply_udfs_on_dataframe(pandas: pd.DataFrame, column: Optional[str], udfs: Dict, new_df: pd.DataFrame) -> None:
     if column is None:  # multi-column UDF
         for new_col, udf in udfs.items():
-            new_df[new_col] = udf(pandas)
+            try:
+                new_df[new_col] = udf(pandas)
+            except Exception:  # noqa
+                logger.exception(f"Evaluating UDF {new_col} failed on columns {pandas.keys()}")
         return
 
     for new_col, udf in udfs.items():
         if new_col in new_df.keys():
             logger.warning(f"UDF {udf.__name__} overwriting column {new_col}")
-        # TODO: try/catch
-        new_df[f"{column}.{new_col}"] = pandas[column].map(udf)
+        try:
+            new_df[f"{column}.{new_col}"] = pandas[column].map(udf)
+        except Exception:  # noqa
+            logger.exception(f"Evaluating UDF {new_col} failed on column {column}")
 
 
 class UdfSchema(DeclarativeSchema):
+    """
+    Subclass of DeclarativeSchema that runs the UDFs specified in udf_specs to
+    create new columns before resolving metrics.
+    """
+
     def __init__(
         self,
         resolvers: List[ResolverSpec],
@@ -157,17 +186,17 @@ def register_dataset_udf(
 ) -> Callable[[Any], Any]:
     """
     Decorator to easily configure UDFs for your data set. Decorate your UDF
-    functions, then call generate_udf_dataset_schema() to generate a list of ResolverSpecs
+    functions, then call generate_udf_dataset_schema() to create a UdfSchema
     that includes the UDFs configured by your decorator parameters.
 
     You must specify exactly one of either col_name or col_type. col_name will attach
-    a UDF to the named input column. col_type will attach a UDF to all
+    a UDF to the named input column(s). col_type will attach a UDF to all
     input columns of the specified type. The decorated function will automatically
     be a UDF in the UdfSchema.
 
     Specify udf_name to give the output of the UDF a name. udf_name
     defautls to the name of the decorated function. Note that all lambdas are
-    named "lambda" so omitting udf_name on more than one lambda will result
+    named "lambda", so omitting udf_name on more than one lambda will result
     in name collisions.
     """
 
@@ -254,6 +283,11 @@ def generate_udf_dataset_schema(
     segments: Optional[Dict[str, SegmentationPartition]] = None,
     validators: Optional[Dict[str, List[Validator]]] = None,
 ) -> UdfSchema:
+    """
+    Returns a UdfSchema that implements any registered UDFs, along with any
+    other_udf_specs or resovlers passed in.
+    """
+
     resolver_specs = resolvers + _resolver_specs if resolvers else STANDARD_RESOLVER + _resolver_specs
     return UdfSchema(
         resolver_specs,
