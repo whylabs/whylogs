@@ -39,6 +39,36 @@ def test_udf_metric() -> None:
     assert "foo:frequent_items/frequent_strings" in summary
 
 
+def test_udf_throws() -> None:
+    n = 0
+
+    def exothermic(x):
+        nonlocal n
+        n += 1
+        if n < 3:
+            raise ValueError("kaboom")
+
+        return int(x)
+
+    config = UdfMetricConfig(
+        udfs={
+            "oops": exothermic,
+            "ok": lambda x: int(x),
+        },
+    )
+    metric = UdfMetric.zero(config)
+    result = metric.columnar_update(PreprocessedColumn.apply([1, 2, 3, 4]))
+    assert result.failures == 2
+    assert result.successes == 2
+    summary = metric.to_summary_dict()
+    assert summary["ok:counts/n"] == 4
+    assert summary["ok:ints/min"] == 1
+    assert summary["ok:ints/max"] == 4
+    assert summary["oops:counts/n"] == 2
+    assert summary["oops:ints/min"] == 3
+    assert summary["oops:ints/max"] == 4
+
+
 def test_merge() -> None:
     config = UdfMetricConfig(
         udfs={
