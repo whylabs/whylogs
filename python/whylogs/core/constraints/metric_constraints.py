@@ -5,12 +5,12 @@ from dataclasses import dataclass
 from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
+from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.predicate_parser import _METRIC_REF, _PROFILE_REF, _tokenize
 from whylogs.core.utils import deprecated
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
-from whylogs.core.configs import SummaryConfig
 
 logger = getLogger(__name__)
 
@@ -638,7 +638,7 @@ class ConstraintsBuilder:
             metrics = metric_selector.apply(self._dataset_profile_view)
             if (metrics is None or len(metrics) == 0) and not (ignore_missing or column_name is None):
                 logger.warning(
-                    f"metrics not found for column {column_name}, available metric components are: {column_profile_view.get_metric_component_paths()}. Skipping constraint {constraint.name}."
+                    f"metrics not found for {column_name}, available metric components are: {column_profile_view.get_metric_component_paths()}. Skipping {constraint.name}."  # noqa: E501
                 )
                 return self
 

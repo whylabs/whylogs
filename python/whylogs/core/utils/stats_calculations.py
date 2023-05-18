@@ -2,9 +2,9 @@ from typing import Optional, Tuple, Union
 
 from typing_extensions import TypedDict
 
+from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView
-from whylogs.core.configs import SummaryConfig
 
 
 def get_distribution_metrics(
