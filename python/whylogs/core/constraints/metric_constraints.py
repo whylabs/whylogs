@@ -637,9 +637,10 @@ class ConstraintsBuilder:
             metric_selector = constraint.metric_selector
             metrics = metric_selector.apply(self._dataset_profile_view)
             if (metrics is None or len(metrics) == 0) and not (ignore_missing or column_name is None):
-                raise ValueError(
-                    f"metrics not found for column {column_name}, available metric components are: {column_profile_view.get_metric_component_paths()}"
+                logger.warning(
+                    f"metrics not found for column {column_name}, available metric components are: {column_profile_view.get_metric_component_paths()}. Skipping constraint {constraint.name}."
                 )
+                return self
 
             if column_name is None:
                 # MetricConstraint not associated with a specific column is turned into
