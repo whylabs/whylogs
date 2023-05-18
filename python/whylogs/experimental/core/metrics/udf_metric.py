@@ -345,7 +345,7 @@ def udf_metric_schema(
     """
 
     resolvers = generate_udf_resolvers()
-    non_udf_resolvers = non_udf_resolvers or STANDARD_RESOLVER
+    non_udf_resolvers = non_udf_resolvers if non_udf_resolvers is not None else STANDARD_RESOLVER
 
     return DeclarativeSchema(
         non_udf_resolvers + resolvers,

@@ -186,7 +186,8 @@ def generate_udf_dataset_schema(
     other_udf_specs or resovlers passed in.
     """
 
-    resolver_specs = resolvers + _resolver_specs if resolvers is None else STANDARD_RESOLVER + _resolver_specs
+    resolver_specs = resolvers + _resolver_specs if resolvers is not None else STANDARD_RESOLVER + _resolver_specs
+    # TODO: probably should add UdfMetric resolvers from registered metric UDFs here too
     return UdfSchema(
         resolver_specs,
         types,
