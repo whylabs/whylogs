@@ -1,4 +1,7 @@
 import configparser
+from typing import Any
+import pandas as pd  # TODO remove after user testing
+import numpy as np  # TODO remove after user testing
 import getpass
 import logging
 import os
@@ -29,6 +32,19 @@ class ConfigVariableName(Enum):
     SESSION_ID = "session_id"
     WHYLABS_API_ENDPOINT = "whylabs_api_endpoint"
     USER_GUID = "user_guid"
+
+
+def load_testing_data() -> pd.DataFrame:  # TODO remove after user testing
+    data = pd.read_csv("https://guest-session-testing-public.s3.us-west-2.amazonaws.com/adult_income_m.csv")
+
+    def convert_random_values(value: Any) -> Any:
+        if isinstance(value, int) and np.random.random() < 1 / 100:
+            return str(value)
+        return value
+
+    data["capital-gain"] = data["capital-loss"].apply(convert_random_values)
+    data["capital-loss"] = data["capital-loss"].apply(convert_random_values)
+    return data
 
 
 class SessionConfig:
