@@ -10,6 +10,7 @@ from whylogs.core.schema import DatasetSchema, DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
 from whylogs.core.validators.validator import Validator
+from whylogs.experimental.core.metrics.udf_metric import generate_udf_resolvers
 
 logger = logging.getLogger(__name__)
 
@@ -187,7 +188,7 @@ def generate_udf_dataset_schema(
     """
 
     resolver_specs = resolvers + _resolver_specs if resolvers is not None else STANDARD_RESOLVER + _resolver_specs
-    # TODO: probably should add UdfMetric resolvers from registered metric UDFs here too
+    resolver_specs += generate_udf_resolvers()
     return UdfSchema(
         resolver_specs,
         types,

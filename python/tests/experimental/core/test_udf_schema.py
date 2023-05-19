@@ -4,6 +4,7 @@ import whylogs as why
 from whylogs.core.datatypes import Fractional, Integral, String
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.resolvers import STANDARD_RESOLVER, MetricSpec, ResolverSpec
+from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
 from whylogs.experimental.core.udf_schema import (
     UdfSchema,
     UdfSpec,
@@ -177,3 +178,17 @@ def test_udf_throws() -> None:
     # oops_summary = results.get_column("exothermic").to_summary_dict()
     ok_summary = results.get_column("ok").to_summary_dict()
     assert ok_summary["counts/n"] == 4
+
+
+@register_metric_udf("foo")
+def bar(x):
+    return x
+
+
+def test_udf_metric_resolving() -> None:
+    schema = generate_udf_dataset_schema()
+    df = pd.DataFrame({"col1": [1, 2, 3], "foo": [1, 2, 3]})
+    results = why.log(pandas=df, schema=schema).view()
+    assert "add5" in results.get_columns()
+    foo_summary = results.get_column("foo").to_summary_dict()
+    assert "udf/bar:counts/n" in foo_summary
