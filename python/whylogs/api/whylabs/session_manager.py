@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 import time
 import uuid
 from abc import ABC, abstractmethod
@@ -25,6 +26,12 @@ from whylogs.api.whylabs.notebook_logger import init_notebook_logging, notebook_
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 logger = logging.getLogger(__name__)
+
+
+class SessionType(Enum):
+    WHYLABS_ANONYMOUS = 1
+    WHYLABS = 2
+    LOCAL = 3
 
 
 @dataclass
@@ -183,21 +190,25 @@ class ApiKeySession(Session):
 class SessionManager:
     __instance: Optional["SessionManager"] = None
 
-    def __init__(self, anonymous: bool = False):
+    def __init__(self, type: SessionType = SessionType.LOCAL):
         self._config = SessionConfig()
         client_config = Configuration()
         client_config.host = self._config.get_whylabs_endpoint()
         self._whylabs_client = ApiClient(client_config)
 
-        self.session: Session = (
-            GuestSession(self._config, self._whylabs_client) if anonymous else ApiKeySession(self._config)
-        )
+        self.session: Optional[Session] = None
+        if type == SessionType.LOCAL:
+            pass
+        elif type == SessionType.WHYLABS_ANONYMOUS:
+            self.session = GuestSession(self._config, self._whylabs_client)
+        elif type == SessionType.WHYLABS:
+            self.session = ApiKeySession(self._config)
 
     @staticmethod
-    def init(anonymous: bool = False) -> None:
+    def init(type: SessionType = SessionType.LOCAL) -> None:
         if SessionManager.__instance is None:
             init_notebook_logging()
-            SessionManager.__instance = SessionManager(anonymous=anonymous)
+            SessionManager.__instance = SessionManager(type=type)
         else:
             logger.warning("SessionManager is already initialized. Ignoring call to init()")
 
@@ -214,12 +225,12 @@ class SessionManager:
         return SessionManager.get_instance() is not None
 
 
-def init(anonymous: bool = False, reinit: bool = False) -> None:
+def init(type: SessionType = SessionType.LOCAL, reinit: bool = False) -> None:
     if reinit:
         SessionManager.reset()
 
     try:
-        SessionManager.init(anonymous=anonymous)
+        SessionManager.init(type=type)
     except PermissionError as e:
         logger.warning("Could not create or read configuration file for session. Profiles won't be uploaded.", e)
     except Exception as e:
