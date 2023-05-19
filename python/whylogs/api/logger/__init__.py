@@ -53,6 +53,17 @@ def log_reference(
         notebook_log("😭 No active session found. Skipping reference profile upload. Create one with why.init()")
         return result_set
 
+    if obj is not None:
+        rows = len(obj)
+    elif pandas is not None:
+        rows = len(pandas)
+    elif row is not None:
+        rows = 1
+    else:
+        rows = 0
+    notebook_log(f"✅ Aggregated {rows} rows into profile '{alias}'")
+    notebook_log()
+
     profiles: Dict[str, ResultSet] = {}
     profiles[alias] = result_set
 
@@ -63,17 +74,6 @@ def log_reference(
     except Exception as e:
         # Don't throw, just don't upload
         diagnostic_logger.error(f"Failed to upload reference profile: {e}")
-
-    if obj is not None:
-        rows = len(obj)
-    elif pandas is not None:
-        rows = len(pandas)
-    elif row is not None:
-        rows = 1
-    else:
-        rows = 0
-
-    notebook_log(f"Aggregated {rows} rows into profile '{alias}'")
 
     return result_set
 
@@ -95,6 +95,13 @@ def batch_log_reference(
         notebook_log("😭 No active session found. Skipping reference profile upload. Create one with why.init()")
         return list(result_sets.values())
 
+    profile_names_zipped_with_loggable_len = zip(result_sets.keys(), [len(v) for v in data.values()])
+    joined_profile_names_and_loggable_len = ", ".join(
+        [f"{v} lines into profile '{k}'" for k, v in profile_names_zipped_with_loggable_len]
+    )
+    notebook_log(f"✅ Aggregated {joined_profile_names_and_loggable_len}")
+    notebook_log()
+
     try:
         result = session.upload_reference_profiles(result_sets)
         notebook_log("Visualize and explore the profiles with one-click")
@@ -108,12 +115,6 @@ def batch_log_reference(
     except Exception as e:
         # Don't throw, just don't upload
         diagnostic_logger.error(f"Failed to upload reference profile: {e}")
-
-    profile_names_zipped_with_loggable_len = zip(result_sets.keys(), [len(v) for v in data.values()])
-    joined_profile_names_and_loggable_len = ", ".join(
-        [f"{v} lines into profile '{k}'" for k, v in profile_names_zipped_with_loggable_len]
-    )
-    notebook_log(f"Aggregated {joined_profile_names_and_loggable_len}")
 
     return list(result_sets.values())
 
