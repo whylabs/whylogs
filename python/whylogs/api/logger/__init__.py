@@ -64,15 +64,21 @@ def log_reference(
         # Don't throw, just don't upload
         diagnostic_logger.error(f"Failed to upload reference profile: {e}")
 
-    notebook_log("Aggregated data into a single profile")
-    view = result_set.view()
-    if view:
-        notebook_log(str(view.to_pandas()))
+    if obj is not None:
+        rows = len(obj)
+    elif pandas is not None:
+        rows = len(pandas)
+    elif row is not None:
+        rows = 1
+    else:
+        rows = 0
+
+    notebook_log(f"Aggregated {rows} rows into profile '{alias}'")
 
     return result_set
 
 
-Loggable = Union[pd.DataFrame, Dict[str, Any], List[pd.DataFrame], List[Dict[str, Any]]]
+Loggable = Union[pd.DataFrame, List[Dict[str, Any]]]
 
 
 def batch_log_reference(
@@ -103,12 +109,11 @@ def batch_log_reference(
         # Don't throw, just don't upload
         diagnostic_logger.error(f"Failed to upload reference profile: {e}")
 
-    notebook_log(f"Aggregated {len(data)} inputs into a {len(data)} profile")
-
-    for alias, result_set in result_sets.items():
-        view = result_set.view()
-        if view:
-            notebook_log(str(view.to_pandas()))
+    profile_names_zipped_with_loggable_len = zip(result_sets.keys(), [len(v) for v in data.values()])
+    joined_profile_names_and_loggable_len = ", ".join(
+        [f"{v} lines into profile '{k}'" for k, v in profile_names_zipped_with_loggable_len]
+    )
+    notebook_log(f"Aggregated {joined_profile_names_and_loggable_len}")
 
     return list(result_sets.values())
 
