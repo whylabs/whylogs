@@ -428,6 +428,7 @@
 <span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
+<span class="kn">from</span> <span class="nn">whylogs.core.configs</span> <span class="kn">import</span> <span class="n">SummaryConfig</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.predicate_parser</span> <span class="kn">import</span> <span class="n">_METRIC_REF</span><span class="p">,</span> <span class="n">_PROFILE_REF</span><span class="p">,</span> <span class="n">_tokenize</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.utils</span> <span class="kn">import</span> <span class="n">deprecated</span>
@@ -698,11 +699,12 @@
 <span class="sd">    in client code.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SummaryConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_expression</span> <span class="o">=</span> <span class="n">expression</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span> <span class="o">=</span> <span class="n">_tokenize</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metric_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span> <span class="o">=</span> <span class="n">cfg</span> <span class="ow">or</span> <span class="n">SummaryConfig</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_interpret</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>  <span class="c1"># noqa: C901</span>
         <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -724,7 +726,7 @@
             <span class="n">metric_name</span><span class="p">,</span> <span class="n">component_name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">metric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="n">metric_name</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-                <span class="n">summary</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">()</span>
+                <span class="n">summary</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="p">)</span>
             <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
                 <span class="k">raise</span> <span class="n">MissingMetric</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
 
@@ -1058,9 +1060,10 @@
             <span class="n">metric_selector</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">metric_selector</span>
             <span class="n">metrics</span> <span class="o">=</span> <span class="n">metric_selector</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_profile_view</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">metrics</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">ignore_missing</span> <span class="ow">or</span> <span class="n">column_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;metrics not found for column </span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">, available metric components are: </span><span class="si">{</span><span class="n">column_profile_view</span><span class="o">.</span><span class="n">get_metric_component_paths</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;metrics not found for </span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">, available metric components are: </span><span class="si">{</span><span class="n">column_profile_view</span><span class="o">.</span><span class="n">get_metric_component_paths</span><span class="p">()</span><span class="si">}</span><span class="s2">. Skipping </span><span class="si">{</span><span class="n">constraint</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>  <span class="c1"># noqa: E501</span>
                 <span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span>
 
             <span class="k">if</span> <span class="n">column_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># MetricConstraint not associated with a specific column is turned into</span>

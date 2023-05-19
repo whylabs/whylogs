@@ -258,7 +258,7 @@ Attributes
    :type reference_set: dict
 
 
-.. py:function:: column_is_probably_unique(column_name: str) -> whylogs.core.constraints.MetricConstraint
+.. py:function:: column_is_probably_unique(column_name: str, hll_stddev: int = 3) -> whylogs.core.constraints.MetricConstraint
 
 
 .. py:function:: column_has_non_zero_types(column_name: str, types_list: List[str]) -> whylogs.core.constraints.metric_constraints.MetricConstraint

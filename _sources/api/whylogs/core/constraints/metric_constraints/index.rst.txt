@@ -157,7 +157,7 @@ Attributes
    into a Callable that can be a DatasetConstraint condition.
 
 
-.. py:class:: PrefixCondition(expression: str)
+.. py:class:: PrefixCondition(expression: str, cfg: Optional[whylogs.core.configs.SummaryConfig] = None)
 
    Interpret expressions in the form used to serialize Predicate expressions.
    This is probably a reasonable serialization format for DatasetConstraint

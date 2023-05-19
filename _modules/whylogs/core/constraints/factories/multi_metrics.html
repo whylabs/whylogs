@@ -421,18 +421,20 @@
         </div>
         <article role="main">
           <h1>Source code for whylogs.core.constraints.factories.multi_metrics</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="p">(</span>
+<span></span><span class="kn">from</span> <span class="nn">whylogs.core.configs</span> <span class="kn">import</span> <span class="n">SummaryConfig</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">DatasetConstraint</span><span class="p">,</span>
     <span class="n">MetricConstraint</span><span class="p">,</span>
     <span class="n">PrefixCondition</span><span class="p">,</span>
 <span class="p">)</span>
 
 
-<div class="viewcode-block" id="column_is_probably_unique"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/multi_metrics/index.html#whylogs.core.constraints.factories.column_is_probably_unique">[docs]</a><span class="k">def</span> <span class="nf">column_is_probably_unique</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>
+<div class="viewcode-block" id="column_is_probably_unique"><a class="viewcode-back" href="../../../../../api/whylogs/core/constraints/factories/multi_metrics/index.html#whylogs.core.constraints.factories.column_is_probably_unique">[docs]</a><span class="k">def</span> <span class="nf">column_is_probably_unique</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hll_stddev</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricConstraint</span><span class="p">:</span>
     <span class="n">is_probably_unique_constraint</span> <span class="o">=</span> <span class="n">DatasetConstraint</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> is probably unique&quot;</span><span class="p">,</span>
         <span class="n">condition</span><span class="o">=</span><span class="n">PrefixCondition</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;and &lt;= :</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">:cardinality/lower_1 :</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">:counts/n &lt;= :</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">:counts/n :</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">:cardinality/upper_1&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;and &lt;= :</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">:cardinality/lower_</span><span class="si">{</span><span class="n">hll_stddev</span><span class="si">}</span><span class="s2"> - :</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">:counts/n :</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">:counts/null  &lt;= - :</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">:counts/n :</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">:counts/null :</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">:cardinality/upper_</span><span class="si">{</span><span class="n">hll_stddev</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="n">cfg</span><span class="o">=</span><span class="n">SummaryConfig</span><span class="p">(</span><span class="n">hll_stddev</span><span class="o">=</span><span class="n">hll_stddev</span><span class="p">),</span>
         <span class="p">),</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">is_probably_unique_constraint</span></div>

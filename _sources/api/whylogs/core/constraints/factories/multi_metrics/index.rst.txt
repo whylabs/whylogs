@@ -17,6 +17,6 @@ Functions
 
 
 
-.. py:function:: column_is_probably_unique(column_name: str) -> whylogs.core.constraints.MetricConstraint
+.. py:function:: column_is_probably_unique(column_name: str, hll_stddev: int = 3) -> whylogs.core.constraints.MetricConstraint
 
 
