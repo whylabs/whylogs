@@ -103,7 +103,7 @@ def batch_log_reference(
         # Don't throw, just don't upload
         diagnostic_logger.error(f"Failed to upload reference profile: {e}")
 
-    notebook_log(f"Aggregated {len(data)} inptus into a {len(data)} profile")
+    notebook_log(f"Aggregated {len(data)} inputs into a {len(data)} profile")
 
     for alias, result_set in result_sets.items():
         view = result_set.view()
