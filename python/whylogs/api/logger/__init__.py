@@ -50,7 +50,7 @@ def log_reference(
 
     session = get_current_session()
     if session is None:
-        notebook_log("😭 No active session found. Skipping reference profile upload.")
+        notebook_log("😭 No active session found. Skipping reference profile upload. Create one with why.init()")
         return result_set
 
     profiles: Dict[str, ResultSet] = {}
@@ -64,6 +64,11 @@ def log_reference(
         # Don't throw, just don't upload
         diagnostic_logger.error(f"Failed to upload reference profile: {e}")
 
+    notebook_log("Aggregated data into a single profile")
+    view = result_set.view()
+    if view:
+        notebook_log(str(view.to_pandas()))
+
     return result_set
 
 
@@ -76,11 +81,12 @@ def batch_log_reference(
 ) -> List[ResultSet]:
     result_sets: Dict[str, ResultSet] = {}
     for alias, d in data.items():
-        result_sets[alias] = log(obj=d, schema=schema)
+        result_set = log(obj=d, schema=schema)
+        result_sets[alias] = result_set
 
     session = get_current_session()
     if session is None:
-        diagnostic_logger.warning("😭 No active session found. Skipping reference profile upload.")
+        notebook_log("😭 No active session found. Skipping reference profile upload. Create one with why.init()")
         return list(result_sets.values())
 
     try:
@@ -96,6 +102,13 @@ def batch_log_reference(
     except Exception as e:
         # Don't throw, just don't upload
         diagnostic_logger.error(f"Failed to upload reference profile: {e}")
+
+    notebook_log(f"Aggregated {len(data)} inptus into a {len(data)} profile")
+
+    for alias, result_set in result_sets.items():
+        view = result_set.view()
+        if view:
+            notebook_log(str(view.to_pandas()))
 
     return list(result_sets.values())
 
