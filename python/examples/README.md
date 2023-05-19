@@ -117,6 +117,7 @@ Here you will find tutorials that can span two or more concepts discussed in the
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | [Data Validation for Spark Dataframes with whylogs](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/tutorials/Pyspark_and_Constraints.ipynb) | Profile a Spark Dataframe and Perform Data Validation with Condition Count Metrics and Metric Constraints |
 | [Monitoring Embeddings for Text Data](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/tutorials/Monitoring_Embeddings.ipynb)                 | Monitor Embeddings, Tokens and Performance of your text classifier application                            |
+| [Data Validation at Scale - Detecting and Responding to Data Misbehavior](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/tutorials/Data_Validation_Tutorial.ipynb) | Log, validate, and debug failed conditions with Metric Constraints, Condition Count Metrics and Condition Validators |
 
 ## Get in touch
 
