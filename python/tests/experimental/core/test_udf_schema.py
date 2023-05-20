@@ -8,8 +8,8 @@ from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
 from whylogs.experimental.core.udf_schema import (
     UdfSchema,
     UdfSpec,
-    generate_udf_dataset_schema,
     register_dataset_udf,
+    udf_schema,
 )
 
 
@@ -50,7 +50,7 @@ def square(x):
 
 def test_decorator_pandas() -> None:
     extra_spec = UdfSpec(["col1"], {"sqr": square})
-    schema = generate_udf_dataset_schema([extra_spec], STANDARD_RESOLVER)
+    schema = udf_schema([extra_spec], STANDARD_RESOLVER)
     data = pd.DataFrame({"col1": [42, 12, 7], "col2": ["a", "b", "c"]})
     results = why.log(pandas=data, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
@@ -63,7 +63,7 @@ def test_decorator_pandas() -> None:
 
 def test_decorator_row() -> None:
     extra_spec = UdfSpec(["col1"], {"sqr": square})
-    schema = generate_udf_dataset_schema([extra_spec], STANDARD_RESOLVER)
+    schema = udf_schema([extra_spec], STANDARD_RESOLVER)
     results = why.log(row={"col1": 42, "col2": "a"}, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
     assert "distribution/n" in col1_summary
@@ -100,7 +100,7 @@ def test_multicolumn_udf_pandas() -> None:
     ]
 
     extra_spec = UdfSpec(["col1"], {"sqr": square})
-    schema = generate_udf_dataset_schema([extra_spec], count_only)
+    schema = udf_schema([extra_spec], count_only)
     data = pd.DataFrame({"col1": [42, 12, 7], "col2": [2, 3, 4], "col3": [2, 3, 4]})
     results = why.log(pandas=data, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
@@ -137,7 +137,7 @@ def test_multicolumn_udf_row() -> None:
     ]
 
     extra_spec = UdfSpec(["col1"], {"sqr": square})
-    schema = generate_udf_dataset_schema([extra_spec], count_only)
+    schema = udf_schema([extra_spec], count_only)
     data = {"col1": 42, "col2": 2, "col3": 2}
     results = why.log(row=data, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
@@ -171,7 +171,7 @@ def exothermic(x):
 
 
 def test_udf_throws() -> None:
-    schema = generate_udf_dataset_schema()
+    schema = udf_schema()
     df = pd.DataFrame({"oops": [1, 2, 3, 4], "ok": [5, 6, 7, 8]})
     results = why.log(pandas=df, schema=schema).view()
     assert "exothermic" not in results.get_columns()
@@ -186,7 +186,7 @@ def bar(x):
 
 
 def test_udf_metric_resolving() -> None:
-    schema = generate_udf_dataset_schema()
+    schema = udf_schema()
     df = pd.DataFrame({"col1": [1, 2, 3], "foo": [1, 2, 3]})
     results = why.log(pandas=df, schema=schema).view()
     assert "add5" in results.get_columns()
