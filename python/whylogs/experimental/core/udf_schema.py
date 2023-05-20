@@ -131,6 +131,12 @@ def register_dataset_udf(
     defautls to the name of the decorated function. Note that all lambdas are
     named "lambda", so omitting udf_name on more than one lambda will result
     in name collisions.
+    
+    If any metrics are passed via the metrics argument, they will be attached
+    to the column produced by the UDF via the schema returned by generate_udf_dataset_schema().
+    If metrics is None, the UDF output column will get the metrics determined by
+    the other resolvers passed to generate_udf_dataset_schema(), or the STANDARD_RESOLVER
+    by default.
     """
 
     def decorator_register(func):
