@@ -48,7 +48,10 @@ class StandardResolver(Resolver):
             metrics.append(StandardMetric.frequent_items)
 
         if column_schema.cfg.fi_disabled:
-            metrics.remove(StandardMetric.frequent_items)
+            try:
+                metrics.remove(StandardMetric.frequent_items)
+            except ValueError:
+                pass
 
         result: Dict[str, Metric] = {}
         for m in metrics:

@@ -2,7 +2,7 @@ import logging
 from copy import deepcopy
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import whylogs as why
 from whylogs.api.logger.result_set import ResultSet
@@ -149,6 +149,40 @@ class ImageSubmetricSchema(SubmetricSchema):
 class ImageMetricConfig(MetricConfig):
     allowed_exif_tags: Set[str] = field(default_factory=set)
     forbidden_exif_tags: Set[str] = field(default_factory=set)
+
+    def __init__(
+        self,
+        hll_lg_k: Optional[int] = None,
+        kll_k: Optional[int] = None,
+        fi_lg_max_k: Optional[int] = None,
+        fi_disabled: Optional[bool] = None,
+        track_unicode_ranges: Optional[bool] = None,
+        large_kll_k: Optional[bool] = None,
+        kll_k_large: Optional[int] = None,
+        unicode_ranges: Optional[Dict[str, Tuple[int, int]]] = None,
+        lower_case: Optional[bool] = None,
+        normalize: Optional[bool] = None,
+        max_frequent_item_size: Optional[int] = None,
+        identity_column: Optional[str] = None,
+        allowed_exif_tags: Optional[Set] = None,
+        forbidden_exif_tags: Optional[Set] = None,
+    ):
+        super().__init__(
+            hll_lg_k,
+            kll_k,
+            fi_lg_max_k,
+            fi_disabled,
+            track_unicode_ranges,
+            large_kll_k,
+            kll_k_large,
+            unicode_ranges,
+            lower_case,
+            normalize,
+            max_frequent_item_size,
+            identity_column,
+        )
+        self.__dict__["allowed_exif_tags"] = allowed_exif_tags or set()
+        self.__dict__["forbidden_exif_tags"] = forbidden_exif_tags or set()
 
 
 class ImageMetric(MultiMetric):

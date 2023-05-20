@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from itertools import chain
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -76,9 +76,45 @@ class UdfMetricConfig(MetricConfig):
        type_mapper [optional]: maps Python types to whylogs DataType
     """
 
-    udfs: Dict[str, Callable[[Any], Any]] = field(default_factory=dict)
-    submetric_schema: SubmetricSchema = field(default_factory=default_schema)
-    type_mapper: TypeMapper = field(default_factory=StandardTypeMapper)
+    udfs: Dict[str, Callable[[Any], Any]]
+    submetric_schema: SubmetricSchema
+    type_mapper: TypeMapper
+
+    def __init__(
+        self,
+        hll_lg_k: Optional[int] = None,
+        kll_k: Optional[int] = None,
+        fi_lg_max_k: Optional[int] = None,
+        fi_disabled: Optional[bool] = None,
+        track_unicode_ranges: Optional[bool] = None,
+        large_kll_k: Optional[bool] = None,
+        kll_k_large: Optional[int] = None,
+        unicode_ranges: Optional[Dict[str, Tuple[int, int]]] = None,
+        lower_case: Optional[bool] = None,
+        normalize: Optional[bool] = None,
+        max_frequent_item_size: Optional[int] = None,
+        identity_column: Optional[str] = None,
+        udfs: Optional[Dict[str, Callable[[Any], Any]]] = None,
+        submetric_schema: Optional[SubmetricSchema] = None,
+        type_mapper: Optional[TypeMapper] = None,
+    ):
+        super().__init__(
+            hll_lg_k,
+            kll_k,
+            fi_lg_max_k,
+            fi_disabled,
+            track_unicode_ranges,
+            large_kll_k,
+            kll_k_large,
+            unicode_ranges,
+            lower_case,
+            normalize,
+            max_frequent_item_size,
+            identity_column,
+        )
+        self.__dict__["udfs"] = udfs or dict()
+        self.__dict__["submetric_schema"] = submetric_schema or default_schema()
+        self.__dict__["type_mapper"] = type_mapper or StandardTypeMapper()
 
 
 class UdfMetric(MultiMetric):

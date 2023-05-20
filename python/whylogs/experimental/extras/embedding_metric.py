@@ -1,8 +1,8 @@
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from itertools import chain
-from typing import List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import MetricConfig, OperationResult, register_metric
@@ -30,14 +30,50 @@ class EmbeddingConfig(MetricConfig):
     be used, where n is the number of rows in the references matrix.
     """
 
-    references: np.ndarray = field(default_factory=lambda: np.zeros((1, 1)))
-    labels: Optional[List[str]] = None
-    distance_fn: DistanceFunction = DistanceFunction.cosine
-    serialize_references: bool = True  # should references be included in protobuf message?
+    references: np.ndarray
+    labels: Optional[List[str]]
+    distance_fn: DistanceFunction
+    serialize_references: bool  # should references be included in protobuf message?
 
     # TODO: limit refeence size
 
-    def __post_init__(self) -> None:
+    def __init__(
+        self,
+        hll_lg_k: Optional[int] = None,
+        kll_k: Optional[int] = None,
+        fi_lg_max_k: Optional[int] = None,
+        fi_disabled: Optional[bool] = None,
+        track_unicode_ranges: Optional[bool] = None,
+        large_kll_k: Optional[bool] = None,
+        kll_k_large: Optional[int] = None,
+        unicode_ranges: Optional[Dict[str, Tuple[int, int]]] = None,
+        lower_case: Optional[bool] = None,
+        normalize: Optional[bool] = None,
+        max_frequent_item_size: Optional[int] = None,
+        identity_column: Optional[str] = None,
+        references: Optional[np.ndarray] = None,
+        labels: Optional[List[str]] = None,
+        distance_fn: DistanceFunction = DistanceFunction.cosine,
+        serialize_references: bool = True,
+    ):
+        super().__init__(
+            hll_lg_k,
+            kll_k,
+            fi_lg_max_k,
+            fi_disabled,
+            track_unicode_ranges,
+            large_kll_k,
+            kll_k_large,
+            unicode_ranges,
+            lower_case,
+            normalize,
+            max_frequent_item_size,
+            identity_column,
+        )
+        self.__dict__["references"] = references if references is not None else np.zeros((1, 1))
+        self.__dict__["labels"] = labels
+        self.__dict__["distance_fn"] = distance_fn
+        self.__dict__["serialize_references"] = serialize_references
         if len(self.references.shape) != 2:
             raise ValueError("Embedding reference matrix must be 2 dimensional")
 

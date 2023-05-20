@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 import whylogs as why
+import whylogs.core.configs as cfg
 from whylogs.core import ColumnProfileView, DatasetSchema
 from whylogs.core.metrics.maths import VarianceM2Result, parallel_variance_m2
 from whylogs.core.metrics.metrics import (
@@ -262,3 +263,13 @@ def test_cardinality_metric_booleans_all_false() -> None:
     col_prof = why.log(df).view().get_column("b")
     cardinality: CardinalityMetric = col_prof.get_metric("cardinality")
     assert cardinality.estimate == pytest.approx(1, 0.1)
+
+
+def test_configure_MetricConfig_defaults():
+    c = MetricConfig()
+    assert c.kll_k == cfg.kll_k
+    assert not c.fi_disabled
+    cfg.fi_disabled = True
+    c = MetricConfig()
+    assert c.fi_disabled
+    cfg.fi_disabled = False
