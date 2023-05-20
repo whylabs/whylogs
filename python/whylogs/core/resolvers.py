@@ -197,7 +197,7 @@ STANDARD_RESOLVER = [
     ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
 ]
 
-STANDARD_PRIVACY_PRESERVING_RESOLVER = [
+UDF_BASE_RESOLVER = [
     ResolverSpec(
         column_type=Integral,
         metrics=COLUMN_METRICS

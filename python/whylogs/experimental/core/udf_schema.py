@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple
 
 from whylogs.core.datatypes import TypeMapper
 from whylogs.core.metrics.metrics import MetricConfig
-from whylogs.core.resolvers import STANDARD_PRIVACY_PRESERVING_RESOLVER, STANDARD_RESOLVER, MetricSpec, ResolverSpec
+from whylogs.core.resolvers import UDF_BASE_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DatasetSchema, DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
@@ -171,7 +171,7 @@ def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None) -> List[
     return specs
 
 
-def generate_udf_dataset_schema(
+def udf_schema(
     other_udf_specs: Optional[List[UdfSpec]] = None,
     resolvers: Optional[List[ResolverSpec]] = None,
     types: Optional[Dict[str, Any]] = None,
@@ -189,7 +189,7 @@ def generate_udf_dataset_schema(
     if resolvers is not None:
         resolver_specs = resolvers + _resolver_specs
     else:
-        resolver_specs = STANDARD_PRIVACY_PRESERVING_RESOLVER + _resolver_specs
+        resolver_specs = UDF_BASE_RESOLVER + _resolver_specs
     resolver_specs += generate_udf_resolvers()
     return UdfSchema(
         resolver_specs,
