@@ -11,6 +11,7 @@ import requests  # type: ignore
 import whylabs_client  # type: ignore
 from urllib3 import PoolManager, ProxyManager
 from whylabs_client import ApiClient, Configuration  # type: ignore
+from whylabs_client.api.dataset_profile_api import DatasetProfileApi
 from whylabs_client.api.feature_weights_api import FeatureWeightsApi
 from whylabs_client.api.log_api import AsyncLogResponse  # type: ignore
 from whylabs_client.api.log_api import (
@@ -21,10 +22,16 @@ from whylabs_client.api.log_api import (
 )
 from whylabs_client.api.models_api import ModelsApi
 from whylabs_client.model.column_schema import ColumnSchema
+from whylabs_client.model.create_reference_profile_request import (
+    CreateReferenceProfileRequest,
+)
+from whylabs_client.model.segment import Segment
+from whylabs_client.model.segment_tag import SegmentTag
 from whylabs_client.rest import ForbiddenException  # type: ignore
 
 from whylogs import __version__ as _version
 from whylogs.api.logger import log
+from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
@@ -36,6 +43,7 @@ from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetPro
 from whylogs.experimental.performance_estimation.estimation_results import (
     EstimationResult,
 )
+from whylogs.migration.converters import _generate_segment_tags_metadata
 from whylogs.migration.uncompound import (
     FeatureFlags,
     _uncompound_dataset_profile,
@@ -483,13 +491,62 @@ class WhyLabsWriter(Writer):
             return feature_weights
         return None
 
+    def write_segmented_reference_result_set(self, file: SegmentedResultSet, **kwargs: Any):
+        utc_now = datetime.datetime.now(datetime.timezone.utc)
+
+        files = file.get_writables()
+        partitions = file.partitions
+        if len(partitions) > 1:
+            logger.warning(
+                "SegmentedResultSet contains more than one partition. Only the first partition will be uploaded. "
+            )
+        partition = partitions[0]
+        whylabs_tags = list()
+        for view in files:
+            view_tags = list()
+            dataset_timestamp = view.dataset_timestamp or utc_now
+            if view.partition.id != partition.id:
+                continue
+            _, segment_tags, _ = _generate_segment_tags_metadata(view.segment, view.partition)
+            for segment_tag in segment_tags:
+                tag_key = segment_tag.key.replace("whylogs.tag.", "")
+                tag_value = segment_tag.value
+                view_tags.append({"key": tag_key, "value": tag_value})
+            whylabs_tags.append(view_tags)
+        stamp = dataset_timestamp.timestamp()
+        dataset_timestamp_epoch = int(stamp * 1000)
+        res = self._get_upload_urls_segmented_reference(whylabs_tags, dataset_timestamp_epoch)
+        profile_id = res["id"]
+        upload_statuses = list()
+        for view, url in zip(files, res["upload_urls"]):
+            with tempfile.NamedTemporaryFile() as tmp_file:
+                if kwargs.get("use_v0") is None or kwargs.get("use_v0"):
+                    view.write(file=tmp_file, use_v0=True)
+                else:
+                    view.write(file=tmp_file)
+                tmp_file.flush()
+                tmp_file.seek(0)
+
+                upload_res = self._do_upload(
+                    dataset_timestamp=dataset_timestamp_epoch,
+                    upload_url=url,
+                    profile_id=profile_id,
+                    profile_file=tmp_file,
+                )
+                upload_statuses.append(upload_res)
+        if all([status[0] for status in upload_statuses]):
+            return upload_statuses[0]
+        else:
+            return False, "Failed to upload all segments"
+
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
         if isinstance(file, FeatureWeights):
             return self.write_feature_weights(file, **kwargs)
         elif isinstance(file, EstimationResult):
             return self.write_estimation_result(file, **kwargs)
-
+        elif isinstance(file, SegmentedResultSet) and self._reference_profile_name is not None:
+            return self.write_segmented_reference_result_set(file, **kwargs)
         view = file.view() if isinstance(file, DatasetProfile) else file
         has_segments = isinstance(view, SegmentedDatasetProfileView)
 
@@ -553,8 +610,12 @@ class WhyLabsWriter(Writer):
                 )
 
             dataset_timestamp_epoch = int(stamp * 1000)
+            logger.debug("Generating the upload URL")
+            upload_url, profile_id = self._get_upload_url(dataset_timestamp=dataset_timestamp_epoch)
             response = self._do_upload(
                 dataset_timestamp=dataset_timestamp_epoch,
+                upload_url=upload_url,
+                profile_id=profile_id,
                 profile_file=tmp_file,
             )
         # TODO: retry
@@ -619,13 +680,18 @@ class WhyLabsWriter(Writer):
         return is_successful, response.reason
 
     def _do_upload(
-        self, dataset_timestamp: int, profile_path: Optional[str] = None, profile_file: Optional[IO[bytes]] = None
+        self,
+        dataset_timestamp: int,
+        upload_url: str,
+        profile_id: str,
+        profile_path: Optional[str] = None,
+        profile_file: Optional[IO[bytes]] = None,
     ) -> Tuple[bool, str]:
         assert profile_path or profile_file, "Either a file or file path must be specified when uploading profiles"
         self._validate_org_and_dataset()
 
-        logger.debug("Generating the upload URL")
-        upload_url, profile_id = self._get_upload_url(dataset_timestamp=dataset_timestamp)
+        # logger.debug("Generating the upload URL")
+        # upload_url, profile_id = self._get_upload_url(dataset_timestamp=dataset_timestamp)
         try:
             if profile_file:
                 status, reason = self._put_file(profile_file, upload_url, dataset_timestamp)
@@ -653,6 +719,9 @@ class WhyLabsWriter(Writer):
     def _get_or_create_api_log_client(self) -> LogApi:
         return LogApi(self._api_client)
 
+    def _get_or_create_api_dataset_client(self) -> DatasetProfileApi:
+        return DatasetProfileApi(self._api_client)
+
     @staticmethod
     def _build_log_async_request(dataset_timestamp: int) -> LogAsyncRequest:
         return LogAsyncRequest(dataset_timestamp=dataset_timestamp, segment_tags=[])
@@ -660,6 +729,15 @@ class WhyLabsWriter(Writer):
     @staticmethod
     def _build_log_reference_request(dataset_timestamp: int, alias: Optional[str] = None) -> LogReferenceRequest:
         return LogReferenceRequest(dataset_timestamp=dataset_timestamp, alias=alias)
+
+    @staticmethod
+    def _build_log_segmented_reference_request(
+        dataset_timestamp: int, tags: Optional[dict], alias: Optional[str] = None
+    ) -> LogReferenceRequest:
+        segments = list()
+        for segment_tags in tags:
+            segments.append(Segment(tags=[SegmentTag(key=tag["key"], value=tag["value"]) for tag in segment_tags]))
+        return CreateReferenceProfileRequest(alias=alias, dataset_timestamp=dataset_timestamp, segments=segments)
 
     def _get_column_weights(self):
         feature_weight_api = self._get_or_create_feature_weights_client()
@@ -762,6 +840,33 @@ class WhyLabsWriter(Writer):
         log_api = self._get_or_create_api_log_client()
         try:
             result = log_api.log_async(org_id=self._org_id, dataset_id=self._dataset_id, log_async_request=request)
+            return result
+        except ForbiddenException as e:
+            logger.exception(
+                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                f"{self.whylabs_api_endpoint}"
+                f" with API token ID: {self.key_id}"
+            )
+            raise e
+
+    def _get_upload_urls_segmented_reference(self, whylabs_tags, dataset_timestamp: int):
+        request = self._build_log_segmented_reference_request(
+            dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name
+        )
+        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
+        return res
+
+    def _post_log_segmented_reference(self, request: LogAsyncRequest, dataset_timestamp: int) -> LogReferenceResponse:
+        dataset_api = self._get_or_create_api_dataset_client()
+        try:
+            async_result = dataset_api.create_reference_profile(
+                org_id=self._org_id,
+                dataset_id=self._dataset_id,
+                create_reference_profile_request=request,
+                async_req=True,
+            )
+
+            result = async_result.get()
             return result
         except ForbiddenException as e:
             logger.exception(

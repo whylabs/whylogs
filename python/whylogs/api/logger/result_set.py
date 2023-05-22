@@ -132,6 +132,9 @@ class ResultSetWriter:
         statuses = list()
         if not files:
             logger.warning("Attempt to write a result set with no writables returned, nothing written!")
+        elif self._writer._reference_profile_name is not None:
+            response = self._writer.write(file=self._result_set, **kwargs)
+            statuses.append(response)
         else:
             logger.debug(f"About to write {len(files)} files:")
             # TODO: special handling of large number of files, handle throttling
