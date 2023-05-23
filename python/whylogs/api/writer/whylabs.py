@@ -491,7 +491,7 @@ class WhyLabsWriter(Writer):
             return feature_weights
         return None
 
-    def write_segmented_reference_result_set(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
+    def _write_segmented_reference_result_set(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
         """Put segmented reference result set for the specified dataset.
 
         Parameters
@@ -556,7 +556,7 @@ class WhyLabsWriter(Writer):
         elif isinstance(file, EstimationResult):
             return self.write_estimation_result(file, **kwargs)
         elif isinstance(file, SegmentedResultSet) and self._reference_profile_name is not None:
-            return self.write_segmented_reference_result_set(file, **kwargs)
+            return self._write_segmented_reference_result_set(file, **kwargs)
         view = file.view() if isinstance(file, DatasetProfile) else file
         has_segments = isinstance(view, SegmentedDatasetProfileView)
 
