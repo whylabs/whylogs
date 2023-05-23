@@ -491,7 +491,18 @@ class WhyLabsWriter(Writer):
             return feature_weights
         return None
 
-    def write_segmented_reference_result_set(self, file: SegmentedResultSet, **kwargs: Any):
+    def write_segmented_reference_result_set(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
+        """Put segmented reference result set for the specified dataset.
+
+        Parameters
+        ----------
+        file : SegmentedResultSet
+            SegmentedResultSet object representing the segmented reference result set for the specified dataset
+
+        Returns
+        -------
+        Tuple[bool, str]
+        """
         utc_now = datetime.datetime.now(datetime.timezone.utc)
 
         files = file.get_writables()
@@ -515,10 +526,9 @@ class WhyLabsWriter(Writer):
             whylabs_tags.append(view_tags)
         stamp = dataset_timestamp.timestamp()
         dataset_timestamp_epoch = int(stamp * 1000)
-        res = self._get_upload_urls_segmented_reference(whylabs_tags, dataset_timestamp_epoch)
-        profile_id = res["id"]
+        profile_id, upload_urls = self._get_upload_urls_segmented_reference(whylabs_tags, dataset_timestamp_epoch)
         upload_statuses = list()
-        for view, url in zip(files, res["upload_urls"]):
+        for view, url in zip(files, upload_urls):
             with tempfile.NamedTemporaryFile() as tmp_file:
                 if kwargs.get("use_v0") is None or kwargs.get("use_v0"):
                     view.write(file=tmp_file, use_v0=True)
@@ -610,12 +620,8 @@ class WhyLabsWriter(Writer):
                 )
 
             dataset_timestamp_epoch = int(stamp * 1000)
-            logger.debug("Generating the upload URL")
-            upload_url, profile_id = self._get_upload_url(dataset_timestamp=dataset_timestamp_epoch)
             response = self._do_upload(
                 dataset_timestamp=dataset_timestamp_epoch,
-                upload_url=upload_url,
-                profile_id=profile_id,
                 profile_file=tmp_file,
             )
         # TODO: retry
@@ -682,8 +688,8 @@ class WhyLabsWriter(Writer):
     def _do_upload(
         self,
         dataset_timestamp: int,
-        upload_url: str,
-        profile_id: str,
+        upload_url: Optional[str] = None,
+        profile_id: Optional[str] = None,
         profile_path: Optional[str] = None,
         profile_file: Optional[IO[bytes]] = None,
     ) -> Tuple[bool, str]:
@@ -691,17 +697,22 @@ class WhyLabsWriter(Writer):
         self._validate_org_and_dataset()
 
         # logger.debug("Generating the upload URL")
-        # upload_url, profile_id = self._get_upload_url(dataset_timestamp=dataset_timestamp)
+        if upload_url and not profile_id:
+            raise ValueError("If upload_url is specified, profile_id must also be specified")
+        elif profile_id and not upload_url:
+            raise ValueError("If profile_id is specified, upload_url must also be specified")
+        elif not upload_url and not profile_id:
+            upload_url, profile_id = self._get_upload_url(dataset_timestamp=dataset_timestamp)
         try:
             if profile_file:
-                status, reason = self._put_file(profile_file, upload_url, dataset_timestamp)
+                status, reason = self._put_file(profile_file, upload_url, dataset_timestamp)  # type: ignore
                 logger.debug(f"copied file {upload_url} status {status}:{reason}")
-                return status, profile_id
+                return status, profile_id  # type: ignore
             elif profile_path:
                 with open(profile_path, "rb") as f:
-                    status, reason = self._put_file(f, upload_url, dataset_timestamp)
+                    status, reason = self._put_file(f, upload_url, dataset_timestamp)  # type: ignore
                     logger.debug(f"copied file {upload_url} status {status}:{reason}")
-                    return status, profile_id
+                    return status, profile_id  # type: ignore
         except requests.RequestException as e:
             logger.info(
                 f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
@@ -732,12 +743,16 @@ class WhyLabsWriter(Writer):
 
     @staticmethod
     def _build_log_segmented_reference_request(
-        dataset_timestamp: int, tags: Optional[dict], alias: Optional[str] = None
+        dataset_timestamp: int, tags: Optional[dict] = None, alias: Optional[str] = None
     ) -> LogReferenceRequest:
         segments = list()
-        for segment_tags in tags:
-            segments.append(Segment(tags=[SegmentTag(key=tag["key"], value=tag["value"]) for tag in segment_tags]))
-        return CreateReferenceProfileRequest(alias=alias, dataset_timestamp=dataset_timestamp, segments=segments)
+        if tags is not None:
+            for segment_tags in tags:
+                segments.append(Segment(tags=[SegmentTag(key=tag["key"], value=tag["value"]) for tag in segment_tags]))
+        if not segments:
+            return CreateReferenceProfileRequest(alias=alias, dataset_timestamp=dataset_timestamp)
+        else:
+            return CreateReferenceProfileRequest(alias=alias, dataset_timestamp=dataset_timestamp, segments=segments)
 
     def _get_column_weights(self):
         feature_weight_api = self._get_or_create_feature_weights_client()
@@ -849,12 +864,12 @@ class WhyLabsWriter(Writer):
             )
             raise e
 
-    def _get_upload_urls_segmented_reference(self, whylabs_tags, dataset_timestamp: int):
+    def _get_upload_urls_segmented_reference(self, whylabs_tags, dataset_timestamp: int) -> Tuple[str, List[str]]:
         request = self._build_log_segmented_reference_request(
             dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name
         )
         res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
-        return res
+        return res["id"], res["upload_urls"]
 
     def _post_log_segmented_reference(self, request: LogAsyncRequest, dataset_timestamp: int) -> LogReferenceResponse:
         dataset_api = self._get_or_create_api_dataset_client()
