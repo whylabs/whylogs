@@ -85,6 +85,8 @@ class Logger(ABC):
             raise LoggingError("log() was called without passing in any input!")
 
         active_schema = schema or self._schema
+        if active_schema:
+            pandas, row = active_schema._run_udfs(pandas, row)
 
         # If segments are defined use segment_processing to return a SegmentedResultSet
         if active_schema and active_schema.segments:

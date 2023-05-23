@@ -11,6 +11,7 @@ from whylogs.experimental.core.udf_schema import (
     register_dataset_udf,
     udf_schema,
 )
+from whylogs.core.segmentation_partition import segment_on_column
 
 
 def test_udf_row() -> None:
@@ -192,3 +193,11 @@ def test_udf_metric_resolving() -> None:
     assert "add5" in results.get_columns()
     foo_summary = results.get_column("foo").to_summary_dict()
     assert "udf/bar:counts/n" in foo_summary
+
+
+def test_udf_segmentation() -> None:
+    column_segments = segment_on_column("product")
+    segmented_schema=udf_schema(segments=column_segments)
+    data = pd.DataFrame({"col1": [42, 12, 7], "col2": [2, 3, 4], "col3": [2, 3, 4]})
+    results = why.log(pandas=data, schema=segmented_schema)
+    assert len(results.segments()) == 3
