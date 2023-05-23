@@ -434,6 +434,7 @@
 <span class="kn">import</span> <span class="nn">whylabs_client</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">urllib3</span> <span class="kn">import</span> <span class="n">PoolManager</span><span class="p">,</span> <span class="n">ProxyManager</span>
 <span class="kn">from</span> <span class="nn">whylabs_client</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">Configuration</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.api.dataset_profile_api</span> <span class="kn">import</span> <span class="n">DatasetProfileApi</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.feature_weights_api</span> <span class="kn">import</span> <span class="n">FeatureWeightsApi</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.log_api</span> <span class="kn">import</span> <span class="n">AsyncLogResponse</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.log_api</span> <span class="kn">import</span> <span class="p">(</span>
@@ -444,10 +445,16 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.models_api</span> <span class="kn">import</span> <span class="n">ModelsApi</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.model.column_schema</span> <span class="kn">import</span> <span class="n">ColumnSchema</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.create_reference_profile_request</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CreateReferenceProfileRequest</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.segment</span> <span class="kn">import</span> <span class="n">Segment</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.segment_tag</span> <span class="kn">import</span> <span class="n">SegmentTag</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.rest</span> <span class="kn">import</span> <span class="n">ForbiddenException</span>  <span class="c1"># type: ignore</span>
 
 <span class="kn">from</span> <span class="nn">whylogs</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">_version</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger</span> <span class="kn">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">SegmentedResultSet</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer</span> <span class="kn">import</span> <span class="n">Writer</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer.writer</span> <span class="kn">import</span> <span class="n">Writable</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfileView</span>
@@ -459,6 +466,7 @@
 <span class="kn">from</span> <span class="nn">whylogs.experimental.performance_estimation.estimation_results</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">EstimationResult</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.migration.converters</span> <span class="kn">import</span> <span class="n">_generate_segment_tags_metadata</span>
 <span class="kn">from</span> <span class="nn">whylogs.migration.uncompound</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">FeatureFlags</span><span class="p">,</span>
     <span class="n">_uncompound_dataset_profile</span><span class="p">,</span>
@@ -899,12 +907,70 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_id&quot;</span><span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_get_feature_weights</span><span class="p">()</span>
-        <span class="n">feature_weights_set</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;segmentWeights&quot;</span><span class="p">)</span>
+        <span class="n">feature_weights_set</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;segment_weights&quot;</span><span class="p">)</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">feature_weights_set</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">feature_weights_set</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">feature_weights</span> <span class="o">=</span> <span class="n">FeatureWeights</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">feature_weights_set</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;weights&quot;</span><span class="p">],</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">feature_weights</span>
         <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="k">def</span> <span class="nf">_write_segmented_reference_result_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">SegmentedResultSet</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Put segmented reference result set for the specified dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file : SegmentedResultSet</span>
+<span class="sd">            SegmentedResultSet object representing the segmented reference result set for the specified dataset</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[bool, str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">utc_now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+
+        <span class="n">files</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">get_writables</span><span class="p">()</span>
+        <span class="n">partitions</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">partitions</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">partitions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;SegmentedResultSet contains more than one partition. Only the first partition will be uploaded. &quot;</span>
+            <span class="p">)</span>
+        <span class="n">partition</span> <span class="o">=</span> <span class="n">partitions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">whylabs_tags</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">view_tags</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="n">dataset_timestamp</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">dataset_timestamp</span> <span class="ow">or</span> <span class="n">utc_now</span>
+            <span class="k">if</span> <span class="n">view</span><span class="o">.</span><span class="n">partition</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="n">partition</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">segment_tags</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_generate_segment_tags_metadata</span><span class="p">(</span><span class="n">view</span><span class="o">.</span><span class="n">segment</span><span class="p">,</span> <span class="n">view</span><span class="o">.</span><span class="n">partition</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">segment_tag</span> <span class="ow">in</span> <span class="n">segment_tags</span><span class="p">:</span>
+                <span class="n">tag_key</span> <span class="o">=</span> <span class="n">segment_tag</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;whylogs.tag.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">tag_value</span> <span class="o">=</span> <span class="n">segment_tag</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">view_tags</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="n">tag_key</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">tag_value</span><span class="p">})</span>
+            <span class="n">whylabs_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">view_tags</span><span class="p">)</span>
+        <span class="n">stamp</span> <span class="o">=</span> <span class="n">dataset_timestamp</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
+        <span class="n">dataset_timestamp_epoch</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stamp</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="n">profile_id</span><span class="p">,</span> <span class="n">upload_urls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_upload_urls_segmented_reference</span><span class="p">(</span><span class="n">whylabs_tags</span><span class="p">,</span> <span class="n">dataset_timestamp_epoch</span><span class="p">)</span>
+        <span class="n">upload_statuses</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">view</span><span class="p">,</span> <span class="n">url</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">upload_urls</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_file</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;use_v0&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;use_v0&quot;</span><span class="p">):</span>
+                    <span class="n">view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">tmp_file</span><span class="p">,</span> <span class="n">use_v0</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">tmp_file</span><span class="p">)</span>
+                <span class="n">tmp_file</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+                <span class="n">tmp_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+                <span class="n">upload_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_upload</span><span class="p">(</span>
+                    <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp_epoch</span><span class="p">,</span>
+                    <span class="n">upload_url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+                    <span class="n">profile_id</span><span class="o">=</span><span class="n">profile_id</span><span class="p">,</span>
+                    <span class="n">profile_file</span><span class="o">=</span><span class="n">tmp_file</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">upload_statuses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">upload_res</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">upload_statuses</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">upload_statuses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Failed to upload all segments&quot;</span>
 
 <div class="viewcode-block" id="WhyLabsWriter.write"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WhyLabsWriter.write">[docs]</a>    <span class="nd">@deprecated_alias</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="s2">&quot;file&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Writable</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
@@ -912,7 +978,8 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_feature_weights</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">EstimationResult</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_estimation_result</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">SegmentedResultSet</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_segmented_reference_result_set</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">view</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">view</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">DatasetProfile</span><span class="p">)</span> <span class="k">else</span> <span class="n">file</span>
         <span class="n">has_segments</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">)</span>
 
@@ -1042,23 +1109,33 @@
         <span class="k">return</span> <span class="n">is_successful</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">reason</span>
 
     <span class="k">def</span> <span class="nf">_do_upload</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">profile_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">upload_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">profile_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">profile_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">profile_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">assert</span> <span class="n">profile_path</span> <span class="ow">or</span> <span class="n">profile_file</span><span class="p">,</span> <span class="s2">&quot;Either a file or file path must be specified when uploading profiles&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_org_and_dataset</span><span class="p">()</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generating the upload URL&quot;</span><span class="p">)</span>
-        <span class="n">upload_url</span><span class="p">,</span> <span class="n">profile_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_upload_url</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">)</span>
+        <span class="c1"># logger.debug(&quot;Generating the upload URL&quot;)</span>
+        <span class="k">if</span> <span class="n">upload_url</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">profile_id</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If upload_url is specified, profile_id must also be specified&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">profile_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">upload_url</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If profile_id is specified, upload_url must also be specified&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">upload_url</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">profile_id</span><span class="p">:</span>
+            <span class="n">upload_url</span><span class="p">,</span> <span class="n">profile_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_upload_url</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">profile_file</span><span class="p">:</span>
-                <span class="n">status</span><span class="p">,</span> <span class="n">reason</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_put_file</span><span class="p">(</span><span class="n">profile_file</span><span class="p">,</span> <span class="n">upload_url</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">)</span>
+                <span class="n">status</span><span class="p">,</span> <span class="n">reason</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_put_file</span><span class="p">(</span><span class="n">profile_file</span><span class="p">,</span> <span class="n">upload_url</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;copied file </span><span class="si">{</span><span class="n">upload_url</span><span class="si">}</span><span class="s2"> status </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">profile_id</span>
+                <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">profile_id</span>  <span class="c1"># type: ignore</span>
             <span class="k">elif</span> <span class="n">profile_path</span><span class="p">:</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">profile_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="n">status</span><span class="p">,</span> <span class="n">reason</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_put_file</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">upload_url</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">)</span>
+                    <span class="n">status</span><span class="p">,</span> <span class="n">reason</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_put_file</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">upload_url</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;copied file </span><span class="si">{</span><span class="n">upload_url</span><span class="si">}</span><span class="s2"> status </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">profile_id</span>
+                    <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">profile_id</span>  <span class="c1"># type: ignore</span>
         <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Failed to upload </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">dataset_timestamp</span><span class="si">}</span><span class="s2"> to &quot;</span>
@@ -1076,6 +1153,9 @@
     <span class="k">def</span> <span class="nf">_get_or_create_api_log_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LogApi</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">LogApi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_get_or_create_api_dataset_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileApi</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DatasetProfileApi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">)</span>
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_build_log_async_request</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LogAsyncRequest</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">LogAsyncRequest</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">,</span> <span class="n">segment_tags</span><span class="o">=</span><span class="p">[])</span>
@@ -1083,6 +1163,19 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_build_log_reference_request</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">alias</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LogReferenceRequest</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">LogReferenceRequest</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="n">alias</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_build_log_segmented_reference_request</span><span class="p">(</span>
+        <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LogReferenceRequest</span><span class="p">:</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">tags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">segment_tags</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
+                <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="n">SegmentTag</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">tag</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">],</span> <span class="n">value</span><span class="o">=</span><span class="n">tag</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">segment_tags</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">segments</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">CreateReferenceProfileRequest</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="n">alias</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">CreateReferenceProfileRequest</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="n">alias</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">,</span> <span class="n">segments</span><span class="o">=</span><span class="n">segments</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_column_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">feature_weight_api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_feature_weights_client</span><span class="p">()</span>
@@ -1185,6 +1278,33 @@
         <span class="n">log_api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_api_log_client</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">log_api</span><span class="o">.</span><span class="n">log_async</span><span class="p">(</span><span class="n">org_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span> <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">log_async_request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">except</span> <span class="n">ForbiddenException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to upload </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">dataset_timestamp</span><span class="si">}</span><span class="s2"> to &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; with API token ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span>
+
+    <span class="k">def</span> <span class="nf">_get_upload_urls_segmented_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">whylabs_tags</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_log_segmented_reference_request</span><span class="p">(</span>
+            <span class="n">dataset_timestamp</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">whylabs_tags</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_name</span>
+        <span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post_log_segmented_reference</span><span class="p">(</span><span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;upload_urls&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_post_log_segmented_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">LogAsyncRequest</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LogReferenceResponse</span><span class="p">:</span>
+        <span class="n">dataset_api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_api_dataset_client</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">async_result</span> <span class="o">=</span> <span class="n">dataset_api</span><span class="o">.</span><span class="n">create_reference_profile</span><span class="p">(</span>
+                <span class="n">org_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span>
+                <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span>
+                <span class="n">create_reference_profile_request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
+                <span class="n">async_req</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">async_result</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">result</span>
         <span class="k">except</span> <span class="n">ForbiddenException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
