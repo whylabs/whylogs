@@ -484,7 +484,7 @@ class WhyLabsWriter(Writer):
             self._dataset_id = kwargs.get("dataset_id")
 
         result = self._do_get_feature_weights()
-        feature_weights_set = result.get("segmentWeights")
+        feature_weights_set = result.get("segment_weights")
         metadata = result.get("metadata")
         if feature_weights_set and isinstance(feature_weights_set, list):
             feature_weights = FeatureWeights(weights=feature_weights_set[0]["weights"], metadata=metadata)

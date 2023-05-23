@@ -134,7 +134,7 @@ class ResultSetWriter:
             logger.warning("Attempt to write a result set with no writables returned, nothing written!")
             return statuses
         if hasattr(self._writer, "_reference_profile_name"):
-            if self._writer._reference_profile_name is not None:
+            if self._writer._reference_profile_name is not None and isinstance(self._result_set, SegmentedResultSet):
                 # a segmented reference profile name needs to have access to the complete result set
                 response = self._writer.write(file=self._result_set, **kwargs)
                 statuses.append(response)
