@@ -286,6 +286,7 @@ def test_condition_count_in_column_profile() -> None:
     }
     config = ConditionCountConfig(conditions=conditions)
     metric = ConditionCountMetric.zero(config)
+
     row = {"col1": ["abc", "123"]}
     frame = pd.DataFrame(data=row)
     prof = DatasetProfile()
