@@ -68,7 +68,8 @@ class ColumnProfileView(object):
         res: Dict[str, MetricComponentMessage] = {}
         for m_name, m in self._metrics.items():
             for mc_name, mc in m.to_protobuf().metric_components.items():
-                res[f"{m.namespace}/{mc_name}"] = mc
+                if not m.exclude_from_profile:
+                    res[f"{m.namespace}/{mc_name}"] = mc
         return ColumnMessage(metric_components=res)
 
     def get_metric_component_paths(self) -> List[str]:

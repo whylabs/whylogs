@@ -23,6 +23,7 @@ from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.relations import Not, Predicate, Require
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
+from whylogs.core.view.column_profile_view import ColumnProfileView
 
 X = Predicate()
 
@@ -253,6 +254,31 @@ def test_condition_count_in_profile() -> None:
             } <= col1_prof.to_summary_dict().keys()
 
 
+@pytest.mark.parametrize("hide", [(True), (False)])
+def test_hide_condition_count(hide: bool) -> None:
+    class TestResolver(Resolver):
+        def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+            return {"condition_count": ConditionCountMetric.zero(column_schema.cfg)}
+
+    conditions = {
+        "alpha": Condition(X.matches("[a-zA-Z]+")),
+        "digit": Condition(X.matches("[0-9]+")),
+    }
+    config = ConditionCountConfig(conditions=conditions, exclude_from_profile=hide)
+    resolver = TestResolver()
+    schema = DatasetSchema(default_configs=config, resolvers=resolver)
+
+    row = {"col1": ["abc", "123"]}
+    prof = DatasetProfile(schema)
+    prof.track(row=row)
+    assert "condition_count" in prof._columns["col1"]._metrics
+    view = prof.view().get_column("col1")
+    assert "condition_count" in view.get_metric_names()
+
+    view = ColumnProfileView.from_protobuf(view.to_protobuf())
+    assert hide != ("condition_count" in view.get_metric_names())
+
+
 def test_condition_count_in_column_profile() -> None:
     conditions = {
         "alpha": Condition(X.matches("[a-zA-Z]+")),
@@ -260,7 +286,6 @@ def test_condition_count_in_column_profile() -> None:
     }
     config = ConditionCountConfig(conditions=conditions)
     metric = ConditionCountMetric.zero(config)
-
     row = {"col1": ["abc", "123"]}
     frame = pd.DataFrame(data=row)
     prof = DatasetProfile()
