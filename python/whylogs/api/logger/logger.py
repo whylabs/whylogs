@@ -9,6 +9,7 @@ from whylogs.api.store import ProfileStore
 from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.errors import LoggingError
+from whylogs.core.input_resolver import _pandas_or_dict
 from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
@@ -86,6 +87,8 @@ class Logger(ABC):
 
         active_schema = schema or self._schema
         if active_schema:
+            pandas, row = _pandas_or_dict(obj, pandas, row)
+            obj = None
             pandas, row = active_schema._run_udfs(pandas, row)
 
         # If segments are defined use segment_processing to return a SegmentedResultSet
