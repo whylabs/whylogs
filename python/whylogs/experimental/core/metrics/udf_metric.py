@@ -305,7 +305,7 @@ def generate_udf_resolvers() -> List[ResolverSpec]:
     return resolvers
 
 
-@deprecated(message="Please use generate_udf_resovlers()")
+@deprecated(message="Please use generate_udf_resolvers()")
 def generate_udf_schema() -> List[ResolverSpec]:
     return generate_udf_resolvers()
 
