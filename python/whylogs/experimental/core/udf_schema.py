@@ -190,7 +190,7 @@ def generate_udf_dataset_schema(
 ) -> UdfSchema:
     """
     Returns a UdfSchema that implements any registered UDFs, along with any
-    other_udf_specs or resovlers passed in.
+    other_udf_specs or resolvers passed in.
     """
 
     resolver_specs = resolvers + _resolver_specs if resolvers is not None else STANDARD_RESOLVER + _resolver_specs
