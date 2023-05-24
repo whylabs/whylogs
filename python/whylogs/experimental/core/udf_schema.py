@@ -91,7 +91,7 @@ class UdfSchema(DeclarativeSchema):
     def _run_udfs_on_row(self, row: Mapping[str, Any], new_columns: Dict[str, Any]) -> None:
         for spec in self.multicolumn_udfs:
             if set(spec.column_names).issubset(set(row.keys())):
-                _apply_udfs_on_dataframe(row, spec.udfs, new_columns)
+                _apply_udfs_on_row(row, spec.udfs, new_columns)
 
     def _run_udfs_on_dataframe(self, pandas: pd.DataFrame, new_df: pd.DataFrame) -> None:
         for spec in self.multicolumn_udfs:
