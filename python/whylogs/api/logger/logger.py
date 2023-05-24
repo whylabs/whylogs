@@ -98,7 +98,7 @@ class Logger(ABC):
         profiles = self._get_matching_profiles(obj, pandas=pandas, row=row, schema=active_schema)
 
         for prof in profiles:
-            prof.track(obj, pandas=pandas, row=row)
+            prof.track(obj, pandas=pandas, row=row, execute_udfs=False)
 
         return ProfileResultSet(profiles[0])
 
