@@ -29,6 +29,7 @@ skip_notebooks = [
     "Pyspark_and_Constraints.ipynb",
     "LocalStore_with_Constraints.ipynb",  # skipped because it has over 4 minutes of thread.sleep in it
     "KS_Profiling.ipynb",  # skipped because this takes a few minutes to run
+    "Monitoring_Embeddings.ipynb",  # skipped because needs user input
 ]
 
 

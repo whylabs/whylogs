@@ -216,7 +216,7 @@ class DeclarativeSchema(DatasetSchema):
     For example, DeclarativeSchema(resolvers=STANDARD_RESOLVER) implements
     the same schema as DatasetSchema(), i.e., using the default MetricConfig,
     StandardTypeMapper, StandardResolver, etc.  STANDARD_RESOLVER is defined
-    in whylogs/python/tests/core/test_declarative_schema.py
+    in whylogs/python/whylogs/core/resolvers.py
     """
 
     def add_resolver(self, resolver_spec: ResolverSpec):

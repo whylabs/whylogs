@@ -3,6 +3,7 @@ from .dataset_profile import DatasetProfile
 from .datatypes import TypeMapper
 from .metric_getters import MetricGetter, ProfileGetter
 from .metrics import MetricConfig
+from .metrics.metrics import CardinalityThresholds
 from .model_performance_metrics import ModelPerformanceMetrics
 from .relations import Not, Predicate, Require
 from .resolvers import Resolver
@@ -26,6 +27,7 @@ __ALL__ = [
     ColumnSchema,
     # metric config
     MetricConfig,
+    CardinalityThresholds,
     # model perf
     ModelPerformanceMetrics,
     # Typing

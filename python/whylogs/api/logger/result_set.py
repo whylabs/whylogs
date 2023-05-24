@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from logging import getLogger
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from whylogs.api.reader import Reader, Readers
 from whylogs.api.writer import Writer, Writers
@@ -129,16 +129,23 @@ class ResultSetWriter:
     def write(self, **kwargs: Any) -> List:
         # multi-profile writer
         files = self._result_set.get_writables()
-        statuses = list()
+        statuses: List[Tuple[bool, str]] = list()
         if not files:
             logger.warning("Attempt to write a result set with no writables returned, nothing written!")
-        else:
-            logger.debug(f"About to write {len(files)} files:")
-            # TODO: special handling of large number of files, handle throttling
-            for view in files:
-                response = self._writer.write(file=view, **kwargs)
+            return statuses
+        if hasattr(self._writer, "_reference_profile_name"):
+            if self._writer._reference_profile_name is not None and isinstance(self._result_set, SegmentedResultSet):
+                # a segmented reference profile name needs to have access to the complete result set
+                response = self._writer.write(file=self._result_set, **kwargs)
                 statuses.append(response)
-            logger.debug(f"Completed writing {len(files)} files!")
+                return statuses
+        logger.debug(f"About to write {len(files)} files:")
+        # TODO: special handling of large number of files, handle throttling
+        for view in files:
+            response = self._writer.write(file=view, **kwargs)
+            statuses.append(response)
+        logger.debug(f"Completed writing {len(files)} files!")
+
         return statuses
 
 
@@ -253,6 +260,14 @@ class ViewResultSet(ResultSet):
         if not isinstance(other, (ViewResultSet, ProfileResultSet)):
             logger.warning(f"Merging potentially incompatible ViewResultSet and {type(other)}")
         return ViewResultSet(lhs_view.merge(other.view()))
+
+    def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
+        ensure_timezone(dataset_timestamp)
+        view = self.view()
+        if view is None:
+            raise ValueError("Cannot set timestamp on a view result set without a view!")
+        else:
+            view.set_dataset_timestamp(dataset_timestamp)
 
 
 class ProfileResultSet(ResultSet):

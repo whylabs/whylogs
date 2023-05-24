@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "whylogs"
-version = "1.1.34"
+version = "1.1.42"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
 homepage = "https://docs.whylabs.ai"
-readme = "README.md"
+readme = "DESCRIPTION.md"
 include = ["whylogs/core/proto/v0/*.py*", "whylogs/core/proto/*.py*"]
 
 
@@ -16,6 +16,7 @@ whylogs-sketching = ">=3.4.1.dev3"
 protobuf = ">=3.19.4"
 importlib-metadata = { version = "<4.3", python = "<3.8" }
 typing-extensions = {version = ">=3.10", markers = "python_version < \"4\""}
+whylabs-client = {version = ">=0.5.1, <1"}
 
 # viz module. Everything after this should be optional
 pybars3 = { version = "^0.9", optional = true }
@@ -40,14 +41,13 @@ myst-parser = { extras = ["sphinx"], version = "^0.17.2", optional = true }
 furo = { version = "^2022.3.4", optional = true }
 sphinx-autobuild = { version = "^2021.3.14", optional = true }
 sphinxext-opengraph = { version = "^0.6.3", optional = true }
-sphinx-inline-tabs = { version = "*", optional = true }
+sphinx-inline-tabs = { version = "*", python = ">=3.8,<4", optional = true }
 ipython_genutils = {version = "^0.2.0", optional = true}
 nbsphinx = {version = "^0.8.9", optional = true}
 nbconvert = {version = "^7.0.0", optional = true}
 
 # Integrations dependencies
 boto3 = {version = "^1.22.13", optional = true }
-whylabs-client = {version = ">=0.4.2, <1", optional = true}
 mlflow-skinny = {version = "^1.26.1", optional = true}
 google-cloud-storage = {version = "^2.5.0", optional = true}
 
@@ -104,8 +104,6 @@ docs = [
     "myst-parser",
     "sphinx-inline-tabs",
     "sphinxext-opengraph",
-    "sphinx-autodoc",
-    "sphinx-autodoc-typehints",
     "nbsphinx",
     "nbconvert",
     "ipython_genutils",
@@ -116,7 +114,6 @@ viz = [
     "numpy",
     "scipy",
     "Pillow",
-    "whylabs-client",
     "requests",
 ]
 spark = [
@@ -133,7 +130,7 @@ s3 = [
   "boto3"
 ]
 whylabs = [
-  "whylabs-client", "requests"
+  "requests"
 ]
 mlflow = [
   "mlflow-skinny"
@@ -145,7 +142,8 @@ fugue = [
   "fugue",
 ]
 embeddings = [
-  "scikit-learn"
+  "numpy",
+  "scikit-learn",
 ]
 all = [
   "scikit-learn",
@@ -161,7 +159,6 @@ all = [
   "pybars3",
   "numpy",
   "scipy",
-  "whylabs-client",
   "requests",
 ]
 
