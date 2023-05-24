@@ -5,6 +5,7 @@ from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import Fractional, Integral, String
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.resolvers import STANDARD_RESOLVER, MetricSpec, ResolverSpec
+from whylogs.core.segmentation_partition import segment_on_column
 from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
 from whylogs.experimental.core.udf_schema import (
     UdfSchema,
@@ -12,7 +13,6 @@ from whylogs.experimental.core.udf_schema import (
     register_dataset_udf,
     udf_schema,
 )
-from whylogs.core.segmentation_partition import segment_on_column
 
 
 def test_udf_row() -> None:
@@ -200,7 +200,7 @@ def test_udf_metric_resolving() -> None:
 
 def test_udf_segmentation_pandas() -> None:
     column_segments = segment_on_column("product")
-    segmented_schema=udf_schema(segments=column_segments)
+    segmented_schema = udf_schema(segments=column_segments)
     data = pd.DataFrame({"col1": [42, 12, 7], "col2": [2, 3, 4], "col3": [2, 3, 4]})
     results = why.log(pandas=data, schema=segmented_schema)
     assert len(results.segments()) == 3
@@ -208,7 +208,7 @@ def test_udf_segmentation_pandas() -> None:
 
 def test_udf_segmentation_row() -> None:
     column_segments = segment_on_column("product")
-    segmented_schema=udf_schema(segments=column_segments)
+    segmented_schema = udf_schema(segments=column_segments)
     data = {"col1": 42, "col2": 2, "col3": 2}
     results = why.log(row=data, schema=segmented_schema)
     assert len(results.segments()) == 1
@@ -216,14 +216,14 @@ def test_udf_segmentation_row() -> None:
 
 def test_udf_segmentation_obj() -> None:
     column_segments = segment_on_column("product")
-    segmented_schema=udf_schema(segments=column_segments)
+    segmented_schema = udf_schema(segments=column_segments)
     data = {"col1": 42, "col2": 2, "col3": 2}
     results = why.log(data, schema=segmented_schema)
     assert len(results.segments()) == 1
 
 
 def test_udf_track() -> None:
-    schema=udf_schema()
+    schema = udf_schema()
     prof = DatasetProfile(schema)
     data = pd.DataFrame({"col1": [42, 12, 7], "col2": [2, 3, 4], "col3": [2, 3, 4]})
     prof.track(data)
