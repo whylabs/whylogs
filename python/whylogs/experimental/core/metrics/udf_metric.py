@@ -15,6 +15,7 @@ from whylogs.core.metrics.multimetric import MultiMetric, SubmetricSchema
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import (
     STANDARD_RESOLVER,
+    UDF_BASE_RESOLVER,
     MetricSpec,
     ResolverSpec,
     _allowed_metric,
@@ -345,7 +346,7 @@ def udf_metric_schema(
     """
 
     resolvers = generate_udf_resolvers()
-    non_udf_resolvers = non_udf_resolvers if non_udf_resolvers is not None else STANDARD_RESOLVER
+    non_udf_resolvers = non_udf_resolvers if non_udf_resolvers is not None else UDF_BASE_RESOLVER
 
     return DeclarativeSchema(
         non_udf_resolvers + resolvers,
