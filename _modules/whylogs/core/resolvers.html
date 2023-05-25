@@ -423,6 +423,7 @@
           <h1>Source code for whylogs.core.resolvers</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span>
 
@@ -570,7 +571,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolver_spec</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolvers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">],</span> <span class="n">default_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span> <span class="o">=</span> <span class="n">resolvers</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">resolvers</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_config</span> <span class="o">=</span> <span class="n">default_config</span>
 
 <div class="viewcode-block" id="DeclarativeResolver.resolve"><a class="viewcode-back" href="../../../api/whylogs/core/resolvers/index.html#whylogs.core.DeclarativeResolver.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
@@ -614,6 +615,36 @@
             <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
             <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
             <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">AnyType</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">UDF_BASE_RESOLVER</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span>
+        <span class="n">column_type</span><span class="o">=</span><span class="n">Integral</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">ints</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span>
+        <span class="n">column_type</span><span class="o">=</span><span class="n">Fractional</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">ResolverSpec</span><span class="p">(</span>
+        <span class="n">column_type</span><span class="o">=</span><span class="n">String</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">unicode_range</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
         <span class="p">],</span>
     <span class="p">),</span>
     <span class="n">ResolverSpec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">AnyType</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span><span class="p">),</span>

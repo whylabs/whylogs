@@ -33,6 +33,7 @@ Attributes
    whylogs.core.resolvers.ColumnSchema
    whylogs.core.resolvers.COLUMN_METRICS
    whylogs.core.resolvers.STANDARD_RESOLVER
+   whylogs.core.resolvers.UDF_BASE_RESOLVER
    whylogs.core.resolvers.LIMITED_TRACKING_RESOLVER
    whylogs.core.resolvers.HISTOGRAM_COUNTING_TRACKING_RESOLVER
 
@@ -151,6 +152,10 @@ Attributes
 
 
 .. py:data:: STANDARD_RESOLVER
+
+   
+
+.. py:data:: UDF_BASE_RESOLVER
 
    
 

@@ -452,7 +452,7 @@
     <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="n">DatasetProfile</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
 
-    <span class="n">profile</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">segmented_data</span><span class="p">)</span>
+    <span class="n">profile</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">segmented_data</span><span class="p">,</span> <span class="n">execute_udfs</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">segments</span><span class="p">[</span><span class="n">segment_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">profile</span>
 
 

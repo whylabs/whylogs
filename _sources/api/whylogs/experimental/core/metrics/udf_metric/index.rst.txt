@@ -25,6 +25,7 @@ Functions
 
    whylogs.experimental.core.metrics.udf_metric.default_schema
    whylogs.experimental.core.metrics.udf_metric.register_metric_udf
+   whylogs.experimental.core.metrics.udf_metric.generate_udf_resolvers
    whylogs.experimental.core.metrics.udf_metric.generate_udf_schema
    whylogs.experimental.core.metrics.udf_metric.udf_metric_schema
 
@@ -252,10 +253,10 @@ Attributes
    whylogs DataTypes. This defaults to the StandardTypeMapper.
 
 
-.. py:function:: generate_udf_schema() -> List[whylogs.core.resolvers.ResolverSpec]
+.. py:function:: generate_udf_resolvers() -> List[whylogs.core.resolvers.ResolverSpec]
 
    Generates a list of ResolverSpecs that implement the UdfMetrics specified
-   by the @register_metric_ud decorators. The result only includes the UdfMetric,
+   by the @register_metric_udf decorators. The result only includes the UdfMetric,
    so you may want to append it to a list of ResolverSpecs defining the other
    metrics you wish to track.
 
@@ -277,6 +278,9 @@ Attributes
    for each string column that will include a submetric named "upper" tracking
    the uppercased strings in the input columns. Since these are appended to the
    STANDARD_RESOLVER, the default metrics are also tracked for every column.
+
+
+.. py:function:: generate_udf_schema() -> List[whylogs.core.resolvers.ResolverSpec]
 
 
 .. py:function:: udf_metric_schema(non_udf_resolvers: Optional[List[whylogs.core.resolvers.ResolverSpec]] = None, types: Optional[Dict[str, Any]] = None, default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Optional[Dict[str, List[whylogs.core.validators.validator.Validator]]] = None) -> whylogs.core.schema.DeclarativeSchema

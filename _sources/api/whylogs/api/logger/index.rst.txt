@@ -405,7 +405,7 @@ Attributes
    .. py:method:: add_model_performance_metrics(metric: whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics) -> None
 
 
-   .. py:method:: track(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> None
+   .. py:method:: track(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None, execute_udfs: bool = True) -> None
 
 
    .. py:method:: view() -> whylogs.core.view.DatasetProfileView

@@ -438,12 +438,14 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">PreprocessedColumn</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">STANDARD_RESOLVER</span><span class="p">,</span>
+    <span class="n">UDF_BASE_RESOLVER</span><span class="p">,</span>
     <span class="n">MetricSpec</span><span class="p">,</span>
     <span class="n">ResolverSpec</span><span class="p">,</span>
     <span class="n">_allowed_metric</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">SegmentationPartition</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.utils</span> <span class="kn">import</span> <span class="n">deprecated</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.validators.validator</span> <span class="kn">import</span> <span class="n">Validator</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -673,11 +675,10 @@
     <span class="k">return</span> <span class="n">decorator_register</span></div>
 
 
-<span class="c1"># TODO: s/generate_udf_schema/generate_udf_resolvers/</span>
-<div class="viewcode-block" id="generate_udf_schema"><a class="viewcode-back" href="../../../../../api/whylogs/experimental/core/metrics/udf_metric/index.html#whylogs.experimental.core.metrics.udf_metric.generate_udf_schema">[docs]</a><span class="k">def</span> <span class="nf">generate_udf_schema</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">]:</span>
+<div class="viewcode-block" id="generate_udf_resolvers"><a class="viewcode-back" href="../../../../../api/whylogs/experimental/core/metrics/udf_metric/index.html#whylogs.experimental.core.metrics.udf_metric.generate_udf_resolvers">[docs]</a><span class="k">def</span> <span class="nf">generate_udf_resolvers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generates a list of ResolverSpecs that implement the UdfMetrics specified</span>
-<span class="sd">    by the @register_metric_ud decorators. The result only includes the UdfMetric,</span>
+<span class="sd">    by the @register_metric_udf decorators. The result only includes the UdfMetric,</span>
 <span class="sd">    so you may want to append it to a list of ResolverSpecs defining the other</span>
 <span class="sd">    metrics you wish to track.</span>
 
@@ -728,6 +729,11 @@
     <span class="k">return</span> <span class="n">resolvers</span></div>
 
 
+<div class="viewcode-block" id="generate_udf_schema"><a class="viewcode-back" href="../../../../../api/whylogs/experimental/core/metrics/udf_metric/index.html#whylogs.experimental.core.metrics.udf_metric.generate_udf_schema">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Please use generate_udf_resolvers()&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">generate_udf_schema</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">generate_udf_resolvers</span><span class="p">()</span></div>
+
+
 <div class="viewcode-block" id="udf_metric_schema"><a class="viewcode-back" href="../../../../../api/whylogs/experimental/core/metrics/udf_metric/index.html#whylogs.experimental.core.metrics.udf_metric.udf_metric_schema">[docs]</a><span class="k">def</span> <span class="nf">udf_metric_schema</span><span class="p">(</span>
     <span class="n">non_udf_resolvers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">types</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -762,8 +768,8 @@
 <span class="sd">    STANDARD_RESOLVER, the default metrics are also tracked for every column.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">resolvers</span> <span class="o">=</span> <span class="n">generate_udf_schema</span><span class="p">()</span>
-    <span class="n">non_udf_resolvers</span> <span class="o">=</span> <span class="n">non_udf_resolvers</span> <span class="ow">or</span> <span class="n">STANDARD_RESOLVER</span>
+    <span class="n">resolvers</span> <span class="o">=</span> <span class="n">generate_udf_resolvers</span><span class="p">()</span>
+    <span class="n">non_udf_resolvers</span> <span class="o">=</span> <span class="n">non_udf_resolvers</span> <span class="k">if</span> <span class="n">non_udf_resolvers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">UDF_BASE_RESOLVER</span>
 
     <span class="k">return</span> <span class="n">DeclarativeSchema</span><span class="p">(</span>
         <span class="n">non_udf_resolvers</span> <span class="o">+</span> <span class="n">resolvers</span><span class="p">,</span>

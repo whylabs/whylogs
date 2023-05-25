@@ -471,10 +471,13 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.register_metric_udf" title="whylogs.experimental.core.metrics.udf_metric.register_metric_udf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register_metric_udf</span></code></a>(→ Callable[[Any], Any])</p></td>
 <td><p>Decorator to easily configure UdfMetrics for your data set. Decorate your UDF</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.generate_udf_schema" title="whylogs.experimental.core.metrics.udf_metric.generate_udf_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_udf_schema</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.generate_udf_resolvers" title="whylogs.experimental.core.metrics.udf_metric.generate_udf_resolvers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_udf_resolvers</span></code></a>(...)</p></td>
 <td><p>Generates a list of ResolverSpecs that implement the UdfMetrics specified</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.udf_metric_schema" title="whylogs.experimental.core.metrics.udf_metric.udf_metric_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">udf_metric_schema</span></code></a>(→ whylogs.core.schema.DeclarativeSchema)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.generate_udf_schema" title="whylogs.experimental.core.metrics.udf_metric.generate_udf_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_udf_schema</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.udf_metric_schema" title="whylogs.experimental.core.metrics.udf_metric.udf_metric_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">udf_metric_schema</span></code></a>(→ whylogs.core.schema.DeclarativeSchema)</p></td>
 <td><p>Generates a DeclarativeSchema that implement the UdfMetrics specified</p></td>
 </tr>
 </tbody>
@@ -851,10 +854,10 @@ whylogs DataTypes. This defaults to the StandardTypeMapper.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.generate_udf_schema">
-<span class="sig-prename descclassname"><span class="pre">whylogs.experimental.core.metrics.udf_metric.</span></span><span class="sig-name descname"><span class="pre">generate_udf_schema</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../../core/resolvers/index.html#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><span class="pre">whylogs.core.resolvers.ResolverSpec</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/experimental/core/metrics/udf_metric.html#generate_udf_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.generate_udf_schema" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.generate_udf_resolvers">
+<span class="sig-prename descclassname"><span class="pre">whylogs.experimental.core.metrics.udf_metric.</span></span><span class="sig-name descname"><span class="pre">generate_udf_resolvers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../../core/resolvers/index.html#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><span class="pre">whylogs.core.resolvers.ResolverSpec</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/experimental/core/metrics/udf_metric.html#generate_udf_resolvers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.generate_udf_resolvers" title="Permalink to this definition">#</a></dt>
 <dd><p>Generates a list of ResolverSpecs that implement the UdfMetrics specified
-by the &#64;register_metric_ud decorators. The result only includes the UdfMetric,
+by the &#64;register_metric_udf decorators. The result only includes the UdfMetric,
 so you may want to append it to a list of ResolverSpecs defining the other
 metrics you wish to track.</p>
 <p>For example:</p>
@@ -876,6 +879,16 @@ for each string column that will include a submetric named “upper” tracking
 the uppercased strings in the input columns. Since these are appended to the
 STANDARD_RESOLVER, the default metrics are also tracked for every column.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="../../../../core/resolvers/index.html#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec">whylogs.core.resolvers.ResolverSpec</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.experimental.core.metrics.udf_metric.generate_udf_schema">
+<span class="sig-prename descclassname"><span class="pre">whylogs.experimental.core.metrics.udf_metric.</span></span><span class="sig-name descname"><span class="pre">generate_udf_schema</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../../core/resolvers/index.html#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><span class="pre">whylogs.core.resolvers.ResolverSpec</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/experimental/core/metrics/udf_metric.html#generate_udf_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.core.metrics.udf_metric.generate_udf_schema" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[<a class="reference internal" href="../../../../core/resolvers/index.html#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec">whylogs.core.resolvers.ResolverSpec</a>]</p>
 </dd>
@@ -1038,6 +1051,7 @@ STANDARD_RESOLVER, the default metrics are also tracked for every column.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.register_metric_udf">register_metric_udf</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.generate_udf_resolvers">generate_udf_resolvers</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.generate_udf_schema">generate_udf_schema</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.core.metrics.udf_metric.udf_metric_schema">udf_metric_schema</a></li>
 </ul>
