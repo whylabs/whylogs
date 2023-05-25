@@ -126,7 +126,7 @@ class DatasetProfile(Writable):
     ) -> None:
         pandas, row = _pandas_or_dict(obj, pandas, row)
         if execute_udfs:
-            pandas, rows = self._schema._run_udfs(pandas, row)
+            pandas, row = self._schema._run_udfs(pandas, row)
 
         col_id = getattr(self._schema.default_configs, "identity_column", None)
 

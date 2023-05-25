@@ -48,7 +48,7 @@ def _apply_udfs_on_dataframe(pandas: pd.DataFrame, udfs: Dict, new_df: pd.DataFr
         try:
             new_df[new_col] = udf(pandas)
         except Exception:  # noqa
-            # new_df[new_col] = pandas[pandas.keys()[0]].apply(lambda x: None)
+            new_df[new_col] = pd.Series([None])
             logger.exception(f"Evaluating UDF {new_col} failed on columns {pandas.keys()}")
 
 

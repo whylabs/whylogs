@@ -172,14 +172,42 @@ def exothermic(x):
     return x["oops"]
 
 
-def test_udf_throws() -> None:
+def test_udf_throws_pandas() -> None:
+    global n
+    n = 0
     schema = udf_schema()
     df = pd.DataFrame({"oops": [1, 2, 3, 4], "ok": [5, 6, 7, 8]})
     results = why.log(pandas=df, schema=schema).view()
-    assert "exothermic" not in results.get_columns()
-    # oops_summary = results.get_column("exothermic").to_summary_dict()
+    assert "exothermic" in results.get_columns()
+    oops_summary = results.get_column("exothermic").to_summary_dict()
+    assert oops_summary["counts/null"] > 0
     ok_summary = results.get_column("ok").to_summary_dict()
     assert ok_summary["counts/n"] == 4
+
+
+def test_udf_throws_row() -> None:
+    global n
+    n = 0
+    schema = udf_schema()
+    data = {"oops": 1, "ok": 5}
+    profile = why.log(row=data, schema=schema).profile()
+    profile.track(row=data)
+    profile.flush()
+    ok_summary = profile.view().get_column("ok").to_summary_dict()
+    assert ok_summary["counts/n"] == 2
+    assert ok_summary["counts/null"] == 0
+    oops_summary = profile.view().get_column("exothermic").to_summary_dict()
+    assert oops_summary["counts/n"] == 2
+    assert oops_summary["counts/null"] == 2
+    profile.track(row=data)
+    profile.track(row=data)
+    profile.flush()
+    oops_summary = profile.view().get_column("exothermic").to_summary_dict()
+    assert oops_summary["counts/n"] == 4
+    assert oops_summary["counts/null"] == 2
+    ok_summary = profile.view().get_column("ok").to_summary_dict()
+    assert ok_summary["counts/n"] == 4
+    assert ok_summary["counts/null"] == 0
 
 
 @register_metric_udf("foo")
