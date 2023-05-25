@@ -1,7 +1,7 @@
 import logging
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Mapping, Optional, TypeVar
+from typing import Any, Dict, List, Mapping, Optional, Tuple, TypeVar
 
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
@@ -171,6 +171,11 @@ class DatasetSchema:
             dirty = True
 
         return dirty
+
+    def _run_udfs(
+        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None
+    ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
+        return pandas, row
 
     def get_col_names(self) -> tuple:
         return tuple(self._columns.keys())
