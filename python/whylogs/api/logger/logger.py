@@ -9,6 +9,7 @@ from whylogs.api.store import ProfileStore
 from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.errors import LoggingError
+from whylogs.core.input_resolver import _pandas_or_dict
 from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
@@ -85,6 +86,10 @@ class Logger(ABC):
             raise LoggingError("log() was called without passing in any input!")
 
         active_schema = schema or self._schema
+        if active_schema:
+            pandas, row = _pandas_or_dict(obj, pandas, row)
+            obj = None
+            pandas, row = active_schema._run_udfs(pandas, row)
 
         # If segments are defined use segment_processing to return a SegmentedResultSet
         if active_schema and active_schema.segments:
@@ -93,7 +98,7 @@ class Logger(ABC):
         profiles = self._get_matching_profiles(obj, pandas=pandas, row=row, schema=active_schema)
 
         for prof in profiles:
-            prof.track(obj, pandas=pandas, row=row)
+            prof.track(obj, pandas=pandas, row=row, execute_udfs=False)
 
         return ProfileResultSet(profiles[0])
 
