@@ -15,6 +15,7 @@ Functions
 
    whylogs.core.constraints.factories.condition_counts.condition_meets
    whylogs.core.constraints.factories.condition_counts.condition_never_meets
+   whylogs.core.constraints.factories.condition_counts.condition_count_below
 
 
 
@@ -36,5 +37,8 @@ Functions
    :type column_name: str
    :param condition_name: Name of the condition that will be applied to each value of the column
    :type condition_name: str
+
+
+.. py:function:: condition_count_below(column_name: str, condition_name: str, max_count: int) -> whylogs.core.constraints.metric_constraints.MetricConstraint
 
 

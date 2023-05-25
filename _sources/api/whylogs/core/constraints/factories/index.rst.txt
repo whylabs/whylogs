@@ -29,6 +29,7 @@ Functions
 .. autoapisummary::
 
    whylogs.core.constraints.factories.distinct_number_in_range
+   whylogs.core.constraints.factories.condition_count_below
    whylogs.core.constraints.factories.condition_meets
    whylogs.core.constraints.factories.condition_never_meets
    whylogs.core.constraints.factories.count_below_number
@@ -74,6 +75,9 @@ Attributes
    :type lower: int
    :param upper: Upper bound of the value range
    :type upper: int
+
+
+.. py:function:: condition_count_below(column_name: str, condition_name: str, max_count: int) -> whylogs.core.constraints.metric_constraints.MetricConstraint
 
 
 .. py:function:: condition_meets(column_name: str, condition_name: str) -> whylogs.core.constraints.metric_constraints.MetricConstraint

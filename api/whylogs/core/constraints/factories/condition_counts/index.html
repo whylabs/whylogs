@@ -449,6 +449,9 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.condition_counts.condition_never_meets" title="whylogs.core.constraints.factories.condition_counts.condition_never_meets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">condition_never_meets</span></code></a>(...)</p></td>
 <td><p>Checks that no values in column match predicate</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.condition_counts.condition_count_below" title="whylogs.core.constraints.factories.condition_counts.condition_count_below"><code class="xref py py-obj docutils literal notranslate"><span class="pre">condition_count_below</span></code></a>(...)</p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -478,6 +481,23 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of the column to apply the constraint to</p></li>
 <li><p><strong>condition_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of the condition that will be applied to each value of the column</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint">whylogs.core.constraints.metric_constraints.MetricConstraint</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.factories.condition_counts.condition_count_below">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.factories.condition_counts.</span></span><span class="sig-name descname"><span class="pre">condition_count_below</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">condition_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint" title="whylogs.core.constraints.metric_constraints.MetricConstraint"><span class="pre">whylogs.core.constraints.metric_constraints.MetricConstraint</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/core/constraints/factories/condition_counts.html#condition_count_below"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.factories.condition_counts.condition_count_below" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>condition_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>max_count</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -577,6 +597,7 @@
 <li><a class="reference internal" href="#functions">Functions</a><ul>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.condition_counts.condition_meets">condition_meets</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.factories.condition_counts.condition_never_meets">condition_never_meets</a></li>
+<li><a class="reference internal" href="#whylogs.core.constraints.factories.condition_counts.condition_count_below">condition_count_below</a></li>
 </ul>
 </li>
 </ul>

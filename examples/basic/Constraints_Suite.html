@@ -826,6 +826,44 @@ div.rendered_html tbody tr:hover {
 </table>
 </div>
 </section>
+<section id="Condition-Count-Constraints">
+<h2>Condition Count Constraints<a class="headerlink" href="#Condition-Count-Constraints" title="Permalink to this headline">#</a></h2>
+<p>Please refer to the example <a class="reference external" href="https://github.com/whylabs/whylogs/blob/mainline/python/examples/advanced/Metric_Constraints_with_Condition_Count_Metrics.ipynb">Metric Constraints with Condition Count Metrics</a> for examples on how to use these constraints.</p>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 23%" />
+<col style="width: 54%" />
+<col style="width: 9%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>constraint</p></th>
+<th class="head"><p>parameters</p></th>
+<th class="head"><p>semantic</p></th>
+<th class="head"><p>metric</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>condition_meets</p></td>
+<td><p>column name, condition_name</p></td>
+<td><p>Fails if condition not met at least once.</p></td>
+<td><p>Condition Count</p></td>
+</tr>
+<tr class="row-odd"><td><p>condition_never_meets</p></td>
+<td><p>column name, condition_name</p></td>
+<td><p>Fails if condition is met at least once</p></td>
+<td><p>Condition Count</p></td>
+</tr>
+<tr class="row-even"><td><p>condition_count_below</p></td>
+<td><p>column name, condition_name, max_count</p></td>
+<td><p>Fails if condition is met more than max count</p></td>
+<td><p>Condition Count</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="Statistics-Constraints">
 <h2>Statistics Constraints<a class="headerlink" href="#Statistics-Constraints" title="Permalink to this headline">#</a></h2>
 <div class="table-wrapper docutils container">
@@ -6301,6 +6339,7 @@ div.rendered_html tbody tr:hover {
 <li><a class="reference internal" href="#">Simple Constraints - Examples and Usage</a><ul>
 <li><a class="reference internal" href="#Completeness-Constraints">Completeness Constraints</a></li>
 <li><a class="reference internal" href="#Consistency-Constraints">Consistency Constraints</a></li>
+<li><a class="reference internal" href="#Condition-Count-Constraints">Condition Count Constraints</a></li>
 <li><a class="reference internal" href="#Statistics-Constraints">Statistics Constraints</a></li>
 <li><a class="reference internal" href="#Table-of-Contents">Table of Contents</a></li>
 <li><a class="reference internal" href="#Installing-whylogs-and-importing-modules">Installing whylogs and importing modules</a><ul>

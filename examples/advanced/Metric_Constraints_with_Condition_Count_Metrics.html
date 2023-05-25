@@ -697,7 +697,7 @@ div.rendered_html tbody tr:hover {
 <section id="Installing-whylogs">
 <h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
@@ -726,7 +726,7 @@ div.rendered_html tbody tr:hover {
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="s2">&quot;Bob&quot;</span><span class="p">,</span> <span class="s2">&quot;Charles&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">31</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">25</span><span class="p">],</span>
+        <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">31</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">25</span><span class="p">],</span>
         <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;https://www.mydomain.com/profile/123&quot;</span><span class="p">,</span> <span class="s2">&quot;www.wrongdomain.com&quot;</span><span class="p">,</span> <span class="s2">&quot;http://mydomain.com/unsecure&quot;</span><span class="p">],</span>
         <span class="s2">&quot;subscription_date&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;2021-12-28&quot;</span><span class="p">,</span><span class="s2">&quot;2019-29-11&quot;</span><span class="p">,</span><span class="s2">&quot;04/08/2021&quot;</span><span class="p">],</span>
     <span class="p">}</span>
@@ -802,7 +802,11 @@ div.rendered_html tbody tr:hover {
 <span class="p">}</span>
 
 <span class="n">regex_conditions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;url_matches_domain&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">matches_domain_url</span><span class="p">,</span> <span class="n">actions</span><span class="o">=</span><span class="p">[</span><span class="n">pull_andon_cord</span><span class="p">,</span><span class="n">send_slack_alert</span><span class="p">])}</span>
-<br/><br/></pre></div>
+
+<span class="n">ints_conditions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;integer_zeros&quot;</span><span class="p">:</span> <span class="n">Condition</span><span class="p">(</span><span class="n">Predicate</span><span class="p">()</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="mi">0</span><span class="p">)),</span>
+<span class="p">}</span>
+</pre></div>
 </div>
 </div>
 </section>
@@ -823,7 +827,8 @@ div.rendered_html tbody tr:hover {
 
 <span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;subscription_date&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">has_date_format</span><span class="p">)])</span>
 <span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">regex_conditions</span><span class="p">)])</span>
-</pre></div>
+<span class="n">schema</span><span class="o">.</span><span class="n">add_resolver_spec</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">ConditionCountMetricSpec</span><span class="p">(</span><span class="n">ints_conditions</span><span class="p">)])</span>
+<br/></pre></div>
 </div>
 </div>
 <p>Now, let’s pass the schema to why.log() and start logging our data:</p>
@@ -897,6 +902,8 @@ Validator: condition_count
       <th>cardinality/est</th>
       <th>cardinality/lower_1</th>
       <th>cardinality/upper_1</th>
+      <th>condition_count/integer_zeros</th>
+      <th>condition_count/total</th>
       <th>counts/inf</th>
       <th>counts/n</th>
       <th>counts/nan</th>
@@ -904,7 +911,20 @@ Validator: condition_count
       <th>distribution/max</th>
       <th>distribution/mean</th>
       <th>distribution/median</th>
-      <th>...</th>
+      <th>distribution/min</th>
+      <th>distribution/n</th>
+      <th>distribution/q_01</th>
+      <th>distribution/q_05</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+      <th>distribution/stddev</th>
+      <th>frequent_items/frequent_strings</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
       <th>type</th>
       <th>types/boolean</th>
       <th>types/fractional</th>
@@ -913,11 +933,24 @@ Validator: condition_count
       <th>types/string</th>
       <th>types/tensor</th>
       <th>condition_count/Y-m-d format</th>
-      <th>condition_count/total</th>
       <th>condition_count/url_matches_domain</th>
     </tr>
     <tr>
       <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
       <th></th>
       <th></th>
       <th></th>
@@ -947,14 +980,29 @@ Validator: condition_count
       <td>3.0</td>
       <td>3.0</td>
       <td>3.00015</td>
+      <td>1.0</td>
+      <td>3.0</td>
       <td>0</td>
       <td>3</td>
       <td>0</td>
       <td>0</td>
       <td>31.0</td>
+      <td>18.666667</td>
       <td>25.0</td>
-      <td>25.0</td>
-      <td>...</td>
+      <td>0.0</td>
+      <td>3</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>31.0</td>
+      <td>31.0</td>
+      <td>31.0</td>
+      <td>31.0</td>
+      <td>16.441817</td>
+      <td>[FrequentItem(value='25', est=1, upper=1, lowe...</td>
+      <td>31.0</td>
+      <td>0.0</td>
       <td>SummaryType.COLUMN</td>
       <td>0</td>
       <td>0</td>
@@ -962,7 +1010,6 @@ Validator: condition_count
       <td>0</td>
       <td>0</td>
       <td>0</td>
-      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
@@ -971,14 +1018,29 @@ Validator: condition_count
       <td>3.0</td>
       <td>3.0</td>
       <td>3.00015</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>0</td>
       <td>3</td>
       <td>0</td>
       <td>0</td>
       <td>NaN</td>
-      <td>0.0</td>
+      <td>0.000000</td>
       <td>NaN</td>
-      <td>...</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='Alice', est=1, upper=1, l...</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>SummaryType.COLUMN</td>
       <td>0</td>
       <td>0</td>
@@ -986,7 +1048,6 @@ Validator: condition_count
       <td>0</td>
       <td>3</td>
       <td>0</td>
-      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
@@ -995,14 +1056,29 @@ Validator: condition_count
       <td>3.0</td>
       <td>3.0</td>
       <td>3.00015</td>
+      <td>NaN</td>
+      <td>3.0</td>
       <td>0</td>
       <td>3</td>
       <td>0</td>
       <td>0</td>
       <td>NaN</td>
-      <td>0.0</td>
+      <td>0.000000</td>
       <td>NaN</td>
-      <td>...</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='2019-29-11', est=1, upper...</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>SummaryType.COLUMN</td>
       <td>0</td>
       <td>0</td>
@@ -1011,7 +1087,6 @@ Validator: condition_count
       <td>3</td>
       <td>0</td>
       <td>1.0</td>
-      <td>3.0</td>
       <td>NaN</td>
     </tr>
     <tr>
@@ -1019,14 +1094,29 @@ Validator: condition_count
       <td>3.0</td>
       <td>3.0</td>
       <td>3.00015</td>
+      <td>NaN</td>
+      <td>3.0</td>
       <td>0</td>
       <td>3</td>
       <td>0</td>
       <td>0</td>
       <td>NaN</td>
-      <td>0.0</td>
+      <td>0.000000</td>
       <td>NaN</td>
-      <td>...</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='www.wrongdomain.com', est...</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>SummaryType.COLUMN</td>
       <td>0</td>
       <td>0</td>
@@ -1035,12 +1125,10 @@ Validator: condition_count
       <td>3</td>
       <td>0</td>
       <td>NaN</td>
-      <td>3.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
 </table>
-<p>4 rows × 34 columns</p>
 </div></div>
 </div>
 <p>At the far right of our summary dataframe, you can find the Condition Count Metrics: the <code class="docutils literal notranslate"><span class="pre">Y-m-d</span> <span class="pre">format</span></code> condition was met only once of a total of 3. The same happens for the <code class="docutils literal notranslate"><span class="pre">url_matches_domain</span></code>. Note that for columns where the condition was not defined, a <code class="docutils literal notranslate"><span class="pre">NaN</span></code> is displayed.</p>
@@ -1050,16 +1138,17 @@ Validator: condition_count
 <p>So far, we created Condition Count Metrics for both of the desired conditions. During the logging process, the set of actions defined for each of the conditions were triggered whenever the conditions failed to be met.</p>
 <p>Now, we wish to create Metric Constraints on top of the Condition Count Metrics, so we can generate a Constraints Report. This can be done by using the <code class="docutils literal notranslate"><span class="pre">condition_meets</span></code> helper constraint. You only need to specify the column name and the name of the condition you want to check:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">condition_meets</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">condition_meets</span><span class="p">,</span> <span class="n">condition_never_meets</span><span class="p">,</span> <span class="n">condition_count_below</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="n">ConstraintsBuilder</span>
 
 <span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
 
 <span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">condition_meets</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;subscription_date&quot;</span><span class="p">,</span> <span class="n">condition_name</span><span class="o">=</span><span class="s2">&quot;Y-m-d format&quot;</span><span class="p">))</span>
-<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">condition_meets</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="n">condition_name</span><span class="o">=</span><span class="s2">&quot;url_matches_domain&quot;</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">condition_never_meets</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="n">condition_name</span><span class="o">=</span><span class="s2">&quot;url_matches_domain&quot;</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">condition_count_below</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="n">condition_name</span><span class="o">=</span><span class="s2">&quot;integer_zeros&quot;</span><span class="p">,</span> <span class="n">max_count</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
 
 <span class="n">constraints</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 <span class="n">constraints</span><span class="o">.</span><span class="n">generate_constraints_report</span><span class="p">()</span>
@@ -1067,22 +1156,24 @@ Validator: condition_count
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 [ReportResult(name=&#39;subscription_date meets condition Y-m-d format&#39;, passed=0, failed=1, summary=None),
- ReportResult(name=&#39;url meets condition url_matches_domain&#39;, passed=0, failed=1, summary=None)]
+ ReportResult(name=&#39;url never meets condition url_matches_domain&#39;, passed=0, failed=1, summary=None),
+ ReportResult(name=&#39;age.integer_zeros lower than or equal to 1&#39;, passed=1, failed=0, summary=None)]
 </pre></div></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">condition_meets</span></code> constraint will fail if the said condition is not met at least once. In other words, if <code class="docutils literal notranslate"><span class="pre">condition_count/condition_name</span></code> is smaller than <code class="docutils literal notranslate"><span class="pre">condition_count/total</span></code>.</p>
-<p>Since both conditions failed to be met twice, both constraints failed.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">condition_never_meets</span></code> constraint will fail if the said condition is met at least once. In other words, if <code class="docutils literal notranslate"><span class="pre">condition_count/condition_name</span></code> is greater than 0.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">condition_count_below</span></code> constraint will fail if the said condition is met more than a specified number of times.</p>
 <section id="Visualizing-the-Report">
 <h3>Visualizing the Report<a class="headerlink" href="#Visualizing-the-Report" title="Permalink to this headline">#</a></h3>
 <p>You can visualize the Constraints Report as usual by calling <code class="docutils literal notranslate"><span class="pre">NotebookProfileVisualizer</span></code>’s <code class="docutils literal notranslate"><span class="pre">constraints_report</span></code>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
@@ -1093,7 +1184,7 @@ Validator: condition_count
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1764,7 +1855,7 @@ Validator: condition_count
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;subscription_date meets condition Y-m-d format&quot;, 0, 1, {&quot;metric&quot;: &quot;condition_count&quot;, &quot;total&quot;: 3, &quot;Y-m-d format&quot;: 1}], [&quot;url meets condition url_matches_domain&quot;, 0, 1, {&quot;metric&quot;: &quot;condition_count&quot;, &quot;total&quot;: 3, &quot;url_matches_domain&quot;: 1}]];
+      const context = [[&quot;subscription_date meets condition Y-m-d format&quot;, 0, 1, {&quot;metric&quot;: &quot;condition_count&quot;, &quot;total&quot;: 3, &quot;Y-m-d format&quot;: 1}], [&quot;url never meets condition url_matches_domain&quot;, 0, 1, {&quot;metric&quot;: &quot;condition_count&quot;, &quot;total&quot;: 3, &quot;url_matches_domain&quot;: 1}], [&quot;age.integer_zeros lower than or equal to 1&quot;, 1, 0, {&quot;metric&quot;: &quot;condition_count&quot;, &quot;total&quot;: 3, &quot;integer_zeros&quot;: 1}]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
