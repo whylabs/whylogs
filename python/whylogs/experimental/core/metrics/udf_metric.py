@@ -19,6 +19,9 @@ from whylogs.core.resolvers import (
     ResolverSpec,
     _allowed_metric,
 )
+from whylogs.core.schema import DeclarativeSchema
+from whylogs.core.segmentation_partition import SegmentationPartition
+from whylogs.core.validators.validator import Validator
 
 logger = logging.getLogger(__name__)
 
@@ -130,18 +133,28 @@ class UdfMetric(MultiMetric):
             metric.columnar_update(data)
 
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
-        count = 0
+        successes = 0
+        failures = 0
         for value in list(chain.from_iterable(view.raw_iterator())):
+            ok = True
             for submetric_name, udf in self._udfs.items():
-                computed_value = udf(value)
-                if submetric_name not in self.submetrics:
-                    self._add_submetric(submetric_name, computed_value)  # NOTE: assumes column is homogeneous-ish?
+                try:
+                    computed_value = udf(value)
+                    if submetric_name not in self.submetrics:
+                        self._add_submetric(submetric_name, computed_value)  # NOTE: assumes column is homogeneous-ish?
 
-                data = PreprocessedColumn._process_scalar_value(computed_value)
-                self._update_relevant_submetrics(submetric_name, data)
+                    data = PreprocessedColumn._process_scalar_value(computed_value)
+                    self._update_relevant_submetrics(submetric_name, data)
+                except Exception:  # noqa
+                    logger.exception(f"UDF {submetric_name} evaluation failed")
+                    ok = False
 
-            count += 1
-        return OperationResult.ok(count)
+            if ok:
+                successes += 1
+            else:
+                failures += 1
+
+        return OperationResult(failures, successes)
 
     @classmethod
     def zero(cls, config: Optional[MetricConfig] = None) -> "UdfMetric":
@@ -188,7 +201,7 @@ def register_metric_udf(
     input columns of the specified type. The decorated function will automatically
     be a UDF in the UdfMetric.
 
-    Specify submetric_name to give the output of the UDf a name. submetric_name
+    Specify submetric_name to give the output of the UDF a name. submetric_name
     defautls to the name of the decorated function. Note that all lambdas are
     named "lambda" so omitting submetric_name on more than one lambda will result
     in name collisions.
@@ -202,6 +215,7 @@ def register_metric_udf(
 
     def decorator_register(func):
         global _col_name_submetrics, _col_name_submetric_schema, _col_name_type_mapper
+        global _col_type_submetrics, _col_type_submetric_schema, _col_type_type_mapper
 
         if col_name is not None and col_type is not None:
             raise ValueError("Only specify one of column name or type")
@@ -236,6 +250,7 @@ def register_metric_udf(
     return decorator_register
 
 
+# TODO: s/generate_udf_schema/generate_udf_resolvers/
 def generate_udf_schema() -> List[ResolverSpec]:
     """
     Generates a list of ResolverSpecs that implement the UdfMetrics specified
@@ -288,3 +303,52 @@ def generate_udf_schema() -> List[ResolverSpec]:
         resolvers.append(ResolverSpec(None, col_type, [MetricSpec(UdfMetric, config)]))
 
     return resolvers
+
+
+def udf_metric_schema(
+    non_udf_resolvers: Optional[List[ResolverSpec]] = None,
+    types: Optional[Dict[str, Any]] = None,
+    default_config: Optional[MetricConfig] = None,
+    type_mapper: Optional[TypeMapper] = None,
+    cache_size: int = 1024,
+    schema_based_automerge: bool = False,
+    segments: Optional[Dict[str, SegmentationPartition]] = None,
+    validators: Optional[Dict[str, List[Validator]]] = None,
+) -> DeclarativeSchema:
+    """
+    Generates a DeclarativeSchema that implement the UdfMetrics specified
+    by the @register_metric_udf decorators (in additon to any non_udf_resolvers
+    passed in).
+
+    For example:
+
+    @register_metric_udf(col_name="col1")
+    def add5(x):
+        return x + 5
+
+    @register_metric_udf(col_type=String)
+    def upper(x):
+        return x.upper()
+
+    why.log(data, schema=udf_metric_schema())
+
+    This will attach a UdfMetric to column "col1" that will include a submetric
+    named "add5" tracking the values in "col1" incremented by 5, and a UdfMetric
+    for each string column that will include a submetric named "upper" tracking
+    the uppercased strings in the input columns. Since these are appended to the
+    STANDARD_RESOLVER, the default metrics are also tracked for every column.
+    """
+
+    resolvers = generate_udf_schema()
+    non_udf_resolvers = non_udf_resolvers or STANDARD_RESOLVER
+
+    return DeclarativeSchema(
+        non_udf_resolvers + resolvers,
+        types,
+        default_config,
+        type_mapper,
+        cache_size,
+        schema_based_automerge,
+        segments,
+        validators,
+    )

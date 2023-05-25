@@ -3,13 +3,11 @@ import pandas as pd
 import whylogs as why
 from whylogs.core.datatypes import String
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.resolvers import STANDARD_RESOLVER
-from whylogs.core.schema import DeclarativeSchema
 from whylogs.experimental.core.metrics.udf_metric import (
     UdfMetric,
     UdfMetricConfig,
-    generate_udf_schema,
     register_metric_udf,
+    udf_metric_schema,
 )
 
 
@@ -39,6 +37,36 @@ def test_udf_metric() -> None:
     assert summary["foo:types/string"] == 1
     assert summary["foo:cardinality/est"] == 1
     assert "foo:frequent_items/frequent_strings" in summary
+
+
+def test_udf_throws() -> None:
+    n = 0
+
+    def exothermic(x):
+        nonlocal n
+        n += 1
+        if n < 3:
+            raise ValueError("kaboom")
+
+        return int(x)
+
+    config = UdfMetricConfig(
+        udfs={
+            "oops": exothermic,
+            "ok": lambda x: int(x),
+        },
+    )
+    metric = UdfMetric.zero(config)
+    result = metric.columnar_update(PreprocessedColumn.apply([1, 2, 3, 4]))
+    assert result.failures == 2
+    assert result.successes == 2
+    summary = metric.to_summary_dict()
+    assert summary["ok:counts/n"] == 4
+    assert summary["ok:ints/min"] == 1
+    assert summary["ok:ints/max"] == 4
+    assert summary["oops:counts/n"] == 2
+    assert summary["oops:ints/min"] == 3
+    assert summary["oops:ints/max"] == 4
 
 
 def test_merge() -> None:
@@ -98,9 +126,8 @@ def upper(x):
 
 
 def test_decorator() -> None:
-    schema = DeclarativeSchema(STANDARD_RESOLVER + generate_udf_schema())
     data = pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6], "col3": [7, 8, 9], "col4": ["a", "b", "c"]})
-    view = why.log(data, schema=schema).profile().view()
+    view = why.log(data, schema=udf_metric_schema()).profile().view()
     col1_view = view.get_column("col1")
     col2_view = view.get_column("col2")
     col3_view = view.get_column("col3")

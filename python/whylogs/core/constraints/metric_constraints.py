@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
+from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.predicate_parser import _METRIC_REF, _PROFILE_REF, _tokenize
 from whylogs.core.utils import deprecated
@@ -275,11 +276,12 @@ class PrefixCondition:
     in client code.
     """
 
-    def __init__(self, expression: str) -> None:
+    def __init__(self, expression: str, cfg: Optional[SummaryConfig] = None) -> None:
         self._expression = expression
         self._tokens = _tokenize(expression)
         self._profile = None
         self._metric_map: Dict[str, Metric] = dict()
+        self._cfg = cfg or SummaryConfig()
 
     def _interpret(self, i: int) -> Tuple[Any, int]:  # noqa: C901
         token = self._tokens[i]
@@ -301,7 +303,7 @@ class PrefixCondition:
             metric_name, component_name = path.split("/", 1)
             try:
                 metric = self._profile.get_column(column_name).get_metric(metric_name)  # type: ignore
-                summary = metric.to_summary_dict()
+                summary = metric.to_summary_dict(self._cfg)
             except:  # noqa
                 raise MissingMetric(token)
 
@@ -635,9 +637,10 @@ class ConstraintsBuilder:
             metric_selector = constraint.metric_selector
             metrics = metric_selector.apply(self._dataset_profile_view)
             if (metrics is None or len(metrics) == 0) and not (ignore_missing or column_name is None):
-                raise ValueError(
-                    f"metrics not found for column {column_name}, available metric components are: {column_profile_view.get_metric_component_paths()}"
+                logger.warning(
+                    f"metrics not found for {column_name}, available metric components are: {column_profile_view.get_metric_component_paths()}. Skipping {constraint.name}."  # noqa: E501
                 )
+                return self
 
             if column_name is None:
                 # MetricConstraint not associated with a specific column is turned into
