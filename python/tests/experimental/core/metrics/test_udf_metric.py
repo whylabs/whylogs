@@ -157,7 +157,6 @@ def test_decorator() -> None:
     assert "udf/square:cardinality/est" in col2_summary
 
     col4_summary = col4_view.to_summary_dict()
-    print(col4_summary)
     assert "udf/upper:counts/n" in col4_summary
     assert "udf/upper:types/integral" in col4_summary
     assert "udf/upper:distribution/n" in col4_summary

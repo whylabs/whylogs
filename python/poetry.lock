@@ -1766,6 +1766,7 @@ category = "main"
 optional = true
 python-versions = ">=3.7"
 files = [
+    {file = "mlflow-skinny-1.30.1.tar.gz", hash = "sha256:54610fc33513b35d58870e9bcab307cd6043ed99e543f93c1f54e7c3b4591553"},
     {file = "mlflow_skinny-1.30.1-py3-none-any.whl", hash = "sha256:6eafa2505c244b6f95258eb555cc720bf7d4898d806e18a84757ac5b28ecc34c"},
 ]
 
@@ -4227,14 +4228,14 @@ watchdog = ["watchdog"]
 
 [[package]]
 name = "whylabs-client"
-version = "0.5.0"
+version = "0.5.1"
 description = "WhyLabs API client"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "whylabs-client-0.5.0.tar.gz", hash = "sha256:cc55b4ce8b62d9945c3cb3dedeac21f1345b178c2f6b71b0dd6a2f0a0a0dbdb8"},
-    {file = "whylabs_client-0.5.0-py3-none-any.whl", hash = "sha256:8de5a24f6b1b96d78002645288fccff5e84d13311fdab69ce8cd6197e611bc24"},
+    {file = "whylabs-client-0.5.1.tar.gz", hash = "sha256:f7aacfab7d176812c2eb4cdeb8c52521eed0d30bc2a0836399798197a513cf04"},
+    {file = "whylabs_client-0.5.1-py3-none-any.whl", hash = "sha256:dc6958d5bb390f1057fe6f513cbce55c4e71d5f8a1461a7c93eb73814089de33"},
 ]
 
 [package.dependencies]
@@ -4412,4 +4413,4 @@ whylabs = ["requests"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.1, <4"
-content-hash = "801b4be1a9f6e85d4e2c3bfe4f4a65a1bd75a95fb0c73554f425960667d8c0e6"
+content-hash = "78ebfb37657415cbc27d85b5abf79da1ff5861adeab8173f1e196d99d87c5846"
