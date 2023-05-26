@@ -1,13 +1,14 @@
 from datetime import datetime
 from logging import getLogger
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
 from whylogs.api.writer import Writer, Writers
+from whylogs.api.writer.writer import Writable
 
 logger = getLogger(__name__)
 
 
-class EstimationResult:
+class EstimationResult(Writable):
     """
     The result of a performance estimation.
     accuracy: The estimated accuracy.
@@ -32,6 +33,12 @@ class EstimationResult:
             raise ValueError("Only whylabs writer is currently supported")
         writer = Writers.get(name)
         return EstimationResultWriter(results=self, writer=writer)
+
+    def get_default_path(self) -> str:
+        return ""
+
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+        return (False, "write() not implemented for EstimationResult, use with supported writers.")
 
 
 class EstimationResultWriter:

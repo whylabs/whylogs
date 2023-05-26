@@ -75,8 +75,10 @@ class S3Writer(Writer):
             self.object_name = dest
         try:
             with tempfile.NamedTemporaryFile() as tmp_file:
-                file.write(path=tmp_file.name)  # type: ignore
+                result = file.write(path=tmp_file.name)  # type: ignore
                 tmp_file.flush()
+                if not result[0]:
+                    return result
                 self.s3_client.upload_file(tmp_file.name, self.bucket_name, self.object_name)
         except ClientError as e:
             logging.error(e)

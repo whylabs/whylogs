@@ -585,11 +585,13 @@ class WhyLabsWriter(Writer):
             # so we default to sending them as v0 profiles if the override `use_v0` is not defined,
             # if `use_v0` is defined then pass that through to control the serialization format.
             if has_segments and (kwargs.get("use_v0") is None or kwargs.get("use_v0")):
-                view.write(file=tmp_file, use_v0=True)
+                result = view.write(file=tmp_file, use_v0=True)
             else:
-                view.write(file=tmp_file)
+                result = view.write(file=tmp_file)
             tmp_file.flush()
             tmp_file.seek(0)
+            if not result[0]:
+                return result
             utc_now = datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp = view.dataset_timestamp or utc_now
             stamp = dataset_timestamp.timestamp()
@@ -746,6 +748,8 @@ class WhyLabsWriter(Writer):
         dataset_timestamp: int, tags: Optional[dict] = None, alias: Optional[str] = None
     ) -> LogReferenceRequest:
         segments = list()
+        if not alias:
+            alias = None
         if tags is not None:
             for segment_tags in tags:
                 segments.append(Segment(tags=[SegmentTag(key=tag["key"], value=tag["value"]) for tag in segment_tags]))

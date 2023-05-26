@@ -1,6 +1,6 @@
 import html
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
 from IPython.core.display import HTML  # type: ignore
 
@@ -37,7 +37,7 @@ class HTMLReport(Writable, ABC):
     def report(self) -> HTML:
         pass
 
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> None:
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         """Create HTML file for a given report.
 
         Parameters
@@ -61,6 +61,7 @@ class HTMLReport(Writable, ABC):
         _rendered_html = _html.data
         with self._safe_open_write(path) as file:
             file.write(_rendered_html)
+        return True, path
 
     def option(self):
         return self

@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from datetime import datetime
 from logging import getLogger
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -161,7 +161,7 @@ class ResultSetReader:
         return self._reader.read(**kwargs)
 
 
-class ResultSet(ABC):
+class ResultSet(Writable):
     """
     A holder object for profiling results.
 
@@ -269,6 +269,13 @@ class ViewResultSet(ResultSet):
         else:
             view.set_dataset_timestamp(dataset_timestamp)
 
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+        return self._view.write(path=path, **kwargs)
+
+    @staticmethod
+    def get_default_path(self) -> str:
+        return self._view.get_default_path()
+
 
 class ProfileResultSet(ResultSet):
     def __init__(self, profile: DatasetProfile) -> None:
@@ -292,6 +299,13 @@ class ProfileResultSet(ResultSet):
         if not isinstance(other, (ProfileResultSet, ViewResultSet)):
             logger.error(f"Merging potentially incompatible ProfileResultSet and {type(other)}")
         return ViewResultSet(lhs_profile.merge(other.view()))
+
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+        return self._profile.write(path=path, **kwargs)
+
+    @staticmethod
+    def get_default_path(self) -> str:
+        return self._profile.get_default_path()
 
 
 class SegmentedResultSet(ResultSet):
@@ -495,3 +509,9 @@ class SegmentedResultSet(ResultSet):
             return SegmentedResultSet(merged_segments, merged_partitions, metrics=merged_metrics, properties=properties)
         else:
             raise ValueError(f"Cannot merge incompatible SegmentedResultSet and {type(other)}")
+
+    def get_default_path(self) -> str:
+        return ""
+
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+        return (False, "write() not implemented for SegmentedResultSet, use with supported writers.")

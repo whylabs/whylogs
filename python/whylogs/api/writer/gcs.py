@@ -65,7 +65,9 @@ class GCSWriter(Writer):
         blob = bucket.blob(self.object_name)
         try:
             with tempfile.NamedTemporaryFile() as tmp_file:
-                file.write(path=tmp_file.name)  # type: ignore
+                result = file.write(path=tmp_file.name)  # type: ignore
+                if result[0] is False:
+                    return result
                 tmp_file.flush()
                 blob.upload_from_filename(tmp_file.name)
         except exceptions.Forbidden as e:
