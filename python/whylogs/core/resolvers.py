@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, TypeVar
 
@@ -147,7 +148,7 @@ class DeclarativeResolver(Resolver):
         self._resolvers.append(resolver_spec)
 
     def __init__(self, resolvers: List[ResolverSpec], default_config: Optional[MetricConfig] = None) -> None:
-        self._resolvers = resolvers.copy()
+        self._resolvers = deepcopy(resolvers)
         self._default_config = default_config
 
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
@@ -191,6 +192,36 @@ STANDARD_RESOLVER = [
             MetricSpec(StandardMetric.distribution.value),
             MetricSpec(StandardMetric.cardinality.value),
             MetricSpec(StandardMetric.frequent_items.value),
+        ],
+    ),
+    ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
+]
+
+UDF_BASE_RESOLVER = [
+    ResolverSpec(
+        column_type=Integral,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.ints.value),
+            MetricSpec(StandardMetric.cardinality.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=Fractional,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=String,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.unicode_range.value),
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
         ],
     ),
     ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),

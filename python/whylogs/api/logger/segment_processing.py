@@ -29,7 +29,7 @@ def _process_segment(
     if profile is None:
         profile = DatasetProfile(schema)
 
-    profile.track(segmented_data)
+    profile.track(segmented_data, execute_udfs=False)
     segments[segment_key] = profile
 
 
