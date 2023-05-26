@@ -92,7 +92,7 @@ class OperationResult:
 
 class Metric(ABC):
     @property
-    def exclude_from_profile(self) -> bool:
+    def exclude_from_serialization(self) -> bool:
         return False
 
     @classmethod

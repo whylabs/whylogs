@@ -67,7 +67,7 @@ class Condition:
 @dataclass(frozen=True)
 class ConditionCountConfig(MetricConfig):
     conditions: Dict[str, Condition] = field(default_factory=dict)
-    exclude_from_profile: bool = False
+    exclude_from_serialization: bool = False
 
 
 @dataclass(frozen=True)
@@ -75,11 +75,11 @@ class ConditionCountMetric(Metric):
     conditions: Dict[str, Condition]
     total: IntegralComponent
     matches: Dict[str, IntegralComponent] = field(default_factory=dict)
-    hide_from_profile: bool = False
+    hide_from_serialization: bool = False
 
     @property
-    def exclude_from_profile(self) -> bool:
-        return self.hide_from_profile
+    def exclude_from_serialization(self) -> bool:
+        return self.hide_from_serialization
 
     @property
     def namespace(self) -> str:
@@ -109,7 +109,7 @@ class ConditionCountMetric(Metric):
             copy(self.conditions),
             IntegralComponent(total),
             matches,
-            hide_from_profile=self.hide_from_profile or other.hide_from_profile,
+            hide_from_serialization=self.hide_from_serialization or other.hide_from_serialization,
         )
 
     def add_conditions(self, conditions: Dict[str, Condition]) -> None:
@@ -165,7 +165,7 @@ class ConditionCountMetric(Metric):
         metric = ConditionCountMetric(
             conditions=copy(config.conditions),
             total=IntegralComponent(0),
-            hide_from_profile=config.exclude_from_profile,
+            hide_from_serialization=config.exclude_from_serialization,
         )
         return metric
 

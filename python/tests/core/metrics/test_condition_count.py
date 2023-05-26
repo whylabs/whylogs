@@ -264,7 +264,7 @@ def test_hide_condition_count(hide: bool) -> None:
         "alpha": Condition(X.matches("[a-zA-Z]+")),
         "digit": Condition(X.matches("[0-9]+")),
     }
-    config = ConditionCountConfig(conditions=conditions, exclude_from_profile=hide)
+    config = ConditionCountConfig(conditions=conditions, exclude_from_serialization=hide)
     resolver = TestResolver()
     schema = DatasetSchema(default_configs=config, resolvers=resolver)
     prof = DatasetProfile(schema)
