@@ -15,12 +15,14 @@ from whylogs.core.metrics.multimetric import MultiMetric, SubmetricSchema
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import (
     STANDARD_RESOLVER,
+    UDF_BASE_RESOLVER,
     MetricSpec,
     ResolverSpec,
     _allowed_metric,
 )
 from whylogs.core.schema import DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
+from whylogs.core.utils import deprecated
 from whylogs.core.validators.validator import Validator
 
 logger = logging.getLogger(__name__)
@@ -250,11 +252,10 @@ def register_metric_udf(
     return decorator_register
 
 
-# TODO: s/generate_udf_schema/generate_udf_resolvers/
-def generate_udf_schema() -> List[ResolverSpec]:
+def generate_udf_resolvers() -> List[ResolverSpec]:
     """
     Generates a list of ResolverSpecs that implement the UdfMetrics specified
-    by the @register_metric_ud decorators. The result only includes the UdfMetric,
+    by the @register_metric_udf decorators. The result only includes the UdfMetric,
     so you may want to append it to a list of ResolverSpecs defining the other
     metrics you wish to track.
 
@@ -305,6 +306,11 @@ def generate_udf_schema() -> List[ResolverSpec]:
     return resolvers
 
 
+@deprecated(message="Please use generate_udf_resolvers()")
+def generate_udf_schema() -> List[ResolverSpec]:
+    return generate_udf_resolvers()
+
+
 def udf_metric_schema(
     non_udf_resolvers: Optional[List[ResolverSpec]] = None,
     types: Optional[Dict[str, Any]] = None,
@@ -339,8 +345,8 @@ def udf_metric_schema(
     STANDARD_RESOLVER, the default metrics are also tracked for every column.
     """
 
-    resolvers = generate_udf_schema()
-    non_udf_resolvers = non_udf_resolvers or STANDARD_RESOLVER
+    resolvers = generate_udf_resolvers()
+    non_udf_resolvers = non_udf_resolvers if non_udf_resolvers is not None else UDF_BASE_RESOLVER
 
     return DeclarativeSchema(
         non_udf_resolvers + resolvers,

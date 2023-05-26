@@ -1,5 +1,9 @@
 from .cardinality_metrics import distinct_number_in_range
-from .condition_counts import condition_meets, condition_never_meets
+from .condition_counts import (
+    condition_count_below,
+    condition_meets,
+    condition_never_meets,
+)
 from .count_metrics import (
     count_below_number,
     no_missing_values,
@@ -56,5 +60,6 @@ ALL = [
     column_has_zero_count_types,
     condition_meets,
     condition_never_meets,
+    condition_count_below,
     column_is_probably_unique,
 ]

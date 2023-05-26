@@ -746,6 +746,8 @@ class WhyLabsWriter(Writer):
         dataset_timestamp: int, tags: Optional[dict] = None, alias: Optional[str] = None
     ) -> LogReferenceRequest:
         segments = list()
+        if not alias:
+            alias = None
         if tags is not None:
             for segment_tags in tags:
                 segments.append(Segment(tags=[SegmentTag(key=tag["key"], value=tag["value"]) for tag in segment_tags]))
