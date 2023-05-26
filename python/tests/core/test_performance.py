@@ -31,7 +31,7 @@ _TEST_RESOLVERS = [HistogramCountingTrackingResolver(), LimitedTrackingResolver(
 @dataclass
 class CustomHistogramMetric:
     histogram: ds.kll_floats_sketch = field(
-        default=ds.kll_floats_sketch(MetricConfig.kll_k),
+        default=ds.kll_floats_sketch(MetricConfig().kll_k),
     )
 
     def track(self, val: Any) -> "CustomHistogramMetric":
