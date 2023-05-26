@@ -267,10 +267,9 @@ def test_hide_condition_count(hide: bool) -> None:
     config = ConditionCountConfig(conditions=conditions, exclude_from_profile=hide)
     resolver = TestResolver()
     schema = DatasetSchema(default_configs=config, resolvers=resolver)
-
-    row = {"col1": ["abc", "123"]}
     prof = DatasetProfile(schema)
-    prof.track(row=row)
+    prof.track(row={"col1": "abc"})
+    prof.track(row={"col1": "123"})
     assert "condition_count" in prof._columns["col1"]._metrics
     view = prof.view().get_column("col1")
     assert "condition_count" in view.get_metric_names()
