@@ -81,6 +81,10 @@ class OperationResult:
 
 
 class Metric(ABC):
+    @property
+    def exclude_from_serialization(self) -> bool:
+        return False
+
     @classmethod
     # TODO: deprecate config argument
     def get_namespace(cls, config: Optional[MetricConfig] = None) -> str:
