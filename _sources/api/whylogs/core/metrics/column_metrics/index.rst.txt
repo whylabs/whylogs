@@ -29,6 +29,10 @@ Classes
       :type: str
 
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:attribute:: integral
       :type: whylogs.core.metrics.metric_components.IntegralComponent
 
@@ -96,6 +100,10 @@ Classes
 
    .. py:property:: namespace
       :type: str
+
+
+   .. py:property:: exclude_from_serialization
+      :type: bool
 
 
    .. py:attribute:: n

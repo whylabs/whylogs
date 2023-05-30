@@ -58,6 +58,10 @@ Classes
       :type: str
 
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:attribute:: n
       :type: whylogs.core.metrics.metric_components.IntegralComponent
 
@@ -115,6 +119,10 @@ Classes
 
    .. py:property:: namespace
       :type: str
+
+
+   .. py:property:: exclude_from_serialization
+      :type: bool
 
 
    .. py:attribute:: integral
@@ -182,6 +190,10 @@ Classes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:property:: namespace
       :type: str
 
@@ -198,6 +210,12 @@ Classes
 
    .. py:attribute:: matches
       :type: Dict[str, whylogs.core.metrics.metric_components.IntegralComponent]
+
+      
+
+   .. py:attribute:: hide_from_serialization
+      :type: bool
+      :value: False
 
       
 
@@ -253,6 +271,10 @@ Classes
 
    .. py:property:: lower_1
       :type: Optional[float]
+
+
+   .. py:property:: exclude_from_serialization
+      :type: bool
 
 
    .. py:attribute:: hll
@@ -368,6 +390,10 @@ Classes
       :type: float
 
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:attribute:: kll
       :type: whylogs.core.metrics.metric_components.KllComponent
 
@@ -437,6 +463,10 @@ Classes
       :type: List[FrequentItem]
 
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:attribute:: frequent_strings
       :type: whylogs.core.metrics.metric_components.FrequentStringsComponent
 
@@ -495,6 +525,10 @@ Classes
       :type: float
 
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:attribute:: max
       :type: whylogs.core.metrics.metric_components.MaxIntegralComponent
 
@@ -539,6 +573,10 @@ Classes
 
    Helper class that provides a standard way to create an ABC using
    inheritance.
+
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
 
    .. py:property:: namespace
       :type: str
@@ -657,6 +695,10 @@ Classes
 
    .. py:property:: namespace
       :type: str
+
+
+   .. py:property:: exclude_from_serialization
+      :type: bool
 
 
    .. py:attribute:: range_definitions

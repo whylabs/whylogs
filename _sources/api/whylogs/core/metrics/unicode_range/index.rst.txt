@@ -37,6 +37,10 @@ Classes
       :type: str
 
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:attribute:: range_definitions
       :type: Dict[str, Tuple[int, int]]
 

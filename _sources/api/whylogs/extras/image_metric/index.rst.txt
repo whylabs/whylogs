@@ -202,6 +202,10 @@ Attributes
       :type: str
 
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:attribute:: submetrics
       :type: Dict[str, Dict[str, whylogs.core.metrics.Metric]]
 

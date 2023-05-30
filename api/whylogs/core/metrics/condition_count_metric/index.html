@@ -605,6 +605,11 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.ConditionCountConfig.exclude_from_serialization">
+<span class="sig-name descname"><span class="pre">exclude_from_serialization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.exclude_from_serialization" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.ConditionCountConfig.hll_lg_k">
 <span class="sig-name descname"><span class="pre">hll_lg_k</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.hll_lg_k" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
@@ -673,6 +678,16 @@
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
 <dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.ConditionCountMetric.exclude_from_serialization">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exclude_from_serialization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.exclude_from_serialization" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.ConditionCountMetric.namespace">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.namespace" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -695,6 +710,11 @@ inheritance.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.ConditionCountMetric.matches">
 <span class="sig-name descname"><span class="pre">matches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../metric_components/index.html#whylogs.core.metrics.metric_components.IntegralComponent" title="whylogs.core.metrics.metric_components.IntegralComponent"><span class="pre">whylogs.core.metrics.metric_components.IntegralComponent</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.matches" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.ConditionCountMetric.hide_from_serialization">
+<span class="sig-name descname"><span class="pre">hide_from_serialization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.hide_from_serialization" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -916,6 +936,7 @@ inheritance.</p>
 </li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountConfig">ConditionCountConfig</a><ul>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.conditions">conditions</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.exclude_from_serialization">exclude_from_serialization</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.hll_lg_k">hll_lg_k</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.kll_k">kll_k</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.fi_lg_max_k">fi_lg_max_k</a></li>
@@ -931,10 +952,12 @@ inheritance.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric">ConditionCountMetric</a><ul>
+<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.exclude_from_serialization">exclude_from_serialization</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.namespace">namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.conditions">conditions</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.total">total</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.matches">matches</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.hide_from_serialization">hide_from_serialization</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.merge">merge</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.add_conditions">add_conditions</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.get_component_paths">get_component_paths</a></li>

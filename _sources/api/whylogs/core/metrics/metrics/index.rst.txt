@@ -158,6 +158,10 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:property:: namespace
       :type: str
       :abstractmethod:
@@ -214,6 +218,10 @@ Attributes
 
    .. py:property:: minimum
       :type: float
+
+
+   .. py:property:: exclude_from_serialization
+      :type: bool
 
 
    .. py:attribute:: max
@@ -328,6 +336,10 @@ Attributes
       :type: float
 
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:attribute:: kll
       :type: whylogs.core.metrics.metric_components.KllComponent
 
@@ -420,6 +432,10 @@ Attributes
       :type: List[FrequentItem]
 
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:attribute:: frequent_strings
       :type: whylogs.core.metrics.metric_components.FrequentStringsComponent
 
@@ -482,6 +498,10 @@ Attributes
       :type: Optional[float]
 
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:attribute:: hll
       :type: whylogs.core.metrics.metric_components.HllComponent
 
@@ -531,6 +551,10 @@ Attributes
    in the summary and will be [de]serialized. Such subclasses will need to
    implement the namespace, merge, and zero methods. They should be registered
    by calling register_metric()
+
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
 
    .. py:property:: namespace
       :type: str

@@ -489,7 +489,8 @@
 
 <div class="viewcode-block" id="ConditionCountConfig"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ConditionCountConfig</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">):</span>
-    <span class="n">conditions</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Condition</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
+    <span class="n">conditions</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Condition</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">exclude_from_serialization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
 <div class="viewcode-block" id="ConditionCountMetric"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -497,6 +498,11 @@
     <span class="n">conditions</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Condition</span><span class="p">]</span>
     <span class="n">total</span><span class="p">:</span> <span class="n">IntegralComponent</span>
     <span class="n">matches</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">IntegralComponent</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">hide_from_serialization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">exclude_from_serialization</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hide_from_serialization</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -522,7 +528,12 @@
             <span class="p">}</span>
             <span class="n">total</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">value</span>
 
-        <span class="k">return</span> <span class="n">ConditionCountMetric</span><span class="p">(</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="p">),</span> <span class="n">IntegralComponent</span><span class="p">(</span><span class="n">total</span><span class="p">),</span> <span class="n">matches</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">ConditionCountMetric</span><span class="p">(</span>
+            <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="p">),</span>
+            <span class="n">IntegralComponent</span><span class="p">(</span><span class="n">total</span><span class="p">),</span>
+            <span class="n">matches</span><span class="p">,</span>
+            <span class="n">hide_from_serialization</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hide_from_serialization</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">hide_from_serialization</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ConditionCountMetric.add_conditions"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.add_conditions">[docs]</a>    <span class="k">def</span> <span class="nf">add_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conditions</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Condition</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;total&quot;</span> <span class="ow">in</span> <span class="n">conditions</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -574,10 +585,12 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ConditionCountConfig</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ConditionCountMetric.zero() requires ConditionCountConfig argument&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">ConditionCountMetric</span><span class="p">(</span>
+        <span class="n">metric</span> <span class="o">=</span> <span class="n">ConditionCountMetric</span><span class="p">(</span>
             <span class="n">conditions</span><span class="o">=</span><span class="n">copy</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">conditions</span><span class="p">),</span>
             <span class="n">total</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
-        <span class="p">)</span></div>
+            <span class="n">hide_from_serialization</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">exclude_from_serialization</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">metric</span></div>
 
 <div class="viewcode-block" id="ConditionCountMetric.to_protobuf"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.to_protobuf">[docs]</a>    <span class="k">def</span> <span class="nf">to_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricMessage</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">to_protobuf</span><span class="p">()}</span>

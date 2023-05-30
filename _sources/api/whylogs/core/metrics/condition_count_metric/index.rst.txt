@@ -93,6 +93,12 @@ Attributes
 
       
 
+   .. py:attribute:: exclude_from_serialization
+      :type: bool
+      :value: False
+
+      
+
    .. py:attribute:: hll_lg_k
       :type: int
 
@@ -161,6 +167,10 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:property:: namespace
       :type: str
 
@@ -177,6 +187,12 @@ Attributes
 
    .. py:attribute:: matches
       :type: Dict[str, whylogs.core.metrics.metric_components.IntegralComponent]
+
+      
+
+   .. py:attribute:: hide_from_serialization
+      :type: bool
+      :value: False
 
       
 

@@ -68,6 +68,10 @@ Attributes
 
    See UnicodeRangeMetric for an example.
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:property:: namespace
       :type: str
       :abstractmethod:

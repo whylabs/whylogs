@@ -175,6 +175,10 @@ Attributes
       :type: str
 
 
+   .. py:property:: exclude_from_serialization
+      :type: bool
+
+
    .. py:attribute:: references
       :type: whylogs.experimental.extras.matrix_component.MatrixComponent
 
