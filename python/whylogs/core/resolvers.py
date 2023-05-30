@@ -37,7 +37,8 @@ class StandardResolver(Resolver):
             metrics.append(StandardMetric.distribution)
             metrics.append(StandardMetric.ints)
             metrics.append(StandardMetric.cardinality)
-            metrics.append(StandardMetric.frequent_items)
+            if not column_schema.cfg.fi_disabled:
+                metrics.append(StandardMetric.frequent_items)
         elif isinstance(why_type, Fractional):
             metrics.append(StandardMetric.cardinality)
             metrics.append(StandardMetric.distribution)
@@ -46,10 +47,8 @@ class StandardResolver(Resolver):
             if column_schema.cfg.track_unicode_ranges:
                 metrics.append(StandardMetric.unicode_range)
             metrics.append(StandardMetric.distribution)  # 'object' columns can contain Decimal
-            metrics.append(StandardMetric.frequent_items)
-
-        if column_schema.cfg.fi_disabled:
-            metrics.remove(StandardMetric.frequent_items)
+            if not column_schema.cfg.fi_disabled:
+                metrics.append(StandardMetric.frequent_items)
 
         result: Dict[str, Metric] = {}
         for m in metrics:
