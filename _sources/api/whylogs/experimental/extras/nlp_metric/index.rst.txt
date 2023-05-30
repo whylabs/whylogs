@@ -42,43 +42,36 @@ Classes
 
    .. py:attribute:: hll_lg_k
       :type: int
-      :value: 12
 
       
 
    .. py:attribute:: kll_k
       :type: int
-      :value: 256
 
       
 
    .. py:attribute:: fi_lg_max_k
       :type: int
-      :value: 10
 
       
 
    .. py:attribute:: fi_disabled
       :type: bool
-      :value: False
 
       
 
    .. py:attribute:: track_unicode_ranges
       :type: bool
-      :value: False
 
       
 
    .. py:attribute:: large_kll_k
       :type: bool
-      :value: True
 
       
 
    .. py:attribute:: kll_k_large
       :type: int
-      :value: 1024
 
       
 
@@ -89,19 +82,16 @@ Classes
 
    .. py:attribute:: lower_case
       :type: bool
-      :value: True
 
       
 
    .. py:attribute:: normalize
       :type: bool
-      :value: True
 
       
 
    .. py:attribute:: max_frequent_item_size
       :type: int
-      :value: 128
 
       
 
@@ -264,43 +254,36 @@ Classes
 
    .. py:attribute:: hll_lg_k
       :type: int
-      :value: 12
 
       
 
    .. py:attribute:: kll_k
       :type: int
-      :value: 256
 
       
 
    .. py:attribute:: fi_lg_max_k
       :type: int
-      :value: 10
 
       
 
    .. py:attribute:: fi_disabled
       :type: bool
-      :value: False
 
       
 
    .. py:attribute:: track_unicode_ranges
       :type: bool
-      :value: False
 
       
 
    .. py:attribute:: large_kll_k
       :type: bool
-      :value: True
 
       
 
    .. py:attribute:: kll_k_large
       :type: int
-      :value: 1024
 
       
 
@@ -311,19 +294,16 @@ Classes
 
    .. py:attribute:: lower_case
       :type: bool
-      :value: True
 
       
 
    .. py:attribute:: normalize
       :type: bool
-      :value: True
 
       
 
    .. py:attribute:: max_frequent_item_size
       :type: int
-      :value: 128
 
       
 

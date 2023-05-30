@@ -423,9 +423,32 @@
           <h1>Source code for whylogs.core.configs</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">whylogs_sketching</span> <span class="k">as</span> <span class="nn">ds</span>  <span class="c1"># type: ignore</span>
+
+<span class="c1"># MetricConfig default values</span>
+
+<span class="n">hll_lg_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">kll_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">fi_lg_max_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># 128 entries</span>
+<span class="n">fi_disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">track_unicode_ranges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">large_kll_k</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">kll_k_large</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
+<span class="n">unicode_ranges</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;emoticon&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x1F600</span><span class="p">,</span> <span class="mh">0x1F64F</span><span class="p">),</span>
+    <span class="s2">&quot;control&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x1F</span><span class="p">),</span>
+    <span class="s2">&quot;digits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x30</span><span class="p">,</span> <span class="mh">0x39</span><span class="p">),</span>
+    <span class="s2">&quot;latin-upper&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x41</span><span class="p">,</span> <span class="mh">0x5A</span><span class="p">),</span>
+    <span class="s2">&quot;latin-lower&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x61</span><span class="p">,</span> <span class="mh">0x7A</span><span class="p">),</span>
+    <span class="s2">&quot;basic-latin&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x7F</span><span class="p">),</span>
+    <span class="s2">&quot;extended-latin&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x0080</span><span class="p">,</span> <span class="mh">0x02AF</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="n">lower_case</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Convert Unicode characters to lower-case before counting Unicode ranges</span>
+<span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Unicode normalize strings before counting Unicode ranges</span>
+<span class="n">max_frequent_item_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">identity_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 
 <div class="viewcode-block" id="FrequentItemsErrorType"><a class="viewcode-back" href="../../../api/whylogs/core/configs/index.html#whylogs.core.configs.FrequentItemsErrorType">[docs]</a><span class="k">class</span> <span class="nc">FrequentItemsErrorType</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>

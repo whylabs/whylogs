@@ -460,7 +460,8 @@
             <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="p">)</span>
             <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">ints</span><span class="p">)</span>
             <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="p">)</span>
-            <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">fi_disabled</span><span class="p">:</span>
+                <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">why_type</span><span class="p">,</span> <span class="n">Fractional</span><span class="p">):</span>
             <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="p">)</span>
             <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="p">)</span>
@@ -469,10 +470,8 @@
             <span class="k">if</span> <span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">track_unicode_ranges</span><span class="p">:</span>
                 <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">unicode_range</span><span class="p">)</span>
             <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="p">)</span>  <span class="c1"># &#39;object&#39; columns can contain Decimal</span>
-            <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">fi_disabled</span><span class="p">:</span>
-            <span class="n">metrics</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">fi_disabled</span><span class="p">:</span>
+                <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="p">)</span>
 
         <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>

@@ -18,6 +18,95 @@ Classes
 
 
 
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.configs.hll_lg_k
+   whylogs.core.configs.kll_k
+   whylogs.core.configs.fi_lg_max_k
+   whylogs.core.configs.fi_disabled
+   whylogs.core.configs.track_unicode_ranges
+   whylogs.core.configs.large_kll_k
+   whylogs.core.configs.kll_k_large
+   whylogs.core.configs.unicode_ranges
+   whylogs.core.configs.lower_case
+   whylogs.core.configs.normalize
+   whylogs.core.configs.max_frequent_item_size
+   whylogs.core.configs.identity_column
+
+
+.. py:data:: hll_lg_k
+   :type: int
+   :value: 12
+
+   
+
+.. py:data:: kll_k
+   :type: int
+   :value: 256
+
+   
+
+.. py:data:: fi_lg_max_k
+   :type: int
+   :value: 10
+
+   
+
+.. py:data:: fi_disabled
+   :type: bool
+   :value: False
+
+   
+
+.. py:data:: track_unicode_ranges
+   :type: bool
+   :value: False
+
+   
+
+.. py:data:: large_kll_k
+   :type: bool
+   :value: True
+
+   
+
+.. py:data:: kll_k_large
+   :type: int
+   :value: 1024
+
+   
+
+.. py:data:: unicode_ranges
+   :type: Dict[str, Tuple[int, int]]
+
+   
+
+.. py:data:: lower_case
+   :type: bool
+   :value: True
+
+   
+
+.. py:data:: normalize
+   :type: bool
+   :value: True
+
+   
+
+.. py:data:: max_frequent_item_size
+   :type: int
+   :value: 128
+
+   
+
+.. py:data:: identity_column
+   :type: Optional[str]
+
+   
+
 .. py:class:: FrequentItemsErrorType
 
    Bases: :py:obj:`int`, :py:obj:`enum.Enum`
