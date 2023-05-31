@@ -46,6 +46,7 @@ class DatasetProfile(Writable):
         dataset_timestamp: Optional[datetime] = None,
         creation_timestamp: Optional[datetime] = None,
         metrics: Optional[Dict[str, Union[Metric, Any]]] = None,
+        metadata: Optional[Dict[str, str]] = None,
     ):
         if schema is None:
             schema = DatasetSchema()
@@ -59,6 +60,7 @@ class DatasetProfile(Writable):
         new_cols = schema.get_col_names()
         self._initialize_new_columns(new_cols)
         self._metrics: Dict[str, Union[Metric, Any]] = metrics or dict()
+        self._metadata = metadata
 
     @property
     def creation_timestamp(self) -> datetime:
@@ -261,6 +263,7 @@ class DatasetProfile(Writable):
             dataset_timestamp=self.dataset_timestamp,
             creation_timestamp=self.creation_timestamp,
             metrics=self._metrics,
+            metadata=self._metadata,
         )
 
     def flush(self) -> None:
