@@ -34,7 +34,7 @@ class Logger(ABC):
         atexit.register(self.close)
         self._store_list: List[ProfileStore] = []
         self._segment_cache = None
-        self._metadata = None
+        self._metadata: Optional[Dict[str, str]] = None
 
     def check_writer(self, _: Writer) -> None:
         """Checks if a writer is configured correctly for this class"""
