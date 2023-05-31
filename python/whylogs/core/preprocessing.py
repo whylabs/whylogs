@@ -174,7 +174,10 @@ class PreprocessedColumn:
         )
 
         floats = non_null_series[float_mask]
-        ints = non_null_series[int_mask].astype(int)
+        if non_null_series[int_mask].empty:
+            ints = pd.Series(dtype=int)
+        else:
+            ints = non_null_series[int_mask].astype(int)
         bool_count = non_null_series[bool_mask].count()
         bool_count_where_true = non_null_series[bool_mask_where_true].count()
         strings = non_null_series[str_mask]
