@@ -614,6 +614,13 @@ def test_apply_nontensorable_series(column: Any) -> None:
     assert_list_view_is_empty(res.list)
 
 
+def test_pandas_split_timestamps() -> None:
+    row_count = 10
+    df_test = pd.DataFrame({"dt": pd.date_range(start="2022-01-01", periods=row_count, freq="H", tz=None)})
+    res = why.log(df_test)
+    assert res.view().get_column("dt").get_metric("counts").n.value == row_count
+
+
 @pytest.mark.parametrize(
     "column",
     [
