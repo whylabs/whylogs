@@ -192,6 +192,7 @@ def register_metric_udf(
     submetric_name: Optional[str] = None,
     submetric_schema: Optional[SubmetricSchema] = None,
     type_mapper: Optional[TypeMapper] = None,
+    namespace: Optional[str] = None,
 ) -> Callable[[Any], Any]:
     """
     Decorator to easily configure UdfMetrics for your data set. Decorate your UDF
@@ -206,7 +207,7 @@ def register_metric_udf(
     Specify submetric_name to give the output of the UDF a name. submetric_name
     defautls to the name of the decorated function. Note that all lambdas are
     named "lambda" so omitting submetric_name on more than one lambda will result
-    in name collisions.
+    in name collisions. If you pass a namespace, it will be prepended to the UDF name.
 
     You can optionally pass submetric_schema to specify and configure the metrics
     to be tracked for each UDF. This defualts to the STANDARD_RESOLVER metrics.
@@ -226,6 +227,7 @@ def register_metric_udf(
             raise ValueError("Must specify one of column name or type")
 
         subname = submetric_name or func.__name__
+        subname = f"{namespace}.{subname}" if namespace else subname
         if col_name is not None:
             _col_name_submetrics[col_name].append((subname, func))
             if submetric_schema is not None:

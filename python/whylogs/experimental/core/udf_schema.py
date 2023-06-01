@@ -120,6 +120,7 @@ def register_dataset_udf(
     col_names: List[str],
     udf_name: Optional[str] = None,
     metrics: Optional[List[MetricSpec]] = None,
+    namespace: Optional[str] = None,
 ) -> Callable[[Any], Any]:
     """
     Decorator to easily configure UDFs for your data set. Decorate your UDF
@@ -130,7 +131,7 @@ def register_dataset_udf(
     Specify udf_name to give the output of the UDF a name. udf_name
     defautls to the name of the decorated function. Note that all lambdas are
     named "lambda", so omitting udf_name on more than one lambda will result
-    in name collisions.
+    in name collisions. If you pass a namespace, it will be prepended to the UDF name.
 
     If any metrics are passed via the metrics argument, they will be attached
     to the column produced by the UDF via the schema returned by generate_udf_dataset_schema().
@@ -142,6 +143,7 @@ def register_dataset_udf(
     def decorator_register(func):
         global _multicolumn_udfs, _resolver_specs
         name = udf_name or func.__name__
+        name = f"{namespace}.{name}" if namespace else name
         _multicolumn_udfs.append(UdfSpec(col_names, {name: func}))
         if metrics:
             _resolver_specs.append(ResolverSpec(name, None, deepcopy(metrics)))
