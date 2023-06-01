@@ -224,7 +224,7 @@ Attributes
 
 
 
-.. py:function:: register_metric_udf(col_name: Optional[str] = None, col_type: Optional[whylogs.core.datatypes.DataType] = None, submetric_name: Optional[str] = None, submetric_schema: Optional[whylogs.core.metrics.multimetric.SubmetricSchema] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None) -> Callable[[Any], Any]
+.. py:function:: register_metric_udf(col_name: Optional[str] = None, col_type: Optional[whylogs.core.datatypes.DataType] = None, submetric_name: Optional[str] = None, submetric_schema: Optional[whylogs.core.metrics.multimetric.SubmetricSchema] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, namespace: Optional[str] = None) -> Callable[[Any], Any]
 
    Decorator to easily configure UdfMetrics for your data set. Decorate your UDF
    functions, then call generate_udf_schema() to generate a list of ResolverSpecs
@@ -238,7 +238,7 @@ Attributes
    Specify submetric_name to give the output of the UDF a name. submetric_name
    defautls to the name of the decorated function. Note that all lambdas are
    named "lambda" so omitting submetric_name on more than one lambda will result
-   in name collisions.
+   in name collisions. If you pass a namespace, it will be prepended to the UDF name.
 
    You can optionally pass submetric_schema to specify and configure the metrics
    to be tracked for each UDF. This defualts to the STANDARD_RESOLVER metrics.

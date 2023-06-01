@@ -615,6 +615,7 @@
     <span class="n">submetric_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">submetric_schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SubmetricSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">type_mapper</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TypeMapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorator to easily configure UdfMetrics for your data set. Decorate your UDF</span>
@@ -629,7 +630,7 @@
 <span class="sd">    Specify submetric_name to give the output of the UDF a name. submetric_name</span>
 <span class="sd">    defautls to the name of the decorated function. Note that all lambdas are</span>
 <span class="sd">    named &quot;lambda&quot; so omitting submetric_name on more than one lambda will result</span>
-<span class="sd">    in name collisions.</span>
+<span class="sd">    in name collisions. If you pass a namespace, it will be prepended to the UDF name.</span>
 
 <span class="sd">    You can optionally pass submetric_schema to specify and configure the metrics</span>
 <span class="sd">    to be tracked for each UDF. This defualts to the STANDARD_RESOLVER metrics.</span>
@@ -649,6 +650,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify one of column name or type&quot;</span><span class="p">)</span>
 
         <span class="n">subname</span> <span class="o">=</span> <span class="n">submetric_name</span> <span class="ow">or</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">subname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">subname</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">namespace</span> <span class="k">else</span> <span class="n">subname</span>
         <span class="k">if</span> <span class="n">col_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">_col_name_submetrics</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">subname</span><span class="p">,</span> <span class="n">func</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">submetric_schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
