@@ -75,6 +75,22 @@ def test_decorator_row() -> None:
     assert "distribution/n" in sqr_summary
 
 
+@register_dataset_udf(["col1"], "colliding_name", namespace="pluto")
+def a_function(x):
+    return x["col1"]
+
+
+@register_dataset_udf(["col1"], "colliding_name", namespace="neptune")
+def another_function(x):
+    return x["col1"]
+
+
+def test_namespace() -> None:
+    results = why.log(row={"col1": 42}, schema=udf_schema()).view()
+    assert results.get_column("pluto.colliding_name") is not None
+    assert results.get_column("neptune.colliding_name") is not None
+
+
 @register_dataset_udf(["col1", "col2"], "product")
 def times(x):
     return x["col1"] * x["col2"]

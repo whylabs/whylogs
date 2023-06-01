@@ -162,3 +162,21 @@ def test_decorator() -> None:
     assert "udf/upper:distribution/n" in col4_summary
     assert "udf/upper:cardinality/est" in col4_summary
     assert "udf/upper:frequent_items/frequent_strings" in col4_summary
+
+
+@register_metric_udf("col1", submetric_name="colliding_name", namespace="pluto")
+def a_function(x):
+    return x
+
+
+@register_metric_udf("col1", submetric_name="colliding_name", namespace="neptune")
+def another_function(x):
+    return x
+
+
+def test_namespace() -> None:
+    results = why.log(row={"col1": 42}, schema=udf_metric_schema()).view()
+    col1 = results.get_column("col1")
+    summary = col1.to_summary_dict()
+    assert "udf/pluto.colliding_name:counts/n" in summary
+    assert "udf/neptune.colliding_name:counts/n" in summary
