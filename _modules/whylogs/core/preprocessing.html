@@ -597,7 +597,10 @@
         <span class="p">)</span>
 
         <span class="n">floats</span> <span class="o">=</span> <span class="n">non_null_series</span><span class="p">[</span><span class="n">float_mask</span><span class="p">]</span>
-        <span class="n">ints</span> <span class="o">=</span> <span class="n">non_null_series</span><span class="p">[</span><span class="n">int_mask</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">non_null_series</span><span class="p">[</span><span class="n">int_mask</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">ints</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ints</span> <span class="o">=</span> <span class="n">non_null_series</span><span class="p">[</span><span class="n">int_mask</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="n">bool_count</span> <span class="o">=</span> <span class="n">non_null_series</span><span class="p">[</span><span class="n">bool_mask</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
         <span class="n">bool_count_where_true</span> <span class="o">=</span> <span class="n">non_null_series</span><span class="p">[</span><span class="n">bool_mask_where_true</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
         <span class="n">strings</span> <span class="o">=</span> <span class="n">non_null_series</span><span class="p">[</span><span class="n">str_mask</span><span class="p">]</span>
