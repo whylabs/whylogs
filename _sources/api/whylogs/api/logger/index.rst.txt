@@ -80,7 +80,7 @@ Attributes
    .. py:method:: append_store(store: whylogs.api.store.ProfileStore) -> None
 
 
-   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None, name: Optional[str] = None) -> whylogs.api.logger.result_set.ResultSet
 
       :param timestamp_ms: The timestamp of the data being logged. This defaults to now if it isn't provided.
                            This is used to determine what the dataset timestamp should be. For an hourly model, the dataset
@@ -298,7 +298,7 @@ Attributes
 
 
 
-.. py:class:: TimedRollingLogger(schema: Optional[whylogs.core.DatasetSchema] = None, *, base_name: Optional[str] = None, file_extension: Optional[str] = None, interval: int = 1, when: typing_extensions.Literal[S, M, H, D] = 'H', utc: bool = False, aligned: bool = True, fork: bool = False, skip_empty: bool = False, callback: Optional[Callable[[whylogs.api.writer.Writer, whylogs.core.DatasetProfileView, str], None]] = None)
+.. py:class:: TimedRollingLogger(schema: Optional[whylogs.core.DatasetSchema] = None, *, base_name: Optional[str] = None, file_extension: Optional[str] = None, interval: int = 1, when: typing_extensions.Literal[S, M, H, D] = 'H', utc: bool = False, aligned: bool = True, fork: bool = False, skip_empty: bool = False, callback: Optional[Callable[[whylogs.api.writer.Writer, whylogs.core.DatasetProfileView, str], None]] = None, metadata: Optional[Dict[str, str]] = None)
 
    Bases: :py:obj:`whylogs.api.logger.logger.Logger`
 
@@ -318,7 +318,7 @@ Attributes
    .. py:method:: append_store(store: whylogs.api.store.ProfileStore) -> None
 
 
-   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None, name: Optional[str] = None) -> whylogs.api.logger.result_set.ResultSet
 
       :param timestamp_ms: The timestamp of the data being logged. This defaults to now if it isn't provided.
                            This is used to determine what the dataset timestamp should be. For an hourly model, the dataset
@@ -344,7 +344,7 @@ Attributes
    .. py:method:: append_store(store: whylogs.api.store.ProfileStore) -> None
 
 
-   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None, name: Optional[str] = None) -> whylogs.api.logger.result_set.ResultSet
 
       :param timestamp_ms: The timestamp of the data being logged. This defaults to now if it isn't provided.
                            This is used to determine what the dataset timestamp should be. For an hourly model, the dataset
@@ -355,7 +355,7 @@ Attributes
 
 
 
-.. py:class:: DatasetProfile(schema: Optional[whylogs.core.schema.DatasetSchema] = None, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None, metrics: Optional[Dict[str, Union[whylogs.core.metrics.Metric, Any]]] = None)
+.. py:class:: DatasetProfile(schema: Optional[whylogs.core.schema.DatasetSchema] = None, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None, metrics: Optional[Dict[str, Union[whylogs.core.metrics.Metric, Any]]] = None, metadata: Optional[Dict[str, str]] = None)
 
    Bases: :py:obj:`whylogs.api.writer.writer.Writable`
 
@@ -547,7 +547,7 @@ Attributes
 
    
 
-.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None) -> result_set.ResultSet
+.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, name: Optional[str] = None) -> result_set.ResultSet
 
 
 .. py:function:: log_classification_metrics(data: whylogs.core.stubs.pd.DataFrame, target_column: str, prediction_column: str, score_column: Optional[str] = None, schema: Optional[whylogs.core.DatasetSchema] = None, log_full_data: bool = False) -> result_set.ProfileResultSet

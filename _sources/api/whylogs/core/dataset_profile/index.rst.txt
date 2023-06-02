@@ -29,7 +29,7 @@ Attributes
 
    
 
-.. py:class:: DatasetProfile(schema: Optional[whylogs.core.schema.DatasetSchema] = None, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None, metrics: Optional[Dict[str, Union[whylogs.core.metrics.Metric, Any]]] = None)
+.. py:class:: DatasetProfile(schema: Optional[whylogs.core.schema.DatasetSchema] = None, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None, metrics: Optional[Dict[str, Union[whylogs.core.metrics.Metric, Any]]] = None, metadata: Optional[Dict[str, str]] = None)
 
    Bases: :py:obj:`whylogs.api.writer.writer.Writable`
 
