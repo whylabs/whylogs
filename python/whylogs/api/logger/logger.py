@@ -34,6 +34,7 @@ class Logger(ABC):
         atexit.register(self.close)
         self._store_list: List[ProfileStore] = []
         self._segment_cache = None
+        self._metadata: Optional[Dict[str, str]] = None
 
     def check_writer(self, _: Writer) -> None:
         """Checks if a writer is configured correctly for this class"""
@@ -72,6 +73,7 @@ class Logger(ABC):
         row: Optional[Dict[str, Any]] = None,
         schema: Optional[DatasetSchema] = None,
         timestamp_ms: Optional[int] = None,  # Not the dataset timestamp, but the timestamp of the data
+        name: Optional[str] = None,
     ) -> ResultSet:
         """
         Args:
@@ -84,7 +86,10 @@ class Logger(ABC):
         if obj is None and pandas is None and row is None:
             # TODO: check for shell environment and emit more verbose error string to let user know how to correct.
             raise LoggingError("log() was called without passing in any input!")
-
+        if name is not None:
+            if self._metadata is None:
+                self._metadata = dict()
+            self._metadata["name"] = name
         active_schema = schema or self._schema
         if active_schema:
             pandas, row = _pandas_or_dict(obj, pandas, row)
@@ -99,8 +104,14 @@ class Logger(ABC):
 
         for prof in profiles:
             prof.track(obj, pandas=pandas, row=row, execute_udfs=False)
+            prof._metadata
 
-        return ProfileResultSet(profiles[0])
+        first_profile = profiles[0]
+        if name is not None:
+            if first_profile._metadata is None:
+                first_profile._metadata = dict()
+            first_profile._metadata["name"] = name
+        return ProfileResultSet(first_profile)
 
     def close(self) -> None:
         self._is_closed = True
