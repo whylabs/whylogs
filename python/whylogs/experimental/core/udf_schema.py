@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple
@@ -112,8 +113,8 @@ class UdfSchema(DeclarativeSchema):
         return new_df, new_columns
 
 
-_multicolumn_udfs: List[UdfSpec] = []
-_resolver_specs: List[ResolverSpec] = []
+_multicolumn_udfs: Dict[str, List[UdfSpec]] = defaultdict(list)
+_resolver_specs: Dict[str, List[ResolverSpec]] = defaultdict(list)
 
 
 def register_dataset_udf(
@@ -121,6 +122,7 @@ def register_dataset_udf(
     udf_name: Optional[str] = None,
     metrics: Optional[List[MetricSpec]] = None,
     namespace: Optional[str] = None,
+    schema_name: str = "",
 ) -> Callable[[Any], Any]:
     """
     Decorator to easily configure UDFs for your data set. Decorate your UDF
@@ -144,16 +146,19 @@ def register_dataset_udf(
         global _multicolumn_udfs, _resolver_specs
         name = udf_name or func.__name__
         name = f"{namespace}.{name}" if namespace else name
-        _multicolumn_udfs.append(UdfSpec(col_names, {name: func}))
+        _multicolumn_udfs[schema_name].append(UdfSpec(col_names, {name: func}))
         if metrics:
-            _resolver_specs.append(ResolverSpec(name, None, deepcopy(metrics)))
+            _resolver_specs[schema_name].append(ResolverSpec(name, None, deepcopy(metrics)))
 
         return func
 
     return decorator_register
 
 
-def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None) -> List[UdfSpec]:
+def generate_udf_specs(
+    other_udf_specs: Optional[List[UdfSpec]] = None,
+    schema_name: str = ""
+) -> List[UdfSpec]:
     """
     Generates a list UdfSpecs that implement the UDFs specified
     by the @register_dataset_udf decorators. You can provide a list of
@@ -175,7 +180,7 @@ def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None) -> List[
     for every column.
     """
     specs = list(other_udf_specs) if other_udf_specs else []
-    specs += _multicolumn_udfs
+    specs += _multicolumn_udfs[schema_name]
     return specs
 
 
@@ -189,16 +194,17 @@ def udf_schema(
     schema_based_automerge: bool = False,
     segments: Optional[Dict[str, SegmentationPartition]] = None,
     validators: Optional[Dict[str, List[Validator]]] = None,
+    schema_name: str = "",
 ) -> UdfSchema:
     """
     Returns a UdfSchema that implements any registered UDFs, along with any
     other_udf_specs or resolvers passed in.
     """
     if resolvers is not None:
-        resolver_specs = resolvers + _resolver_specs
+        resolver_specs = resolvers + _resolver_specs[schema_name]
     else:
-        resolver_specs = UDF_BASE_RESOLVER + _resolver_specs
-    resolver_specs += generate_udf_resolvers()
+        resolver_specs = UDF_BASE_RESOLVER + _resolver_specs[schema_name]
+    resolver_specs += generate_udf_resolvers(schema_name)
     return UdfSchema(
         resolver_specs,
         types,
@@ -208,5 +214,5 @@ def udf_schema(
         schema_based_automerge,
         segments,
         validators,
-        generate_udf_specs(other_udf_specs),
+        generate_udf_specs(other_udf_specs, schema_name),
     )
