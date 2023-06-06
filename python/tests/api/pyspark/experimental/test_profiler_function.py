@@ -175,8 +175,6 @@ class TestPySpark(object):
         assert profile_view.get_column("3").get_metric_names() == []
 
     def test_collect_dataset_profile_view_with_udf_schema(self, input_df):
-        import os
-
         from whylogs.core.datatypes import Fractional
         from whylogs.experimental.core.metrics.udf_metric import (
             generate_udf_resolvers,
