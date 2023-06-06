@@ -526,14 +526,15 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">udfs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]],</span>
+        <span class="n">submetrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]],</span>
+        <span class="n">udfs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="c1"># discover these with resolver  submetrics: Dict[str, Dict[str, Metric]],  # feature name -&gt; (namespace -&gt; metric)</span>
         <span class="n">submetric_schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SubmetricSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">type_mapper</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TypeMapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fi_disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">dict</span><span class="p">())</span>  <span class="c1"># submetrics)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_udfs</span> <span class="o">=</span> <span class="n">udfs</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">submetrics</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_udfs</span> <span class="o">=</span> <span class="n">udfs</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_submetric_schema</span> <span class="o">=</span> <span class="n">submetric_schema</span> <span class="ow">or</span> <span class="n">default_schema</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type_mapper</span> <span class="o">=</span> <span class="n">type_mapper</span> <span class="ow">or</span> <span class="n">StandardTypeMapper</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fi_disabled</span> <span class="o">=</span> <span class="n">fi_disabled</span>
@@ -543,7 +544,7 @@
         <span class="k">return</span> <span class="s2">&quot;udf&quot;</span>
 
 <div class="viewcode-block" id="UdfMetric.merge"><a class="viewcode-back" href="../../../../../api/whylogs/experimental/core/metrics/udf_metric/index.html#whylogs.experimental.core.metrics.udf_metric.UdfMetric.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;UdfMetric&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;UdfMetric&quot;</span><span class="p">:</span>
-        <span class="n">merged</span> <span class="o">=</span> <span class="n">UdfMetric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_udfs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_submetric_schema</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_mapper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fi_disabled</span><span class="p">)</span>
+        <span class="n">merged</span> <span class="o">=</span> <span class="n">UdfMetric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_udfs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_submetric_schema</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_mapper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fi_disabled</span><span class="p">)</span>
         <span class="n">merged</span><span class="o">.</span><span class="n">submetrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_submetrics</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">merged</span></div>
 
@@ -589,10 +590,11 @@
             <span class="n">config</span> <span class="o">=</span> <span class="n">UdfMetricConfig</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">UdfMetric</span><span class="p">(</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">udfs</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">submetric_schema</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">type_mapper</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">fi_disabled</span><span class="p">,</span>
+            <span class="nb">dict</span><span class="p">(),</span>
+            <span class="n">udfs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">udfs</span><span class="p">,</span>
+            <span class="n">submetric_schema</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">submetric_schema</span><span class="p">,</span>
+            <span class="n">type_mapper</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">type_mapper</span><span class="p">,</span>
+            <span class="n">fi_disabled</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">fi_disabled</span><span class="p">,</span>
         <span class="p">)</span></div></div>
 
 

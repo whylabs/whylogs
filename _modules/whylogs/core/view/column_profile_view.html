@@ -552,7 +552,6 @@
 
             <span class="n">c_key</span> <span class="o">=</span> <span class="n">full_path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">metric_name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
             <span class="n">metric_components</span><span class="p">[</span><span class="n">c_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_msg</span>
-
         <span class="k">for</span> <span class="n">m_name</span><span class="p">,</span> <span class="n">metric_components</span> <span class="ow">in</span> <span class="n">metric_messages</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">m_enum</span> <span class="o">=</span> <span class="n">StandardMetric</span><span class="o">.</span><span class="n">__members__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">m_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">m_enum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -565,9 +564,11 @@
 
             <span class="n">m_msg</span> <span class="o">=</span> <span class="n">MetricMessage</span><span class="p">(</span><span class="n">metric_components</span><span class="o">=</span><span class="n">metric_components</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">result_metrics</span><span class="p">[</span><span class="n">m_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric_class</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="n">m_msg</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
-                <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to deserialize metric: </span><span class="si">{</span><span class="n">m_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">deserialized_metric</span> <span class="o">=</span> <span class="n">metric_class</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="n">m_msg</span><span class="p">)</span>
+                <span class="n">result_metrics</span><span class="p">[</span><span class="n">m_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">deserialized_metric</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># noqa</span>
+                <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to deserialize metric: </span><span class="si">{</span><span class="n">m_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">ColumnProfileView</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="n">result_metrics</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ColumnProfileView.from_bytes"><a class="viewcode-back" href="../../../../api/whylogs/core/view/index.html#whylogs.core.ColumnProfileView.from_bytes">[docs]</a>    <span class="nd">@classmethod</span>
