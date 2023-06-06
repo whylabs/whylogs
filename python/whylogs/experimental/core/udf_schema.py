@@ -155,10 +155,7 @@ def register_dataset_udf(
     return decorator_register
 
 
-def generate_udf_specs(
-    other_udf_specs: Optional[List[UdfSpec]] = None,
-    schema_name: str = ""
-) -> List[UdfSpec]:
+def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None, schema_name: str = "") -> List[UdfSpec]:
     """
     Generates a list UdfSpecs that implement the UDFs specified
     by the @register_dataset_udf decorators. You can provide a list of

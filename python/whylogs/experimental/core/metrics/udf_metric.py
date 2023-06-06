@@ -177,11 +177,15 @@ class UdfMetric(MultiMetric):
 register_metric(UdfMetric)
 
 
-_col_name_submetrics: Dict[str, Dict[str, List[Tuple[str, Callable[[Any], Any]]]]] = defaultdict(lambda: defaultdict(list))
+_col_name_submetrics: Dict[str, Dict[str, List[Tuple[str, Callable[[Any], Any]]]]] = defaultdict(
+    lambda: defaultdict(list)
+)
 _col_name_submetric_schema: Dict[str, Dict[str, SubmetricSchema]] = defaultdict(dict)
 _col_name_type_mapper: Dict[str, Dict[str, TypeMapper]] = defaultdict(dict)
 
-_col_type_submetrics: Dict[str, Dict[DataType, List[Tuple[str, Callable[[Any], Any]]]]] = defaultdict(lambda: defaultdict(list))
+_col_type_submetrics: Dict[str, Dict[DataType, List[Tuple[str, Callable[[Any], Any]]]]] = defaultdict(
+    lambda: defaultdict(list)
+)
 _col_type_submetric_schema: Dict[str, Dict[DataType, SubmetricSchema]] = defaultdict(dict)
 _col_type_type_mapper: Dict[str, Dict[DataType, TypeMapper]] = defaultdict(dict)
 
