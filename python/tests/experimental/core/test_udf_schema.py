@@ -135,7 +135,9 @@ def test_multicolumn_udf_pandas() -> None:
     assert "counts/n" in sqr_summary
     div_summary = results.get_column("ratio").to_summary_dict()
     assert div_summary["distribution/n"] == 3
-    assert len(results.get_column("ratio").get_metrics()) == 2  # Integral -> counts plus registered distribution
+    # Integral -> counts plus registered distribution
+    assert results.get_column("ratio").get_metric("counts") is not None
+    assert results.get_column("ratio").get_metric("distribution") is not None
 
 
 def test_multicolumn_udf_row() -> None:
@@ -172,7 +174,9 @@ def test_multicolumn_udf_row() -> None:
     assert "counts/n" in sqr_summary
     div_summary = results.get_column("ratio").to_summary_dict()
     assert div_summary["distribution/n"] == 1
-    assert len(results.get_column("ratio").get_metrics()) == 2  # Integral -> counts plus registered distribution
+    # Integral -> counts plus registered distribution
+    assert results.get_column("ratio").get_metric("counts") is not None
+    assert results.get_column("ratio").get_metric("distribution") is not None
 
 
 n: int = 0

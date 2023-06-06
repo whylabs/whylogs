@@ -2,6 +2,7 @@ import os
 import pickle
 import tempfile
 from glob import glob
+from logging import getLogger
 from typing import Any
 
 import numpy as np
@@ -25,6 +26,8 @@ from whylogs.core.segmentation_partition import (
 )
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.migration.converters import read_v0_to_view
+
+TEST_LOGGER = getLogger(__name__)
 
 
 def test_single_row_segment() -> None:
@@ -282,8 +285,8 @@ def test_multi_column_segment_serialization_roundtrip_v0(tmp_path: Any) -> None:
     for file_path in paths:
         roundtrip_profiles.append(read_v0_to_view(file_path))
     assert len(roundtrip_profiles) == input_rows
-    print(roundtrip_profiles)
-    print(roundtrip_profiles[15])
+    TEST_LOGGER.info(roundtrip_profiles)
+    TEST_LOGGER.info(roundtrip_profiles[15])
 
     post_deserialization_view = roundtrip_profiles[15]
     assert post_deserialization_view is not None

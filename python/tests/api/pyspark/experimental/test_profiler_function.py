@@ -186,10 +186,8 @@ class TestPySpark(object):
         def frob(x):
             return x * x
 
-        register_metric_udf(col_type=Fractional, submetric_name="square")(frob)
-        spark_message = f"detected spark envrionment: {'SPARK_HOME' in os.environ or 'SPARK_CONF_DIR' in os.environ}"
-        print(spark_message)
-        test_schema = DeclarativeSchema(resolvers=generate_udf_resolvers())
+        register_metric_udf(col_type=Fractional, submetric_name="square", schema_name="pyspark_test")(frob)
+        test_schema = DeclarativeSchema(resolvers=generate_udf_resolvers(schema_name="pyspark_test"))
         profile_view = collect_dataset_profile_view(input_df=input_df, schema=test_schema)
 
         assert isinstance(profile_view, DatasetProfileView)
