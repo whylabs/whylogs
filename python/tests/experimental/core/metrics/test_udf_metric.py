@@ -1,3 +1,5 @@
+from logging import getLogger
+
 import pandas as pd
 
 import whylogs as why
@@ -9,6 +11,8 @@ from whylogs.experimental.core.metrics.udf_metric import (
     register_metric_udf,
     udf_metric_schema,
 )
+
+logger = getLogger(__name__)
 
 
 def test_udf_metric() -> None:
@@ -22,6 +26,37 @@ def test_udf_metric() -> None:
     metric.columnar_update(PreprocessedColumn.apply([0]))
     summary = metric.to_summary_dict()
 
+    assert summary["fortytwo:counts/n"] == 1
+    assert summary["fortytwo:types/integral"] == 1
+    assert summary["fortytwo:types/string"] == 0
+    assert summary["fortytwo:cardinality/est"] == 1
+    assert summary["fortytwo:distribution/n"] == 1
+    assert summary["fortytwo:distribution/mean"] == 42
+    assert summary["fortytwo:ints/max"] == 42
+    assert summary["fortytwo:ints/min"] == 42
+    assert "fortytwo:frequent_items/frequent_strings" in summary
+
+    assert summary["foo:counts/n"] == 1
+    assert summary["foo:types/integral"] == 0
+    assert summary["foo:types/string"] == 1
+    assert summary["foo:cardinality/est"] == 1
+    assert "foo:frequent_items/frequent_strings" in summary
+
+
+def test_udf_metric_from_to_protobuf() -> None:
+    config = UdfMetricConfig(
+        udfs={
+            "fortytwo": lambda x: 42,
+            "foo": lambda x: "bar",
+        },
+    )
+    metric = UdfMetric.zero(config)
+    metric.columnar_update(PreprocessedColumn.apply([0]))
+    udf_metric_message = metric.to_protobuf()
+    logger.debug(f"serialized msg: {udf_metric_message}")
+    deserialied_udf_metric = UdfMetric.from_protobuf(udf_metric_message)
+    summary = deserialied_udf_metric.to_summary_dict()
+    logger.debug(f"serialized summary {summary}")
     assert summary["fortytwo:counts/n"] == 1
     assert summary["fortytwo:types/integral"] == 1
     assert summary["fortytwo:types/string"] == 0
