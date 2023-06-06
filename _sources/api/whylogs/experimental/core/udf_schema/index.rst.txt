@@ -86,7 +86,7 @@ Attributes
 
 
 
-.. py:function:: register_dataset_udf(col_names: List[str], udf_name: Optional[str] = None, metrics: Optional[List[whylogs.core.resolvers.MetricSpec]] = None, namespace: Optional[str] = None) -> Callable[[Any], Any]
+.. py:function:: register_dataset_udf(col_names: List[str], udf_name: Optional[str] = None, metrics: Optional[List[whylogs.core.resolvers.MetricSpec]] = None, namespace: Optional[str] = None, schema_name: str = '') -> Callable[[Any], Any]
 
    Decorator to easily configure UDFs for your data set. Decorate your UDF
    functions, then call generate_udf_dataset_schema() to create a UdfSchema
@@ -105,7 +105,7 @@ Attributes
    by default.
 
 
-.. py:function:: generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None) -> List[UdfSpec]
+.. py:function:: generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None, schema_name: str = '') -> List[UdfSpec]
 
    Generates a list UdfSpecs that implement the UDFs specified
    by the @register_dataset_udf decorators. You can provide a list of
@@ -127,7 +127,7 @@ Attributes
    for every column.
 
 
-.. py:function:: udf_schema(other_udf_specs: Optional[List[UdfSpec]] = None, resolvers: Optional[List[whylogs.core.resolvers.ResolverSpec]] = None, types: Optional[Dict[str, Any]] = None, default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Optional[Dict[str, List[whylogs.core.validators.validator.Validator]]] = None) -> UdfSchema
+.. py:function:: udf_schema(other_udf_specs: Optional[List[UdfSpec]] = None, resolvers: Optional[List[whylogs.core.resolvers.ResolverSpec]] = None, types: Optional[Dict[str, Any]] = None, default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Optional[Dict[str, List[whylogs.core.validators.validator.Validator]]] = None, schema_name: str = '') -> UdfSchema
 
    Returns a UdfSchema that implements any registered UDFs, along with any
    other_udf_specs or resolvers passed in.

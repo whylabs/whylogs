@@ -422,6 +422,7 @@
         <article role="main">
           <h1>Source code for whylogs.experimental.core.udf_schema</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
@@ -535,8 +536,8 @@
         <span class="k">return</span> <span class="n">new_df</span><span class="p">,</span> <span class="n">new_columns</span></div>
 
 
-<span class="n">_multicolumn_udfs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">UdfSpec</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">_resolver_specs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">_multicolumn_udfs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">UdfSpec</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+<span class="n">_resolver_specs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="register_dataset_udf"><a class="viewcode-back" href="../../../../api/whylogs/experimental/core/udf_schema/index.html#whylogs.experimental.core.udf_schema.register_dataset_udf">[docs]</a><span class="k">def</span> <span class="nf">register_dataset_udf</span><span class="p">(</span>
@@ -544,6 +545,7 @@
     <span class="n">udf_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">metrics</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">MetricSpec</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">schema_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorator to easily configure UDFs for your data set. Decorate your UDF</span>
@@ -567,16 +569,16 @@
         <span class="k">global</span> <span class="n">_multicolumn_udfs</span><span class="p">,</span> <span class="n">_resolver_specs</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">udf_name</span> <span class="ow">or</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">namespace</span> <span class="k">else</span> <span class="n">name</span>
-        <span class="n">_multicolumn_udfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">UdfSpec</span><span class="p">(</span><span class="n">col_names</span><span class="p">,</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">func</span><span class="p">}))</span>
+        <span class="n">_multicolumn_udfs</span><span class="p">[</span><span class="n">schema_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">UdfSpec</span><span class="p">(</span><span class="n">col_names</span><span class="p">,</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">func</span><span class="p">}))</span>
         <span class="k">if</span> <span class="n">metrics</span><span class="p">:</span>
-            <span class="n">_resolver_specs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ResolverSpec</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">metrics</span><span class="p">)))</span>
+            <span class="n">_resolver_specs</span><span class="p">[</span><span class="n">schema_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ResolverSpec</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">metrics</span><span class="p">)))</span>
 
         <span class="k">return</span> <span class="n">func</span>
 
     <span class="k">return</span> <span class="n">decorator_register</span></div>
 
 
-<div class="viewcode-block" id="generate_udf_specs"><a class="viewcode-back" href="../../../../api/whylogs/experimental/core/udf_schema/index.html#whylogs.experimental.core.udf_schema.generate_udf_specs">[docs]</a><span class="k">def</span> <span class="nf">generate_udf_specs</span><span class="p">(</span><span class="n">other_udf_specs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">UdfSpec</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">UdfSpec</span><span class="p">]:</span>
+<div class="viewcode-block" id="generate_udf_specs"><a class="viewcode-back" href="../../../../api/whylogs/experimental/core/udf_schema/index.html#whylogs.experimental.core.udf_schema.generate_udf_specs">[docs]</a><span class="k">def</span> <span class="nf">generate_udf_specs</span><span class="p">(</span><span class="n">other_udf_specs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">UdfSpec</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">schema_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">UdfSpec</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generates a list UdfSpecs that implement the UDFs specified</span>
 <span class="sd">    by the @register_dataset_udf decorators. You can provide a list of</span>
@@ -598,7 +600,7 @@
 <span class="sd">    for every column.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">specs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">other_udf_specs</span><span class="p">)</span> <span class="k">if</span> <span class="n">other_udf_specs</span> <span class="k">else</span> <span class="p">[]</span>
-    <span class="n">specs</span> <span class="o">+=</span> <span class="n">_multicolumn_udfs</span>
+    <span class="n">specs</span> <span class="o">+=</span> <span class="n">_multicolumn_udfs</span><span class="p">[</span><span class="n">schema_name</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">specs</span></div>
 
 
@@ -612,16 +614,17 @@
     <span class="n">schema_based_automerge</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">segments</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SegmentationPartition</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">validators</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Validator</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">schema_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UdfSchema</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a UdfSchema that implements any registered UDFs, along with any</span>
 <span class="sd">    other_udf_specs or resolvers passed in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">resolvers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">resolver_specs</span> <span class="o">=</span> <span class="n">resolvers</span> <span class="o">+</span> <span class="n">_resolver_specs</span>
+        <span class="n">resolver_specs</span> <span class="o">=</span> <span class="n">resolvers</span> <span class="o">+</span> <span class="n">_resolver_specs</span><span class="p">[</span><span class="n">schema_name</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">resolver_specs</span> <span class="o">=</span> <span class="n">UDF_BASE_RESOLVER</span> <span class="o">+</span> <span class="n">_resolver_specs</span>
-    <span class="n">resolver_specs</span> <span class="o">+=</span> <span class="n">generate_udf_resolvers</span><span class="p">()</span>
+        <span class="n">resolver_specs</span> <span class="o">=</span> <span class="n">UDF_BASE_RESOLVER</span> <span class="o">+</span> <span class="n">_resolver_specs</span><span class="p">[</span><span class="n">schema_name</span><span class="p">]</span>
+    <span class="n">resolver_specs</span> <span class="o">+=</span> <span class="n">generate_udf_resolvers</span><span class="p">(</span><span class="n">schema_name</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">UdfSchema</span><span class="p">(</span>
         <span class="n">resolver_specs</span><span class="p">,</span>
         <span class="n">types</span><span class="p">,</span>
@@ -631,7 +634,7 @@
         <span class="n">schema_based_automerge</span><span class="p">,</span>
         <span class="n">segments</span><span class="p">,</span>
         <span class="n">validators</span><span class="p">,</span>
-        <span class="n">generate_udf_specs</span><span class="p">(</span><span class="n">other_udf_specs</span><span class="p">),</span>
+        <span class="n">generate_udf_specs</span><span class="p">(</span><span class="n">other_udf_specs</span><span class="p">,</span> <span class="n">schema_name</span><span class="p">),</span>
     <span class="p">)</span></div>
 </pre></div>
         </article>

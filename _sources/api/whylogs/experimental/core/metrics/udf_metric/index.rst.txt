@@ -224,7 +224,7 @@ Attributes
 
 
 
-.. py:function:: register_metric_udf(col_name: Optional[str] = None, col_type: Optional[whylogs.core.datatypes.DataType] = None, submetric_name: Optional[str] = None, submetric_schema: Optional[whylogs.core.metrics.multimetric.SubmetricSchema] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, namespace: Optional[str] = None) -> Callable[[Any], Any]
+.. py:function:: register_metric_udf(col_name: Optional[str] = None, col_type: Optional[whylogs.core.datatypes.DataType] = None, submetric_name: Optional[str] = None, submetric_schema: Optional[whylogs.core.metrics.multimetric.SubmetricSchema] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, namespace: Optional[str] = None, schema_name: str = '') -> Callable[[Any], Any]
 
    Decorator to easily configure UdfMetrics for your data set. Decorate your UDF
    functions, then call generate_udf_schema() to generate a list of ResolverSpecs
@@ -247,7 +247,7 @@ Attributes
    whylogs DataTypes. This defaults to the StandardTypeMapper.
 
 
-.. py:function:: generate_udf_resolvers() -> List[whylogs.core.resolvers.ResolverSpec]
+.. py:function:: generate_udf_resolvers(schema_name: str = '') -> List[whylogs.core.resolvers.ResolverSpec]
 
    Generates a list of ResolverSpecs that implement the UdfMetrics specified
    by the @register_metric_udf decorators. The result only includes the UdfMetric,
@@ -277,7 +277,7 @@ Attributes
 .. py:function:: generate_udf_schema() -> List[whylogs.core.resolvers.ResolverSpec]
 
 
-.. py:function:: udf_metric_schema(non_udf_resolvers: Optional[List[whylogs.core.resolvers.ResolverSpec]] = None, types: Optional[Dict[str, Any]] = None, default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Optional[Dict[str, List[whylogs.core.validators.validator.Validator]]] = None) -> whylogs.core.schema.DeclarativeSchema
+.. py:function:: udf_metric_schema(non_udf_resolvers: Optional[List[whylogs.core.resolvers.ResolverSpec]] = None, types: Optional[Dict[str, Any]] = None, default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Optional[Dict[str, List[whylogs.core.validators.validator.Validator]]] = None, schema_name: str = '') -> whylogs.core.schema.DeclarativeSchema
 
    Generates a DeclarativeSchema that implement the UdfMetrics specified
    by the @register_metric_udf decorators (in additon to any non_udf_resolvers
