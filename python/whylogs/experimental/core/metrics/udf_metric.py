@@ -103,14 +103,15 @@ class UdfMetric(MultiMetric):
 
     def __init__(
         self,
-        udfs: Dict[str, Callable[[Any], Any]],
+        submetrics: Dict[str, Dict[str, Metric]],
+        udfs: Optional[Dict[str, Callable[[Any], Any]]] = None,
         # discover these with resolver  submetrics: Dict[str, Dict[str, Metric]],  # feature name -> (namespace -> metric)
         submetric_schema: Optional[SubmetricSchema] = None,
         type_mapper: Optional[TypeMapper] = None,
         fi_disabled: bool = False,
     ):
-        super().__init__(dict())  # submetrics)
-        self._udfs = udfs
+        super().__init__(submetrics)
+        self._udfs = udfs or dict()
         self._submetric_schema = submetric_schema or default_schema()
         self._type_mapper = type_mapper or StandardTypeMapper()
         self._fi_disabled = fi_disabled
@@ -120,7 +121,7 @@ class UdfMetric(MultiMetric):
         return "udf"
 
     def merge(self, other: "UdfMetric") -> "UdfMetric":
-        merged = UdfMetric(self._udfs, self._submetric_schema, self._type_mapper, self._fi_disabled)
+        merged = UdfMetric(self.submetrics, self._udfs, self._submetric_schema, self._type_mapper, self._fi_disabled)
         merged.submetrics = self.merge_submetrics(other)
         return merged
 
@@ -166,10 +167,11 @@ class UdfMetric(MultiMetric):
             config = UdfMetricConfig()
 
         return UdfMetric(
-            config.udfs,
-            config.submetric_schema,
-            config.type_mapper,
-            config.fi_disabled,
+            dict(),
+            udfs=config.udfs,
+            submetric_schema=config.submetric_schema,
+            type_mapper=config.type_mapper,
+            fi_disabled=config.fi_disabled,
         )
 
 

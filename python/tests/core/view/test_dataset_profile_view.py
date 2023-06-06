@@ -233,10 +233,10 @@ def test_segmented_round_trip_metadata(tmp_path: str) -> None:
     segment_column = "A"
     results = why.log(df, schema=DatasetSchema(segments=segment_on_column(segment_column)))
     status = results.writer("local").write(dest=output_file)
-    TEST_LOGGER.info("serialized segmented profile to {output_file}" f" has status: {status}")
+    TEST_LOGGER.info(f"serialized segmented profile to {output_file} has status: {status}")
 
     view = DatasetProfileView.read(output_file)
-    TEST_LOGGER.info("round trip serialized and deserialized segmented profile" f" has metadata: {view._metadata}")
+    TEST_LOGGER.info(f"round trip serialized and deserialized segmented profile has metadata: {view._metadata}")
     assert view._metadata is not None
     segment_tag_metadata_key = _TAG_PREFIX + segment_column
     assert segment_tag_metadata_key in view._metadata

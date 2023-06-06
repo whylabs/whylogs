@@ -174,6 +174,28 @@ class TestPySpark(object):
         assert profile_view.get_column("2").get_metric_names() == []
         assert profile_view.get_column("3").get_metric_names() == []
 
+    def test_collect_dataset_profile_view_with_udf_schema(self, input_df):
+        import os
+
+        from whylogs.core.datatypes import Fractional
+        from whylogs.experimental.core.metrics.udf_metric import (
+            generate_udf_resolvers,
+            register_metric_udf,
+        )
+
+        def frob(x):
+            return x * x
+
+        register_metric_udf(col_type=Fractional, submetric_name="square")(frob)
+        spark_message = f"detected spark envrionment: {'SPARK_HOME' in os.environ or 'SPARK_CONF_DIR' in os.environ}"
+        print(spark_message)
+        test_schema = DeclarativeSchema(resolvers=generate_udf_resolvers())
+        profile_view = collect_dataset_profile_view(input_df=input_df, schema=test_schema)
+
+        assert isinstance(profile_view, DatasetProfileView)
+        assert len(profile_view.get_columns()) > 0
+        assert "udf" in profile_view.get_column("0").get_metric_names()
+
     def test_map_vectors(self, embeddings_df):
         from pyspark.ml.functions import vector_to_array
 
