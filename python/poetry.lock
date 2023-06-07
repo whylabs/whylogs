@@ -4109,10 +4109,25 @@ files = [
 ]
 
 [[package]]
+name = "types-requests"
+version = "2.31.0.1"
+description = "Typing stubs for requests"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-requests-2.31.0.1.tar.gz", hash = "sha256:3de667cffa123ce698591de0ad7db034a5317457a596eb0b4944e5a9d9e8d1ac"},
+    {file = "types_requests-2.31.0.1-py3-none-any.whl", hash = "sha256:afb06ef8f25ba83d59a1d424bd7a5a939082f94b94e90ab5e6116bd2559deaa3"},
+]
+
+[package.dependencies]
+types-urllib3 = "*"
+
+[[package]]
 name = "types-urllib3"
 version = "1.26.25.12"
 description = "Typing stubs for urllib3"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -4413,4 +4428,4 @@ whylabs = ["requests"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.1, <4"
-content-hash = "78ebfb37657415cbc27d85b5abf79da1ff5861adeab8173f1e196d99d87c5846"
+content-hash = "00fda20d5da8214eaa7aeed1a026c2da9f7f91455b6994a159b6692d10bf5d53"
