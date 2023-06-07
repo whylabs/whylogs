@@ -68,6 +68,7 @@ scikit-learn = [
 
 # Fugue related dependencies
 fugue = {version = "^0.8.1", optional = true}
+platformdirs = "^3.5.0"
 
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"

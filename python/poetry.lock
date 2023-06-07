@@ -2473,21 +2473,21 @@ files = [
 
 [[package]]
 name = "platformdirs"
-version = "3.5.0"
+version = "3.5.1"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "platformdirs-3.5.0-py3-none-any.whl", hash = "sha256:47692bc24c1958e8b0f13dd727307cff1db103fca36399f457da8e05f222fdc4"},
-    {file = "platformdirs-3.5.0.tar.gz", hash = "sha256:7954a68d0ba23558d753f73437c55f89027cf8f5108c19844d4b82e5af396335"},
+    {file = "platformdirs-3.5.1-py3-none-any.whl", hash = "sha256:e2378146f1964972c03c085bb5662ae80b2b8c06226c54b2ff4aa9483e8a13a5"},
+    {file = "platformdirs-3.5.1.tar.gz", hash = "sha256:412dae91f52a6f84830f39a8078cecd0e866cb72294a5c66808e74d5e88d251f"},
 ]
 
 [package.dependencies]
 typing-extensions = {version = ">=4.5", markers = "python_version < \"3.8\""}
 
 [package.extras]
-docs = ["furo (>=2023.3.27)", "proselint (>=0.13)", "sphinx (>=6.1.3)", "sphinx-autodoc-typehints (>=1.23,!=1.23.4)"]
+docs = ["furo (>=2023.3.27)", "proselint (>=0.13)", "sphinx (>=6.2.1)", "sphinx-autodoc-typehints (>=1.23,!=1.23.4)"]
 test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.3.1)", "pytest-cov (>=4)", "pytest-mock (>=3.10)"]
 
 [[package]]
@@ -4412,7 +4412,7 @@ docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker
 testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
 
 [extras]
-all = ["Pillow", "boto3", "fugue", "google-cloud-storage", "ipython", "mlflow-skinny", "numpy", "numpy", "pandas", "pyarrow", "pybars3", "pyspark", "requests", "scikit-learn", "scikit-learn", "scipy", "scipy"]
+all = ["Pillow", "boto3", "fugue", "google-cloud-storage", "ipython", "mlflow-skinny", "numpy", "numpy", "pandas", "pyarrow", "pybars3", "pyspark", "scikit-learn", "scikit-learn", "scipy", "scipy"]
 datasets = ["pandas"]
 docs = ["furo", "ipython_genutils", "myst-parser", "nbconvert", "nbsphinx", "sphinx", "sphinx-autoapi", "sphinx-autobuild", "sphinx-copybutton", "sphinx-inline-tabs", "sphinxext-opengraph"]
 embeddings = ["numpy", "numpy", "scikit-learn", "scikit-learn"]
@@ -4422,10 +4422,9 @@ image = ["Pillow"]
 mlflow = ["mlflow-skinny"]
 s3 = ["boto3"]
 spark = ["pyarrow", "pyspark"]
-viz = ["Pillow", "ipython", "numpy", "numpy", "pybars3", "requests", "scipy", "scipy"]
-whylabs = ["requests"]
+viz = ["Pillow", "ipython", "numpy", "numpy", "pybars3", "scipy", "scipy"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.1, <4"
-content-hash = "00fda20d5da8214eaa7aeed1a026c2da9f7f91455b6994a159b6692d10bf5d53"
+content-hash = "0bc2c32a7bd3d839f477a4a1f9859163fdc80f119c1867b2514f694642bf2b65"
