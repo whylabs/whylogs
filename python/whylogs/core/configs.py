@@ -26,6 +26,7 @@ lower_case: bool = True  # Convert Unicode characters to lower-case before count
 normalize: bool = True  # Unicode normalize strings before counting Unicode ranges
 max_frequent_item_size: int = 128
 identity_column: Optional[str] = None
+column_batch_size: Optional[int] = 1024
 
 
 class FrequentItemsErrorType(int, Enum):
