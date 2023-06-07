@@ -7,6 +7,7 @@ import whylogs as why
 from whylogs.api.usage_stats import emit_usage
 from whylogs.core import DatasetSchema
 from whylogs.core.metrics.metrics import MetricConfig
+from whylogs.core.metrics.metrics import conf
 from whylogs.core.stubs import pd
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
@@ -112,14 +113,11 @@ def _collect_column_profile_views_batched(
     return combined_column_views
 
 
-def _get_column_batch_size(schema: Optional[DatasetSchema] = None) -> Optional[int]:
-    if schema and schema.default_configs:
-        batch_size = schema.default_configs.column_batch_size
+def _get_column_batch_size() -> Optional[int]:
+    if conf.column_batch_size:
+        return conf.column_batch_size
     else:
-        default_config = MetricConfig()
-        batch_size = default_config.column_batch_size
-
-    return batch_size
+        return None
 
 
 def collect_dataset_profile_view(
