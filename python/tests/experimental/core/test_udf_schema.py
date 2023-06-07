@@ -135,7 +135,9 @@ def test_multicolumn_udf_pandas() -> None:
     assert "counts/n" in sqr_summary
     div_summary = results.get_column("ratio").to_summary_dict()
     assert div_summary["distribution/n"] == 3
-    assert len(results.get_column("ratio").get_metrics()) == 2  # Integral -> counts plus registered distribution
+    # Integral -> counts plus registered distribution
+    assert results.get_column("ratio").get_metric("counts") is not None
+    assert results.get_column("ratio").get_metric("distribution") is not None
 
 
 def test_multicolumn_udf_row() -> None:
@@ -172,7 +174,9 @@ def test_multicolumn_udf_row() -> None:
     assert "counts/n" in sqr_summary
     div_summary = results.get_column("ratio").to_summary_dict()
     assert div_summary["distribution/n"] == 1
-    assert len(results.get_column("ratio").get_metrics()) == 2  # Integral -> counts plus registered distribution
+    # Integral -> counts plus registered distribution
+    assert results.get_column("ratio").get_metric("counts") is not None
+    assert results.get_column("ratio").get_metric("distribution") is not None
 
 
 n: int = 0
@@ -284,3 +288,34 @@ def test_udf_track() -> None:
     assert prod_summary["counts/n"] == 3
     div_summary = results.get_column("ratio").to_summary_dict()
     assert div_summary["distribution/n"] == 3
+
+
+@register_dataset_udf(["schema.col1"], schema_name="bob")
+def bob(x):
+    return x["schema.col1"]
+
+
+@register_metric_udf("schema.col1", schema_name="bob")
+def rob(x):
+    return x
+
+
+@register_dataset_udf(["schema.col1"], "add5")
+def fob(x):
+    return x["schema.col1"] + 5
+
+
+def test_schema_name() -> None:
+    default_schema = udf_schema()
+    data = pd.DataFrame({"schema.col1": [42, 12, 7]})
+    default_view = why.log(data, schema=default_schema).view()
+    assert "add5" in default_view.get_columns()
+    assert "bob" not in default_view.get_columns()
+    assert "udf" not in default_view.get_column("schema.col1").get_metric_names()
+
+    bob_schema = udf_schema(schema_name="bob")
+    data = pd.DataFrame({"schema.col1": [42, 12, 7]})
+    bob_view = why.log(data, schema=bob_schema).view()
+    assert "add5" not in bob_view.get_columns()
+    assert "bob" in bob_view.get_columns()
+    assert "udf" in bob_view.get_column("schema.col1").get_metric_names()

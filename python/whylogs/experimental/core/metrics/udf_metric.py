@@ -103,14 +103,15 @@ class UdfMetric(MultiMetric):
 
     def __init__(
         self,
-        udfs: Dict[str, Callable[[Any], Any]],
+        submetrics: Dict[str, Dict[str, Metric]],
+        udfs: Optional[Dict[str, Callable[[Any], Any]]] = None,
         # discover these with resolver  submetrics: Dict[str, Dict[str, Metric]],  # feature name -> (namespace -> metric)
         submetric_schema: Optional[SubmetricSchema] = None,
         type_mapper: Optional[TypeMapper] = None,
         fi_disabled: bool = False,
     ):
-        super().__init__(dict())  # submetrics)
-        self._udfs = udfs
+        super().__init__(submetrics)
+        self._udfs = udfs or dict()
         self._submetric_schema = submetric_schema or default_schema()
         self._type_mapper = type_mapper or StandardTypeMapper()
         self._fi_disabled = fi_disabled
@@ -120,7 +121,7 @@ class UdfMetric(MultiMetric):
         return "udf"
 
     def merge(self, other: "UdfMetric") -> "UdfMetric":
-        merged = UdfMetric(self._udfs, self._submetric_schema, self._type_mapper, self._fi_disabled)
+        merged = UdfMetric(self.submetrics, self._udfs, self._submetric_schema, self._type_mapper, self._fi_disabled)
         merged.submetrics = self.merge_submetrics(other)
         return merged
 
@@ -166,10 +167,11 @@ class UdfMetric(MultiMetric):
             config = UdfMetricConfig()
 
         return UdfMetric(
-            config.udfs,
-            config.submetric_schema,
-            config.type_mapper,
-            config.fi_disabled,
+            dict(),
+            udfs=config.udfs,
+            submetric_schema=config.submetric_schema,
+            type_mapper=config.type_mapper,
+            fi_disabled=config.fi_disabled,
         )
 
 
@@ -177,13 +179,17 @@ class UdfMetric(MultiMetric):
 register_metric(UdfMetric)
 
 
-_col_name_submetrics: Dict[str, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
-_col_name_submetric_schema: Dict[str, SubmetricSchema] = dict()
-_col_name_type_mapper: Dict[str, TypeMapper] = dict()
+_col_name_submetrics: Dict[str, Dict[str, List[Tuple[str, Callable[[Any], Any]]]]] = defaultdict(
+    lambda: defaultdict(list)
+)
+_col_name_submetric_schema: Dict[str, Dict[str, SubmetricSchema]] = defaultdict(dict)
+_col_name_type_mapper: Dict[str, Dict[str, TypeMapper]] = defaultdict(dict)
 
-_col_type_submetrics: Dict[DataType, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
-_col_type_submetric_schema: Dict[DataType, SubmetricSchema] = dict()
-_col_type_type_mapper: Dict[DataType, TypeMapper] = dict()
+_col_type_submetrics: Dict[str, Dict[DataType, List[Tuple[str, Callable[[Any], Any]]]]] = defaultdict(
+    lambda: defaultdict(list)
+)
+_col_type_submetric_schema: Dict[str, Dict[DataType, SubmetricSchema]] = defaultdict(dict)
+_col_type_type_mapper: Dict[str, Dict[DataType, TypeMapper]] = defaultdict(dict)
 
 
 def register_metric_udf(
@@ -193,6 +199,7 @@ def register_metric_udf(
     submetric_schema: Optional[SubmetricSchema] = None,
     type_mapper: Optional[TypeMapper] = None,
     namespace: Optional[str] = None,
+    schema_name: str = "",
 ) -> Callable[[Any], Any]:
     """
     Decorator to easily configure UdfMetrics for your data set. Decorate your UDF
@@ -229,32 +236,32 @@ def register_metric_udf(
         subname = submetric_name or func.__name__
         subname = f"{namespace}.{subname}" if namespace else subname
         if col_name is not None:
-            _col_name_submetrics[col_name].append((subname, func))
+            _col_name_submetrics[schema_name][col_name].append((subname, func))
             if submetric_schema is not None:
-                if col_name in _col_name_submetric_schema:
+                if col_name in _col_name_submetric_schema[schema_name]:
                     logger.warn(f"Overwriting submetric schema for column {col_name}")
-                _col_name_submetric_schema[col_name] = submetric_schema
+                _col_name_submetric_schema[schema_name][col_name] = submetric_schema
             if type_mapper is not None:
-                if col_name in _col_name_type_mapper:
+                if col_name in _col_name_type_mapper[schema_name]:
                     logger.warn(f"Overwriting UdfMetric type mapper for column {col_name}")
-                _col_name_type_mapper[col_name] = type_mapper
+                _col_name_type_mapper[schema_name][col_name] = type_mapper
         else:
-            _col_type_submetrics[col_type].append((subname, func))
+            _col_type_submetrics[schema_name][col_type].append((subname, func))
             if submetric_schema is not None:
-                if col_type in _col_type_submetric_schema:
+                if col_type in _col_type_submetric_schema[schema_name]:
                     logger.warn(f"Overwriting submetric schema for column type {col_type}")
-                _col_type_submetric_schema[col_type] = submetric_schema
+                _col_type_submetric_schema[schema_name][col_type] = submetric_schema
             if type_mapper is not None:
-                if col_type in _col_type_type_mapper:
+                if col_type in _col_type_type_mapper[schema_name]:
                     logger.warn(f"Overwriting UdfMetric type mapper for column type {col_type}")
-                _col_type_type_mapper[col_type] = type_mapper
+                _col_type_type_mapper[schema_name][col_type] = type_mapper
 
         return func
 
     return decorator_register
 
 
-def generate_udf_resolvers() -> List[ResolverSpec]:
+def generate_udf_resolvers(schema_name: str = "") -> List[ResolverSpec]:
     """
     Generates a list of ResolverSpecs that implement the UdfMetrics specified
     by the @register_metric_udf decorators. The result only includes the UdfMetric,
@@ -283,25 +290,25 @@ def generate_udf_resolvers() -> List[ResolverSpec]:
 
     resolvers: List[ResolverSpec] = list()
     udfs: Dict[str, Callable[[Any], Any]]
-    for col_name, submetrics in _col_name_submetrics.items():
+    for col_name, submetrics in _col_name_submetrics[schema_name].items():
         udfs = dict()
         for submetric in submetrics:
             udfs[submetric[0]] = submetric[1]
         config = UdfMetricConfig(
             udfs=udfs,
-            submetric_schema=_col_name_submetric_schema.get(col_name) or default_schema(),
-            type_mapper=_col_name_type_mapper.get(col_name) or StandardTypeMapper(),
+            submetric_schema=_col_name_submetric_schema[schema_name].get(col_name) or default_schema(),
+            type_mapper=_col_name_type_mapper[schema_name].get(col_name) or StandardTypeMapper(),
         )
         resolvers.append(ResolverSpec(col_name, None, [MetricSpec(UdfMetric, config)]))
 
-    for col_type, submetrics in _col_type_submetrics.items():
+    for col_type, submetrics in _col_type_submetrics[schema_name].items():
         udfs = dict()
         for submetric in submetrics:
             udfs[submetric[0]] = submetric[1]
         config = UdfMetricConfig(
             udfs=udfs,
-            submetric_schema=_col_type_submetric_schema.get(col_type) or default_schema(),
-            type_mapper=_col_type_type_mapper.get(col_type) or StandardTypeMapper(),
+            submetric_schema=_col_type_submetric_schema[schema_name].get(col_type) or default_schema(),
+            type_mapper=_col_type_type_mapper[schema_name].get(col_type) or StandardTypeMapper(),
         )
         resolvers.append(ResolverSpec(None, col_type, [MetricSpec(UdfMetric, config)]))
 
@@ -322,6 +329,7 @@ def udf_metric_schema(
     schema_based_automerge: bool = False,
     segments: Optional[Dict[str, SegmentationPartition]] = None,
     validators: Optional[Dict[str, List[Validator]]] = None,
+    schema_name: str = "",
 ) -> DeclarativeSchema:
     """
     Generates a DeclarativeSchema that implement the UdfMetrics specified
@@ -347,7 +355,7 @@ def udf_metric_schema(
     STANDARD_RESOLVER, the default metrics are also tracked for every column.
     """
 
-    resolvers = generate_udf_resolvers()
+    resolvers = generate_udf_resolvers(schema_name)
     non_udf_resolvers = non_udf_resolvers if non_udf_resolvers is not None else UDF_BASE_RESOLVER
 
     return DeclarativeSchema(
