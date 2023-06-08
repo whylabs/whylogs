@@ -1,28 +1,28 @@
 def is_notebook() -> bool:
-    return is_jupyter_notebook() or is_colab_notebook()
-
-
-def is_jupyter_notebook() -> bool:
-    """
-    Detects whether the current environment is a Jupyter notebook or not.
-    """
+    result = False
     try:
-        shell = get_ipython().__class__.__name__  # type: ignore
-        if shell == "ZMQInteractiveShell":
-            return True  # Jupyter notebook or qtconsole
-        elif shell == "TerminalInteractiveShell":
-            return False  # Terminal running IPython
-        else:
-            return False
-    except NameError:
-        return False  # Probably standard Python interpreter
+        result = is_ipython_notebook() or is_colab_notebook()
+    except Exception:
+        pass
+    return result
+
+
+def is_ipython_notebook() -> bool:
+    """
+    Detects whether the current environment is an IPython notebook or not.
+    """
+    if "get_ipython" in dir():
+        import importlib.util
+
+        if importlib.util.find_spec("IPython"):
+            from IPython import get_ipython
+
+            return get_ipython().__class__.__name__ == "ZMQInteractiveShell"
+
+    return False
 
 
 def is_colab_notebook() -> bool:
-    try:
-        import google.colab  # type: ignore
+    import importlib.util
 
-        google.colab
-        return True
-    except NameError:
-        return False
+    return importlib.util.find_spec("google.colab") is not None
