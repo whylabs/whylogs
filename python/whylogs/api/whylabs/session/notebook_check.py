@@ -11,15 +11,9 @@ def is_ipython_notebook() -> bool:
     """
     Detects whether the current environment is an IPython notebook or not.
     """
-    if "get_ipython" in dir():
-        import importlib.util
+    import sys
 
-        if importlib.util.find_spec("IPython"):
-            from IPython import get_ipython
-
-            return get_ipython().__class__.__name__ == "ZMQInteractiveShell"
-
-    return False
+    return 'ipykernel' in sys.modules
 
 
 def is_colab_notebook() -> bool:
