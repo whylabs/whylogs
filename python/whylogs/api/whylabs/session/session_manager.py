@@ -4,9 +4,9 @@ import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Union, cast
+from typing import Dict, List, Optional, Union
 
-import requests as r
+import requests as web_requests
 from whylabs_client import ApiException  # type: ignore
 from whylabs_client.api.sessions_api import (  # type: ignore
     BatchLogReferenceRequest,
@@ -20,6 +20,7 @@ from whylabs_client.api.sessions_api import (  # type: ignore
 from whylabs_client.api_client import ApiClient, Configuration  # type: ignore
 
 from whylogs.api.logger.result_set import ResultSet
+from whylogs.api.usage_stats import emit_usage
 from whylogs.api.whylabs.session.config import SessionConfig
 from whylogs.api.whylabs.session.notebook_check import is_notebook
 from whylogs.api.whylabs.session.session_types import (
@@ -27,7 +28,7 @@ from whylogs.api.whylabs.session.session_types import (
     init_notebook_logging,
     log_if_notebook,
 )
-from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.migration.uncompound import _uncompound_dataset_profile
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,7 @@ class GuestSession(Session):
         self._user_guid = self._get_or_create_user_guid()
         self._session_id = self._get_or_create_session_id()
         config_path = config.get_config_file_path()
+        emit_usage("guest_session")
         log_if_notebook(f"Initialized anonymous session with id {self._session_id} in config {config_path}")
 
     def get_type(self) -> SessionType:
@@ -158,19 +160,15 @@ class GuestSession(Session):
                     continue
 
                 result_set = profile_aliases[ref.alias]
-                writables = result_set.get_writables()
-
-                if writables is None:
-                    logger.warning(f"ResultSet for alias {ref.alias} has no profiles. Skipping upload.")
-                    continue
-
-                if len(writables) == 1:
-                    view = cast(DatasetProfileView, writables[0])  # TODO Jamie, is this right?
-                    r.put(ref.upload_url, data=view.serialize())
-                else:
-                    # TODO support segments here
+                if hasattr(result_set, "segments"):
                     logger.warning(f"Segments aren't supported in the log_reference api yet, skipping {ref.alias}")
                     continue
+                view_v1 = result_set.view()
+                if view_v1 is None:
+                    logger.warning(f"skipping {ref.alias} because it didn't contain a profile view")
+                    continue
+                whylabs_compatible_view = _uncompound_dataset_profile(view_v1)
+                web_requests.put(ref.upload_url, data=whylabs_compatible_view.serialize())
 
             time.sleep(2)
             return UploadReferenceResult(viewing_url=viewing_url, whylabs_response=response)
@@ -203,7 +201,7 @@ class ApiKeySession(Session):
             self.org_id = config.get_or_prompt_org_id(persist=True)
         else:
             logger.warning("No org id found in session or configuration, will not be able to send data to whylabs.")
-
+        emit_usage("api_key_session")
         if is_notebook():
             log_if_notebook(f"Initialized whylabs session with for org {self.org_id}")
 

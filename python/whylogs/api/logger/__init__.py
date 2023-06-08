@@ -18,6 +18,7 @@ from whylogs.api.logger.segment_processing import (
     _log_segment,
 )
 from whylogs.api.logger.transient import TransientLogger
+from whylogs.api.usage_stats import emit_usage
 from whylogs.api.whylabs.session.notebook_logger import (
     notebook_session_log,
     notebook_session_log_comparison,
@@ -44,6 +45,7 @@ def log(
 ) -> ResultSet:
     if multiple is not None:
         result_sets: Dict[str, ResultSet] = {}
+        emit_usage("multiple")
         for alias, d in multiple.items():
             result_set = log(obj=d, schema=schema)
             result_sets[alias] = result_set
@@ -52,10 +54,12 @@ def log(
         result_set = reduce(lambda r1, r2: r1.merge(r2), result_sets.values())
         notebook_session_log_comparison(multiple, result_sets)
         return result_set
-    else:
-        result_set = TransientLogger(schema=schema).log(obj, pandas=pandas, row=row, name=name)
+
+    result_set = TransientLogger(schema=schema).log(obj, pandas=pandas, row=row, name=name)
+    if name is not None:
         notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
-        return result_set
+
+    return result_set
 
 
 def _log_with_metrics(

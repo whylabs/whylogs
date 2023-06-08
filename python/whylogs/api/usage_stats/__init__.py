@@ -128,6 +128,7 @@ def _build_metadata() -> Dict[str, Any]:
         "pyspark": _has_lib("pyspark"),
         "flyte": _has_lib("flyte"),
         "kafka": _has_lib("kafka"),
+        "langkit": _has_lib("langkit"),
     }
     for k in list(integrations.keys()):
         if integrations.get(k) is False:
