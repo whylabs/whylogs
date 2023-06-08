@@ -17,7 +17,7 @@ current_version = "1.1.45-dev0"
 
 def test_package_version() -> None:
     """Test package version calculation."""
-    assert package_version() == current_version
+    assert package_version() == current_version, f"{package_version()}!={current_version}"
 
 
 def test_package_version_not_found() -> None:
