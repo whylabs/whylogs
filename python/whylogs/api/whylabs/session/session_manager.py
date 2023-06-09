@@ -64,6 +64,7 @@ class GuestSession(Session):
         which does require a successful service call to whylabs.
         """
         from whylogs.api.usage_stats import emit_usage
+
         self._config = config
         self._whylabs_session_api = SessionsApi(whylabs_client)
         self._user_guid = self._get_or_create_user_guid()
@@ -87,7 +88,10 @@ class GuestSession(Session):
 
         if not self._validate_session_id(session_id):
             self._config.remove_session_id()
-            log_if_notebook(f"Session {session_id} is no longer valid. Generating a new one.")
+            log_if_notebook(
+                f"⚠️ Session {session_id} is no longer valid, generating a new one. If you want to upload to your WhyLabs "
+                "account then remove why.init() and use https://docs.whylabs.ai/docs/whylabs-onboarding/#getting-started-in-whylabs."
+            )
             return None
         else:
             return session_id

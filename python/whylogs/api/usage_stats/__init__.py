@@ -107,6 +107,7 @@ def _build_metadata() -> Dict[str, Any]:
         project_version = whylogs.__version__
     else:
         import whylogs as why
+
         project_version = why.package_version()
     (major, minor, macro, _, _) = sys.version_info
 
