@@ -15,7 +15,7 @@ from whylogs.experimental.core.udf_schema import (
     udf_schema,
 )
 
-_reset_udfs()
+#_reset_udfs()
 
 
 def test_udf_row() -> None:
@@ -269,6 +269,7 @@ def test_udf_metric_resolving() -> None:
     assert "add5" in results.get_columns()
     assert results.get_column("add5").to_summary_dict()["counts/n"] == 3
     assert results.get_column("col1").to_summary_dict()["counts/n"] == 3
+    print(schema.resolvers._resolvers)
     foo_summary = results.get_column("foo").to_summary_dict()
     assert "udf/bar:counts/n" in foo_summary
 
