@@ -10,7 +10,6 @@ from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
 from whylogs.experimental.core.udf_schema import (
     UdfSchema,
     UdfSpec,
-    _reset_udfs,
     register_dataset_udf,
     udf_schema,
 )
