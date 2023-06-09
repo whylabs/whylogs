@@ -103,7 +103,11 @@ def _calc_identity() -> str:
 def _build_metadata() -> Dict[str, Any]:
     """Hash system and project data to send to our stats endpoint."""
 
-    project_version = whylogs.__version__
+    if hasattr(whylogs, "__version__"):
+        project_version = whylogs.__version__
+    else:
+        import whylogs as why
+        project_version = why.package_version()
     (major, minor, macro, _, _) = sys.version_info
 
     metadata = {

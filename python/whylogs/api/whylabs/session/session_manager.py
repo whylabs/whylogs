@@ -20,7 +20,6 @@ from whylabs_client.api.sessions_api import (  # type: ignore
 from whylabs_client.api_client import ApiClient, Configuration  # type: ignore
 
 from whylogs.api.logger.result_set import ResultSet
-from whylogs.api.usage_stats import emit_usage
 from whylogs.api.whylabs.session.config import SessionConfig
 from whylogs.api.whylabs.session.notebook_check import is_notebook
 from whylogs.api.whylabs.session.session_types import (
@@ -64,6 +63,7 @@ class GuestSession(Session):
         If neither exist then this will attempt to create a new session and store the id in the config,
         which does require a successful service call to whylabs.
         """
+        from whylogs.api.usage_stats import emit_usage
         self._config = config
         self._whylabs_session_api = SessionsApi(whylabs_client)
         self._user_guid = self._get_or_create_user_guid()
@@ -189,6 +189,8 @@ class LocalSession(Session):
 
 class ApiKeySession(Session):
     def __init__(self, config: SessionConfig) -> None:
+        from whylogs.api.usage_stats import emit_usage
+
         self.api_key = config.get_api_key()
         self.org_id = config.get_org_id()
 
