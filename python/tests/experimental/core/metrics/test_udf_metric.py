@@ -15,7 +15,7 @@ from whylogs.experimental.core.metrics.udf_metric import (
 logger = getLogger(__name__)
 
 
-#_reset_metric_udfs()
+# _reset_metric_udfs()
 
 
 def test_udf_metric() -> None:

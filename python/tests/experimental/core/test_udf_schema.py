@@ -14,7 +14,7 @@ from whylogs.experimental.core.udf_schema import (
     udf_schema,
 )
 
-#_reset_udfs()
+# _reset_udfs()
 
 
 def test_udf_row() -> None:
