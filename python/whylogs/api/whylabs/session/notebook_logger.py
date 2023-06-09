@@ -66,6 +66,7 @@ def notebook_session_log(
 ) -> None:
     # This is only for reference profiles atm
     if name is None:
+        log_if_notebook("Skipping uploading profile to WhyLabs because no name was given with name=")
         return
 
     session = get_current_session()

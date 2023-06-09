@@ -56,9 +56,7 @@ def log(
         return result_set
 
     result_set = TransientLogger(schema=schema).log(obj, pandas=pandas, row=row, name=name)
-    if name is not None:
-        notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
-
+    notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
     return result_set
 
 
