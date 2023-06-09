@@ -8,11 +8,15 @@ from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.experimental.core.metrics.udf_metric import (
     UdfMetric,
     UdfMetricConfig,
+    _reset_metric_udfs,
     register_metric_udf,
     udf_metric_schema,
 )
 
 logger = getLogger(__name__)
+
+
+_reset_metric_udfs()
 
 
 def test_udf_metric() -> None:

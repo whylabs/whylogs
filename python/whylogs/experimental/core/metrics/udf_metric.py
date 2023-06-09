@@ -16,9 +16,9 @@ from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import (
     STANDARD_RESOLVER,
     UDF_BASE_RESOLVER,
+    DeclarativeResolverBase,
     MetricSpec,
     ResolverSpec,
-    _allowed_metric,
 )
 from whylogs.core.schema import DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
@@ -28,7 +28,7 @@ from whylogs.core.validators.validator import Validator
 logger = logging.getLogger(__name__)
 
 
-class DeclarativeSubmetricSchema(SubmetricSchema):
+class DeclarativeSubmetricSchema(DeclarativeResolverBase, SubmetricSchema):
     """
     The DeclarativeSubmetricSchema allows one to customize the set of metrics
     tracked for each UDF computed by a UdfMetric. Pass its constructor a list
@@ -43,21 +43,8 @@ class DeclarativeSubmetricSchema(SubmetricSchema):
     in whylogs/python/whylogs/core/resolvers.py
     """
 
-    def __init__(self, resolvers: List[ResolverSpec], default_config: Optional[MetricConfig] = None) -> None:
-        self._default_config = default_config or MetricConfig()
-        self._resolvers = resolvers.copy()
-
     def resolve(self, name: str, why_type: DataType, fi_disabled: bool = False) -> Dict[str, Metric]:
-        result: Dict[str, Metric] = {}
-        for resolver_spec in self._resolvers:
-            col_name, col_type = resolver_spec.column_name, resolver_spec.column_type
-            if (col_name and col_name == name) or (col_name is None and isinstance(why_type, col_type)):  # type: ignore
-                for spec in resolver_spec.metrics:
-                    config = spec.config or self._default_config
-                    if _allowed_metric(config, spec.metric):
-                        result[spec.metric.get_namespace()] = spec.metric.zero(config)
-
-        return result
+        return self._resolve(name, why_type, None)
 
 
 def default_schema() -> DeclarativeSubmetricSchema:
@@ -190,6 +177,17 @@ _col_type_submetrics: Dict[str, Dict[DataType, List[Tuple[str, Callable[[Any], A
 )
 _col_type_submetric_schema: Dict[str, Dict[DataType, SubmetricSchema]] = defaultdict(dict)
 _col_type_type_mapper: Dict[str, Dict[DataType, TypeMapper]] = defaultdict(dict)
+
+
+def _reset_metric_udfs() -> None:
+    global _col_name_submetrics, _col_name_submetric_schema, _col_name_type_mapper
+    global _col_type_submetrics, _col_type_submetric_schema, _col_type_type_mapper
+    _col_name_submetrics = defaultdict(lambda: defaultdict(list))
+    _col_name_submetric_schema = defaultdict(dict)
+    _col_name_type_mapper = defaultdict(dict)
+    _col_type_submetrics = defaultdict(lambda: defaultdict(list))
+    _col_type_submetric_schema = defaultdict(dict)
+    _col_type_type_mapper = defaultdict(dict)
 
 
 def register_metric_udf(

@@ -16,6 +16,7 @@ from whylogs.core.resolvers import (
     HISTOGRAM_COUNTING_TRACKING_RESOLVER,
     LIMITED_TRACKING_RESOLVER,
     STANDARD_RESOLVER,
+    AntiResolver,
     HistogramCountingTrackingResolver,
     LimitedTrackingResolver,
     MetricSpec,
@@ -213,3 +214,33 @@ def test_resolvers() -> None:
             reference_metrics = set(reference_results.get_column(column).get_metric_names())
             declarative_metrics = set(declarative_results.get_column(column).get_metric_names())
             assert reference_metrics == declarative_metrics
+
+
+def test_anti_resolvers(pandas_dataframe) -> None:
+    anti_resolvers = [
+        AntiResolver("legs", None, [MetricSpec(StandardMetric.distribution.value)]),
+        AntiResolver(None, String, [MetricSpec(StandardMetric.frequent_items.value)]),
+    ]
+    schema = DeclarativeSchema(STANDARD_RESOLVER + anti_resolvers)
+    results = why.log(pandas_dataframe, schema=schema).view()
+
+    animal = results.get_column("animal").to_summary_dict()
+    assert "counts/n" in animal
+    assert "types/integral" in animal
+    assert "distribution/n" in animal
+    assert "cardinality/est" in animal
+    assert "frequent_items/frequent_strings" not in animal
+
+    legs = results.get_column("legs").to_summary_dict()
+    assert "counts/n" in legs
+    assert "types/integral" in legs
+    assert "distribution/n" not in legs
+    assert "ints/max" in legs
+    assert "cardinality/est" in legs
+    assert "frequent_items/frequent_strings" in legs
+
+    weight = results.get_column("weight").to_summary_dict()
+    assert "counts/n" in weight
+    assert "types/integral" in weight
+    assert "distribution/n" in weight
+    assert "cardinality/est" in weight

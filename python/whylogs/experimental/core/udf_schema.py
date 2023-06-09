@@ -5,13 +5,21 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple
 
 from whylogs.core.datatypes import TypeMapper
-from whylogs.core.metrics.metrics import MetricConfig
-from whylogs.core.resolvers import UDF_BASE_RESOLVER, MetricSpec, ResolverSpec
+from whylogs.core.metrics.metrics import Metric, MetricConfig
+from whylogs.core.resolvers import (
+    UDF_BASE_RESOLVER,
+    AntiResolver,
+    MetricSpec,
+    ResolverSpec,
+)
 from whylogs.core.schema import DatasetSchema, DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
 from whylogs.core.validators.validator import Validator
-from whylogs.experimental.core.metrics.udf_metric import generate_udf_resolvers
+from whylogs.experimental.core.metrics.udf_metric import (
+    _reset_metric_udfs,
+    generate_udf_resolvers,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -117,12 +125,22 @@ _multicolumn_udfs: Dict[str, List[UdfSpec]] = defaultdict(list)
 _resolver_specs: Dict[str, List[ResolverSpec]] = defaultdict(list)
 
 
+def _reset_udfs(reset_metric_udfs: bool = True) -> None:
+    if reset_metric_udfs:
+        _reset_metric_udfs()
+
+    global _multicolumn_udfs, _resolver_specs
+    _multicolumn_udfs = defaultdict(list)
+    _resolver_specs = defaultdict(list)
+
+
 def register_dataset_udf(
     col_names: List[str],
     udf_name: Optional[str] = None,
     metrics: Optional[List[MetricSpec]] = None,
     namespace: Optional[str] = None,
     schema_name: str = "",
+    anti_metrics: Optional[List[Metric]] = None,
 ) -> Callable[[Any], Any]:
     """
     Decorator to easily configure UDFs for your data set. Decorate your UDF
@@ -149,6 +167,8 @@ def register_dataset_udf(
         _multicolumn_udfs[schema_name].append(UdfSpec(col_names, {name: func}))
         if metrics:
             _resolver_specs[schema_name].append(ResolverSpec(name, None, deepcopy(metrics)))
+        if anti_metrics:
+            _resolver_specs[schema_name].append(AntiResolver(name, None, [MetricSpec(m) for m in anti_metrics]))
 
         return func
 
