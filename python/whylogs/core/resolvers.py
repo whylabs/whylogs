@@ -109,7 +109,7 @@ class ResolverSpec:
     """
 
     column_name: Optional[str] = None  # TODO: maybe make this a regex
-    column_type: Optional[type] = None
+    column_type: Optional[DataType] = None
     metrics: List[MetricSpec] = field(default_factory=list)
 
     def __post_init__(self):
