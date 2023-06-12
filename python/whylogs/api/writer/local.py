@@ -1,6 +1,7 @@
 import logging
 import os
 from typing import Any, Optional, Tuple
+from whylogs.api.usage_stats import emit_usage
 
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
@@ -15,6 +16,7 @@ class LocalWriter(Writer):
             base_dir = os.getcwd()
         self._base_dir = base_dir
         self._base_name = base_name
+        emit_usage("local_writer")
 
     @deprecated_alias(profile="file")
     def write(

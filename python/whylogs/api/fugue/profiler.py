@@ -7,6 +7,7 @@ import pandas as pd
 from fugue import PartitionSpec, Schema, transformer
 
 import whylogs as why
+from whylogs.api.usage_stats import emit_usage
 from whylogs.core import DatasetSchema
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
@@ -56,7 +57,6 @@ class _FugueProfiler:
         profile_field: str = DF_PROFILE_FIELD,
     ):
         now = datetime.now(timezone.utc)
-
         self._dataset_timestamp = dataset_timestamp or now
         self._creation_timestamp = creation_timestamp or now
 

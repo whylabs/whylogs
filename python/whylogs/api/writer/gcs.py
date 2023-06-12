@@ -2,7 +2,8 @@ import logging
 import tempfile
 from typing import Any, Optional, Tuple
 
-from google.cloud import exceptions, storage  # type: ignore
+from google.cloud import exceptions, storage
+from whylogs.api.usage_stats import emit_usage  # type: ignore
 
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
@@ -47,6 +48,7 @@ class GCSWriter(Writer):
         object_name: Optional[str] = None,
         bucket_name: Optional[str] = None,
     ):
+        emit_usage("gcs_writer")
         self.gcs_client = gcs_client or storage.Client()
         self.object_name = object_name
         self.bucket_name = bucket_name

@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional, Union
 
 from whylogs.api.logger.result_set import ResultSet
+from whylogs.api.usage_stats import emit_usage
 from whylogs.api.whylabs.session.session_manager import (
     NotSupported,
     get_current_session,
@@ -68,7 +69,7 @@ def notebook_session_log(
     if name is None:
         log_if_notebook("Skipping uploading profile to WhyLabs because no name was given with name=")
         return
-
+    emit_usage("notebook_session_log")
     session = get_current_session()
 
     # Dont' do anything if there is no session created with why.init
