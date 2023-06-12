@@ -111,12 +111,13 @@ class UdfSchema(DeclarativeSchema):
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
     ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
         new_columns = deepcopy(row) if row else None
-        new_df = pd.DataFrame(pandas) if pandas is not None else None
+        new_df = pd.DataFrame() if pandas is not None else None
         if row is not None:
             self._run_udfs_on_row(row, new_columns)  # type: ignore
 
         if pandas is not None:
             self._run_udfs_on_dataframe(pandas, new_df)
+            new_df = pd.concat([pandas, new_df], axis=1)
 
         return new_df, new_columns
 
