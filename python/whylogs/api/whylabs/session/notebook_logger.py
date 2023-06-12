@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, List, Optional, Union
 
 from whylogs.api.logger.result_set import ResultSet
@@ -6,10 +7,15 @@ from whylogs.api.whylabs.session.session_manager import (
     NotSupported,
     get_current_session,
 )
-from whylogs.api.whylabs.session.session_types import log_if_notebook
+from whylogs.api.whylabs.session.session_types import (
+    log_if_notebook,
+    log_if_notebook_wait_n_seconds,
+)
 from whylogs.core.stubs import pd
 
 _start_session_tip = "Start a session with why.init(session_type='whylabs_anonymous')"
+
+diagnostic_logger = logging.getLogger(__name__)
 
 
 def notebook_session_log_comparison(
@@ -36,6 +42,7 @@ def notebook_session_log_comparison(
         result = session.upload_reference_profiles(result_sets)
         if not isinstance(result, NotSupported):
             log_if_notebook("Visualize and explore the profiles with one-click")
+            log_if_notebook_wait_n_seconds()
             log_if_notebook(f"🔍 {result.viewing_url}")
 
             log_if_notebook()
@@ -67,7 +74,9 @@ def notebook_session_log(
 ) -> None:
     # This is only for reference profiles atm
     if name is None:
-        log_if_notebook("Skipping uploading profile to WhyLabs because no name was given with name=")
+        diagnostic_logger.info(
+            "Skipping upload of profile to WhyLabs guest session because no name was given with log(name=)"
+        )
         return
     emit_usage("notebook_session_log")
     session = get_current_session()
@@ -98,6 +107,7 @@ def notebook_session_log(
         result = session.upload_reference_profiles(profiles)
         if not isinstance(result, NotSupported):
             log_if_notebook("Visualize and explore this profile with one-click")
+            log_if_notebook_wait_n_seconds()
             log_if_notebook(f"🔍 {result.viewing_url}")
     except Exception as e:
         # Don't throw, just don't upload

@@ -54,10 +54,10 @@ def log(
         result_set = reduce(lambda r1, r2: r1.merge(r2), result_sets.values())
         notebook_session_log_comparison(multiple, result_sets)
         return result_set
-
-    result_set = TransientLogger(schema=schema).log(obj, pandas=pandas, row=row, name=name)
-    notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
-    return result_set
+    else:
+        result_set = TransientLogger(schema=schema).log(obj, pandas=pandas, row=row, name=name)
+        notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
+        return result_set
 
 
 def _log_with_metrics(

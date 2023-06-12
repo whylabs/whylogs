@@ -2,9 +2,9 @@ import logging
 import tempfile
 from typing import Any, Optional, Tuple
 
-from google.cloud import exceptions, storage
-from whylogs.api.usage_stats import emit_usage  # type: ignore
+from google.cloud import exceptions, storage  # type: ignore
 
+from whylogs.api.usage_stats import emit_usage  # type: ignore
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core.utils import deprecated_alias

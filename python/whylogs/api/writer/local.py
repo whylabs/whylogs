@@ -1,8 +1,8 @@
 import logging
 import os
 from typing import Any, Optional, Tuple
-from whylogs.api.usage_stats import emit_usage
 
+from whylogs.api.usage_stats import emit_usage
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core.utils import deprecated_alias

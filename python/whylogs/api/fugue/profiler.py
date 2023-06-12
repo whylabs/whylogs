@@ -7,7 +7,6 @@ import pandas as pd
 from fugue import PartitionSpec, Schema, transformer
 
 import whylogs as why
-from whylogs.api.usage_stats import emit_usage
 from whylogs.core import DatasetSchema
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
