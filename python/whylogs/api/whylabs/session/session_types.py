@@ -51,5 +51,4 @@ def log_if_notebook_wait_n_seconds(delay: Optional[int] = None) -> None:
             for _ in range(delay):  # Adjust the range to control the number of periods
                 print(".", end="")
                 time.sleep(1)  # Add a delay if desired
-                print()
-
+        print()
