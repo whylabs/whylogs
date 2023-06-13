@@ -41,8 +41,8 @@ def notebook_session_log_comparison(
     try:
         result = session.upload_reference_profiles(result_sets)
         if not isinstance(result, NotSupported):
-            log_if_notebook("Visualize and explore the profiles with one-click")
             log_if_notebook_wait_n_seconds()
+            log_if_notebook("Visualize and explore the profiles with one-click")
             log_if_notebook(f"🔍 {result.viewing_url}")
 
             log_if_notebook()
@@ -106,8 +106,8 @@ def notebook_session_log(
     try:
         result = session.upload_reference_profiles(profiles)
         if not isinstance(result, NotSupported):
-            log_if_notebook("Visualize and explore this profile with one-click")
             log_if_notebook_wait_n_seconds()
+            log_if_notebook("Visualize and explore this profile with one-click")
             log_if_notebook(f"🔍 {result.viewing_url}")
     except Exception as e:
         # Don't throw, just don't upload

@@ -43,8 +43,11 @@ def log_if_notebook_wait_n_seconds(delay: Optional[int] = None) -> None:
 
         try:
             from tqdm import tqdm
+
             # Use tqdm to create the progress bar
-            for _ in tqdm(range(delay), desc="Progress", unit="s", unit_divisor=1, leave=True):
+            progress_bar = tqdm(total=delay, desc="Progress", unit="s", unit_divisor=1, leave=False)
+            for _ in range(delay):
+                progress_bar.update(1)
                 time.sleep(1)  # Wait for the specified increment duration
 
         except Exception:
