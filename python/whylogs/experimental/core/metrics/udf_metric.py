@@ -4,7 +4,15 @@ from dataclasses import dataclass, field
 from itertools import chain
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-from whylogs.core.datatypes import AnyType, DataType, Fractional, Integral, StandardTypeMapper, String, TypeMapper
+from whylogs.core.datatypes import (
+    AnyType,
+    DataType,
+    Fractional,
+    Integral,
+    StandardTypeMapper,
+    String,
+    TypeMapper,
+)
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import (
     Metric,
@@ -62,36 +70,38 @@ class DeclarativeSubmetricSchema(SubmetricSchema):
 
 
 def default_schema() -> DeclarativeSubmetricSchema:
-    return DeclarativeSubmetricSchema([
-        ResolverSpec(
-            column_type=Integral,
-            metrics=COLUMN_METRICS
-            + [
-                MetricSpec(StandardMetric.distribution.value),
-                MetricSpec(StandardMetric.ints.value),
-                MetricSpec(StandardMetric.cardinality.value),
-                MetricSpec(StandardMetric.frequent_items.value),
-            ],
-        ),
-        ResolverSpec(
-            column_type=Fractional,
-            metrics=COLUMN_METRICS
-            + [
-                MetricSpec(StandardMetric.distribution.value),
-                MetricSpec(StandardMetric.cardinality.value),
-            ],
-        ),
-        ResolverSpec(
-            column_type=String,
-            metrics=COLUMN_METRICS
-            + [
-                MetricSpec(StandardMetric.distribution.value),
-                MetricSpec(StandardMetric.cardinality.value),
-                MetricSpec(StandardMetric.frequent_items.value),
-            ],
-        ),
-        ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
-    ])
+    return DeclarativeSubmetricSchema(
+        [
+            ResolverSpec(
+                column_type=Integral,
+                metrics=COLUMN_METRICS
+                + [
+                    MetricSpec(StandardMetric.distribution.value),
+                    MetricSpec(StandardMetric.ints.value),
+                    MetricSpec(StandardMetric.cardinality.value),
+                    MetricSpec(StandardMetric.frequent_items.value),
+                ],
+            ),
+            ResolverSpec(
+                column_type=Fractional,
+                metrics=COLUMN_METRICS
+                + [
+                    MetricSpec(StandardMetric.distribution.value),
+                    MetricSpec(StandardMetric.cardinality.value),
+                ],
+            ),
+            ResolverSpec(
+                column_type=String,
+                metrics=COLUMN_METRICS
+                + [
+                    MetricSpec(StandardMetric.distribution.value),
+                    MetricSpec(StandardMetric.cardinality.value),
+                    MetricSpec(StandardMetric.frequent_items.value),
+                ],
+            ),
+            ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
+        ]
+    )
 
 
 @dataclass(frozen=True)
