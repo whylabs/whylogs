@@ -239,7 +239,7 @@ def test_default_resolvers(reference_resolver, default_resolver) -> None:
     res.DEFAULT_RESOLVER = default_resolver
     default_results = why.log(row=data).view()
 
-    for column in ["column_1", "column_2", "column_3", "column_4"]:
+    for column in data.keys():
         reference_metrics = set(reference_results.get_column(column).get_metric_names())
         default_metrics = set(default_results.get_column(column).get_metric_names())
         assert reference_metrics == default_metrics
