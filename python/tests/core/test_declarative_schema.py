@@ -212,7 +212,7 @@ def test_resolvers(reference_resolver, declarative_resolver) -> None:
     declarative_standard_schema = DeclarativeSchema(declarative_resolver)
     declarative_results = why.log(row=data, schema=declarative_standard_schema).view()
 
-    for column in ["column_1", "column_2", "column_3", "column_4"]:
+    for column in data.keys():
         reference_metrics = set(reference_results.get_column(column).get_metric_names())
         declarative_metrics = set(declarative_results.get_column(column).get_metric_names())
         assert reference_metrics == declarative_metrics
