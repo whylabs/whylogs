@@ -319,3 +319,12 @@ def test_schema_name() -> None:
     assert "add5" not in bob_view.get_columns()
     assert "bob" in bob_view.get_columns()
     assert "udf" in bob_view.get_column("schema.col1").get_metric_names()
+
+
+def test_schema_list() -> None:
+    schema = udf_schema(schema_name=["", "bob"])  # maybe always include "" ?
+    data = pd.DataFrame({"schema.col1": [42, 12, 7]})
+    result = why.log(data, schema=schema).view()
+    assert "add5" in result.get_columns()
+    assert "bob" in result.get_columns()
+    assert "udf" in result.get_column("schema.col1").get_metric_names()

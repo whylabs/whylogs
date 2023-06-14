@@ -2,9 +2,10 @@ import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-from whylogs.core.datatypes import DataType, StandardTypeMapper, TypeMapper
+from whylogs.core.datatypes import AnyType, DataType, Fractional, Integral, StandardTypeMapper, String, TypeMapper
+from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import (
     Metric,
     MetricConfig,
@@ -14,7 +15,7 @@ from whylogs.core.metrics.metrics import (
 from whylogs.core.metrics.multimetric import MultiMetric, SubmetricSchema
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import (
-    STANDARD_RESOLVER,
+    COLUMN_METRICS,
     UDF_BASE_RESOLVER,
     MetricSpec,
     ResolverSpec,
@@ -61,7 +62,36 @@ class DeclarativeSubmetricSchema(SubmetricSchema):
 
 
 def default_schema() -> DeclarativeSubmetricSchema:
-    return DeclarativeSubmetricSchema(STANDARD_RESOLVER)
+    return DeclarativeSubmetricSchema([
+        ResolverSpec(
+            column_type=Integral,
+            metrics=COLUMN_METRICS
+            + [
+                MetricSpec(StandardMetric.distribution.value),
+                MetricSpec(StandardMetric.ints.value),
+                MetricSpec(StandardMetric.cardinality.value),
+                MetricSpec(StandardMetric.frequent_items.value),
+            ],
+        ),
+        ResolverSpec(
+            column_type=Fractional,
+            metrics=COLUMN_METRICS
+            + [
+                MetricSpec(StandardMetric.distribution.value),
+                MetricSpec(StandardMetric.cardinality.value),
+            ],
+        ),
+        ResolverSpec(
+            column_type=String,
+            metrics=COLUMN_METRICS
+            + [
+                MetricSpec(StandardMetric.distribution.value),
+                MetricSpec(StandardMetric.cardinality.value),
+                MetricSpec(StandardMetric.frequent_items.value),
+            ],
+        ),
+        ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
+    ])
 
 
 @dataclass(frozen=True)
@@ -261,7 +291,7 @@ def register_metric_udf(
     return decorator_register
 
 
-def generate_udf_resolvers(schema_name: str = "") -> List[ResolverSpec]:
+def generate_udf_resolvers(schema_name: Union[str, List[str]] = "") -> List[ResolverSpec]:
     """
     Generates a list of ResolverSpecs that implement the UdfMetrics specified
     by the @register_metric_udf decorators. The result only includes the UdfMetric,
@@ -290,27 +320,29 @@ def generate_udf_resolvers(schema_name: str = "") -> List[ResolverSpec]:
 
     resolvers: List[ResolverSpec] = list()
     udfs: Dict[str, Callable[[Any], Any]]
-    for col_name, submetrics in _col_name_submetrics[schema_name].items():
-        udfs = dict()
-        for submetric in submetrics:
-            udfs[submetric[0]] = submetric[1]
-        config = UdfMetricConfig(
-            udfs=udfs,
-            submetric_schema=_col_name_submetric_schema[schema_name].get(col_name) or default_schema(),
-            type_mapper=_col_name_type_mapper[schema_name].get(col_name) or StandardTypeMapper(),
-        )
-        resolvers.append(ResolverSpec(col_name, None, [MetricSpec(UdfMetric, config)]))
+    schema_names = schema_name if isinstance(schema_name, list) else [schema_name]
+    for schema_name in schema_names:
+        for col_name, submetrics in _col_name_submetrics[schema_name].items():
+            udfs = dict()
+            for submetric in submetrics:
+                udfs[submetric[0]] = submetric[1]
+            config = UdfMetricConfig(
+                udfs=udfs,
+                submetric_schema=_col_name_submetric_schema[schema_name].get(col_name) or default_schema(),
+                type_mapper=_col_name_type_mapper[schema_name].get(col_name) or StandardTypeMapper(),
+            )
+            resolvers.append(ResolverSpec(col_name, None, [MetricSpec(UdfMetric, config)]))
 
-    for col_type, submetrics in _col_type_submetrics[schema_name].items():
-        udfs = dict()
-        for submetric in submetrics:
-            udfs[submetric[0]] = submetric[1]
-        config = UdfMetricConfig(
-            udfs=udfs,
-            submetric_schema=_col_type_submetric_schema[schema_name].get(col_type) or default_schema(),
-            type_mapper=_col_type_type_mapper[schema_name].get(col_type) or StandardTypeMapper(),
-        )
-        resolvers.append(ResolverSpec(None, col_type, [MetricSpec(UdfMetric, config)]))
+        for col_type, submetrics in _col_type_submetrics[schema_name].items():
+            udfs = dict()
+            for submetric in submetrics:
+                udfs[submetric[0]] = submetric[1]
+            config = UdfMetricConfig(
+                udfs=udfs,
+                submetric_schema=_col_type_submetric_schema[schema_name].get(col_type) or default_schema(),
+                type_mapper=_col_type_type_mapper[schema_name].get(col_type) or StandardTypeMapper(),
+            )
+            resolvers.append(ResolverSpec(None, col_type, [MetricSpec(UdfMetric, config)]))
 
     return resolvers
 
@@ -329,7 +361,7 @@ def udf_metric_schema(
     schema_based_automerge: bool = False,
     segments: Optional[Dict[str, SegmentationPartition]] = None,
     validators: Optional[Dict[str, List[Validator]]] = None,
-    schema_name: str = "",
+    schema_name: Union[str, List[str]] = "",
 ) -> DeclarativeSchema:
     """
     Generates a DeclarativeSchema that implement the UdfMetrics specified
