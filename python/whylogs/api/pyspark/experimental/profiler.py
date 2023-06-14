@@ -37,7 +37,7 @@ def whylogs_pandas_map_profiler(
                 COL_PROFILE_FIELD: [col_profile.to_protobuf().SerializeToString()],
             }
             df_temp = pd.DataFrame(data=d)
-            res_df = res_df.append(df_temp)
+            res_df = pd.concat([res_df, df_temp])
         yield res_df
 
 
