@@ -6,12 +6,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple
 
 from whylogs.core.datatypes import TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
-from whylogs.core.resolvers import (
-    UDF_BASE_RESOLVER,
-    AntiResolver,
-    MetricSpec,
-    ResolverSpec,
-)
+from whylogs.core.resolvers import UDF_BASE_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DatasetSchema, DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
@@ -169,7 +164,7 @@ def register_dataset_udf(
         if metrics:
             _resolver_specs[schema_name].append(ResolverSpec(name, None, deepcopy(metrics)))
         if anti_metrics:
-            _resolver_specs[schema_name].append(AntiResolver(name, None, [MetricSpec(m) for m in anti_metrics]))
+            _resolver_specs[schema_name].append(ResolverSpec(name, None, [MetricSpec(m) for m in anti_metrics], True))
 
         return func
 

@@ -16,7 +16,6 @@ from whylogs.core.resolvers import (
     HISTOGRAM_COUNTING_TRACKING_RESOLVER,
     LIMITED_TRACKING_RESOLVER,
     STANDARD_RESOLVER,
-    AntiResolver,
     HistogramCountingTrackingResolver,
     LimitedTrackingResolver,
     MetricSpec,
@@ -218,8 +217,8 @@ def test_resolvers() -> None:
 
 def test_anti_resolvers(pandas_dataframe) -> None:
     anti_resolvers = [
-        AntiResolver("legs", None, [MetricSpec(StandardMetric.distribution.value)]),
-        AntiResolver(None, String, [MetricSpec(StandardMetric.frequent_items.value)]),
+        ResolverSpec("legs", None, [MetricSpec(StandardMetric.distribution.value)], True),
+        ResolverSpec(None, String, [MetricSpec(StandardMetric.frequent_items.value)], True),
     ]
     schema = DeclarativeSchema(STANDARD_RESOLVER + anti_resolvers)
     results = why.log(pandas_dataframe, schema=schema).view()

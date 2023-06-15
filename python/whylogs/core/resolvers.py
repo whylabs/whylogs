@@ -111,6 +111,7 @@ class ResolverSpec:
     column_name: Optional[str] = None  # TODO: maybe make this a regex
     column_type: Optional[DataType] = None
     metrics: List[MetricSpec] = field(default_factory=list)
+    exclude: bool = False
 
     def __post_init__(self):
         if self.column_name and self.column_type:
@@ -120,15 +121,6 @@ class ResolverSpec:
 
         if self.column_type and not issubclass(self.column_type, DataType):
             raise ValueError("ResolverSpec: resolver specification column type must be a DataType")
-
-
-@dataclass
-class AntiResolver(ResolverSpec):
-    """
-    Prohibit the specified metrics for the matched column.
-    """
-
-    pass
 
 
 # whylabs expects COLUMN_METRICS to be present for every column.
@@ -142,8 +134,8 @@ class DeclarativeResolverBase(Resolver):
     """
 
     def __init__(self, resolvers: List[ResolverSpec], default_config: Optional[MetricConfig] = None) -> None:
-        self._resolvers = [deepcopy(r) for r in resolvers if not isinstance(r, AntiResolver)]
-        self._anti_resolvers = [deepcopy(ar) for ar in resolvers if isinstance(ar, AntiResolver)]
+        self._resolvers = [deepcopy(r) for r in resolvers if not r.exclude]
+        self._anti_resolvers = [deepcopy(ar) for ar in resolvers if ar.exclude]
         self._default_config = default_config
 
     def _allowed_metric(self, name: str, why_type: DataType, config: MetricConfig, metric: Metric) -> bool:
@@ -185,7 +177,7 @@ class DeclarativeResolver(DeclarativeResolverBase):
     """
 
     def add_resolver(self, resolver_spec: ResolverSpec):
-        if not isinstance(resolver_spec, AntiResolver):
+        if not resolver_spec.exclude:
             self._resolvers.append(deepcopy(resolver_spec))
         else:
             self._anti_resolvers.append(deepcopy(resolver_spec))
