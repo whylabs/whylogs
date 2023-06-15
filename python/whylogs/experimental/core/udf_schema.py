@@ -208,15 +208,15 @@ def udf_schema(
     Returns a UdfSchema that implements any registered UDFs, along with any
     other_udf_specs or resolvers passed in.
     """
-    resolver_specs = resolvers if resolvers is not None else UDF_BASE_RESOLVER
+    resolver_specs = list(resolvers if resolvers is not None else UDF_BASE_RESOLVER)
     schema_names = schema_name if isinstance(schema_name, list) else [schema_name]
-    if include_default_schema and "" not in schema_name:
-        schema_name = [""] + list(schema_name)
+    if include_default_schema and "" not in schema_names:
+        schema_names = [""] + schema_names
 
     for name in schema_names:
         resolver_specs += _resolver_specs[name]
 
-    resolver_specs += generate_udf_resolvers(schema_name)  # , include_default_schema)
+    resolver_specs += generate_udf_resolvers(schema_name, include_default_schema)
     return UdfSchema(
         resolver_specs,
         types,

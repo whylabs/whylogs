@@ -215,3 +215,64 @@ def test_namespace() -> None:
     summary = col1.to_summary_dict()
     assert "udf/pluto.colliding_name:counts/n" in summary
     assert "udf/neptune.colliding_name:counts/n" in summary
+
+
+@register_metric_udf("xyz")
+def udf1(x):
+    return x
+
+
+@register_metric_udf("xyz", schema_name="bart")
+def udf2(x):
+    return x
+
+
+@register_metric_udf("xyz", schema_name="lisa")
+def udf3(x):
+    return x
+
+
+def test_schema_name():
+    default_schema = udf_metric_schema()
+    default_view = why.log(row={"xyz": 42}, schema=default_schema).view()
+    summary = default_view.get_column("xyz").to_summary_dict()
+    assert "udf/udf1:counts/n" in summary
+    assert "udf/udf2:counts/n" not in summary
+    assert "udf/udf3:counts/n" not in summary
+
+    bart_schema = udf_metric_schema(schema_name="bart", include_default_schema=False)
+    bart_view = why.log(row={"xyz": 42}, schema=bart_schema).view()
+    summary = bart_view.get_column("xyz").to_summary_dict()
+    assert "udf/udf1:counts/n" not in summary
+    assert "udf/udf2:counts/n" in summary
+    assert "udf/udf3:counts/n" not in summary
+
+    bart_schema = udf_metric_schema(schema_name="bart", include_default_schema=True)
+    bart_view = why.log(row={"xyz": 42}, schema=bart_schema).view()
+    summary = bart_view.get_column("xyz").to_summary_dict()
+    assert "udf/udf1:counts/n" in summary
+    assert "udf/udf2:counts/n" in summary
+    assert "udf/udf3:counts/n" not in summary
+
+
+def test_schema_list():
+    default_schema = udf_metric_schema(schema_name=["", "bart"])
+    default_view = why.log(row={"xyz": 42}, schema=default_schema).view()
+    summary = default_view.get_column("xyz").to_summary_dict()
+    assert "udf/udf1:counts/n" in summary
+    assert "udf/udf2:counts/n" in summary
+    assert "udf/udf3:counts/n" not in summary
+
+    bart_schema = udf_metric_schema(schema_name=["bart", "lisa"], include_default_schema=False)
+    bart_view = why.log(row={"xyz": 42}, schema=bart_schema).view()
+    summary = bart_view.get_column("xyz").to_summary_dict()
+    assert "udf/udf1:counts/n" not in summary
+    assert "udf/udf2:counts/n" in summary
+    assert "udf/udf3:counts/n" in summary
+
+    bart_schema = udf_metric_schema(schema_name=["bart", "lisa"], include_default_schema=True)
+    bart_view = why.log(row={"xyz": 42}, schema=bart_schema).view()
+    summary = bart_view.get_column("xyz").to_summary_dict()
+    assert "udf/udf1:counts/n" in summary
+    assert "udf/udf2:counts/n" in summary
+    assert "udf/udf3:counts/n" in summary
