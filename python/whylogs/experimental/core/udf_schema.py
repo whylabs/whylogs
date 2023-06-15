@@ -157,7 +157,9 @@ def register_dataset_udf(
 
 
 def generate_udf_specs(
-    other_udf_specs: Optional[List[UdfSpec]] = None, schema_name: Union[str, List[str]] = ""
+    other_udf_specs: Optional[List[UdfSpec]] = None,
+    schema_name: Union[str, List[str]] = "",
+    include_default_schema: bool = True,
 ) -> List[UdfSpec]:
     """
     Generates a list UdfSpecs that implement the UDFs specified
@@ -181,6 +183,9 @@ def generate_udf_specs(
     """
     specs = list(other_udf_specs) if other_udf_specs else []
     schema_name = schema_name if isinstance(schema_name, list) else [schema_name]
+    if include_default_schema and "" not in schema_name:
+        schema_name = [""] + schema_name
+
     for name in schema_name:
         specs += _multicolumn_udfs[name]
     return specs
@@ -197,6 +202,7 @@ def udf_schema(
     segments: Optional[Dict[str, SegmentationPartition]] = None,
     validators: Optional[Dict[str, List[Validator]]] = None,
     schema_name: Union[str, List[str]] = "",
+    include_default_schema: bool = True,
 ) -> UdfSchema:
     """
     Returns a UdfSchema that implements any registered UDFs, along with any
@@ -204,10 +210,13 @@ def udf_schema(
     """
     resolver_specs = resolvers if resolvers is not None else UDF_BASE_RESOLVER
     schema_names = schema_name if isinstance(schema_name, list) else [schema_name]
+    if include_default_schema and "" not in schema_name:
+        schema_name = [""] + list(schema_name)
+
     for name in schema_names:
         resolver_specs += _resolver_specs[name]
 
-    resolver_specs += generate_udf_resolvers(schema_name)
+    resolver_specs += generate_udf_resolvers(schema_name)  # , include_default_schema)
     return UdfSchema(
         resolver_specs,
         types,
@@ -217,5 +226,5 @@ def udf_schema(
         schema_based_automerge,
         segments,
         validators,
-        generate_udf_specs(other_udf_specs, schema_name),
+        generate_udf_specs(other_udf_specs, schema_name, include_default_schema),
     )
