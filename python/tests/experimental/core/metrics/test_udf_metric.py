@@ -1,18 +1,26 @@
 from logging import getLogger
 
 import pandas as pd
+import pytest
 
 import whylogs as why
 from whylogs.core.datatypes import String
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.experimental.core.metrics.udf_metric import (
+    DeclarativeSubmetricSchema,
     UdfMetric,
     UdfMetricConfig,
     register_metric_udf,
     udf_metric_schema,
 )
-
+from whylogs.metrics.unicode_range import UnicodeRangeMetric
 logger = getLogger(__name__)
+
+
+def test_no_netsted_multimetrics() -> None:
+    with pytest.raises(ValueError):
+        DeclarativeSubmetricSchema([ResolverSpec("foo", None, [MetricSpec(UnicodeRangeMetric)])])
+    DeclarativeSubmetricSchema([ResolverSpec("bar", None, [MetricSpec(UnicodeRangeMetric)], True)])
 
 
 def test_udf_metric() -> None:
