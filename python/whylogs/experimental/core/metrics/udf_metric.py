@@ -24,7 +24,8 @@ from whylogs.core.metrics.multimetric import MultiMetric, SubmetricSchema
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import (
     COLUMN_METRICS,
-    UDF_BASE_RESOLVER,
+    DEFAULT_RESOLVER,
+    STANDARD_RESOLVER,
     MetricSpec,
     ResolverSpec,
     _allowed_metric,
@@ -75,39 +76,42 @@ class DeclarativeSubmetricSchema(SubmetricSchema):
         return result
 
 
+STANDARD_UDF_RESOLVER: List[ResolverSpec] = [
+    ResolverSpec(
+        column_type=Integral,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.ints.value),
+            MetricSpec(StandardMetric.cardinality.value),
+            MetricSpec(StandardMetric.frequent_items.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=Fractional,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=String,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
+            MetricSpec(StandardMetric.frequent_items.value),
+        ],
+    ),
+    ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
+]
+
+DEFAULT_UDF_RESOLVER: List[ResolverSpec] = STANDARD_UDF_RESOLVER
+
+
 def default_schema() -> DeclarativeSubmetricSchema:
-    return DeclarativeSubmetricSchema(
-        [
-            ResolverSpec(
-                column_type=Integral,
-                metrics=COLUMN_METRICS
-                + [
-                    MetricSpec(StandardMetric.distribution.value),
-                    MetricSpec(StandardMetric.ints.value),
-                    MetricSpec(StandardMetric.cardinality.value),
-                    MetricSpec(StandardMetric.frequent_items.value),
-                ],
-            ),
-            ResolverSpec(
-                column_type=Fractional,
-                metrics=COLUMN_METRICS
-                + [
-                    MetricSpec(StandardMetric.distribution.value),
-                    MetricSpec(StandardMetric.cardinality.value),
-                ],
-            ),
-            ResolverSpec(
-                column_type=String,
-                metrics=COLUMN_METRICS
-                + [
-                    MetricSpec(StandardMetric.distribution.value),
-                    MetricSpec(StandardMetric.cardinality.value),
-                    MetricSpec(StandardMetric.frequent_items.value),
-                ],
-            ),
-            ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
-        ]
-    )
+    return DeclarativeSubmetricSchema(DEFAULT_UDF_RESOLVER)
 
 
 @dataclass(frozen=True)
@@ -454,7 +458,7 @@ def udf_metric_schema(
     """
 
     resolvers = generate_udf_resolvers(schema_name, include_default_schema)
-    non_udf_resolvers = non_udf_resolvers if non_udf_resolvers is not None else UDF_BASE_RESOLVER
+    non_udf_resolvers = non_udf_resolvers if non_udf_resolvers is not None else DEFAULT_RESOLVER
 
     return DeclarativeSchema(
         non_udf_resolvers + resolvers,

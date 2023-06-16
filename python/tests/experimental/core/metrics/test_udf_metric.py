@@ -4,10 +4,11 @@ import pandas as pd
 import pytest
 
 import whylogs as why
+import whylogs.experimental.core.metrics.udf_metric as udfm
 from whylogs.core.datatypes import String
 from whylogs.core.metrics.unicode_range import UnicodeRangeMetric
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.resolvers import MetricSpec, ResolverSpec
+from whylogs.core.resolvers import NO_FI_RESOLVER, MetricSpec, ResolverSpec, STANDARD_RESOLVER
 from whylogs.experimental.core.metrics.udf_metric import (
     DeclarativeSubmetricSchema,
     UdfMetric,
@@ -93,6 +94,36 @@ def test_udf_metric_from_to_protobuf() -> None:
     assert summary["foo:types/string"] == 1
     assert summary["foo:cardinality/est"] == 1
     assert "foo:frequent_items/frequent_strings" in summary
+
+
+def test_obeys_default_submetric_schema() -> None:
+    udfm.DEFAULT_UDF_RESOLVER = NO_FI_RESOLVER
+    config = UdfMetricConfig(
+        udfs={
+            "fortytwo": lambda x: 42,
+            "foo": lambda x: "bar",
+        },
+    )
+    metric = UdfMetric.zero(config)
+    metric.columnar_update(PreprocessedColumn.apply([0]))
+    summary = metric.to_summary_dict()
+
+    assert summary["fortytwo:counts/n"] == 1
+    assert summary["fortytwo:types/integral"] == 1
+    assert summary["fortytwo:types/string"] == 0
+    assert summary["fortytwo:cardinality/est"] == 1
+    assert summary["fortytwo:distribution/n"] == 1
+    assert summary["fortytwo:distribution/mean"] == 42
+    assert summary["fortytwo:ints/max"] == 42
+    assert summary["fortytwo:ints/min"] == 42
+    assert "fortytwo:frequent_items/frequent_strings" not in summary
+
+    assert summary["foo:counts/n"] == 1
+    assert summary["foo:types/integral"] == 0
+    assert summary["foo:types/string"] == 1
+    assert summary["foo:cardinality/est"] == 1
+    assert "foo:frequent_items/frequent_strings" not in summary
+    udfm.DEFAULT_UDF_RESOLVER = STANDARD_RESOLVER
 
 
 def test_udf_throws() -> None:
