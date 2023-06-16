@@ -26,6 +26,7 @@ def test_udf_row() -> None:
     col2 = results.get_column("col2").to_summary_dict()
     col3 = results.get_column("col3").to_summary_dict()
     assert col1 == col2 == col3
+    assert len(data.keys()) == 1
 
 
 def test_udf_pandas() -> None:
@@ -39,6 +40,7 @@ def test_udf_pandas() -> None:
     col2 = results.get_column("col2").to_summary_dict()
     col3 = results.get_column("col3").to_summary_dict()
     assert col1 == col2 == col3
+    assert len(data.columns) == 1
 
 
 @register_dataset_udf(["col1"])
