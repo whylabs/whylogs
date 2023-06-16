@@ -225,6 +225,10 @@ class UdfMetric(MultiMetric):
 register_metric(UdfMetric)
 
 
+# The following variables hold information about the registered UDFs used to generate
+# the resolvers/schemas. They are indexed by schema name and column name[type],
+# and collect the registered information.
+
 # _col_name_submetrics[schema_name][column_name] -> list (submetric_name, UDF)
 _col_name_submetrics: Dict[str, Dict[str, List[Tuple[str, Callable[[Any], Any]]]]] = defaultdict(
     lambda: defaultdict(list)
