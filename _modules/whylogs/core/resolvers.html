@@ -549,43 +549,6 @@
 <span class="n">COLUMN_METRICS</span> <span class="o">=</span> <span class="p">[</span><span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">counts</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">value</span><span class="p">)]</span>
 
 
-<span class="k">def</span> <span class="nf">_allowed_metric</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">Metric</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return False for any metrics turned off in the config&quot;&quot;&quot;</span>
-
-    <span class="n">namespace</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">fi_disabled</span> <span class="ow">and</span> <span class="n">namespace</span> <span class="o">==</span> <span class="s2">&quot;frequent_items&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">track_unicode_ranges</span><span class="p">)</span> <span class="ow">and</span> <span class="n">namespace</span> <span class="o">==</span> <span class="s2">&quot;unicode_range&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">return</span> <span class="kc">True</span>
-
-
-<div class="viewcode-block" id="DeclarativeResolver"><a class="viewcode-back" href="../../../api/whylogs/core/resolvers/index.html#whylogs.core.DeclarativeResolver">[docs]</a><span class="k">class</span> <span class="nc">DeclarativeResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Implements the declarative resolution logic by interpreting a &quot;program&quot;</span>
-<span class="sd">    of ResolverSpecs</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="DeclarativeResolver.add_resolver"><a class="viewcode-back" href="../../../api/whylogs/core/resolvers/index.html#whylogs.core.DeclarativeResolver.add_resolver">[docs]</a>    <span class="k">def</span> <span class="nf">add_resolver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolver_spec</span><span class="p">:</span> <span class="n">ResolverSpec</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolver_spec</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolvers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">],</span> <span class="n">default_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">resolvers</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_default_config</span> <span class="o">=</span> <span class="n">default_config</span>
-
-<div class="viewcode-block" id="DeclarativeResolver.resolve"><a class="viewcode-back" href="../../../api/whylogs/core/resolvers/index.html#whylogs.core.DeclarativeResolver.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
-        <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">resolver_spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span><span class="p">:</span>
-            <span class="n">col_name</span><span class="p">,</span> <span class="n">col_type</span> <span class="o">=</span> <span class="n">resolver_spec</span><span class="o">.</span><span class="n">column_name</span><span class="p">,</span> <span class="n">resolver_spec</span><span class="o">.</span><span class="n">column_type</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">col_name</span> <span class="ow">and</span> <span class="n">col_name</span> <span class="o">==</span> <span class="n">name</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">col_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">why_type</span><span class="p">,</span> <span class="n">col_type</span><span class="p">)):</span>  <span class="c1"># type: ignore</span>
-                <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">resolver_spec</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span>
-                    <span class="n">config</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">config</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_config</span> <span class="ow">or</span> <span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span>
-                    <span class="k">if</span> <span class="n">_allowed_metric</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">metric</span><span class="p">):</span>
-                        <span class="n">result</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">()]</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">result</span></div></div>
-
-
 <span class="c1"># STANDARD_RESOLVER matches the default DatasetSchema/StandardResolver behavior</span>
 <span class="n">STANDARD_RESOLVER</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">ResolverSpec</span><span class="p">(</span>
@@ -619,7 +582,7 @@
     <span class="n">ResolverSpec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">AnyType</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span><span class="p">),</span>
 <span class="p">]</span>
 
-<span class="n">UDF_BASE_RESOLVER</span> <span class="o">=</span> <span class="p">[</span>
+<span class="n">NO_FI_RESOLVER</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">ResolverSpec</span><span class="p">(</span>
         <span class="n">column_type</span><span class="o">=</span><span class="n">Integral</span><span class="p">,</span>
         <span class="n">metrics</span><span class="o">=</span><span class="n">COLUMN_METRICS</span>
@@ -676,6 +639,51 @@
     <span class="n">ResolverSpec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">String</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">)]),</span>
     <span class="n">ResolverSpec</span><span class="p">(</span><span class="n">column_type</span><span class="o">=</span><span class="n">AnyType</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">value</span><span class="p">)]),</span>
 <span class="p">]</span>
+
+
+<span class="n">DEFAULT_RESOLVER</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_allowed_metric</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">Metric</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return False for any metrics turned off in the config&quot;&quot;&quot;</span>
+
+    <span class="n">namespace</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">fi_disabled</span> <span class="ow">and</span> <span class="n">namespace</span> <span class="o">==</span> <span class="s2">&quot;frequent_items&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">track_unicode_ranges</span><span class="p">)</span> <span class="ow">and</span> <span class="n">namespace</span> <span class="o">==</span> <span class="s2">&quot;unicode_range&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<div class="viewcode-block" id="DeclarativeResolver"><a class="viewcode-back" href="../../../api/whylogs/core/resolvers/index.html#whylogs.core.DeclarativeResolver">[docs]</a><span class="k">class</span> <span class="nc">DeclarativeResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements the declarative resolution logic by interpreting a &quot;program&quot;</span>
+<span class="sd">    of ResolverSpecs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DeclarativeResolver.add_resolver"><a class="viewcode-back" href="../../../api/whylogs/core/resolvers/index.html#whylogs.core.DeclarativeResolver.add_resolver">[docs]</a>    <span class="k">def</span> <span class="nf">add_resolver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolver_spec</span><span class="p">:</span> <span class="n">ResolverSpec</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolver_spec</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">resolvers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">resolvers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">resolvers</span> <span class="o">=</span> <span class="n">DEFAULT_RESOLVER</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">resolvers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_config</span> <span class="o">=</span> <span class="n">default_config</span>
+
+<div class="viewcode-block" id="DeclarativeResolver.resolve"><a class="viewcode-back" href="../../../api/whylogs/core/resolvers/index.html#whylogs.core.DeclarativeResolver.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
+        <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">resolver_spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span><span class="p">:</span>
+            <span class="n">col_name</span><span class="p">,</span> <span class="n">col_type</span> <span class="o">=</span> <span class="n">resolver_spec</span><span class="o">.</span><span class="n">column_name</span><span class="p">,</span> <span class="n">resolver_spec</span><span class="o">.</span><span class="n">column_type</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">col_name</span> <span class="ow">and</span> <span class="n">col_name</span> <span class="o">==</span> <span class="n">name</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">col_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">why_type</span><span class="p">,</span> <span class="n">col_type</span><span class="p">)):</span>  <span class="c1"># type: ignore</span>
+                <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">resolver_spec</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span>
+                    <span class="n">config</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">config</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_config</span> <span class="ow">or</span> <span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span>
+                    <span class="k">if</span> <span class="n">_allowed_metric</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">metric</span><span class="p">):</span>
+                        <span class="n">result</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">()]</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div></div>
 </pre></div>
         </article>
       </div>

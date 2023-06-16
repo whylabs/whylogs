@@ -439,7 +439,7 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.multimetric</span> <span class="kn">import</span> <span class="n">MultiMetric</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">ListView</span><span class="p">,</span> <span class="n">PreprocessedColumn</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.proto</span> <span class="kn">import</span> <span class="n">MetricMessage</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span><span class="p">,</span> <span class="n">StandardResolver</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">DeclarativeResolver</span><span class="p">,</span> <span class="n">Resolver</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">ColumnSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">np</span><span class="p">,</span> <span class="n">sp</span>
 <span class="kn">from</span> <span class="nn">whylogs.experimental.extras.matrix_component</span> <span class="kn">import</span> <span class="n">MatrixComponent</span>
@@ -818,7 +818,7 @@
             <span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span>
                 <span class="n">types</span><span class="o">=</span><span class="n">datatypes</span><span class="p">,</span>
                 <span class="n">default_configs</span><span class="o">=</span><span class="n">NlpConfig</span><span class="p">(</span><span class="n">svd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_svd_metric</span><span class="p">),</span>
-                <span class="n">resolvers</span><span class="o">=</span><span class="n">ResolverWrapper</span><span class="p">(</span><span class="n">StandardResolver</span><span class="p">()),</span>
+                <span class="n">resolvers</span><span class="o">=</span><span class="n">ResolverWrapper</span><span class="p">(</span><span class="n">DeclarativeResolver</span><span class="p">()),</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span> <span class="o">=</span> <span class="n">DatasetProfile</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>

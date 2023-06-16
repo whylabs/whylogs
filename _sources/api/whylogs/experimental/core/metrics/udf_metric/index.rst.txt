@@ -37,6 +37,7 @@ Attributes
 .. autoapisummary::
 
    whylogs.experimental.core.metrics.udf_metric.logger
+   whylogs.experimental.core.metrics.udf_metric.DEFAULT_UDF_RESOLVER
 
 
 .. py:data:: logger
@@ -62,6 +63,11 @@ Attributes
    .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, fi_disabled: bool = False) -> Dict[str, whylogs.core.metrics.metrics.Metric]
 
 
+
+.. py:data:: DEFAULT_UDF_RESOLVER
+   :type: List[whylogs.core.resolvers.ResolverSpec]
+
+   
 
 .. py:function:: default_schema() -> DeclarativeSubmetricSchema
 

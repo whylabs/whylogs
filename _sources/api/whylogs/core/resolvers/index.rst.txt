@@ -33,9 +33,10 @@ Attributes
    whylogs.core.resolvers.ColumnSchema
    whylogs.core.resolvers.COLUMN_METRICS
    whylogs.core.resolvers.STANDARD_RESOLVER
-   whylogs.core.resolvers.UDF_BASE_RESOLVER
+   whylogs.core.resolvers.NO_FI_RESOLVER
    whylogs.core.resolvers.LIMITED_TRACKING_RESOLVER
    whylogs.core.resolvers.HISTOGRAM_COUNTING_TRACKING_RESOLVER
+   whylogs.core.resolvers.DEFAULT_RESOLVER
 
 
 .. py:data:: logger
@@ -137,7 +138,28 @@ Attributes
 
    
 
-.. py:class:: DeclarativeResolver(resolvers: List[ResolverSpec], default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None)
+.. py:data:: STANDARD_RESOLVER
+
+   
+
+.. py:data:: NO_FI_RESOLVER
+
+   
+
+.. py:data:: LIMITED_TRACKING_RESOLVER
+
+   
+
+.. py:data:: HISTOGRAM_COUNTING_TRACKING_RESOLVER
+
+   
+
+.. py:data:: DEFAULT_RESOLVER
+   :type: List[ResolverSpec]
+
+   
+
+.. py:class:: DeclarativeResolver(resolvers: Optional[List[ResolverSpec]] = None, default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None)
 
    Bases: :py:obj:`Resolver`
 
@@ -150,20 +172,4 @@ Attributes
    .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
 
 
-
-.. py:data:: STANDARD_RESOLVER
-
-   
-
-.. py:data:: UDF_BASE_RESOLVER
-
-   
-
-.. py:data:: LIMITED_TRACKING_RESOLVER
-
-   
-
-.. py:data:: HISTOGRAM_COUNTING_TRACKING_RESOLVER
-
-   
 

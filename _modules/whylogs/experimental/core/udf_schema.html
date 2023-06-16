@@ -429,7 +429,7 @@
 
 <span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">TypeMapper</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">MetricConfig</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">UDF_BASE_RESOLVER</span><span class="p">,</span> <span class="n">MetricSpec</span><span class="p">,</span> <span class="n">ResolverSpec</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">DEFAULT_RESOLVER</span><span class="p">,</span> <span class="n">MetricSpec</span><span class="p">,</span> <span class="n">ResolverSpec</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DatasetSchema</span><span class="p">,</span> <span class="n">DeclarativeSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">SegmentationPartition</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
@@ -624,7 +624,8 @@
     <span class="k">if</span> <span class="n">resolvers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">resolver_specs</span> <span class="o">=</span> <span class="n">resolvers</span> <span class="o">+</span> <span class="n">_resolver_specs</span><span class="p">[</span><span class="n">schema_name</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">resolver_specs</span> <span class="o">=</span> <span class="n">UDF_BASE_RESOLVER</span> <span class="o">+</span> <span class="n">_resolver_specs</span><span class="p">[</span><span class="n">schema_name</span><span class="p">]</span>
+        <span class="n">resolver_specs</span> <span class="o">=</span> <span class="n">DEFAULT_RESOLVER</span> <span class="o">+</span> <span class="n">_resolver_specs</span><span class="p">[</span><span class="n">schema_name</span><span class="p">]</span>
+
     <span class="n">resolver_specs</span> <span class="o">+=</span> <span class="n">generate_udf_resolvers</span><span class="p">(</span><span class="n">schema_name</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">UdfSchema</span><span class="p">(</span>
         <span class="n">resolver_specs</span><span class="p">,</span>

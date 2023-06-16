@@ -437,8 +437,8 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.multimetric</span> <span class="kn">import</span> <span class="n">MultiMetric</span><span class="p">,</span> <span class="n">SubmetricSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">PreprocessedColumn</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_RESOLVER</span><span class="p">,</span>
     <span class="n">STANDARD_RESOLVER</span><span class="p">,</span>
-    <span class="n">UDF_BASE_RESOLVER</span><span class="p">,</span>
     <span class="n">MetricSpec</span><span class="p">,</span>
     <span class="n">ResolverSpec</span><span class="p">,</span>
     <span class="n">_allowed_metric</span><span class="p">,</span>
@@ -483,8 +483,11 @@
         <span class="k">return</span> <span class="n">result</span></div></div>
 
 
+<span class="n">DEFAULT_UDF_RESOLVER</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">]</span> <span class="o">=</span> <span class="n">STANDARD_RESOLVER</span>
+
+
 <div class="viewcode-block" id="default_schema"><a class="viewcode-back" href="../../../../../api/whylogs/experimental/core/metrics/udf_metric/index.html#whylogs.experimental.core.metrics.udf_metric.default_schema">[docs]</a><span class="k">def</span> <span class="nf">default_schema</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">DeclarativeSubmetricSchema</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">DeclarativeSubmetricSchema</span><span class="p">(</span><span class="n">STANDARD_RESOLVER</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">DeclarativeSubmetricSchema</span><span class="p">(</span><span class="n">DEFAULT_UDF_RESOLVER</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="UdfMetricConfig"><a class="viewcode-back" href="../../../../../api/whylogs/experimental/core/metrics/udf_metric/index.html#whylogs.experimental.core.metrics.udf_metric.UdfMetricConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -779,7 +782,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">resolvers</span> <span class="o">=</span> <span class="n">generate_udf_resolvers</span><span class="p">(</span><span class="n">schema_name</span><span class="p">)</span>
-    <span class="n">non_udf_resolvers</span> <span class="o">=</span> <span class="n">non_udf_resolvers</span> <span class="k">if</span> <span class="n">non_udf_resolvers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">UDF_BASE_RESOLVER</span>
+    <span class="n">non_udf_resolvers</span> <span class="o">=</span> <span class="n">non_udf_resolvers</span> <span class="k">if</span> <span class="n">non_udf_resolvers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">DEFAULT_RESOLVER</span>
 
     <span class="k">return</span> <span class="n">DeclarativeSchema</span><span class="p">(</span>
         <span class="n">non_udf_resolvers</span> <span class="o">+</span> <span class="n">resolvers</span><span class="p">,</span>

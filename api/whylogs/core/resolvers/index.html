@@ -492,13 +492,16 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.resolvers.STANDARD_RESOLVER" title="whylogs.core.resolvers.STANDARD_RESOLVER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">STANDARD_RESOLVER</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.resolvers.UDF_BASE_RESOLVER" title="whylogs.core.resolvers.UDF_BASE_RESOLVER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UDF_BASE_RESOLVER</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.resolvers.NO_FI_RESOLVER" title="whylogs.core.resolvers.NO_FI_RESOLVER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NO_FI_RESOLVER</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.resolvers.LIMITED_TRACKING_RESOLVER" title="whylogs.core.resolvers.LIMITED_TRACKING_RESOLVER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LIMITED_TRACKING_RESOLVER</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.resolvers.HISTOGRAM_COUNTING_TRACKING_RESOLVER" title="whylogs.core.resolvers.HISTOGRAM_COUNTING_TRACKING_RESOLVER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HISTOGRAM_COUNTING_TRACKING_RESOLVER</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.resolvers.DEFAULT_RESOLVER" title="whylogs.core.resolvers.DEFAULT_RESOLVER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_RESOLVER</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -661,16 +664,41 @@ class, not an instance.</p>
 <span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">COLUMN_METRICS</span></span><a class="headerlink" href="#whylogs.core.resolvers.COLUMN_METRICS" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.STANDARD_RESOLVER">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">STANDARD_RESOLVER</span></span><a class="headerlink" href="#whylogs.core.resolvers.STANDARD_RESOLVER" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.NO_FI_RESOLVER">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">NO_FI_RESOLVER</span></span><a class="headerlink" href="#whylogs.core.resolvers.NO_FI_RESOLVER" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.LIMITED_TRACKING_RESOLVER">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">LIMITED_TRACKING_RESOLVER</span></span><a class="headerlink" href="#whylogs.core.resolvers.LIMITED_TRACKING_RESOLVER" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.HISTOGRAM_COUNTING_TRACKING_RESOLVER">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">HISTOGRAM_COUNTING_TRACKING_RESOLVER</span></span><a class="headerlink" href="#whylogs.core.resolvers.HISTOGRAM_COUNTING_TRACKING_RESOLVER" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="whylogs.core.resolvers.DEFAULT_RESOLVER">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_RESOLVER</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><span class="pre">ResolverSpec</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.resolvers.DEFAULT_RESOLVER" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.resolvers.DeclarativeResolver">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">DeclarativeResolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolvers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><span class="pre">ResolverSpec</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><span class="pre">whylogs.core.metrics.metrics.MetricConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/whylogs/core/resolvers.html#DeclarativeResolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.resolvers.DeclarativeResolver" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">DeclarativeResolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolvers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><span class="pre">ResolverSpec</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><span class="pre">whylogs.core.metrics.metrics.MetricConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/whylogs/core/resolvers.html#DeclarativeResolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.resolvers.DeclarativeResolver" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#whylogs.core.resolvers.Resolver" title="whylogs.core.resolvers.Resolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Resolver</span></code></a></p>
 <p>Implements the declarative resolution logic by interpreting a “program”
 of ResolverSpecs</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>resolvers</strong> (<em>List</em><em>[</em><a class="reference internal" href="#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><em>ResolverSpec</em></a><em>]</em>) – </p></li>
+<li><p><strong>resolvers</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="#whylogs.core.resolvers.ResolverSpec" title="whylogs.core.resolvers.ResolverSpec"><em>ResolverSpec</em></a><em>]</em><em>]</em>) – </p></li>
 <li><p><strong>default_config</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><em>whylogs.core.metrics.metrics.MetricConfig</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -703,26 +731,6 @@ of ResolverSpecs</p>
 </dd></dl>
 
 </dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="whylogs.core.resolvers.STANDARD_RESOLVER">
-<span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">STANDARD_RESOLVER</span></span><a class="headerlink" href="#whylogs.core.resolvers.STANDARD_RESOLVER" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="whylogs.core.resolvers.UDF_BASE_RESOLVER">
-<span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">UDF_BASE_RESOLVER</span></span><a class="headerlink" href="#whylogs.core.resolvers.UDF_BASE_RESOLVER" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="whylogs.core.resolvers.LIMITED_TRACKING_RESOLVER">
-<span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">LIMITED_TRACKING_RESOLVER</span></span><a class="headerlink" href="#whylogs.core.resolvers.LIMITED_TRACKING_RESOLVER" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="whylogs.core.resolvers.HISTOGRAM_COUNTING_TRACKING_RESOLVER">
-<span class="sig-prename descclassname"><span class="pre">whylogs.core.resolvers.</span></span><span class="sig-name descname"><span class="pre">HISTOGRAM_COUNTING_TRACKING_RESOLVER</span></span><a class="headerlink" href="#whylogs.core.resolvers.HISTOGRAM_COUNTING_TRACKING_RESOLVER" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
 
 </section>
 </section>
@@ -845,15 +853,16 @@ of ResolverSpecs</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.resolvers.COLUMN_METRICS">COLUMN_METRICS</a></li>
+<li><a class="reference internal" href="#whylogs.core.resolvers.STANDARD_RESOLVER">STANDARD_RESOLVER</a></li>
+<li><a class="reference internal" href="#whylogs.core.resolvers.NO_FI_RESOLVER">NO_FI_RESOLVER</a></li>
+<li><a class="reference internal" href="#whylogs.core.resolvers.LIMITED_TRACKING_RESOLVER">LIMITED_TRACKING_RESOLVER</a></li>
+<li><a class="reference internal" href="#whylogs.core.resolvers.HISTOGRAM_COUNTING_TRACKING_RESOLVER">HISTOGRAM_COUNTING_TRACKING_RESOLVER</a></li>
+<li><a class="reference internal" href="#whylogs.core.resolvers.DEFAULT_RESOLVER">DEFAULT_RESOLVER</a></li>
 <li><a class="reference internal" href="#whylogs.core.resolvers.DeclarativeResolver">DeclarativeResolver</a><ul>
 <li><a class="reference internal" href="#whylogs.core.resolvers.DeclarativeResolver.add_resolver">add_resolver</a></li>
 <li><a class="reference internal" href="#whylogs.core.resolvers.DeclarativeResolver.resolve">resolve</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#whylogs.core.resolvers.STANDARD_RESOLVER">STANDARD_RESOLVER</a></li>
-<li><a class="reference internal" href="#whylogs.core.resolvers.UDF_BASE_RESOLVER">UDF_BASE_RESOLVER</a></li>
-<li><a class="reference internal" href="#whylogs.core.resolvers.LIMITED_TRACKING_RESOLVER">LIMITED_TRACKING_RESOLVER</a></li>
-<li><a class="reference internal" href="#whylogs.core.resolvers.HISTOGRAM_COUNTING_TRACKING_RESOLVER">HISTOGRAM_COUNTING_TRACKING_RESOLVER</a></li>
 </ul>
 </li>
 </ul>
