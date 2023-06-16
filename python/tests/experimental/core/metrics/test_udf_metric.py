@@ -5,7 +5,9 @@ import pytest
 
 import whylogs as why
 from whylogs.core.datatypes import String
+from whylogs.core.metrics.unicode_range import UnicodeRangeMetric
 from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.resolvers import MetricSpec, ResolverSpec
 from whylogs.experimental.core.metrics.udf_metric import (
     DeclarativeSubmetricSchema,
     UdfMetric,
@@ -13,14 +15,25 @@ from whylogs.experimental.core.metrics.udf_metric import (
     register_metric_udf,
     udf_metric_schema,
 )
-from whylogs.metrics.unicode_range import UnicodeRangeMetric
+
 logger = getLogger(__name__)
 
 
 def test_no_netsted_multimetrics() -> None:
     with pytest.raises(ValueError):
         DeclarativeSubmetricSchema([ResolverSpec("foo", None, [MetricSpec(UnicodeRangeMetric)])])
-    DeclarativeSubmetricSchema([ResolverSpec("bar", None, [MetricSpec(UnicodeRangeMetric)], True)])
+    """
+    DeclarativeSubmetricSchema(
+        [
+            ResolverSpec(
+                column_name="bar",
+                column_type=None,
+                metrics=[MetricSpec(UnicodeRangeMetric)],
+                exclude=True
+            )
+        ]
+    )
+    """
 
 
 def test_udf_metric() -> None:

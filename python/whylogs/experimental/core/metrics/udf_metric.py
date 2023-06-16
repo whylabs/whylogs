@@ -58,7 +58,9 @@ class DeclarativeSubmetricSchema(SubmetricSchema):
         for resolver in resolvers:
             for metric_spec in resolver.metrics:
                 if issubclass(metric_spec.metric, MultiMetric):  # and not resolver.exclude:
-                    raise ValueError(f"MultiMetric cannot contain another MultiMetric ({metric_spec.metric.get_namespace()}) as a submetric")
+                    raise ValueError(
+                        f"MultiMetric cannot contain another MultiMetric ({metric_spec.metric.get_namespace()}) as a submetric"
+                    )
 
     def resolve(self, name: str, why_type: DataType, fi_disabled: bool = False) -> Dict[str, Metric]:
         result: Dict[str, Metric] = {}
