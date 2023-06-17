@@ -148,12 +148,14 @@ def register_dataset_udf(
     defautls to the name of the decorated function. Note that all lambdas are
     named "lambda", so omitting udf_name on more than one lambda will result
     in name collisions. If you pass a namespace, it will be prepended to the UDF name.
-
+    Specifying schema_name will register the UDF in a particular schema. If omitted,
+    it will be registered to the defualt schema.
+    
     If any metrics are passed via the metrics argument, they will be attached
     to the column produced by the UDF via the schema returned by generate_udf_dataset_schema().
     If metrics is None, the UDF output column will get the metrics determined by
-    the other resolvers passed to generate_udf_dataset_schema(), or the STANDARD_RESOLVER
-    by default.
+    the other resolvers passed to generate_udf_dataset_schema(), or the STANDARD_UDF_RESOLVER
+    by default. Any anti_metrics will be excluded from the metrics attached to the UDF output.
     """
 
     def decorator_register(func):
@@ -189,7 +191,7 @@ def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None, schema_n
 
     This will attach a UDF to column "col1" that will generate a new column
     named "add5" containing the values in "col1" incremented by 5. Since these
-    are appended to the STANDARD_RESOLVER, the default metrics are also tracked
+    are appended to the STANDARD_UDF_RESOLVER, the default metrics are also tracked
     for every column.
     """
     specs = list(other_udf_specs) if other_udf_specs else []
