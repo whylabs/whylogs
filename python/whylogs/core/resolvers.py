@@ -105,7 +105,8 @@ class ResolverSpec:
     Specify the metrics to instantiate for matching columns. column_name
     takes precedence over column_type. column_type should be a subclass
     of DataType, i.e., AnyType, Frational, Integral, or String. Pass the
-    class, not an instance.
+    class, not an instance. If the exclude field is True, the listed metrics
+    will be excluded from any matched columns.
     """
 
     column_name: Optional[str] = None  # TODO: maybe make this a regex
