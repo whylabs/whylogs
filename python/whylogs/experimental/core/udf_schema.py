@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple
 
 from whylogs.core.datatypes import TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
-from whylogs.core.resolvers import DEFAULT_RESOLVER, UDF_BASE_RESOLVER, MetricSpec, ResolverSpec
+from whylogs.core.resolvers import DEFAULT_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DatasetSchema, DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
@@ -150,7 +150,7 @@ def register_dataset_udf(
     in name collisions. If you pass a namespace, it will be prepended to the UDF name.
     Specifying schema_name will register the UDF in a particular schema. If omitted,
     it will be registered to the defualt schema.
-    
+
     If any metrics are passed via the metrics argument, they will be attached
     to the column produced by the UDF via the schema returned by generate_udf_dataset_schema().
     If metrics is None, the UDF output column will get the metrics determined by

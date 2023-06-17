@@ -16,7 +16,6 @@ from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import (
     DEFAULT_RESOLVER,
     STANDARD_RESOLVER,
-    UDF_BASE_RESOLVER,
     DeclarativeResolverBase,
     MetricSpec,
     ResolverSpec,

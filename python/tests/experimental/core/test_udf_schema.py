@@ -15,7 +15,6 @@ from whylogs.experimental.core.udf_schema import (
 )
 
 
-
 def test_udf_row() -> None:
     schema = UdfSchema(
         STANDARD_RESOLVER,

@@ -171,23 +171,6 @@ class DeclarativeResolverBase(Resolver):
         return result
 
 
-class DeclarativeResolver(DeclarativeResolverBase):
-    """
-    Implements the declarative resolution logic by interpreting a "program"
-    of ResolverSpecs
-    """
-
-    def add_resolver(self, resolver_spec: ResolverSpec):
-        if not resolver_spec.exclude:
-            self._resolvers.append(deepcopy(resolver_spec))
-        else:
-            self._anti_resolvers.append(deepcopy(resolver_spec))
-
-    def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-        assert isinstance(name, str)
-        return self._resolve(name, why_type, column_schema.cfg)
-
-
 # STANDARD_RESOLVER matches the default DatasetSchema/StandardResolver behavior
 STANDARD_RESOLVER = [
     ResolverSpec(
@@ -278,3 +261,30 @@ HISTOGRAM_COUNTING_TRACKING_RESOLVER = [
     ResolverSpec(column_type=String, metrics=[MetricSpec(StandardMetric.distribution.value)]),
     ResolverSpec(column_type=AnyType, metrics=[MetricSpec(StandardMetric.distribution.value)]),
 ]
+
+
+DEFAULT_RESOLVER: List[ResolverSpec] = list(STANDARD_RESOLVER)
+
+
+class DeclarativeResolver(DeclarativeResolverBase):
+    """
+    Implements the declarative resolution logic by interpreting a "program"
+    of ResolverSpecs
+    """
+
+    def __init__(
+        self, resolvers: Optional[List[ResolverSpec]] = None, default_config: Optional[MetricConfig] = None
+    ) -> None:
+        if resolvers is None:
+            resolvers = DEFAULT_RESOLVER
+
+        super().__init__(resolvers, default_config)
+
+    def add_resolver(self, resolver_spec: ResolverSpec):
+        if not resolver_spec.exclude:
+            self._resolvers.append(deepcopy(resolver_spec))
+        else:
+            self._anti_resolvers.append(deepcopy(resolver_spec))
+
+    def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        return self._resolve(name, why_type, column_schema.cfg)
