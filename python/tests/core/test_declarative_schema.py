@@ -1,6 +1,7 @@
 import pytest
 
 import whylogs as why
+import whylogs.core.resolvers as res
 from whylogs.core import DatasetSchema
 from whylogs.core.datatypes import Fractional, String
 from whylogs.core.metrics import MetricConfig, StandardMetric
@@ -189,30 +190,61 @@ def test_invalid_config() -> None:
         assert e.value.args[0] == "MetricSpec: must supply a Metric subclass to MetricSpec"
 
 
-def test_resolvers() -> None:
+@pytest.mark.parametrize(
+    "reference_resolver,declarative_resolver",
+    [
+        (StandardResolver(), STANDARD_RESOLVER),
+        (LimitedTrackingResolver(), LIMITED_TRACKING_RESOLVER),
+        (HistogramCountingTrackingResolver(), HISTOGRAM_COUNTING_TRACKING_RESOLVER),
+    ],
+)
+def test_resolvers(reference_resolver, declarative_resolver) -> None:
     """
     Verify DeclarativeSchema(RESOLVER) is equivalent to DatasetSchema()
     for different RESOLVERS (Standard, Limited Tracking, HistogramCounting)
     """
-    params = [
-        (StandardResolver(), STANDARD_RESOLVER),
-        (LimitedTrackingResolver(), LIMITED_TRACKING_RESOLVER),
-        (HistogramCountingTrackingResolver(), HISTOGRAM_COUNTING_TRACKING_RESOLVER),
-    ]
 
     class UnknownType:
         pass
 
     data = {"column_1": 3.14, "column_2": "lmno", "column_3": 42, "column_4": UnknownType()}
-    for reference_resolver, declarative_resolver in params:
-        reference_results = why.log(row=data, schema=DatasetSchema(resolvers=reference_resolver)).view()
-        declarative_standard_schema = DeclarativeSchema(declarative_resolver)
-        declarative_results = why.log(row=data, schema=declarative_standard_schema).view()
+    reference_results = why.log(row=data, schema=DatasetSchema(resolvers=reference_resolver)).view()
+    declarative_standard_schema = DeclarativeSchema(declarative_resolver)
+    declarative_results = why.log(row=data, schema=declarative_standard_schema).view()
 
-        for column in ["column_1", "column_2", "column_3", "column_4"]:
-            reference_metrics = set(reference_results.get_column(column).get_metric_names())
-            declarative_metrics = set(declarative_results.get_column(column).get_metric_names())
-            assert reference_metrics == declarative_metrics
+    for column in data.keys():
+        reference_metrics = set(reference_results.get_column(column).get_metric_names())
+        declarative_metrics = set(declarative_results.get_column(column).get_metric_names())
+        assert reference_metrics == declarative_metrics
+
+
+@pytest.mark.parametrize(
+    "reference_resolver,default_resolver",
+    [
+        (StandardResolver(), STANDARD_RESOLVER),
+        (LimitedTrackingResolver(), LIMITED_TRACKING_RESOLVER),
+        (HistogramCountingTrackingResolver(), HISTOGRAM_COUNTING_TRACKING_RESOLVER),
+    ],
+)
+def test_default_resolvers(reference_resolver, default_resolver) -> None:
+    """
+    Verify default schema obeys DEFAULT_RESOLVER
+    """
+
+    class UnknownType:
+        pass
+
+    data = {"column_1": 3.14, "column_2": "lmno", "column_3": 42, "column_4": UnknownType()}
+    reference_results = why.log(row=data, schema=DatasetSchema(resolvers=reference_resolver)).view()
+    res.DEFAULT_RESOLVER = default_resolver
+    default_results = why.log(row=data).view()
+
+    for column in data.keys():
+        reference_metrics = set(reference_results.get_column(column).get_metric_names())
+        default_metrics = set(default_results.get_column(column).get_metric_names())
+        assert reference_metrics == default_metrics
+
+    res.DEFAULT_RESOLVER = STANDARD_RESOLVER
 
 
 def test_anti_resolvers(pandas_dataframe) -> None:

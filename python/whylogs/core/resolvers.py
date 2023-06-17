@@ -221,7 +221,7 @@ STANDARD_RESOLVER = [
     ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
 ]
 
-UDF_BASE_RESOLVER = [
+NO_FI_RESOLVER = [
     ResolverSpec(
         column_type=Integral,
         metrics=COLUMN_METRICS
