@@ -36,6 +36,7 @@ class DeclarativeSubmetricSchema(DeclarativeResolverBase, SubmetricSchema):
     match and the list of MetricSpecs to instantiate for matching UDFs.
     Each MetricSpec specifies the Metric class and MetricConfig to
     instantiate. Omit the MetricSpec::config to use the default MetricConfig.
+    ResolverSpec::exclude will exclude the listed metrics from the matched UDFs.
 
     For example, DeclarativeSubmetricSchema(resolvers=STANDARD_RESOLVER) implements
     the same schema as DatasetSchema(), i.e., using the default MetricConfig,
