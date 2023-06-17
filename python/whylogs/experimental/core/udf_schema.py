@@ -214,7 +214,7 @@ def udf_schema(
         schema_names = [""] + schema_names
 
     for name in schema_names:
-        resolver_specs += _resolver_specs[schema_name][name]
+        resolver_specs += _resolver_specs[name]
 
     resolver_specs += generate_udf_resolvers(schema_name, include_default_schema)
     return UdfSchema(

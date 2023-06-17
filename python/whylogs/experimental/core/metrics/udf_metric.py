@@ -25,7 +25,6 @@ from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import (
     COLUMN_METRICS,
     DEFAULT_RESOLVER,
-    STANDARD_RESOLVER,
     MetricSpec,
     ResolverSpec,
     _allowed_metric,
@@ -364,13 +363,17 @@ def generate_udf_resolvers(
         for col_name, submetrics in _col_name_submetrics[schema_name].items():
             col_udfs[col_name] += submetrics
             if col_submetric_schema.get(col_name) and _col_name_submetric_schema[schema_name].get(col_name):
-                logger.warning(f"Multiple submetric schemas registered for column {col_name}")
+                logger.warning(
+                    f"Multiple submetric schemas registered for column {col_name}. Which one will be used is undefined."
+                )
 
             col_submetric_schema[col_name] = col_submetric_schema.get(col_name) or _col_name_submetric_schema[
                 schema_name
             ].get(col_name)
             if col_type_mapper.get(col_name) and _col_name_type_mapper[schema_name].get(col_name):
-                logger.warning(f"Multiple submetric type mappers registerd for column {col_name}")
+                logger.warning(
+                    f"Multiple submetric type mappers registerd for column {col_name}. Which one will be used is undefined."
+                )
 
             col_type_mapper[col_name] = col_type_mapper.get(col_name) or _col_name_type_mapper[schema_name].get(
                 col_name
@@ -379,13 +382,17 @@ def generate_udf_resolvers(
         for col_type, submetrics in _col_type_submetrics[schema_name].items():
             type_udfs[col_type] += submetrics
             if type_submetric_schema.get(col_type) and _col_type_submetric_schema[schema_name].get(col_type):
-                logger.warning(f"Multiple submetric schemas registered for column type {col_type}")
+                logger.warning(
+                    f"Multiple submetric schemas registered for column type {col_type}. Which one will be used is undefined."
+                )
 
             type_submetric_schema[col_type] = type_submetric_schema.get(col_type) or _col_type_submetric_schema[
                 schema_name
             ].get(col_type)
             if type_type_mapper.get(col_type) and _col_type_type_mapper[schema_name].get(col_type):
-                logger.warning(f"Multiple submetric type mappers registerd for column type {col_type}")
+                logger.warning(
+                    f"Multiple submetric type mappers registerd for column type {col_type}. Which one will be used is undefined."
+                )
 
             type_type_mapper[col_type] = type_type_mapper.get(col_type) or _col_type_type_mapper[schema_name].get(
                 col_type

@@ -5,11 +5,13 @@ import pytest
 
 import whylogs as why
 import whylogs.experimental.core.metrics.udf_metric as udfm
-from whylogs.core.datatypes import String
+from whylogs.core.datatypes import AnyType, Fractional, Integral, String
+from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.unicode_range import UnicodeRangeMetric
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.resolvers import NO_FI_RESOLVER, MetricSpec, ResolverSpec, STANDARD_RESOLVER
+from whylogs.core.resolvers import COLUMN_METRICS, MetricSpec, ResolverSpec
 from whylogs.experimental.core.metrics.udf_metric import (
+    STANDARD_UDF_RESOLVER,
     DeclarativeSubmetricSchema,
     UdfMetric,
     UdfMetricConfig,
@@ -96,6 +98,36 @@ def test_udf_metric_from_to_protobuf() -> None:
     assert "foo:frequent_items/frequent_strings" in summary
 
 
+NO_FI_RESOLVER = [
+    ResolverSpec(
+        column_type=Integral,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.ints.value),
+            MetricSpec(StandardMetric.cardinality.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=Fractional,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=String,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
+        ],
+    ),
+    ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
+]
+
+
 def test_obeys_default_submetric_schema() -> None:
     udfm.DEFAULT_UDF_RESOLVER = NO_FI_RESOLVER
     config = UdfMetricConfig(
@@ -123,7 +155,7 @@ def test_obeys_default_submetric_schema() -> None:
     assert summary["foo:types/string"] == 1
     assert summary["foo:cardinality/est"] == 1
     assert "foo:frequent_items/frequent_strings" not in summary
-    udfm.DEFAULT_UDF_RESOLVER = STANDARD_RESOLVER
+    udfm.DEFAULT_UDF_RESOLVER = STANDARD_UDF_RESOLVER
 
 
 def test_udf_throws() -> None:
