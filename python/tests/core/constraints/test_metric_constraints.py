@@ -219,7 +219,7 @@ def test_dataset_comparison_constraint(profile_view):
     assert report[0].passed == 1
     assert report[0].summary["drift_category"] == "NO_DRIFT"
     assert report[0].summary["algorithm"] == "ks"
-    assert report[0].summary["p_value"] == 1.0
+    assert report[0].summary["pvalue"] == 1.0
 
 
 def test_same_constraint_on_multiple_columns(profile_view):
