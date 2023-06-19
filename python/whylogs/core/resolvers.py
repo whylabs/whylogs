@@ -126,43 +126,6 @@ class ResolverSpec:
 COLUMN_METRICS = [MetricSpec(StandardMetric.counts.value), MetricSpec(StandardMetric.types.value)]
 
 
-def _allowed_metric(config: MetricConfig, metric: Metric) -> bool:
-    """Return False for any metrics turned off in the config"""
-
-    namespace = metric.get_namespace()
-    if config.fi_disabled and namespace == "frequent_items":
-        return False
-    if (not config.track_unicode_ranges) and namespace == "unicode_range":
-        return False
-    return True
-
-
-class DeclarativeResolver(Resolver):
-    """
-    Implements the declarative resolution logic by interpreting a "program"
-    of ResolverSpecs
-    """
-
-    def add_resolver(self, resolver_spec: ResolverSpec):
-        self._resolvers.append(resolver_spec)
-
-    def __init__(self, resolvers: List[ResolverSpec], default_config: Optional[MetricConfig] = None) -> None:
-        self._resolvers = deepcopy(resolvers)
-        self._default_config = default_config
-
-    def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-        result: Dict[str, Metric] = {}
-        for resolver_spec in self._resolvers:
-            col_name, col_type = resolver_spec.column_name, resolver_spec.column_type
-            if (col_name and col_name == name) or (col_name is None and isinstance(why_type, col_type)):  # type: ignore
-                for spec in resolver_spec.metrics:
-                    config = spec.config or self._default_config or column_schema.cfg
-                    if _allowed_metric(config, spec.metric):
-                        result[spec.metric.get_namespace()] = spec.metric.zero(config)
-
-        return result
-
-
 # STANDARD_RESOLVER matches the default DatasetSchema/StandardResolver behavior
 STANDARD_RESOLVER = [
     ResolverSpec(
@@ -196,7 +159,7 @@ STANDARD_RESOLVER = [
     ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
 ]
 
-UDF_BASE_RESOLVER = [
+NO_FI_RESOLVER = [
     ResolverSpec(
         column_type=Integral,
         metrics=COLUMN_METRICS
@@ -253,3 +216,48 @@ HISTOGRAM_COUNTING_TRACKING_RESOLVER = [
     ResolverSpec(column_type=String, metrics=[MetricSpec(StandardMetric.distribution.value)]),
     ResolverSpec(column_type=AnyType, metrics=[MetricSpec(StandardMetric.distribution.value)]),
 ]
+
+
+DEFAULT_RESOLVER: List[ResolverSpec] = list(STANDARD_RESOLVER)
+
+
+def _allowed_metric(config: MetricConfig, metric: Metric) -> bool:
+    """Return False for any metrics turned off in the config"""
+
+    namespace = metric.get_namespace()
+    if config.fi_disabled and namespace == "frequent_items":
+        return False
+    if (not config.track_unicode_ranges) and namespace == "unicode_range":
+        return False
+    return True
+
+
+class DeclarativeResolver(Resolver):
+    """
+    Implements the declarative resolution logic by interpreting a "program"
+    of ResolverSpecs
+    """
+
+    def add_resolver(self, resolver_spec: ResolverSpec):
+        self._resolvers.append(resolver_spec)
+
+    def __init__(
+        self, resolvers: Optional[List[ResolverSpec]] = None, default_config: Optional[MetricConfig] = None
+    ) -> None:
+        if resolvers is None:
+            resolvers = DEFAULT_RESOLVER
+
+        self._resolvers = deepcopy(resolvers)
+        self._default_config = default_config
+
+    def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        result: Dict[str, Metric] = {}
+        for resolver_spec in self._resolvers:
+            col_name, col_type = resolver_spec.column_name, resolver_spec.column_type
+            if (col_name and col_name == name) or (col_name is None and isinstance(why_type, col_type)):  # type: ignore
+                for spec in resolver_spec.metrics:
+                    config = spec.config or self._default_config or column_schema.cfg
+                    if _allowed_metric(config, spec.metric):
+                        result[spec.metric.get_namespace()] = spec.metric.zero(config)
+
+        return result
