@@ -3,6 +3,7 @@ from typing import List
 
 from whylogs.core.constraints import (
     ConstraintsBuilder,
+    DatasetComparisonConstraint,
     DatasetConstraint,
     MetricConstraint,
     MetricsSelector,
@@ -16,6 +17,7 @@ from whylogs.core.metrics import DistributionMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.relations import Not, Require
+from whylogs.viz.drift.column_drift_algorithms import calculate_drift_scores
 
 TEST_LOGGER = getLogger(__name__)
 
@@ -183,6 +185,41 @@ def test_dataset_constraints(pandas_constraint_dataframe) -> None:
     assert report_results[0] == ("multi_column_agreement", 1, 0, None)
     assert report_results[1] == ("same_column_agreement", 1, 0, None)
     assert report_results[2] == ("failing_constraint", 0, 1, None)
+
+
+def test_dataset_comparison_constraint(profile_view):
+    column_name = "weight"
+
+    def feature_drift(
+        column_name: str,
+    ):
+        def drift_condition(target_profile_view, reference_profile_view):
+            scores = calculate_drift_scores(target_profile_view, reference_profile_view, with_thresholds=True)
+            if scores.get(column_name):
+                score_column = scores[column_name]
+                if score_column["drift_category"] == "DRIFT":
+                    return (False, score_column)
+                else:
+                    return (True, score_column)
+            else:
+                return (False, {"error": f"Column {column_name} not found in profile view"})
+
+        feature_drift = DatasetComparisonConstraint(
+            name=f"{column_name} feature not drifted",
+            condition=drift_condition,
+        )
+        return feature_drift
+
+    builder = ConstraintsBuilder(dataset_profile_view=profile_view, reference_profile_view=profile_view)
+
+    builder.add_constraint(feature_drift(column_name=column_name))
+    constraints = builder.build()
+
+    report = constraints.generate_constraints_report(with_summary=True)
+    assert report[0].passed == 1
+    assert report[0].summary["drift_category"] == "NO_DRIFT"
+    assert report[0].summary["algorithm"] == "ks"
+    assert report[0].summary["p_value"] == 1.0
 
 
 def test_same_constraint_on_multiple_columns(profile_view):

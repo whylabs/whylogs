@@ -202,6 +202,27 @@ class MissingMetric(Exception):
 
 
 @dataclass(frozen=True)
+class DatasetComparisonConstraint:
+    """
+    Implements dataset-level constraints that require a reference dataset to
+    be compared against. The condition Callable takes the DatasetProfileView
+    of the dataset to be validated as well as the DatasetProfileView of the
+    reference dataset and returns a boolean indicating whether the condition
+    is satisfied as well as a dictionary with summary information about the
+    validation.
+
+    """
+    condition: Callable[[DatasetProfileView, DatasetProfileView], Tuple[bool, Dict[str, Metric]]]
+    name: str
+
+    def validate_profile(
+        self, dataset_profile: DatasetProfileView, reference_profile: DatasetProfileView
+    ) -> Tuple[bool, Optional[Dict[str, Any]]]:
+        validate_result, summary = self.condition(dataset_profile, reference_profile)
+        return (validate_result, summary)
+
+
+@dataclass(frozen=True)
 class DatasetConstraint:
     """
     Implements dataset-level constraints that are not attached to a specific
@@ -468,21 +489,29 @@ def _make_report(
 class Constraints:
     column_constraints: Dict[str, Dict[str, MetricConstraint]]
     dataset_constraints: List[DatasetConstraint]
+    dataset_comparison_constraints: List[DatasetComparisonConstraint]
     dataset_profile_view: Optional[DatasetProfileView]
 
     def __init__(
         self,
         dataset_profile_view: Optional[DatasetProfileView] = None,
         column_constraints: Optional[Dict[str, Dict[str, MetricConstraint]]] = None,
+        reference_profile_view: Optional[DatasetProfileView] = None,
     ) -> None:
         self.column_constraints = column_constraints or dict()
         self.dataset_constraints = []
+        self.dataset_comparison_constraints = []
         self.dataset_profile_view = dataset_profile_view
+        self.reference_profile_view = reference_profile_view
 
     def validate(self, profile_view: Optional[DatasetProfileView] = None) -> bool:
         profile = self._resolve_profile_view(profile_view)
         column_names = self.column_constraints.keys()
-        if len(column_names) == 0 and len(self.dataset_constraints) == 0:
+        if (
+            len(column_names) == 0
+            and len(self.dataset_constraints) == 0
+            and len(self.dataset_comparison_constraints) == 0
+        ):
             logger.warning("validate was called with empty set of constraints, returning True!")
             return True
 
@@ -494,12 +523,18 @@ class Constraints:
                     logger.info(f"{constraint_name} failed on column {column_name}")
                     return False
 
-        for constraint in self.dataset_constraints:
-            (result, _) = constraint.validate_profile(profile)
+        for constraint in self.dataset_constraints + self.dataset_comparison_constraints:
+            if isinstance(constraint, DatasetConstraint):
+                (result, _) = constraint.validate_profile(profile)
+            elif isinstance(constraint, DatasetComparisonConstraint):
+                (result, _) = constraint.validate_profile(profile, self.reference_profile_view)
             if not result:
                 logger.info(f"{constraint.name} failed on dataset")
                 return False
         return True
+
+    def set_reference_profile_view(self, profile_view: DatasetProfileView) -> None:
+        self.reference_profile_view = profile_view
 
     @deprecated(message="Please use generate_constraints_report()")
     def report(self, profile_view: Optional[DatasetProfileView] = None) -> List[Tuple[str, int, int]]:
@@ -541,10 +576,13 @@ class Constraints:
     def _generate_dataset_report(
         self,
         profile_view: DatasetProfileView,
-        constraint: DatasetConstraint,
+        constraint: Union[DatasetConstraint, DatasetComparisonConstraint],
         with_summary: bool,
     ) -> ReportResult:
-        (result, summary) = constraint.validate_profile(profile_view)
+        if isinstance(constraint, DatasetComparisonConstraint):
+            (result, summary) = constraint.validate_profile(profile_view, self.reference_profile_view)
+        elif isinstance(constraint, DatasetConstraint):
+            (result, summary) = constraint.validate_profile(profile_view)
         return _make_report(constraint.name, result, with_summary, summary)
 
     def generate_constraints_report(
@@ -568,7 +606,7 @@ class Constraints:
 
                 results.append(metric_report)
 
-        for constraint in self.dataset_constraints:
+        for constraint in self.dataset_constraints + self.dataset_comparison_constraints:
             metric_report = self._generate_dataset_report(
                 profile_view=profile,
                 constraint=constraint,
@@ -597,11 +635,13 @@ class ConstraintsBuilder:
         self,
         dataset_profile_view: DatasetProfileView,
         constraints: Optional[Constraints] = None,
+        reference_profile_view: Optional[DatasetProfileView] = None,
     ) -> None:
         self._dataset_profile_view = dataset_profile_view
         if constraints is None:
             constraints = Constraints(dataset_profile_view=dataset_profile_view)
         self._constraints = constraints
+        self._reference_profile_view = reference_profile_view
 
     def get_metric_selectors(self) -> List[MetricsSelector]:
         selectors = []
@@ -660,6 +700,13 @@ class ConstraintsBuilder:
 
         if isinstance(constraint, DatasetConstraint):
             self._constraints.dataset_constraints.append(constraint)
+        if isinstance(constraint, DatasetComparisonConstraint):
+            if not self._reference_profile_view:
+                raise ValueError(
+                    "ConstraintsBuilder: reference_profile_view must be set when adding DatasetComparisonConstraint"
+                )
+            self._constraints.set_reference_profile_view(self._reference_profile_view)
+            self._constraints.dataset_comparison_constraints.append(constraint)
 
         return self
 
