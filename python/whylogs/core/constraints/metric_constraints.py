@@ -212,6 +212,7 @@ class DatasetComparisonConstraint:
     validation.
 
     """
+
     condition: Callable[[DatasetProfileView, DatasetProfileView], Tuple[bool, Dict[str, Metric]]]
     name: str
 
