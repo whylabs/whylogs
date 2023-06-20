@@ -54,8 +54,7 @@ class DeclarativeSubmetricSchema(DeclarativeResolverBase, SubmetricSchema):
     """
 
     def __init__(self, resolvers: List[ResolverSpec], default_config: Optional[MetricConfig] = None) -> None:
-        self._default_config = default_config or MetricConfig()
-        self._resolvers = resolvers.copy()
+        super().__init__(resolvers, default_config)
         for resolver in resolvers:
             for metric_spec in resolver.metrics:
                 if issubclass(metric_spec.metric, MultiMetric) and not resolver.exclude:
