@@ -5,13 +5,16 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple
 
 from whylogs.core.datatypes import TypeMapper
-from whylogs.core.metrics.metrics import MetricConfig
+from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import DEFAULT_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DatasetSchema, DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
 from whylogs.core.validators.validator import Validator
-from whylogs.experimental.core.metrics.udf_metric import generate_udf_resolvers
+from whylogs.experimental.core.metrics.udf_metric import (
+    _reset_metric_udfs,
+    generate_udf_resolvers,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -118,12 +121,22 @@ _multicolumn_udfs: Dict[str, List[UdfSpec]] = defaultdict(list)
 _resolver_specs: Dict[str, List[ResolverSpec]] = defaultdict(list)
 
 
+def _reset_udfs(reset_metric_udfs: bool = True) -> None:
+    if reset_metric_udfs:
+        _reset_metric_udfs()
+
+    global _multicolumn_udfs, _resolver_specs
+    _multicolumn_udfs = defaultdict(list)
+    _resolver_specs = defaultdict(list)
+
+
 def register_dataset_udf(
     col_names: List[str],
     udf_name: Optional[str] = None,
     metrics: Optional[List[MetricSpec]] = None,
     namespace: Optional[str] = None,
     schema_name: str = "",
+    anti_metrics: Optional[List[Metric]] = None,
 ) -> Callable[[Any], Any]:
     """
     Decorator to easily configure UDFs for your data set. Decorate your UDF
@@ -135,12 +148,14 @@ def register_dataset_udf(
     defautls to the name of the decorated function. Note that all lambdas are
     named "lambda", so omitting udf_name on more than one lambda will result
     in name collisions. If you pass a namespace, it will be prepended to the UDF name.
+    Specifying schema_name will register the UDF in a particular schema. If omitted,
+    it will be registered to the defualt schema.
 
     If any metrics are passed via the metrics argument, they will be attached
     to the column produced by the UDF via the schema returned by generate_udf_dataset_schema().
     If metrics is None, the UDF output column will get the metrics determined by
-    the other resolvers passed to generate_udf_dataset_schema(), or the STANDARD_RESOLVER
-    by default.
+    the other resolvers passed to generate_udf_dataset_schema(), or the STANDARD_UDF_RESOLVER
+    by default. Any anti_metrics will be excluded from the metrics attached to the UDF output.
     """
 
     def decorator_register(func):
@@ -150,6 +165,8 @@ def register_dataset_udf(
         _multicolumn_udfs[schema_name].append(UdfSpec(col_names, {name: func}))
         if metrics:
             _resolver_specs[schema_name].append(ResolverSpec(name, None, deepcopy(metrics)))
+        if anti_metrics:
+            _resolver_specs[schema_name].append(ResolverSpec(name, None, [MetricSpec(m) for m in anti_metrics], True))
 
         return func
 
@@ -174,7 +191,7 @@ def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None, schema_n
 
     This will attach a UDF to column "col1" that will generate a new column
     named "add5" containing the values in "col1" incremented by 5. Since these
-    are appended to the STANDARD_RESOLVER, the default metrics are also tracked
+    are appended to the STANDARD_UDF_RESOLVER, the default metrics are also tracked
     for every column.
     """
     specs = list(other_udf_specs) if other_udf_specs else []
