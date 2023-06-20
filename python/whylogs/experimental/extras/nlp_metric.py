@@ -16,7 +16,7 @@ from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
 from whylogs.core.metrics.multimetric import MultiMetric
 from whylogs.core.preprocessing import ListView, PreprocessedColumn
 from whylogs.core.proto import MetricMessage
-from whylogs.core.resolvers import Resolver, StandardResolver
+from whylogs.core.resolvers import DeclarativeResolver, Resolver
 from whylogs.core.schema import ColumnSchema
 from whylogs.core.stubs import np, sp
 from whylogs.experimental.extras.matrix_component import MatrixComponent
@@ -395,7 +395,7 @@ class NlpLogger:
             schema = DatasetSchema(
                 types=datatypes,
                 default_configs=NlpConfig(svd=self._svd_metric),
-                resolvers=ResolverWrapper(StandardResolver()),
+                resolvers=ResolverWrapper(DeclarativeResolver()),
             )
 
         self._profile = DatasetProfile(schema=schema)

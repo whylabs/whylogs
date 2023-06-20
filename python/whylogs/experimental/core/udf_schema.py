@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple
 
 from whylogs.core.datatypes import TypeMapper
 from whylogs.core.metrics.metrics import MetricConfig
-from whylogs.core.resolvers import UDF_BASE_RESOLVER, MetricSpec, ResolverSpec
+from whylogs.core.resolvers import DEFAULT_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DatasetSchema, DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
@@ -103,12 +103,13 @@ class UdfSchema(DeclarativeSchema):
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
     ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
         new_columns = deepcopy(row) if row else None
-        new_df = pd.DataFrame(pandas) if pandas is not None else None
+        new_df = pd.DataFrame() if pandas is not None else None
         if row is not None:
             self._run_udfs_on_row(row, new_columns)  # type: ignore
 
         if pandas is not None:
             self._run_udfs_on_dataframe(pandas, new_df)
+            new_df = pd.concat([pandas, new_df], axis=1)
 
         return new_df, new_columns
 
@@ -200,7 +201,8 @@ def udf_schema(
     if resolvers is not None:
         resolver_specs = resolvers + _resolver_specs[schema_name]
     else:
-        resolver_specs = UDF_BASE_RESOLVER + _resolver_specs[schema_name]
+        resolver_specs = DEFAULT_RESOLVER + _resolver_specs[schema_name]
+
     resolver_specs += generate_udf_resolvers(schema_name)
     return UdfSchema(
         resolver_specs,
