@@ -439,9 +439,9 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">DEFAULT_RESOLVER</span><span class="p">,</span>
     <span class="n">STANDARD_RESOLVER</span><span class="p">,</span>
+    <span class="n">DeclarativeResolverBase</span><span class="p">,</span>
     <span class="n">MetricSpec</span><span class="p">,</span>
     <span class="n">ResolverSpec</span><span class="p">,</span>
-    <span class="n">_allowed_metric</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">SegmentationPartition</span>
@@ -451,7 +451,7 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="DeclarativeSubmetricSchema"><a class="viewcode-back" href="../../../../../api/whylogs/experimental/core/metrics/udf_metric/index.html#whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema">[docs]</a><span class="k">class</span> <span class="nc">DeclarativeSubmetricSchema</span><span class="p">(</span><span class="n">SubmetricSchema</span><span class="p">):</span>
+<div class="viewcode-block" id="DeclarativeSubmetricSchema"><a class="viewcode-back" href="../../../../../api/whylogs/experimental/core/metrics/udf_metric/index.html#whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema">[docs]</a><span class="k">class</span> <span class="nc">DeclarativeSubmetricSchema</span><span class="p">(</span><span class="n">DeclarativeResolverBase</span><span class="p">,</span> <span class="n">SubmetricSchema</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The DeclarativeSubmetricSchema allows one to customize the set of metrics</span>
 <span class="sd">    tracked for each UDF computed by a UdfMetric. Pass its constructor a list</span>
@@ -459,6 +459,7 @@
 <span class="sd">    match and the list of MetricSpecs to instantiate for matching UDFs.</span>
 <span class="sd">    Each MetricSpec specifies the Metric class and MetricConfig to</span>
 <span class="sd">    instantiate. Omit the MetricSpec::config to use the default MetricConfig.</span>
+<span class="sd">    Setting ResolverSpec::exclude to True will exclude the listed metrics from the matched UDFs.</span>
 
 <span class="sd">    For example, DeclarativeSubmetricSchema(resolvers=STANDARD_RESOLVER) implements</span>
 <span class="sd">    the same schema as DatasetSchema(), i.e., using the default MetricConfig,</span>
@@ -466,21 +467,8 @@
 <span class="sd">    in whylogs/python/whylogs/core/resolvers.py</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolvers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">],</span> <span class="n">default_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_default_config</span> <span class="o">=</span> <span class="n">default_config</span> <span class="ow">or</span> <span class="n">MetricConfig</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span> <span class="o">=</span> <span class="n">resolvers</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
 <div class="viewcode-block" id="DeclarativeSubmetricSchema.resolve"><a class="viewcode-back" href="../../../../../api/whylogs/experimental/core/metrics/udf_metric/index.html#whylogs.experimental.core.metrics.udf_metric.DeclarativeSubmetricSchema.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">fi_disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
-        <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">resolver_spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolvers</span><span class="p">:</span>
-            <span class="n">col_name</span><span class="p">,</span> <span class="n">col_type</span> <span class="o">=</span> <span class="n">resolver_spec</span><span class="o">.</span><span class="n">column_name</span><span class="p">,</span> <span class="n">resolver_spec</span><span class="o">.</span><span class="n">column_type</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">col_name</span> <span class="ow">and</span> <span class="n">col_name</span> <span class="o">==</span> <span class="n">name</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">col_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">why_type</span><span class="p">,</span> <span class="n">col_type</span><span class="p">)):</span>  <span class="c1"># type: ignore</span>
-                <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">resolver_spec</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span>
-                    <span class="n">config</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">config</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_config</span>
-                    <span class="k">if</span> <span class="n">_allowed_metric</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">metric</span><span class="p">):</span>
-                        <span class="n">result</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">()]</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">result</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">why_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div></div>
 
 
 <span class="n">DEFAULT_UDF_RESOLVER</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">]</span> <span class="o">=</span> <span class="n">STANDARD_RESOLVER</span>
@@ -616,6 +604,17 @@
 <span class="p">)</span>
 <span class="n">_col_type_submetric_schema</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataType</span><span class="p">,</span> <span class="n">SubmetricSchema</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
 <span class="n">_col_type_type_mapper</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataType</span><span class="p">,</span> <span class="n">TypeMapper</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_reset_metric_udfs</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">_col_name_submetrics</span><span class="p">,</span> <span class="n">_col_name_submetric_schema</span><span class="p">,</span> <span class="n">_col_name_type_mapper</span>
+    <span class="k">global</span> <span class="n">_col_type_submetrics</span><span class="p">,</span> <span class="n">_col_type_submetric_schema</span><span class="p">,</span> <span class="n">_col_type_type_mapper</span>
+    <span class="n">_col_name_submetrics</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
+    <span class="n">_col_name_submetric_schema</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">_col_name_type_mapper</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">_col_type_submetrics</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
+    <span class="n">_col_type_submetric_schema</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">_col_type_type_mapper</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="register_metric_udf"><a class="viewcode-back" href="../../../../../api/whylogs/experimental/core/metrics/udf_metric/index.html#whylogs.experimental.core.metrics.udf_metric.register_metric_udf">[docs]</a><span class="k">def</span> <span class="nf">register_metric_udf</span><span class="p">(</span>

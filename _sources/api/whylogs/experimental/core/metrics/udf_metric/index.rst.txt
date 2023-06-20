@@ -44,9 +44,9 @@ Attributes
 
    
 
-.. py:class:: DeclarativeSubmetricSchema(resolvers: List[whylogs.core.resolvers.ResolverSpec], default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None)
+.. py:class:: DeclarativeSubmetricSchema(resolvers: List[ResolverSpec], default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None)
 
-   Bases: :py:obj:`whylogs.core.metrics.multimetric.SubmetricSchema`
+   Bases: :py:obj:`whylogs.core.resolvers.DeclarativeResolverBase`, :py:obj:`whylogs.core.metrics.multimetric.SubmetricSchema`
 
    The DeclarativeSubmetricSchema allows one to customize the set of metrics
    tracked for each UDF computed by a UdfMetric. Pass its constructor a list
@@ -54,6 +54,7 @@ Attributes
    match and the list of MetricSpecs to instantiate for matching UDFs.
    Each MetricSpec specifies the Metric class and MetricConfig to
    instantiate. Omit the MetricSpec::config to use the default MetricConfig.
+   Setting ResolverSpec::exclude to True will exclude the listed metrics from the matched UDFs.
 
    For example, DeclarativeSubmetricSchema(resolvers=STANDARD_RESOLVER) implements
    the same schema as DatasetSchema(), i.e., using the default MetricConfig,

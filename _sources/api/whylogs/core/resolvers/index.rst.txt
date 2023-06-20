@@ -18,6 +18,7 @@ Classes
    whylogs.core.resolvers.HistogramCountingTrackingResolver
    whylogs.core.resolvers.MetricSpec
    whylogs.core.resolvers.ResolverSpec
+   whylogs.core.resolvers.DeclarativeResolverBase
    whylogs.core.resolvers.DeclarativeResolver
 
 
@@ -116,7 +117,8 @@ Attributes
    Specify the metrics to instantiate for matching columns. column_name
    takes precedence over column_type. column_type should be a subclass
    of DataType, i.e., AnyType, Frational, Integral, or String. Pass the
-   class, not an instance.
+   class, not an instance. If the exclude field is True, the listed metrics
+   will be excluded from any matched columns.
 
    .. py:attribute:: column_name
       :type: Optional[str]
@@ -124,7 +126,7 @@ Attributes
       
 
    .. py:attribute:: column_type
-      :type: Optional[Any]
+      :type: Optional[whylogs.core.datatypes.DataType]
 
       
 
@@ -133,10 +135,28 @@ Attributes
 
       
 
+   .. py:attribute:: exclude
+      :type: bool
+      :value: False
+
+      
+
 
 .. py:data:: COLUMN_METRICS
 
    
+
+.. py:class:: DeclarativeResolverBase(resolvers: List[ResolverSpec], default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None)
+
+   Bases: :py:obj:`Resolver`
+
+   Implements the declarative resolution logic by interpreting a "program"
+   of ResolverSpecs
+
+   .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+      :abstractmethod:
+
+
 
 .. py:data:: STANDARD_RESOLVER
 
@@ -161,7 +181,7 @@ Attributes
 
 .. py:class:: DeclarativeResolver(resolvers: Optional[List[ResolverSpec]] = None, default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None)
 
-   Bases: :py:obj:`Resolver`
+   Bases: :py:obj:`DeclarativeResolverBase`
 
    Implements the declarative resolution logic by interpreting a "program"
    of ResolverSpecs
