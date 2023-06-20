@@ -25,7 +25,6 @@ logger = getLogger(__name__)
 def test_no_netsted_multimetrics() -> None:
     with pytest.raises(ValueError):
         DeclarativeSubmetricSchema([ResolverSpec("foo", None, [MetricSpec(UnicodeRangeMetric)])])
-    """
     DeclarativeSubmetricSchema(
         [
             ResolverSpec(
