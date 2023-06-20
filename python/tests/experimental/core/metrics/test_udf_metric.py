@@ -35,7 +35,7 @@ def test_no_netsted_multimetrics() -> None:
             )
         ]
     )
-    """
+    # Test is that this does not throw. Since it's excluded, it should be allowed.
 
 
 def test_udf_metric() -> None:
