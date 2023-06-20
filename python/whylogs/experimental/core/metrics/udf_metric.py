@@ -25,9 +25,9 @@ from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import (
     COLUMN_METRICS,
     DEFAULT_RESOLVER,
+    DeclarativeResolverBase,
     MetricSpec,
     ResolverSpec,
-    _allowed_metric,
 )
 from whylogs.core.schema import DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
@@ -37,7 +37,7 @@ from whylogs.core.validators.validator import Validator
 logger = logging.getLogger(__name__)
 
 
-class DeclarativeSubmetricSchema(SubmetricSchema):
+class DeclarativeSubmetricSchema(DeclarativeResolverBase, SubmetricSchema):
     """
     The DeclarativeSubmetricSchema allows one to customize the set of metrics
     tracked for each UDF computed by a UdfMetric. Pass its constructor a list
@@ -45,6 +45,7 @@ class DeclarativeSubmetricSchema(SubmetricSchema):
     match and the list of MetricSpecs to instantiate for matching UDFs.
     Each MetricSpec specifies the Metric class and MetricConfig to
     instantiate. Omit the MetricSpec::config to use the default MetricConfig.
+    Setting ResolverSpec::exclude to True will exclude the listed metrics from the matched UDFs.
 
     For example, DeclarativeSubmetricSchema(resolvers=STANDARD_RESOLVER) implements
     the same schema as DatasetSchema(), i.e., using the default MetricConfig,
@@ -57,22 +58,13 @@ class DeclarativeSubmetricSchema(SubmetricSchema):
         self._resolvers = resolvers.copy()
         for resolver in resolvers:
             for metric_spec in resolver.metrics:
-                if issubclass(metric_spec.metric, MultiMetric):  # and not resolver.exclude:
+                if issubclass(metric_spec.metric, MultiMetric) and not resolver.exclude:
                     raise ValueError(
                         f"MultiMetric cannot contain another MultiMetric ({metric_spec.metric.get_namespace()}) as a submetric"
                     )
 
     def resolve(self, name: str, why_type: DataType, fi_disabled: bool = False) -> Dict[str, Metric]:
-        result: Dict[str, Metric] = {}
-        for resolver_spec in self._resolvers:
-            col_name, col_type = resolver_spec.column_name, resolver_spec.column_type
-            if (col_name and col_name == name) or (col_name is None and isinstance(why_type, col_type)):  # type: ignore
-                for spec in resolver_spec.metrics:
-                    config = spec.config or self._default_config
-                    if _allowed_metric(config, spec.metric):
-                        result[spec.metric.get_namespace()] = spec.metric.zero(config)
-
-        return result
+        return self._resolve(name, why_type, None)
 
 
 STANDARD_UDF_RESOLVER: List[ResolverSpec] = [
@@ -244,6 +236,17 @@ _col_type_submetrics: Dict[str, Dict[DataType, List[Tuple[str, Callable[[Any], A
 )
 _col_type_submetric_schema: Dict[str, Dict[DataType, SubmetricSchema]] = defaultdict(dict)
 _col_type_type_mapper: Dict[str, Dict[DataType, TypeMapper]] = defaultdict(dict)
+
+
+def _reset_metric_udfs() -> None:
+    global _col_name_submetrics, _col_name_submetric_schema, _col_name_type_mapper
+    global _col_type_submetrics, _col_type_submetric_schema, _col_type_type_mapper
+    _col_name_submetrics = defaultdict(lambda: defaultdict(list))
+    _col_name_submetric_schema = defaultdict(dict)
+    _col_name_type_mapper = defaultdict(dict)
+    _col_type_submetrics = defaultdict(lambda: defaultdict(list))
+    _col_type_submetric_schema = defaultdict(dict)
+    _col_type_type_mapper = defaultdict(dict)
 
 
 def register_metric_udf(

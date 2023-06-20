@@ -245,3 +245,33 @@ def test_default_resolvers(reference_resolver, default_resolver) -> None:
         assert reference_metrics == default_metrics
 
     res.DEFAULT_RESOLVER = STANDARD_RESOLVER
+
+
+def test_anti_resolvers(pandas_dataframe) -> None:
+    anti_resolvers = [
+        ResolverSpec("legs", None, [MetricSpec(StandardMetric.distribution.value)], True),
+        ResolverSpec(None, String, [MetricSpec(StandardMetric.frequent_items.value)], True),
+    ]
+    schema = DeclarativeSchema(STANDARD_RESOLVER + anti_resolvers)
+    results = why.log(pandas_dataframe, schema=schema).view()
+
+    animal = results.get_column("animal").to_summary_dict()
+    assert "counts/n" in animal
+    assert "types/integral" in animal
+    assert "distribution/n" in animal
+    assert "cardinality/est" in animal
+    assert "frequent_items/frequent_strings" not in animal
+
+    legs = results.get_column("legs").to_summary_dict()
+    assert "counts/n" in legs
+    assert "types/integral" in legs
+    assert "distribution/n" not in legs
+    assert "ints/max" in legs
+    assert "cardinality/est" in legs
+    assert "frequent_items/frequent_strings" in legs
+
+    weight = results.get_column("weight").to_summary_dict()
+    assert "counts/n" in weight
+    assert "types/integral" in weight
+    assert "distribution/n" in weight
+    assert "cardinality/est" in weight
