@@ -160,11 +160,11 @@ def _send_stats_event(event_name: str, identity: str, properties: Optional[Dict[
     try:
         resp = request.urlopen(req, timeout=3)
         if resp.status != 200:
-            logger.warning("Unable to send usage stats. Disabling stats collection.")
+            logger.info("Unable to send usage stats. Disabling whylogs api usage collection.")
             _TELEMETRY_DISABLED = True
         logger.debug("Response: %s", resp.read())
     except:  # noqa
-        logger.warning("Connection error. Skip stats collection.")
+        logger.info("Connection error. Skip whylogs api usage collection.")
         _TELEMETRY_DISABLED = True
 
     finally:

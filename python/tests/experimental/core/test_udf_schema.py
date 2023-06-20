@@ -3,7 +3,7 @@ import pandas as pd
 import whylogs as why
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import Fractional, Integral, String
-from whylogs.core.metrics import StandardMetric
+from whylogs.core.metrics import CardinalityMetric, DistributionMetric, StandardMetric
 from whylogs.core.resolvers import STANDARD_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.segmentation_partition import segment_on_column
 from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
@@ -26,6 +26,7 @@ def test_udf_row() -> None:
     col2 = results.get_column("col2").to_summary_dict()
     col3 = results.get_column("col3").to_summary_dict()
     assert col1 == col2 == col3
+    assert len(data.keys()) == 1
 
 
 def test_udf_pandas() -> None:
@@ -39,6 +40,7 @@ def test_udf_pandas() -> None:
     col2 = results.get_column("col2").to_summary_dict()
     col3 = results.get_column("col3").to_summary_dict()
     assert col1 == col2 == col3
+    assert len(data.columns) == 1
 
 
 @register_dataset_udf(["col1"])
@@ -73,6 +75,30 @@ def test_decorator_row() -> None:
     assert "distribution/n" in add5_summary
     sqr_summary = results.get_column("sqr").to_summary_dict()
     assert "distribution/n" in sqr_summary
+
+
+@register_dataset_udf(["col1"], "annihilate_me", anti_metrics=[CardinalityMetric, DistributionMetric])
+def plus1(x):
+    return x["col1"] + 1
+
+
+def test_anti_resolver() -> None:
+    schema = udf_schema()
+    data = pd.DataFrame({"col1": [42, 12, 7], "col2": ["a", "b", "c"]})
+    results = why.log(pandas=data, schema=schema).view()
+    col1_summary = results.get_column("col1").to_summary_dict()
+    assert "distribution/n" in col1_summary
+    assert "cardinality/est" in col1_summary
+    col2_summary = results.get_column("col2").to_summary_dict()
+    assert "distribution/n" in col2_summary
+    assert "cardinality/est" in col2_summary
+    add5_summary = results.get_column("add5").to_summary_dict()
+    assert "distribution/n" in add5_summary
+    assert "cardinality/est" in add5_summary
+    plus1_summary = results.get_column("annihilate_me").to_summary_dict()
+    assert "ints/max" in plus1_summary
+    assert "distribution/n" not in plus1_summary
+    assert "cardinality/est" not in plus1_summary
 
 
 @register_dataset_udf(["col1"], "colliding_name", namespace="pluto")
@@ -313,9 +339,35 @@ def test_schema_name() -> None:
     assert "bob" not in default_view.get_columns()
     assert "udf" not in default_view.get_column("schema.col1").get_metric_names()
 
-    bob_schema = udf_schema(schema_name="bob")
-    data = pd.DataFrame({"schema.col1": [42, 12, 7]})
+    bob_schema = udf_schema(schema_name="bob", include_default_schema=False)
     bob_view = why.log(data, schema=bob_schema).view()
     assert "add5" not in bob_view.get_columns()
     assert "bob" in bob_view.get_columns()
     assert "udf" in bob_view.get_column("schema.col1").get_metric_names()
+
+    bob_schema = udf_schema(schema_name="bob", include_default_schema=True)
+    bob_view = why.log(data, schema=bob_schema).view()
+    assert "add5" in bob_view.get_columns()
+    assert "bob" in bob_view.get_columns()
+    assert "udf" in bob_view.get_column("schema.col1").get_metric_names()
+
+
+def test_schema_list() -> None:
+    schema = udf_schema(schema_name=["", "bob"])
+    data = pd.DataFrame({"schema.col1": [42, 12, 7]})
+    result = why.log(data, schema=schema).view()
+    assert "add5" in result.get_columns()
+    assert "bob" in result.get_columns()
+    assert "udf" in result.get_column("schema.col1").get_metric_names()
+
+    schema = udf_schema(schema_name=["bob"])
+    result = why.log(data, schema=schema).view()
+    assert "add5" in result.get_columns()
+    assert "bob" in result.get_columns()
+    assert "udf" in result.get_column("schema.col1").get_metric_names()
+
+    schema = udf_schema(schema_name=["bob"], include_default_schema=False)
+    result = why.log(data, schema=schema).view()
+    assert "add5" not in result.get_columns()
+    assert "bob" in result.get_columns()
+    assert "udf" in result.get_column("schema.col1").get_metric_names()

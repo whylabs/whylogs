@@ -185,7 +185,9 @@ class TestPySpark(object):
             return x * x
 
         register_metric_udf(col_type=Fractional, submetric_name="square", schema_name="pyspark_test")(frob)
-        test_schema = DeclarativeSchema(resolvers=generate_udf_resolvers(schema_name="pyspark_test"))
+        test_schema = DeclarativeSchema(
+            resolvers=generate_udf_resolvers(schema_name="pyspark_test", include_default_schema=False)
+        )
         profile_view = collect_dataset_profile_view(input_df=input_df, schema=test_schema)
 
         assert isinstance(profile_view, DatasetProfileView)

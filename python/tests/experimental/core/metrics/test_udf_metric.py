@@ -1,11 +1,18 @@
 from logging import getLogger
 
 import pandas as pd
+import pytest
 
 import whylogs as why
-from whylogs.core.datatypes import String
+import whylogs.experimental.core.metrics.udf_metric as udfm
+from whylogs.core.datatypes import AnyType, Fractional, Integral, String
+from whylogs.core.metrics import StandardMetric
+from whylogs.core.metrics.unicode_range import UnicodeRangeMetric
 from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.resolvers import COLUMN_METRICS, MetricSpec, ResolverSpec
 from whylogs.experimental.core.metrics.udf_metric import (
+    STANDARD_UDF_RESOLVER,
+    DeclarativeSubmetricSchema,
     UdfMetric,
     UdfMetricConfig,
     register_metric_udf,
@@ -13,6 +20,15 @@ from whylogs.experimental.core.metrics.udf_metric import (
 )
 
 logger = getLogger(__name__)
+
+
+def test_no_netsted_multimetrics() -> None:
+    with pytest.raises(ValueError):
+        DeclarativeSubmetricSchema([ResolverSpec("foo", None, [MetricSpec(UnicodeRangeMetric)])])
+    DeclarativeSubmetricSchema(
+        [ResolverSpec(column_name="bar", column_type=None, metrics=[MetricSpec(UnicodeRangeMetric)], exclude=True)]
+    )
+    # Test is that this does not throw. Since it's excluded, it should be allowed.
 
 
 def test_udf_metric() -> None:
@@ -72,6 +88,66 @@ def test_udf_metric_from_to_protobuf() -> None:
     assert summary["foo:types/string"] == 1
     assert summary["foo:cardinality/est"] == 1
     assert "foo:frequent_items/frequent_strings" in summary
+
+
+NO_FI_RESOLVER = [
+    ResolverSpec(
+        column_type=Integral,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.ints.value),
+            MetricSpec(StandardMetric.cardinality.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=Fractional,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=String,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
+        ],
+    ),
+    ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
+]
+
+
+def test_obeys_default_submetric_schema() -> None:
+    udfm.DEFAULT_UDF_RESOLVER = NO_FI_RESOLVER
+    config = UdfMetricConfig(
+        udfs={
+            "fortytwo": lambda x: 42,
+            "foo": lambda x: "bar",
+        },
+    )
+    metric = UdfMetric.zero(config)
+    metric.columnar_update(PreprocessedColumn.apply([0]))
+    summary = metric.to_summary_dict()
+
+    assert summary["fortytwo:counts/n"] == 1
+    assert summary["fortytwo:types/integral"] == 1
+    assert summary["fortytwo:types/string"] == 0
+    assert summary["fortytwo:cardinality/est"] == 1
+    assert summary["fortytwo:distribution/n"] == 1
+    assert summary["fortytwo:distribution/mean"] == 42
+    assert summary["fortytwo:ints/max"] == 42
+    assert summary["fortytwo:ints/min"] == 42
+    assert "fortytwo:frequent_items/frequent_strings" not in summary
+
+    assert summary["foo:counts/n"] == 1
+    assert summary["foo:types/integral"] == 0
+    assert summary["foo:types/string"] == 1
+    assert summary["foo:cardinality/est"] == 1
+    assert "foo:frequent_items/frequent_strings" not in summary
+    udfm.DEFAULT_UDF_RESOLVER = STANDARD_UDF_RESOLVER
 
 
 def test_udf_throws() -> None:
@@ -215,3 +291,64 @@ def test_namespace() -> None:
     summary = col1.to_summary_dict()
     assert "udf/pluto.colliding_name:counts/n" in summary
     assert "udf/neptune.colliding_name:counts/n" in summary
+
+
+@register_metric_udf("xyz")
+def udf1(x):
+    return x
+
+
+@register_metric_udf("xyz", schema_name="bart")
+def udf2(x):
+    return x
+
+
+@register_metric_udf("xyz", schema_name="lisa")
+def udf3(x):
+    return x
+
+
+def test_schema_name():
+    default_schema = udf_metric_schema()
+    default_view = why.log(row={"xyz": 42}, schema=default_schema).view()
+    summary = default_view.get_column("xyz").to_summary_dict()
+    assert "udf/udf1:counts/n" in summary
+    assert "udf/udf2:counts/n" not in summary
+    assert "udf/udf3:counts/n" not in summary
+
+    bart_schema = udf_metric_schema(schema_name="bart", include_default_schema=False)
+    bart_view = why.log(row={"xyz": 42}, schema=bart_schema).view()
+    summary = bart_view.get_column("xyz").to_summary_dict()
+    assert "udf/udf1:counts/n" not in summary
+    assert "udf/udf2:counts/n" in summary
+    assert "udf/udf3:counts/n" not in summary
+
+    bart_schema = udf_metric_schema(schema_name="bart", include_default_schema=True)
+    bart_view = why.log(row={"xyz": 42}, schema=bart_schema).view()
+    summary = bart_view.get_column("xyz").to_summary_dict()
+    assert "udf/udf1:counts/n" in summary
+    assert "udf/udf2:counts/n" in summary
+    assert "udf/udf3:counts/n" not in summary
+
+
+def test_schema_list():
+    default_schema = udf_metric_schema(schema_name=["", "bart"])
+    default_view = why.log(row={"xyz": 42}, schema=default_schema).view()
+    summary = default_view.get_column("xyz").to_summary_dict()
+    assert "udf/udf1:counts/n" in summary
+    assert "udf/udf2:counts/n" in summary
+    assert "udf/udf3:counts/n" not in summary
+
+    bart_schema = udf_metric_schema(schema_name=["bart", "lisa"], include_default_schema=False)
+    bart_view = why.log(row={"xyz": 42}, schema=bart_schema).view()
+    summary = bart_view.get_column("xyz").to_summary_dict()
+    assert "udf/udf1:counts/n" not in summary
+    assert "udf/udf2:counts/n" in summary
+    assert "udf/udf3:counts/n" in summary
+
+    bart_schema = udf_metric_schema(schema_name=["bart", "lisa"], include_default_schema=True)
+    bart_view = why.log(row={"xyz": 42}, schema=bart_schema).view()
+    summary = bart_view.get_column("xyz").to_summary_dict()
+    assert "udf/udf1:counts/n" in summary
+    assert "udf/udf2:counts/n" in summary
+    assert "udf/udf3:counts/n" in summary

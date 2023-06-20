@@ -3,6 +3,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional, Tuple, TypeVar
 
+import whylogs.core.resolvers as res
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import (
@@ -10,7 +11,6 @@ from whylogs.core.resolvers import (
     MetricSpec,
     Resolver,
     ResolverSpec,
-    StandardResolver,
 )
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
@@ -82,7 +82,7 @@ class DatasetSchema:
         self.types = types or dict()
         self.default_configs = default_configs or MetricConfig()
         self.type_mapper = type_mapper or StandardTypeMapper()
-        self.resolvers = resolvers or StandardResolver()
+        self.resolvers = resolvers if resolvers is not None else DeclarativeResolver()
         self.cache_size = cache_size
         self.schema_based_automerge = schema_based_automerge
         self.segments = segments or dict()
@@ -195,9 +195,9 @@ class ColumnSchema:
     """
 
     dtype: Any
-    cfg: MetricConfig = MetricConfig()
-    type_mapper: TypeMapper = StandardTypeMapper()
-    resolver: Resolver = StandardResolver()
+    cfg: MetricConfig = field(default_factory=MetricConfig)
+    type_mapper: TypeMapper = field(default_factory=StandardTypeMapper)
+    resolver: Resolver = field(default_factory=DeclarativeResolver)
     validators: Dict[str, List[Validator]] = field(default_factory=dict)
 
     def get_metrics(self, name: str) -> Dict[str, Metric]:
@@ -248,6 +248,7 @@ class DeclarativeSchema(DatasetSchema):
         validators: Optional[Dict[str, List[Validator]]] = None,
     ) -> None:
         if not resolvers:
+            resolvers = res.DEFAULT_RESOLVERS
             logger.warning("No columns specified in DeclarativeSchema")
         resolver = DeclarativeResolver(resolvers, default_config)
         super().__init__(
