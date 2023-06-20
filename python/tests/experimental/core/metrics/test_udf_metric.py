@@ -26,14 +26,7 @@ def test_no_netsted_multimetrics() -> None:
     with pytest.raises(ValueError):
         DeclarativeSubmetricSchema([ResolverSpec("foo", None, [MetricSpec(UnicodeRangeMetric)])])
     DeclarativeSubmetricSchema(
-        [
-            ResolverSpec(
-                column_name="bar",
-                column_type=None,
-                metrics=[MetricSpec(UnicodeRangeMetric)],
-                exclude=True
-            )
-        ]
+        [ResolverSpec(column_name="bar", column_type=None, metrics=[MetricSpec(UnicodeRangeMetric)], exclude=True)]
     )
     # Test is that this does not throw. Since it's excluded, it should be allowed.
 
