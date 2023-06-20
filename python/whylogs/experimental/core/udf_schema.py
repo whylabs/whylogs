@@ -2,7 +2,7 @@ import logging
 from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple
+from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Union
 
 from whylogs.core.datatypes import TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
@@ -173,7 +173,11 @@ def register_dataset_udf(
     return decorator_register
 
 
-def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None, schema_name: str = "") -> List[UdfSpec]:
+def generate_udf_specs(
+    other_udf_specs: Optional[List[UdfSpec]] = None,
+    schema_name: Union[str, List[str]] = "",
+    include_default_schema: bool = True,
+) -> List[UdfSpec]:
     """
     Generates a list UdfSpecs that implement the UDFs specified
     by the @register_dataset_udf decorators. You can provide a list of
@@ -195,7 +199,12 @@ def generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None, schema_n
     for every column.
     """
     specs = list(other_udf_specs) if other_udf_specs else []
-    specs += _multicolumn_udfs[schema_name]
+    schema_name = schema_name if isinstance(schema_name, list) else [schema_name]
+    if include_default_schema and "" not in schema_name:
+        schema_name = [""] + schema_name
+
+    for name in schema_name:
+        specs += _multicolumn_udfs[name]
     return specs
 
 
@@ -209,18 +218,22 @@ def udf_schema(
     schema_based_automerge: bool = False,
     segments: Optional[Dict[str, SegmentationPartition]] = None,
     validators: Optional[Dict[str, List[Validator]]] = None,
-    schema_name: str = "",
+    schema_name: Union[str, List[str]] = "",
+    include_default_schema: bool = True,
 ) -> UdfSchema:
     """
     Returns a UdfSchema that implements any registered UDFs, along with any
     other_udf_specs or resolvers passed in.
     """
-    if resolvers is not None:
-        resolver_specs = resolvers + _resolver_specs[schema_name]
-    else:
-        resolver_specs = DEFAULT_RESOLVER + _resolver_specs[schema_name]
+    resolver_specs = list(resolvers if resolvers is not None else DEFAULT_RESOLVER)
+    schema_names = schema_name if isinstance(schema_name, list) else [schema_name]
+    if include_default_schema and "" not in schema_names:
+        schema_names = [""] + schema_names
 
-    resolver_specs += generate_udf_resolvers(schema_name)
+    for name in schema_names:
+        resolver_specs += _resolver_specs[name]
+
+    resolver_specs += generate_udf_resolvers(schema_name, include_default_schema)
     return UdfSchema(
         resolver_specs,
         types,
@@ -230,5 +243,5 @@ def udf_schema(
         schema_based_automerge,
         segments,
         validators,
-        generate_udf_specs(other_udf_specs, schema_name),
+        generate_udf_specs(other_udf_specs, schema_name, include_default_schema),
     )

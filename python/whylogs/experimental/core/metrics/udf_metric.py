@@ -2,9 +2,18 @@ import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-from whylogs.core.datatypes import DataType, StandardTypeMapper, TypeMapper
+from whylogs.core.datatypes import (
+    AnyType,
+    DataType,
+    Fractional,
+    Integral,
+    StandardTypeMapper,
+    String,
+    TypeMapper,
+)
+from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import (
     Metric,
     MetricConfig,
@@ -14,8 +23,8 @@ from whylogs.core.metrics.metrics import (
 from whylogs.core.metrics.multimetric import MultiMetric, SubmetricSchema
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import (
+    COLUMN_METRICS,
     DEFAULT_RESOLVER,
-    STANDARD_RESOLVER,
     DeclarativeResolverBase,
     MetricSpec,
     ResolverSpec,
@@ -44,11 +53,51 @@ class DeclarativeSubmetricSchema(DeclarativeResolverBase, SubmetricSchema):
     in whylogs/python/whylogs/core/resolvers.py
     """
 
+    def __init__(self, resolvers: List[ResolverSpec], default_config: Optional[MetricConfig] = None) -> None:
+        super().__init__(resolvers, default_config)
+        for resolver in resolvers:
+            for metric_spec in resolver.metrics:
+                if issubclass(metric_spec.metric, MultiMetric) and not resolver.exclude:
+                    raise ValueError(
+                        f"MultiMetric cannot contain another MultiMetric ({metric_spec.metric.get_namespace()}) as a submetric"
+                    )
+
     def resolve(self, name: str, why_type: DataType, fi_disabled: bool = False) -> Dict[str, Metric]:
         return self._resolve(name, why_type, None)
 
 
-DEFAULT_UDF_RESOLVER: List[ResolverSpec] = STANDARD_RESOLVER
+STANDARD_UDF_RESOLVER: List[ResolverSpec] = [
+    ResolverSpec(
+        column_type=Integral,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.ints.value),
+            MetricSpec(StandardMetric.cardinality.value),
+            MetricSpec(StandardMetric.frequent_items.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=Fractional,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
+        ],
+    ),
+    ResolverSpec(
+        column_type=String,
+        metrics=COLUMN_METRICS
+        + [
+            MetricSpec(StandardMetric.distribution.value),
+            MetricSpec(StandardMetric.cardinality.value),
+            MetricSpec(StandardMetric.frequent_items.value),
+        ],
+    ),
+    ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
+]
+
+DEFAULT_UDF_RESOLVER: List[ResolverSpec] = STANDARD_UDF_RESOLVER
 
 
 def default_schema() -> DeclarativeSubmetricSchema:
@@ -170,6 +219,11 @@ class UdfMetric(MultiMetric):
 register_metric(UdfMetric)
 
 
+# The following variables hold information about the registered UDFs used to generate
+# the resolvers/schemas. They are indexed by schema name and column name[type],
+# and collect the registered information.
+
+# _col_name_submetrics[schema_name][column_name] -> list (submetric_name, UDF)
 _col_name_submetrics: Dict[str, Dict[str, List[Tuple[str, Callable[[Any], Any]]]]] = defaultdict(
     lambda: defaultdict(list)
 )
@@ -263,7 +317,10 @@ def register_metric_udf(
     return decorator_register
 
 
-def generate_udf_resolvers(schema_name: str = "") -> List[ResolverSpec]:
+def generate_udf_resolvers(
+    schema_name: Union[str, List[str]] = "",
+    include_default_schema: bool = True,
+) -> List[ResolverSpec]:
     """
     Generates a list of ResolverSpecs that implement the UdfMetrics specified
     by the @register_metric_udf decorators. The result only includes the UdfMetric,
@@ -292,25 +349,76 @@ def generate_udf_resolvers(schema_name: str = "") -> List[ResolverSpec]:
 
     resolvers: List[ResolverSpec] = list()
     udfs: Dict[str, Callable[[Any], Any]]
-    for col_name, submetrics in _col_name_submetrics[schema_name].items():
+    schema_names = schema_name if isinstance(schema_name, list) else [schema_name]
+    if include_default_schema and "" not in schema_names:
+        schema_names = [""] + schema_names
+
+    col_udfs: Dict[str, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
+    col_submetric_schema: Dict[str, SubmetricSchema] = dict()
+    col_type_mapper: Dict[str, TypeMapper] = dict()
+
+    type_udfs: Dict[DataType, List[Tuple[str, Callable[[Any], Any]]]] = defaultdict(list)
+    type_submetric_schema: Dict[DataType, SubmetricSchema] = dict()
+    type_type_mapper: Dict[DataType, TypeMapper] = dict()
+
+    for schema_name in schema_names:
+        for col_name, submetrics in _col_name_submetrics[schema_name].items():
+            col_udfs[col_name] += submetrics
+            if col_submetric_schema.get(col_name) and _col_name_submetric_schema[schema_name].get(col_name):
+                logger.warning(
+                    f"Multiple submetric schemas registered for column {col_name}. Which one will be used is undefined."
+                )
+
+            col_submetric_schema[col_name] = col_submetric_schema.get(col_name) or _col_name_submetric_schema[
+                schema_name
+            ].get(col_name)
+            if col_type_mapper.get(col_name) and _col_name_type_mapper[schema_name].get(col_name):
+                logger.warning(
+                    f"Multiple submetric type mappers registerd for column {col_name}. Which one will be used is undefined."
+                )
+
+            col_type_mapper[col_name] = col_type_mapper.get(col_name) or _col_name_type_mapper[schema_name].get(
+                col_name
+            )
+
+        for col_type, submetrics in _col_type_submetrics[schema_name].items():
+            type_udfs[col_type] += submetrics
+            if type_submetric_schema.get(col_type) and _col_type_submetric_schema[schema_name].get(col_type):
+                logger.warning(
+                    f"Multiple submetric schemas registered for column type {col_type}. Which one will be used is undefined."
+                )
+
+            type_submetric_schema[col_type] = type_submetric_schema.get(col_type) or _col_type_submetric_schema[
+                schema_name
+            ].get(col_type)
+            if type_type_mapper.get(col_type) and _col_type_type_mapper[schema_name].get(col_type):
+                logger.warning(
+                    f"Multiple submetric type mappers registerd for column type {col_type}. Which one will be used is undefined."
+                )
+
+            type_type_mapper[col_type] = type_type_mapper.get(col_type) or _col_type_type_mapper[schema_name].get(
+                col_type
+            )
+
+    for col_name, submetrics in col_udfs.items():
         udfs = dict()
         for submetric in submetrics:
             udfs[submetric[0]] = submetric[1]
         config = UdfMetricConfig(
             udfs=udfs,
-            submetric_schema=_col_name_submetric_schema[schema_name].get(col_name) or default_schema(),
-            type_mapper=_col_name_type_mapper[schema_name].get(col_name) or StandardTypeMapper(),
+            submetric_schema=col_submetric_schema.get(col_name) or default_schema(),
+            type_mapper=col_type_mapper.get(col_name) or StandardTypeMapper(),
         )
         resolvers.append(ResolverSpec(col_name, None, [MetricSpec(UdfMetric, config)]))
 
-    for col_type, submetrics in _col_type_submetrics[schema_name].items():
+    for col_type, submetrics in type_udfs.items():
         udfs = dict()
         for submetric in submetrics:
             udfs[submetric[0]] = submetric[1]
         config = UdfMetricConfig(
             udfs=udfs,
-            submetric_schema=_col_type_submetric_schema[schema_name].get(col_type) or default_schema(),
-            type_mapper=_col_type_type_mapper[schema_name].get(col_type) or StandardTypeMapper(),
+            submetric_schema=type_submetric_schema.get(col_type) or default_schema(),
+            type_mapper=type_type_mapper.get(col_type) or StandardTypeMapper(),
         )
         resolvers.append(ResolverSpec(None, col_type, [MetricSpec(UdfMetric, config)]))
 
@@ -331,7 +439,8 @@ def udf_metric_schema(
     schema_based_automerge: bool = False,
     segments: Optional[Dict[str, SegmentationPartition]] = None,
     validators: Optional[Dict[str, List[Validator]]] = None,
-    schema_name: str = "",
+    schema_name: Union[str, List[str]] = "",
+    include_default_schema: bool = True,
 ) -> DeclarativeSchema:
     """
     Generates a DeclarativeSchema that implement the UdfMetrics specified
@@ -357,7 +466,7 @@ def udf_metric_schema(
     STANDARD_RESOLVER, the default metrics are also tracked for every column.
     """
 
-    resolvers = generate_udf_resolvers(schema_name)
+    resolvers = generate_udf_resolvers(schema_name, include_default_schema)
     non_udf_resolvers = non_udf_resolvers if non_udf_resolvers is not None else DEFAULT_RESOLVER
 
     return DeclarativeSchema(
