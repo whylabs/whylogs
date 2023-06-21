@@ -27,6 +27,7 @@ from .api import (
     write,
 )
 from .api.usage_stats import emit_usage as __emit_usage_stats
+from .api.whylabs import init
 from .core import DatasetProfileView
 from .migration.converters import v0_to_v1_view
 
@@ -62,6 +63,7 @@ __ALL__ = [
     profiling,
     v0_to_v1_view,
     __version__,
+    init,
 ]
 
 __emit_usage_stats("import")

@@ -158,7 +158,7 @@ telemetry-opt-out: ## create opt out file
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
-	poetry install -E "viz s3 spark whylabs mlflow image fugue gcs embeddings"
+	poetry install -E "viz s3 spark mlflow image fugue gcs embeddings"
 
 coverage: ## Generate test coverage reports.
 	@$(call i, Generating test coverage)
