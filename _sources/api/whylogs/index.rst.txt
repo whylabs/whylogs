@@ -61,6 +61,7 @@ Functions
    whylogs.profiling
    whylogs.read
    whylogs.write
+   whylogs.init
    whylogs.v0_to_v1_view
    whylogs.package_version
 
@@ -122,7 +123,7 @@ Functions
 
 
 
-.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, name: Optional[str] = None) -> result_set.ResultSet
+.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, name: Optional[str] = None, multiple: Optional[Dict[str, Loggable]] = None) -> result_set.ResultSet
 
 
 .. py:function:: log_classification_metrics(data: whylogs.core.stubs.pd.DataFrame, target_column: str, prediction_column: str, score_column: Optional[str] = None, schema: Optional[whylogs.core.DatasetSchema] = None, log_full_data: bool = False) -> result_set.ProfileResultSet
@@ -160,6 +161,9 @@ Functions
 
 
 .. py:function:: write(profile: whylogs.core.DatasetProfile, base_dir: str) -> None
+
+
+.. py:function:: init(session_type: Union[SessionType, str] = SessionType.LOCAL, reinit: bool = False) -> None
 
 
 .. py:class:: DatasetProfileView(*, columns: Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView], dataset_timestamp: Optional[datetime.datetime], creation_timestamp: Optional[datetime.datetime], metrics: Optional[Dict[str, Any]] = None, metadata: Optional[Dict[str, str]] = None)

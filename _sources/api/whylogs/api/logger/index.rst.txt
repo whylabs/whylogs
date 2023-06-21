@@ -44,6 +44,9 @@ Functions
 
 .. autoapisummary::
 
+   whylogs.api.logger.emit_usage
+   whylogs.api.logger.notebook_session_log
+   whylogs.api.logger.notebook_session_log_comparison
    whylogs.api.logger.log
    whylogs.api.logger.log_classification_metrics
    whylogs.api.logger.log_regression_metrics
@@ -60,6 +63,7 @@ Attributes
 .. autoapisummary::
 
    whylogs.api.logger.diagnostic_logger
+   whylogs.api.logger.Loggable
 
 
 .. py:class:: Logger(schema: Optional[whylogs.core.DatasetSchema] = None)
@@ -355,6 +359,15 @@ Attributes
 
 
 
+.. py:function:: emit_usage(event: str) -> None
+
+
+.. py:function:: notebook_session_log(result_set: whylogs.api.logger.result_set.ResultSet, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, name: Optional[str] = None) -> None
+
+
+.. py:function:: notebook_session_log_comparison(data: Dict[str, Union[whylogs.core.stubs.pd.DataFrame, List[Dict[str, Any]]]], result_sets: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> None
+
+
 .. py:class:: DatasetProfile(schema: Optional[whylogs.core.schema.DatasetSchema] = None, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None, metrics: Optional[Dict[str, Union[whylogs.core.metrics.Metric, Any]]] = None, metadata: Optional[Dict[str, str]] = None)
 
    Bases: :py:obj:`whylogs.api.writer.writer.Writable`
@@ -547,7 +560,11 @@ Attributes
 
    
 
-.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, name: Optional[str] = None) -> result_set.ResultSet
+.. py:data:: Loggable
+
+   
+
+.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, name: Optional[str] = None, multiple: Optional[Dict[str, Loggable]] = None) -> result_set.ResultSet
 
 
 .. py:function:: log_classification_metrics(data: whylogs.core.stubs.pd.DataFrame, target_column: str, prediction_column: str, score_column: Optional[str] = None, schema: Optional[whylogs.core.DatasetSchema] = None, log_full_data: bool = False) -> result_set.ProfileResultSet

@@ -248,6 +248,7 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/api/whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.whylabs</span></code></a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../../api/whylogs/api/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/api/writer/gcs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.gcs</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/api/writer/local/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.local</span></code></a></li>
@@ -422,7 +423,8 @@
         <article role="main">
           <h1>Source code for whylogs.api.logger</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Literal</span>
 
@@ -440,6 +442,11 @@
     <span class="n">_log_segment</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.transient</span> <span class="kn">import</span> <span class="n">TransientLogger</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.usage_stats</span> <span class="kn">import</span> <span class="n">emit_usage</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.notebook_logger</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">notebook_session_log</span><span class="p">,</span>
+    <span class="n">notebook_session_log_comparison</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.model_performance_metrics.model_performance_metrics</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ModelPerformanceMetrics</span><span class="p">,</span>
@@ -447,6 +454,8 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
 
 <span class="n">diagnostic_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">Loggable</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span>
 
 
 <div class="viewcode-block" id="log"><a class="viewcode-back" href="../../../api/whylogs/index.html#whylogs.api.log">[docs]</a><span class="k">def</span> <span class="nf">log</span><span class="p">(</span>
@@ -456,8 +465,23 @@
     <span class="n">row</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">multiple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Loggable</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultSet</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">TransientLogger</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="n">pandas</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="n">multiple</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">result_sets</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">emit_usage</span><span class="p">(</span><span class="s2">&quot;multiple&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">alias</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">multiple</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">result_set</span> <span class="o">=</span> <span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+            <span class="n">result_sets</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_set</span>
+
+        <span class="c1"># Return one result set with everything in it since we have to return result_sets</span>
+        <span class="n">result_set</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">:</span> <span class="n">r1</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">r2</span><span class="p">),</span> <span class="n">result_sets</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">notebook_session_log_comparison</span><span class="p">(</span><span class="n">multiple</span><span class="p">,</span> <span class="n">result_sets</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_set</span>
+
+    <span class="n">result_set</span> <span class="o">=</span> <span class="n">TransientLogger</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="n">pandas</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">notebook_session_log</span><span class="p">(</span><span class="n">result_set</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="n">pandas</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result_set</span></div>
 
 
 <span class="k">def</span> <span class="nf">_log_with_metrics</span><span class="p">(</span>

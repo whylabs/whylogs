@@ -15,6 +15,7 @@ Subpackages
    reader/index.rst
    store/index.rst
    usage_stats/index.rst
+   whylabs/index.rst
    writer/index.rst
 
 
@@ -113,7 +114,7 @@ Functions
 
 
 
-.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, name: Optional[str] = None) -> result_set.ResultSet
+.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, name: Optional[str] = None, multiple: Optional[Dict[str, Loggable]] = None) -> result_set.ResultSet
 
 
 .. py:function:: log_classification_metrics(data: whylogs.core.stubs.pd.DataFrame, target_column: str, prediction_column: str, score_column: Optional[str] = None, schema: Optional[whylogs.core.DatasetSchema] = None, log_full_data: bool = False) -> result_set.ProfileResultSet

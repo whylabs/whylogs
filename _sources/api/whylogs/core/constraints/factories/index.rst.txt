@@ -28,6 +28,7 @@ Functions
 
 .. autoapisummary::
 
+   whylogs.core.constraints.factories.emit_usage
    whylogs.core.constraints.factories.distinct_number_in_range
    whylogs.core.constraints.factories.condition_count_below
    whylogs.core.constraints.factories.condition_meets
@@ -63,6 +64,9 @@ Attributes
 .. autoapisummary::
 
    whylogs.core.constraints.factories.ALL
+
+
+.. py:function:: emit_usage(event: str) -> None
 
 
 .. py:function:: distinct_number_in_range(column_name: str, lower: Union[int, float], upper: Union[int, float]) -> whylogs.core.constraints.metric_constraints.MetricConstraint

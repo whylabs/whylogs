@@ -1,0 +1,41 @@
+:py:mod:`whylogs.api.whylabs.session.session_types`
+===================================================
+
+.. py:module:: whylogs.api.whylabs.session.session_types
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.session_types.NotSupported
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.session_types.init_notebook_logging
+   whylogs.api.whylabs.session.session_types.log_if_notebook
+
+
+
+.. py:class:: NotSupported
+
+   Indicates that one of the session apis isn't supported for the current session type.
+
+
+.. py:function:: init_notebook_logging() -> None
+
+
+.. py:function:: log_if_notebook(message: str = '') -> None
+
+   Log a message only if we're in a notebook environment.
+
+

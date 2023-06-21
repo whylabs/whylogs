@@ -1,0 +1,26 @@
+:py:mod:`whylogs.api.whylabs.session.notebook_logger`
+=====================================================
+
+.. py:module:: whylogs.api.whylabs.session.notebook_logger
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.notebook_logger.notebook_session_log_comparison
+   whylogs.api.whylabs.session.notebook_logger.notebook_session_log
+
+
+
+.. py:function:: notebook_session_log_comparison(data: Dict[str, Union[whylogs.core.stubs.pd.DataFrame, List[Dict[str, Any]]]], result_sets: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> None
+
+
+.. py:function:: notebook_session_log(result_set: whylogs.api.logger.result_set.ResultSet, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, name: Optional[str] = None) -> None
+
+

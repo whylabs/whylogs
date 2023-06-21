@@ -257,6 +257,7 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.whylabs</span></code></a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../api/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../api/writer/gcs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.gcs</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/writer/local/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.local</span></code></a></li>
@@ -489,6 +490,35 @@
 </tbody>
 </table>
 </div>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">#</a></h3>
+<div class="table-wrapper longtable docutils container">
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.emit_usage" title="whylogs.core.constraints.emit_usage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">emit_usage</span></code></a>(→ None)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.core.constraints.emit_usage">
+<span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.</span></span><span class="sig-name descname"><span class="pre">emit_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/api/usage_stats.html#emit_usage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.emit_usage" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.constraints.Constraints">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.constraints.</span></span><span class="sig-name descname"><span class="pre">Constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_profile_view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView" title="whylogs.core.view.dataset_profile_view.DatasetProfileView"><span class="pre">whylogs.core.view.dataset_profile_view.DatasetProfileView</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#whylogs.core.constraints.MetricConstraint" title="whylogs.core.constraints.MetricConstraint"><span class="pre">MetricConstraint</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/whylogs/core/constraints/metric_constraints.html#Constraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.constraints.Constraints" title="Permalink to this definition">#</a></dt>
@@ -860,7 +890,9 @@ in client code.</p>
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#package-contents">Package Contents</a><ul>
-<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#functions">Functions</a><ul>
+<li><a class="reference internal" href="#whylogs.core.constraints.emit_usage">emit_usage</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.Constraints">Constraints</a><ul>
 <li><a class="reference internal" href="#whylogs.core.constraints.Constraints.column_constraints">column_constraints</a></li>
 <li><a class="reference internal" href="#whylogs.core.constraints.Constraints.dataset_constraints">dataset_constraints</a></li>

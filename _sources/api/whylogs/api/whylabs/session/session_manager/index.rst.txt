@@ -1,0 +1,176 @@
+:py:mod:`whylogs.api.whylabs.session.session_manager`
+=====================================================
+
+.. py:module:: whylogs.api.whylabs.session.session_manager
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.session_manager.SessionType
+   whylogs.api.whylabs.session.session_manager.UploadReferenceResult
+   whylogs.api.whylabs.session.session_manager.Session
+   whylogs.api.whylabs.session.session_manager.GuestSession
+   whylogs.api.whylabs.session.session_manager.LocalSession
+   whylogs.api.whylabs.session.session_manager.ApiKeySession
+   whylogs.api.whylabs.session.session_manager.SessionManager
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.session_manager.init
+   whylogs.api.whylabs.session.session_manager.get_current_session
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.session_manager.logger
+
+
+.. py:data:: logger
+
+   
+
+.. py:class:: SessionType
+
+   Bases: :py:obj:`enum.Enum`
+
+   Generic enumeration.
+
+   Derive from this class to define new enumerations.
+
+   .. py:attribute:: WHYLABS_ANONYMOUS
+      :value: 'whylabs_anonymous'
+
+      
+
+   .. py:attribute:: WHYLABS
+      :value: 'whylabs'
+
+      
+
+   .. py:attribute:: LOCAL
+      :value: 'local'
+
+      
+
+   .. py:method:: name()
+
+      The name of the Enum member.
+
+
+   .. py:method:: value()
+
+      The value of the Enum member.
+
+
+
+.. py:class:: UploadReferenceResult
+
+   .. py:attribute:: viewing_url
+      :type: str
+
+      
+
+   .. py:attribute:: whylabs_response
+      :type: whylabs_client.api.sessions_api.BatchLogSessionReferenceResponse
+
+      
+
+
+.. py:class:: Session
+
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: get_type() -> SessionType
+      :abstractmethod:
+
+
+   .. py:method:: upload_reference_profiles(profile_aliases: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> Union[UploadReferenceResult, whylogs.api.whylabs.session.session_types.NotSupported]
+      :abstractmethod:
+
+
+
+.. py:class:: GuestSession(config: whylogs.api.whylabs.session.config.SessionConfig, whylabs_client: whylabs_client.api_client.ApiClient)
+
+   Bases: :py:obj:`Session`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: get_type() -> SessionType
+
+
+   .. py:method:: upload_reference_profiles(profile_aliases: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> Union[UploadReferenceResult, whylogs.api.whylabs.session.session_types.NotSupported]
+
+
+
+.. py:class:: LocalSession
+
+   Bases: :py:obj:`Session`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: get_type() -> SessionType
+
+
+   .. py:method:: upload_reference_profiles(profile_aliases: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> Union[UploadReferenceResult, whylogs.api.whylabs.session.session_types.NotSupported]
+
+
+
+.. py:class:: ApiKeySession(config: whylogs.api.whylabs.session.config.SessionConfig)
+
+   Bases: :py:obj:`Session`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: get_type() -> SessionType
+
+
+   .. py:method:: upload_reference_profiles(profile_aliases: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> Union[UploadReferenceResult, whylogs.api.whylabs.session.session_types.NotSupported]
+
+
+
+.. py:class:: SessionManager(type: SessionType = SessionType.LOCAL)
+
+   .. py:method:: init(type: SessionType = SessionType.LOCAL) -> None
+      :staticmethod:
+
+
+   .. py:method:: reset() -> None
+      :staticmethod:
+
+
+   .. py:method:: get_instance() -> Optional[SessionManager]
+      :staticmethod:
+
+
+   .. py:method:: is_active() -> bool
+      :staticmethod:
+
+
+
+.. py:function:: init(session_type: Union[SessionType, str] = SessionType.LOCAL, reinit: bool = False) -> None
+
+
+.. py:function:: get_current_session() -> Optional[Session]
+
+

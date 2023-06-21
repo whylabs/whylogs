@@ -39,6 +39,17 @@ Classes
 
 
 
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.constraints.emit_usage
+
+
+
+.. py:function:: emit_usage(event: str) -> None
+
 
 .. py:class:: Constraints(dataset_profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None, column_constraints: Optional[Dict[str, Dict[str, MetricConstraint]]] = None)
 

@@ -1,0 +1,182 @@
+:py:mod:`whylogs.api.whylabs.session.config`
+============================================
+
+.. py:module:: whylogs.api.whylabs.session.config
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.config.EnvVariableName
+   whylogs.api.whylabs.session.config.ConfigVariableName
+   whylogs.api.whylabs.session.config.SessionConfig
+   whylogs.api.whylabs.session.config.ConfigFile
+
+
+
+
+.. py:class:: EnvVariableName
+
+   Bases: :py:obj:`enum.Enum`
+
+   Generic enumeration.
+
+   Derive from this class to define new enumerations.
+
+   .. py:attribute:: WHYLABS_API_KEY
+      :value: 'WHYLABS_API_KEY'
+
+      
+
+   .. py:attribute:: WHYLABS_SESSION_ID
+      :value: 'WHYLABS_SESSION_ID'
+
+      
+
+   .. py:attribute:: ORG_ID
+      :value: 'ORG_ID'
+
+      
+
+   .. py:attribute:: WHYLOGS_CONFIG_PATH
+      :value: 'WHYLOGS_CONFIG_PATH'
+
+      
+
+   .. py:attribute:: WHYLABS_API_ENDPOINT
+      :value: 'WHYLABS_API_ENDPOINT'
+
+      
+
+   .. py:method:: name()
+
+      The name of the Enum member.
+
+
+   .. py:method:: value()
+
+      The value of the Enum member.
+
+
+
+.. py:class:: ConfigVariableName
+
+   Bases: :py:obj:`enum.Enum`
+
+   Generic enumeration.
+
+   Derive from this class to define new enumerations.
+
+   .. py:attribute:: API_KEY
+      :value: 'api_key'
+
+      
+
+   .. py:attribute:: ORG_ID
+      :value: 'org_id'
+
+      
+
+   .. py:attribute:: SESSION_ID
+      :value: 'session_id'
+
+      
+
+   .. py:attribute:: WHYLABS_API_ENDPOINT
+      :value: 'whylabs_api_endpoint'
+
+      
+
+   .. py:attribute:: USER_GUID
+      :value: 'user_guid'
+
+      
+
+   .. py:method:: name()
+
+      The name of the Enum member.
+
+
+   .. py:method:: value()
+
+      The value of the Enum member.
+
+
+
+.. py:class:: SessionConfig
+
+   .. py:method:: get_whylabs_endpoint() -> str
+
+
+   .. py:method:: set_whylabs_endpoint(endpoint: str) -> None
+
+
+   .. py:method:: get_config_file_path() -> pathlib.Path
+
+
+   .. py:method:: get_org_id() -> Optional[str]
+
+
+   .. py:method:: set_org_id(org_id: str) -> None
+
+
+   .. py:method:: get_or_prompt_org_id(persist: bool = False) -> Optional[str]
+
+
+   .. py:method:: get_api_key() -> Optional[str]
+
+
+   .. py:method:: set_api_key(api_key: str) -> None
+
+
+   .. py:method:: get_user_guid() -> Optional[str]
+
+
+   .. py:method:: set_user_guid(user_guid: str) -> None
+
+
+   .. py:method:: get_or_prompt_api_key(persist: bool = False) -> Optional[str]
+
+
+   .. py:method:: get_session_id() -> Optional[str]
+
+
+   .. py:method:: set_session_id(sessionId: str) -> None
+
+
+   .. py:method:: remove_session_id() -> None
+
+
+
+.. py:class:: ConfigFile
+
+   .. py:method:: create_parser(config_path: pathlib.Path) -> configparser.ConfigParser
+      :staticmethod:
+
+
+   .. py:method:: get_variable_from_input(variable_name: ConfigVariableName) -> str
+      :staticmethod:
+
+
+   .. py:method:: get_variable_from_getpass(variable_name: ConfigVariableName) -> str
+      :staticmethod:
+
+
+   .. py:method:: get_variable_from_config_file(parser: configparser.ConfigParser, key: ConfigVariableName) -> Optional[str]
+      :staticmethod:
+
+
+   .. py:method:: set_variable_to_config_file(parser: configparser.ConfigParser, auth_path: pathlib.Path, key: ConfigVariableName, value: str) -> None
+      :staticmethod:
+
+
+   .. py:method:: remove_variable_from_config_file(parser: configparser.ConfigParser, auth_path: pathlib.Path, key: ConfigVariableName) -> None
+      :staticmethod:
+
+
+

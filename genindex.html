@@ -247,6 +247,7 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/api/whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.whylabs</span></code></a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="api/whylogs/api/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/writer/gcs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.gcs</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/writer/local/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.local</span></code></a></li>
@@ -604,7 +605,11 @@
 </li>
         <li><a href="api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.AnyType">AnyType (class in whylogs.core.datatypes)</a>
 </li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigVariableName.API_KEY">API_KEY (whylogs.api.whylabs.session.config.ConfigVariableName attribute)</a>
+</li>
         <li><a href="api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.API_KEY_ENV">API_KEY_ENV (in module whylogs.api.writer.whylabs)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.ApiKeySession">ApiKeySession (class in whylogs.api.whylabs.session.session_manager)</a>
 </li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.Logger.append_store">append_store() (whylogs.api.logger.Logger method)</a>
 
@@ -1284,6 +1289,10 @@
           <li><a href="api/whylogs/datasets/weather/index.html#whylogs.datasets.weather.Weather.config">(whylogs.datasets.weather.Weather class method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigFile">ConfigFile (class in whylogs.api.whylabs.session.config)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigVariableName">ConfigVariableName (class in whylogs.api.whylabs.session.config)</a>
+</li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.ModelPerformanceMetrics.confusion_matrix">confusion_matrix (whylogs.api.logger.ModelPerformanceMetrics attribute)</a>
 
         <ul>
@@ -1394,6 +1403,8 @@
           <li><a href="api/whylogs/core/proto/whylogs_messages_pb2/index.html#whylogs.core.proto.whylogs_messages_pb2.CpcSketchMessage">(in module whylogs.core.proto.whylogs_messages_pb2)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigFile.create_parser">create_parser() (whylogs.api.whylabs.session.config.ConfigFile static method)</a>
+</li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.DatasetProfile.creation_timestamp">creation_timestamp (whylogs.api.logger.DatasetProfile property)</a>
 
         <ul>
@@ -1896,8 +1907,20 @@
           <li><a href="api/whylogs/core/proto/v0/v0_messages_pb2/index.html#whylogs.core.proto.v0.v0_messages_pb2.EMBEDDINGS">(in module whylogs.core.proto.v0.v0_messages_pb2)</a>
 </li>
         </ul></li>
-        <li><a href="api/whylogs/api/usage_stats/index.html#whylogs.api.usage_stats.emit_usage">emit_usage() (in module whylogs.api.usage_stats)</a>
+        <li><a href="api/whylogs/api/fugue/index.html#whylogs.api.fugue.emit_usage">emit_usage() (in module whylogs.api.fugue)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.emit_usage">(in module whylogs.api.logger)</a>
 </li>
+          <li><a href="api/whylogs/api/usage_stats/index.html#whylogs.api.usage_stats.emit_usage">(in module whylogs.api.usage_stats)</a>
+</li>
+          <li><a href="api/whylogs/core/constraints/index.html#whylogs.core.constraints.emit_usage">(in module whylogs.core.constraints)</a>
+</li>
+          <li><a href="api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.emit_usage">(in module whylogs.core.constraints.factories)</a>
+</li>
+          <li><a href="api/whylogs/core/validators/index.html#whylogs.core.validators.emit_usage">(in module whylogs.core.validators)</a>
+</li>
+        </ul></li>
         <li><a href="api/whylogs/datasets/index.html#whylogs.datasets.Employee">Employee (class in whylogs.datasets)</a>
 
         <ul>
@@ -1942,6 +1965,8 @@
 </li>
         <li><a href="api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.EnvironmentKeyRefresher">EnvironmentKeyRefresher (class in whylogs.api.writer.whylabs)</a>
 </li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.EnvVariableName">EnvVariableName (class in whylogs.api.whylabs.session.config)</a>
+</li>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.EQ">EQ (in module whylogs.core.proto.v0)</a>
 
         <ul>
@@ -1966,6 +1991,8 @@
 </li>
         <li><a href="api/whylogs/core/errors/index.html#whylogs.core.errors.Error.args">Error.args (class in whylogs.core.errors)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/relations/index.html#whylogs.core.relations.escape">escape() (in module whylogs.core.relations)</a>
 </li>
         <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.FrequentItem.est">est (whylogs.core.metrics.metrics.FrequentItem attribute)</a>
@@ -1976,8 +2003,6 @@
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.CardinalityMetric.estimate">(whylogs.core.metrics.metrics.CardinalityMetric property)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/experimental/performance_estimation/estimators/index.html#whylogs.experimental.performance_estimation.estimators.AccuracyEstimator.estimate">estimate() (whylogs.experimental.performance_estimation.estimators.AccuracyEstimator method)</a>
 
         <ul>
@@ -2520,6 +2545,8 @@
         </ul></li>
         <li><a href="api/whylogs/core/metrics/aggregators/index.html#whylogs.core.metrics.aggregators.get_aggregator">get_aggregator() (in module whylogs.core.metrics.aggregators)</a>
 </li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_api_key">get_api_key() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
         <li><a href="api/whylogs/datasets/base/index.html#whylogs.datasets.base.Dataset.get_baseline">get_baseline() (whylogs.datasets.base.Dataset method)</a>
 
         <ul>
@@ -2630,6 +2657,10 @@
           <li><a href="api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.ImageMetric.get_component_paths">(whylogs.extras.image_metric.ImageMetric method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_config_file_path">get_config_file_path() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.get_current_session">get_current_session() (in module whylogs.api.whylabs.session.session_manager)</a>
+</li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.DatasetProfile.get_default_path">get_default_path() (whylogs.api.logger.DatasetProfile static method)</a>
 
         <ul>
@@ -2672,8 +2703,6 @@
           <li><a href="api/whylogs/viz/index.html#whylogs.viz.SummaryDriftReport.get_default_path">(whylogs.viz.SummaryDriftReport method)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/metrics/deserializers/index.html#whylogs.core.metrics.deserializers.get_deserializer">get_deserializer() (in module whylogs.core.metrics.deserializers)</a>
 </li>
         <li><a href="api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WhyLabsWriter.get_feature_weights">get_feature_weights() (whylogs.api.writer.whylabs.WhyLabsWriter method)</a>
@@ -2682,6 +2711,8 @@
           <li><a href="api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeightWriter.get_feature_weights">(whylogs.core.feature_weights.FeatureWeightWriter method)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/api/reader/local/index.html#whylogs.api.reader.local.LocalReader.get_file_from_path">get_file_from_path() (whylogs.api.reader.local.LocalReader static method)</a>
 
         <ul>
@@ -2708,6 +2739,8 @@
           <li><a href="api/whylogs/datasets/weather/index.html#whylogs.datasets.weather.Weather.get_inference_data">(whylogs.datasets.weather.Weather method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.SessionManager.get_instance">get_instance() (whylogs.api.whylabs.session.session_manager.SessionManager static method)</a>
+</li>
         <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.CardinalityMetric.get_lower_bound">get_lower_bound() (whylogs.core.metrics.CardinalityMetric method)</a>
 
         <ul>
@@ -2822,6 +2855,12 @@
         </ul></li>
         <li><a href="api/whylogs/api/logger/segment_cache/index.html#whylogs.api.logger.segment_cache.SegmentCache.get_or_create_matching_profile">get_or_create_matching_profile() (whylogs.api.logger.segment_cache.SegmentCache method)</a>
 </li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_or_prompt_api_key">get_or_prompt_api_key() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_or_prompt_org_id">get_or_prompt_org_id() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_org_id">get_org_id() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
         <li><a href="api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.get_pil_exif_metadata">get_pil_exif_metadata() (in module whylogs.extras.image_metric)</a>
 </li>
         <li><a href="api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.get_pil_image_metadata">get_pil_image_metadata() (in module whylogs.extras.image_metric)</a>
@@ -2858,20 +2897,42 @@
 </li>
         <li><a href="api/whylogs/core/metrics/serializers/index.html#whylogs.core.metrics.serializers.get_serializer">get_serializer() (in module whylogs.core.metrics.serializers)</a>
 </li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_session_id">get_session_id() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
         <li><a href="api/whylogs/experimental/extras/nlp_metric/index.html#whylogs.experimental.extras.nlp_metric.NlpLogger.get_svd_state">get_svd_state() (whylogs.experimental.extras.nlp_metric.NlpLogger method)</a>
 </li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.ApiKeySession.get_type">get_type() (whylogs.api.whylabs.session.session_manager.ApiKeySession method)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.GuestSession.get_type">(whylogs.api.whylabs.session.session_manager.GuestSession method)</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.LocalSession.get_type">(whylogs.api.whylabs.session.session_manager.LocalSession method)</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.Session.get_type">(whylogs.api.whylabs.session.session_manager.Session method)</a>
+</li>
+        </ul></li>
         <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.CardinalityMetric.get_upper_bound">get_upper_bound() (whylogs.core.metrics.CardinalityMetric method)</a>
 
         <ul>
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.CardinalityMetric.get_upper_bound">(whylogs.core.metrics.metrics.CardinalityMetric method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_user_guid">get_user_guid() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
         <li><a href="api/whylogs/core/index.html#whylogs.core.ColumnSchema.get_validators">get_validators() (whylogs.core.ColumnSchema method)</a>
 
         <ul>
           <li><a href="api/whylogs/core/schema/index.html#whylogs.core.schema.ColumnSchema.get_validators">(whylogs.core.schema.ColumnSchema method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigFile.get_variable_from_config_file">get_variable_from_config_file() (whylogs.api.whylabs.session.config.ConfigFile static method)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigFile.get_variable_from_getpass">get_variable_from_getpass() (whylogs.api.whylabs.session.config.ConfigFile static method)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigFile.get_variable_from_input">get_variable_from_input() (whylogs.api.whylabs.session.config.ConfigFile static method)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_whylabs_endpoint">get_whylabs_endpoint() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.ProfileResultSet.get_writables">get_writables() (whylogs.api.logger.ProfileResultSet method)</a>
 
         <ul>
@@ -2926,6 +2987,8 @@
           <li><a href="api/whylogs/core/proto/v0/v0_constraints_pb2/index.html#whylogs.core.proto.v0.v0_constraints_pb2.GT">(in module whylogs.core.proto.v0.v0_constraints_pb2)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.GuestSession">GuestSession (class in whylogs.api.whylabs.session.session_manager)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -3146,14 +3209,26 @@
           <li><a href="api/whylogs/datasets/weather/index.html#whylogs.datasets.weather.Weather.inference_start_timestamp">(whylogs.datasets.weather.Weather attribute)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.InferredType">InferredType (in module whylogs.core.proto.v0)</a>
 
         <ul>
           <li><a href="api/whylogs/core/proto/v0/v0_messages_pb2/index.html#whylogs.core.proto.v0.v0_messages_pb2.InferredType">(in module whylogs.core.proto.v0.v0_messages_pb2)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/whylogs/index.html#whylogs.init">init() (in module whylogs)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/whylabs/index.html#whylogs.api.whylabs.init">(in module whylogs.api.whylabs)</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.init">(in module whylogs.api.whylabs.session.session_manager)</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.SessionManager.init">(whylogs.api.whylabs.session.session_manager.SessionManager static method)</a>
+</li>
+        </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.init_notebook_logging">init_notebook_logging() (in module whylogs.api.whylabs.session.session_types)</a>
+</li>
         <li><a href="api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.Integral">Integral (class in whylogs.core.datatypes)</a>
 </li>
         <li><a href="api/whylogs/core/metrics/column_metrics/index.html#whylogs.core.metrics.column_metrics.TypeCountersMetric.integral">integral (whylogs.core.metrics.column_metrics.TypeCountersMetric attribute)</a>
@@ -3194,6 +3269,8 @@
           <li><a href="api/whylogs/core/index.html#whylogs.core.DatasetProfile.is_active">(whylogs.core.DatasetProfile property)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.SessionManager.is_active">is_active() (whylogs.api.whylabs.session.session_manager.SessionManager static method)</a>
+</li>
         <li><a href="api/whylogs/api/logger/experimental/multi_dataset_logger/message_processor/index.html#whylogs.api.logger.experimental.multi_dataset_logger.message_processor.MessageProcessor.is_alive">is_alive() (whylogs.api.logger.experimental.multi_dataset_logger.message_processor.MessageProcessor method)</a>
 
         <ul>
@@ -3218,12 +3295,16 @@
           <li><a href="api/whylogs/core/constraints/factories/distribution_metrics/index.html#whylogs.core.constraints.factories.distribution_metrics.is_in_range">(in module whylogs.core.constraints.factories.distribution_metrics)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/notebook_check/index.html#whylogs.api.whylabs.session.notebook_check.is_ipython_notebook">is_ipython_notebook() (in module whylogs.api.whylabs.session.notebook_check)</a>
+</li>
         <li><a href="api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.is_non_negative">is_non_negative() (in module whylogs.core.constraints.factories)</a>
 
         <ul>
           <li><a href="api/whylogs/core/constraints/factories/distribution_metrics/index.html#whylogs.core.constraints.factories.distribution_metrics.is_non_negative">(in module whylogs.core.constraints.factories.distribution_metrics)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/notebook_check/index.html#whylogs.api.whylabs.session.notebook_check.is_notebook">is_notebook() (in module whylogs.api.whylabs.session.notebook_check)</a>
+</li>
         <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.isalnum">isalnum() (whylogs.core.view.dataset_profile_view.SummaryType method)</a>
 </li>
         <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.isalpha">isalpha() (whylogs.core.view.dataset_profile_view.SummaryType method)</a>
@@ -3482,7 +3563,11 @@
 </li>
         <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.ljust">ljust() (whylogs.core.view.dataset_profile_view.SummaryType method)</a>
 </li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.SessionType.LOCAL">LOCAL (whylogs.api.whylabs.session.session_manager.SessionType attribute)</a>
+</li>
         <li><a href="api/whylogs/api/reader/local/index.html#whylogs.api.reader.local.LocalReader">LocalReader (class in whylogs.api.reader.local)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.LocalSession">LocalSession (class in whylogs.api.whylabs.session.session_manager)</a>
 </li>
         <li><a href="api/whylogs/api/store/index.html#whylogs.api.store.LocalStore">LocalStore (class in whylogs.api.store)</a>
 
@@ -3524,6 +3609,8 @@
           <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.log_classification_metrics">(in module whylogs.api.logger)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.log_if_notebook">log_if_notebook() (in module whylogs.api.whylabs.session.session_types)</a>
+</li>
         <li><a href="api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.log_image">log_image() (in module whylogs.extras.image_metric)</a>
 </li>
         <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Condition.log_on_failure">log_on_failure (whylogs.core.metrics.condition_count_metric.Condition attribute)</a>
@@ -3536,6 +3623,8 @@
           <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.log_regression_metrics">(in module whylogs.api.logger)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.Loggable">Loggable (in module whylogs.api.logger)</a>
+</li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.Logger">Logger (class in whylogs.api.logger)</a>
 
         <ul>
@@ -3562,6 +3651,8 @@
           <li><a href="api/whylogs/api/store/sqlite_store/index.html#whylogs.api.store.sqlite_store.logger">(in module whylogs.api.store.sqlite_store)</a>
 </li>
           <li><a href="api/whylogs/api/usage_stats/index.html#whylogs.api.usage_stats.logger">(in module whylogs.api.usage_stats)</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.logger">(in module whylogs.api.whylabs.session.session_manager)</a>
 </li>
           <li><a href="api/whylogs/api/writer/gcs/index.html#whylogs.api.writer.gcs.logger">(in module whylogs.api.writer.gcs)</a>
 </li>
@@ -4130,8 +4221,6 @@
 </li>
         <li><a href="api/whylogs/core/model_performance_metrics/confusion_matrix/index.html#whylogs.core.model_performance_metrics.confusion_matrix.MODEL_METRICS_MAX_LABELS">MODEL_METRICS_MAX_LABELS (in module whylogs.core.model_performance_metrics.confusion_matrix)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.SegmentedResultSet.model_performance_metric">model_performance_metric (whylogs.api.logger.result_set.SegmentedResultSet property)</a>
 
         <ul>
@@ -4156,6 +4245,8 @@
           <li><a href="api/whylogs/experimental/constraints_generation/index.html#whylogs.experimental.constraints_generation.DatasetProfileView.model_performance_metrics">(whylogs.experimental.constraints_generation.DatasetProfileView property)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.ModelMetricsMessage">ModelMetricsMessage (in module whylogs.core.proto.v0)</a>
 
         <ul>
@@ -4255,6 +4346,18 @@
           <li><a href="api/whylogs/api/store/sqlite_store/index.html#module-whylogs.api.store.sqlite_store">whylogs.api.store.sqlite_store</a>
 </li>
           <li><a href="api/whylogs/api/usage_stats/index.html#module-whylogs.api.usage_stats">whylogs.api.usage_stats</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/index.html#module-whylogs.api.whylabs">whylogs.api.whylabs</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/config/index.html#module-whylogs.api.whylabs.session.config">whylogs.api.whylabs.session.config</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/notebook_check/index.html#module-whylogs.api.whylabs.session.notebook_check">whylogs.api.whylabs.session.notebook_check</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/notebook_logger/index.html#module-whylogs.api.whylabs.session.notebook_logger">whylogs.api.whylabs.session.notebook_logger</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#module-whylogs.api.whylabs.session.session_manager">whylogs.api.whylabs.session.session_manager</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/session_types/index.html#module-whylogs.api.whylabs.session.session_types">whylogs.api.whylabs.session.session_types</a>
 </li>
           <li><a href="api/whylogs/api/writer/index.html#module-whylogs.api.writer">whylogs.api.writer</a>
 </li>
@@ -4564,6 +4667,12 @@
         <li><a href="api/whylogs/api/logger/experimental/multi_dataset_logger/time_util/index.html#whylogs.api.logger.experimental.multi_dataset_logger.time_util.TimeGranularity.name">name() (whylogs.api.logger.experimental.multi_dataset_logger.time_util.TimeGranularity method)</a>
 
         <ul>
+          <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigVariableName.name">(whylogs.api.whylabs.session.config.ConfigVariableName method)</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.EnvVariableName.name">(whylogs.api.whylabs.session.config.EnvVariableName method)</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.SessionType.name">(whylogs.api.whylabs.session.session_manager.SessionType method)</a>
+</li>
           <li><a href="api/whylogs/core/configs/index.html#whylogs.core.configs.FrequentItemsErrorType.name">(whylogs.core.configs.FrequentItemsErrorType method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.StandardMetric.name">(whylogs.core.metrics.StandardMetric method)</a>
@@ -4743,12 +4852,26 @@
         </ul></li>
         <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.not_relation">not_relation() (in module whylogs.core.metrics.condition_count_metric)</a>
 </li>
+        <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.notebook_session_log">notebook_session_log() (in module whylogs.api.logger)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/whylabs/session/notebook_logger/index.html#whylogs.api.whylabs.session.notebook_logger.notebook_session_log">(in module whylogs.api.whylabs.session.notebook_logger)</a>
+</li>
+        </ul></li>
+        <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.notebook_session_log_comparison">notebook_session_log_comparison() (in module whylogs.api.logger)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/whylabs/session/notebook_logger/index.html#whylogs.api.whylabs.session.notebook_logger.notebook_session_log_comparison">(in module whylogs.api.whylabs.session.notebook_logger)</a>
+</li>
+        </ul></li>
         <li><a href="api/whylogs/viz/index.html#whylogs.viz.NotebookProfileVisualizer">NotebookProfileVisualizer (class in whylogs.viz)</a>
 
         <ul>
           <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer">(class in whylogs.viz.notebook_profile_viz)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.NotSupported">NotSupported (class in whylogs.api.whylabs.session.session_types)</a>
+</li>
         <li><a href="api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.NT">NT (in module whylogs.core.datatypes)</a>
 </li>
         <li><a href="api/whylogs/core/metrics/column_metrics/index.html#whylogs.core.metrics.column_metrics.ColumnCountsMetric.null">null (whylogs.core.metrics.column_metrics.ColumnCountsMetric attribute)</a>
@@ -4907,6 +5030,12 @@
         </ul></li>
         <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.or_relations">or_relations() (in module whylogs.core.metrics.condition_count_metric)</a>
 </li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigVariableName.ORG_ID">ORG_ID (whylogs.api.whylabs.session.config.ConfigVariableName attribute)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.EnvVariableName.ORG_ID">(whylogs.api.whylabs.session.config.EnvVariableName attribute)</a>
+</li>
+        </ul></li>
         <li><a href="api/whylogs/core/preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn.original">original (whylogs.core.preprocessing.PreprocessedColumn attribute)</a>
 
         <ul>
@@ -5399,9 +5528,13 @@
         </ul></li>
         <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Condition.relation">relation (whylogs.core.metrics.condition_count_metric.Condition attribute)</a>
 </li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.relation">relation() (in module whylogs.core.metrics.condition_count_metric)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.remove_session_id">remove_session_id() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.relation">relation() (in module whylogs.core.metrics.condition_count_metric)</a>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigFile.remove_variable_from_config_file">remove_variable_from_config_file() (whylogs.api.whylabs.session.config.ConfigFile static method)</a>
 </li>
         <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.removeprefix">removeprefix() (whylogs.core.view.dataset_profile_view.SummaryType method)</a>
 </li>
@@ -5453,6 +5586,8 @@
           <li><a href="api/whylogs/experimental/constraints_generation/index.html#whylogs.experimental.constraints_generation.MetricConstraint.require_column_existence">(whylogs.experimental.constraints_generation.MetricConstraint attribute)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.SessionManager.reset">reset() (whylogs.api.whylabs.session.session_manager.SessionManager static method)</a>
+</li>
         <li><a href="api/whylogs/experimental/extras/nlp_metric/index.html#whylogs.experimental.extras.nlp_metric.SvdMetric.residual">residual() (whylogs.experimental.extras.nlp_metric.SvdMetric method)</a>
 
         <ul>
@@ -5765,6 +5900,16 @@
 </li>
         <li><a href="api/whylogs/core/metrics/metric_components/index.html#whylogs.core.metrics.metric_components.Registries.serializerRegistry">serializerRegistry (whylogs.core.metrics.metric_components.Registries attribute)</a>
 </li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.Session">Session (class in whylogs.api.whylabs.session.session_manager)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigVariableName.SESSION_ID">SESSION_ID (whylogs.api.whylabs.session.config.ConfigVariableName attribute)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig">SessionConfig (class in whylogs.api.whylabs.session.config)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.SessionManager">SessionManager (class in whylogs.api.whylabs.session.session_manager)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.SessionType">SessionType (class in whylogs.api.whylabs.session.session_manager)</a>
+</li>
         <li><a href="api/whylogs/core/metrics/metric_components/index.html#whylogs.core.metrics.metric_components.CustomComponent.set">set() (whylogs.core.metrics.metric_components.CustomComponent method)</a>
 
         <ul>
@@ -5781,6 +5926,8 @@
           <li><a href="api/whylogs/experimental/extras/matrix_component/index.html#whylogs.experimental.extras.matrix_component.MatrixComponent.set">(whylogs.experimental.extras.matrix_component.MatrixComponent method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.set_api_key">set_api_key() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.DatasetProfile.set_dataset_timestamp">set_dataset_timestamp() (whylogs.api.logger.DatasetProfile method)</a>
 
         <ul>
@@ -5807,6 +5954,8 @@
           <li><a href="api/whylogs/index.html#whylogs.ResultSet.set_dataset_timestamp">(whylogs.ResultSet method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.set_org_id">set_org_id() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
         <li><a href="api/whylogs/datasets/base/index.html#whylogs.datasets.base.Dataset.set_parameters">set_parameters() (whylogs.datasets.base.Dataset method)</a>
 
         <ul>
@@ -5839,6 +5988,14 @@
           <li><a href="api/whylogs/viz/index.html#whylogs.viz.NotebookProfileVisualizer.set_profiles">(whylogs.viz.NotebookProfileVisualizer method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.set_session_id">set_session_id() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.set_user_guid">set_user_guid() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigFile.set_variable_to_config_file">set_variable_to_config_file() (whylogs.api.whylabs.session.config.ConfigFile static method)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.set_whylabs_endpoint">set_whylabs_endpoint() (whylogs.api.whylabs.session.config.SessionConfig method)</a>
+</li>
         <li><a href="api/whylogs/api/logger/experimental/multi_dataset_logger/message_processor/index.html#whylogs.api.logger.experimental.multi_dataset_logger.message_processor.MessageProcessor.setDaemon">setDaemon() (whylogs.api.logger.experimental.multi_dataset_logger.message_processor.MessageProcessor method)</a>
 
         <ul>
@@ -6537,8 +6694,6 @@
           <li><a href="api/whylogs/core/proto/v0/v0_summaries_pb2/index.html#whylogs.core.proto.v0.v0_summaries_pb2.UniqueCountSummary">(in module whylogs.core.proto.v0.v0_summaries_pb2)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/datasets/index.html#whylogs.datasets.Ecommerce.unit">unit (whylogs.datasets.Ecommerce attribute)</a>
 
         <ul>
@@ -6553,6 +6708,8 @@
           <li><a href="api/whylogs/datasets/weather/index.html#whylogs.datasets.weather.Weather.unit">(whylogs.datasets.weather.Weather attribute)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.UNKNOWN">UNKNOWN (in module whylogs.core.proto.v0)</a>
 
         <ul>
@@ -6570,6 +6727,18 @@
 </li>
         </ul></li>
         <li><a href="api/whylogs/experimental/extras/nlp_metric/index.html#whylogs.experimental.extras.nlp_metric.UpdatableSvdMetric">UpdatableSvdMetric (class in whylogs.experimental.extras.nlp_metric)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.ApiKeySession.upload_reference_profiles">upload_reference_profiles() (whylogs.api.whylabs.session.session_manager.ApiKeySession method)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.GuestSession.upload_reference_profiles">(whylogs.api.whylabs.session.session_manager.GuestSession method)</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.LocalSession.upload_reference_profiles">(whylogs.api.whylabs.session.session_manager.LocalSession method)</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.Session.upload_reference_profiles">(whylogs.api.whylabs.session.session_manager.Session method)</a>
+</li>
+        </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.UploadReferenceResult">UploadReferenceResult (class in whylogs.api.whylabs.session.session_manager)</a>
 </li>
         <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.FrequentItem.upper">upper (whylogs.core.metrics.metrics.FrequentItem attribute)</a>
 </li>
@@ -6603,6 +6772,8 @@
           <li><a href="api/whylogs/datasets/weather/index.html#whylogs.datasets.weather.Weather.url">(whylogs.datasets.weather.Weather attribute)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigVariableName.USER_GUID">USER_GUID (whylogs.api.whylabs.session.config.ConfigVariableName attribute)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -6674,6 +6845,12 @@
         <li><a href="api/whylogs/api/logger/experimental/multi_dataset_logger/time_util/index.html#whylogs.api.logger.experimental.multi_dataset_logger.time_util.TimeGranularity.value">value() (whylogs.api.logger.experimental.multi_dataset_logger.time_util.TimeGranularity method)</a>
 
         <ul>
+          <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigVariableName.value">(whylogs.api.whylabs.session.config.ConfigVariableName method)</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.EnvVariableName.value">(whylogs.api.whylabs.session.config.EnvVariableName method)</a>
+</li>
+          <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.SessionType.value">(whylogs.api.whylabs.session.session_manager.SessionType method)</a>
+</li>
           <li><a href="api/whylogs/core/configs/index.html#whylogs.core.configs.FrequentItemsErrorType.value">(whylogs.core.configs.FrequentItemsErrorType method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.StandardMetric.value">(whylogs.core.metrics.StandardMetric method)</a>
@@ -6751,6 +6928,8 @@
           <li><a href="api/whylogs/index.html#whylogs.ResultSet.view">(whylogs.ResultSet method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.UploadReferenceResult.viewing_url">viewing_url (whylogs.api.whylabs.session.session_manager.UploadReferenceResult attribute)</a>
+</li>
         <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.ViewResultSet">ViewResultSet (class in whylogs.api.logger.result_set)</a>
 </li>
     </ul></td>
@@ -6776,6 +6955,22 @@
         <li><a href="api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WEEK_IN_SECONDS">WEEK_IN_SECONDS (in module whylogs.api.writer.whylabs)</a>
 </li>
         <li><a href="api/whylogs/core/metrics/maths/index.html#whylogs.core.metrics.maths.welford_online_variance_m2">welford_online_variance_m2() (in module whylogs.core.metrics.maths)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.SessionType.WHYLABS">WHYLABS (whylogs.api.whylabs.session.session_manager.SessionType attribute)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.SessionType.WHYLABS_ANONYMOUS">WHYLABS_ANONYMOUS (whylogs.api.whylabs.session.session_manager.SessionType attribute)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigVariableName.WHYLABS_API_ENDPOINT">WHYLABS_API_ENDPOINT (whylogs.api.whylabs.session.config.ConfigVariableName attribute)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.EnvVariableName.WHYLABS_API_ENDPOINT">(whylogs.api.whylabs.session.config.EnvVariableName attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.EnvVariableName.WHYLABS_API_KEY">WHYLABS_API_KEY (whylogs.api.whylabs.session.config.EnvVariableName attribute)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.session.session_manager.UploadReferenceResult.whylabs_response">whylabs_response (whylogs.api.whylabs.session.session_manager.UploadReferenceResult attribute)</a>
+</li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.EnvVariableName.WHYLABS_SESSION_ID">WHYLABS_SESSION_ID (whylogs.api.whylabs.session.config.EnvVariableName attribute)</a>
 </li>
         <li><a href="api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WhyLabsWriter">WhyLabsWriter (class in whylogs.api.writer.whylabs)</a>
 </li>
@@ -6994,6 +7189,48 @@
 
         <ul>
           <li><a href="api/whylogs/api/usage_stats/index.html#module-whylogs.api.usage_stats">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.api.whylabs
+
+        <ul>
+          <li><a href="api/whylogs/api/whylabs/index.html#module-whylogs.api.whylabs">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.api.whylabs.session.config
+
+        <ul>
+          <li><a href="api/whylogs/api/whylabs/session/config/index.html#module-whylogs.api.whylabs.session.config">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.api.whylabs.session.notebook_check
+
+        <ul>
+          <li><a href="api/whylogs/api/whylabs/session/notebook_check/index.html#module-whylogs.api.whylabs.session.notebook_check">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.api.whylabs.session.notebook_logger
+
+        <ul>
+          <li><a href="api/whylogs/api/whylabs/session/notebook_logger/index.html#module-whylogs.api.whylabs.session.notebook_logger">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.api.whylabs.session.session_manager
+
+        <ul>
+          <li><a href="api/whylogs/api/whylabs/session/session_manager/index.html#module-whylogs.api.whylabs.session.session_manager">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.api.whylabs.session.session_types
+
+        <ul>
+          <li><a href="api/whylogs/api/whylabs/session/session_types/index.html#module-whylogs.api.whylabs.session.session_types">module</a>
 </li>
         </ul></li>
         <li>
@@ -7374,6 +7611,8 @@
           <li><a href="api/whylogs/core/relations/index.html#module-whylogs.core.relations">module</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     whylogs.core.resolvers
 
@@ -7402,8 +7641,6 @@
           <li><a href="api/whylogs/core/segmentation_partition/index.html#module-whylogs.core.segmentation_partition">module</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     whylogs.core.specialized_resolvers
 
@@ -7754,6 +7991,8 @@
           <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#module-whylogs.viz.notebook_profile_viz">module</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.EnvVariableName.WHYLOGS_CONFIG_PATH">WHYLOGS_CONFIG_PATH (whylogs.api.whylabs.session.config.EnvVariableName attribute)</a>
+</li>
         <li><a href="api/whylogs/core/index.html#whylogs.core.WHYLOGS_MAGIC_HEADER">WHYLOGS_MAGIC_HEADER (in module whylogs.core)</a>
 
         <ul>

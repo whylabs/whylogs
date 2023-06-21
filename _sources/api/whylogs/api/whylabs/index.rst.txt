@@ -1,0 +1,22 @@
+:py:mod:`whylogs.api.whylabs`
+=============================
+
+.. py:module:: whylogs.api.whylabs
+
+
+Package Contents
+----------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.init
+
+
+
+.. py:function:: init(session_type: Union[SessionType, str] = SessionType.LOCAL, reinit: bool = False) -> None
+
+

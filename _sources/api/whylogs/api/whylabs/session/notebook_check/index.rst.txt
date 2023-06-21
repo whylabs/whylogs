@@ -1,0 +1,28 @@
+:py:mod:`whylogs.api.whylabs.session.notebook_check`
+====================================================
+
+.. py:module:: whylogs.api.whylabs.session.notebook_check
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.notebook_check.is_notebook
+   whylogs.api.whylabs.session.notebook_check.is_ipython_notebook
+
+
+
+.. py:function:: is_notebook() -> bool
+
+
+.. py:function:: is_ipython_notebook() -> bool
+
+   Detects whether the current environment is an IPython notebook or not.
+
+
