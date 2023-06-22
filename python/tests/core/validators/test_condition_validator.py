@@ -7,6 +7,7 @@ import pytest
 
 import whylogs as why
 from whylogs.core.metrics import MetricConfig
+from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.relations import Not, Predicate
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.validators import ConditionValidator
@@ -94,15 +95,30 @@ def numbers():
 
 def test_condition_validator(credit_card_validator, transcriptions) -> None:
     for data in [transcriptions, np.array(transcriptions), pd.Series(transcriptions)]:
+        col = PreprocessedColumn.apply(data)
         credit_card_validator = ConditionValidator(
             name="transcription_doesnt_contain_credit_card",
             conditions=regex_conditions,
             actions=[do_something_important],
         )
-        credit_card_validator.columnar_validate(data)
+        credit_card_validator.columnar_validate(col)
         summary = credit_card_validator.to_summary_dict()
         assert summary["total_evaluations"] == 4
         assert summary["noCreditCard"] == 1
+
+
+def test_row_condition_validator(credit_card_validator, transcriptions) -> None:
+    transcription = transcriptions[0]
+    col = PreprocessedColumn._process_scalar_value(transcription)
+    credit_card_validator = ConditionValidator(
+        name="transcription_doesnt_contain_credit_card",
+        conditions=regex_conditions,
+        actions=[do_something_important],
+    )
+    credit_card_validator.columnar_validate(col)
+    summary = credit_card_validator.to_summary_dict()
+    assert summary["total_evaluations"] == 1
+    assert summary["noCreditCard"] == 1
 
 
 @pytest.mark.parametrize("identity,sampling", [(True, True), (False, True), (True, False), (False, False)])

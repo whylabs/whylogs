@@ -1,11 +1,12 @@
 import logging
 from dataclasses import dataclass, field
+from itertools import chain
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import whylogs_sketching as ds
 
 from whylogs.core.metrics.condition_count_metric import Condition
-from whylogs.core.stubs import pd
+from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.validators.validator import Validator
 
 logger = logging.getLogger(__name__)
@@ -43,18 +44,21 @@ class ConditionValidator(Validator):
         if self.enable_sampling:
             self._sampler = ds.var_opt_sketch(k=self.sample_size)
 
-    def columnar_validate(self, data: Any, identity_values: Any = None) -> None:
+    def columnar_validate(self, data: PreprocessedColumn, identity_values: Optional[PreprocessedColumn] = None) -> None:
         count = 0
         count_failures = 0
         validate_with_row_id = False
         if self.enable_sampling and self._sampler is None:
             self._sampler = ds.var_opt_sketch(k=self.sample_size)
-        if pd.Series is not None and isinstance(identity_values, pd.Series):
-            if len(identity_values) != len(data):
-                logger.warning("Identity values and data are not the same length. Skipping identity validation")
-            else:
-                validate_with_row_id = True
-        for index, x in enumerate(data):
+        identity_list = (
+            list(chain.from_iterable(identity_values.raw_iterator())) if identity_values is not None else None
+        )
+        data_list = list(chain.from_iterable(data.raw_iterator()))
+        if identity_list is not None and data_list is not None and len(identity_list) == len(data_list):
+            validate_with_row_id = True
+        if not data:
+            return
+        for index, x in enumerate(data_list):
             count += 1
             for cond_name, condition in self.conditions.items():
                 try:
@@ -70,13 +74,13 @@ class ConditionValidator(Validator):
                     self.failures[cond_name] += 1
                     count_failures += 1
                     if self.enable_sampling and validate_with_row_id and isinstance(self._sampler, ds.var_opt_sketch):
-                        self._sampler.update(identity_values[index])
+                        self._sampler.update(identity_list[index])  # type: ignore
                     # if we don't have an identity column, sample the validated values
                     elif self.enable_sampling and isinstance(self._sampler, ds.var_opt_sketch):
                         self._sampler.update(x)
                     for action in self.actions:
                         if validate_with_row_id:
-                            action(self.name, cond_name, x, identity_values[index])
+                            action(self.name, cond_name, x, identity_list[index])  # type: ignore
                         else:
                             action(self.name, cond_name, x)  # type: ignore
 
