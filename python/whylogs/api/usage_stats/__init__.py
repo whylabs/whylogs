@@ -103,7 +103,12 @@ def _calc_identity() -> str:
 def _build_metadata() -> Dict[str, Any]:
     """Hash system and project data to send to our stats endpoint."""
 
-    project_version = whylogs.__version__
+    if hasattr(whylogs, "__version__"):
+        project_version = whylogs.__version__
+    else:
+        import whylogs as why
+
+        project_version = why.package_version()
     (major, minor, macro, _, _) = sys.version_info
 
     metadata = {
@@ -128,6 +133,7 @@ def _build_metadata() -> Dict[str, Any]:
         "pyspark": _has_lib("pyspark"),
         "flyte": _has_lib("flyte"),
         "kafka": _has_lib("kafka"),
+        "langkit": _has_lib("langkit"),
     }
     for k in list(integrations.keys()):
         if integrations.get(k) is False:
