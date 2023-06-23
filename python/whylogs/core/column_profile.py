@@ -56,12 +56,9 @@ class ColumnProfile(object):
             self._success_count += res.successes
 
     def track_column(self, series: Any, identity_values: Any = None) -> None:
-        ex_col = PreprocessedColumn.apply(series)
-        id_col = None
-        if identity_values is not None:
-            id_col = PreprocessedColumn.apply(identity_values)
         for validator in self._column_validators:
-            validator.columnar_validate(ex_col, id_col)
+            validator.columnar_validate(series, identity_values=identity_values)
+        ex_col = PreprocessedColumn.apply(series)
         self._process_extracted_column(ex_col)
 
     def _track_homogeneous_column(self, series: Any) -> None:

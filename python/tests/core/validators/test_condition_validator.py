@@ -95,13 +95,12 @@ def numbers():
 
 def test_condition_validator(credit_card_validator, transcriptions) -> None:
     for data in [transcriptions, np.array(transcriptions), pd.Series(transcriptions)]:
-        col = PreprocessedColumn.apply(data)
         credit_card_validator = ConditionValidator(
             name="transcription_doesnt_contain_credit_card",
             conditions=regex_conditions,
             actions=[do_something_important],
         )
-        credit_card_validator.columnar_validate(col)
+        credit_card_validator.columnar_validate(data)
         summary = credit_card_validator.to_summary_dict()
         assert summary["total_evaluations"] == 4
         assert summary["noCreditCard"] == 1

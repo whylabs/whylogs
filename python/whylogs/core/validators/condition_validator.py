@@ -47,20 +47,22 @@ class ConditionValidator(Validator):
         if self.enable_sampling:
             self._sampler = ds.var_opt_sketch(k=self.sample_size)
 
-    def columnar_validate(self, data: PreprocessedColumn, identity_values: Optional[PreprocessedColumn] = None) -> None:
+    def columnar_validate(self, data: Any, identity_values: Any = None) -> None:
         count = 0
         count_failures = 0
         validate_with_row_id = False
         if self.enable_sampling and self._sampler is None:
             self._sampler = ds.var_opt_sketch(k=self.sample_size)
-        identity_list = (
-            list(chain.from_iterable(identity_values.raw_iterator())) if identity_values is not None else None
-        )
-        data_list = list(chain.from_iterable(data.raw_iterator()))
+        if isinstance(data, PreprocessedColumn):
+            identity_list = (
+                list(chain.from_iterable(identity_values.raw_iterator())) if identity_values is not None else None
+            )
+            data_list = list(chain.from_iterable(data.raw_iterator()))
+        else:
+            identity_list = identity_values if identity_values is not None else None
+            data_list = data
         if identity_list is not None and data_list is not None and len(identity_list) == len(data_list):
             validate_with_row_id = True
-        if not data:
-            return
         for index, x in enumerate(data_list):
             count += 1
             for cond_name, condition in self.conditions.items():
