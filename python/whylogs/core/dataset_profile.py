@@ -130,7 +130,7 @@ class DatasetProfile(Writable):
         if execute_udfs:
             pandas, row = self._schema._run_udfs(pandas, row)
 
-        col_id = getattr(self._schema.default_configs, "identity_column", None)
+        col_id: Optional[str] = getattr(self._schema.default_configs, "identity_column", None)
 
         # TODO: do this less frequently when operating at row level
         dirty = self._schema.resolve(pandas=pandas, row=row)
@@ -140,13 +140,11 @@ class DatasetProfile(Writable):
             self._initialize_new_columns(tuple(new_cols))
 
         if row is not None:
-            if col_id is not None:
-                logger.warning(
-                    "validation with identity column is not supported for row level tracking.\
-                    Validation will be performed without identity column"
-                )
             for k in row.keys():
-                self._columns[k]._track_datum(row[k])
+                if col_id:
+                    self._columns[k]._track_datum(row[k], row.get(col_id))
+                else:
+                    self._columns[k]._track_datum(row[k])
             return
         elif pandas is not None:
             # TODO: iterating over each column in order assumes single column metrics

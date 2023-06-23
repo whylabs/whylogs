@@ -65,8 +65,13 @@ class ColumnProfile(object):
         ex_col = PreprocessedColumn._process_homogeneous_column(series)
         self._process_extracted_column(ex_col)
 
-    def _track_datum(self, value: Any) -> None:
+    def _track_datum(self, value: Any, identity_values: Any = None) -> None:
         ex_col = PreprocessedColumn._process_scalar_value(value)
+        id_col = None
+        if identity_values is not None:
+            id_col = PreprocessedColumn._process_scalar_value(identity_values)
+        for validator in self._column_validators:
+            validator.columnar_validate(ex_col, id_col)
         self._process_extracted_column(ex_col)
 
     def to_protobuf(self) -> ColumnMessage:
