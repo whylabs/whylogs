@@ -14,6 +14,7 @@ Classes
 
    whylogs.core.constraints.metric_constraints.MetricsSelector
    whylogs.core.constraints.metric_constraints.MetricConstraint
+   whylogs.core.constraints.metric_constraints.DatasetComparisonConstraint
    whylogs.core.constraints.metric_constraints.DatasetConstraint
    whylogs.core.constraints.metric_constraints.MetricConstraintWrapper
    whylogs.core.constraints.metric_constraints.PrefixCondition
@@ -123,6 +124,30 @@ Attributes
 
 
 
+.. py:class:: DatasetComparisonConstraint
+
+   Implements dataset-level constraints that require a reference dataset to
+   be compared against. The condition Callable takes the DatasetProfileView
+   of the dataset to be validated as well as the DatasetProfileView of the
+   reference dataset and returns a boolean indicating whether the condition
+   is satisfied as well as a dictionary with summary information about the
+   validation.
+
+
+   .. py:attribute:: condition
+      :type: Callable[[whylogs.core.view.dataset_profile_view.DatasetProfileView, whylogs.core.view.dataset_profile_view.DatasetProfileView], Tuple[bool, Dict[str, whylogs.core.metrics.metrics.Metric]]]
+
+      
+
+   .. py:attribute:: name
+      :type: str
+
+      
+
+   .. py:method:: validate_profile(dataset_profile: whylogs.core.view.dataset_profile_view.DatasetProfileView, reference_profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> Tuple[bool, Optional[Dict[str, Any]]]
+
+
+
 .. py:class:: DatasetConstraint
 
    Implements dataset-level constraints that are not attached to a specific
@@ -165,7 +190,7 @@ Attributes
    in client code.
 
 
-.. py:class:: Constraints(dataset_profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None, column_constraints: Optional[Dict[str, Dict[str, MetricConstraint]]] = None)
+.. py:class:: Constraints(dataset_profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None, column_constraints: Optional[Dict[str, Dict[str, MetricConstraint]]] = None, reference_profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None)
 
    .. py:attribute:: column_constraints
       :type: Dict[str, Dict[str, MetricConstraint]]
@@ -177,12 +202,20 @@ Attributes
 
       
 
+   .. py:attribute:: dataset_comparison_constraints
+      :type: List[DatasetComparisonConstraint]
+
+      
+
    .. py:attribute:: dataset_profile_view
       :type: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView]
 
       
 
    .. py:method:: validate(profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None) -> bool
+
+
+   .. py:method:: set_reference_profile_view(profile_view: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> None
 
 
    .. py:method:: report(profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None) -> List[Tuple[str, int, int]]
@@ -192,7 +225,7 @@ Attributes
 
 
 
-.. py:class:: ConstraintsBuilder(dataset_profile_view: whylogs.core.view.dataset_profile_view.DatasetProfileView, constraints: Optional[Constraints] = None)
+.. py:class:: ConstraintsBuilder(dataset_profile_view: whylogs.core.view.dataset_profile_view.DatasetProfileView, constraints: Optional[Constraints] = None, reference_profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None)
 
    .. py:method:: get_metric_selectors() -> List[MetricsSelector]
 

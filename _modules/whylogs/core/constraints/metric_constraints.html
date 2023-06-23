@@ -625,6 +625,28 @@
     <span class="k">pass</span></div>
 
 
+<div class="viewcode-block" id="DatasetComparisonConstraint"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.DatasetComparisonConstraint">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">DatasetComparisonConstraint</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements dataset-level constraints that require a reference dataset to</span>
+<span class="sd">    be compared against. The condition Callable takes the DatasetProfileView</span>
+<span class="sd">    of the dataset to be validated as well as the DatasetProfileView of the</span>
+<span class="sd">    reference dataset and returns a boolean indicating whether the condition</span>
+<span class="sd">    is satisfied as well as a dictionary with summary information about the</span>
+<span class="sd">    validation.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">condition</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]]]</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+
+<div class="viewcode-block" id="DatasetComparisonConstraint.validate_profile"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.DatasetComparisonConstraint.validate_profile">[docs]</a>    <span class="k">def</span> <span class="nf">validate_profile</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset_profile</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">reference_profile</span><span class="p">:</span> <span class="n">DatasetProfileView</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]:</span>
+        <span class="n">validate_result</span><span class="p">,</span> <span class="n">summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">condition</span><span class="p">(</span><span class="n">dataset_profile</span><span class="p">,</span> <span class="n">reference_profile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">validate_result</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span></div></div>
+
+
 <div class="viewcode-block" id="DatasetConstraint"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.DatasetConstraint">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">DatasetConstraint</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -892,21 +914,29 @@
 <div class="viewcode-block" id="Constraints"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.Constraints">[docs]</a><span class="k">class</span> <span class="nc">Constraints</span><span class="p">:</span>
     <span class="n">column_constraints</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MetricConstraint</span><span class="p">]]</span>
     <span class="n">dataset_constraints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetConstraint</span><span class="p">]</span>
+    <span class="n">dataset_comparison_constraints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetComparisonConstraint</span><span class="p">]</span>
     <span class="n">dataset_profile_view</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dataset_profile_view</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">column_constraints</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MetricConstraint</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reference_profile_view</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">column_constraints</span> <span class="o">=</span> <span class="n">column_constraints</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_comparison_constraints</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataset_profile_view</span> <span class="o">=</span> <span class="n">dataset_profile_view</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_profile_view</span> <span class="o">=</span> <span class="n">reference_profile_view</span>
 
 <div class="viewcode-block" id="Constraints.validate"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.Constraints.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile_view</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_profile_view</span><span class="p">(</span><span class="n">profile_view</span><span class="p">)</span>
         <span class="n">column_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_constraints</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">column_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">column_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_comparison_constraints</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;validate was called with empty set of constraints, returning True!&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span>
 
@@ -918,12 +948,18 @@
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constraint_name</span><span class="si">}</span><span class="s2"> failed on column </span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">for</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="p">:</span>
-            <span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">validate_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_comparison_constraints</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">constraint</span><span class="p">,</span> <span class="n">DatasetConstraint</span><span class="p">):</span>
+                <span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">validate_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">constraint</span><span class="p">,</span> <span class="n">DatasetComparisonConstraint</span><span class="p">):</span>
+                <span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">validate_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_profile_view</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constraint</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> failed on dataset&quot;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Constraints.set_reference_profile_view"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.Constraints.set_reference_profile_view">[docs]</a>    <span class="k">def</span> <span class="nf">set_reference_profile_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile_view</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_profile_view</span> <span class="o">=</span> <span class="n">profile_view</span></div>
 
 <div class="viewcode-block" id="Constraints.report"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.Constraints.report">[docs]</a>    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Please use generate_constraints_report()&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile_view</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
@@ -965,10 +1001,13 @@
     <span class="k">def</span> <span class="nf">_generate_dataset_report</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">profile_view</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">,</span>
-        <span class="n">constraint</span><span class="p">:</span> <span class="n">DatasetConstraint</span><span class="p">,</span>
+        <span class="n">constraint</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetConstraint</span><span class="p">,</span> <span class="n">DatasetComparisonConstraint</span><span class="p">],</span>
         <span class="n">with_summary</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReportResult</span><span class="p">:</span>
-        <span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">validate_profile</span><span class="p">(</span><span class="n">profile_view</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">constraint</span><span class="p">,</span> <span class="n">DatasetComparisonConstraint</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">validate_profile</span><span class="p">(</span><span class="n">profile_view</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_profile_view</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">constraint</span><span class="p">,</span> <span class="n">DatasetConstraint</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">validate_profile</span><span class="p">(</span><span class="n">profile_view</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_make_report</span><span class="p">(</span><span class="n">constraint</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">with_summary</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Constraints.generate_constraints_report"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.Constraints.generate_constraints_report">[docs]</a>    <span class="k">def</span> <span class="nf">generate_constraints_report</span><span class="p">(</span>
@@ -992,7 +1031,7 @@
 
                 <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metric_report</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_constraints</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_comparison_constraints</span><span class="p">:</span>
             <span class="n">metric_report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_dataset_report</span><span class="p">(</span>
                 <span class="n">profile_view</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span>
                 <span class="n">constraint</span><span class="o">=</span><span class="n">constraint</span><span class="p">,</span>
@@ -1021,11 +1060,13 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dataset_profile_view</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">,</span>
         <span class="n">constraints</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Constraints</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reference_profile_view</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_profile_view</span> <span class="o">=</span> <span class="n">dataset_profile_view</span>
         <span class="k">if</span> <span class="n">constraints</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">constraints</span> <span class="o">=</span> <span class="n">Constraints</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">dataset_profile_view</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span> <span class="o">=</span> <span class="n">constraints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_view</span> <span class="o">=</span> <span class="n">reference_profile_view</span>
 
 <div class="viewcode-block" id="ConstraintsBuilder.get_metric_selectors"><a class="viewcode-back" href="../../../../api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.ConstraintsBuilder.get_metric_selectors">[docs]</a>    <span class="k">def</span> <span class="nf">get_metric_selectors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">MetricsSelector</span><span class="p">]:</span>
         <span class="n">selectors</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1084,6 +1125,13 @@
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">constraint</span><span class="p">,</span> <span class="n">DatasetConstraint</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="o">.</span><span class="n">dataset_constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">constraint</span><span class="p">,</span> <span class="n">DatasetComparisonConstraint</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_view</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;ConstraintsBuilder: reference_profile_view must be set when adding DatasetComparisonConstraint&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="o">.</span><span class="n">set_reference_profile_view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_view</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="o">.</span><span class="n">dataset_comparison_constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span></div>
 
