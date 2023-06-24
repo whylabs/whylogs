@@ -371,3 +371,18 @@ def test_schema_list() -> None:
     assert "add5" not in result.get_columns()
     assert "bob" in result.get_columns()
     assert "udf" in result.get_column("schema.col1").get_metric_names()
+
+
+def test_direct_udfs() -> None:
+    schema = udf_schema(schema_name=["", "bob"])
+    data = pd.DataFrame({"col1": [42, 12, 7]})
+    more_data, _ = schema.apply_udfs(data)
+    udf_columns = set(more_data.keys())
+
+    result = why.log(data, schema=schema).view()
+    profile_columns = set(result.get_columns())
+    assert udf_columns == profile_columns
+
+    result = why.log(more_data, schema=schema).view()
+    more_columns = set(result.get_columns())
+    assert more_columns == profile_columns
