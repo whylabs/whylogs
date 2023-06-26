@@ -6,6 +6,7 @@ import boto3
 from botocore.client import BaseClient
 from botocore.exceptions import ClientError
 
+from whylogs.api.usage_stats import emit_usage
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core.utils import deprecated_alias
@@ -62,6 +63,7 @@ class S3Writer(Writer):
         self.base_prefix = base_prefix or "profile"
         self.bucket_name = bucket_name or ""
         self.object_name = object_name or None
+        emit_usage("s3_writer")
 
     @deprecated_alias(profile="file")
     def write(

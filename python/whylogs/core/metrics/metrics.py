@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 import whylogs_sketching as ds  # type: ignore
 from google.protobuf.struct_pb2 import Struct
 
-from whylogs.core.configs import SummaryConfig
+import whylogs.core.configs as conf
 from whylogs.core.metrics.maths import (
     VarianceM2Result,
     parallel_variance_m2,
@@ -37,28 +37,18 @@ METRIC = TypeVar("METRIC", bound="Metric")
 
 @dataclass(frozen=True)
 class MetricConfig:
-    hll_lg_k: int = 12
-    kll_k: int = 256
-    fi_lg_max_k: int = 10  # 128 entries
-    fi_disabled: bool = False
-    track_unicode_ranges: bool = False
-    large_kll_k: bool = True
-    kll_k_large: int = 1024
-    unicode_ranges: Dict[str, Tuple[int, int]] = field(
-        default_factory=lambda: {
-            "emoticon": (0x1F600, 0x1F64F),
-            "control": (0x00, 0x1F),
-            "digits": (0x30, 0x39),
-            "latin-upper": (0x41, 0x5A),
-            "latin-lower": (0x61, 0x7A),
-            "basic-latin": (0x00, 0x7F),
-            "extended-latin": (0x0080, 0x02AF),
-        }
-    )
-    lower_case: bool = True  # Convert Unicode characters to lower-case before counting Unicode ranges
-    normalize: bool = True  # Unicode normalize strings before counting Unicode ranges
-    max_frequent_item_size: int = 128
-    identity_column: Optional[str] = None
+    hll_lg_k: int = field(default_factory=lambda: conf.hll_lg_k)
+    kll_k: int = field(default_factory=lambda: conf.kll_k)
+    fi_lg_max_k: int = field(default_factory=lambda: conf.fi_lg_max_k)
+    fi_disabled: bool = field(default_factory=lambda: conf.fi_disabled)
+    track_unicode_ranges: bool = field(default_factory=lambda: conf.track_unicode_ranges)
+    large_kll_k: bool = field(default_factory=lambda: conf.large_kll_k)
+    kll_k_large: int = field(default_factory=lambda: conf.kll_k_large)
+    unicode_ranges: Dict[str, Tuple[int, int]] = field(default_factory=lambda: dict(conf.unicode_ranges))
+    lower_case: bool = field(default_factory=lambda: conf.lower_case)
+    normalize: bool = field(default_factory=lambda: conf.normalize)
+    max_frequent_item_size: int = field(default_factory=lambda: conf.max_frequent_item_size)
+    identity_column: Optional[str] = field(default_factory=lambda: conf.identity_column)
 
 
 _METRIC_DESERIALIZER_REGISTRY: Dict[str, Type[METRIC]] = {}  # type: ignore
@@ -91,6 +81,10 @@ class OperationResult:
 
 
 class Metric(ABC):
+    @property
+    def exclude_from_serialization(self) -> bool:
+        return False
+
     @classmethod
     # TODO: deprecate config argument
     def get_namespace(cls, config: Optional[MetricConfig] = None) -> str:
@@ -132,7 +126,7 @@ class Metric(ABC):
         return res
 
     @abstractmethod
-    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[conf.SummaryConfig] = None) -> Dict[str, Any]:
         raise NotImplementedError
 
     @abstractmethod
@@ -202,7 +196,7 @@ class IntsMetric(Metric):
     def zero(cls, config: Optional[MetricConfig] = None) -> "IntsMetric":
         return IntsMetric(max=MaxIntegralComponent(-sys.maxsize), min=MinIntegralComponent(sys.maxsize))
 
-    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Union[int, float, str, None]]:
+    def to_summary_dict(self, cfg: Optional[conf.SummaryConfig] = None) -> Dict[str, Union[int, float, str, None]]:
         return {"max": self.maximum, "min": self.minimum}
 
     @property
@@ -227,7 +221,7 @@ class DistributionMetric(Metric):
     def namespace(self) -> str:
         return "distribution"
 
-    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Union[int, float, str, None]]:
+    def to_summary_dict(self, cfg: Optional[conf.SummaryConfig] = None) -> Dict[str, Union[int, float, str, None]]:
         if self.n == 0:
             quantiles = [None, None, None, None, None, None, None, None, None]
         else:
@@ -347,68 +341,49 @@ class DistributionMetric(Metric):
     def avg(self) -> float:
         return self.mean.value
 
+    def get_quantile(self, quantile: float) -> Optional[float]:
+        result = None
+        if quantile < 0 or quantile > 1:
+            raise ValueError(f"quantile={quantile} is not supported, please specify a value between 0 and 1 inclusive.")
+        if self.n > 0:
+            result = self.kll.value.get_quantiles([quantile])[0]
+        return result
+
     @property
     def median(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.5])[0]
-        return result
+        return self.get_quantile(0.5)
 
     @property
     def q_01(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.01])[0]
-        return result
+        return self.get_quantile(0.01)
 
     @property
     def q_05(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.05])[0]
-        return result
+        return self.get_quantile(0.05)
 
     @property
     def q_10(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.1])[0]
-        return result
+        return self.get_quantile(0.1)
 
     @property
     def q_25(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.25])[0]
-        return result
+        return self.get_quantile(0.25)
 
     @property
     def q_75(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.75])[0]
-        return result
+        return self.get_quantile(0.75)
 
     @property
     def q_90(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.90])[0]
-        return result
+        return self.get_quantile(0.9)
 
     @property
     def q_95(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.95])[0]
-        return result
+        return self.get_quantile(0.95)
 
     @property
     def q_99(self) -> Optional[float]:
-        result = None
-        if self.n > 0:
-            result = self.kll.value.get_quantiles([0.99])[0]
-        return result
+        return self.get_quantile(0.99)
 
     @property
     def max(self) -> float:
@@ -490,8 +465,8 @@ class FrequentItemsMetric(Metric):
 
         return OperationResult(successes=successes, failures=failures)
 
-    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
-        cfg = cfg or SummaryConfig()
+    def to_summary_dict(self, cfg: Optional[conf.SummaryConfig] = None) -> Dict[str, Any]:
+        cfg = cfg or conf.SummaryConfig()
         all_freq_items = self.frequent_strings.value.get_frequent_items(
             cfg.frequent_items_error_type.to_datasketches_type()
         )
@@ -572,8 +547,8 @@ class CardinalityMetric(Metric):
             failures = len(view.list.objs)
         return OperationResult(successes=successes, failures=failures)
 
-    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
-        cfg = cfg or SummaryConfig()
+    def to_summary_dict(self, cfg: Optional[conf.SummaryConfig] = None) -> Dict[str, Any]:
+        cfg = cfg or conf.SummaryConfig()
         return {
             "est": self.hll.value.get_estimate(),
             f"upper_{cfg.hll_stddev}": self.hll.value.get_upper_bound(cfg.hll_stddev),
@@ -588,21 +563,27 @@ class CardinalityMetric(Metric):
 
         return result
 
-    @property
-    def upper_1(self) -> Optional[float]:
+    def get_upper_bound(self, number_of_standard_deviations: int) -> Optional[float]:
         result = None
         if not self.hll.value.is_empty():
-            result = self.hll.value.get_upper_bound(1)
+            result = self.hll.value.get_upper_bound(number_of_standard_deviations)
 
         return result
+
+    def get_lower_bound(self, number_of_standard_deviations: int) -> Optional[float]:
+        result = None
+        if not self.hll.value.is_empty():
+            result = self.hll.value.get_lower_bound(number_of_standard_deviations)
+
+        return result
+
+    @property
+    def upper_1(self) -> Optional[float]:
+        return self.get_upper_bound(1)
 
     @property
     def lower_1(self) -> Optional[float]:
-        result = None
-        if not self.hll.value.is_empty():
-            result = self.hll.value.get_lower_bound(1)
-
-        return result
+        return self.get_lower_bound(1)
 
     @classmethod
     def zero(cls, config: Optional[MetricConfig] = None) -> "CardinalityMetric":
@@ -634,7 +615,7 @@ class CustomMetricBase(Metric, ABC):
     def get_component_paths(self) -> List[str]:
         return [_STRUCT_NAME]  # Assumes everything to be serde'd will be in the Struct
 
-    def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
+    def to_summary_dict(self, cfg: Optional[conf.SummaryConfig] = None) -> Dict[str, Any]:
         return asdict(self, dict_factory=_drop_private_fields)
 
     def to_protobuf(self) -> MetricMessage:
@@ -646,3 +627,9 @@ class CustomMetricBase(Metric, ABC):
     def from_protobuf(cls: Type[METRIC], msg: MetricMessage) -> METRIC:
         my_struct = msg.metric_components[_STRUCT_NAME].dataclass_param
         return cls(**my_struct)
+
+
+@dataclass
+class CardinalityThresholds:
+    few: int = 50
+    proportionately_few: float = 0.01

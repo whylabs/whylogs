@@ -99,7 +99,7 @@ Here you will find examples of features that are still on an experimental stage.
 | [Performance Estimation - Estimating Accuracy for Binary Classification Problems](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/performance_estimation.ipynb) | Estimate accuracy for unlabeled target datasets for binary classification problems  |
 | [Extracting and Monitoring Audio Samples](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/whylogs_Audio_examples.ipynb)                                         | Extract features from audio samples for the purpose of monitoring for drift/quality |
 | [NLP Summarization](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/NLP_Summarization.ipynb)                                                                    | Monitor a document summarization task with whylogs                                  |
-| [Embeddings Distance Logging](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/Embeddings_Distance_Logging.ipynb)                                                | Profile embedding values by comparing them to reference data points                 |
+| [Embeddings Distance Logging](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/embeddings/Embeddings_Distance_Logging.ipynb)                                     | Profile embedding values by comparing them to reference data points                 |
 
 ## 📓 Benchmarks
 
@@ -109,13 +109,15 @@ Here you will find experiments to benchmark different aspect of the whylogs pack
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | [Understanding Kolmogorov-Smirnov (KS) Tests for Data Drift on Profiled Data](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/benchmarks/KS_Profiling.ipynb) | Experiments comparing between Kolmogorov-Smirnov whylogs' implementation on profiled data and traditional implementation on complete data |
 
-## 📓 Tutorials
+## 🏫 Tutorials
 
 Here you will find tutorials that can span two or more concepts discussed in the previous sections. These tutorials are meant to be a more in-depth, and possibly domain-specific, explanation of the concepts discussed in the previous sections.
 
-| Example                                                                                                                                                                | Description                                                                                               |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [Data Validation for Spark Dataframes with whylogs](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/tutorials/Pyspark_and_Constraints.ipynb) | Profile a Spark Dataframe and Perform Data Validation with Condition Count Metrics and Metric Constraints |
+| Example                                                                                                                                                                                       | Description                                                                                                          |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| [Data Validation for Spark Dataframes with whylogs](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/tutorials/Pyspark_and_Constraints.ipynb)                        | Profile a Spark Dataframe and Perform Data Validation with Condition Count Metrics and Metric Constraints            |
+| [Monitoring Embeddings for Text Data](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/tutorials/Monitoring_Embeddings.ipynb)                                        | Monitor Embeddings, Tokens and Performance of your text classifier application                                       |
+| [Data Validation at Scale - Detecting and Responding to Data Misbehavior](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/tutorials/Data_Validation_Tutorial.ipynb) | Log, validate, and debug failed conditions with Metric Constraints, Condition Count Metrics and Condition Validators |
 
 ## Get in touch
 

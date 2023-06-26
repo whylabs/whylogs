@@ -11,6 +11,7 @@ import requests  # type: ignore
 import whylabs_client  # type: ignore
 from urllib3 import PoolManager, ProxyManager
 from whylabs_client import ApiClient, Configuration  # type: ignore
+from whylabs_client.api.dataset_profile_api import DatasetProfileApi
 from whylabs_client.api.feature_weights_api import FeatureWeightsApi
 from whylabs_client.api.log_api import AsyncLogResponse  # type: ignore
 from whylabs_client.api.log_api import (
@@ -21,10 +22,16 @@ from whylabs_client.api.log_api import (
 )
 from whylabs_client.api.models_api import ModelsApi
 from whylabs_client.model.column_schema import ColumnSchema
+from whylabs_client.model.create_reference_profile_request import (
+    CreateReferenceProfileRequest,
+)
+from whylabs_client.model.segment import Segment
+from whylabs_client.model.segment_tag import SegmentTag
 from whylabs_client.rest import ForbiddenException  # type: ignore
 
 from whylogs import __version__ as _version
 from whylogs.api.logger import log
+from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
@@ -36,6 +43,7 @@ from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetPro
 from whylogs.experimental.performance_estimation.estimation_results import (
     EstimationResult,
 )
+from whylogs.migration.converters import _generate_segment_tags_metadata
 from whylogs.migration.uncompound import (
     FeatureFlags,
     _uncompound_dataset_profile,
@@ -57,9 +65,13 @@ _UPLOAD_POOLER_CACHE: Dict[str, Union[PoolManager, ProxyManager]] = dict()
 
 _US_WEST2_DOMAIN = "songbird-20201223060057342600000001.s3.us-west-2.amazonaws.com"
 _S3_PUBLIC_DOMAIN = os.environ.get("_WHYLABS_PRIVATE_S3_DOMAIN") or _US_WEST2_DOMAIN
+_WHYLABS_SKIP_CONFIG_READ = os.environ.get("_WHYLABS_SKIP_CONFIG_READ") or False
 
 
 def _check_whylabs_condition_count_uncompound() -> bool:
+    global _WHYLABS_SKIP_CONFIG_READ
+    if _WHYLABS_SKIP_CONFIG_READ:
+        return True
     whylabs_config_url = (
         "https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_config/whylabs_condition_count_disabled"
     )
@@ -73,13 +85,15 @@ def _check_whylabs_condition_count_uncompound() -> bool:
                 "found the whylabs condition count disabled file so running uncompound on condition count metrics"
             )
             return True
+        elif response.status_code == 404:
+            logger.info("no whylabs condition count disabled so sending condition count metrics as v1.")
+            return False
         else:
-            logger.info(
-                f"Got response code {response.status_code} but expected 200, so allowing condition count upload to whylabs uncompounded!"
-            )
+            logger.info(f"Got response code {response.status_code} but expected 200, so running uncompound")
     except Exception:
         logger.warning("Error trying to read whylabs config, falling back to defaults for uncompounding")
-    return False
+    _WHYLABS_SKIP_CONFIG_READ = True
+    return True
 
 
 def _validate_api_key(api_key: Optional[str]) -> str:
@@ -470,12 +484,70 @@ class WhyLabsWriter(Writer):
             self._dataset_id = kwargs.get("dataset_id")
 
         result = self._do_get_feature_weights()
-        feature_weights_set = result.get("segmentWeights")
+        feature_weights_set = result.get("segment_weights")
         metadata = result.get("metadata")
         if feature_weights_set and isinstance(feature_weights_set, list):
             feature_weights = FeatureWeights(weights=feature_weights_set[0]["weights"], metadata=metadata)
             return feature_weights
         return None
+
+    def _write_segmented_reference_result_set(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
+        """Put segmented reference result set for the specified dataset.
+
+        Parameters
+        ----------
+        file : SegmentedResultSet
+            SegmentedResultSet object representing the segmented reference result set for the specified dataset
+
+        Returns
+        -------
+        Tuple[bool, str]
+        """
+        utc_now = datetime.datetime.now(datetime.timezone.utc)
+
+        files = file.get_writables()
+        partitions = file.partitions
+        if len(partitions) > 1:
+            logger.warning(
+                "SegmentedResultSet contains more than one partition. Only the first partition will be uploaded. "
+            )
+        partition = partitions[0]
+        whylabs_tags = list()
+        for view in files:
+            view_tags = list()
+            dataset_timestamp = view.dataset_timestamp or utc_now
+            if view.partition.id != partition.id:
+                continue
+            _, segment_tags, _ = _generate_segment_tags_metadata(view.segment, view.partition)
+            for segment_tag in segment_tags:
+                tag_key = segment_tag.key.replace("whylogs.tag.", "")
+                tag_value = segment_tag.value
+                view_tags.append({"key": tag_key, "value": tag_value})
+            whylabs_tags.append(view_tags)
+        stamp = dataset_timestamp.timestamp()
+        dataset_timestamp_epoch = int(stamp * 1000)
+        profile_id, upload_urls = self._get_upload_urls_segmented_reference(whylabs_tags, dataset_timestamp_epoch)
+        upload_statuses = list()
+        for view, url in zip(files, upload_urls):
+            with tempfile.NamedTemporaryFile() as tmp_file:
+                if kwargs.get("use_v0") is None or kwargs.get("use_v0"):
+                    view.write(file=tmp_file, use_v0=True)
+                else:
+                    view.write(file=tmp_file)
+                tmp_file.flush()
+                tmp_file.seek(0)
+
+                upload_res = self._do_upload(
+                    dataset_timestamp=dataset_timestamp_epoch,
+                    upload_url=url,
+                    profile_id=profile_id,
+                    profile_file=tmp_file,
+                )
+                upload_statuses.append(upload_res)
+        if all([status[0] for status in upload_statuses]):
+            return upload_statuses[0]
+        else:
+            return False, "Failed to upload all segments"
 
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
@@ -483,7 +555,8 @@ class WhyLabsWriter(Writer):
             return self.write_feature_weights(file, **kwargs)
         elif isinstance(file, EstimationResult):
             return self.write_estimation_result(file, **kwargs)
-
+        elif isinstance(file, SegmentedResultSet) and self._reference_profile_name is not None:
+            return self._write_segmented_reference_result_set(file, **kwargs)
         view = file.view() if isinstance(file, DatasetProfile) else file
         has_segments = isinstance(view, SegmentedDatasetProfileView)
 
@@ -613,19 +686,33 @@ class WhyLabsWriter(Writer):
         return is_successful, response.reason
 
     def _do_upload(
-        self, dataset_timestamp: int, profile_path: Optional[str] = None, profile_file: Optional[IO[bytes]] = None
+        self,
+        dataset_timestamp: int,
+        upload_url: Optional[str] = None,
+        profile_id: Optional[str] = None,
+        profile_path: Optional[str] = None,
+        profile_file: Optional[IO[bytes]] = None,
     ) -> Tuple[bool, str]:
         assert profile_path or profile_file, "Either a file or file path must be specified when uploading profiles"
         self._validate_org_and_dataset()
 
-        logger.debug("Generating the upload URL")
-        upload_url = self._get_upload_url(dataset_timestamp=dataset_timestamp)
+        # logger.debug("Generating the upload URL")
+        if upload_url and not profile_id:
+            raise ValueError("If upload_url is specified, profile_id must also be specified")
+        elif profile_id and not upload_url:
+            raise ValueError("If profile_id is specified, upload_url must also be specified")
+        elif not upload_url and not profile_id:
+            upload_url, profile_id = self._get_upload_url(dataset_timestamp=dataset_timestamp)
         try:
             if profile_file:
-                return self._put_file(profile_file, upload_url, dataset_timestamp)
+                status, reason = self._put_file(profile_file, upload_url, dataset_timestamp)  # type: ignore
+                logger.debug(f"copied file {upload_url} status {status}:{reason}")
+                return status, profile_id  # type: ignore
             elif profile_path:
                 with open(profile_path, "rb") as f:
-                    return self._put_file(f, upload_url, dataset_timestamp)
+                    status, reason = self._put_file(f, upload_url, dataset_timestamp)  # type: ignore
+                    logger.debug(f"copied file {upload_url} status {status}:{reason}")
+                    return status, profile_id  # type: ignore
         except requests.RequestException as e:
             logger.info(
                 f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
@@ -643,6 +730,9 @@ class WhyLabsWriter(Writer):
     def _get_or_create_api_log_client(self) -> LogApi:
         return LogApi(self._api_client)
 
+    def _get_or_create_api_dataset_client(self) -> DatasetProfileApi:
+        return DatasetProfileApi(self._api_client)
+
     @staticmethod
     def _build_log_async_request(dataset_timestamp: int) -> LogAsyncRequest:
         return LogAsyncRequest(dataset_timestamp=dataset_timestamp, segment_tags=[])
@@ -650,6 +740,21 @@ class WhyLabsWriter(Writer):
     @staticmethod
     def _build_log_reference_request(dataset_timestamp: int, alias: Optional[str] = None) -> LogReferenceRequest:
         return LogReferenceRequest(dataset_timestamp=dataset_timestamp, alias=alias)
+
+    @staticmethod
+    def _build_log_segmented_reference_request(
+        dataset_timestamp: int, tags: Optional[dict] = None, alias: Optional[str] = None
+    ) -> LogReferenceRequest:
+        segments = list()
+        if not alias:
+            alias = None
+        if tags is not None:
+            for segment_tags in tags:
+                segments.append(Segment(tags=[SegmentTag(key=tag["key"], value=tag["value"]) for tag in segment_tags]))
+        if not segments:
+            return CreateReferenceProfileRequest(alias=alias, dataset_timestamp=dataset_timestamp)
+        else:
+            return CreateReferenceProfileRequest(alias=alias, dataset_timestamp=dataset_timestamp, segments=segments)
 
     def _get_column_weights(self):
         feature_weight_api = self._get_or_create_feature_weights_client()
@@ -761,6 +866,33 @@ class WhyLabsWriter(Writer):
             )
             raise e
 
+    def _get_upload_urls_segmented_reference(self, whylabs_tags, dataset_timestamp: int) -> Tuple[str, List[str]]:
+        request = self._build_log_segmented_reference_request(
+            dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name
+        )
+        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
+        return res["id"], res["upload_urls"]
+
+    def _post_log_segmented_reference(self, request: LogAsyncRequest, dataset_timestamp: int) -> LogReferenceResponse:
+        dataset_api = self._get_or_create_api_dataset_client()
+        try:
+            async_result = dataset_api.create_reference_profile(
+                org_id=self._org_id,
+                dataset_id=self._dataset_id,
+                create_reference_profile_request=request,
+                async_req=True,
+            )
+
+            result = async_result.get()
+            return result
+        except ForbiddenException as e:
+            logger.exception(
+                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                f"{self.whylabs_api_endpoint}"
+                f" with API token ID: {self.key_id}"
+            )
+            raise e
+
     def _post_log_reference(self, request: LogAsyncRequest, dataset_timestamp: int) -> LogReferenceResponse:
         log_api = self._get_or_create_api_log_client()
         try:
@@ -777,15 +909,16 @@ class WhyLabsWriter(Writer):
             )
             raise e
 
-    def _get_upload_url(self, dataset_timestamp: int) -> str:
+    def _get_upload_url(self, dataset_timestamp: int) -> Tuple[str, str]:
         if self._reference_profile_name is not None:
             request = self._build_log_reference_request(dataset_timestamp, alias=self._reference_profile_name)
             res = self._post_log_reference(request=request, dataset_timestamp=dataset_timestamp)
-            upload_url = res["upload_url"]
         else:
             request = self._build_log_async_request(dataset_timestamp)
             res = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
-            upload_url = res["upload_url"]
+
+        upload_url = res["upload_url"]
+        profile_id = res["id"]
 
         if self._s3_private_domain:
             if _S3_PUBLIC_DOMAIN not in upload_url:
@@ -795,4 +928,4 @@ class WhyLabsWriter(Writer):
             upload_url = upload_url.replace(_S3_PUBLIC_DOMAIN, self._s3_private_domain)
             logger.debug(f"Replaced URL with our private domain. New URL: {upload_url}")
 
-        return upload_url
+        return upload_url, profile_id

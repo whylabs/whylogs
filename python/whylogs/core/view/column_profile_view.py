@@ -68,7 +68,8 @@ class ColumnProfileView(object):
         res: Dict[str, MetricComponentMessage] = {}
         for m_name, m in self._metrics.items():
             for mc_name, mc in m.to_protobuf().metric_components.items():
-                res[f"{m.namespace}/{mc_name}"] = mc
+                if not m.exclude_from_serialization:
+                    res[f"{m.namespace}/{mc_name}"] = mc
         return ColumnMessage(metric_components=res)
 
     def get_metric_component_paths(self) -> List[str]:
@@ -128,7 +129,6 @@ class ColumnProfileView(object):
 
             c_key = full_path[len(metric_name) + 1 :]
             metric_components[c_key] = c_msg
-
         for m_name, metric_components in metric_messages.items():
             m_enum = StandardMetric.__members__.get(m_name)
             if m_enum is None:
@@ -141,9 +141,11 @@ class ColumnProfileView(object):
 
             m_msg = MetricMessage(metric_components=metric_components)
             try:
-                result_metrics[m_name] = metric_class.from_protobuf(m_msg)
-            except:  # noqa
-                raise DeserializationError(f"Failed to deserialize metric: {m_name}")
+                deserialized_metric = metric_class.from_protobuf(m_msg)
+                result_metrics[m_name] = deserialized_metric
+            except Exception as error:  # noqa
+                raise DeserializationError(f"Failed to deserialize metric: {m_name}:{error}")
+
         return ColumnProfileView(metrics=result_metrics)
 
     @classmethod

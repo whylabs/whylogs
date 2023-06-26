@@ -46,6 +46,7 @@ class DatasetProfile(Writable):
         dataset_timestamp: Optional[datetime] = None,
         creation_timestamp: Optional[datetime] = None,
         metrics: Optional[Dict[str, Union[Metric, Any]]] = None,
+        metadata: Optional[Dict[str, str]] = None,
     ):
         if schema is None:
             schema = DatasetSchema()
@@ -59,6 +60,7 @@ class DatasetProfile(Writable):
         new_cols = schema.get_col_names()
         self._initialize_new_columns(new_cols)
         self._metrics: Dict[str, Union[Metric, Any]] = metrics or dict()
+        self._metadata = metadata
 
     @property
     def creation_timestamp(self) -> datetime:
@@ -107,11 +109,12 @@ class DatasetProfile(Writable):
         *,
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Mapping[str, Any]] = None,
+        execute_udfs: bool = True,
     ) -> None:
         try:
             self._is_active = True
             self._track_count += 1
-            self._do_track(obj, pandas=pandas, row=row)
+            self._do_track(obj, pandas=pandas, row=row, execute_udfs=execute_udfs)
         finally:
             self._is_active = False
 
@@ -121,9 +124,13 @@ class DatasetProfile(Writable):
         *,
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Mapping[str, Any]] = None,
+        execute_udfs: bool = True,
     ) -> None:
         pandas, row = _pandas_or_dict(obj, pandas, row)
-        col_id = getattr(self._schema.default_configs, "identity_column", None)
+        if execute_udfs:
+            pandas, row = self._schema._run_udfs(pandas, row)
+
+        col_id: Optional[str] = getattr(self._schema.default_configs, "identity_column", None)
 
         # TODO: do this less frequently when operating at row level
         dirty = self._schema.resolve(pandas=pandas, row=row)
@@ -133,13 +140,11 @@ class DatasetProfile(Writable):
             self._initialize_new_columns(tuple(new_cols))
 
         if row is not None:
-            if col_id is not None:
-                logger.warning(
-                    "validation with identity column is not supported for row level tracking.\
-                    Validation will be performed without identity column"
-                )
             for k in row.keys():
-                self._columns[k]._track_datum(row[k])
+                if col_id:
+                    self._columns[k]._track_datum(row[k], row.get(col_id))
+                else:
+                    self._columns[k]._track_datum(row[k])
             return
         elif pandas is not None:
             # TODO: iterating over each column in order assumes single column metrics
@@ -256,6 +261,7 @@ class DatasetProfile(Writable):
             dataset_timestamp=self.dataset_timestamp,
             creation_timestamp=self.creation_timestamp,
             metrics=self._metrics,
+            metadata=self._metadata,
         )
 
     def flush(self) -> None:

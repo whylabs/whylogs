@@ -76,6 +76,7 @@ class TimedRollingLogger(Logger):
         fork: bool = False,
         skip_empty: bool = False,
         callback: Optional[Callable[[Writer, DatasetProfileView, str], None]] = None,
+        metadata: Optional[Dict[str, str]] = None,
     ):
         super().__init__(schema)
         if base_name is None:
@@ -88,6 +89,7 @@ class TimedRollingLogger(Logger):
         self.aligned = aligned
         self.fork = fork
         self.skip_empty = skip_empty
+        self._metadatay = metadata
 
         # base on TimedRotatingFileHandler
         self.when = when.upper()
@@ -114,6 +116,7 @@ class TimedRollingLogger(Logger):
         self._current_profile: DatasetProfile = DatasetProfile(
             schema=schema,
             dataset_timestamp=datetime.fromtimestamp(self._current_batch_timestamp, timezone.utc),
+            metadata=self._metadata,
         )
 
         initial_run_after = (self._current_batch_timestamp + self.interval) - now
@@ -169,8 +172,7 @@ class TimedRollingLogger(Logger):
         old_profile = self._current_profile
 
         self._current_profile = DatasetProfile(
-            schema=self._schema,
-            dataset_timestamp=dataset_timestamp,
+            schema=self._schema, dataset_timestamp=dataset_timestamp, metadata=self._metadata
         )
 
         while old_profile.is_active:

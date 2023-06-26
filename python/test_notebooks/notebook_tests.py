@@ -20,6 +20,7 @@ skip_notebooks = [
     "Writing_Feature_Weights_to_WhyLabs.ipynb",
     "Image_Logging.ipynb",
     "custom_rank_metrics.ipynb",
+    "Image_Logging_Udf_Metric.ipynb",
     "mnist_exploration.ipynb",
     "performance_estimation.ipynb",
     "Embeddings_Distance_Logging.ipynb",  # skipped due to data download
@@ -29,6 +30,7 @@ skip_notebooks = [
     "Pyspark_and_Constraints.ipynb",
     "LocalStore_with_Constraints.ipynb",  # skipped because it has over 4 minutes of thread.sleep in it
     "KS_Profiling.ipynb",  # skipped because this takes a few minutes to run
+    "Monitoring_Embeddings.ipynb",  # skipped because needs user input
 ]
 
 

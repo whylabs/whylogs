@@ -9,9 +9,12 @@ import responses
 from responses import PUT
 
 import whylogs as why
+from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.api.writer import Writers
 from whylogs.api.writer.whylabs import WhyLabsWriter
 from whylogs.core.feature_weights import FeatureWeights
+from whylogs.core.schema import DatasetSchema
+from whylogs.core.segmentation_partition import segment_on_column
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +38,12 @@ class TestWhylabsWriter(object):
     @pytest.fixture
     def results(self, pandas_dataframe):
         return why.log(pandas=pandas_dataframe)
+
+    @pytest.fixture
+    def segmented_result(self, pandas_dataframe):
+        segment_column = "animal"
+        segmented_schema = DatasetSchema(segments=segment_on_column(segment_column))
+        return why.log(pandas=pandas_dataframe, schema=segmented_schema)
 
     @pytest.mark.skip("Skip for now. Will need more mocking")
     def test_upload_request(self, results):
@@ -79,6 +88,22 @@ class TestWhylabsWriter(object):
                 reference_profile_name="RefProfileAlias",
             )
             assert response[0] is True
+
+    def test_upload_segmented_reference_request(self, segmented_result):
+        writer = WhyLabsWriter().option(reference_profile_name="RefProfileAlias")
+        writer.write = MagicMock(return_value=(True, "RefProfileAlias"))
+        result = writer.write(segmented_result)
+
+        writer.write.assert_called_with(segmented_result)
+        assert isinstance(segmented_result, SegmentedResultSet)
+        assert result == (True, "RefProfileAlias")
+
+    def test_segmented_result_writer(self, segmented_result):
+        segmented_result_writer = segmented_result.writer("whylabs").option(reference_profile_name="RefProfileAlias")
+        segmented_result_writer.write = MagicMock(return_value=(True, "RefProfileAlias"))
+        result = segmented_result_writer.write()
+        assert isinstance(segmented_result, SegmentedResultSet)
+        assert result == (True, "RefProfileAlias")
 
     @pytest.mark.skip("Skip for now. Probably need more mocking")
     def test_api_key_null_raises_error(self, results, caplog):

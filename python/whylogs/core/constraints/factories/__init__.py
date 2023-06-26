@@ -1,5 +1,11 @@
+from whylogs.api.usage_stats import emit_usage
+
 from .cardinality_metrics import distinct_number_in_range
-from .condition_counts import condition_meets
+from .condition_counts import (
+    condition_count_below,
+    condition_meets,
+    condition_never_meets,
+)
 from .count_metrics import (
     count_below_number,
     no_missing_values,
@@ -19,8 +25,10 @@ from .frequent_items import (
     frequent_strings_in_reference_set,
     n_most_common_items_in_set,
 )
+from .multi_metrics import column_is_probably_unique
 from .types_metrics import (
     column_has_non_zero_types,
+    column_has_zero_count_types,
     column_is_nullable_boolean,
     column_is_nullable_datatype,
     column_is_nullable_fractional,
@@ -51,5 +59,11 @@ ALL = [
     column_is_nullable_object,
     column_is_nullable_string,
     column_has_non_zero_types,
+    column_has_zero_count_types,
     condition_meets,
+    condition_never_meets,
+    condition_count_below,
+    column_is_probably_unique,
 ]
+
+emit_usage("constraints_factories")

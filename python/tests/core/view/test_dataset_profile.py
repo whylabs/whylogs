@@ -108,3 +108,26 @@ def test_default_dataset_timestamp() -> None:
 
     # the time in seconds between DatasetProfile creation and t1 assignment should be relatively small
     assert timestamp_delta < 30
+
+
+def test_dataset_profile_name() -> None:
+    import whylogs as why
+
+    test_row = {"a": 1, "b": "hello", "c": 2.34}
+    dataset_name = "my_dataset"
+    result_with_name = why.log(test_row, name=dataset_name)
+    result = why.log(test_row)
+
+    named_prof = result_with_name.profile()
+    unnamed_prof = result.profile()
+
+    assert named_prof._metadata is not None
+    assert "name" in named_prof._metadata
+    assert named_prof._metadata["name"] == dataset_name
+
+    named_view = named_prof.view()
+    assert named_view._metadata is not None
+    assert "name" in named_view._metadata
+    assert named_view._metadata["name"] == dataset_name
+
+    assert unnamed_prof._metadata is None

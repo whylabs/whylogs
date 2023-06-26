@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
+from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.predicate_parser import _METRIC_REF, _PROFILE_REF, _tokenize
 from whylogs.core.utils import deprecated
@@ -201,6 +202,28 @@ class MissingMetric(Exception):
 
 
 @dataclass(frozen=True)
+class DatasetComparisonConstraint:
+    """
+    Implements dataset-level constraints that require a reference dataset to
+    be compared against. The condition Callable takes the DatasetProfileView
+    of the dataset to be validated as well as the DatasetProfileView of the
+    reference dataset and returns a boolean indicating whether the condition
+    is satisfied as well as a dictionary with summary information about the
+    validation.
+
+    """
+
+    condition: Callable[[DatasetProfileView, DatasetProfileView], Tuple[bool, Dict[str, Metric]]]
+    name: str
+
+    def validate_profile(
+        self, dataset_profile: DatasetProfileView, reference_profile: DatasetProfileView
+    ) -> Tuple[bool, Optional[Dict[str, Any]]]:
+        validate_result, summary = self.condition(dataset_profile, reference_profile)
+        return (validate_result, summary)
+
+
+@dataclass(frozen=True)
 class DatasetConstraint:
     """
     Implements dataset-level constraints that are not attached to a specific
@@ -275,11 +298,12 @@ class PrefixCondition:
     in client code.
     """
 
-    def __init__(self, expression: str) -> None:
+    def __init__(self, expression: str, cfg: Optional[SummaryConfig] = None) -> None:
         self._expression = expression
         self._tokens = _tokenize(expression)
         self._profile = None
         self._metric_map: Dict[str, Metric] = dict()
+        self._cfg = cfg or SummaryConfig()
 
     def _interpret(self, i: int) -> Tuple[Any, int]:  # noqa: C901
         token = self._tokens[i]
@@ -301,7 +325,7 @@ class PrefixCondition:
             metric_name, component_name = path.split("/", 1)
             try:
                 metric = self._profile.get_column(column_name).get_metric(metric_name)  # type: ignore
-                summary = metric.to_summary_dict()
+                summary = metric.to_summary_dict(self._cfg)
             except:  # noqa
                 raise MissingMetric(token)
 
@@ -466,21 +490,29 @@ def _make_report(
 class Constraints:
     column_constraints: Dict[str, Dict[str, MetricConstraint]]
     dataset_constraints: List[DatasetConstraint]
+    dataset_comparison_constraints: List[DatasetComparisonConstraint]
     dataset_profile_view: Optional[DatasetProfileView]
 
     def __init__(
         self,
         dataset_profile_view: Optional[DatasetProfileView] = None,
         column_constraints: Optional[Dict[str, Dict[str, MetricConstraint]]] = None,
+        reference_profile_view: Optional[DatasetProfileView] = None,
     ) -> None:
         self.column_constraints = column_constraints or dict()
         self.dataset_constraints = []
+        self.dataset_comparison_constraints = []
         self.dataset_profile_view = dataset_profile_view
+        self.reference_profile_view = reference_profile_view
 
     def validate(self, profile_view: Optional[DatasetProfileView] = None) -> bool:
         profile = self._resolve_profile_view(profile_view)
         column_names = self.column_constraints.keys()
-        if len(column_names) == 0 and len(self.dataset_constraints) == 0:
+        if (
+            len(column_names) == 0
+            and len(self.dataset_constraints) == 0
+            and len(self.dataset_comparison_constraints) == 0
+        ):
             logger.warning("validate was called with empty set of constraints, returning True!")
             return True
 
@@ -492,12 +524,18 @@ class Constraints:
                     logger.info(f"{constraint_name} failed on column {column_name}")
                     return False
 
-        for constraint in self.dataset_constraints:
-            (result, _) = constraint.validate_profile(profile)
+        for constraint in self.dataset_constraints + self.dataset_comparison_constraints:
+            if isinstance(constraint, DatasetConstraint):
+                (result, _) = constraint.validate_profile(profile)
+            elif isinstance(constraint, DatasetComparisonConstraint):
+                (result, _) = constraint.validate_profile(profile, self.reference_profile_view)
             if not result:
                 logger.info(f"{constraint.name} failed on dataset")
                 return False
         return True
+
+    def set_reference_profile_view(self, profile_view: DatasetProfileView) -> None:
+        self.reference_profile_view = profile_view
 
     @deprecated(message="Please use generate_constraints_report()")
     def report(self, profile_view: Optional[DatasetProfileView] = None) -> List[Tuple[str, int, int]]:
@@ -539,10 +577,13 @@ class Constraints:
     def _generate_dataset_report(
         self,
         profile_view: DatasetProfileView,
-        constraint: DatasetConstraint,
+        constraint: Union[DatasetConstraint, DatasetComparisonConstraint],
         with_summary: bool,
     ) -> ReportResult:
-        (result, summary) = constraint.validate_profile(profile_view)
+        if isinstance(constraint, DatasetComparisonConstraint):
+            (result, summary) = constraint.validate_profile(profile_view, self.reference_profile_view)
+        elif isinstance(constraint, DatasetConstraint):
+            (result, summary) = constraint.validate_profile(profile_view)
         return _make_report(constraint.name, result, with_summary, summary)
 
     def generate_constraints_report(
@@ -566,7 +607,7 @@ class Constraints:
 
                 results.append(metric_report)
 
-        for constraint in self.dataset_constraints:
+        for constraint in self.dataset_constraints + self.dataset_comparison_constraints:
             metric_report = self._generate_dataset_report(
                 profile_view=profile,
                 constraint=constraint,
@@ -595,11 +636,13 @@ class ConstraintsBuilder:
         self,
         dataset_profile_view: DatasetProfileView,
         constraints: Optional[Constraints] = None,
+        reference_profile_view: Optional[DatasetProfileView] = None,
     ) -> None:
         self._dataset_profile_view = dataset_profile_view
         if constraints is None:
             constraints = Constraints(dataset_profile_view=dataset_profile_view)
         self._constraints = constraints
+        self._reference_profile_view = reference_profile_view
 
     def get_metric_selectors(self) -> List[MetricsSelector]:
         selectors = []
@@ -635,9 +678,10 @@ class ConstraintsBuilder:
             metric_selector = constraint.metric_selector
             metrics = metric_selector.apply(self._dataset_profile_view)
             if (metrics is None or len(metrics) == 0) and not (ignore_missing or column_name is None):
-                raise ValueError(
-                    f"metrics not found for column {column_name}, available metric components are: {column_profile_view.get_metric_component_paths()}"
+                logger.warning(
+                    f"metrics not found for {column_name}, available metric components are: {column_profile_view.get_metric_component_paths()}. Skipping {constraint.name}."  # noqa: E501
                 )
+                return self
 
             if column_name is None:
                 # MetricConstraint not associated with a specific column is turned into
@@ -657,6 +701,13 @@ class ConstraintsBuilder:
 
         if isinstance(constraint, DatasetConstraint):
             self._constraints.dataset_constraints.append(constraint)
+        if isinstance(constraint, DatasetComparisonConstraint):
+            if not self._reference_profile_view:
+                raise ValueError(
+                    "ConstraintsBuilder: reference_profile_view must be set when adding DatasetComparisonConstraint"
+                )
+            self._constraints.set_reference_profile_view(self._reference_profile_view)
+            self._constraints.dataset_comparison_constraints.append(constraint)
 
         return self
 

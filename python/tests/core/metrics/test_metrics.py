@@ -5,7 +5,9 @@ import pandas as pd
 import pytest
 
 import whylogs as why
+import whylogs.core.configs as cfg
 from whylogs.core import ColumnProfileView, DatasetSchema
+from whylogs.core.datatypes import Integral
 from whylogs.core.metrics.maths import VarianceM2Result, parallel_variance_m2
 from whylogs.core.metrics.metrics import (
     CardinalityMetric,
@@ -13,6 +15,8 @@ from whylogs.core.metrics.metrics import (
     MetricConfig,
 )
 from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.resolvers import StandardResolver
+from whylogs.core.schema import ColumnSchema
 
 TEST_LOGGER = getLogger(__name__)
 
@@ -262,3 +266,16 @@ def test_cardinality_metric_booleans_all_false() -> None:
     col_prof = why.log(df).view().get_column("b")
     cardinality: CardinalityMetric = col_prof.get_metric("cardinality")
     assert cardinality.estimate == pytest.approx(1, 0.1)
+
+
+def test_configure_MetricConfig_defaults():
+    c0 = MetricConfig()
+    assert c0.kll_k == cfg.kll_k
+    assert not c0.fi_disabled
+    assert "frequent_items" in StandardResolver().resolve("", Integral(), ColumnSchema(Integral, c0))
+    cfg.fi_disabled = True
+    c1 = MetricConfig()
+    assert c1.fi_disabled
+    assert not c0.fi_disabled
+    assert "frequent_items" not in StandardResolver().resolve("", Integral(), ColumnSchema(Integral, c1))
+    cfg.fi_disabled = False

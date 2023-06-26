@@ -5,7 +5,7 @@ src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 src.proto.v0.dir := ../proto/v0
 src.proto.v0 := $(shell find $(src.proto.v0.dir) -type f -name "*.proto")
-version := 1.1.34
+version := 1.1.46
 
 dist.dir := dist
 egg.dir := .eggs
@@ -158,7 +158,7 @@ telemetry-opt-out: ## create opt out file
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
-	poetry install -E "viz s3 spark whylabs mlflow image fugue gcs embeddings"
+	poetry install -E "viz s3 spark mlflow image fugue gcs embeddings"
 
 coverage: ## Generate test coverage reports.
 	@$(call i, Generating test coverage)
