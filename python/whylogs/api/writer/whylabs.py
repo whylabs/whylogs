@@ -530,7 +530,7 @@ class WhyLabsWriter(Writer):
         upload_statuses = list()
         for view, url in zip(files, upload_urls):
             with tempfile.NamedTemporaryFile() as tmp_file:
-                if kwargs.get("use_v0") is None or kwargs.get("use_v0"):
+                if kwargs.get("use_v0") is not None or kwargs.get("use_v0"):
                     view.write(file=tmp_file, use_v0=True)
                 else:
                     view.write(file=tmp_file)
