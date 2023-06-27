@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "1.1.45"
+version = "1.1.46"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -17,6 +17,8 @@ protobuf = ">=3.19.4"
 importlib-metadata = { version = "<4.3", python = "<3.8" }
 typing-extensions = {version = ">=3.10", markers = "python_version < \"4\""}
 whylabs-client = {version = ">=0.5.1, <1"}
+requests = "^2.27"
+types-requests = "^2.30.0.0"
 
 # viz module. Everything after this should be optional
 pybars3 = { version = "^0.9", optional = true }
@@ -66,7 +68,7 @@ scikit-learn = [
 
 # Fugue related dependencies
 fugue = {version = "^0.8.1", optional = true}
-requests = "^2.27"
+platformdirs = "^3.5.0"
 
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
@@ -114,7 +116,6 @@ viz = [
     "numpy",
     "scipy",
     "Pillow",
-    "requests",
 ]
 spark = [
     "pyarrow",
@@ -128,9 +129,6 @@ gcs = [
 ]
 s3 = [
   "boto3"
-]
-whylabs = [
-  "requests"
 ]
 mlflow = [
   "mlflow-skinny"
@@ -159,7 +157,6 @@ all = [
   "pybars3",
   "numpy",
   "scipy",
-  "requests",
 ]
 
 [tool.poetry.group.dev.dependencies]

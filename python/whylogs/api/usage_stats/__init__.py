@@ -103,7 +103,12 @@ def _calc_identity() -> str:
 def _build_metadata() -> Dict[str, Any]:
     """Hash system and project data to send to our stats endpoint."""
 
-    project_version = whylogs.__version__
+    if hasattr(whylogs, "__version__"):
+        project_version = whylogs.__version__
+    else:
+        import whylogs as why
+
+        project_version = why.package_version()
     (major, minor, macro, _, _) = sys.version_info
 
     metadata = {
@@ -128,6 +133,7 @@ def _build_metadata() -> Dict[str, Any]:
         "pyspark": _has_lib("pyspark"),
         "flyte": _has_lib("flyte"),
         "kafka": _has_lib("kafka"),
+        "langkit": _has_lib("langkit"),
     }
     for k in list(integrations.keys()):
         if integrations.get(k) is False:
@@ -154,11 +160,11 @@ def _send_stats_event(event_name: str, identity: str, properties: Optional[Dict[
     try:
         resp = request.urlopen(req, timeout=3)
         if resp.status != 200:
-            logger.warning("Unable to send usage stats. Disabling stats collection.")
+            logger.info("Unable to send usage stats. Disabling whylogs api usage collection.")
             _TELEMETRY_DISABLED = True
         logger.debug("Response: %s", resp.read())
     except:  # noqa
-        logger.warning("Connection error. Skip stats collection.")
+        logger.info("Connection error. Skip whylogs api usage collection.")
         _TELEMETRY_DISABLED = True
 
     finally:
