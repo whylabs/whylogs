@@ -70,6 +70,9 @@ Attributes
       Returns a new instance of the same underlying schema
 
 
+   .. py:method:: apply_udfs(pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> Tuple[Optional[whylogs.core.stubs.pd.DataFrame], Optional[Mapping[str, Any]]]
+
+
    .. py:method:: add_resolver(resolver_spec: whylogs.core.resolvers.ResolverSpec)
 
 
