@@ -12,7 +12,7 @@ intended to test the wheel in a production environment,
 not a development environment.
 """
 
-current_version = "1.1.46"
+current_version = "1.2.0"
 
 
 def test_package_version() -> None:
