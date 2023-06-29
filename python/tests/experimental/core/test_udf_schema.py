@@ -397,16 +397,12 @@ def square_type(x) -> float:
 def test_type_udf_row() -> None:
     schema = udf_schema()
     data = {"col1": 3.14}
-    print(schema.apply_udfs(row=data))
     results = why.log(row=data, schema=schema).view()
-    print(results._columns.keys())
     assert "col1.square_type" in results.get_columns().keys()
 
 
 def test_type_udf_dataframe() -> None:
     schema = udf_schema()
     data = pd.DataFrame({"col1": [3.14, 42.0]})
-    print(schema.apply_udfs(pandas=data))
     results = why.log(data, schema=schema).view()
-    print(results._columns.keys())
     assert "col1.square_type" in results.get_columns().keys()
