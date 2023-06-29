@@ -11,6 +11,7 @@ from whylogs.experimental.core.udf_schema import (
     UdfSchema,
     UdfSpec,
     register_dataset_udf,
+    register_type_udf,
     udf_schema,
 )
 
@@ -386,3 +387,26 @@ def test_direct_udfs() -> None:
     result = why.log(more_data, schema=schema).view()
     more_columns = set(result.get_columns())
     assert more_columns == profile_columns
+
+
+@register_type_udf(Fractional)
+def square_type(x) -> float:
+    return x * x
+
+
+def test_type_udf_row() -> None:
+    schema = udf_schema()
+    data = {"col1": 3.14}
+    print(schema.apply_udfs(row=data))
+    results = why.log(row=data, schema=schema).view()
+    print(results._columns.keys())
+    assert "col1.square_type" in results.get_columns().keys()
+
+
+def test_type_udf_dataframe() -> None:
+    schema = udf_schema()
+    data = pd.DataFrame({"col1": [3.14, 42.0]})
+    print(schema.apply_udfs(pandas=data))
+    results = why.log(data, schema=schema).view()
+    print(results._columns.keys())
+    assert "col1.square_type" in results.get_columns().keys()

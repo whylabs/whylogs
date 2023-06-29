@@ -14,7 +14,7 @@ from typing import (
     Union,
 )
 
-from whylogs.core.datatypes import TypeMapper
+from whylogs.core.datatypes import DataType, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import DEFAULT_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DatasetSchema, DeclarativeSchema
@@ -32,20 +32,26 @@ logger = logging.getLogger(__name__)
 @dataclass
 class UdfSpec:
     """
-    Defines UDFs to apply to matching input columns. Tthe UDF is
+    Defines UDFs to apply to matching input columns. The UDF is
     passed a dictionary or dataframe with the named columns available (the UDF will
     not be called unless all the named columns are available). The new column name
     the key in the udfs dictionary.
     """
 
-    column_names: List[str]
+    column_names: Optional[List[str]] = None
     udfs: Dict[str, Callable[[Any], Any]] = field(
         default_factory=dict
     )  # new column name -> callable to compute new column value
+    column_type: Optional[DataType] = None
 
     def __post_init__(self):
-        if len(self.column_names) == 0 or not all([isinstance(x, str) for x in self.column_names]):
-            raise ValueError("UdfSpec: column_names must be either a non-empty list of strings")
+        if self.column_type is not None:
+            if self.column_names:
+                raise ValueError("UdfSpec cannot specify both column_names and column_type")
+        elif self.column_names is None:
+            raise ValueError("UdfSpec must specify column_names or column_type")
+        elif len(self.column_names) == 0 or not all([isinstance(x, str) for x in self.column_names]):
+            raise ValueError("UdfSpec column_names must be a non-empty list of strings")
 
 
 def _apply_udfs_on_row(value: Any, udfs: Dict, new_columns: Dict[str, Any], input_cols: Collection[str]) -> None:
@@ -57,7 +63,7 @@ def _apply_udfs_on_row(value: Any, udfs: Dict, new_columns: Dict[str, Any], inpu
             new_columns[new_col] = udf(value)
         except Exception:  # noqa
             new_columns[new_col] = None
-            logger.exception(f"Evaluating multi-column UDF {new_col} failed")
+            logger.exception(f"Evaluating UDF {new_col} failed")
 
 
 def _apply_udfs_on_dataframe(
@@ -72,6 +78,18 @@ def _apply_udfs_on_dataframe(
         except Exception as e:  # noqa
             new_df[new_col] = pd.Series([None])
             logger.exception(f"Evaluating UDF {new_col} failed on columns {pandas.keys()} with error {e}")
+
+
+def _apply_type_udfs(pandas: pd.Series, udfs: Dict, new_df: pd.DataFrame, input_cols: Collection[str]) -> None:
+    for new_col, udf in udfs.items():
+        if new_col in input_cols:
+            continue
+
+        try:
+            new_df[new_col] = udf(pandas)
+        except Exception as e:  # noqa
+            new_df[new_col] = pd.Series([None])
+            logger.exception(f"Evaluating UDF {new_col} failed on column {new_col} with error {e}")
 
 
 class UdfSchema(DeclarativeSchema):
@@ -103,7 +121,8 @@ class UdfSchema(DeclarativeSchema):
             validators=validators,
         )
         udf_specs = udf_specs if udf_specs else []
-        self.multicolumn_udfs = list(udf_specs)
+        self.multicolumn_udfs = [spec for spec in udf_specs if spec.column_names]
+        self.type_udfs = [spec for spec in udf_specs if spec.column_type]
 
     def copy(self) -> DatasetSchema:
         copy = super().copy()
@@ -114,13 +133,25 @@ class UdfSchema(DeclarativeSchema):
         self, row: Mapping[str, Any], new_columns: Dict[str, Any], input_cols: Collection[str]
     ) -> None:
         for spec in self.multicolumn_udfs:
-            if set(spec.column_names).issubset(set(row.keys())):
+            if spec.column_names and set(spec.column_names).issubset(set(row.keys())):
                 _apply_udfs_on_row(row, spec.udfs, new_columns, input_cols)
+
+        for spec in self.type_udfs:  # TODO: optimize with Dict[DataType, List[UdfSpec]]
+            for column, value in row.items():
+                if isinstance(self.type_mapper(type(value)), spec.column_type):  # type: ignore
+                    udfs = {f"{column}.{key}": spec.udfs[key] for key in spec.udfs.keys()}
+                    _apply_udfs_on_row(value, udfs, new_columns, input_cols)
 
     def _run_udfs_on_dataframe(self, pandas: pd.DataFrame, new_df: pd.DataFrame, input_cols: Collection[str]) -> None:
         for spec in self.multicolumn_udfs:
-            if set(spec.column_names).issubset(set(pandas.keys())):
+            if spec.column_names and set(spec.column_names).issubset(set(pandas.keys())):
                 _apply_udfs_on_dataframe(pandas[spec.column_names], spec.udfs, new_df, input_cols)
+
+        for spec in self.type_udfs:  # TODO: optimize with Dict[DataType, List[UdfSpec]]
+            for column, dtype in pandas.dtypes.items():
+                if isinstance(self.type_mapper(dtype), spec.column_type):  # type: ignore
+                    udfs = {f"{column}.{key}": spec.udfs[key] for key in spec.udfs.keys()}
+                    _apply_type_udfs(pandas[column], udfs, new_df, input_cols)
 
     def _run_udfs(
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
@@ -192,6 +223,31 @@ def register_dataset_udf(
             _resolver_specs[schema_name].append(ResolverSpec(name, None, deepcopy(metrics)))
         if anti_metrics:
             _resolver_specs[schema_name].append(ResolverSpec(name, None, [MetricSpec(m) for m in anti_metrics], True))
+
+        return func
+
+    return decorator_register
+
+
+def register_type_udf(
+    col_type: DataType,
+    udf_name: Optional[str] = None,
+    metrics: Optional[List[MetricSpec]] = None,
+    namespace: Optional[str] = None,
+    schema_name: str = "",
+    anti_metrics: Optional[List[Metric]] = None,
+) -> Callable[[Any], Any]:
+    def decorator_register(func):
+        global _multicolumn_udfs, _resolver_specs
+        name = udf_name or func.__name__
+        name = f"{namespace}.{name}" if namespace else name
+        _multicolumn_udfs[schema_name].append(UdfSpec(None, {name: func}, col_type))
+        if metrics:
+            _resolver_specs[schema_name].append(ResolverSpec(None, col_type, deepcopy(metrics)))
+        if anti_metrics:
+            _resolver_specs[schema_name].append(
+                ResolverSpec(None, col_type, [MetricSpec(m) for m in anti_metrics], True)
+            )
 
         return func
 
