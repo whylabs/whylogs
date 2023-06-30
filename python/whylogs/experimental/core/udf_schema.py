@@ -232,22 +232,14 @@ def register_dataset_udf(
 def register_type_udf(
     col_type: DataType,
     udf_name: Optional[str] = None,
-    metrics: Optional[List[MetricSpec]] = None,
     namespace: Optional[str] = None,
     schema_name: str = "",
-    anti_metrics: Optional[List[Metric]] = None,
 ) -> Callable[[Any], Any]:
     def decorator_register(func):
         global _multicolumn_udfs, _resolver_specs
         name = udf_name or func.__name__
         name = f"{namespace}.{name}" if namespace else name
         _multicolumn_udfs[schema_name].append(UdfSpec(None, {name: func}, col_type))
-        if metrics:
-            _resolver_specs[schema_name].append(ResolverSpec(None, col_type, deepcopy(metrics)))
-        if anti_metrics:
-            _resolver_specs[schema_name].append(
-                ResolverSpec(None, col_type, [MetricSpec(m) for m in anti_metrics], True)
-            )
 
         return func
 

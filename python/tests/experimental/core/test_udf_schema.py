@@ -399,6 +399,9 @@ def test_type_udf_row() -> None:
     data = {"col1": 3.14}
     results = why.log(row=data, schema=schema).view()
     assert "col1.square_type" in results.get_columns().keys()
+    summary = results.get_column("col1.square_type").to_summary_dict()
+    assert summary["counts/n"] == 1
+    assert summary["types/fractional"] == 1
 
 
 def test_type_udf_dataframe() -> None:
@@ -406,3 +409,6 @@ def test_type_udf_dataframe() -> None:
     data = pd.DataFrame({"col1": [3.14, 42.0]})
     results = why.log(data, schema=schema).view()
     assert "col1.square_type" in results.get_columns().keys()
+    summary = results.get_column("col1.square_type").to_summary_dict()
+    assert summary["counts/n"] == 2
+    assert summary["types/fractional"] == 2
