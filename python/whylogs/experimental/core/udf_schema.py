@@ -122,7 +122,10 @@ class UdfSchema(DeclarativeSchema):
         )
         udf_specs = udf_specs if udf_specs else []
         self.multicolumn_udfs = [spec for spec in udf_specs if spec.column_names]
-        self.type_udfs = [spec for spec in udf_specs if spec.column_type]
+        self.type_udfs = defaultdict(list)
+        for spec in udf_specs:
+            if spec.column_type:
+                self.type_udfs[spec.column_type].append(spec)
 
     def copy(self) -> DatasetSchema:
         copy = super().copy()
@@ -136,22 +139,22 @@ class UdfSchema(DeclarativeSchema):
             if spec.column_names and set(spec.column_names).issubset(set(row.keys())):
                 _apply_udfs_on_row(row, spec.udfs, new_columns, input_cols)
 
-        for spec in self.type_udfs:  # TODO: optimize with Dict[DataType, List[UdfSpec]]
-            for column, value in row.items():
-                if isinstance(self.type_mapper(type(value)), spec.column_type):  # type: ignore
-                    udfs = {f"{column}.{key}": spec.udfs[key] for key in spec.udfs.keys()}
-                    _apply_udfs_on_row(value, udfs, new_columns, input_cols)
+        for column, value in row.items():
+            why_type = type(self.type_mapper(type(value)))
+            for spec in self.type_udfs[why_type]:
+                udfs = {f"{column}.{key}": spec.udfs[key] for key in spec.udfs.keys()}
+                _apply_udfs_on_row(value, udfs, new_columns, input_cols)
 
     def _run_udfs_on_dataframe(self, pandas: pd.DataFrame, new_df: pd.DataFrame, input_cols: Collection[str]) -> None:
         for spec in self.multicolumn_udfs:
             if spec.column_names and set(spec.column_names).issubset(set(pandas.keys())):
                 _apply_udfs_on_dataframe(pandas[spec.column_names], spec.udfs, new_df, input_cols)
 
-        for spec in self.type_udfs:  # TODO: optimize with Dict[DataType, List[UdfSpec]]
-            for column, dtype in pandas.dtypes.items():
-                if isinstance(self.type_mapper(dtype), spec.column_type):  # type: ignore
-                    udfs = {f"{column}.{key}": spec.udfs[key] for key in spec.udfs.keys()}
-                    _apply_type_udfs(pandas[column], udfs, new_df, input_cols)
+        for column, dtype in pandas.dtypes.items():
+            why_type = type(self.type_mapper(dtype))
+            for spec in self.type_udfs[why_type]:
+                udfs = {f"{column}.{key}": spec.udfs[key] for key in spec.udfs.keys()}
+                _apply_type_udfs(pandas[column], udfs, new_df, input_cols)
 
     def _run_udfs(
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
