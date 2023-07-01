@@ -262,6 +262,7 @@ def register_type_udf(
     it will be registered to the defualt schema.
 
     """
+
     def decorator_register(func):
         global _multicolumn_udfs, _resolver_specs
         name = udf_name or func.__name__
