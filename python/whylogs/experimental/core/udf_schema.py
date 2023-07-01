@@ -32,10 +32,18 @@ logger = logging.getLogger(__name__)
 @dataclass
 class UdfSpec:
     """
-    Defines UDFs to apply to matching input columns. The UDF is
-    passed a dictionary or dataframe with the named columns available (the UDF will
-    not be called unless all the named columns are available). The new column name
-    the key in the udfs dictionary.
+    Defines UDFs to apply to matching input columns.
+
+    For UDFs matched by column_name(s), the function is passed a dictionary or
+    dataframe with the named columns available (the UDF will not be called unless
+    all the named columns are available). The output column name is the key in
+    the udfs dictionary.
+
+    For UDFs matched by column_type, the function is passed the value or Pandas
+    series. The output column name is the key in the udfs dictionary prefixed
+    by the input column name.
+
+    You must specify exactly one of column_names or column_type.
     """
 
     column_names: Optional[List[str]] = None
@@ -238,6 +246,22 @@ def register_type_udf(
     namespace: Optional[str] = None,
     schema_name: str = "",
 ) -> Callable[[Any], Any]:
+    """
+    Decorator to easily configure UDFs for your data set. Decorate your UDF
+    functions, then call generate_udf_dataset_schema() to create a UdfSchema
+    that includes the UDFs configured by your decorator parameters. The decorated
+    function will automatically be a UDF in the UdfSchema.
+
+    The registered function will be applied to any columns of the specified type.
+    Specify udf_name to give the output of the UDF a name. udf_name
+    defautls to the name of the decorated function. The output column name is the
+    UDF name prefixed with the input column name. Note that all lambdas are
+    named "lambda", so omitting udf_name on more than one lambda will result
+    in name collisions. If you pass a namespace, it will be prepended to the UDF name.
+    Specifying schema_name will register the UDF in a particular schema. If omitted,
+    it will be registered to the defualt schema.
+
+    """
     def decorator_register(func):
         global _multicolumn_udfs, _resolver_specs
         name = udf_name or func.__name__
@@ -255,10 +279,10 @@ def generate_udf_specs(
     include_default_schema: bool = True,
 ) -> List[UdfSpec]:
     """
-    Generates a list UdfSpecs that implement the UDFs specified
-    by the @register_dataset_udf decorators. You can provide a list of
-    other_udf_specs to include in addition to those UDFs registered via
-    the decorator.
+    Generates a list UdfSpecs that implement the UDFs specified by the
+    @register_dataset_udf, @register_type_udf, and @register_metric_udf
+    decorators. You can provide a list of other_udf_specs to include in
+    addition to those UDFs registered via the decorator.
 
     For example:
 
