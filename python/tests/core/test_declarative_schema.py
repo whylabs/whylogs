@@ -80,6 +80,12 @@ def test_declarative_schema() -> None:
     col2_conditions = set(results.get_column("column_2").get_metric("condition_count").conditions.keys())
     assert col2_conditions == {"alpha", "digit"}
 
+    copy = schema.copy()
+    assert isinstance(copy.resolvers, type(schema.resolvers))
+    assert copy.resolvers._resolvers == schema.resolvers._resolvers
+    assert copy.types == schema.types
+    assert copy.default_configs == schema.default_configs
+
 
 def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
     not_4_condition = {

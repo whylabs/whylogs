@@ -137,7 +137,8 @@ class UdfSchema(DeclarativeSchema):
 
     def copy(self) -> DatasetSchema:
         copy = super().copy()
-        copy.multicolumn_udfs = list(self.multicolumn_udfs)
+        copy.multicolumn_udfs = deepcopy(self.multicolumn_udfs)
+        copy.type_udfs = deepcopy(self.type_udfs)
         return copy
 
     def _run_udfs_on_row(

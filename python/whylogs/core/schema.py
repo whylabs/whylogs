@@ -248,7 +248,7 @@ class DeclarativeSchema(DatasetSchema):
         validators: Optional[Dict[str, List[Validator]]] = None,
     ) -> None:
         if not resolvers:
-            resolvers = res.DEFAULT_RESOLVERS
+            resolvers = res.DEFAULT_RESOLVER
             logger.warning("No columns specified in DeclarativeSchema")
         resolver = DeclarativeResolver(resolvers, default_config)
         super().__init__(
@@ -261,3 +261,18 @@ class DeclarativeSchema(DatasetSchema):
             segments=segments,
             validators=validators,
         )
+
+    def copy(self) -> "DeclarativeSchema":
+        copy = DeclarativeSchema(
+            [],
+            deepcopy(self.types),
+            deepcopy(self.default_configs),
+            deepcopy(self.type_mapper),
+            self.cache_size,
+            self.schema_based_automerge,
+            self.segments.copy(),
+            deepcopy(self.validators),
+        )
+        copy.resolvers = deepcopy(self.resolvers)
+        copy._columns = deepcopy(self._columns)
+        return copy
