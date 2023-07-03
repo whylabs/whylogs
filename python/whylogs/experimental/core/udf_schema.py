@@ -17,7 +17,7 @@ from typing import (
 from whylogs.core.datatypes import DataType, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import DEFAULT_RESOLVER, MetricSpec, ResolverSpec
-from whylogs.core.schema import DatasetSchema, DeclarativeSchema
+from whylogs.core.schema import DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
 from whylogs.core.validators.validator import Validator
@@ -135,7 +135,7 @@ class UdfSchema(DeclarativeSchema):
             if spec.column_type:
                 self.type_udfs[spec.column_type].append(spec)
 
-    def copy(self) -> DatasetSchema:
+    def copy(self) -> "UdfSchema":
         copy = super().copy()
         copy.multicolumn_udfs = deepcopy(self.multicolumn_udfs)
         copy.type_udfs = deepcopy(self.type_udfs)
