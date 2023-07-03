@@ -6,7 +6,6 @@ from typing import Dict, Iterable, Optional, Tuple
 import whylogs as why
 from whylogs.api.usage_stats import emit_usage
 from whylogs.core import DatasetSchema
-from whylogs.core.metrics.metrics import MetricConfig
 from whylogs.core.metrics.metrics import conf
 from whylogs.core.stubs import pd
 from whylogs.core.view.column_profile_view import ColumnProfileView
@@ -136,7 +135,7 @@ def collect_dataset_profile_view(
             f": {schema.segments} may return multiple segmented profiles. Please use `collect_segmented_results` if you want to profile"
             " in spark with segments defined."
         )
-    batch_size = _get_column_batch_size(schema=schema)
+    batch_size = _get_column_batch_size()
     if batch_size is not None:
         column_views_dict = _collect_column_profile_views_batched(batch_size, input_df=input_df, schema=schema)
     else:

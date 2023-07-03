@@ -49,7 +49,6 @@ class MetricConfig:
     normalize: bool = field(default_factory=lambda: conf.normalize)
     max_frequent_item_size: int = field(default_factory=lambda: conf.max_frequent_item_size)
     identity_column: Optional[str] = field(default_factory=lambda: conf.identity_column)
-    column_batch_size: Optional[int] = field(default_factory=lambda: conf.column_batch_size)
 
 
 _METRIC_DESERIALIZER_REGISTRY: Dict[str, Type[METRIC]] = {}  # type: ignore
