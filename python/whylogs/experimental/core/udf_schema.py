@@ -14,7 +14,7 @@ from typing import (
     Union,
 )
 
-from whylogs.core.datatypes import TypeMapper
+from whylogs.core.datatypes import DataType, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import DEFAULT_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DatasetSchema, DeclarativeSchema
@@ -32,20 +32,34 @@ logger = logging.getLogger(__name__)
 @dataclass
 class UdfSpec:
     """
-    Defines UDFs to apply to matching input columns. Tthe UDF is
-    passed a dictionary or dataframe with the named columns available (the UDF will
-    not be called unless all the named columns are available). The new column name
-    the key in the udfs dictionary.
+    Defines UDFs to apply to matching input columns.
+
+    For UDFs matched by column_name(s), the function is passed a dictionary or
+    dataframe with the named columns available (the UDF will not be called unless
+    all the named columns are available). The output column name is the key in
+    the udfs dictionary.
+
+    For UDFs matched by column_type, the function is passed the value or Pandas
+    series. The output column name is the key in the udfs dictionary prefixed
+    by the input column name.
+
+    You must specify exactly one of column_names or column_type.
     """
 
-    column_names: List[str]
+    column_names: Optional[List[str]] = None
     udfs: Dict[str, Callable[[Any], Any]] = field(
         default_factory=dict
     )  # new column name -> callable to compute new column value
+    column_type: Optional[DataType] = None
 
     def __post_init__(self):
-        if len(self.column_names) == 0 or not all([isinstance(x, str) for x in self.column_names]):
-            raise ValueError("UdfSpec: column_names must be either a non-empty list of strings")
+        if self.column_type is not None:
+            if self.column_names:
+                raise ValueError("UdfSpec cannot specify both column_names and column_type")
+        elif self.column_names is None:
+            raise ValueError("UdfSpec must specify column_names or column_type")
+        elif len(self.column_names) == 0 or not all([isinstance(x, str) for x in self.column_names]):
+            raise ValueError("UdfSpec column_names must be a non-empty list of strings")
 
 
 def _apply_udfs_on_row(value: Any, udfs: Dict, new_columns: Dict[str, Any], input_cols: Collection[str]) -> None:
@@ -57,7 +71,7 @@ def _apply_udfs_on_row(value: Any, udfs: Dict, new_columns: Dict[str, Any], inpu
             new_columns[new_col] = udf(value)
         except Exception:  # noqa
             new_columns[new_col] = None
-            logger.exception(f"Evaluating multi-column UDF {new_col} failed")
+            logger.exception(f"Evaluating UDF {new_col} failed")
 
 
 def _apply_udfs_on_dataframe(
@@ -72,6 +86,18 @@ def _apply_udfs_on_dataframe(
         except Exception as e:  # noqa
             new_df[new_col] = pd.Series([None])
             logger.exception(f"Evaluating UDF {new_col} failed on columns {pandas.keys()} with error {e}")
+
+
+def _apply_type_udfs(pandas: pd.Series, udfs: Dict, new_df: pd.DataFrame, input_cols: Collection[str]) -> None:
+    for new_col, udf in udfs.items():
+        if new_col in input_cols:
+            continue
+
+        try:
+            new_df[new_col] = udf(pandas)
+        except Exception as e:  # noqa
+            new_df[new_col] = pd.Series([None])
+            logger.exception(f"Evaluating UDF {new_col} failed on column {new_col} with error {e}")
 
 
 class UdfSchema(DeclarativeSchema):
@@ -103,7 +129,11 @@ class UdfSchema(DeclarativeSchema):
             validators=validators,
         )
         udf_specs = udf_specs if udf_specs else []
-        self.multicolumn_udfs = list(udf_specs)
+        self.multicolumn_udfs = [spec for spec in udf_specs if spec.column_names]
+        self.type_udfs = defaultdict(list)
+        for spec in udf_specs:
+            if spec.column_type:
+                self.type_udfs[spec.column_type].append(spec)
 
     def copy(self) -> DatasetSchema:
         copy = super().copy()
@@ -114,13 +144,25 @@ class UdfSchema(DeclarativeSchema):
         self, row: Mapping[str, Any], new_columns: Dict[str, Any], input_cols: Collection[str]
     ) -> None:
         for spec in self.multicolumn_udfs:
-            if set(spec.column_names).issubset(set(row.keys())):
+            if spec.column_names and set(spec.column_names).issubset(set(row.keys())):
                 _apply_udfs_on_row(row, spec.udfs, new_columns, input_cols)
+
+        for column, value in row.items():
+            why_type = type(self.type_mapper(type(value)))
+            for spec in self.type_udfs[why_type]:
+                udfs = {f"{column}.{key}": spec.udfs[key] for key in spec.udfs.keys()}
+                _apply_udfs_on_row(value, udfs, new_columns, input_cols)
 
     def _run_udfs_on_dataframe(self, pandas: pd.DataFrame, new_df: pd.DataFrame, input_cols: Collection[str]) -> None:
         for spec in self.multicolumn_udfs:
-            if set(spec.column_names).issubset(set(pandas.keys())):
+            if spec.column_names and set(spec.column_names).issubset(set(pandas.keys())):
                 _apply_udfs_on_dataframe(pandas[spec.column_names], spec.udfs, new_df, input_cols)
+
+        for column, dtype in pandas.dtypes.items():
+            why_type = type(self.type_mapper(dtype))
+            for spec in self.type_udfs[why_type]:
+                udfs = {f"{column}.{key}": spec.udfs[key] for key in spec.udfs.keys()}
+                _apply_type_udfs(pandas[column], udfs, new_df, input_cols)
 
     def _run_udfs(
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
@@ -198,16 +240,50 @@ def register_dataset_udf(
     return decorator_register
 
 
+def register_type_udf(
+    col_type: DataType,
+    udf_name: Optional[str] = None,
+    namespace: Optional[str] = None,
+    schema_name: str = "",
+) -> Callable[[Any], Any]:
+    """
+    Decorator to easily configure UDFs for your data set. Decorate your UDF
+    functions, then call generate_udf_dataset_schema() to create a UdfSchema
+    that includes the UDFs configured by your decorator parameters. The decorated
+    function will automatically be a UDF in the UdfSchema.
+
+    The registered function will be applied to any columns of the specified type.
+    Specify udf_name to give the output of the UDF a name. udf_name
+    defautls to the name of the decorated function. The output column name is the
+    UDF name prefixed with the input column name. Note that all lambdas are
+    named "lambda", so omitting udf_name on more than one lambda will result
+    in name collisions. If you pass a namespace, it will be prepended to the UDF name.
+    Specifying schema_name will register the UDF in a particular schema. If omitted,
+    it will be registered to the defualt schema.
+
+    """
+
+    def decorator_register(func):
+        global _multicolumn_udfs, _resolver_specs
+        name = udf_name or func.__name__
+        name = f"{namespace}.{name}" if namespace else name
+        _multicolumn_udfs[schema_name].append(UdfSpec(None, {name: func}, col_type))
+
+        return func
+
+    return decorator_register
+
+
 def generate_udf_specs(
     other_udf_specs: Optional[List[UdfSpec]] = None,
     schema_name: Union[str, List[str]] = "",
     include_default_schema: bool = True,
 ) -> List[UdfSpec]:
     """
-    Generates a list UdfSpecs that implement the UDFs specified
-    by the @register_dataset_udf decorators. You can provide a list of
-    other_udf_specs to include in addition to those UDFs registered via
-    the decorator.
+    Generates a list UdfSpecs that implement the UDFs specified by the
+    @register_dataset_udf, @register_type_udf, and @register_metric_udf
+    decorators. You can provide a list of other_udf_specs to include in
+    addition to those UDFs registered via the decorator.
 
     For example:
 
