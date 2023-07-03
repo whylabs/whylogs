@@ -412,3 +412,16 @@ def test_type_udf_dataframe() -> None:
     summary = results.get_column("col1.square_type").to_summary_dict()
     assert summary["counts/n"] == 2
     assert summary["types/fractional"] == 2
+
+
+def test_schema_copy() -> None:
+    schema = udf_schema()
+    copy = schema.copy()
+    assert isinstance(copy.resolvers, type(schema.resolvers))
+    # Should be copy.resolvers._resolvers == schema.resolvers._resovlers, but
+    # some of the elements don't implement a proper == predicate
+    assert len(copy.resolvers._resolvers) == len(schema.resolvers._resolvers)
+    assert copy.types == schema.types
+    assert copy.default_configs == schema.default_configs
+    assert schema.multicolumn_udfs == copy.multicolumn_udfs
+    assert schema.type_udfs == copy.type_udfs
