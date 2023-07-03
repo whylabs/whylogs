@@ -2,7 +2,17 @@ import logging
 from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Collection,
+    Dict,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from whylogs.core.datatypes import TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
@@ -38,8 +48,11 @@ class UdfSpec:
             raise ValueError("UdfSpec: column_names must be either a non-empty list of strings")
 
 
-def _apply_udfs_on_row(value: Any, udfs: Dict, new_columns: Dict[str, Any]) -> None:
+def _apply_udfs_on_row(value: Any, udfs: Dict, new_columns: Dict[str, Any], input_cols: Collection[str]) -> None:
     for new_col, udf in udfs.items():
+        if new_col in input_cols:
+            continue
+
         try:
             new_columns[new_col] = udf(value)
         except Exception:  # noqa
@@ -47,8 +60,13 @@ def _apply_udfs_on_row(value: Any, udfs: Dict, new_columns: Dict[str, Any]) -> N
             logger.exception(f"Evaluating multi-column UDF {new_col} failed")
 
 
-def _apply_udfs_on_dataframe(pandas: pd.DataFrame, udfs: Dict, new_df: pd.DataFrame) -> None:
+def _apply_udfs_on_dataframe(
+    pandas: pd.DataFrame, udfs: Dict, new_df: pd.DataFrame, input_cols: Collection[str]
+) -> None:
     for new_col, udf in udfs.items():
+        if new_col in input_cols:
+            continue
+
         try:
             new_df[new_col] = udf(pandas)
         except Exception as e:  # noqa
@@ -92,15 +110,17 @@ class UdfSchema(DeclarativeSchema):
         copy.multicolumn_udfs = list(self.multicolumn_udfs)
         return copy
 
-    def _run_udfs_on_row(self, row: Mapping[str, Any], new_columns: Dict[str, Any]) -> None:
+    def _run_udfs_on_row(
+        self, row: Mapping[str, Any], new_columns: Dict[str, Any], input_cols: Collection[str]
+    ) -> None:
         for spec in self.multicolumn_udfs:
             if set(spec.column_names).issubset(set(row.keys())):
-                _apply_udfs_on_row(row, spec.udfs, new_columns)
+                _apply_udfs_on_row(row, spec.udfs, new_columns, input_cols)
 
-    def _run_udfs_on_dataframe(self, pandas: pd.DataFrame, new_df: pd.DataFrame) -> None:
+    def _run_udfs_on_dataframe(self, pandas: pd.DataFrame, new_df: pd.DataFrame, input_cols: Collection[str]) -> None:
         for spec in self.multicolumn_udfs:
             if set(spec.column_names).issubset(set(pandas.keys())):
-                _apply_udfs_on_dataframe(pandas[spec.column_names], spec.udfs, new_df)
+                _apply_udfs_on_dataframe(pandas[spec.column_names], spec.udfs, new_df, input_cols)
 
     def _run_udfs(
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
@@ -108,13 +128,18 @@ class UdfSchema(DeclarativeSchema):
         new_columns = deepcopy(row) if row else None
         new_df = pd.DataFrame() if pandas is not None else None
         if row is not None:
-            self._run_udfs_on_row(row, new_columns)  # type: ignore
+            self._run_udfs_on_row(row, new_columns, row.keys())  # type: ignore
 
         if pandas is not None:
-            self._run_udfs_on_dataframe(pandas, new_df)
+            self._run_udfs_on_dataframe(pandas, new_df, pandas.keys())
             new_df = pd.concat([pandas, new_df], axis=1)
 
         return new_df, new_columns
+
+    def apply_udfs(
+        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
+    ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
+        return self._run_udfs(pandas, row)
 
 
 _multicolumn_udfs: Dict[str, List[UdfSpec]] = defaultdict(list)
