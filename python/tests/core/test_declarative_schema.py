@@ -14,6 +14,7 @@ from whylogs.core.metrics.condition_count_metric import (
 from whylogs.core.metrics.condition_count_metric import Relation as Rel
 from whylogs.core.metrics.condition_count_metric import relation as rel
 from whylogs.core.resolvers import (
+    DEFAULT_RESOLVER,
     HISTOGRAM_COUNTING_TRACKING_RESOLVER,
     LIMITED_TRACKING_RESOLVER,
     STANDARD_RESOLVER,
@@ -85,6 +86,11 @@ def test_declarative_schema() -> None:
     assert copy.resolvers._resolvers == schema.resolvers._resolvers
     assert copy.types == schema.types
     assert copy.default_configs == schema.default_configs
+
+
+def test_default_resolver():
+    schema = DeclarativeSchema([])
+    assert schema.resolvers._resolvers == DEFAULT_RESOLVER
 
 
 def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
