@@ -79,7 +79,7 @@ Attributes
    Subclass of DeclarativeSchema that runs the UDFs specified in udf_specs to
    create new columns before resolving metrics.
 
-   .. py:method:: copy() -> whylogs.core.schema.DatasetSchema
+   .. py:method:: copy() -> UdfSchema
 
       Returns a new instance of the same underlying schema
 

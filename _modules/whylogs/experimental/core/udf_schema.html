@@ -441,7 +441,7 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">TypeMapper</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">MetricConfig</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">DEFAULT_RESOLVER</span><span class="p">,</span> <span class="n">MetricSpec</span><span class="p">,</span> <span class="n">ResolverSpec</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DatasetSchema</span><span class="p">,</span> <span class="n">DeclarativeSchema</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">SegmentationPartition</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.validators.validator</span> <span class="kn">import</span> <span class="n">Validator</span>
@@ -559,9 +559,10 @@
             <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">column_type</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">type_udfs</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">column_type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
 
-<div class="viewcode-block" id="UdfSchema.copy"><a class="viewcode-back" href="../../../../api/whylogs/experimental/core/udf_schema/index.html#whylogs.experimental.core.udf_schema.UdfSchema.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetSchema</span><span class="p">:</span>
+<div class="viewcode-block" id="UdfSchema.copy"><a class="viewcode-back" href="../../../../api/whylogs/experimental/core/udf_schema/index.html#whylogs.experimental.core.udf_schema.UdfSchema.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;UdfSchema&quot;</span><span class="p">:</span>
         <span class="n">copy</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">copy</span><span class="o">.</span><span class="n">multicolumn_udfs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">multicolumn_udfs</span><span class="p">)</span>
+        <span class="n">copy</span><span class="o">.</span><span class="n">multicolumn_udfs</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">multicolumn_udfs</span><span class="p">)</span>
+        <span class="n">copy</span><span class="o">.</span><span class="n">type_udfs</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type_udfs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">copy</span></div>
 
     <span class="k">def</span> <span class="nf">_run_udfs_on_row</span><span class="p">(</span>
