@@ -438,7 +438,7 @@
     <span class="n">Union</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">TypeMapper</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">TypeMapper</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">MetricConfig</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">DEFAULT_RESOLVER</span><span class="p">,</span> <span class="n">MetricSpec</span><span class="p">,</span> <span class="n">ResolverSpec</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DatasetSchema</span><span class="p">,</span> <span class="n">DeclarativeSchema</span>
@@ -456,20 +456,34 @@
 <div class="viewcode-block" id="UdfSpec"><a class="viewcode-back" href="../../../../api/whylogs/experimental/core/udf_schema/index.html#whylogs.experimental.core.udf_schema.UdfSpec">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">UdfSpec</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Defines UDFs to apply to matching input columns. Tthe UDF is</span>
-<span class="sd">    passed a dictionary or dataframe with the named columns available (the UDF will</span>
-<span class="sd">    not be called unless all the named columns are available). The new column name</span>
-<span class="sd">    the key in the udfs dictionary.</span>
+<span class="sd">    Defines UDFs to apply to matching input columns.</span>
+
+<span class="sd">    For UDFs matched by column_name(s), the function is passed a dictionary or</span>
+<span class="sd">    dataframe with the named columns available (the UDF will not be called unless</span>
+<span class="sd">    all the named columns are available). The output column name is the key in</span>
+<span class="sd">    the udfs dictionary.</span>
+
+<span class="sd">    For UDFs matched by column_type, the function is passed the value or Pandas</span>
+<span class="sd">    series. The output column name is the key in the udfs dictionary prefixed</span>
+<span class="sd">    by the input column name.</span>
+
+<span class="sd">    You must specify exactly one of column_names or column_type.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">column_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">column_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">udfs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span>
     <span class="p">)</span>  <span class="c1"># new column name -&gt; callable to compute new column value</span>
+    <span class="n">column_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">]):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;UdfSpec: column_names must be either a non-empty list of strings&quot;</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;UdfSpec cannot specify both column_names and column_type&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;UdfSpec must specify column_names or column_type&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;UdfSpec column_names must be a non-empty list of strings&quot;</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_apply_udfs_on_row</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">udfs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">new_columns</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">input_cols</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -481,7 +495,7 @@
             <span class="n">new_columns</span><span class="p">[</span><span class="n">new_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">udf</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa</span>
             <span class="n">new_columns</span><span class="p">[</span><span class="n">new_col</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Evaluating multi-column UDF </span><span class="si">{</span><span class="n">new_col</span><span class="si">}</span><span class="s2"> failed&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Evaluating UDF </span><span class="si">{</span><span class="n">new_col</span><span class="si">}</span><span class="s2"> failed&quot;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_apply_udfs_on_dataframe</span><span class="p">(</span>
@@ -496,6 +510,18 @@
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa</span>
             <span class="n">new_df</span><span class="p">[</span><span class="n">new_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="kc">None</span><span class="p">])</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Evaluating UDF </span><span class="si">{</span><span class="n">new_col</span><span class="si">}</span><span class="s2"> failed on columns </span><span class="si">{</span><span class="n">pandas</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2"> with error </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_apply_type_udfs</span><span class="p">(</span><span class="n">pandas</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">udfs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">new_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">input_cols</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">new_col</span><span class="p">,</span> <span class="n">udf</span> <span class="ow">in</span> <span class="n">udfs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">new_col</span> <span class="ow">in</span> <span class="n">input_cols</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">new_df</span><span class="p">[</span><span class="n">new_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">udf</span><span class="p">(</span><span class="n">pandas</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa</span>
+            <span class="n">new_df</span><span class="p">[</span><span class="n">new_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="kc">None</span><span class="p">])</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Evaluating UDF </span><span class="si">{</span><span class="n">new_col</span><span class="si">}</span><span class="s2"> failed on column </span><span class="si">{</span><span class="n">new_col</span><span class="si">}</span><span class="s2"> with error </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="UdfSchema"><a class="viewcode-back" href="../../../../api/whylogs/experimental/core/udf_schema/index.html#whylogs.experimental.core.udf_schema.UdfSchema">[docs]</a><span class="k">class</span> <span class="nc">UdfSchema</span><span class="p">(</span><span class="n">DeclarativeSchema</span><span class="p">):</span>
@@ -527,7 +553,11 @@
             <span class="n">validators</span><span class="o">=</span><span class="n">validators</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">udf_specs</span> <span class="o">=</span> <span class="n">udf_specs</span> <span class="k">if</span> <span class="n">udf_specs</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">multicolumn_udfs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">udf_specs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multicolumn_udfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">spec</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">udf_specs</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">column_names</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type_udfs</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">udf_specs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">column_type</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">type_udfs</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">column_type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
 
 <div class="viewcode-block" id="UdfSchema.copy"><a class="viewcode-back" href="../../../../api/whylogs/experimental/core/udf_schema/index.html#whylogs.experimental.core.udf_schema.UdfSchema.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetSchema</span><span class="p">:</span>
         <span class="n">copy</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -538,13 +568,25 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">new_columns</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">input_cols</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">multicolumn_udfs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
+            <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">column_names</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
                 <span class="n">_apply_udfs_on_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">udfs</span><span class="p">,</span> <span class="n">new_columns</span><span class="p">,</span> <span class="n">input_cols</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">why_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type_mapper</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_udfs</span><span class="p">[</span><span class="n">why_type</span><span class="p">]:</span>
+                <span class="n">udfs</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">udfs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">udfs</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+                <span class="n">_apply_udfs_on_row</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">udfs</span><span class="p">,</span> <span class="n">new_columns</span><span class="p">,</span> <span class="n">input_cols</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_run_udfs_on_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pandas</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">new_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">input_cols</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">multicolumn_udfs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">pandas</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
+            <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">column_names</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">pandas</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
                 <span class="n">_apply_udfs_on_dataframe</span><span class="p">(</span><span class="n">pandas</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">column_names</span><span class="p">],</span> <span class="n">spec</span><span class="o">.</span><span class="n">udfs</span><span class="p">,</span> <span class="n">new_df</span><span class="p">,</span> <span class="n">input_cols</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">pandas</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">why_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type_mapper</span><span class="p">(</span><span class="n">dtype</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_udfs</span><span class="p">[</span><span class="n">why_type</span><span class="p">]:</span>
+                <span class="n">udfs</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">udfs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">udfs</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+                <span class="n">_apply_type_udfs</span><span class="p">(</span><span class="n">pandas</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">udfs</span><span class="p">,</span> <span class="n">new_df</span><span class="p">,</span> <span class="n">input_cols</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_run_udfs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">pandas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -622,16 +664,50 @@
     <span class="k">return</span> <span class="n">decorator_register</span></div>
 
 
+<div class="viewcode-block" id="register_type_udf"><a class="viewcode-back" href="../../../../api/whylogs/experimental/core/udf_schema/index.html#whylogs.experimental.core.udf_schema.register_type_udf">[docs]</a><span class="k">def</span> <span class="nf">register_type_udf</span><span class="p">(</span>
+    <span class="n">col_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span>
+    <span class="n">udf_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">schema_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator to easily configure UDFs for your data set. Decorate your UDF</span>
+<span class="sd">    functions, then call generate_udf_dataset_schema() to create a UdfSchema</span>
+<span class="sd">    that includes the UDFs configured by your decorator parameters. The decorated</span>
+<span class="sd">    function will automatically be a UDF in the UdfSchema.</span>
+
+<span class="sd">    The registered function will be applied to any columns of the specified type.</span>
+<span class="sd">    Specify udf_name to give the output of the UDF a name. udf_name</span>
+<span class="sd">    defautls to the name of the decorated function. The output column name is the</span>
+<span class="sd">    UDF name prefixed with the input column name. Note that all lambdas are</span>
+<span class="sd">    named &quot;lambda&quot;, so omitting udf_name on more than one lambda will result</span>
+<span class="sd">    in name collisions. If you pass a namespace, it will be prepended to the UDF name.</span>
+<span class="sd">    Specifying schema_name will register the UDF in a particular schema. If omitted,</span>
+<span class="sd">    it will be registered to the defualt schema.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">decorator_register</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">global</span> <span class="n">_multicolumn_udfs</span><span class="p">,</span> <span class="n">_resolver_specs</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">udf_name</span> <span class="ow">or</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">namespace</span> <span class="k">else</span> <span class="n">name</span>
+        <span class="n">_multicolumn_udfs</span><span class="p">[</span><span class="n">schema_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">UdfSpec</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">func</span><span class="p">},</span> <span class="n">col_type</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">func</span>
+
+    <span class="k">return</span> <span class="n">decorator_register</span></div>
+
+
 <div class="viewcode-block" id="generate_udf_specs"><a class="viewcode-back" href="../../../../api/whylogs/experimental/core/udf_schema/index.html#whylogs.experimental.core.udf_schema.generate_udf_specs">[docs]</a><span class="k">def</span> <span class="nf">generate_udf_specs</span><span class="p">(</span>
     <span class="n">other_udf_specs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">UdfSpec</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">schema_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="n">include_default_schema</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">UdfSpec</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generates a list UdfSpecs that implement the UDFs specified</span>
-<span class="sd">    by the @register_dataset_udf decorators. You can provide a list of</span>
-<span class="sd">    other_udf_specs to include in addition to those UDFs registered via</span>
-<span class="sd">    the decorator.</span>
+<span class="sd">    Generates a list UdfSpecs that implement the UDFs specified by the</span>
+<span class="sd">    @register_dataset_udf, @register_type_udf, and @register_metric_udf</span>
+<span class="sd">    decorators. You can provide a list of other_udf_specs to include in</span>
+<span class="sd">    addition to those UDFs registered via the decorator.</span>
 
 <span class="sd">    For example:</span>
 
