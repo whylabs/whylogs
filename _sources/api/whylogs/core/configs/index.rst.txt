@@ -35,6 +35,7 @@ Attributes
    whylogs.core.configs.normalize
    whylogs.core.configs.max_frequent_item_size
    whylogs.core.configs.identity_column
+   whylogs.core.configs.column_batch_size
 
 
 .. py:data:: hll_lg_k
@@ -104,6 +105,12 @@ Attributes
 
 .. py:data:: identity_column
    :type: Optional[str]
+
+   
+
+.. py:data:: column_batch_size
+   :type: Optional[int]
+   :value: 1024
 
    
 
