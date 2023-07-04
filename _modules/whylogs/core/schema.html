@@ -662,7 +662,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">resolvers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">],</span>
+        <span class="n">resolvers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">types</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">type_mapper</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TypeMapper</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -671,7 +671,7 @@
         <span class="n">segments</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SegmentationPartition</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">validators</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Validator</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">resolvers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">resolvers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">resolvers</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">DEFAULT_RESOLVER</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No columns specified in DeclarativeSchema&quot;</span><span class="p">)</span>
         <span class="n">resolver</span> <span class="o">=</span> <span class="n">DeclarativeResolver</span><span class="p">(</span><span class="n">resolvers</span><span class="p">,</span> <span class="n">default_config</span><span class="p">)</span>
