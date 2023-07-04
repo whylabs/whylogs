@@ -6,6 +6,7 @@ from typing import Dict, Iterable, Optional, Tuple
 import whylogs as why
 from whylogs.api.usage_stats import emit_usage
 from whylogs.core import DatasetSchema
+from whylogs.core.metrics.metrics import conf
 from whylogs.core.stubs import pd
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
@@ -65,6 +66,7 @@ def collect_column_profile_views(
         input_df_arrays = input_df_arrays.withColumn(col_name, vector_to_array(input_df_arrays[col_name]))
     cp = f"{COL_NAME_FIELD} string, {COL_PROFILE_FIELD} binary"
     whylogs_pandas_map_profiler_with_schema = partial(whylogs_pandas_map_profiler, schema=schema)
+
     profile_bytes_df = input_df_arrays.mapInPandas(whylogs_pandas_map_profiler_with_schema, schema=cp)  # type: ignore
     column_profiles = profile_bytes_df.groupby(COL_NAME_FIELD).applyInPandas(  # linebreak
         column_profile_bytes_aggregator, schema=cp
@@ -73,6 +75,48 @@ def collect_column_profile_views(
         row.col_name: ColumnProfileView.from_bytes(row.col_profile) for row in column_profiles.collect()
     }
     return collected_profile_views
+
+
+def _collect_column_profile_views_batched(
+    batch_size: int, input_df: SparkDataFrame, schema: Optional[DatasetSchema] = None
+) -> Dict[str, ColumnProfileView]:
+    if batch_size <= 0:
+        logger.warning(
+            f"Batched pyspark column processing was called with batch_size of {batch_size}, falling back to non-batched profiling."
+        )
+        return collect_column_profile_views(input_df=input_df, schema=schema)
+
+    columns = input_df.columns
+    num_batches = len(columns) // batch_size  # Total number of batches
+
+    # Initialize an empty dataset_profile
+    combined_column_views = dict()
+
+    # process the column profiles in batches
+    for batch_num in range(num_batches):
+        start_idx = batch_num * batch_size
+        end_idx = (batch_num + 1) * batch_size
+        selected_columns = columns[start_idx:end_idx]
+        column_partitioned_batch_df = input_df.select(*selected_columns)
+        column_views_dict = collect_column_profile_views(input_df=column_partitioned_batch_df, schema=schema)
+        combined_column_views.update(column_views_dict)
+
+    # Handle the last batch (if any) that may have fewer columns
+    last_batch_columns = columns[num_batches * batch_size :]
+    if last_batch_columns:
+        column_partitioned_batch_df = input_df.select(*last_batch_columns)
+        # Process the last batch DataFrame
+        column_views_dict = collect_column_profile_views(input_df=column_partitioned_batch_df, schema=schema)
+        combined_column_views.update(column_views_dict)
+
+    return combined_column_views
+
+
+def _get_column_batch_size() -> Optional[int]:
+    if conf.column_batch_size:
+        return conf.column_batch_size
+    else:
+        return None
 
 
 def collect_dataset_profile_view(
@@ -91,8 +135,11 @@ def collect_dataset_profile_view(
             f": {schema.segments} may return multiple segmented profiles. Please use `collect_segmented_results` if you want to profile"
             " in spark with segments defined."
         )
-
-    column_views_dict = collect_column_profile_views(input_df=input_df, schema=schema)
+    batch_size = _get_column_batch_size()
+    if batch_size is not None:
+        column_views_dict = _collect_column_profile_views_batched(batch_size, input_df=input_df, schema=schema)
+    else:
+        column_views_dict = collect_column_profile_views(input_df=input_df, schema=schema)
 
     profile_view = DatasetProfileView(
         columns=column_views_dict, dataset_timestamp=_dataset_timestamp, creation_timestamp=_creation_timestamp
