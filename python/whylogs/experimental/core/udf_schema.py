@@ -108,7 +108,7 @@ class UdfSchema(DeclarativeSchema):
 
     def __init__(
         self,
-        resolvers: List[ResolverSpec],
+        resolvers: Optional[List[ResolverSpec]] = None,
         types: Optional[Dict[str, Any]] = None,
         default_config: Optional[MetricConfig] = None,
         type_mapper: Optional[TypeMapper] = None,

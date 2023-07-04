@@ -89,8 +89,10 @@ def test_declarative_schema() -> None:
 
 
 def test_default_resolver():
-    schema = DeclarativeSchema([])
+    schema = DeclarativeSchema()
     assert schema.resolvers._resolvers == DEFAULT_RESOLVER
+    schema = DeclarativeSchema([])
+    assert schema.resolvers._resolvers == []
 
 
 def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
