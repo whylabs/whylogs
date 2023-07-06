@@ -460,15 +460,15 @@ class WhyLabsWriter(Writer):
         default_metric : str
             The default metric that will be displayed in the Performance tab in WhyLabs.
             For example, "mean", "median", "max", or "min".
-        
+
         Note: the resulting custom performance metric is considered an unmergeable metric.
-        
+
         """
         api_instance = ModelsApi(self._api_client)
         metric_schema = MetricSchema(
-                label=label,
-                column=column,
-                default_metric=default_metric,
+            label=label,
+            column=column,
+            default_metric=default_metric,
         )
         self._validate_org_and_dataset()
         try:
