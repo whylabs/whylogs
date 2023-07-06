@@ -25,6 +25,7 @@ from whylabs_client.model.column_schema import ColumnSchema
 from whylabs_client.model.create_reference_profile_request import (
     CreateReferenceProfileRequest,
 )
+from whylabs_client.model.metric_schema import MetricSchema
 from whylabs_client.model.segment import Segment
 from whylabs_client.model.segment_tag import SegmentTag
 from whylabs_client.rest import ForbiddenException  # type: ignore
@@ -445,6 +446,40 @@ class WhyLabsWriter(Writer):
         """
 
         return self._tag_columns(columns, "input")
+
+    def tag_custom_performance_column(self, column: str, label: str, default_metric: str) -> Tuple[bool, str]:
+        """Sets the column as a custom performance metric for the specified dataset and org id.
+        The default metric will be displayed in the Performance tab in WhyLabs.
+
+        Parameters
+        ----------
+        column : str
+            The column name in the whylogs profile you want to tag as a custom performance metric.
+        label : str
+            The label that will be displayed in WhyLabs UI.
+        default_metric : str
+            The default metric that will be displayed in the Performance tab in WhyLabs.
+            For example, "mean", "median", "max", or "min".
+        
+        Note: the resulting custom performance metric is considered an unmergeable metric.
+        
+        """
+        api_instance = ModelsApi(self._api_client)
+        metric_schema = MetricSchema(
+                label=label,
+                column=column,
+                default_metric=default_metric,
+        )
+        self._validate_org_and_dataset()
+        try:
+            res = api_instance.put_entity_schema_metric(self._org_id, self._dataset_id, metric_schema)
+            return True, str(res)
+        except Exception as e:
+            logger.warning(
+                f"Failed to tag column {column} as custom performance metric for {self._org_id}/{self._dataset_id} to "
+                + f"{self.whylabs_api_endpoint}"
+            )
+            return False, str(e)
 
     def write_estimation_result(self, file: EstimationResult, **kwargs: Any) -> Tuple[bool, str]:
         if _uncompound_performance_estimation_feature_flag():
