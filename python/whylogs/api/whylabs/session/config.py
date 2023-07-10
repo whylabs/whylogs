@@ -3,6 +3,7 @@ import getpass
 import logging
 import os
 from configparser import ConfigParser
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Optional
@@ -10,17 +11,35 @@ from typing import Optional
 from platformdirs import user_config_dir
 
 from whylogs.api.whylabs.session.notebook_check import is_notebook
+from whylogs.api.whylabs.session.prompts import (
+    prompt_api_key,
+    prompt_default_dataset_id,
+    prompt_org_id,
+    prompt_session_type,
+)
+from whylogs.api.whylabs.session.session_types import ApiKeyV1, ApiKeyV2
+from whylogs.api.whylabs.session.session_types import InteractiveLogger as il
+from whylogs.api.whylabs.session.session_types import (
+    SessionType,
+    parse_api_key,
+    parse_api_key_v2,
+)
 
 _DEFAULT_WHYLABS_HOST = "https://api.whylabsapp.com"
 _CONFIG_APP_NAME = "whylogs"
+_INIT_DOCS = "https://docs.whylabs.ai/docs/whylabs-whylogs-init"
 
 
 class EnvVariableName(Enum):
     WHYLABS_API_KEY = "WHYLABS_API_KEY"
     WHYLABS_SESSION_ID = "WHYLABS_SESSION_ID"
-    ORG_ID = "ORG_ID"
+    WHYLABS_ORG_ID = "WHYLABS_DEFAULT_ORG_ID"
+    WHYLABS_DEFAULT_DATASET_ID = "WHYLABS_DEFAULT_DATASET_ID"
     WHYLOGS_CONFIG_PATH = "WHYLOGS_CONFIG_PATH"
     WHYLABS_API_ENDPOINT = "WHYLABS_API_ENDPOINT"
+    WHYLABS_REFERENCE_PROFILE_NAME = "WHYLABS_REFERENCE_PROFILE_NAME"
+    WHYLABS_PRIVATE_API_ENDPOINT = "WHYLABS_PRIVATE_API_ENDPOINT"
+    WHYLABS_PRIVATE_S3_ENDPOINT = "WHYLABS_PRIVATE_S3_ENDPOINT"
 
 
 class ConfigVariableName(Enum):
@@ -29,18 +48,48 @@ class ConfigVariableName(Enum):
     SESSION_ID = "session_id"
     WHYLABS_API_ENDPOINT = "whylabs_api_endpoint"
     USER_GUID = "user_guid"
+    DEFAULT_DATASET_ID = "default_dataset_id"
+    WHYLABS_REFERENCE_PROFILE_NAME = "whylabs_reference_profile_name"
+    WHYLABS_PRIVATE_API_ENDPOINT = "whylabs_private_api_endpoint"
+    WHYLABS_PRIVATE_S3_ENDPOINT = "whylabs_private_s3_endpoint"
+
+
+@dataclass
+class InitConfig:
+    whylabs_api_key: Optional[str] = None
+    allow_anonymous: bool = True
+    allow_local: bool = False
+    default_dataset_id: Optional[str] = None
 
 
 class SessionConfig:
-    def __init__(self) -> None:
+    def __init__(self, init_config: Optional[InitConfig] = None) -> None:
         self.logger = logging.getLogger("config")
         self.auth_path = self.get_config_file_path()
+        self._init_parser()
+
+        _init_config = init_config or InitConfig()
+        self.tmp_api_key: Optional[str] = _init_config.whylabs_api_key
+        self.tmp_default_dataset_id: Optional[str] = _init_config.default_dataset_id
+
+        # Only here for CLI compatibilty. No one should actually set this.
+        force_interactive = os.environ.get("WHYLABS_FORCE_INTERACTIVE", "false").lower() == "true"
+        if force_interactive:
+            self.reset_config()
+            self.session_type = self._determine_session_type_prompt(_init_config)
+        else:
+            self.session_type = self._determine_session_type(_init_config)
+
+    def _init_parser(self) -> None:
         try:
             self._config_parser = ConfigFile.create_parser(self.auth_path)
         except (configparser.Error, OSError, IOError, PermissionError) as e:
             self.logger.warning(
                 f"Error reading config file from {self.auth_path}: {str(e)}. Operations with WhyLabs will fail."
             )
+
+    def get_session_type(self) -> SessionType:
+        return self.session_type
 
     def _load_value(self, env_name: EnvVariableName, config_name: ConfigVariableName) -> Optional[str]:
         """
@@ -85,6 +134,33 @@ class SessionConfig:
             value=value,
         )
 
+    def get_whylabs_private_api_endpoint(self) -> Optional[str]:
+        return self._load_value(
+            env_name=EnvVariableName.WHYLABS_PRIVATE_API_ENDPOINT,
+            config_name=ConfigVariableName.WHYLABS_PRIVATE_API_ENDPOINT,
+        )
+
+    def set_whylabs_private_api_endpoint(self, endpoint: str) -> None:
+        self._set_value(ConfigVariableName.WHYLABS_PRIVATE_API_ENDPOINT, endpoint)
+
+    def get_whylabs_private_s3_endpoint(self) -> Optional[str]:
+        return self._load_value(
+            env_name=EnvVariableName.WHYLABS_PRIVATE_S3_ENDPOINT,
+            config_name=ConfigVariableName.WHYLABS_PRIVATE_S3_ENDPOINT,
+        )
+
+    def set_whylabs_private_s3_endpoint(self, endpoint: str) -> None:
+        self._set_value(ConfigVariableName.WHYLABS_PRIVATE_S3_ENDPOINT, endpoint)
+
+    def get_whylabs_refernce_profile_name(self) -> Optional[str]:
+        return self._load_value(
+            env_name=EnvVariableName.WHYLABS_REFERENCE_PROFILE_NAME,
+            config_name=ConfigVariableName.WHYLABS_REFERENCE_PROFILE_NAME,
+        )
+
+    def set_whylabs_refernce_profile_name(self, name: str) -> None:
+        self._set_value(ConfigVariableName.WHYLABS_REFERENCE_PROFILE_NAME, name)
+
     def get_whylabs_endpoint(self) -> str:
         return (
             self._load_value(
@@ -108,19 +184,52 @@ class SessionConfig:
         path.touch(exist_ok=True)
         return path
 
+    def get_default_dataset_id(self) -> Optional[str]:
+        return self.tmp_default_dataset_id or self._load_value(
+            env_name=EnvVariableName.WHYLABS_DEFAULT_DATASET_ID, config_name=ConfigVariableName.DEFAULT_DATASET_ID
+        )
+
+    def require_default_dataset_id(self) -> str:
+        return self._require("default dataset id", self.get_default_dataset_id())
+
+    def set_default_dataset_id(self, dataset_id: str) -> None:
+        self._set_value(ConfigVariableName.DEFAULT_DATASET_ID, dataset_id)
+
     def get_org_id(self) -> Optional[str]:
-        return self._load_value(env_name=EnvVariableName.ORG_ID, config_name=ConfigVariableName.ORG_ID)
+        # Make the v2 api key's org id take precedence over an org id previously stored along with a v1 key
+        api_key = self.get_api_key()
+        try:
+            if api_key is not None:
+                return parse_api_key_v2(api_key).org_id
+        except Exception:
+            pass
+
+        org_id = self._load_value(env_name=EnvVariableName.WHYLABS_ORG_ID, config_name=ConfigVariableName.ORG_ID)
+
+        if org_id is not None:
+            return org_id
+
+        return org_id
+
+    def require_org_id(self) -> str:
+        return self._require("org id", self.get_org_id())
+
+    def _require(self, name: str, value: Optional[str]) -> str:
+        if value is None:
+            raise ValueError(f"Can't determine {name}. See {_INIT_DOCS} for instructions on using why.init().")
+
+        return value
 
     def set_org_id(self, org_id: str) -> None:
         self._set_value(ConfigVariableName.ORG_ID, org_id)
 
-    def get_or_prompt_org_id(self, persist: bool = False) -> Optional[str]:
-        return self._load_or_prompt(
-            env_name=EnvVariableName.ORG_ID, config_name=ConfigVariableName.ORG_ID, password=False, persist=persist
+    def get_api_key(self) -> Optional[str]:
+        return self.tmp_api_key or self._load_value(
+            env_name=EnvVariableName.WHYLABS_API_KEY, config_name=ConfigVariableName.API_KEY
         )
 
-    def get_api_key(self) -> Optional[str]:
-        return self._load_value(env_name=EnvVariableName.WHYLABS_API_KEY, config_name=ConfigVariableName.API_KEY)
+    def require_api_key(self) -> str:
+        return self._require("api key", self.get_api_key())
 
     def set_api_key(self, api_key: str) -> None:
         self._set_value(ConfigVariableName.API_KEY, api_key)
@@ -131,11 +240,6 @@ class SessionConfig:
     def set_user_guid(self, user_guid: str) -> None:
         self._set_value(ConfigVariableName.USER_GUID, user_guid)
 
-    def get_or_prompt_api_key(self, persist: bool = False) -> Optional[str]:
-        return self._load_or_prompt(
-            env_name=EnvVariableName.WHYLABS_API_KEY, config_name=ConfigVariableName.API_KEY, persist=persist
-        )
-
     def get_session_id(self) -> Optional[str]:
         return self._load_value(env_name=EnvVariableName.WHYLABS_SESSION_ID, config_name=ConfigVariableName.SESSION_ID)
 
@@ -144,6 +248,96 @@ class SessionConfig:
 
     def remove_session_id(self) -> None:
         self._remove_value(ConfigVariableName.SESSION_ID)
+
+    def reset_config(self) -> None:
+        ConfigFile.remove_all_variables_from_config_file(parser=self._config_parser, auth_path=self.auth_path)
+        self._init_parser()
+
+    def notify_session_type(self) -> None:
+        config_path = self.get_config_file_path()
+        il.message(f"Initializing session with config {config_path}")
+        il.message()
+        if self.session_type == SessionType.WHYLABS:
+            self._notify_type_whylabs(self.require_api_key())
+        elif self.session_type == SessionType.LOCAL:
+            self._notify_type_local()
+        elif self.session_type == SessionType.WHYLABS_ANONYMOUS:
+            self._notify_type_anon()
+
+    def _notify_type_whylabs(self, api_key: str) -> None:
+        default_dataset_id = self.get_default_dataset_id()
+        parsed_api_key = parse_api_key(api_key)
+        if isinstance(parsed_api_key, ApiKeyV2):
+            org_id = parsed_api_key.org_id
+        else:
+            org_id = self.get_org_id() or "not set"  # Shouldn't be possible to be None at this point
+
+        il.success(f"Using session type: {SessionType.WHYLABS.name}")
+        il.option(f"org id: {org_id}")
+        il.option(f"api key: {parsed_api_key.api_key_id}")
+        if default_dataset_id:
+            il.option(f"default dataset: {default_dataset_id}")
+
+    def _notify_type_anon(self) -> None:
+        anonymous_session_id = self.get_session_id()
+        il.success(f"Using session type: {SessionType.WHYLABS_ANONYMOUS.name}")
+        il.option(f"session id: {anonymous_session_id}")
+
+    def _notify_type_local(self) -> None:
+        il.success(
+            f"Using session type: {SessionType.LOCAL.name}. "
+            "Profiles won't be uploaded or written anywhere automatically."
+        )
+
+    def _determine_session_type_prompt(self, init_config: InitConfig) -> SessionType:
+        session_type = prompt_session_type(init_config.allow_anonymous, init_config.allow_local)
+        if session_type == SessionType.WHYLABS:
+            api_key = prompt_api_key()
+
+            self.set_api_key(api_key.full_key)
+            if isinstance(api_key, ApiKeyV1):
+                # V1 doesn't include the org id so we have to prompt for it separately
+                org_id = prompt_org_id()
+                self.set_org_id(org_id)
+
+            # Save the default dataset id if they supplied one
+            default_dataset_id = prompt_default_dataset_id()
+            if default_dataset_id:
+                self.set_default_dataset_id(default_dataset_id)
+
+        return session_type
+
+    def _determine_session_type(self, init_config: InitConfig) -> SessionType:
+        # If the user supplied a whylabs api key then use whylabs
+        if init_config.whylabs_api_key is not None:
+            return SessionType.WHYLABS
+
+        # If there is an api key saved in the config file or in the env then use that for whylabs
+        config_api_key = self.get_api_key()
+        if config_api_key is not None:
+            return SessionType.WHYLABS
+
+        # If there is a session id saved in the config file then use that for an anonymous session
+        anonymous_session_id = self.get_session_id()
+        if anonymous_session_id is not None:
+            return SessionType.WHYLABS_ANONYMOUS
+
+        # If we're in an interactive environment then prompt the user to pick an authentication method
+        if is_notebook():
+            return self._determine_session_type_prompt(init_config)
+
+        # If we're not interactive then pick between anonymous and local based on the init config
+        if init_config.allow_anonymous:
+            return SessionType.WHYLABS_ANONYMOUS
+
+        if init_config.allow_local:
+            return SessionType.LOCAL
+
+        raise Exception(
+            "Don't know how to initialize authentication because allow_anonymous=False, allow_local=False, "
+            "and there is no WhyLabs api key in the environment, config file, or init() call, and this isn't an "
+            "interactive environment."
+        )
 
 
 _CONFIG_WHYLABS_SECTION = "whylabs"
@@ -186,5 +380,11 @@ class ConfigFile:
     @staticmethod
     def remove_variable_from_config_file(parser: ConfigParser, auth_path: Path, key: ConfigVariableName) -> None:
         parser.remove_option(_CONFIG_WHYLABS_SECTION, key.value)
+        with open(auth_path, "w") as configfile:
+            parser.write(configfile)
+
+    @staticmethod
+    def remove_all_variables_from_config_file(parser: ConfigParser, auth_path: Path) -> None:
+        parser.remove_section(_CONFIG_WHYLABS_SECTION)
         with open(auth_path, "w") as configfile:
             parser.write(configfile)

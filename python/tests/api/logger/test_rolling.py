@@ -15,6 +15,7 @@ import whylogs as why
 from whylogs.api.logger.rolling import Scheduler
 from whylogs.api.store.local_store import LocalStore
 from whylogs.api.store.query import DatasetIdQuery
+from whylogs.api.whylabs.session.config import EnvVariableName
 from whylogs.api.writer.local import LocalWriter
 from whylogs.api.writer.writer import Writable
 from whylogs.core.errors import BadConfigError
@@ -49,6 +50,8 @@ class TestWriter(LocalWriter):
     prevent collisions.
     """
 
+    __test__ = False  # stop pytest from collecting this class because it starts with Test
+
     def __init__(self, base_dir: Optional[str] = None, base_name: Optional[str] = None) -> None:
         super().__init__(base_dir, base_name)
         self._counter = 1
@@ -79,6 +82,26 @@ def test_closing(tmp_path: Any, lending_club_df: pd.DataFrame) -> None:
     assert len(only_files) == 1
     assert f.endswith(".bin")
     assert f.startswith("test_base_name")
+
+
+@pytest.fixture(scope="module", autouse=True)
+def set_required_config(request):
+    """
+    This sets the env that the whylabs writer requries to be set. Typically it would get a hold of it through
+    the Session but we haven't made that a mandatory feature.
+    """
+    os.environ[EnvVariableName.WHYLABS_ORG_ID.value] = "test_org_id"
+    os.environ[EnvVariableName.WHYLABS_DEFAULT_DATASET_ID.value] = "dataset-id"
+    os.environ[
+        EnvVariableName.WHYLABS_API_KEY.value
+    ] = "nG6xkOOENZ.Qwx4k4PSsrMgYEV9vZ2BW3ayDE97UiMb94x0YJ5RWVXzowxdPAoS4"  # fake
+
+    def clear_env():
+        del os.environ[EnvVariableName.WHYLABS_ORG_ID.value]
+        del os.environ[EnvVariableName.WHYLABS_DEFAULT_DATASET_ID.value]
+        del os.environ[EnvVariableName.WHYLABS_API_KEY.value]
+
+    request.addfinalizer(clear_env)
 
 
 @use_fake_time
