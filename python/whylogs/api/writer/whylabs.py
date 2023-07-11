@@ -447,7 +447,7 @@ class WhyLabsWriter(Writer):
 
         return self._tag_columns(columns, "input")
 
-    def tag_custom_performance_column(self, column: str, label: str, default_metric: str) -> Tuple[bool, str]:
+    def tag_custom_performance_column(self, column: str, label: Optional[str] = None, default_metric: str = 'mean') -> Tuple[bool, str]:
         """Sets the column as a custom performance metric for the specified dataset and org id.
         The default metric will be displayed in the Performance tab in WhyLabs.
 
@@ -456,14 +456,17 @@ class WhyLabsWriter(Writer):
         column : str
             The column name in the whylogs profile you want to tag as a custom performance metric.
         label : str
-            The label that will be displayed in WhyLabs UI.
+            The label that will be displayed in WhyLabs UI. If none is passed, defaults to column name.
         default_metric : str
             The default metric that will be displayed in the Performance tab in WhyLabs.
             For example, "mean", "median", "max", or "min".
+            If none is passed, defaults to "mean".
 
         Note: the resulting custom performance metric is considered an unmergeable metric.
 
         """
+        if not label:
+            label = column
         api_instance = ModelsApi(self._api_client)
         metric_schema = MetricSchema(
             label=label,
