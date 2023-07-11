@@ -447,7 +447,9 @@ class WhyLabsWriter(Writer):
 
         return self._tag_columns(columns, "input")
 
-    def tag_custom_performance_column(self, column: str, label: Optional[str] = None, default_metric: str = 'mean') -> Tuple[bool, str]:
+    def tag_custom_performance_column(
+        self, column: str, label: Optional[str] = None, default_metric: str = "mean"
+    ) -> Tuple[bool, str]:
         """Sets the column as a custom performance metric for the specified dataset and org id.
         The default metric will be displayed in the Performance tab in WhyLabs.
 
