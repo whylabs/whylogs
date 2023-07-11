@@ -449,6 +449,7 @@
 <span class="kn">from</span> <span class="nn">whylabs_client.model.create_reference_profile_request</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">CreateReferenceProfileRequest</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.metric_schema</span> <span class="kn">import</span> <span class="n">MetricSchema</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.model.segment</span> <span class="kn">import</span> <span class="n">Segment</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.model.segment_tag</span> <span class="kn">import</span> <span class="n">SegmentTag</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.rest</span> <span class="kn">import</span> <span class="n">ForbiddenException</span>  <span class="c1"># type: ignore</span>
@@ -869,6 +870,45 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tag_columns</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WhyLabsWriter.tag_custom_performance_column"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WhyLabsWriter.tag_custom_performance_column">[docs]</a>    <span class="k">def</span> <span class="nf">tag_custom_performance_column</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default_metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the column as a custom performance metric for the specified dataset and org id.</span>
+<span class="sd">        The default metric will be displayed in the Performance tab in WhyLabs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str</span>
+<span class="sd">            The column name in the whylogs profile you want to tag as a custom performance metric.</span>
+<span class="sd">        label : str</span>
+<span class="sd">            The label that will be displayed in WhyLabs UI. If none is passed, defaults to column name.</span>
+<span class="sd">        default_metric : str</span>
+<span class="sd">            The default metric that will be displayed in the Performance tab in WhyLabs.</span>
+<span class="sd">            For example, &quot;mean&quot;, &quot;median&quot;, &quot;max&quot;, or &quot;min&quot;.</span>
+<span class="sd">            If none is passed, defaults to &quot;mean&quot;.</span>
+
+<span class="sd">        Note: the resulting custom performance metric is considered an unmergeable metric.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">label</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">column</span>
+        <span class="n">api_instance</span> <span class="o">=</span> <span class="n">ModelsApi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">)</span>
+        <span class="n">metric_schema</span> <span class="o">=</span> <span class="n">MetricSchema</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">column</span><span class="o">=</span><span class="n">column</span><span class="p">,</span>
+            <span class="n">default_metric</span><span class="o">=</span><span class="n">default_metric</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_org_and_dataset</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">api_instance</span><span class="o">.</span><span class="n">put_entity_schema_metric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">metric_schema</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to tag column </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> as custom performance metric for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="si">}</span><span class="s2"> to &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WhyLabsWriter.write_estimation_result"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WhyLabsWriter.write_estimation_result">[docs]</a>    <span class="k">def</span> <span class="nf">write_estimation_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">EstimationResult</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">_uncompound_performance_estimation_feature_flag</span><span class="p">():</span>

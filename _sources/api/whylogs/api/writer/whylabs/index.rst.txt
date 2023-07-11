@@ -178,6 +178,23 @@ Attributes
       :rtype: Tuple[bool, str]
 
 
+   .. py:method:: tag_custom_performance_column(column: str, label: Optional[str] = None, default_metric: str = 'mean') -> Tuple[bool, str]
+
+      Sets the column as a custom performance metric for the specified dataset and org id.
+      The default metric will be displayed in the Performance tab in WhyLabs.
+
+      :param column: The column name in the whylogs profile you want to tag as a custom performance metric.
+      :type column: str
+      :param label: The label that will be displayed in WhyLabs UI. If none is passed, defaults to column name.
+      :type label: str
+      :param default_metric: The default metric that will be displayed in the Performance tab in WhyLabs.
+                             For example, "mean", "median", "max", or "min".
+                             If none is passed, defaults to "mean".
+      :type default_metric: str
+      :param Note:
+      :type Note: the resulting custom performance metric is considered an unmergeable metric.
+
+
    .. py:method:: write_estimation_result(file: whylogs.experimental.performance_estimation.estimation_results.EstimationResult, **kwargs: Any) -> Tuple[bool, str]
 
 
