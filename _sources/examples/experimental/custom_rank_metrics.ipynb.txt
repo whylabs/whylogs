@@ -1,0 +1,242 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!pip install --upgrade \"whylogs[whylabs]==1.1.36-dev0\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "import whylogs as why"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "why.__version__"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Example data\n",
+    "\n",
+    "We see three data formats as example data. Notice that the predictions AND targets columns can take lists or np.ndarrays of values.\n",
+    "\n",
+    "Consider the predictions for each row to be a list of ranked results in decreasing rank importance order (best match is first). In the case of the `binary` example, we pass predictions with a boolean representing whether or not the prediction was successful, e.g., relevant search results.\n",
+    "\n",
+    "Consider targets lists to be essentially sets of values that denote successful predictions. These can be values (matched based on equality)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Single predictions\n",
+    "single_df = pd.DataFrame({\"raw_predictions\": [[\"cat\", \"pig\", \"elephant\"], [\"horse\", \"donkey\", \"robin\"],\n",
+    "                                          [\"cow\", \"pig\", \"giraffe\"], [\"pig\", \"dolphin\", \"elephant\"]],\n",
+    "                          \"raw_targets\": [\"cat\", \"dog\", \"pig\", \"elephant\"]})\n",
+    "\n",
+    "# Binary predictions (True representing relevant results, False representing irrelevant)\n",
+    "binary_df = pd.DataFrame({\"raw_predictions\": [[True, False, True], [False, False, False],\n",
+    "                                          [True, True, False], [False, True, False]]})\n",
+    "\n",
+    "# Multiple predictions\n",
+    "multiple_df = pd.DataFrame({\"raw_targets\": [[\"cat\", \"elephant\"], [\"dog\", \"pig\"],\n",
+    "                                            [\"pig\", \"cow\"], [\"cat\", \"dolphin\"]],\n",
+    "                            \"raw_predictions\": [[\"cat\", \"pig\", \"elephant\"], [\"horse\", \"donkey\", \"robin\"],\n",
+    "                                                [\"cow\", \"pig\", \"giraffe\"], [\"pig\", \"dolphin\", \"elephant\"]]})"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Log using experimental batch ranking metrics API\n",
+    "\n",
+    "It's noteworthy that this API is for batch metrics -- meaning that the metrics are not meant to be merged together. This means that multiple profiles from distributed machines, Spark, or multiple uploads within the model granularity window are discouraged.\n",
+    "\n",
+    "Contrastingly, non-batch metrics APIs can be merged (but one is not yet released for ranking metrics)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Log ranking metrics\n",
+    "from whylogs.experimental.api.logger import log_batch_ranking_metrics\n",
+    "\n",
+    "results = log_batch_ranking_metrics(\n",
+    "    k=2,\n",
+    "    data=single_df,\n",
+    "    prediction_column=\"raw_predictions\",\n",
+    "    target_column=\"raw_targets\",\n",
+    "    log_full_data=True\n",
+    ")\n",
+    "\n",
+    "# NOTE: If you've already ran why.log() on your input data, change log_full_data to False."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# View results\n",
+    "results.view().to_pandas().T"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Send profile summaries to WhyLabs platform\n",
+    "Required information can be found at https://hub.whylabsapp.com under the Settings > Model and Dataset Management page.\n",
+    "\n",
+    "API keys are only shown once, so you may need to create a new one and save somewhere safe."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Configure WhyLabs info, if needed\n",
+    "import getpass\n",
+    "import os\n",
+    "\n",
+    "os.environ[\"WHYLABS_DEFAULT_ORG_ID\"] = input(\"Enter your WhyLabs Org ID\")\n",
+    "os.environ[\"WHYLABS_DEFAULT_DATASET_ID\"] = input(\"Enter your WhyLabs Dataset ID\")\n",
+    "os.environ[\"WHYLABS_API_KEY\"] =  getpass.getpass(\"Enter your WhyLabs API key\")\n",
+    "print(\"Using API Key ID: \", os.environ[\"WHYLABS_API_KEY\"][0:10])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Write the results to WhyLabs platform\n",
+    "results.writer(\"whylabs\").write()"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## WhyLabs UI Improvements\n",
+    "\n",
+    "### Optional: Move to Outputs tab\n",
+    "The above metrics will default to the Input tab, but you may organize your data columns by instead displaying relevant columns in the Outputs tab.\n",
+    "\n",
+    "There are two options to do so:\n",
+    "1. Using WhyLabsWriter API within whylogs\n",
+    "2. Using REST API"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Update relevant columns to output columns\n",
+    "from whylogs.api.writer.whylabs import WhyLabsWriter\n",
+    "k = 2 \n",
+    "column_names = [\"mean_average_precision_k_\"+str(k), \"accuracy_k_\"+str(k), \n",
+    "                \"mean_reciprocal_rank\", \"precision_k_\"+str(k), \"recall_k_\"+str(k), \n",
+    "                \"top_rank\", \"average_precision_k_\"+str(k)]\n",
+    "\n",
+    "whylabs_writer = WhyLabsWriter()\n",
+    "try:\n",
+    "    whylabs_writer.tag_output_columns(column_names)\n",
+    "except:\n",
+    "    print(\"Issue with changing UI via whylogs. \\nUse REST API at \"\n",
+    "          \"https://api.whylabsapp.com/swagger-ui#/Models/PutEntitySchemaColumn.\")"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Show relevant columns in Performance tab\n",
+    "\n",
+    "Visit our REST API page: https://api.whylabsapp.com/swagger-ui#/Models/PutEntitySchemaMetric.\n",
+    "Authenticate (top right) using API key. Scroll back to `PutEntitySchemaMetric` and enter your `org_id` and `dataset_id`.\n",
+    "\n",
+    "Run three times with the following request bodies:\n",
+    "\n",
+    "```\n",
+    "{\n",
+    "  \"label\": \"Mean Average Precision, k=2\",\n",
+    "  \"column\": \"mean_average_precision_k_2\",\n",
+    "  \"defaultMetric\": \"median\"\n",
+    "}\n",
+    "```\n",
+    "\n",
+    "```\n",
+    "{\n",
+    "  \"label\": \"Accuracy / Hit Rate, k=2\",\n",
+    "  \"column\": \"accuracy_k_2\",\n",
+    "  \"defaultMetric\": \"median\"\n",
+    "}\n",
+    "```\n",
+    "\n",
+    "```\n",
+    "{\n",
+    "  \"label\": \"Mean Reciprocal Rank (MRR)\",\n",
+    "  \"column\": \"mean_reciprocal_rank\",\n",
+    "  \"defaultMetric\": \"median\"\n",
+    "}\n",
+    "```"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "wl-public",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.10"
+  },
+  "orig_nbformat": 4
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
