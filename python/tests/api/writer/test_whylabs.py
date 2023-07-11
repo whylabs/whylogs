@@ -156,6 +156,16 @@ class TestWhylabsWriter(object):
         assert result == get_result
         assert isinstance(result, FeatureWeights)
 
+    def test_flag_column_as_custom_performance_metric(self):
+        writer = WhyLabsWriter()
+        column_name = "col_name"
+        label = "customMetric"
+        default_metric = "mean"
+        flag_result = (True, "{'request_id': '0dfe61f9-36c4-46b0-b176-a62f4f3c85e0'}")
+        writer.tag_custom_performance_column = MagicMock(return_value=flag_result)
+        result = writer.tag_custom_performance_column(column=column_name, label=label, default_metric=default_metric)
+        assert result == flag_result
+
     def test_option_will_overwrite_defaults(self) -> None:
         writer = WhyLabsWriter()
         writer.option(
