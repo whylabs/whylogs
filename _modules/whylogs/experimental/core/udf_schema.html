@@ -440,7 +440,7 @@
 
 <span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">TypeMapper</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">MetricConfig</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">DEFAULT_RESOLVER</span><span class="p">,</span> <span class="n">MetricSpec</span><span class="p">,</span> <span class="n">ResolverSpec</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">NO_FI_RESOLVER</span><span class="p">,</span> <span class="n">MetricSpec</span><span class="p">,</span> <span class="n">ResolverSpec</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DeclarativeSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">SegmentationPartition</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
@@ -734,6 +734,9 @@
     <span class="k">return</span> <span class="n">specs</span></div>
 
 
+<span class="n">DEFAULT_UDF_SCHEMA_RESOLVER</span> <span class="o">=</span> <span class="n">NO_FI_RESOLVER</span>
+
+
 <div class="viewcode-block" id="udf_schema"><a class="viewcode-back" href="../../../../api/whylogs/experimental/core/udf_schema/index.html#whylogs.experimental.core.udf_schema.udf_schema">[docs]</a><span class="k">def</span> <span class="nf">udf_schema</span><span class="p">(</span>
     <span class="n">other_udf_specs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">UdfSpec</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">resolvers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ResolverSpec</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -751,7 +754,7 @@
 <span class="sd">    Returns a UdfSchema that implements any registered UDFs, along with any</span>
 <span class="sd">    other_udf_specs or resolvers passed in.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">resolver_specs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">resolvers</span> <span class="k">if</span> <span class="n">resolvers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">DEFAULT_RESOLVER</span><span class="p">)</span>
+    <span class="n">resolver_specs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">resolvers</span> <span class="k">if</span> <span class="n">resolvers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">DEFAULT_UDF_SCHEMA_RESOLVER</span><span class="p">)</span>
     <span class="n">schema_names</span> <span class="o">=</span> <span class="n">schema_name</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schema_name</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">schema_name</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">include_default_schema</span> <span class="ow">and</span> <span class="s2">&quot;&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">schema_names</span><span class="p">:</span>
         <span class="n">schema_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">schema_names</span>

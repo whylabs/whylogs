@@ -35,6 +35,7 @@ Attributes
 .. autoapisummary::
 
    whylogs.experimental.core.udf_schema.logger
+   whylogs.experimental.core.udf_schema.DEFAULT_UDF_SCHEMA_RESOLVER
 
 
 .. py:data:: logger
@@ -163,6 +164,10 @@ Attributes
    are appended to the STANDARD_UDF_RESOLVER, the default metrics are also tracked
    for every column.
 
+
+.. py:data:: DEFAULT_UDF_SCHEMA_RESOLVER
+
+   
 
 .. py:function:: udf_schema(other_udf_specs: Optional[List[UdfSpec]] = None, resolvers: Optional[List[whylogs.core.resolvers.ResolverSpec]] = None, types: Optional[Dict[str, Any]] = None, default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Optional[Dict[str, List[whylogs.core.validators.validator.Validator]]] = None, schema_name: Union[str, List[str]] = '', include_default_schema: bool = True) -> UdfSchema
 
