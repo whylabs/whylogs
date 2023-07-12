@@ -16,7 +16,7 @@ from typing import (
 
 from whylogs.core.datatypes import DataType, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
-from whylogs.core.resolvers import DEFAULT_RESOLVER, MetricSpec, ResolverSpec
+from whylogs.core.resolvers import NO_FI_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
@@ -310,6 +310,9 @@ def generate_udf_specs(
     return specs
 
 
+DEFAULT_UDF_SCHEMA_RESOLVER = NO_FI_RESOLVER
+
+
 def udf_schema(
     other_udf_specs: Optional[List[UdfSpec]] = None,
     resolvers: Optional[List[ResolverSpec]] = None,
@@ -327,7 +330,7 @@ def udf_schema(
     Returns a UdfSchema that implements any registered UDFs, along with any
     other_udf_specs or resolvers passed in.
     """
-    resolver_specs = list(resolvers if resolvers is not None else DEFAULT_RESOLVER)
+    resolver_specs = list(resolvers if resolvers is not None else DEFAULT_UDF_SCHEMA_RESOLVER)
     schema_names = schema_name if isinstance(schema_name, list) else [schema_name]
     if include_default_schema and "" not in schema_names:
         schema_names = [""] + schema_names
