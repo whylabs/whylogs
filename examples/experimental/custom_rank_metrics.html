@@ -692,7 +692,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span><span class="s2">&quot;whylogs[whylabs]==1.1.36-dev0&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install  whylogs
 </pre></div>
 </div>
 </div>
@@ -820,11 +820,7 @@ div.rendered_html tbody tr:hover {
                 <span class="s2">&quot;top_rank&quot;</span><span class="p">,</span> <span class="s2">&quot;average_precision_k_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span>
 
 <span class="n">whylabs_writer</span> <span class="o">=</span> <span class="n">WhyLabsWriter</span><span class="p">()</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">whylabs_writer</span><span class="o">.</span><span class="n">tag_output_columns</span><span class="p">(</span><span class="n">column_names</span><span class="p">)</span>
-<span class="k">except</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Issue with changing UI via whylogs. </span><span class="se">\n</span><span class="s2">Use REST API at &quot;</span>
-          <span class="s2">&quot;https://api.whylabsapp.com/swagger-ui#/Models/PutEntitySchemaColumn.&quot;</span><span class="p">)</span>
+<span class="n">whylabs_writer</span><span class="o">.</span><span class="n">tag_output_columns</span><span class="p">(</span><span class="n">column_names</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
