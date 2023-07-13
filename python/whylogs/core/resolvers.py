@@ -2,11 +2,19 @@ import logging
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, TypeVar
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
 from typing_extensions import TypeAlias
 
-from whylogs.core.datatypes import AnyType, DataType, Fractional, Integral, String
+from whylogs.core.datatypes import (
+    AnyType,
+    DataType,
+    Fractional,
+    Integral,
+    StandardTypeMapper,
+    String,
+    TypeMapper,
+)
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 
@@ -110,9 +118,10 @@ class ResolverSpec:
     """
 
     column_name: Optional[str] = None  # TODO: maybe make this a regex
-    column_type: Optional[DataType] = None
+    column_type: Optional[Union[DataType, Type]] = None
     metrics: List[MetricSpec] = field(default_factory=list)
     exclude: bool = False
+    type_mapper: TypeMapper = field(default_factory=StandardTypeMapper)
 
     def __post_init__(self):
         if self.column_name and self.column_type:
@@ -120,7 +129,10 @@ class ResolverSpec:
         if not (self.column_name or self.column_type):
             raise ValueError("ResolverSpec: resolver specification must supply name or type")
 
-        if self.column_type and not issubclass(self.column_type, DataType):
+        try:
+            if self.column_type and not issubclass(self.column_type, DataType):
+                self.column_type = type(self.type_mapper(self.column_type))
+        except:  # noqa
             raise ValueError("ResolverSpec: resolver specification column type must be a DataType")
 
 

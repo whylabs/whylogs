@@ -3,7 +3,7 @@ import pytest
 import whylogs as why
 import whylogs.core.resolvers as res
 from whylogs.core import DatasetSchema
-from whylogs.core.datatypes import Fractional, String
+from whylogs.core.datatypes import AnyType, Fractional, String
 from whylogs.core.metrics import MetricConfig, StandardMetric
 from whylogs.core.metrics.column_metrics import ColumnCountsMetric, TypeCountersMetric
 from whylogs.core.metrics.condition_count_metric import (
@@ -14,6 +14,7 @@ from whylogs.core.metrics.condition_count_metric import (
 from whylogs.core.metrics.condition_count_metric import Relation as Rel
 from whylogs.core.metrics.condition_count_metric import relation as rel
 from whylogs.core.resolvers import (
+    COLUMN_METRICS,
     DEFAULT_RESOLVER,
     HISTOGRAM_COUNTING_TRACKING_RESOLVER,
     LIMITED_TRACKING_RESOLVER,
@@ -93,6 +94,49 @@ def test_default_resolver():
     assert schema.resolvers._resolvers == DEFAULT_RESOLVER
     schema = DeclarativeSchema([])
     assert schema.resolvers._resolvers == []
+
+
+def test_resolve_by_python_type():
+    resolvers = [
+        ResolverSpec(
+            column_type=int,
+            metrics=COLUMN_METRICS
+            + [
+                MetricSpec(StandardMetric.distribution.value),
+                MetricSpec(StandardMetric.ints.value),
+                MetricSpec(StandardMetric.cardinality.value),
+            ],
+        ),
+        ResolverSpec(
+            column_type=float,
+            metrics=COLUMN_METRICS
+            + [
+                MetricSpec(StandardMetric.distribution.value),
+                MetricSpec(StandardMetric.cardinality.value),
+            ],
+        ),
+        ResolverSpec(
+            column_type=str,
+            metrics=COLUMN_METRICS
+            + [
+                MetricSpec(StandardMetric.unicode_range.value, config=MetricConfig(track_unicode_ranges=True)),
+                MetricSpec(StandardMetric.frequent_items.value),
+            ],
+        ),
+        ResolverSpec(column_type=AnyType, metrics=COLUMN_METRICS),
+    ]
+    schema = DeclarativeSchema(resolvers)
+    data = {"column_1": 3.14, "column_2": "lmno", "column_3": 42}
+    results = why.log(row=data, schema=schema).view()
+
+    col1_metrics = set(results.get_column("column_1").get_metric_names())
+    assert col1_metrics == {"counts", "types", "distribution", "cardinality"}
+
+    col2_metrics = set(results.get_column("column_2").get_metric_names())
+    assert col2_metrics == {"counts", "types", "frequent_items", "unicode_range"}
+
+    col3_metrics = set(results.get_column("column_3").get_metric_names())
+    assert col3_metrics == {"counts", "types", "distribution", "ints", "cardinality"}
 
 
 def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
@@ -197,7 +241,7 @@ def test_invalid_config() -> None:
         ResolverSpec()
         assert e.value.args[0] == "ResolverSpec: resolver specification must supply name or type"
     with pytest.raises(ValueError) as e:
-        ResolverSpec(column_type=str)
+        ResolverSpec(column_type=12)
         assert e.value.args[0] == "ResolverSpec: resolver specification column type must be a DataType"
     with pytest.raises(ValueError) as e:
         ResolverSpec(column_name="bruce", metrics=[MetricSpec(int)])

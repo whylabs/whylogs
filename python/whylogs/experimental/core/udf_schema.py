@@ -11,10 +11,11 @@ from typing import (
     Mapping,
     Optional,
     Tuple,
+    Type,
     Union,
 )
 
-from whylogs.core.datatypes import DataType, TypeMapper
+from whylogs.core.datatypes import DataType, StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import NO_FI_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
@@ -62,13 +63,15 @@ class UdfSpec:
             raise ValueError("UdfSpec column_names must be a non-empty list of strings")
 
 
-def _apply_udfs_on_row(value: Any, udfs: Dict, new_columns: Dict[str, Any], input_cols: Collection[str]) -> None:
+def _apply_udfs_on_row(
+    values: Union[List, Dict[str, List]], udfs: Dict, new_columns: Dict[str, Any], input_cols: Collection[str]
+) -> None:
     for new_col, udf in udfs.items():
         if new_col in input_cols:
             continue
 
         try:
-            new_columns[new_col] = udf(value)
+            new_columns[new_col] = udf(values)[0]
         except Exception:  # noqa
             new_columns[new_col] = None
             logger.exception(f"Evaluating UDF {new_col} failed")
@@ -82,7 +85,7 @@ def _apply_udfs_on_dataframe(
             continue
 
         try:
-            new_df[new_col] = udf(pandas)
+            new_df[new_col] = pd.Series(udf(pandas))
         except Exception as e:  # noqa
             new_df[new_col] = pd.Series([None])
             logger.exception(f"Evaluating UDF {new_col} failed on columns {pandas.keys()} with error {e}")
@@ -94,7 +97,7 @@ def _apply_type_udfs(pandas: pd.Series, udfs: Dict, new_df: pd.DataFrame, input_
             continue
 
         try:
-            new_df[new_col] = udf(pandas)
+            new_df[new_col] = pd.Series(udf(pandas))
         except Exception as e:  # noqa
             new_df[new_col] = pd.Series([None])
             logger.exception(f"Evaluating UDF {new_col} failed on column {new_col} with error {e}")
@@ -146,13 +149,14 @@ class UdfSchema(DeclarativeSchema):
     ) -> None:
         for spec in self.multicolumn_udfs:
             if spec.column_names and set(spec.column_names).issubset(set(row.keys())):
-                _apply_udfs_on_row(row, spec.udfs, new_columns, input_cols)
+                inputs = {col: [row[col]] for col in row.keys()}
+                _apply_udfs_on_row(inputs, spec.udfs, new_columns, input_cols)
 
         for column, value in row.items():
             why_type = type(self.type_mapper(type(value)))
             for spec in self.type_udfs[why_type]:
                 udfs = {f"{column}.{key}": spec.udfs[key] for key in spec.udfs.keys()}
-                _apply_udfs_on_row(value, udfs, new_columns, input_cols)
+                _apply_udfs_on_row([value], udfs, new_columns, input_cols)
 
     def _run_udfs_on_dataframe(self, pandas: pd.DataFrame, new_df: pd.DataFrame, input_cols: Collection[str]) -> None:
         for spec in self.multicolumn_udfs:
@@ -242,10 +246,11 @@ def register_dataset_udf(
 
 
 def register_type_udf(
-    col_type: DataType,
+    col_type: Union[DataType, Type],
     udf_name: Optional[str] = None,
     namespace: Optional[str] = None,
     schema_name: str = "",
+    type_mapper: Optional[TypeMapper] = None,
 ) -> Callable[[Any], Any]:
     """
     Decorator to easily configure UDFs for your data set. Decorate your UDF
@@ -263,6 +268,9 @@ def register_type_udf(
     it will be registered to the defualt schema.
 
     """
+    if not issubclass(col_type, DataType):
+        type_mapper = type_mapper or StandardTypeMapper()
+        col_type = type(type_mapper(col_type))
 
     def decorator_register(func):
         global _multicolumn_udfs, _resolver_specs
