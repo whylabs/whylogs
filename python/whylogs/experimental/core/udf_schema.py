@@ -246,7 +246,7 @@ def register_dataset_udf(
 
 
 def register_type_udf(
-    col_type: Union[DataType, Type],
+    col_type: Type,
     udf_name: Optional[str] = None,
     namespace: Optional[str] = None,
     schema_name: str = "",
@@ -268,9 +268,12 @@ def register_type_udf(
     it will be registered to the defualt schema.
 
     """
-    if not issubclass(col_type, DataType):
-        type_mapper = type_mapper or StandardTypeMapper()
-        col_type = type(type_mapper(col_type))
+    try:
+        if not issubclass(col_type, DataType):
+            type_mapper = type_mapper or StandardTypeMapper()
+            col_type = type(type_mapper(col_type))
+    except:  # noqa
+        raise ValueError("Column type must be a DataType or Python type mapable to one")
 
     def decorator_register(func):
         global _multicolumn_udfs, _resolver_specs
