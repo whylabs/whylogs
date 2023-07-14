@@ -526,7 +526,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing API key. Set it via WHYLABS_API_KEY environment variable or as an api_key option&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">12</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;API key too short&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">64</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">80</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;API key too long&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">api_key</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid format. Expecting a dot at an index 10&quot;</span><span class="p">)</span>
