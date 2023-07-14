@@ -2,7 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Type, TypeVar
 
 from typing_extensions import TypeAlias
 
@@ -118,7 +118,7 @@ class ResolverSpec:
     """
 
     column_name: Optional[str] = None  # TODO: maybe make this a regex
-    column_type: Optional[Union[DataType, Type]] = None
+    column_type: Optional[Type] = None
     metrics: List[MetricSpec] = field(default_factory=list)
     exclude: bool = False
     type_mapper: TypeMapper = field(default_factory=StandardTypeMapper)

@@ -82,7 +82,7 @@ def test_decorator_row() -> None:
 
 @register_dataset_udf(["col1"], "annihilate_me", anti_metrics=[CardinalityMetric, DistributionMetric])
 def plus1(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
-    return x["col1"] + 1 if isinstance(x, pd.DataFrame) else [xx + 1 for xx in x["col1"]]
+    return x["col1"] + 1 if isinstance(x, pd.DataFrame) else map(lambda i: i + 1, x["col1"])
 
 
 def test_anti_resolver() -> None:
