@@ -102,7 +102,7 @@ def _validate_api_key(api_key: Optional[str]) -> str:
         raise ValueError("Missing API key. Set it via WHYLABS_API_KEY environment variable or as an api_key option")
     if len(api_key) < 12:
         raise ValueError("API key too short")
-    if len(api_key) > 64:
+    if len(api_key) > 80:
         raise ValueError("API key too long")
     if api_key[10] != ".":
         raise ValueError("Invalid format. Expecting a dot at an index 10")
