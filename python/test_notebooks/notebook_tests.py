@@ -19,7 +19,7 @@ skip_notebooks = [
     "Getting_Started_with_WhyLabsV1.ipynb",
     "Writing_Feature_Weights_to_WhyLabs.ipynb",
     "Image_Logging.ipynb",
-    "custom_rank_metrics.ipynb",
+    "Writing_Ranking_Performance_Metrics_to_WhyLabs.ipynb",
     "Image_Logging_Udf_Metric.ipynb",
     "mnist_exploration.ipynb",
     "performance_estimation.ipynb",
