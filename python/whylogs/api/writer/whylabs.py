@@ -68,6 +68,16 @@ _US_WEST2_DOMAIN = "songbird-20201223060057342600000001.s3.us-west-2.amazonaws.c
 _S3_PUBLIC_DOMAIN = os.environ.get("_WHYLABS_PRIVATE_S3_DOMAIN") or _US_WEST2_DOMAIN
 _WHYLABS_SKIP_CONFIG_READ = os.environ.get("_WHYLABS_SKIP_CONFIG_READ") or False
 
+KNOWN_CUSTOM_PERFORMANCE_METRICS = {
+    "mean_average_precision_k_": "mean",
+    "accuracy_k_": "mean",
+    "mean_reciprocal_rank": "mean",
+    "precision_k_": "mean",
+    "recall_k_": "mean",
+    "top_rank": "mean",
+    "average_precision_k_": "mean",
+}
+
 
 def _check_whylabs_condition_count_uncompound() -> bool:
     global _WHYLABS_SKIP_CONFIG_READ
@@ -589,6 +599,16 @@ class WhyLabsWriter(Writer):
         else:
             return False, "Failed to upload all segments"
 
+    def _tag_custom_perf_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView]):
+        if isinstance(view, DatasetProfileView):
+            column_names = view.get_columns().keys()
+            for column_name in column_names:
+                for perf_col in KNOWN_CUSTOM_PERFORMANCE_METRICS:
+                    if column_name.startswith(perf_col):
+                        metric = KNOWN_CUSTOM_PERFORMANCE_METRICS[perf_col]
+                        self.tag_custom_performance_column(column_name, default_metric=metric)
+        return
+
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
         if isinstance(file, FeatureWeights):
@@ -599,7 +619,7 @@ class WhyLabsWriter(Writer):
             return self._write_segmented_reference_result_set(file, **kwargs)
         view = file.view() if isinstance(file, DatasetProfile) else file
         has_segments = isinstance(view, SegmentedDatasetProfileView)
-
+        self._tag_custom_perf_metrics(view)
         if not has_segments and not isinstance(view, DatasetProfileView):
             raise ValueError(
                 "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
