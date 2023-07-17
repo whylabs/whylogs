@@ -1,4 +1,5 @@
 import logging
+from math import log as math_log
 from typing import Optional, Union
 
 from whylogs.api.logger import log
@@ -18,6 +19,7 @@ def log_batch_ranking_metrics(
     schema: Union[DatasetSchema, None] = None,
     log_full_data: bool = False,
 ) -> ProfileResultSet:
+    
     formatted_data = data.copy(deep=True)  # TODO: does this have to be deep?
 
     relevant_cols = [prediction_column]
@@ -31,8 +33,6 @@ def log_batch_ranking_metrics(
 
     for col in relevant_cols:
         if not formatted_data[col].apply(lambda x: type(x) == list).all():
-            # wrapping in lists because at least one isn't a list
-            # TODO: more error checking
             formatted_data[col] = formatted_data[col].apply(lambda x: [x])
 
     formatted_data["count_at_k"] = formatted_data[relevant_cols].apply(
@@ -79,6 +79,12 @@ def log_batch_ranking_metrics(
     hit_ratio = formatted_data["count_at_k"].apply(lambda x: bool(x)).sum() / len(formatted_data)
     mrr = (1 / output_data["top_rank"]).replace([np.inf], np.nan).mean()
 
+    predicted_order = formatted_data[prediction_column].argsort()[::-1]
+    target_order = formatted_data[target_column].argsort()[::-1]
+
+    dcg = sum([rel / (math_log(i + 2, 2)) for i, rel in enumerate(predicted_order[:k])])
+    idcg = sum([rel / (math_log(i + 2, 2)) for i, rel in enumerate(target_order[:k])])
+
     result = log(pandas=output_data, schema=schema)
     result = result.merge(
         log(
@@ -86,6 +92,7 @@ def log_batch_ranking_metrics(
                 "mean_average_precision_k_" + str(k): mAP_at_k,
                 "accuracy_k_" + str(k): hit_ratio,
                 "mean_reciprocal_rank": mrr,
+                "norm_discounted_cumul_gain_k_" + str(k): dcg/idcg,
             },
             schema=schema,
         )

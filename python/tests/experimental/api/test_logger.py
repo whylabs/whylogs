@@ -28,6 +28,7 @@ def test_log_batch_ranking_metrics_single_simple():
         "recall_k_" + str(k),
         "top_rank",
         "average_precision_k_" + str(k),
+        "norm_discounted_cumul_gain_k_" + str(k)
     ]
     for col in column_names:
         assert col in pandas_summary.index
@@ -38,6 +39,7 @@ def test_log_batch_ranking_metrics_single_simple():
     assert pandas_summary.loc["recall_k_" + str(k), "counts/n"] == 4
     assert pandas_summary.loc["top_rank", "counts/n"] == 4
     assert pandas_summary.loc["average_precision_k_" + str(k), "counts/n"] == 4
+    assert pandas_summary.loc["norm_discounted_cumul_gain_k_" + str(k), "counts/n"] == 1
 
 
 def test_log_batch_ranking_metrics_binary_simple():
@@ -57,6 +59,7 @@ def test_log_batch_ranking_metrics_binary_simple():
         "recall_k_" + str(k),
         "top_rank",
         "average_precision_k_" + str(k),
+        "norm_discounted_cumul_gain_k_" + str(k)
     ]
     for col in column_names:
         assert col in pandas_summary.index
@@ -67,6 +70,7 @@ def test_log_batch_ranking_metrics_binary_simple():
     assert pandas_summary.loc["recall_k_" + str(k), "counts/n"] == 4
     assert pandas_summary.loc["top_rank", "counts/n"] == 4
     assert pandas_summary.loc["average_precision_k_" + str(k), "counts/n"] == 4
+    assert pandas_summary.loc["norm_discounted_cumul_gain_k_" + str(k), "counts/n"] == 1
 
 
 def test_log_batch_ranking_metrics_multiple_simple():
@@ -96,6 +100,7 @@ def test_log_batch_ranking_metrics_multiple_simple():
         "recall_k_" + str(k),
         "top_rank",
         "average_precision_k_" + str(k),
+        "norm_discounted_cumul_gain_k_" + str(k)
     ]
     for col in column_names:
         assert col in pandas_summary.index
@@ -106,3 +111,4 @@ def test_log_batch_ranking_metrics_multiple_simple():
     assert pandas_summary.loc["recall_k_" + str(k), "counts/n"] == 4
     assert pandas_summary.loc["top_rank", "counts/n"] == 4
     assert pandas_summary.loc["average_precision_k_" + str(k), "counts/n"] == 4
+    assert pandas_summary.loc["norm_discounted_cumul_gain_k_" + str(k), "counts/n"] == 1
