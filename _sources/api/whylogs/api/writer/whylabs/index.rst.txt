@@ -31,6 +31,7 @@ Attributes
    whylogs.api.writer.whylabs.FIVE_YEARS_IN_SECONDS
    whylogs.api.writer.whylabs.logger
    whylogs.api.writer.whylabs.API_KEY_ENV
+   whylogs.api.writer.whylabs.KNOWN_CUSTOM_PERFORMANCE_METRICS
 
 
 .. py:data:: FIVE_MINUTES_IN_SECONDS
@@ -55,6 +56,10 @@ Attributes
 
 .. py:data:: API_KEY_ENV
    :value: 'WHYLABS_API_KEY'
+
+   
+
+.. py:data:: KNOWN_CUSTOM_PERFORMANCE_METRICS
 
    
 

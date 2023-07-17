@@ -492,6 +492,16 @@
 <span class="n">_S3_PUBLIC_DOMAIN</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_WHYLABS_PRIVATE_S3_DOMAIN&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_US_WEST2_DOMAIN</span>
 <span class="n">_WHYLABS_SKIP_CONFIG_READ</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_WHYLABS_SKIP_CONFIG_READ&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">False</span>
 
+<span class="n">KNOWN_CUSTOM_PERFORMANCE_METRICS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;mean_average_precision_k_&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accuracy_k_&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mean_reciprocal_rank&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;precision_k_&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;recall_k_&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;top_rank&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;average_precision_k_&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
 
 <span class="k">def</span> <span class="nf">_check_whylabs_condition_count_uncompound</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">global</span> <span class="n">_WHYLABS_SKIP_CONFIG_READ</span>
@@ -1013,6 +1023,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Failed to upload all segments&quot;</span>
 
+    <span class="k">def</span> <span class="nf">_tag_custom_perf_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">):</span>
+            <span class="n">column_names</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">column_names</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">perf_col</span> <span class="ow">in</span> <span class="n">KNOWN_CUSTOM_PERFORMANCE_METRICS</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">column_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">perf_col</span><span class="p">):</span>
+                        <span class="n">metric</span> <span class="o">=</span> <span class="n">KNOWN_CUSTOM_PERFORMANCE_METRICS</span><span class="p">[</span><span class="n">perf_col</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">tag_custom_performance_column</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">default_metric</span><span class="o">=</span><span class="n">metric</span><span class="p">)</span>
+        <span class="k">return</span>
+
 <div class="viewcode-block" id="WhyLabsWriter.write"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WhyLabsWriter.write">[docs]</a>    <span class="nd">@deprecated_alias</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="s2">&quot;file&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Writable</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">FeatureWeights</span><span class="p">):</span>
@@ -1023,7 +1043,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_segmented_reference_result_set</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">view</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">view</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">DatasetProfile</span><span class="p">)</span> <span class="k">else</span> <span class="n">file</span>
         <span class="n">has_segments</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">)</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tag_custom_perf_metrics</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">has_segments</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!&quot;</span>
