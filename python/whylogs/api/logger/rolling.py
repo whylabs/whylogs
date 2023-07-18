@@ -89,7 +89,7 @@ class TimedRollingLogger(Logger):
         self.aligned = aligned
         self.fork = fork
         self.skip_empty = skip_empty
-        self._metadatay = metadata
+        self._metadata = metadata
 
         # base on TimedRotatingFileHandler
         self.when = when.upper()
