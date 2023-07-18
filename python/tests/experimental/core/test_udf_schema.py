@@ -1,3 +1,5 @@
+from typing import Any, Dict, List, Union
+
 import pandas as pd
 
 import whylogs as why
@@ -45,12 +47,12 @@ def test_udf_pandas() -> None:
 
 
 @register_dataset_udf(["col1"])
-def add5(x):
-    return x["col1"] + 5
+def add5(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
+    return [xx + 5 for xx in x["col1"]]
 
 
-def square(x):
-    return x["col1"] * x["col1"]
+def square(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
+    return x["col1"] * x["col1"] if isinstance(x, (pd.Series, pd.DataFrame)) else [xx * xx for xx in x["col1"]]
 
 
 def test_decorator_pandas() -> None:
@@ -79,8 +81,8 @@ def test_decorator_row() -> None:
 
 
 @register_dataset_udf(["col1"], "annihilate_me", anti_metrics=[CardinalityMetric, DistributionMetric])
-def plus1(x):
-    return x["col1"] + 1
+def plus1(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
+    return x["col1"] + 1 if isinstance(x, pd.DataFrame) else map(lambda i: i + 1, x["col1"])
 
 
 def test_anti_resolver() -> None:
@@ -103,12 +105,12 @@ def test_anti_resolver() -> None:
 
 
 @register_dataset_udf(["col1"], "colliding_name", namespace="pluto")
-def a_function(x):
+def a_function(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return x["col1"]
 
 
 @register_dataset_udf(["col1"], "colliding_name", namespace="neptune")
-def another_function(x):
+def another_function(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return x["col1"]
 
 
@@ -119,13 +121,13 @@ def test_namespace() -> None:
 
 
 @register_dataset_udf(["col1", "col2"], "product")
-def times(x):
-    return x["col1"] * x["col2"]
+def times(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
+    return [xx * yy for xx, yy in zip(x["col1"], x["col2"])]
 
 
 @register_dataset_udf(["col1", "col3"], metrics=[MetricSpec(StandardMetric.distribution.value)])
-def ratio(x):
-    return x["col1"] / x["col3"]
+def ratio(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
+    return [xx / yy for xx, yy in zip(x["col1"], x["col3"])]
 
 
 def test_multicolumn_udf_pandas() -> None:
@@ -210,7 +212,7 @@ n: int = 0
 
 
 @register_dataset_udf(["oops"])
-def exothermic(x):
+def exothermic(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     global n
     n += 1
     if n < 3:
@@ -258,7 +260,7 @@ def test_udf_throws_row() -> None:
 
 
 @register_metric_udf("foo")
-def bar(x):
+def bar(x: Any) -> Any:
     return x
 
 
@@ -318,18 +320,18 @@ def test_udf_track() -> None:
 
 
 @register_dataset_udf(["schema.col1"], schema_name="bob")
-def bob(x):
+def bob(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return x["schema.col1"]
 
 
 @register_metric_udf("schema.col1", schema_name="bob")
-def rob(x):
+def rob(x: Any) -> Any:
     return x
 
 
 @register_dataset_udf(["schema.col1"], "add5")
-def fob(x):
-    return x["schema.col1"] + 5
+def fob(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
+    return x["schema.col1"] + 5 if isinstance(x, pd.DataFrame) else [xx + 5 for xx in x["schema.col1"]]
 
 
 def test_schema_name() -> None:
@@ -390,8 +392,8 @@ def test_direct_udfs() -> None:
 
 
 @register_type_udf(Fractional)
-def square_type(x) -> float:
-    return x * x
+def square_type(x: Union[List, pd.Series]) -> Union[List, pd.Series]:
+    return x * x if isinstance(x, pd.Series) else [xx * xx for xx in x]
 
 
 def test_type_udf_row() -> None:
@@ -410,6 +412,21 @@ def test_type_udf_dataframe() -> None:
     results = why.log(data, schema=schema).view()
     assert "col1.square_type" in results.get_columns().keys()
     summary = results.get_column("col1.square_type").to_summary_dict()
+    assert summary["counts/n"] == 2
+    assert summary["types/fractional"] == 2
+
+
+@register_type_udf(float)
+def square_python_type(x: Union[List, pd.Series]) -> Union[List, pd.Series]:
+    return x * x if isinstance(x, pd.Series) else [xx * xx for xx in x]
+
+
+def test_python_type_udf() -> None:
+    schema = udf_schema()
+    data = pd.DataFrame({"col1": [3.14, 42.0]})
+    results = why.log(data, schema=schema).view()
+    assert "col1.square_python_type" in results.get_columns().keys()
+    summary = results.get_column("col1.square_python_type").to_summary_dict()
     assert summary["counts/n"] == 2
     assert summary["types/fractional"] == 2
 

@@ -124,6 +124,9 @@ class TypeMapper(ABC):
     def __call__(self, dtype_or_type: Any) -> DataType:
         raise NotImplementedError
 
+    def __eq__(self, other):  # just here for unit testing purposes
+        return type(self) == type(other)
+
 
 class StandardTypeMapper(TypeMapper):
     """Map a dtype (Pandas) or a Python type to a data type."""
