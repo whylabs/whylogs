@@ -126,7 +126,7 @@ Attributes
       
 
    .. py:attribute:: column_type
-      :type: Optional[whylogs.core.datatypes.DataType]
+      :type: Optional[Type]
 
       
 
@@ -138,6 +138,11 @@ Attributes
    .. py:attribute:: exclude
       :type: bool
       :value: False
+
+      
+
+   .. py:attribute:: type_mapper
+      :type: whylogs.core.datatypes.TypeMapper
 
       
 

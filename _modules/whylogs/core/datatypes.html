@@ -546,7 +546,10 @@
 <div class="viewcode-block" id="TypeMapper"><a class="viewcode-back" href="../../../api/whylogs/core/index.html#whylogs.core.datatypes.TypeMapper">[docs]</a><span class="k">class</span> <span class="nc">TypeMapper</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype_or_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataType</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>  <span class="c1"># just here for unit testing purposes</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="StandardTypeMapper"><a class="viewcode-back" href="../../../api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.StandardTypeMapper">[docs]</a><span class="k">class</span> <span class="nc">StandardTypeMapper</span><span class="p">(</span><span class="n">TypeMapper</span><span class="p">):</span>

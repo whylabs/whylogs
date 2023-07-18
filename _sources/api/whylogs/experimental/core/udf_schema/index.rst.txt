@@ -125,7 +125,7 @@ Attributes
    by default. Any anti_metrics will be excluded from the metrics attached to the UDF output.
 
 
-.. py:function:: register_type_udf(col_type: whylogs.core.datatypes.DataType, udf_name: Optional[str] = None, namespace: Optional[str] = None, schema_name: str = '') -> Callable[[Any], Any]
+.. py:function:: register_type_udf(col_type: Type, udf_name: Optional[str] = None, namespace: Optional[str] = None, schema_name: str = '', type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None) -> Callable[[Any], Any]
 
    Decorator to easily configure UDFs for your data set. Decorate your UDF
    functions, then call generate_udf_dataset_schema() to create a UdfSchema
