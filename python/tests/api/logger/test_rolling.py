@@ -90,7 +90,7 @@ def test_rolling(tmp_path: Any) -> None:
 
     u._FAKE_TIMES = [0, 0.1]  # time list must exist at logger instantiation, but don't fire yet
     u._TIME_INDEX = 0
-    with why.logger(mode="rolling", interval=1, when="S", base_name="test_base_name", metadata={"foo": "bar") as logger:
+    with why.logger(mode="rolling", interval=1, when="S", base_name="test_base_name", metadata={"foo": "bar"}) as logger:
         assert logger._metadata["foo"] == "bar"
         logger.append_writer(writer=TestWriter(base_dir=tmp_path))
         logger.log(df)
