@@ -4,17 +4,17 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<meta property="og:title" content="Example data" />
+<meta property="og:title" content="Monitoring Ranking Model Performance Metrics" />
   
 <meta property="og:type" content="website" />
   
-<meta property="og:url" content="https://whylogs.readthedocs.io/examples/experimental/custom_rank_metrics.html" />
+<meta property="og:url" content="https://whylogs.readthedocs.io/examples/experimental/Writing_Ranking_Performance_Metrics_to_WhyLabs.html" />
   
-<meta property="og:description" content="We see three data formats as example data. Notice that the predictions AND targets columns can take lists or np.ndarrays of values. Consider the predictions for each row to be a list of ranked resu..." />
+<meta property="og:description" content="🚩 Create a free WhyLabs account to get more value out of whylogs! Did you know you can store, visualize, and monitor whylogs profiles with the WhyLabs Observability Platform? Sign up for a free Why..." />
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
-        <title>Example data - whylogs v1.2.4</title>
+        <title>Monitoring Ranking Model Performance Metrics - whylogs v1.2.4</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
@@ -152,7 +152,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -425,7 +425,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -688,6 +688,18 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
+<blockquote>
+<div><p class="rubric" id="create-a-free-whylabs-account-to-get-more-value-out-of-whylogs">🚩 <em>Create a free WhyLabs account to get more value out of whylogs!</em></p>
+<p><em>Did you know you can store, visualize, and monitor whylogs profiles with the</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=Writing_Ranking_Performance_Metrics_to_WhyLabs">WhyLabs Observability Platform</a><em>? Sign up for a</em> <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=Writing_Ranking_Performance_Metrics_to_WhyLabs">free WhyLabs account</a> <em>to leverage the power of
+whylogs and WhyLabs together!</em></p>
+</div></blockquote>
+<section id="Monitoring-Ranking-Model-Performance-Metrics">
+<h1>Monitoring Ranking Model Performance Metrics<a class="headerlink" href="#Monitoring-Ranking-Model-Performance-Metrics" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/experimental/Writing_Ranking_Performance_Metrics_to_WhyLabs.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<p>In this tutorial, we’ll show how you can log ranking metrics of your ML Model with whylogs, and how to send it to your dashboard at Whylabs Platform.</p>
+<section id="Installing-whylogs">
+<h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
+<p>First, let’s install whylogs. Since we want to write to WhyLabs, we’ll install the whylabs extra.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -705,16 +717,9 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">why</span><span class="o">.</span><span class="n">__version__</span>
-</pre></div>
-</div>
-</div>
+</section>
 <section id="Example-data">
-<h1>Example data<a class="headerlink" href="#Example-data" title="Permalink to this headline">#</a></h1>
+<h2>Example data<a class="headerlink" href="#Example-data" title="Permalink to this headline">#</a></h2>
 <p>We see three data formats as example data. Notice that the predictions AND targets columns can take lists or np.ndarrays of values.</p>
 <p>Consider the predictions for each row to be a list of ranked results in decreasing rank importance order (best match is first). In the case of the <code class="docutils literal notranslate"><span class="pre">binary</span></code> example, we pass predictions with a boolean representing whether or not the prediction was successful, e.g., relevant search results.</p>
 <p>Consider targets lists to be essentially sets of values that denote successful predictions. These can be values (matched based on equality).</p>
@@ -741,7 +746,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="Log-using-experimental-batch-ranking-metrics-API">
-<h1>Log using experimental batch ranking metrics API<a class="headerlink" href="#Log-using-experimental-batch-ranking-metrics-API" title="Permalink to this headline">#</a></h1>
+<h2>Log using experimental batch ranking metrics API<a class="headerlink" href="#Log-using-experimental-batch-ranking-metrics-API" title="Permalink to this headline">#</a></h2>
 <p>It’s noteworthy that this API is for batch metrics – meaning that the metrics are not meant to be merged together. This means that multiple profiles from distributed machines, Spark, or multiple uploads within the model granularity window are discouraged.</p>
 <p>Contrastingly, non-batch metrics APIs can be merged (but one is not yet released for ranking metrics).</p>
 <div class="nbinput nblast docutils container">
@@ -774,7 +779,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="Send-profile-summaries-to-WhyLabs-platform">
-<h1>Send profile summaries to WhyLabs platform<a class="headerlink" href="#Send-profile-summaries-to-WhyLabs-platform" title="Permalink to this headline">#</a></h1>
+<h2>Send profile summaries to WhyLabs platform<a class="headerlink" href="#Send-profile-summaries-to-WhyLabs-platform" title="Permalink to this headline">#</a></h2>
 <p>Required information can be found at <a class="reference external" href="https://hub.whylabsapp.com">https://hub.whylabsapp.com</a> under the Settings &gt; Model and Dataset Management page.</p>
 <p>API keys are only shown once, so you may need to create a new one and save somewhere safe.</p>
 <div class="nbinput nblast docutils container">
@@ -801,55 +806,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-</section>
-<section id="WhyLabs-UI-Improvements">
-<h1>WhyLabs UI Improvements<a class="headerlink" href="#WhyLabs-UI-Improvements" title="Permalink to this headline">#</a></h1>
-<section id="Optional:-Move-to-Outputs-tab">
-<h2>Optional: Move to Outputs tab<a class="headerlink" href="#Optional:-Move-to-Outputs-tab" title="Permalink to this headline">#</a></h2>
-<p>The above metrics will default to the Input tab, but you may organize your data columns by instead displaying relevant columns in the Outputs tab.</p>
-<p>There are two options to do so: 1. Using WhyLabsWriter API within whylogs 2. Using REST API</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Update relevant columns to output columns</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span>
-<span class="n">k</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mean_average_precision_k_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="s2">&quot;accuracy_k_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">),</span>
-                <span class="s2">&quot;mean_reciprocal_rank&quot;</span><span class="p">,</span> <span class="s2">&quot;precision_k_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="s2">&quot;recall_k_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">),</span>
-                <span class="s2">&quot;top_rank&quot;</span><span class="p">,</span> <span class="s2">&quot;average_precision_k_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span>
-
-<span class="n">whylabs_writer</span> <span class="o">=</span> <span class="n">WhyLabsWriter</span><span class="p">()</span>
-<span class="n">whylabs_writer</span><span class="o">.</span><span class="n">tag_output_columns</span><span class="p">(</span><span class="n">column_names</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="Show-relevant-columns-in-Performance-tab">
-<h2>Show relevant columns in Performance tab<a class="headerlink" href="#Show-relevant-columns-in-Performance-tab" title="Permalink to this headline">#</a></h2>
-<p>Visit our REST API page: <a class="reference external" href="https://api.whylabsapp.com/swagger-ui#/Models/PutEntitySchemaMetric">https://api.whylabsapp.com/swagger-ui#/Models/PutEntitySchemaMetric</a>. Authenticate (top right) using API key. Scroll back to <code class="docutils literal notranslate"><span class="pre">PutEntitySchemaMetric</span></code> and enter your <code class="docutils literal notranslate"><span class="pre">org_id</span></code> and <code class="docutils literal notranslate"><span class="pre">dataset_id</span></code>.</p>
-<p>Run three times with the following request bodies:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{
-  &quot;label&quot;: &quot;Mean Average Precision, k=2&quot;,
-  &quot;column&quot;: &quot;mean_average_precision_k_2&quot;,
-  &quot;defaultMetric&quot;: &quot;median&quot;
-}
-</pre></div>
-</div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{
-  &quot;label&quot;: &quot;Accuracy / Hit Rate, k=2&quot;,
-  &quot;column&quot;: &quot;accuracy_k_2&quot;,
-  &quot;defaultMetric&quot;: &quot;median&quot;
-}
-</pre></div>
-</div>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{
-  &quot;label&quot;: &quot;Mean Reciprocal Rank (MRR)&quot;,
-  &quot;column&quot;: &quot;mean_reciprocal_rank&quot;,
-  &quot;defaultMetric&quot;: &quot;median&quot;
-}
-</pre></div>
-</div>
+<p>The ranking metrics should be available in the WhyLabs platform, under the <strong>Performance</strong> tab.</p>
 </section>
 </section>
 
@@ -905,8 +862,30 @@ div.rendered_html tbody tr:hover {
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Monitoring Ranking Model Performance Metrics</a><ul>
+<li><a class="reference internal" href="#Installing-whylogs">Installing whylogs</a></li>
+<li><a class="reference internal" href="#Example-data">Example data</a></li>
+<li><a class="reference internal" href="#Log-using-experimental-batch-ranking-metrics-API">Log using experimental batch ranking metrics API</a></li>
+<li><a class="reference internal" href="#Send-profile-summaries-to-WhyLabs-platform">Send profile summaries to WhyLabs platform</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
