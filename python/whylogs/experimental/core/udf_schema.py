@@ -149,7 +149,7 @@ class UdfSchema(DeclarativeSchema):
     ) -> None:
         for spec in self.multicolumn_udfs:
             if spec.column_names and set(spec.column_names).issubset(set(row.keys())):
-                inputs = {col: [row[col]] for col in row.keys()}
+                inputs = {col: [row[col]] for col in spec.column_names}
                 _apply_udfs_on_row(inputs, spec.udfs, new_columns, input_cols)
 
         for column, value in row.items():
