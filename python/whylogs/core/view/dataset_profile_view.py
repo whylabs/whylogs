@@ -256,7 +256,7 @@ class DatasetProfileView(Writable):
         column_chunk_offsets: Dict[str, ChunkOffsets] = {}
         with tempfile.TemporaryFile("w+b") as f:
             for col_name in sorted(self._columns.keys()):
-                column_chunk_offsets[col_name] = ChunkOffsets(offsets=[f.tell()])
+                column_chunk_offsets[str(col_name)] = ChunkOffsets(offsets=[f.tell()])
 
                 col = self._columns[col_name]
 
@@ -284,12 +284,19 @@ class DatasetProfileView(Writable):
                 tags=tags,
                 metadata=metadata,
             )
-            dataset_header = DatasetProfileHeader(
-                column_offsets=column_chunk_offsets,
-                properties=properties,
-                length=total_len,
-                indexed_metric_paths=metric_index_to_name,
-            )
+            try:
+                dataset_header = DatasetProfileHeader(
+                    column_offsets=column_chunk_offsets,
+                    properties=properties,
+                    length=total_len,
+                    indexed_metric_paths=metric_index_to_name,
+                )
+            except Exception as e:
+                raise DeserializationError(
+                    f"DatasetProfileHeader(column_offsets={column_chunk_offsets}, "
+                    f"properties={properties}, length={total_len}, "
+                    f"indexed_metric_paths={metric_index_to_name}): -> {e}",
+                )
 
             # single file segments
             dataset_segment_header = DatasetSegmentHeader(

@@ -104,7 +104,6 @@ class Logger(ABC):
 
         for prof in profiles:
             prof.track(obj, pandas=pandas, row=row, execute_udfs=False)
-            prof._metadata
 
         first_profile = profiles[0]
         if name is not None:
