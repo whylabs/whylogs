@@ -63,6 +63,10 @@ class UdfSpec:
             raise ValueError("UdfSpec column_names must be a non-empty list of strings")
 
 
+def _is_new_signature(obj: Any) -> bool:
+    return isinstance(obj, list)
+
+
 def _apply_udfs_on_row(
     values: Union[List, Dict[str, List]], udfs: Dict, new_columns: Dict[str, Any], input_cols: Collection[str]
 ) -> None:
@@ -71,7 +75,8 @@ def _apply_udfs_on_row(
             continue
 
         try:
-            new_columns[new_col] = udf(values)[0]
+            result = udf(values)
+            new_columns[new_col] = result[0] if _is_new_signature(result) else result
         except Exception:  # noqa
             new_columns[new_col] = None
             logger.exception(f"Evaluating UDF {new_col} failed")

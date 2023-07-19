@@ -80,6 +80,21 @@ def test_decorator_row() -> None:
     assert "distribution/n" in sqr_summary
 
 
+@register_dataset_udf(["old"])
+def old_signature(x: Union[Dict[str, List], pd.DataFrame]) -> Union[int, List[int]]:
+    if isinstance(x, pd.DataFrame):
+        return [42]
+    else:
+        return 42
+
+
+def test_old_signature() -> None:
+    schema = udf_schema()
+    results = why.log(row={"old": 42, "col2": "a"}, schema=schema).view()
+    summary = results.get_column("old").to_summary_dict()
+    assert "distribution/n" in summary
+
+
 @register_dataset_udf(["col1"], "annihilate_me", anti_metrics=[CardinalityMetric, DistributionMetric])
 def plus1(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return x["col1"] + 1 if isinstance(x, pd.DataFrame) else map(lambda i: i + 1, x["col1"])
