@@ -65,7 +65,7 @@ def profile_and_upload_to_whylabs(
     else:
         repartitioned_input_df = input_df
     profiles_rdd = repartitioned_input_df.rdd.mapPartitions(profiler_with_schema)
-    broadcast_params = _set_broadcast_params(input_df.sql_ctx.sparkSession)
+    broadcast_params = _set_broadcast_params(input_df.sparkSession)
     distributed_upload = _get_distributed_upload_method(broadcast_params)
     statuses = profiles_rdd.mapPartitions(distributed_upload)
     return statuses.collect()
