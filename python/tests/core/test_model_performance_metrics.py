@@ -286,3 +286,4 @@ def test_deserialize_confusion_matrix_with_kll_floats() -> None:
     assert confusion_matrix is not None
     merged = confusion_matrix.merge(confusion_matrix)
     merged.to_protobuf()
+    # test passes if no crash
