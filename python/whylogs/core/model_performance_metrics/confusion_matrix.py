@@ -170,7 +170,7 @@ class ConfusionMatrix:
             doubles_sk = ds.kll_floats_sketch.float_to_doubles(sk)
         except: # noqa
             import base64
-            raise ValueError('Unable to decode confusion matrix due to KLL sketch format. Sketch: ' + base64.encodebytes(numbers.histogram))
+            raise ValueError(f'Unable to decode confusion matrix due to KLL sketch format. Sketch: {base64.encodestring(numbers.histogram)}')
         return DistributionMetric(
             kll=KllComponent(doubles_sk),
             mean=FractionalComponent(numbers.variance.mean),
