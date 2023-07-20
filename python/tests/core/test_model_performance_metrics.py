@@ -1,8 +1,8 @@
 from logging import getLogger
 
+import base64
 import pandas as pd
 import pytest
-import base64
 
 from whylogs import log_classification_metrics, log_regression_metrics
 from whylogs.core.model_performance_metrics import ModelPerformanceMetrics
@@ -276,9 +276,9 @@ def test_profile_top_level_api_segmented_performance():
     assert metrics1.confusion_matrix.confusion_matrix.get((0, 0)).n == 1
     assert metrics1.confusion_matrix.confusion_matrix.get((1, 0)).n == 1
 
+
 def test_deserialize_confusion_matrix_with_kll_floats() -> None:
-    sample = \
-        'CgEwCgExEhxkZWxpdmVyeV9wcmVkaWN0aW9uIChvdXRwdXQpGhhkZWxpdmVyeV9zdGF0dXMgKG91dHB1dCkiHGRlbGl2ZXJ5X2NvbmZpZGVuY2UgKG91dHB1dClSFgoAIggCAQ8BAAEIADIIAQMDAAAezJNSFgoAIggCAQ8BAAEIADIIAQMDAAAezJNS0QEKFAgKEUcu/yH99rU/GeF6FK5H4eo/Eh0IChGuR+F6FK7nPxkAAAAAAADwPyHNzMzMzMwgQCJIBQEPAAABCAAKAAAAAAAAAAABAQD2AAAApHA9PwAAgD/Xo3A/uB5FP6RwPT/NzEw/PQpXP0jhej+kcD0/cT1KPwAAgD/NzEw/MlACAwMAABrMkwgAAAAAAAAA08wssPU9DQg/rZkmPpX4CJp1jlD5me4aoWIjAG6MNiCLJTyeLc5zUuyIHr4Td6ZphdLO5crXo3zWNEUNX4OGflIWCgAiCAIBDwEAAQgAMggBAwMAAB7Mkw==' # noqa: E501
+    sample = "CgEwCgExEhxkZWxpdmVyeV9wcmVkaWN0aW9uIChvdXRwdXQpGhhkZWxpdmVyeV9zdGF0dXMgKG91dHB1dCkiHGRlbGl2ZXJ5X2NvbmZpZGVuY2UgKG91dHB1dClSFgoAIggCAQ8BAAEIADIIAQMDAAAezJNSFgoAIggCAQ8BAAEIADIIAQMDAAAezJNS0QEKFAgKEUcu/yH99rU/GeF6FK5H4eo/Eh0IChGuR+F6FK7nPxkAAAAAAADwPyHNzMzMzMwgQCJIBQEPAAABCAAKAAAAAAAAAAABAQD2AAAApHA9PwAAgD/Xo3A/uB5FP6RwPT/NzEw/PQpXP0jhej+kcD0/cT1KPwAAgD/NzEw/MlACAwMAABrMkwgAAAAAAAAA08wssPU9DQg/rZkmPpX4CJp1jlD5me4aoWIjAG6MNiCLJTyeLc5zUuyIHr4Td6ZphdLO5crXo3zWNEUNX4OGflIWCgAiCAIBDwEAAQgAMggBAwMAAB7Mkw=="  # noqa: E501
     bytes = base64.b64decode(sample)
     msg = ScoreMatrixMessage()
     msg.ParseFromString(bytes)
