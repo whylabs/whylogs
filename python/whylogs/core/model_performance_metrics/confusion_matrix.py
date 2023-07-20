@@ -168,9 +168,6 @@ class ConfusionMatrix:
             # Fall back to KLL float for backward compatibility and convert it to doubles sketch
             sk = ds.kll_floats_sketch.deserialize(numbers.histogram)
             doubles_sk = ds.kll_floats_sketch.float_to_doubles(sk)
-        except: # noqa
-            import base64
-            raise ValueError(f'Unable to decode confusion matrix due to KLL sketch format. Sketch: {base64.encodestring(numbers.histogram)}')
         return DistributionMetric(
             kll=KllComponent(doubles_sk),
             mean=FractionalComponent(numbers.variance.mean),
