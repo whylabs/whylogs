@@ -1,4 +1,3 @@
-import base64
 from logging import getLogger
 from typing import Dict, List, Optional, Tuple, Union
 

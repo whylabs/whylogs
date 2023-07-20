@@ -13,8 +13,6 @@ from whylogs.core.segment import Segment
 from whylogs.core.segmentation_partition import segment_on_column
 from whylogs.core.proto.v0 import ScoreMatrixMessage
 
-from whylogs.core.model_performance_metrics.confusion_matrix import ConfusionMatrix
-
 TEST_LOGGER = getLogger(__name__)
 
 
