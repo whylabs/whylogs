@@ -1,17 +1,16 @@
+import base64
 from logging import getLogger
 
-import base64
 import pandas as pd
 import pytest
 
 from whylogs import log_classification_metrics, log_regression_metrics
 from whylogs.core.model_performance_metrics import ModelPerformanceMetrics
 from whylogs.core.model_performance_metrics.confusion_matrix import ConfusionMatrix
-from whylogs.core.proto.v0 import ModelProfileMessage
+from whylogs.core.proto.v0 import ModelProfileMessage, ScoreMatrixMessage
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.segment import Segment
 from whylogs.core.segmentation_partition import segment_on_column
-from whylogs.core.proto.v0 import ScoreMatrixMessage
 
 TEST_LOGGER = getLogger(__name__)
 
