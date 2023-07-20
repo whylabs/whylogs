@@ -1,3 +1,4 @@
+import base64
 from logging import getLogger
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -161,7 +162,15 @@ class ConfusionMatrix:
 
     @staticmethod
     def _numbers_to_dist(numbers: NumbersMessageV0) -> DistributionMetric:
-        doubles_sk = ds.kll_doubles_sketch.deserialize(numbers.histogram)
+        try:
+            doubles_sk = ds.kll_doubles_sketch.deserialize(numbers.histogram)
+        except ValueError:
+            # Fall back to KLL float for backward compatibility and convert it to doubles sketch
+            sk = ds.kll_floats_sketch.deserialize(numbers.histogram)
+            doubles_sk = ds.kll_floats_sketch.float_to_doubles(sk)
+        except: # noqa
+            import base64
+            raise ValueError('Unable to decode confusion matrix due to KLL sketch format. Sketch: ' + base64.encodebytes(numbers.histogram))
         return DistributionMetric(
             kll=KllComponent(doubles_sk),
             mean=FractionalComponent(numbers.variance.mean),
