@@ -217,7 +217,8 @@ class PreprocessedColumn:
         string_list = []
         tensor_list = []
         obj_list = []
-        if isinstance(value, int):
+        int_types = (int, np.integer) if is_not_stub(np.integer) else int
+        if isinstance(value, int_types):
             if isinstance(value, bool):
                 result.bool_count = 1
                 if value:
