@@ -161,7 +161,12 @@ class ConfusionMatrix:
 
     @staticmethod
     def _numbers_to_dist(numbers: NumbersMessageV0) -> DistributionMetric:
-        doubles_sk = ds.kll_doubles_sketch.deserialize(numbers.histogram)
+        try:
+            doubles_sk = ds.kll_doubles_sketch.deserialize(numbers.histogram)
+        except ValueError:
+            # Fall back to KLL float for backward compatibility and convert it to doubles sketch
+            sk = ds.kll_floats_sketch.deserialize(numbers.histogram)
+            doubles_sk = ds.kll_floats_sketch.float_to_doubles(sk)
         return DistributionMetric(
             kll=KllComponent(doubles_sk),
             mean=FractionalComponent(numbers.variance.mean),
