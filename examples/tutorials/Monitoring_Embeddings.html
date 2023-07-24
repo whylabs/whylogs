@@ -1119,11 +1119,11 @@ Profiling and logging classification metrics...
 <p>We won’t cover everything here for the sake of brevity, but let’s take a look at some of the charts.</p>
 <p>With the monitored information, we should be able to correlate the anomalies and reach a conclusion about what happened.</p>
 <p>In the chart below, we can see the distribution of the closest centroid for each document. We can see for the first 4 days, the distribution is similar between each other. The language perturbations injected in the last 3 days seem to skew the distribution towards the <code class="docutils literal notranslate"><span class="pre">forsale</span></code> topic.</p>
-<img alt="alt text" src="../../_images/closest.png" />
+<p><img alt="alt text" src="../../_images/text_f1.png" /></p>
 <p>Since we remove the english stopwords in our tokenization process, but we don’t remove the spanish stopwords, we can see that most of the most frequent terms in the selected period are the spanish stopwords, and that those stopwords don’t appear in the first 4 days.</p>
-<img alt="alt text" src="../../_images/tokens_items.png" />
+<p><img alt="alt text" src="../../_images/text_f1.png" /></p>
 <p>In the <code class="docutils literal notranslate"><span class="pre">Performance</span></code> tab, there are plenty of information that tell us that our performance is degrading. For example, the F1 chart below shows that the model is getting increasingly worse starting from the 5th day.</p>
-<img alt="alt text" src="../../_images/text_f1.png" />
+<p><img alt="alt text" src="../../_images/text_f1.png" /></p>
 </section>
 <section id="References">
 <h2>References<a class="headerlink" href="#References" title="Permalink to this headline">#</a></h2>

@@ -706,7 +706,7 @@ div.rendered_html tbody tr:hover {
 </ul>
 <section id="Overview">
 <h3>Overview<a class="headerlink" href="#Overview" title="Permalink to this headline">#</a></h3>
-<img alt="Data Flow by Felipe de Pontes Adachi" src="../../../_images/flask_whylogs_whylabs_flow.jpeg" />
+<p><img alt="Data Flow by Felipe de Pontes Adachi" src="../../../_images/flask_whylogs_whylabs_flow.jpeg" /></p>
 <p>We’ll deploy locally a Flask application, which is responsible for serving the user with the requested predictions through a REST endpoint. Our application will use the whylogs library to create statistical profiles of both input and output features of our application during production. These statistical properties will then be sent in microbatches to either to a local writer or WhyLabs at fixed intervals. If sent to WhyLabs, it will merge them automatically, creating statistical profiles on a
 daily basis.</p>
 <section id="Let’s-get-our-environment-ready!">
@@ -1459,7 +1459,7 @@ Dataset distribution modified!
 <a class="reference external" href="https://github.com/whylabs/whylogs/blob/mainline/python/examples/advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.ipynb">“Streaming_Data_with_Log_Rotation”</a>.</p>
 <p>As we talked about in the overview though we will also be able to send this over to your WhyLabs observation dashboard. Here it will automatically receive the data and merge them into useful daily analysis. Follow the directions in “WhyLabs Writer” to change the .env file in this directory. Then rerun the above. This time it will populate your WhyLabs dataset to be able to see the drifts on the WhyLabs portal.</p>
 <p>Included in this notebook’s directory is a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file with the needed variables set to None.</p>
-<img alt="WhyLabs Profile" src="../../../_images/WhyLabs_profile.png" />
+<p><img alt="WhyLabs Profile" src="../../../_images/WhyLabs_profile.png" /></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>

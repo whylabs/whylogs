@@ -950,7 +950,7 @@ writing profiles to whylabs...
 <li><p>Mean Absolute Error</p></li>
 <li><p>Root Mean Squared Error</p></li>
 </ul>
-<img alt="alt text" src="../../../_images/regression_metrics.png" />
+<p><img alt="alt text" src="../../../_images/segmented_performance_regression.png" /></p>
 </section>
 <section id="Advanced-Usage---Monitoring-Segmented-Performance-Metrics">
 <h2>Advanced Usage - Monitoring Segmented Performance Metrics<a class="headerlink" href="#Advanced-Usage---Monitoring-Segmented-Performance-Metrics" title="Permalink to this headline">#</a></h2>
@@ -1001,7 +1001,7 @@ writing profiles to whylabs...
 </div>
 <p>Note that we’re passing <code class="docutils literal notranslate"><span class="pre">segmented_schema</span></code> as the <code class="docutils literal notranslate"><span class="pre">schema</span></code> parameter. This will tell whylogs to log the metrics for the complete data, as well as for each segment.</p>
 <p>You’ll get a similar dashboard at the <code class="docutils literal notranslate"><span class="pre">performance</span></code> page at WhyLabs, but now you’ll see a dropdown menu with the available segments (or complete data). You’ll also be able to choose a second segment to compare against:</p>
-<img alt="alt text" src="../../../_images/segmented_performance_regression.png" />
+<p><img alt="alt text" src="../../../_images/segmented_performance_regression.png" /></p>
 <p>We can see that the errors seem to be similar between the <code class="docutils literal notranslate"><span class="pre">tropical</span></code> segment and complete data. However, the difference begins to increase with time, with the model’s performance for the <code class="docutils literal notranslate"><span class="pre">tropical</span></code> segment being consistently lower than for the complete data. You can verify it by exploring the other metrics on this dashboard, or look for other insights by exploring the other segments!</p>
 </section>
 </section>
