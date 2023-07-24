@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
 from math import isinf, isnan
-from typing import Any, Iterable, Iterator, List, Optional, Union
+from typing import Any, Iterable, Iterator, List, Optional, Tuple, Union
 
 from whylogs.core.stubs import is_not_stub, np, pd
 
@@ -217,7 +217,8 @@ class PreprocessedColumn:
         string_list = []
         tensor_list = []
         obj_list = []
-        if isinstance(value, int):
+        int_types: Union[type, Tuple[type, type]] = (int, np.integer) if is_not_stub(np.integer) else int
+        if isinstance(value, int_types):
             if isinstance(value, bool):
                 result.bool_count = 1
                 if value:

@@ -46,6 +46,7 @@ class NumpyStub:
     datetime64: type = _StubClass
     unicode_: type = _StubClass
     issubdtype: type = _StubClass
+    integer: type = _StubClass
 
 
 @dataclass(frozen=True)

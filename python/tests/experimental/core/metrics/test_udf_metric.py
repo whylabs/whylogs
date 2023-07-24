@@ -254,7 +254,7 @@ def test_decorator() -> None:
     assert "udf/add5:distribution/n" in col1_summary
     assert "udf/add5:ints/max" in col1_summary
     assert "udf/add5:cardinality/est" in col1_summary
-
+    assert col1_summary["udf/add5:distribution/mean"] == 7.0
     assert "udf/tostr:counts/n" in col1_summary
     assert "udf/tostr:types/integral" in col1_summary
     assert "udf/tostr:distribution/n" in col1_summary
