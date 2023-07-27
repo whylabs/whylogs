@@ -1,4 +1,5 @@
 import logging
+from math import math_log
 from typing import Optional, Union
 
 from whylogs.api.logger import log
