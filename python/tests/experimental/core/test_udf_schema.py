@@ -46,7 +46,7 @@ def test_udf_pandas() -> None:
     assert len(data.columns) == 1
 
 
-@register_dataset_udf(["col1"])
+@register_dataset_udf(["col1"], schema_name="unit-tests")
 def add5(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return [xx + 5 for xx in x["col1"]]
 
@@ -57,7 +57,7 @@ def square(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
 
 def test_decorator_pandas() -> None:
     extra_spec = UdfSpec(["col1"], {"sqr": square})
-    schema = udf_schema([extra_spec], STANDARD_RESOLVER)
+    schema = udf_schema([extra_spec], STANDARD_RESOLVER, schema_name="unit-tests")
     data = pd.DataFrame({"col1": [42, 12, 7], "col2": ["a", "b", "c"]})
     results = why.log(pandas=data, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
@@ -70,7 +70,7 @@ def test_decorator_pandas() -> None:
 
 def test_decorator_row() -> None:
     extra_spec = UdfSpec(["col1"], {"sqr": square})
-    schema = udf_schema([extra_spec], STANDARD_RESOLVER)
+    schema = udf_schema([extra_spec], STANDARD_RESOLVER, schema_name="unit-tests")
     results = why.log(row={"col1": 42, "col2": "a"}, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
     assert "distribution/n" in col1_summary
@@ -80,13 +80,15 @@ def test_decorator_row() -> None:
     assert "distribution/n" in sqr_summary
 
 
-@register_dataset_udf(["col1"], "annihilate_me", anti_metrics=[CardinalityMetric, DistributionMetric])
+@register_dataset_udf(
+    ["col1"], "annihilate_me", anti_metrics=[CardinalityMetric, DistributionMetric], schema_name="unit-tests"
+)
 def plus1(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return x["col1"] + 1 if isinstance(x, pd.DataFrame) else map(lambda i: i + 1, x["col1"])
 
 
 def test_anti_resolver() -> None:
-    schema = udf_schema()
+    schema = udf_schema(schema_name="unit-tests")
     data = pd.DataFrame({"col1": [42, 12, 7], "col2": ["a", "b", "c"]})
     results = why.log(pandas=data, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
@@ -104,28 +106,30 @@ def test_anti_resolver() -> None:
     assert "cardinality/est" not in plus1_summary
 
 
-@register_dataset_udf(["col1"], "colliding_name", namespace="pluto")
+@register_dataset_udf(["col1"], "colliding_name", namespace="pluto", schema_name="unit-tests")
 def a_function(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return x["col1"]
 
 
-@register_dataset_udf(["col1"], "colliding_name", namespace="neptune")
+@register_dataset_udf(["col1"], "colliding_name", namespace="neptune", schema_name="unit-tests")
 def another_function(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return x["col1"]
 
 
 def test_namespace() -> None:
-    results = why.log(row={"col1": 42}, schema=udf_schema()).view()
+    results = why.log(row={"col1": 42}, schema=udf_schema(schema_name="unit-tests")).view()
     assert results.get_column("pluto.colliding_name") is not None
     assert results.get_column("neptune.colliding_name") is not None
 
 
-@register_dataset_udf(["col1", "col2"], "product")
+@register_dataset_udf(["col1", "col2"], "product", schema_name="unit-tests")
 def times(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return [xx * yy for xx, yy in zip(x["col1"], x["col2"])]
 
 
-@register_dataset_udf(["col1", "col3"], metrics=[MetricSpec(StandardMetric.distribution.value)])
+@register_dataset_udf(
+    ["col1", "col3"], metrics=[MetricSpec(StandardMetric.distribution.value)], schema_name="unit-tests"
+)
 def ratio(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return [xx / yy for xx, yy in zip(x["col1"], x["col3"])]
 
@@ -147,7 +151,7 @@ def test_multicolumn_udf_pandas() -> None:
     ]
 
     extra_spec = UdfSpec(["col1"], {"sqr": square})
-    schema = udf_schema([extra_spec], count_only)
+    schema = udf_schema([extra_spec], count_only, schema_name="unit-tests")
     data = pd.DataFrame({"col1": [42, 12, 7], "col2": [2, 3, 4], "col3": [2, 3, 4]})
     results = why.log(pandas=data, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
@@ -186,7 +190,7 @@ def test_multicolumn_udf_row() -> None:
     ]
 
     extra_spec = UdfSpec(["col1"], {"sqr": square})
-    schema = udf_schema([extra_spec], count_only)
+    schema = udf_schema([extra_spec], count_only, schema_name="unit-tests")
     data = {"col1": 42, "col2": 2, "col3": 2}
     results = why.log(row=data, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
@@ -211,7 +215,7 @@ def test_multicolumn_udf_row() -> None:
 n: int = 0
 
 
-@register_dataset_udf(["oops"])
+@register_dataset_udf(["oops"], schema_name="unit-tests")
 def exothermic(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     global n
     n += 1
@@ -224,7 +228,7 @@ def exothermic(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series
 def test_udf_throws_pandas() -> None:
     global n
     n = 0
-    schema = udf_schema()
+    schema = udf_schema(schema_name="unit-tests")
     df = pd.DataFrame({"oops": [1, 2, 3, 4], "ok": [5, 6, 7, 8]})
     results = why.log(pandas=df, schema=schema).view()
     assert "exothermic" in results.get_columns()
@@ -237,7 +241,7 @@ def test_udf_throws_pandas() -> None:
 def test_udf_throws_row() -> None:
     global n
     n = 0
-    schema = udf_schema()
+    schema = udf_schema(schema_name="unit-tests")
     data = {"oops": 1, "ok": 5}
     profile = why.log(row=data, schema=schema).profile()
     profile.track(row=data)
@@ -265,7 +269,7 @@ def bar(x: Any) -> Any:
 
 
 def test_udf_metric_resolving() -> None:
-    schema = udf_schema()
+    schema = udf_schema(schema_name="unit-tests")
     df = pd.DataFrame({"col1": [1, 2, 3], "foo": [1, 2, 3]})
     results = why.log(pandas=df, schema=schema).view()
     assert "add5" in results.get_columns()
@@ -277,7 +281,7 @@ def test_udf_metric_resolving() -> None:
 
 def test_udf_segmentation_pandas() -> None:
     column_segments = segment_on_column("product")
-    segmented_schema = udf_schema(segments=column_segments)
+    segmented_schema = udf_schema(segments=column_segments, schema_name="unit-tests")
     data = pd.DataFrame({"col1": [42, 12, 7], "col2": [2, 3, 4], "col3": [2, 3, 4]})
     results = why.log(pandas=data, schema=segmented_schema)
     assert len(results.segments()) == 3
@@ -285,7 +289,7 @@ def test_udf_segmentation_pandas() -> None:
 
 def test_udf_segmentation_row() -> None:
     column_segments = segment_on_column("product")
-    segmented_schema = udf_schema(segments=column_segments)
+    segmented_schema = udf_schema(segments=column_segments, schema_name="unit-tests")
     data = {"col1": 42, "col2": 2, "col3": 2}
     results = why.log(row=data, schema=segmented_schema)
     assert len(results.segments()) == 1
@@ -293,14 +297,14 @@ def test_udf_segmentation_row() -> None:
 
 def test_udf_segmentation_obj() -> None:
     column_segments = segment_on_column("product")
-    segmented_schema = udf_schema(segments=column_segments)
+    segmented_schema = udf_schema(segments=column_segments, schema_name="unit-tests")
     data = {"col1": 42, "col2": 2, "col3": 2}
     results = why.log(data, schema=segmented_schema)
     assert len(results.segments()) == 1
 
 
 def test_udf_track() -> None:
-    schema = udf_schema()
+    schema = udf_schema(schema_name="unit-tests")
     prof = DatasetProfile(schema)
     data = pd.DataFrame({"col1": [42, 12, 7], "col2": [2, 3, 4], "col3": [2, 3, 4]})
     prof.track(data)
@@ -391,13 +395,13 @@ def test_direct_udfs() -> None:
     assert more_columns == profile_columns
 
 
-@register_type_udf(Fractional)
+@register_type_udf(Fractional, schema_name="unit-tests")
 def square_type(x: Union[List, pd.Series]) -> Union[List, pd.Series]:
     return x * x if isinstance(x, pd.Series) else [xx * xx for xx in x]
 
 
 def test_type_udf_row() -> None:
-    schema = udf_schema()
+    schema = udf_schema(schema_name="unit-tests")
     data = {"col1": 3.14}
     results = why.log(row=data, schema=schema).view()
     assert "col1.square_type" in results.get_columns().keys()
@@ -407,7 +411,7 @@ def test_type_udf_row() -> None:
 
 
 def test_type_udf_dataframe() -> None:
-    schema = udf_schema()
+    schema = udf_schema(schema_name="unit-tests")
     data = pd.DataFrame({"col1": [3.14, 42.0]})
     results = why.log(data, schema=schema).view()
     assert "col1.square_type" in results.get_columns().keys()
@@ -416,13 +420,13 @@ def test_type_udf_dataframe() -> None:
     assert summary["types/fractional"] == 2
 
 
-@register_type_udf(float)
+@register_type_udf(float, schema_name="unit-tests")
 def square_python_type(x: Union[List, pd.Series]) -> Union[List, pd.Series]:
     return x * x if isinstance(x, pd.Series) else [xx * xx for xx in x]
 
 
 def test_python_type_udf() -> None:
-    schema = udf_schema()
+    schema = udf_schema(schema_name="unit-tests")
     data = pd.DataFrame({"col1": [3.14, 42.0]})
     results = why.log(data, schema=schema).view()
     assert "col1.square_python_type" in results.get_columns().keys()
