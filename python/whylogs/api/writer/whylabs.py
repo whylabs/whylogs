@@ -242,6 +242,7 @@ class WhyLabsWriter(Writer):
         # Enable private access to WhyLabs endpoints
         _private_api_endpoint = os.environ.get("WHYLABS_PRIVATE_API_ENDPOINT")
         _private_s3_endpoint = os.environ.get("WHYLABS_PRIVATE_S3_ENDPOINT")
+        _http_proxy = os.environ.get("HTTP_PROXY")
         if _private_api_endpoint:
             logger.debug(f"Using private API endpoint: {_private_api_endpoint}")
             self._endpoint_hostname = urlparse(self.whylabs_api_endpoint).netloc
@@ -261,12 +262,21 @@ class WhyLabsWriter(Writer):
         pool = _UPLOAD_POOLER_CACHE.get(pooler_cache_key)
         if pool is None:
             logger.debug(f"Pooler is not available. Creating a new one for key: {pooler_cache_key}")
-            pool = PoolManager(
-                num_pools=4,
-                maxsize=10,
-                assert_hostname=self._s3_endpoint_subject,
-                server_hostname=self._s3_endpoint_subject,
-            )
+            if _http_proxy:
+                pool = ProxyManager(
+                    _http_proxy,
+                    num_pools=4,
+                    maxsize=10,
+                    assert_hostname=self._s3_endpoint_subject,
+                    server_hostname=self._s3_endpoint_subject,
+                )
+            else:
+                pool = PoolManager(
+                    num_pools=4,
+                    maxsize=10,
+                    assert_hostname=self._s3_endpoint_subject,
+                    server_hostname=self._s3_endpoint_subject,
+                )
             self._s3_pool = pool
             _UPLOAD_POOLER_CACHE[pooler_cache_key] = pool
         else:
