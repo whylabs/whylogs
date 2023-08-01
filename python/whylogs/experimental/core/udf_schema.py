@@ -22,6 +22,7 @@ from whylogs.core.schema import DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
 from whylogs.core.validators.validator import Validator
+from whylogs.core.validators import ConditionValidator
 from whylogs.experimental.core.metrics.udf_metric import (
     _reset_metric_udfs,
     generate_udf_resolvers,
@@ -200,6 +201,24 @@ def _reset_udfs(reset_metric_udfs: bool = True) -> None:
     global _multicolumn_udfs, _resolver_specs
     _multicolumn_udfs = defaultdict(list)
     _resolver_specs = defaultdict(list)
+
+
+def register_condition_udf(
+    col_names: List[str],
+    condition_name: Optional[str] = None,
+    actions: List[Callable[[str, str, Any, Any], None]] = None,
+    namespace: Optional[str] = None,
+    schema_name: str = "",
+) -> Callable[[Any], Any]:
+
+    def decorator_register(func):
+        global _condition_udfs
+        name = condition_name or func.__name__
+        name = f"{namespace}.{name}" if namespace else name
+        _condition_udfs[schema_name].append(UdfSpec(col_names, {name: func}))
+        return func
+
+    return decorator_register
 
 
 def register_dataset_udf(
