@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore
-from urllib3 import PoolManager, ProxyManager
+from urllib3 import PoolManager, ProxyManager, util
 from whylabs_client import ApiClient, Configuration  # type: ignore
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi
 from whylabs_client.api.feature_weights_api import FeatureWeightsApi
@@ -264,10 +264,19 @@ class WhyLabsWriter(Writer):
         if pool is None:
             logger.debug(f"Pooler is not available. Creating a new one for key: {pooler_cache_key}")
             if _https_proxy or _http_proxy:
+                proxy_url = _https_proxy or _http_proxy
+                parsed_url = urlparse(proxy_url)
+                if parsed_url.username and parsed_url.password:
+                    default_headers = util.make_headers(
+                        proxy_basic_auth=f"{str(parsed_url.username)}:{str(parsed_url.password)}"
+                    )
+                else:
+                    default_headers = None
                 pool = ProxyManager(
-                    _https_proxy or _http_proxy,
+                    proxy_url,
                     num_pools=4,
                     maxsize=10,
+                    proxy_headers=default_headers,
                     assert_hostname=self._s3_endpoint_subject,
                     server_hostname=self._s3_endpoint_subject,
                 )
