@@ -192,6 +192,7 @@ class UdfSchema(DeclarativeSchema):
 
 _multicolumn_udfs: Dict[str, List[UdfSpec]] = defaultdict(list)
 _resolver_specs: Dict[str, List[ResolverSpec]] = defaultdict(list)
+_validator_udfs: Dict[str, List[Dict[str,List[ConditionValidator]]]] = defaultdict(list)
 
 
 def _reset_udfs(reset_metric_udfs: bool = True) -> None:
@@ -203,7 +204,7 @@ def _reset_udfs(reset_metric_udfs: bool = True) -> None:
     _resolver_specs = defaultdict(list)
 
 
-def register_condition_udf(
+def register_validator_udf(
     col_names: List[str],
     condition_name: Optional[str] = None,
     actions: List[Callable[[str, str, Any, Any], None]] = None,
@@ -212,10 +213,16 @@ def register_condition_udf(
 ) -> Callable[[Any], Any]:
 
     def decorator_register(func):
-        global _condition_udfs
+        global _validator_udfs
         name = condition_name or func.__name__
         name = f"{namespace}.{name}" if namespace else name
-        _condition_udfs[schema_name].append(UdfSpec(col_names, {name: func}))
+        for col in col_names:
+            validator = ConditionValidator(
+                    name=name,
+                    conditions={func.__name__:func},
+                    actions=actions,
+                )
+            _validator_udfs[schema_name].append({col: [validator]})
         return func
 
     return decorator_register
@@ -343,6 +350,16 @@ def generate_udf_specs(
 DEFAULT_UDF_SCHEMA_RESOLVER = NO_FI_RESOLVER
 
 
+def _update_validators(validators,validators_udf):
+    if not validators:
+        validators = {}
+    for col, validator in validators_udf.items():
+        if col not in validators:
+            validators[col] = []
+        validators[col].extend(validator)
+    return validators
+
+
 def udf_schema(
     other_udf_specs: Optional[List[UdfSpec]] = None,
     resolvers: Optional[List[ResolverSpec]] = None,
@@ -367,6 +384,8 @@ def udf_schema(
 
     for name in schema_names:
         resolver_specs += _resolver_specs[name]
+        for validators_udf in _validator_udfs[name]:
+            validators = _update_validators(validators, validators_udf)
 
     resolver_specs += generate_udf_resolvers(schema_name, include_default_schema)
     return UdfSchema(

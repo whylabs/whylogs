@@ -8,12 +8,13 @@ from whylogs.core.datatypes import Fractional, Integral, String
 from whylogs.core.metrics import CardinalityMetric, DistributionMetric, StandardMetric
 from whylogs.core.resolvers import STANDARD_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.segmentation_partition import segment_on_column
-from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
+from whylogs.experimental.core.metrics.udf_metric import register_metric_udf 
 from whylogs.experimental.core.udf_schema import (
     UdfSchema,
     UdfSpec,
     register_dataset_udf,
     register_type_udf,
+    register_validator_udf,
     udf_schema,
 )
 
@@ -53,6 +54,21 @@ def add5(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
 
 def square(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return x["col1"] * x["col1"] if isinstance(x, (pd.Series, pd.DataFrame)) else [xx * xx for xx in x["col1"]]
+
+
+def do_something_important(validator_name, condition_name: str, value: Any):
+    print("Validator: {}\n    Condition name {} failed for value {}".format(validator_name, condition_name, value))
+    return
+
+@register_validator_udf(["col1"],condition_name="less_than_four",actions=[do_something_important])
+def lt_4(x):
+    return x < 4
+
+def test_validator_udf_pandas() -> None:
+    data = pd.DataFrame({"col1": [1,3,7]})
+    schema = udf_schema()
+    profile = why.log(data, schema=schema).view()
+    print("s")
 
 
 def test_decorator_pandas() -> None:
