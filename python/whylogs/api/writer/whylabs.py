@@ -118,15 +118,15 @@ def _validate_api_key(api_key: Optional[str]) -> str:
         raise ValueError("Invalid format. Expecting a dot at an index 10")
     return api_key[:10]
 
+
 def _get_auth_headers(proxy_url: str) -> Dict[str, str]:
     parsed_url = urlparse(proxy_url)
     if parsed_url.username and parsed_url.password:
-        default_headers = util.make_headers(
-            proxy_basic_auth=f"{str(parsed_url.username)}:{str(parsed_url.password)}"
-        )
+        default_headers = util.make_headers(proxy_basic_auth=f"{str(parsed_url.username)}:{str(parsed_url.password)}")
     else:
         default_headers = None
     return default_headers
+
 
 class KeyRefresher(abc.ABC):
     @property
