@@ -587,7 +587,7 @@
     <span class="k">def</span> <span class="nf">_numbers_to_dist</span><span class="p">(</span><span class="n">numbers</span><span class="p">:</span> <span class="n">NumbersMessageV0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DistributionMetric</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">doubles_sk</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">kll_doubles_sketch</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">numbers</span><span class="o">.</span><span class="n">histogram</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="c1"># Fall back to KLL float for backward compatibility and convert it to doubles sketch</span>
             <span class="n">sk</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">kll_floats_sketch</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">numbers</span><span class="o">.</span><span class="n">histogram</span><span class="p">)</span>
             <span class="n">doubles_sk</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">kll_floats_sketch</span><span class="o">.</span><span class="n">float_to_doubles</span><span class="p">(</span><span class="n">sk</span><span class="p">)</span>
