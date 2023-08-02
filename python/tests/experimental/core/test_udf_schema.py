@@ -5,10 +5,15 @@ import pandas as pd
 import whylogs as why
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import Fractional, Integral, String
-from whylogs.core.metrics import CardinalityMetric, DistributionMetric, StandardMetric
+from whylogs.core.metrics import (
+    CardinalityMetric,
+    DistributionMetric,
+    MetricConfig,
+    StandardMetric,
+)
 from whylogs.core.resolvers import STANDARD_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.segmentation_partition import segment_on_column
-from whylogs.experimental.core.metrics.udf_metric import register_metric_udf 
+from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
 from whylogs.experimental.core.udf_schema import (
     UdfSchema,
     UdfSpec,
@@ -17,7 +22,6 @@ from whylogs.experimental.core.udf_schema import (
     register_validator_udf,
     udf_schema,
 )
-from whylogs.core.metrics import MetricConfig
 
 
 def test_udf_row() -> None:
@@ -56,8 +60,11 @@ def add5(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
 def square(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return x["col1"] * x["col1"] if isinstance(x, (pd.Series, pd.DataFrame)) else [xx * xx for xx in x["col1"]]
 
+
 action_counter = 0
-def do_something_important(validator_name, condition_name: str, value: Any, column_id = None):
+
+
+def do_something_important(validator_name, condition_name: str, value: Any, column_id=None):
     global action_counter
     print("Validator: {}\n    Condition name {} failed for value {}".format(validator_name, condition_name, value))
     if column_id:
@@ -66,25 +73,28 @@ def do_something_important(validator_name, condition_name: str, value: Any, colu
         action_counter += 1
     return
 
-@register_validator_udf(["col1","add5"],condition_name="less_than_four",actions=[do_something_important])
+
+@register_validator_udf(["col1", "add5"], condition_name="less_than_four", actions=[do_something_important])
 def lt_4(x):
     return x < 4
 
+
 def test_validator_udf_pandas() -> None:
     global action_counter
-    data = pd.DataFrame({"col1": [1,3,7]})
+    data = pd.DataFrame({"col1": [1, 3, 7]})
     schema = udf_schema()
-    profile = why.log(data, schema=schema).view()
-    assert action_counter == 4 # validator will be applied to dataset udf's augmented col add5
+    why.log(data, schema=schema).view()
+    assert action_counter == 4  # validator will be applied to dataset udf's augmented col add5
     action_counter = 0
+
 
 def test_validator_udf_row_with_id() -> None:
     global action_counter
     config = MetricConfig(identity_column="cid")
     schema = udf_schema(default_config=config)
-    data = [{"col1":1,"cid":"c1"},{"col1":3,"cid":"c2"},{"col1":7,"cid":"c3"}]
+    data = [{"col1": 1, "cid": "c1"}, {"col1": 3, "cid": "c2"}, {"col1": 7, "cid": "c3"}]
     for d in data:
-        profile = why.log(d, schema=schema).view()
+        why.log(d, schema=schema).view()
     assert action_counter == 8
     action_counter = 0
 

@@ -21,8 +21,8 @@ from whylogs.core.resolvers import NO_FI_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
-from whylogs.core.validators.validator import Validator
 from whylogs.core.validators import ConditionValidator
+from whylogs.core.validators.validator import Validator
 from whylogs.experimental.core.metrics.udf_metric import (
     _reset_metric_udfs,
     generate_udf_resolvers,
@@ -192,7 +192,7 @@ class UdfSchema(DeclarativeSchema):
 
 _multicolumn_udfs: Dict[str, List[UdfSpec]] = defaultdict(list)
 _resolver_specs: Dict[str, List[ResolverSpec]] = defaultdict(list)
-_validator_udfs: Dict[str, List[Dict[str,List[ConditionValidator]]]] = defaultdict(list)
+_validator_udfs: Dict[str, List[Dict[str, List[ConditionValidator]]]] = defaultdict(list)
 
 
 def _reset_udfs(reset_metric_udfs: bool = True) -> None:
@@ -207,21 +207,20 @@ def _reset_udfs(reset_metric_udfs: bool = True) -> None:
 def register_validator_udf(
     col_names: List[str],
     condition_name: Optional[str] = None,
-    actions: List[Callable[[str, str, Any, Any], None]] = None,
+    actions: Optional[List[Callable[[str, str, Any, Any], None]]] = None,
     namespace: Optional[str] = None,
     schema_name: str = "",
 ) -> Callable[[Any], Any]:
-
     def decorator_register(func):
         global _validator_udfs
         name = condition_name or func.__name__
         name = f"{namespace}.{name}" if namespace else name
         for col in col_names:
             validator = ConditionValidator(
-                    name=name,
-                    conditions={func.__name__:func},
-                    actions=actions,
-                )
+                name=name,
+                conditions={func.__name__: func},
+                actions=actions,
+            )
             _validator_udfs[schema_name].append({col: [validator]})
         return func
 
@@ -350,7 +349,7 @@ def generate_udf_specs(
 DEFAULT_UDF_SCHEMA_RESOLVER = NO_FI_RESOLVER
 
 
-def _update_validators(validators,validators_udf):
+def _update_validators(validators, validators_udf):
     if not validators:
         validators = {}
     for col, validator in validators_udf.items():
