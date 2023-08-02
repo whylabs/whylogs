@@ -288,6 +288,7 @@ def test_deserialize_confusion_matrix_with_kll_floats() -> None:
     merged.to_protobuf()
     # test passes if no crash
 
+
 def test_deserialize_confusion_matrix_with_kll_floats_IndexError() -> None:
     # this sketch generates IndexError when deserialized as kll_doubles_sketch.
     sample = "CgEwCgExEhxkZWxpdmVyeV9wcmVkaWN0aW9uIChvdXRwdXQpGhhkZWxpdmVyeV9zdGF0dXMgKG91dHB1dCkiHGRlbGl2ZXJ5X2NvbmZpZGVuY2UgKG91dHB1dClSFgoAIggCAQ8BAAEIADIIAQMDAAAezJNSFgoAIggCAQ8BAAEIADIIAQMDAAAezJNSTAoLCAEZhetRuB6F6z8SHQgBEYXrUbgehes/GYXrUbgehes/IYXrUbgehes/IgwCAg8EAAEIAPYoXD8yEAEDAwAAGsyTtq3UmCeZQWBSFgoAIggCAQ8BAAEIADIIAQMDAAAezJM="  # noqa: E501
