@@ -220,6 +220,7 @@ def register_validator_udf(
                 name=name,
                 conditions={func.__name__: func},
                 actions=actions,
+                enable_sampling=False,
             )
             _validator_udfs[schema_name].append({col: [validator]})
         return func

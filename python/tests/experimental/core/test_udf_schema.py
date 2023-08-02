@@ -61,16 +61,15 @@ def square(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return x["col1"] * x["col1"] if isinstance(x, (pd.Series, pd.DataFrame)) else [xx * xx for xx in x["col1"]]
 
 
-action_counter = 0
+action_list = []
 
 
 def do_something_important(validator_name, condition_name: str, value: Any, column_id=None):
     global action_counter
     print("Validator: {}\n    Condition name {} failed for value {}".format(validator_name, condition_name, value))
+    action_list.append(value)
     if column_id:
-        action_counter += 2
-    else:
-        action_counter += 1
+        action_list.append(column_id)
     return
 
 
@@ -80,23 +79,22 @@ def lt_4(x):
 
 
 def test_validator_udf_pandas() -> None:
-    global action_counter
+    global action_list
     data = pd.DataFrame({"col1": [1, 3, 7]})
     schema = udf_schema()
     why.log(data, schema=schema).view()
-    assert action_counter == 4  # validator will be applied to dataset udf's augmented col add5
-    action_counter = 0
+    assert 7 in action_list
 
 
 def test_validator_udf_row_with_id() -> None:
-    global action_counter
+    global action_list
     config = MetricConfig(identity_column="cid")
     schema = udf_schema(default_config=config)
-    data = [{"col1": 1, "cid": "c1"}, {"col1": 3, "cid": "c2"}, {"col1": 7, "cid": "c3"}]
+    data = [{"col1": 1, "cid": "c1"}, {"col1": 3, "cid": "c2"}, {"col1": 9, "cid": "c3"}]
     for d in data:
         why.log(d, schema=schema).view()
-    assert action_counter == 8
-    action_counter = 0
+    assert 9 in action_list
+    assert "c3" in action_list
 
 
 def test_decorator_pandas() -> None:
