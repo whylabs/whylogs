@@ -320,11 +320,9 @@ class WhyLabsWriter(Writer):
         cache_key += str(hash(self._key_refresher))
         if self._proxy:
             config.proxy = self._proxy
-            cache_key += str(hash(self._proxy))
             default_header = _get_auth_headers(self._proxy)
             if default_header:
                 config.proxy_headers = default_header
-                cache_key += str(hash(str(default_header)))
         config.discard_unknown_keys = True
         # Disable client side validation and trust the server
         config.client_side_validation = False
