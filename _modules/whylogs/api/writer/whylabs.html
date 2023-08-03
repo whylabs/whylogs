@@ -433,7 +433,7 @@
 
 <span class="kn">import</span> <span class="nn">requests</span>  <span class="c1"># type: ignore</span>
 <span class="kn">import</span> <span class="nn">whylabs_client</span>  <span class="c1"># type: ignore</span>
-<span class="kn">from</span> <span class="nn">urllib3</span> <span class="kn">import</span> <span class="n">PoolManager</span><span class="p">,</span> <span class="n">ProxyManager</span>
+<span class="kn">from</span> <span class="nn">urllib3</span> <span class="kn">import</span> <span class="n">PoolManager</span><span class="p">,</span> <span class="n">ProxyManager</span><span class="p">,</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">whylabs_client</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">Configuration</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.dataset_profile_api</span> <span class="kn">import</span> <span class="n">DatasetProfileApi</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.feature_weights_api</span> <span class="kn">import</span> <span class="n">FeatureWeightsApi</span>
@@ -541,6 +541,15 @@
     <span class="k">if</span> <span class="n">api_key</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid format. Expecting a dot at an index 10&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">api_key</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_get_auth_headers</span><span class="p">(</span><span class="n">proxy_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="n">parsed_url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">proxy_url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parsed_url</span><span class="o">.</span><span class="n">username</span> <span class="ow">and</span> <span class="n">parsed_url</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
+        <span class="n">default_headers</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">make_headers</span><span class="p">(</span><span class="n">proxy_basic_auth</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">parsed_url</span><span class="o">.</span><span class="n">username</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">parsed_url</span><span class="o">.</span><span class="n">password</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">default_headers</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">default_headers</span>
 
 
 <div class="viewcode-block" id="KeyRefresher"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.KeyRefresher">[docs]</a><span class="k">class</span> <span class="nc">KeyRefresher</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
@@ -653,6 +662,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_ssl_ca_cert</span> <span class="o">=</span> <span class="n">ssl_ca_cert</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_api_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Configuration</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
+        <span class="n">_http_proxy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HTTP_PROXY&quot;</span><span class="p">)</span>
+        <span class="n">_https_proxy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HTTPS_PROXY&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span> <span class="o">=</span> <span class="n">_https_proxy</span> <span class="ow">or</span> <span class="n">_http_proxy</span>
+
         <span class="k">if</span> <span class="n">api_key</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span> <span class="o">=</span> <span class="n">StaticKeyRefresher</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -685,12 +698,24 @@
         <span class="n">pool</span> <span class="o">=</span> <span class="n">_UPLOAD_POOLER_CACHE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pooler_cache_key</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">pool</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pooler is not available. Creating a new one for key: </span><span class="si">{</span><span class="n">pooler_cache_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">pool</span> <span class="o">=</span> <span class="n">PoolManager</span><span class="p">(</span>
-                <span class="n">num_pools</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-                <span class="n">maxsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                <span class="n">assert_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_s3_endpoint_subject</span><span class="p">,</span>
-                <span class="n">server_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_s3_endpoint_subject</span><span class="p">,</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span><span class="p">:</span>
+                <span class="n">proxy_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span>
+                <span class="n">default_headers</span> <span class="o">=</span> <span class="n">_get_auth_headers</span><span class="p">(</span><span class="n">proxy_url</span><span class="p">)</span>
+                <span class="n">pool</span> <span class="o">=</span> <span class="n">ProxyManager</span><span class="p">(</span>
+                    <span class="n">proxy_url</span><span class="p">,</span>
+                    <span class="n">num_pools</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                    <span class="n">maxsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                    <span class="n">proxy_headers</span><span class="o">=</span><span class="n">default_headers</span><span class="p">,</span>
+                    <span class="n">assert_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_s3_endpoint_subject</span><span class="p">,</span>
+                    <span class="n">server_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_s3_endpoint_subject</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pool</span> <span class="o">=</span> <span class="n">PoolManager</span><span class="p">(</span>
+                    <span class="n">num_pools</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                    <span class="n">maxsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                    <span class="n">assert_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_s3_endpoint_subject</span><span class="p">,</span>
+                    <span class="n">server_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_s3_endpoint_subject</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_s3_pool</span> <span class="o">=</span> <span class="n">pool</span>
             <span class="n">_UPLOAD_POOLER_CACHE</span><span class="p">[</span><span class="n">pooler_cache_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">pool</span>
         <span class="k">else</span><span class="p">:</span>
@@ -717,7 +742,11 @@
         <span class="n">config</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ApiKeyAuth&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
         <span class="n">config</span><span class="o">.</span><span class="n">refresh_api_key_hook</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span>
         <span class="n">cache_key</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span><span class="p">))</span>
-
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">proxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span>
+            <span class="n">default_header</span> <span class="o">=</span> <span class="n">_get_auth_headers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">default_header</span><span class="p">:</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">proxy_headers</span> <span class="o">=</span> <span class="n">default_header</span>
         <span class="n">config</span><span class="o">.</span><span class="n">discard_unknown_keys</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="c1"># Disable client side validation and trust the server</span>
         <span class="n">config</span><span class="o">.</span><span class="n">client_side_validation</span> <span class="o">=</span> <span class="kc">False</span>
