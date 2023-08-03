@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore
-from urllib3 import PoolManager, ProxyManager
+from urllib3 import PoolManager, ProxyManager, util
 from whylabs_client import ApiClient, Configuration  # type: ignore
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi
 from whylabs_client.api.feature_weights_api import FeatureWeightsApi
@@ -117,6 +117,15 @@ def _validate_api_key(api_key: Optional[str]) -> str:
     if api_key[10] != ".":
         raise ValueError("Invalid format. Expecting a dot at an index 10")
     return api_key[:10]
+
+
+def _get_auth_headers(proxy_url: str) -> Dict[str, str]:
+    parsed_url = urlparse(proxy_url)
+    if parsed_url.username and parsed_url.password:
+        default_headers = util.make_headers(proxy_basic_auth=f"{str(parsed_url.username)}:{str(parsed_url.password)}")
+    else:
+        default_headers = None
+    return default_headers
 
 
 class KeyRefresher(abc.ABC):
@@ -229,6 +238,10 @@ class WhyLabsWriter(Writer):
         self._ssl_ca_cert = ssl_ca_cert
         self._api_config: Optional[Configuration] = None
 
+        _http_proxy = os.environ.get("HTTP_PROXY")
+        _https_proxy = os.environ.get("HTTPS_PROXY")
+        self._proxy = _https_proxy or _http_proxy
+
         if api_key:
             self._key_refresher = StaticKeyRefresher(api_key)
         else:
@@ -261,12 +274,24 @@ class WhyLabsWriter(Writer):
         pool = _UPLOAD_POOLER_CACHE.get(pooler_cache_key)
         if pool is None:
             logger.debug(f"Pooler is not available. Creating a new one for key: {pooler_cache_key}")
-            pool = PoolManager(
-                num_pools=4,
-                maxsize=10,
-                assert_hostname=self._s3_endpoint_subject,
-                server_hostname=self._s3_endpoint_subject,
-            )
+            if self._proxy:
+                proxy_url = self._proxy
+                default_headers = _get_auth_headers(proxy_url)
+                pool = ProxyManager(
+                    proxy_url,
+                    num_pools=4,
+                    maxsize=10,
+                    proxy_headers=default_headers,
+                    assert_hostname=self._s3_endpoint_subject,
+                    server_hostname=self._s3_endpoint_subject,
+                )
+            else:
+                pool = PoolManager(
+                    num_pools=4,
+                    maxsize=10,
+                    assert_hostname=self._s3_endpoint_subject,
+                    server_hostname=self._s3_endpoint_subject,
+                )
             self._s3_pool = pool
             _UPLOAD_POOLER_CACHE[pooler_cache_key] = pool
         else:
@@ -293,7 +318,11 @@ class WhyLabsWriter(Writer):
         config.api_key = {"ApiKeyAuth": ""}
         config.refresh_api_key_hook = self._key_refresher
         cache_key += str(hash(self._key_refresher))
-
+        if self._proxy:
+            config.proxy = self._proxy
+            default_header = _get_auth_headers(self._proxy)
+            if default_header:
+                config.proxy_headers = default_header
         config.discard_unknown_keys = True
         # Disable client side validation and trust the server
         config.client_side_validation = False
