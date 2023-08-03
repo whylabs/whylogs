@@ -14,7 +14,7 @@ from whylogs.core.resolvers import (
 )
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
-from whylogs.core.validators.validator import Validator
+from whylogs.core.validators.validator import Validator, deepcopy_validators
 
 logger = logging.getLogger(__name__)
 
@@ -271,7 +271,7 @@ class DeclarativeSchema(DatasetSchema):
             self.cache_size,
             self.schema_based_automerge,
             self.segments.copy(),
-            deepcopy(self.validators),
+            deepcopy_validators(self.validators),
         )
         copy.resolvers = deepcopy(self.resolvers)
         copy._columns = deepcopy(self._columns)
