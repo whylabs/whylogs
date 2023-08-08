@@ -21,13 +21,12 @@ from whylogs.core.resolvers import NO_FI_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
-from whylogs.core.validators import ConditionValidator
 from whylogs.core.validators.validator import Validator
 from whylogs.experimental.core.metrics.udf_metric import (
     _reset_metric_udfs,
     generate_udf_resolvers,
 )
-
+from whylogs.experimental.core.validators.condition_validator import _generate_validators
 logger = logging.getLogger(__name__)
 
 
@@ -192,7 +191,6 @@ class UdfSchema(DeclarativeSchema):
 
 _multicolumn_udfs: Dict[str, List[UdfSpec]] = defaultdict(list)
 _resolver_specs: Dict[str, List[ResolverSpec]] = defaultdict(list)
-_validator_udfs: Dict[str, List[Dict[str, List[ConditionValidator]]]] = defaultdict(list)
 
 
 def _reset_udfs(reset_metric_udfs: bool = True) -> None:
@@ -204,28 +202,6 @@ def _reset_udfs(reset_metric_udfs: bool = True) -> None:
     _resolver_specs = defaultdict(list)
 
 
-def register_validator_udf(
-    col_names: List[str],
-    condition_name: Optional[str] = None,
-    actions: Optional[List[Callable[[str, str, Any, Any], None]]] = None,
-    namespace: Optional[str] = None,
-    schema_name: str = "",
-) -> Callable[[Any], Any]:
-    def decorator_register(func):
-        global _validator_udfs
-        name = condition_name or func.__name__
-        name = f"{namespace}.{name}" if namespace else name
-        for col in col_names:
-            validator = ConditionValidator(
-                name=name,
-                conditions={func.__name__: func},
-                actions=actions,
-                enable_sampling=True,
-            )
-            _validator_udfs[schema_name].append({col: [validator]})
-        return func
-
-    return decorator_register
 
 
 def register_dataset_udf(
@@ -349,17 +325,6 @@ def generate_udf_specs(
 
 DEFAULT_UDF_SCHEMA_RESOLVER = NO_FI_RESOLVER
 
-
-def _update_validators(validators, validators_udf):
-    if not validators:
-        validators = {}
-    for col, validator in validators_udf.items():
-        if col not in validators:
-            validators[col] = []
-        validators[col].extend(validator)
-    return validators
-
-
 def udf_schema(
     other_udf_specs: Optional[List[UdfSpec]] = None,
     resolvers: Optional[List[ResolverSpec]] = None,
@@ -384,8 +349,7 @@ def udf_schema(
 
     for name in schema_names:
         resolver_specs += _resolver_specs[name]
-        for validators_udf in _validator_udfs[name]:
-            validators = _update_validators(validators, validators_udf)
+        validators = _generate_validators(validators, name, include_default_schema=True)
 
     resolver_specs += generate_udf_resolvers(schema_name, include_default_schema)
     return UdfSchema(

@@ -19,9 +19,9 @@ from whylogs.experimental.core.udf_schema import (
     UdfSpec,
     register_dataset_udf,
     register_type_udf,
-    register_validator_udf,
     udf_schema,
 )
+from whylogs.experimental.core.validators import register_validator
 
 
 def test_udf_row() -> None:
@@ -73,7 +73,7 @@ def do_something_important(validator_name, condition_name: str, value: Any, colu
     return
 
 
-@register_validator_udf(["col1", "add5"], condition_name="less_than_four", actions=[do_something_important])
+@register_validator(["col1", "add5"], condition_name="less_than_four", actions=[do_something_important])
 def lt_4(x):
     return x < 4
 
