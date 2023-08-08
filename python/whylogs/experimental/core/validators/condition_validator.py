@@ -1,17 +1,11 @@
 from collections import defaultdict
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Union,
-)
-from whylogs.core.validators import ConditionValidator
 from copy import copy
+from typing import Any, Callable, Dict, List, Optional, Union
 
+from whylogs.core.validators import ConditionValidator
 
 _validator_udfs: Dict[str, List[Dict[str, List[ConditionValidator]]]] = defaultdict(list)
+
 
 def register_validator(
     col_names: List[str],
@@ -37,10 +31,11 @@ def register_validator(
 
     return decorator_register
 
+
 def _generate_validators(
     initial_validators: Optional[Dict[str, List[ConditionValidator]]],
     schema_name: Union[str, List[str]],
-    include_default_schema: bool = True
+    include_default_schema: bool = True,
 ) -> Dict[str, List[ConditionValidator]]:
     """Merge registered validators for requested schemas"""
     global _validator_udfs
