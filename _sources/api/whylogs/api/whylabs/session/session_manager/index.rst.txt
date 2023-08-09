@@ -12,12 +12,6 @@ Classes
 
 .. autoapisummary::
 
-   whylogs.api.whylabs.session.session_manager.SessionType
-   whylogs.api.whylabs.session.session_manager.UploadReferenceResult
-   whylogs.api.whylabs.session.session_manager.Session
-   whylogs.api.whylabs.session.session_manager.GuestSession
-   whylogs.api.whylabs.session.session_manager.LocalSession
-   whylogs.api.whylabs.session.session_manager.ApiKeySession
    whylogs.api.whylabs.session.session_manager.SessionManager
 
 
@@ -44,114 +38,9 @@ Attributes
 
    
 
-.. py:class:: SessionType
+.. py:class:: SessionManager(config: whylogs.api.whylabs.session.config.SessionConfig)
 
-   Bases: :py:obj:`enum.Enum`
-
-   Generic enumeration.
-
-   Derive from this class to define new enumerations.
-
-   .. py:attribute:: WHYLABS_ANONYMOUS
-      :value: 'whylabs_anonymous'
-
-      
-
-   .. py:attribute:: WHYLABS
-      :value: 'whylabs'
-
-      
-
-   .. py:attribute:: LOCAL
-      :value: 'local'
-
-      
-
-   .. py:method:: name()
-
-      The name of the Enum member.
-
-
-   .. py:method:: value()
-
-      The value of the Enum member.
-
-
-
-.. py:class:: UploadReferenceResult
-
-   .. py:attribute:: viewing_url
-      :type: str
-
-      
-
-   .. py:attribute:: whylabs_response
-      :type: whylabs_client.api.sessions_api.BatchLogSessionReferenceResponse
-
-      
-
-
-.. py:class:: Session
-
-   Bases: :py:obj:`abc.ABC`
-
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
-
-   .. py:method:: get_type() -> SessionType
-      :abstractmethod:
-
-
-   .. py:method:: upload_reference_profiles(profile_aliases: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> Union[UploadReferenceResult, whylogs.api.whylabs.session.session_types.NotSupported]
-      :abstractmethod:
-
-
-
-.. py:class:: GuestSession(config: whylogs.api.whylabs.session.config.SessionConfig, whylabs_client: whylabs_client.api_client.ApiClient)
-
-   Bases: :py:obj:`Session`
-
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
-
-   .. py:method:: get_type() -> SessionType
-
-
-   .. py:method:: upload_reference_profiles(profile_aliases: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> Union[UploadReferenceResult, whylogs.api.whylabs.session.session_types.NotSupported]
-
-
-
-.. py:class:: LocalSession
-
-   Bases: :py:obj:`Session`
-
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
-
-   .. py:method:: get_type() -> SessionType
-
-
-   .. py:method:: upload_reference_profiles(profile_aliases: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> Union[UploadReferenceResult, whylogs.api.whylabs.session.session_types.NotSupported]
-
-
-
-.. py:class:: ApiKeySession(config: whylogs.api.whylabs.session.config.SessionConfig)
-
-   Bases: :py:obj:`Session`
-
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
-
-   .. py:method:: get_type() -> SessionType
-
-
-   .. py:method:: upload_reference_profiles(profile_aliases: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> Union[UploadReferenceResult, whylogs.api.whylabs.session.session_types.NotSupported]
-
-
-
-.. py:class:: SessionManager(type: SessionType = SessionType.LOCAL)
-
-   .. py:method:: init(type: SessionType = SessionType.LOCAL) -> None
+   .. py:method:: init(session_config: whylogs.api.whylabs.session.config.SessionConfig) -> SessionManager
       :staticmethod:
 
 
@@ -168,9 +57,40 @@ Attributes
 
 
 
-.. py:function:: init(session_type: Union[SessionType, str] = SessionType.LOCAL, reinit: bool = False) -> None
+.. py:function:: init(reinit: bool = False, allow_anonymous: bool = True, allow_local: bool = False, whylabs_api_key: Optional[str] = None, default_dataset_id: Optional[str] = None) -> None
+
+   Set up authentication for this whylogs logging session. There are three modes that you can authentiate in.
+
+   1. WHYLABS: Data is sent to WhyLabs and is associated with a specific WhyLabs account. You can get a WhyLabs api
+       key from the WhyLabs Settings page after logging in.
+   2. WHYLABS_ANONYMOUS: Data is sent to WhyLabs, but no authentication happens and no WhyLabs account is required.
+       Sessions can be claimed into an account later on the WhyLabs website.
+   3. LOCAL: No authentication. No data is automatically sent anywhere. Use this if you want to explore profiles
+       locally or manually upload them somewhere.
+
+   Typically, you should only have to put `why.init()` with no arguments at the start of your application/notebook/script.
+   The arguments allow for some customization of the logic that determines the session type. Here is the priority order:
+
+   - If there is an api key directly supplied to init, then use it and authenticate session as WHYLABS.
+   - If there is an api key in the environment variable WHYLABS_API_KEY, then use it and authenticate session as WHYLABS.
+   - If there is an api key in the whylogs config file, then use it and authenticate session as WHYLABS.
+   - If we're in an interractive environment (notebook, colab, etc.) then prompt the user to pick a method explicitly.
+       The options are determined by the allow* argument values to init().
+   - If allow_anonymous is True, then authenticate session as WHYLABS_ANONYMOUS.
+   - If allow_local is True, then authenticate session as LOCAL.
+
+   :param reinit: Normally, init() is idempotent, so you can run it over and over again in a notebook without any issues, for example.
+                  If reinit=True then it will run the initialization logic again, so you can switch authentication methods without restarting.
+   :param allow_anonymous: If True, then the user will be able to choose WHYLABS_ANONYMOUS if no other authentication method is found.
+   :param allow_local: If True, then the user will be able to choose LOCAL if no other authentication method is found.
+   :param whylabs_api_key: A WhyLabs api key to use for uploading profiles. There are other ways that you can set an api key that don't
+                           require direclty embedding it in code, like setting WHYLABS_API_KEY env variable or supplying the api key interractively
+                           via the init() prompt in a notebook.
+   :param default_dataset_id: The default dataset id to use for uploading profiles. This is only used if the session is authenticated.
+                              This is a convenience argument so that you don't have to supply the dataset id every time you upload a profile if
+                              you're only using a single dataset id.
 
 
-.. py:function:: get_current_session() -> Optional[Session]
+.. py:function:: get_current_session() -> Optional[whylogs.api.whylabs.session.session.Session]
 
 

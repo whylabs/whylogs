@@ -422,17 +422,15 @@
         </div>
         <article role="main">
           <h1>Source code for whylogs.api.whylabs.session.notebook_logger</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span></span><span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ResultSet</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">NotSupported</span><span class="p">,</span>
-    <span class="n">get_current_session</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_types</span> <span class="kn">import</span> <span class="n">log_if_notebook</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session</span> <span class="kn">import</span> <span class="n">NotSupported</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">get_current_session</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_types</span> <span class="kn">import</span> <span class="n">InteractiveLogger</span> <span class="k">as</span> <span class="n">il</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_types</span> <span class="kn">import</span> <span class="n">SessionType</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
-
-<span class="n">_start_session_tip</span> <span class="o">=</span> <span class="s2">&quot;Start a session with why.init(session_type=&#39;whylabs_anonymous&#39;)&quot;</span>
 
 
 <div class="viewcode-block" id="notebook_session_log_comparison"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/notebook_logger/index.html#whylogs.api.logger.notebook_session_log_comparison">[docs]</a><span class="k">def</span> <span class="nf">notebook_session_log_comparison</span><span class="p">(</span>
@@ -442,33 +440,35 @@
 
     <span class="c1"># This api does show som</span>
     <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">log_if_notebook</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;😭 No active session found. Skipping reference profile upload. </span><span class="si">{</span><span class="n">_start_session_tip</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span>
-    <span class="k">elif</span> <span class="n">session</span><span class="o">.</span><span class="n">get_type</span><span class="p">()</span><span class="o">.</span><span class="n">value</span> <span class="o">!=</span> <span class="s2">&quot;whylabs_anonymous&quot;</span><span class="p">:</span>
-        <span class="c1"># Only supported for anonymous session right now</span>
+    <span class="k">elif</span> <span class="n">session</span><span class="o">.</span><span class="n">get_type</span><span class="p">()</span> <span class="o">==</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">:</span>
         <span class="k">return</span>
 
     <span class="n">profile_names_zipped_with_loggable_len</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">result_sets</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
     <span class="n">joined_profile_names_and_loggable_len</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2"> lines into profile &#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">profile_names_zipped_with_loggable_len</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">log_if_notebook</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Aggregated </span><span class="si">{</span><span class="n">joined_profile_names_and_loggable_len</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">log_if_notebook</span><span class="p">()</span>
+    <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">()</span>
+    <span class="n">il</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Aggregated </span><span class="si">{</span><span class="n">joined_profile_names_and_loggable_len</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">()</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">upload_reference_profiles</span><span class="p">(</span><span class="n">result_sets</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">NotSupported</span><span class="p">):</span>
-            <span class="n">log_if_notebook</span><span class="p">(</span><span class="s2">&quot;Visualize and explore the profiles with one-click&quot;</span><span class="p">)</span>
-            <span class="n">log_if_notebook</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔍 </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">viewing_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="s2">&quot;Visualize and explore the profiles with one-click&quot;</span><span class="p">)</span>
+            <span class="n">il</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">viewing_url</span><span class="p">)</span>
 
-            <span class="n">log_if_notebook</span><span class="p">()</span>
-            <span class="n">log_if_notebook</span><span class="p">(</span><span class="s2">&quot;Or view each profile individually&quot;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">whylabs_response</span><span class="o">.</span><span class="n">references</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; ⤷ </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">observatory_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">urls</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">individual_viewing_urls</span>
+            <span class="k">if</span> <span class="n">urls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">()</span>
+                <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="s2">&quot;Or view each profile individually&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+                    <span class="n">il</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="c1"># Don&#39;t throw, just don&#39;t upload</span>
-        <span class="n">log_if_notebook</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to upload reference profile: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="n">il</span><span class="o">.</span><span class="n">failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to upload reference profile: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span></div>
 
 
 <span class="k">def</span> <span class="nf">_get_loggable_length</span><span class="p">(</span><span class="n">loggable</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
@@ -488,43 +488,52 @@
     <span class="n">row</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="c1"># This is only for reference profiles atm</span>
-    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">log_if_notebook</span><span class="p">(</span><span class="s2">&quot;Skipping uploading profile to WhyLabs because no name was given with name=&quot;</span><span class="p">)</span>
-        <span class="k">return</span>
-
     <span class="n">session</span> <span class="o">=</span> <span class="n">get_current_session</span><span class="p">()</span>
 
     <span class="c1"># Dont&#39; do anything if there is no session created with why.init</span>
     <span class="c1"># For now, only include reference profile uploads (things that have a name)</span>
     <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">log_if_notebook</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;😭 No active session found. Skipping reference profile upload. </span><span class="si">{</span><span class="n">_start_session_tip</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span>
-    <span class="k">elif</span> <span class="n">session</span><span class="o">.</span><span class="n">get_type</span><span class="p">()</span><span class="o">.</span><span class="n">value</span> <span class="o">!=</span> <span class="s2">&quot;whylabs_anonymous&quot;</span><span class="p">:</span>
-        <span class="c1"># Only supported for anonymous session right now</span>
+    <span class="k">elif</span> <span class="n">session</span><span class="o">.</span><span class="n">get_type</span><span class="p">()</span> <span class="o">==</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">:</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="s2">&quot;Skipping uploading profiles to WhyLabs because this session is configured to be local only.&quot;</span><span class="p">)</span>
         <span class="k">return</span>
 
     <span class="c1"># Get the length of whatever was just logged</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="n">_get_loggable_length</span><span class="p">(</span><span class="n">pandas</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_get_loggable_length</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_get_loggable_length</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
 
+    <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">rows</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">log_if_notebook</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Aggregated </span><span class="si">{</span><span class="n">rows</span><span class="si">}</span><span class="s2"> rows into profile &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="n">name_message</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Aggregated </span><span class="si">{</span><span class="n">rows</span><span class="si">}</span><span class="s2"> rows into profile </span><span class="si">{</span><span class="n">name_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">log_if_notebook</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Aggregated data into profile &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Aggregated data into profile </span><span class="si">{</span><span class="n">name_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="n">log_if_notebook</span><span class="p">()</span>
+    <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">()</span>
 
-    <span class="n">profiles</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">profiles</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_set</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">upload_batch_profile</span><span class="p">(</span><span class="n">result_set</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">NotSupported</span><span class="p">):</span>
+                <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="s2">&quot;Visualize and explore this profile with one-click&quot;</span><span class="p">)</span>
+                <span class="n">il</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">viewing_url</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Don&#39;t throw, just don&#39;t upload</span>
+            <span class="n">il</span><span class="o">.</span><span class="n">failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to upload profile: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">upload_reference_profiles</span><span class="p">(</span><span class="n">profiles</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">NotSupported</span><span class="p">):</span>
-            <span class="n">log_if_notebook</span><span class="p">(</span><span class="s2">&quot;Visualize and explore this profile with one-click&quot;</span><span class="p">)</span>
-            <span class="n">log_if_notebook</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔍 </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">viewing_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="c1"># Don&#39;t throw, just don&#39;t upload</span>
-        <span class="n">log_if_notebook</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to upload reference profile: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">profiles</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">profiles</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_set</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">upload_reference_profiles</span><span class="p">(</span><span class="n">profiles</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">NotSupported</span><span class="p">):</span>
+                <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="s2">&quot;Visualize and explore this profile with one-click&quot;</span><span class="p">)</span>
+                <span class="n">il</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">viewing_url</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Don&#39;t throw, just don&#39;t upload</span>
+            <span class="n">il</span><span class="o">.</span><span class="n">failure</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to upload reference profile: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span></div>
 </pre></div>
         </article>
       </div>

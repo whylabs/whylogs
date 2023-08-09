@@ -686,24 +686,8 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install whylogs pandas numpy -qq
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Note: you may need to restart the kernel to use updated packages.
-</pre></div></div>
-</div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
@@ -728,17 +712,13 @@ Note: you may need to restart the kernel to use updated packages.
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">SessionType</span>
 
-<span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">session_type</span><span class="o">=</span><span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS_ANONYMOUS</span><span class="p">)</span>
-
-<span class="c1"># Also works as a string so we can avoid extra imports in examples</span>
-<span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">session_type</span><span class="o">=</span><span class="s1">&#39;whylabs_anonymous&#39;</span><span class="p">)</span>
-<br/><br/></pre></div>
+<span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+</pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -746,39 +726,52 @@ Note: you may need to restart the kernel to use updated packages.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Initialized anonymous session with id session-dwZsmq in config /home/anthony/.config/whylogs/config.ini
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-✅ Aggregated 48842 rows into profile &#39;foo&#39;
-
-Visualize and explore this profile with one-click
-🔍 https://hub.whylabsapp.com/resources/model-1/profiles?sessionToken=session-dwZsmq&amp;profile=ref-Ah2mNAamzboNCYLy
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-&lt;whylogs.api.logger.result_set.ProfileResultSet at 0x7fe9c0262080&gt;
+Initialing session with config /home/anthony/.config/whylogs/config.ini
+✅ Using session type: WHYLABS_ANONYMOUS
+ ⤷ session id: session-XfQUnBhJ
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+✅ Aggregated 48842 rows into profile foo
+
+Visualize and explore this profile with one-click
+🔍 https://hub.whylabsapp.com/resources/model-1/profiles?profile=ref-547v42LMV5rKJi4R&amp;sessionToken=session-XfQUnBhJ
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Upload the same data as a batch profile by leaving out the name</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+✅ Aggregated 48842 rows into profile
+
+Visualize and explore this profile with one-click
+🔍 https://hub.whylabsapp.com/resources/model-1/profiles?profile=1689292800000&amp;sessionToken=session-XfQUnBhJ
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">multiple</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">})</span>
@@ -793,20 +786,20 @@ Visualize and explore this profile with one-click
 ✅ Aggregated 48842 lines into profile &#39;foo&#39;, 48842 lines into profile &#39;bar&#39;
 
 Visualize and explore the profiles with one-click
-🔍 https://hub.whylabsapp.com/resources/model-1/profiles?sessionToken=session-dwZsmq&amp;profile=ref-iHwnpzHuGvbl6aNX&amp;profile=ref-dU6akws6kxtXTrNH
+🔍 https://hub.whylabsapp.com/resources/model-1/profiles?profile=ref-6xJz70VbH7duHTaW&amp;profile=ref-E2sM0Wd9RkPYPuu9&amp;sessionToken=session-XfQUnBhJ
 
 Or view each profile individually
- ⤷ https://hub.whylabsapp.com/resources/model-1/profiles?profile=ref-iHwnpzHuGvbl6aNX&amp;sessionToken=session-dwZsmq
- ⤷ https://hub.whylabsapp.com/resources/model-1/profiles?profile=ref-dU6akws6kxtXTrNH&amp;sessionToken=session-dwZsmq
+ ⤷ https://hub.whylabsapp.com/resources/model-1/profiles?profile=ref-6xJz70VbH7duHTaW&amp;sessionToken=session-XfQUnBhJ
+ ⤷ https://hub.whylabsapp.com/resources/model-1/profiles?profile=ref-E2sM0Wd9RkPYPuu9&amp;sessionToken=session-XfQUnBhJ
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;whylogs.api.logger.result_set.ViewResultSet at 0x7fe9674c6c80&gt;
+&lt;whylogs.api.logger.result_set.ViewResultSet at 0x7f99ddb67670&gt;
 </pre></div></div>
 </div>
 

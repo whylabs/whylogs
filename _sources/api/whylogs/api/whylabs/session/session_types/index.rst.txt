@@ -13,6 +13,10 @@ Classes
 .. autoapisummary::
 
    whylogs.api.whylabs.session.session_types.NotSupported
+   whylogs.api.whylabs.session.session_types.InteractiveLogger
+   whylogs.api.whylabs.session.session_types.SessionType
+   whylogs.api.whylabs.session.session_types.ApiKeyV1
+   whylogs.api.whylabs.session.session_types.ApiKeyV2
 
 
 
@@ -21,9 +25,19 @@ Functions
 
 .. autoapisummary::
 
-   whylogs.api.whylabs.session.session_types.init_notebook_logging
-   whylogs.api.whylabs.session.session_types.log_if_notebook
+   whylogs.api.whylabs.session.session_types.parse_api_key
+   whylogs.api.whylabs.session.session_types.validate_org_id
+   whylogs.api.whylabs.session.session_types.parse_api_key_v1
+   whylogs.api.whylabs.session.session_types.parse_api_key_v2
 
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.session_types.ApiKey
 
 
 .. py:class:: NotSupported
@@ -31,11 +45,142 @@ Functions
    Indicates that one of the session apis isn't supported for the current session type.
 
 
-.. py:function:: init_notebook_logging() -> None
+.. py:class:: InteractiveLogger
+
+   Logger for interactive environments.
+
+   .. py:method:: init_notebook_logging() -> None
+      :staticmethod:
 
 
-.. py:function:: log_if_notebook(message: str = '') -> None
+   .. py:method:: message(message: str = '') -> None
+      :staticmethod:
 
-   Log a message only if we're in a notebook environment.
+      Log a message only if we're in a notebook environment.
+
+
+   .. py:method:: option(message: str) -> None
+      :staticmethod:
+
+      Log an option line, which is anything that has multiple related lines in a row like
+      multiple choices or a list things.
+
+
+   .. py:method:: inspect(message: str) -> None
+      :staticmethod:
+
+      Log a message that the user is intended to interact with or inspect, like a url
+
+
+   .. py:method:: question(message: str) -> None
+      :staticmethod:
+
+      Log a question.
+
+
+   .. py:method:: success(message: str) -> None
+      :staticmethod:
+
+      Log a success line, which has a green checkmark.
+
+
+   .. py:method:: failure(message: str) -> None
+      :staticmethod:
+
+      Log a failure, which has a red x.
+
+
+   .. py:method:: warning(message: str) -> None
+      :staticmethod:
+
+      Log a warning, which has a warning sign.
+
+
+
+.. py:class:: SessionType
+
+   Bases: :py:obj:`enum.Enum`
+
+   Generic enumeration.
+
+   Derive from this class to define new enumerations.
+
+   .. py:attribute:: WHYLABS_ANONYMOUS
+      :value: 'whylabs_anonymous'
+
+      
+
+   .. py:attribute:: WHYLABS
+      :value: 'whylabs'
+
+      
+
+   .. py:attribute:: LOCAL
+      :value: 'local'
+
+      
+
+   .. py:method:: name()
+
+      The name of the Enum member.
+
+
+   .. py:method:: value()
+
+      The value of the Enum member.
+
+
+
+.. py:class:: ApiKeyV1
+
+   .. py:attribute:: api_key_id
+      :type: str
+
+      
+
+   .. py:attribute:: full_key
+      :type: str
+
+      
+
+
+.. py:class:: ApiKeyV2
+
+   .. py:attribute:: api_key_id
+      :type: str
+
+      
+
+   .. py:attribute:: org_id
+      :type: str
+
+      
+
+   .. py:attribute:: full_key
+      :type: str
+
+      
+
+
+.. py:data:: ApiKey
+
+   
+
+.. py:function:: parse_api_key(api_key: str) -> ApiKey
+
+
+.. py:function:: validate_org_id(org_id: str) -> None
+
+
+.. py:function:: parse_api_key_v1(api_key: str) -> ApiKeyV1
+
+   Parse the key id from an api key.
+   V1 api keys have the format key_id.key
+
+
+.. py:function:: parse_api_key_v2(api_key: str) -> ApiKeyV2
+
+   Parse the key id and the org id from an api key
+   V2 api keys have the format key_id.key:org_id
 
 

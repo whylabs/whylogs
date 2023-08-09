@@ -427,6 +427,7 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">configparser</span> <span class="kn">import</span> <span class="n">ConfigParser</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
@@ -434,17 +435,35 @@
 <span class="kn">from</span> <span class="nn">platformdirs</span> <span class="kn">import</span> <span class="n">user_config_dir</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.notebook_check</span> <span class="kn">import</span> <span class="n">is_notebook</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.prompts</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">prompt_api_key</span><span class="p">,</span>
+    <span class="n">prompt_default_dataset_id</span><span class="p">,</span>
+    <span class="n">prompt_org_id</span><span class="p">,</span>
+    <span class="n">prompt_session_type</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_types</span> <span class="kn">import</span> <span class="n">ApiKeyV1</span><span class="p">,</span> <span class="n">ApiKeyV2</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_types</span> <span class="kn">import</span> <span class="n">InteractiveLogger</span> <span class="k">as</span> <span class="n">il</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_types</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SessionType</span><span class="p">,</span>
+    <span class="n">parse_api_key</span><span class="p">,</span>
+    <span class="n">parse_api_key_v2</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">_DEFAULT_WHYLABS_HOST</span> <span class="o">=</span> <span class="s2">&quot;https://api.whylabsapp.com&quot;</span>
 <span class="n">_CONFIG_APP_NAME</span> <span class="o">=</span> <span class="s2">&quot;whylogs&quot;</span>
+<span class="n">_INIT_DOCS</span> <span class="o">=</span> <span class="s2">&quot;https://docs.whylabs.ai/docs/whylabs-whylogs-init&quot;</span>
 
 
 <div class="viewcode-block" id="EnvVariableName"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.EnvVariableName">[docs]</a><span class="k">class</span> <span class="nc">EnvVariableName</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">WHYLABS_API_KEY</span> <span class="o">=</span> <span class="s2">&quot;WHYLABS_API_KEY&quot;</span>
     <span class="n">WHYLABS_SESSION_ID</span> <span class="o">=</span> <span class="s2">&quot;WHYLABS_SESSION_ID&quot;</span>
-    <span class="n">ORG_ID</span> <span class="o">=</span> <span class="s2">&quot;ORG_ID&quot;</span>
+    <span class="n">WHYLABS_ORG_ID</span> <span class="o">=</span> <span class="s2">&quot;WHYLABS_DEFAULT_ORG_ID&quot;</span>
+    <span class="n">WHYLABS_DEFAULT_DATASET_ID</span> <span class="o">=</span> <span class="s2">&quot;WHYLABS_DEFAULT_DATASET_ID&quot;</span>
     <span class="n">WHYLOGS_CONFIG_PATH</span> <span class="o">=</span> <span class="s2">&quot;WHYLOGS_CONFIG_PATH&quot;</span>
-    <span class="n">WHYLABS_API_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;WHYLABS_API_ENDPOINT&quot;</span></div>
+    <span class="n">WHYLABS_API_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;WHYLABS_API_ENDPOINT&quot;</span>
+    <span class="n">WHYLABS_REFERENCE_PROFILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;WHYLABS_REFERENCE_PROFILE_NAME&quot;</span>
+    <span class="n">WHYLABS_PRIVATE_API_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;WHYLABS_PRIVATE_API_ENDPOINT&quot;</span>
+    <span class="n">WHYLABS_PRIVATE_S3_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;WHYLABS_PRIVATE_S3_ENDPOINT&quot;</span></div>
 
 
 <div class="viewcode-block" id="ConfigVariableName"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigVariableName">[docs]</a><span class="k">class</span> <span class="nc">ConfigVariableName</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
@@ -452,19 +471,49 @@
     <span class="n">ORG_ID</span> <span class="o">=</span> <span class="s2">&quot;org_id&quot;</span>
     <span class="n">SESSION_ID</span> <span class="o">=</span> <span class="s2">&quot;session_id&quot;</span>
     <span class="n">WHYLABS_API_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;whylabs_api_endpoint&quot;</span>
-    <span class="n">USER_GUID</span> <span class="o">=</span> <span class="s2">&quot;user_guid&quot;</span></div>
+    <span class="n">USER_GUID</span> <span class="o">=</span> <span class="s2">&quot;user_guid&quot;</span>
+    <span class="n">DEFAULT_DATASET_ID</span> <span class="o">=</span> <span class="s2">&quot;default_dataset_id&quot;</span>
+    <span class="n">WHYLABS_REFERENCE_PROFILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;whylabs_reference_profile_name&quot;</span>
+    <span class="n">WHYLABS_PRIVATE_API_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;whylabs_private_api_endpoint&quot;</span>
+    <span class="n">WHYLABS_PRIVATE_S3_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;whylabs_private_s3_endpoint&quot;</span></div>
+
+
+<div class="viewcode-block" id="InitConfig"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.InitConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">InitConfig</span><span class="p">:</span>
+    <span class="n">whylabs_api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">allow_anonymous</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">allow_local</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">default_dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="SessionConfig"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig">[docs]</a><span class="k">class</span> <span class="nc">SessionConfig</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">InitConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">auth_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config_file_path</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_parser</span><span class="p">()</span>
+
+        <span class="n">_init_config</span> <span class="o">=</span> <span class="n">init_config</span> <span class="ow">or</span> <span class="n">InitConfig</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tmp_api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">_init_config</span><span class="o">.</span><span class="n">whylabs_api_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tmp_default_dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">_init_config</span><span class="o">.</span><span class="n">default_dataset_id</span>
+
+        <span class="c1"># Only here for CLI compatibilty. No one should actually set this.</span>
+        <span class="n">force_interactive</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;WHYLABS_FORCE_INTERACTIVE&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+        <span class="k">if</span> <span class="n">force_interactive</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reset_config</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_determine_session_type_prompt</span><span class="p">(</span><span class="n">_init_config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_determine_session_type</span><span class="p">(</span><span class="n">_init_config</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_init_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_config_parser</span> <span class="o">=</span> <span class="n">ConfigFile</span><span class="o">.</span><span class="n">create_parser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_path</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">configparser</span><span class="o">.</span><span class="n">Error</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">,</span> <span class="ne">PermissionError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Error reading config file from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">. Operations with WhyLabs will fail.&quot;</span>
             <span class="p">)</span>
+
+<div class="viewcode-block" id="SessionConfig.get_session_type"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_session_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_session_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SessionType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_type</span></div>
 
     <span class="k">def</span> <span class="nf">_load_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_name</span><span class="p">:</span> <span class="n">EnvVariableName</span><span class="p">,</span> <span class="n">config_name</span><span class="p">:</span> <span class="n">ConfigVariableName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -509,6 +558,33 @@
             <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
         <span class="p">)</span>
 
+<div class="viewcode-block" id="SessionConfig.get_whylabs_private_api_endpoint"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_whylabs_private_api_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_whylabs_private_api_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value</span><span class="p">(</span>
+            <span class="n">env_name</span><span class="o">=</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">WHYLABS_PRIVATE_API_ENDPOINT</span><span class="p">,</span>
+            <span class="n">config_name</span><span class="o">=</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">WHYLABS_PRIVATE_API_ENDPOINT</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionConfig.set_whylabs_private_api_endpoint"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.set_whylabs_private_api_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">set_whylabs_private_api_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_value</span><span class="p">(</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">WHYLABS_PRIVATE_API_ENDPOINT</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionConfig.get_whylabs_private_s3_endpoint"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_whylabs_private_s3_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_whylabs_private_s3_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value</span><span class="p">(</span>
+            <span class="n">env_name</span><span class="o">=</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">WHYLABS_PRIVATE_S3_ENDPOINT</span><span class="p">,</span>
+            <span class="n">config_name</span><span class="o">=</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">WHYLABS_PRIVATE_S3_ENDPOINT</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionConfig.set_whylabs_private_s3_endpoint"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.set_whylabs_private_s3_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">set_whylabs_private_s3_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_value</span><span class="p">(</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">WHYLABS_PRIVATE_S3_ENDPOINT</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionConfig.get_whylabs_refernce_profile_name"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_whylabs_refernce_profile_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_whylabs_refernce_profile_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value</span><span class="p">(</span>
+            <span class="n">env_name</span><span class="o">=</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">WHYLABS_REFERENCE_PROFILE_NAME</span><span class="p">,</span>
+            <span class="n">config_name</span><span class="o">=</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">WHYLABS_REFERENCE_PROFILE_NAME</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionConfig.set_whylabs_refernce_profile_name"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.set_whylabs_refernce_profile_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_whylabs_refernce_profile_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_value</span><span class="p">(</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">WHYLABS_REFERENCE_PROFILE_NAME</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="SessionConfig.get_whylabs_endpoint"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_whylabs_endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">get_whylabs_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_load_value</span><span class="p">(</span>
@@ -532,19 +608,52 @@
         <span class="n">path</span><span class="o">.</span><span class="n">touch</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">path</span></div>
 
+<div class="viewcode-block" id="SessionConfig.get_default_dataset_id"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_default_dataset_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_dataset_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmp_default_dataset_id</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value</span><span class="p">(</span>
+            <span class="n">env_name</span><span class="o">=</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">WHYLABS_DEFAULT_DATASET_ID</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">DEFAULT_DATASET_ID</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionConfig.require_default_dataset_id"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.require_default_dataset_id">[docs]</a>    <span class="k">def</span> <span class="nf">require_default_dataset_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require</span><span class="p">(</span><span class="s2">&quot;default dataset id&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_dataset_id</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="SessionConfig.set_default_dataset_id"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.set_default_dataset_id">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_dataset_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_value</span><span class="p">(</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">DEFAULT_DATASET_ID</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="SessionConfig.get_org_id"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_org_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_org_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value</span><span class="p">(</span><span class="n">env_name</span><span class="o">=</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">ORG_ID</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">ORG_ID</span><span class="p">)</span></div>
+        <span class="c1"># Make the v2 api key&#39;s org id take precedence over an org id previously stored along with a v1 key</span>
+        <span class="n">api_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_api_key</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">api_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">parse_api_key_v2</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span><span class="o">.</span><span class="n">org_id</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="n">org_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value</span><span class="p">(</span><span class="n">env_name</span><span class="o">=</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">WHYLABS_ORG_ID</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">ORG_ID</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">org_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">org_id</span>
+
+        <span class="k">return</span> <span class="n">org_id</span></div>
+
+<div class="viewcode-block" id="SessionConfig.require_org_id"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.require_org_id">[docs]</a>    <span class="k">def</span> <span class="nf">require_org_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require</span><span class="p">(</span><span class="s2">&quot;org id&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_org_id</span><span class="p">())</span></div>
+
+    <span class="k">def</span> <span class="nf">_require</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can&#39;t determine </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">. See </span><span class="si">{</span><span class="n">_INIT_DOCS</span><span class="si">}</span><span class="s2"> for instructions on using why.init().&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">value</span>
 
 <div class="viewcode-block" id="SessionConfig.set_org_id"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.set_org_id">[docs]</a>    <span class="k">def</span> <span class="nf">set_org_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">org_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_value</span><span class="p">(</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">ORG_ID</span><span class="p">,</span> <span class="n">org_id</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SessionConfig.get_or_prompt_org_id"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_or_prompt_org_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_or_prompt_org_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">persist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_or_prompt</span><span class="p">(</span>
-            <span class="n">env_name</span><span class="o">=</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">ORG_ID</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">ORG_ID</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">persist</span><span class="o">=</span><span class="n">persist</span>
+<div class="viewcode-block" id="SessionConfig.get_api_key"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_api_key">[docs]</a>    <span class="k">def</span> <span class="nf">get_api_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmp_api_key</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value</span><span class="p">(</span>
+            <span class="n">env_name</span><span class="o">=</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">WHYLABS_API_KEY</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">API_KEY</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="SessionConfig.get_api_key"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_api_key">[docs]</a>    <span class="k">def</span> <span class="nf">get_api_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value</span><span class="p">(</span><span class="n">env_name</span><span class="o">=</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">WHYLABS_API_KEY</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">API_KEY</span><span class="p">)</span></div>
+<div class="viewcode-block" id="SessionConfig.require_api_key"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.require_api_key">[docs]</a>    <span class="k">def</span> <span class="nf">require_api_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require</span><span class="p">(</span><span class="s2">&quot;api key&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_api_key</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="SessionConfig.set_api_key"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.set_api_key">[docs]</a>    <span class="k">def</span> <span class="nf">set_api_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_value</span><span class="p">(</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">API_KEY</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span></div>
@@ -555,11 +664,6 @@
 <div class="viewcode-block" id="SessionConfig.set_user_guid"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.set_user_guid">[docs]</a>    <span class="k">def</span> <span class="nf">set_user_guid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_guid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_value</span><span class="p">(</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">USER_GUID</span><span class="p">,</span> <span class="n">user_guid</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SessionConfig.get_or_prompt_api_key"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_or_prompt_api_key">[docs]</a>    <span class="k">def</span> <span class="nf">get_or_prompt_api_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">persist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_or_prompt</span><span class="p">(</span>
-            <span class="n">env_name</span><span class="o">=</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">WHYLABS_API_KEY</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">API_KEY</span><span class="p">,</span> <span class="n">persist</span><span class="o">=</span><span class="n">persist</span>
-        <span class="p">)</span></div>
-
 <div class="viewcode-block" id="SessionConfig.get_session_id"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.get_session_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_session_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value</span><span class="p">(</span><span class="n">env_name</span><span class="o">=</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">WHYLABS_SESSION_ID</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">SESSION_ID</span><span class="p">)</span></div>
 
@@ -567,7 +671,97 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_value</span><span class="p">(</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">SESSION_ID</span><span class="p">,</span> <span class="n">sessionId</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SessionConfig.remove_session_id"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.remove_session_id">[docs]</a>    <span class="k">def</span> <span class="nf">remove_session_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_value</span><span class="p">(</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">SESSION_ID</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_value</span><span class="p">(</span><span class="n">ConfigVariableName</span><span class="o">.</span><span class="n">SESSION_ID</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionConfig.reset_config"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.reset_config">[docs]</a>    <span class="k">def</span> <span class="nf">reset_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ConfigFile</span><span class="o">.</span><span class="n">remove_all_variables_from_config_file</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_parser</span><span class="p">,</span> <span class="n">auth_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_parser</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SessionConfig.notify_session_type"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig.notify_session_type">[docs]</a>    <span class="k">def</span> <span class="nf">notify_session_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config_file_path</span><span class="p">()</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initializing session with config </span><span class="si">{</span><span class="n">config_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_type</span> <span class="o">==</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_notify_type_whylabs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">require_api_key</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_type</span> <span class="o">==</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_notify_type_local</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_type</span> <span class="o">==</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS_ANONYMOUS</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_notify_type_anon</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_notify_type_whylabs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">default_dataset_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_dataset_id</span><span class="p">()</span>
+        <span class="n">parsed_api_key</span> <span class="o">=</span> <span class="n">parse_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parsed_api_key</span><span class="p">,</span> <span class="n">ApiKeyV2</span><span class="p">):</span>
+            <span class="n">org_id</span> <span class="o">=</span> <span class="n">parsed_api_key</span><span class="o">.</span><span class="n">org_id</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">org_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_org_id</span><span class="p">()</span> <span class="ow">or</span> <span class="s2">&quot;not set&quot;</span>  <span class="c1"># Shouldn&#39;t be possible to be None at this point</span>
+
+        <span class="n">il</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using session type: </span><span class="si">{</span><span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;org id: </span><span class="si">{</span><span class="n">org_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;api key: </span><span class="si">{</span><span class="n">parsed_api_key</span><span class="o">.</span><span class="n">api_key_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">default_dataset_id</span><span class="p">:</span>
+            <span class="n">il</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;default dataset: </span><span class="si">{</span><span class="n">default_dataset_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_notify_type_anon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">anonymous_session_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_session_id</span><span class="p">()</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using session type: </span><span class="si">{</span><span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS_ANONYMOUS</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;session id: </span><span class="si">{</span><span class="n">anonymous_session_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_notify_type_local</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">success</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Using session type: </span><span class="si">{</span><span class="n">SessionType</span><span class="o">.</span><span class="n">LOCAL</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;Profiles won&#39;t be uploaded or written anywhere automatically.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_determine_session_type_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_config</span><span class="p">:</span> <span class="n">InitConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SessionType</span><span class="p">:</span>
+        <span class="n">session_type</span> <span class="o">=</span> <span class="n">prompt_session_type</span><span class="p">(</span><span class="n">init_config</span><span class="o">.</span><span class="n">allow_anonymous</span><span class="p">,</span> <span class="n">init_config</span><span class="o">.</span><span class="n">allow_local</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">session_type</span> <span class="o">==</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS</span><span class="p">:</span>
+            <span class="n">api_key</span> <span class="o">=</span> <span class="n">prompt_api_key</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="o">.</span><span class="n">full_key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">api_key</span><span class="p">,</span> <span class="n">ApiKeyV1</span><span class="p">):</span>
+                <span class="c1"># V1 doesn&#39;t include the org id so we have to prompt for it separately</span>
+                <span class="n">org_id</span> <span class="o">=</span> <span class="n">prompt_org_id</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_org_id</span><span class="p">(</span><span class="n">org_id</span><span class="p">)</span>
+
+            <span class="c1"># Save the default dataset id if they supplied one</span>
+            <span class="n">default_dataset_id</span> <span class="o">=</span> <span class="n">prompt_default_dataset_id</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">default_dataset_id</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_default_dataset_id</span><span class="p">(</span><span class="n">default_dataset_id</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">session_type</span>
+
+    <span class="k">def</span> <span class="nf">_determine_session_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_config</span><span class="p">:</span> <span class="n">InitConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SessionType</span><span class="p">:</span>
+        <span class="c1"># If the user supplied a whylabs api key then use whylabs</span>
+        <span class="k">if</span> <span class="n">init_config</span><span class="o">.</span><span class="n">whylabs_api_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS</span>
+
+        <span class="c1"># If there is an api key saved in the config file or in the env then use that for whylabs</span>
+        <span class="n">config_api_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_api_key</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">config_api_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS</span>
+
+        <span class="c1"># If there is a session id saved in the config file then use that for an anonymous session</span>
+        <span class="n">anonymous_session_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_session_id</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">anonymous_session_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS_ANONYMOUS</span>
+
+        <span class="c1"># If we&#39;re in an interactive environment then prompt the user to pick an authentication method</span>
+        <span class="k">if</span> <span class="n">is_notebook</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_determine_session_type_prompt</span><span class="p">(</span><span class="n">init_config</span><span class="p">)</span>
+
+        <span class="c1"># If we&#39;re not interactive then pick between anonymous and local based on the init config</span>
+        <span class="k">if</span> <span class="n">init_config</span><span class="o">.</span><span class="n">allow_anonymous</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS_ANONYMOUS</span>
+
+        <span class="k">if</span> <span class="n">init_config</span><span class="o">.</span><span class="n">allow_local</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">LOCAL</span>
+
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s2">&quot;Don&#39;t know how to initialize authentication because allow_anonymous=False, allow_local=False, &quot;</span>
+            <span class="s2">&quot;and there is no WhyLabs api key in the environment, config file, or init() call, and this isn&#39;t an &quot;</span>
+            <span class="s2">&quot;interactive environment.&quot;</span>
+        <span class="p">)</span></div>
 
 
 <span class="n">_CONFIG_WHYLABS_SECTION</span> <span class="o">=</span> <span class="s2">&quot;whylabs&quot;</span>
@@ -610,6 +804,12 @@
 <div class="viewcode-block" id="ConfigFile.remove_variable_from_config_file"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigFile.remove_variable_from_config_file">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">remove_variable_from_config_file</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">ConfigParser</span><span class="p">,</span> <span class="n">auth_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">ConfigVariableName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">remove_option</span><span class="p">(</span><span class="n">_CONFIG_WHYLABS_SECTION</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">auth_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">configfile</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">configfile</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConfigFile.remove_all_variables_from_config_file"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.ConfigFile.remove_all_variables_from_config_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">remove_all_variables_from_config_file</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">ConfigParser</span><span class="p">,</span> <span class="n">auth_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">remove_section</span><span class="p">(</span><span class="n">_CONFIG_WHYLABS_SECTION</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">auth_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">configfile</span><span class="p">:</span>
             <span class="n">parser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">configfile</span><span class="p">)</span></div></div>
 </pre></div>

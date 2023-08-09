@@ -435,8 +435,8 @@
 <span class="kn">import</span> <span class="nn">whylabs_client</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">urllib3</span> <span class="kn">import</span> <span class="n">PoolManager</span><span class="p">,</span> <span class="n">ProxyManager</span><span class="p">,</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">whylabs_client</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">Configuration</span>  <span class="c1"># type: ignore</span>
-<span class="kn">from</span> <span class="nn">whylabs_client.api.dataset_profile_api</span> <span class="kn">import</span> <span class="n">DatasetProfileApi</span>
-<span class="kn">from</span> <span class="nn">whylabs_client.api.feature_weights_api</span> <span class="kn">import</span> <span class="n">FeatureWeightsApi</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.api.dataset_profile_api</span> <span class="kn">import</span> <span class="n">DatasetProfileApi</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.api.feature_weights_api</span> <span class="kn">import</span> <span class="n">FeatureWeightsApi</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.log_api</span> <span class="kn">import</span> <span class="n">AsyncLogResponse</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.log_api</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">LogApi</span><span class="p">,</span>
@@ -444,19 +444,21 @@
     <span class="n">LogReferenceRequest</span><span class="p">,</span>
     <span class="n">LogReferenceResponse</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">whylabs_client.api.models_api</span> <span class="kn">import</span> <span class="n">ModelsApi</span>
-<span class="kn">from</span> <span class="nn">whylabs_client.model.column_schema</span> <span class="kn">import</span> <span class="n">ColumnSchema</span>
-<span class="kn">from</span> <span class="nn">whylabs_client.model.create_reference_profile_request</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.api.models_api</span> <span class="kn">import</span> <span class="n">ModelsApi</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.column_schema</span> <span class="kn">import</span> <span class="n">ColumnSchema</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.create_reference_profile_request</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># type: ignore</span>
     <span class="n">CreateReferenceProfileRequest</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">whylabs_client.model.metric_schema</span> <span class="kn">import</span> <span class="n">MetricSchema</span>
-<span class="kn">from</span> <span class="nn">whylabs_client.model.segment</span> <span class="kn">import</span> <span class="n">Segment</span>
-<span class="kn">from</span> <span class="nn">whylabs_client.model.segment_tag</span> <span class="kn">import</span> <span class="n">SegmentTag</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.metric_schema</span> <span class="kn">import</span> <span class="n">MetricSchema</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.segment</span> <span class="kn">import</span> <span class="n">Segment</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.segment_tag</span> <span class="kn">import</span> <span class="n">SegmentTag</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.rest</span> <span class="kn">import</span> <span class="n">ForbiddenException</span>  <span class="c1"># type: ignore</span>
 
 <span class="kn">from</span> <span class="nn">whylogs</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">_version</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger</span> <span class="kn">import</span> <span class="n">log</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">SegmentedResultSet</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.config</span> <span class="kn">import</span> <span class="n">_INIT_DOCS</span><span class="p">,</span> <span class="n">SessionConfig</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">get_current_session</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer</span> <span class="kn">import</span> <span class="n">Writer</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer.writer</span> <span class="kn">import</span> <span class="n">Writable</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfileView</span>
@@ -482,8 +484,6 @@
 <span class="n">WEEK_IN_SECONDS</span> <span class="o">=</span> <span class="n">DAY_IN_SECONDS</span> <span class="o">*</span> <span class="mi">7</span>
 <span class="n">FIVE_YEARS_IN_SECONDS</span> <span class="o">=</span> <span class="n">DAY_IN_SECONDS</span> <span class="o">*</span> <span class="mi">365</span> <span class="o">*</span> <span class="mi">5</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
-<span class="n">API_KEY_ENV</span> <span class="o">=</span> <span class="s2">&quot;WHYLABS_API_KEY&quot;</span>
 
 <span class="n">_API_CLIENT_CACHE</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ApiClient</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 <span class="n">_UPLOAD_POOLER_CACHE</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">PoolManager</span><span class="p">,</span> <span class="n">ProxyManager</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -531,6 +531,7 @@
     <span class="k">return</span> <span class="kc">True</span>
 
 
+<span class="c1"># TODO update this avliator for new format</span>
 <span class="k">def</span> <span class="nf">_validate_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">api_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing API key. Set it via WHYLABS_API_KEY environment variable or as an api_key option&quot;</span><span class="p">)</span>
@@ -590,7 +591,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_id</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Configuration</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">API_KEY_ENV</span><span class="p">)</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">get_current_session</span><span class="p">()</span>
+        <span class="c1"># TODO this can be removed once we enforce why.init usage. Backwards compatible for now.</span>
+        <span class="n">session_config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span> <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">SessionConfig</span><span class="p">()</span>
+
+        <span class="n">api_key</span> <span class="o">=</span> <span class="n">session_config</span><span class="o">.</span><span class="n">get_api_key</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_key_id</span> <span class="o">=</span> <span class="n">_validate_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">api_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">config</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ApiKeyAuth&quot;</span><span class="p">:</span> <span class="n">api_key</span><span class="p">}</span></div>
@@ -600,44 +605,49 @@
 
 
 <div class="viewcode-block" id="WhyLabsWriter"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WhyLabsWriter">[docs]</a><span class="k">class</span> <span class="nc">WhyLabsWriter</span><span class="p">(</span><span class="n">Writer</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A WhyLogs writer to upload DatasetProfileView&#39;s onto the WhyLabs platform.</span>
+    <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    A WhyLogs writer to upload DatasetProfileView&#39;s onto the WhyLabs platform.</span>
 
-<span class="sd">    &gt;**IMPORTANT**: In order to correctly send your profiles over, make sure you have</span>
-<span class="sd">    the following environment variables set: `[WHYLABS_ORG_ID, WHYLABS_API_KEY, WHYLABS_DEFAULT_DATASET_ID]`. You</span>
-<span class="sd">    can also set them with the option method or within the constructor, although it</span>
-<span class="sd">    is highly recommended you don&#39;t persist credentials in code!</span>
+<span class="s2">    &gt;**IMPORTANT**: In order to correctly send your profiles over, make sure you have</span>
+<span class="s2">    the following environment variables set: `[WHYLABS_ORG_ID, WHYLABS_API_KEY, WHYLABS_DEFAULT_DATASET_ID]`. You</span>
+<span class="s2">    can also follow the authentication instructions for the why.init() method at </span><span class="si">{</span><span class="n">_INIT_DOCS</span><span class="si">}</span><span class="s2">.</span>
+<span class="s2">    It is highly recommended you don&#39;t persist credentials in code!</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    org_id: str, optional</span>
-<span class="sd">        Your organization ID on the WhyLabs platform. If not informed, will get the mentioned environment</span>
-<span class="sd">        variable instead.</span>
+<span class="s2">    You shouldn&#39;t have to supply these parameters to the writer in practice. You should depend on why.init() to resolve</span>
+<span class="s2">    the credentials for you. These are here for one-offs and testing convenience.</span>
 
-<span class="sd">    api_key: str, optional</span>
-<span class="sd">        The API Key to authenticate with WhyLabs. If not informed, will get the mentioned environment</span>
-<span class="sd">        variable instead.</span>
+<span class="s2">    Parameters</span>
+<span class="s2">    ----------</span>
+<span class="s2">    org_id: str, optional</span>
+<span class="s2">        Your organization ID on the WhyLabs platform. If not informed, will get the mentioned environment</span>
+<span class="s2">        variable instead.</span>
 
-<span class="sd">    dataset_id: str, optional</span>
-<span class="sd">        The Dataset ID, often referred to as model ID, that will tie the profile to your tracked data.</span>
-<span class="sd">        If not informed, will get the mentioned environment variable instead.</span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">        None</span>
+<span class="s2">    api_key: str, optional</span>
+<span class="s2">        The API Key to authenticate with WhyLabs. If not informed, will get the mentioned environment</span>
+<span class="s2">        variable instead.</span>
 
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    An example usage of this method can be represented with the simple code above. Here we</span>
-<span class="sd">    are assuming the user has already assigned a pandas.DataFrame to the `df` variable.</span>
+<span class="s2">    dataset_id: str, optional</span>
+<span class="s2">        The Dataset ID, often referred to as model ID, that will tie the profile to your tracked data.</span>
+<span class="s2">        If not informed, will get the mentioned environment variable instead.</span>
+<span class="s2">    Returns</span>
+<span class="s2">    -------</span>
+<span class="s2">        None</span>
 
-<span class="sd">    ```python</span>
-<span class="sd">    import whylogs as why</span>
+<span class="s2">    Examples</span>
+<span class="s2">    --------</span>
+<span class="s2">    An example usage of this method can be represented with the simple code above. Here we</span>
+<span class="s2">    are assuming the user has already assigned a pandas.DataFrame to the `df` variable.</span>
 
-<span class="sd">    profile = why.log(pandas=df)</span>
-<span class="sd">    profile.writer(&quot;whylabs&quot;).write()</span>
-<span class="sd">    ```</span>
+<span class="s2">    ```python</span>
+<span class="s2">    import whylogs as why</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="s2">    why.init()</span>
+
+<span class="s2">    profile = why.log(pandas=df)</span>
+<span class="s2">    profile.writer(&quot;whylabs&quot;).write()</span>
+<span class="s2">    ```</span>
+
+<span class="s2">    &quot;&quot;&quot;</span>
 
     <span class="n">_key_refresher</span><span class="p">:</span> <span class="n">KeyRefresher</span>
     <span class="n">_endpoint_hostname</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -654,11 +664,16 @@
         <span class="n">ssl_ca_cert</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_timeout_seconds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span> <span class="o">=</span> <span class="n">org_id</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;WHYLABS_DEFAULT_ORG_ID&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span> <span class="o">=</span> <span class="n">dataset_id</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;WHYLABS_DEFAULT_DATASET_ID&quot;</span><span class="p">)</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">get_current_session</span><span class="p">()</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span> <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">SessionConfig</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span> <span class="o">=</span> <span class="n">org_id</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">require_org_id</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span> <span class="o">=</span> <span class="n">dataset_id</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">require_default_dataset_id</span><span class="p">()</span>
+        <span class="n">_api_key</span> <span class="o">=</span> <span class="n">api_key</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">require_api_key</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_whylabs_endpoint</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_feature_weights</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;WHYLABS_API_ENDPOINT&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;https://api.whylabsapp.com&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;WHYLABS_REFERENCE_PROFILE_NAME&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_whylabs_refernce_profile_name</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ssl_ca_cert</span> <span class="o">=</span> <span class="n">ssl_ca_cert</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_api_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Configuration</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -666,10 +681,11 @@
         <span class="n">_https_proxy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HTTPS_PROXY&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span> <span class="o">=</span> <span class="n">_https_proxy</span> <span class="ow">or</span> <span class="n">_http_proxy</span>
 
-        <span class="k">if</span> <span class="n">api_key</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span> <span class="o">=</span> <span class="n">StaticKeyRefresher</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_api_key</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span> <span class="o">=</span> <span class="n">StaticKeyRefresher</span><span class="p">(</span><span class="n">_api_key</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span> <span class="o">=</span> <span class="n">_ENV_KEY_REFRESHER</span>
+
         <span class="k">if</span> <span class="n">api_client</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span> <span class="o">=</span> <span class="n">api_client</span>
         <span class="k">else</span><span class="p">:</span>
@@ -677,19 +693,20 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">()</span>
 
         <span class="c1"># Enable private access to WhyLabs endpoints</span>
-        <span class="n">_private_api_endpoint</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;WHYLABS_PRIVATE_API_ENDPOINT&quot;</span><span class="p">)</span>
-        <span class="n">_private_s3_endpoint</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;WHYLABS_PRIVATE_S3_ENDPOINT&quot;</span><span class="p">)</span>
+        <span class="n">_private_api_endpoint</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_whylabs_private_api_endpoint</span><span class="p">()</span>
+        <span class="n">_private_s3_endpoint</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_whylabs_private_s3_endpoint</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">_private_api_endpoint</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using private API endpoint: </span><span class="si">{</span><span class="n">_private_api_endpoint</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_hostname</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span> <span class="o">=</span> <span class="n">_private_api_endpoint</span>
 
-        <span class="n">pooler_cache_key</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">pooler_cache_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="n">_private_s3_endpoint</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using private S3 endpoint: </span><span class="si">{</span><span class="n">_private_s3_endpoint</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_s3_private_domain</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">_private_s3_endpoint</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span>
+            <span class="n">_s3_private_domain</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">_private_s3_endpoint</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_s3_private_domain</span> <span class="o">=</span> <span class="n">_s3_private_domain</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_s3_endpoint_subject</span> <span class="o">=</span> <span class="n">_S3_PUBLIC_DOMAIN</span>
-            <span class="n">pooler_cache_key</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s3_private_domain</span>
+            <span class="n">pooler_cache_key</span> <span class="o">+=</span> <span class="n">_s3_private_domain</span>
 
         <span class="k">if</span> <span class="n">_timeout_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_timeout_seconds</span> <span class="o">=</span> <span class="n">_timeout_seconds</span>
@@ -865,7 +882,6 @@
 <span class="sd">            Tuple with a boolean indicating success or failure: e.g. (True, &quot;column prediction was updated to</span>
 <span class="sd">            output&quot;) and string with status message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_org_and_dataset</span><span class="p">()</span>
         <span class="n">results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="n">all_sucessful</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="c1"># TODO: update the list of columns at once, support arbitrary tags as well.</span>
@@ -1140,17 +1156,6 @@
         <span class="c1"># TODO: retry</span>
         <span class="k">return</span> <span class="n">response</span></div>
 
-    <span class="k">def</span> <span class="nf">_validate_org_and_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span>
-                <span class="s2">&quot;Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID &quot;</span> <span class="s2">&quot;environment variable&quot;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span>
-                <span class="s2">&quot;Missing dataset ID. Specify it via WHYLABS_DEFAULT_DATASET_ID environment &quot;</span>
-                <span class="s2">&quot;variable or on your write method&quot;</span>
-            <span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">_do_get_feature_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get latest version for the feature weights for the specified dataset</span>
 
@@ -1158,8 +1163,6 @@
 <span class="sd">        -------</span>
 <span class="sd">            Response of the GET request, with segmentWeights and metadata.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_org_and_dataset</span><span class="p">()</span>
-
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_column_weights</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">result</span>
 
@@ -1171,8 +1174,6 @@
 <span class="sd">        Tuple[bool, str]</span>
 <span class="sd">            Tuple with a boolean (1-success, 0-fail) and string with the request&#39;s status code.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_org_and_dataset</span><span class="p">()</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_put_feature_weights</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
@@ -1207,7 +1208,6 @@
         <span class="n">profile_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">assert</span> <span class="n">profile_path</span> <span class="ow">or</span> <span class="n">profile_file</span><span class="p">,</span> <span class="s2">&quot;Either a file or file path must be specified when uploading profiles&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_org_and_dataset</span><span class="p">()</span>
 
         <span class="c1"># logger.debug(&quot;Generating the upload URL&quot;)</span>
         <span class="k">if</span> <span class="n">upload_url</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">profile_id</span><span class="p">:</span>

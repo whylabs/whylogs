@@ -444,24 +444,6 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SessionType</span></code></a></p></td>
-<td><p>Generic enumeration.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult" title="whylogs.api.whylabs.session.session_manager.UploadReferenceResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UploadReferenceResult</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.Session" title="whylogs.api.whylabs.session.session_manager.Session"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Session</span></code></a></p></td>
-<td><p>Helper class that provides a standard way to create an ABC using</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.GuestSession" title="whylogs.api.whylabs.session.session_manager.GuestSession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GuestSession</span></code></a></p></td>
-<td><p>Helper class that provides a standard way to create an ABC using</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.LocalSession" title="whylogs.api.whylabs.session.session_manager.LocalSession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LocalSession</span></code></a></p></td>
-<td><p>Helper class that provides a standard way to create an ABC using</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.ApiKeySession" title="whylogs.api.whylabs.session.session_manager.ApiKeySession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ApiKeySession</span></code></a></p></td>
-<td><p>Helper class that provides a standard way to create an ABC using</p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionManager" title="whylogs.api.whylabs.session.session_manager.SessionManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SessionManager</span></code></a></p></td>
 <td><p></p></td>
 </tr>
@@ -479,9 +461,9 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.init" title="whylogs.api.whylabs.session.session_manager.init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init</span></code></a>(→ None)</p></td>
-<td><p></p></td>
+<td><p>Set up authentication for this whylogs logging session. There are three modes that you can authentiate in.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.get_current_session" title="whylogs.api.whylabs.session.session_manager.get_current_session"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_current_session</span></code></a>(→ Optional[Session])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.get_current_session" title="whylogs.api.whylabs.session.session_manager.get_current_session"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_current_session</span></code></a>(...)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -509,209 +491,22 @@
 <dd></dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.SessionType">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.session_manager.</span></span><span class="sig-name descname"><span class="pre">SessionType</span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#SessionType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/enum.html#enum.Enum" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
-<p>Generic enumeration.</p>
-<p>Derive from this class to define new enumerations.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.SessionType.WHYLABS_ANONYMOUS">
-<span class="sig-name descname"><span class="pre">WHYLABS_ANONYMOUS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'whylabs_anonymous'</span></em><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.SessionType.WHYLABS_ANONYMOUS" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.SessionType.WHYLABS">
-<span class="sig-name descname"><span class="pre">WHYLABS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'whylabs'</span></em><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.SessionType.WHYLABS" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.SessionType.LOCAL">
-<span class="sig-name descname"><span class="pre">LOCAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'local'</span></em><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.SessionType.LOCAL" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.SessionType.name">
-<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.SessionType.name" title="Permalink to this definition">#</a></dt>
-<dd><p>The name of the Enum member.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.SessionType.value">
-<span class="sig-name descname"><span class="pre">value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.SessionType.value" title="Permalink to this definition">#</a></dt>
-<dd><p>The value of the Enum member.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.UploadReferenceResult">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.session_manager.</span></span><span class="sig-name descname"><span class="pre">UploadReferenceResult</span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#UploadReferenceResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.UploadReferenceResult.viewing_url">
-<span class="sig-name descname"><span class="pre">viewing_url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult.viewing_url" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.UploadReferenceResult.whylabs_response">
-<span class="sig-name descname"><span class="pre">whylabs_response</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">whylabs_client.api.sessions_api.BatchLogSessionReferenceResponse</span></em><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult.whylabs_response" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.Session">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.session_manager.</span></span><span class="sig-name descname"><span class="pre">Session</span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#Session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.Session" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/abc.html#abc.ABC" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
-<p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.Session.get_type">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType"><span class="pre">SessionType</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#Session.get_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.Session.get_type" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.SessionManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.session_manager.</span></span><span class="sig-name descname"><span class="pre">SessionManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#whylogs.api.whylabs.session.config.SessionConfig" title="whylogs.api.whylabs.session.config.SessionConfig"><span class="pre">whylogs.api.whylabs.session.config.SessionConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#SessionManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.SessionManager" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType">SessionType</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.Session.upload_reference_profiles">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">upload_reference_profiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile_aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../../logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet"><span class="pre">whylogs.api.logger.result_set.ResultSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult" title="whylogs.api.whylabs.session.session_manager.UploadReferenceResult"><span class="pre">UploadReferenceResult</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../session_types/index.html#whylogs.api.whylabs.session.session_types.NotSupported" title="whylogs.api.whylabs.session.session_types.NotSupported"><span class="pre">whylogs.api.whylabs.session.session_types.NotSupported</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#Session.upload_reference_profiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.Session.upload_reference_profiles" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>profile_aliases</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference internal" href="../../../logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet"><em>whylogs.api.logger.result_set.ResultSet</em></a><em>]</em>) – </p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Union[<a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult" title="whylogs.api.whylabs.session.session_manager.UploadReferenceResult">UploadReferenceResult</a>, <a class="reference internal" href="../session_types/index.html#whylogs.api.whylabs.session.session_types.NotSupported" title="whylogs.api.whylabs.session.session_types.NotSupported">whylogs.api.whylabs.session.session_types.NotSupported</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.GuestSession">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.session_manager.</span></span><span class="sig-name descname"><span class="pre">GuestSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#whylogs.api.whylabs.session.config.SessionConfig" title="whylogs.api.whylabs.session.config.SessionConfig"><span class="pre">whylogs.api.whylabs.session.config.SessionConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">whylabs_client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">whylabs_client.api_client.ApiClient</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#GuestSession"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.GuestSession" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.Session" title="whylogs.api.whylabs.session.session_manager.Session"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Session</span></code></a></p>
-<p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="../config/index.html#whylogs.api.whylabs.session.config.SessionConfig" title="whylogs.api.whylabs.session.config.SessionConfig"><em>whylogs.api.whylabs.session.config.SessionConfig</em></a>) – </p></li>
-<li><p><strong>whylabs_client</strong> (<em>whylabs_client.api_client.ApiClient</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.GuestSession.get_type">
-<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType"><span class="pre">SessionType</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#GuestSession.get_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.GuestSession.get_type" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType">SessionType</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.GuestSession.upload_reference_profiles">
-<span class="sig-name descname"><span class="pre">upload_reference_profiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile_aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../../logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet"><span class="pre">whylogs.api.logger.result_set.ResultSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult" title="whylogs.api.whylabs.session.session_manager.UploadReferenceResult"><span class="pre">UploadReferenceResult</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../session_types/index.html#whylogs.api.whylabs.session.session_types.NotSupported" title="whylogs.api.whylabs.session.session_types.NotSupported"><span class="pre">whylogs.api.whylabs.session.session_types.NotSupported</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#GuestSession.upload_reference_profiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.GuestSession.upload_reference_profiles" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>profile_aliases</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference internal" href="../../../logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet"><em>whylogs.api.logger.result_set.ResultSet</em></a><em>]</em>) – </p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Union[<a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult" title="whylogs.api.whylabs.session.session_manager.UploadReferenceResult">UploadReferenceResult</a>, <a class="reference internal" href="../session_types/index.html#whylogs.api.whylabs.session.session_types.NotSupported" title="whylogs.api.whylabs.session.session_types.NotSupported">whylogs.api.whylabs.session.session_types.NotSupported</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.LocalSession">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.session_manager.</span></span><span class="sig-name descname"><span class="pre">LocalSession</span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#LocalSession"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.LocalSession" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.Session" title="whylogs.api.whylabs.session.session_manager.Session"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Session</span></code></a></p>
-<p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.LocalSession.get_type">
-<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType"><span class="pre">SessionType</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#LocalSession.get_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.LocalSession.get_type" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType">SessionType</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.LocalSession.upload_reference_profiles">
-<span class="sig-name descname"><span class="pre">upload_reference_profiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile_aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../../logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet"><span class="pre">whylogs.api.logger.result_set.ResultSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult" title="whylogs.api.whylabs.session.session_manager.UploadReferenceResult"><span class="pre">UploadReferenceResult</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../session_types/index.html#whylogs.api.whylabs.session.session_types.NotSupported" title="whylogs.api.whylabs.session.session_types.NotSupported"><span class="pre">whylogs.api.whylabs.session.session_types.NotSupported</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#LocalSession.upload_reference_profiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.LocalSession.upload_reference_profiles" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>profile_aliases</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference internal" href="../../../logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet"><em>whylogs.api.logger.result_set.ResultSet</em></a><em>]</em>) – </p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Union[<a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult" title="whylogs.api.whylabs.session.session_manager.UploadReferenceResult">UploadReferenceResult</a>, <a class="reference internal" href="../session_types/index.html#whylogs.api.whylabs.session.session_types.NotSupported" title="whylogs.api.whylabs.session.session_types.NotSupported">whylogs.api.whylabs.session.session_types.NotSupported</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.ApiKeySession">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.session_manager.</span></span><span class="sig-name descname"><span class="pre">ApiKeySession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#whylogs.api.whylabs.session.config.SessionConfig" title="whylogs.api.whylabs.session.config.SessionConfig"><span class="pre">whylogs.api.whylabs.session.config.SessionConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#ApiKeySession"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.ApiKeySession" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.Session" title="whylogs.api.whylabs.session.session_manager.Session"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Session</span></code></a></p>
-<p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
-<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="../config/index.html#whylogs.api.whylabs.session.config.SessionConfig" title="whylogs.api.whylabs.session.config.SessionConfig"><em>whylogs.api.whylabs.session.config.SessionConfig</em></a>) – </p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.ApiKeySession.get_type">
-<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType"><span class="pre">SessionType</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#ApiKeySession.get_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.ApiKeySession.get_type" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType">SessionType</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.ApiKeySession.upload_reference_profiles">
-<span class="sig-name descname"><span class="pre">upload_reference_profiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile_aliases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../../logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet"><span class="pre">whylogs.api.logger.result_set.ResultSet</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult" title="whylogs.api.whylabs.session.session_manager.UploadReferenceResult"><span class="pre">UploadReferenceResult</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../session_types/index.html#whylogs.api.whylabs.session.session_types.NotSupported" title="whylogs.api.whylabs.session.session_types.NotSupported"><span class="pre">whylogs.api.whylabs.session.session_types.NotSupported</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#ApiKeySession.upload_reference_profiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.ApiKeySession.upload_reference_profiles" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>profile_aliases</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference internal" href="../../../logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet"><em>whylogs.api.logger.result_set.ResultSet</em></a><em>]</em>) – </p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Union[<a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult" title="whylogs.api.whylabs.session.session_manager.UploadReferenceResult">UploadReferenceResult</a>, <a class="reference internal" href="../session_types/index.html#whylogs.api.whylabs.session.session_types.NotSupported" title="whylogs.api.whylabs.session.session_types.NotSupported">whylogs.api.whylabs.session.session_types.NotSupported</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.SessionManager">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.session_manager.</span></span><span class="sig-name descname"><span class="pre">SessionManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType"><span class="pre">SessionType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SessionType.LOCAL</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#SessionManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.SessionManager" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>type</strong> (<a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType"><em>SessionType</em></a>) – </p>
-</dd>
-</dl>
-<dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.SessionManager.init">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType"><span class="pre">SessionType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SessionType.LOCAL</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#SessionManager.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.SessionManager.init" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../config/index.html#whylogs.api.whylabs.session.config.SessionConfig" title="whylogs.api.whylabs.session.config.SessionConfig"><span class="pre">whylogs.api.whylabs.session.config.SessionConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionManager" title="whylogs.api.whylabs.session.session_manager.SessionManager"><span class="pre">SessionManager</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#SessionManager.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.SessionManager.init" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>type</strong> (<a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType"><em>SessionType</em></a>) – </p>
+<dd class="field-odd"><p><strong>session_config</strong> (<a class="reference internal" href="../config/index.html#whylogs.api.whylabs.session.config.SessionConfig" title="whylogs.api.whylabs.session.config.SessionConfig"><em>whylogs.api.whylabs.session.config.SessionConfig</em></a>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionManager" title="whylogs.api.whylabs.session.session_manager.SessionManager">SessionManager</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -750,12 +545,52 @@ inheritance.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.init">
-<span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.session_manager.</span></span><span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType"><span class="pre">SessionType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SessionType.LOCAL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reinit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.init" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.session_manager.</span></span><span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reinit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_anonymous</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_local</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">whylabs_api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.init" title="Permalink to this definition">#</a></dt>
+<dd><p>Set up authentication for this whylogs logging session. There are three modes that you can authentiate in.</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt>WHYLABS: Data is sent to WhyLabs and is associated with a specific WhyLabs account. You can get a WhyLabs api</dt><dd><p>key from the WhyLabs Settings page after logging in.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>WHYLABS_ANONYMOUS: Data is sent to WhyLabs, but no authentication happens and no WhyLabs account is required.</dt><dd><p>Sessions can be claimed into an account later on the WhyLabs website.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>LOCAL: No authentication. No data is automatically sent anywhere. Use this if you want to explore profiles</dt><dd><p>locally or manually upload them somewhere.</p>
+</dd>
+</dl>
+</li>
+</ol>
+<p>Typically, you should only have to put <cite>why.init()</cite> with no arguments at the start of your application/notebook/script.
+The arguments allow for some customization of the logic that determines the session type. Here is the priority order:</p>
+<ul class="simple">
+<li><p>If there is an api key directly supplied to init, then use it and authenticate session as WHYLABS.</p></li>
+<li><p>If there is an api key in the environment variable WHYLABS_API_KEY, then use it and authenticate session as WHYLABS.</p></li>
+<li><p>If there is an api key in the whylogs config file, then use it and authenticate session as WHYLABS.</p></li>
+<li><dl class="simple">
+<dt>If we’re in an interractive environment (notebook, colab, etc.) then prompt the user to pick a method explicitly.</dt><dd><p>The options are determined by the allow* argument values to init().</p>
+</dd>
+</dl>
+</li>
+<li><p>If allow_anonymous is True, then authenticate session as WHYLABS_ANONYMOUS.</p></li>
+<li><p>If allow_local is True, then authenticate session as LOCAL.</p></li>
+</ul>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>session_type</strong> (<em>Union</em><em>[</em><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType" title="whylogs.api.whylabs.session.session_manager.SessionType"><em>SessionType</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
-<li><p><strong>reinit</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
+<li><p><strong>reinit</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Normally, init() is idempotent, so you can run it over and over again in a notebook without any issues, for example.
+If reinit=True then it will run the initialization logic again, so you can switch authentication methods without restarting.</p></li>
+<li><p><strong>allow_anonymous</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If True, then the user will be able to choose WHYLABS_ANONYMOUS if no other authentication method is found.</p></li>
+<li><p><strong>allow_local</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If True, then the user will be able to choose LOCAL if no other authentication method is found.</p></li>
+<li><p><strong>whylabs_api_key</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – A WhyLabs api key to use for uploading profiles. There are other ways that you can set an api key that don’t
+require direclty embedding it in code, like setting WHYLABS_API_KEY env variable or supplying the api key interractively
+via the init() prompt in a notebook.</p></li>
+<li><p><strong>default_dataset_id</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – The default dataset id to use for uploading profiles. This is only used if the session is authenticated.
+This is a convenience argument so that you don’t have to supply the dataset id every time you upload a profile if
+you’re only using a single dataset id.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -766,10 +601,10 @@ inheritance.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_manager.get_current_session">
-<span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.session_manager.</span></span><span class="sig-name descname"><span class="pre">get_current_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.Session" title="whylogs.api.whylabs.session.session_manager.Session"><span class="pre">Session</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#get_current_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.get_current_session" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.session_manager.</span></span><span class="sig-name descname"><span class="pre">get_current_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../session/index.html#whylogs.api.whylabs.session.session.Session" title="whylogs.api.whylabs.session.session.Session"><span class="pre">whylogs.api.whylabs.session.session.Session</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_manager.html#get_current_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_manager.get_current_session" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.Session" title="whylogs.api.whylabs.session.session_manager.Session">Session</a>]</p>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="../session/index.html#whylogs.api.whylabs.session.session.Session" title="whylogs.api.whylabs.session.session.Session">whylogs.api.whylabs.session.session.Session</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -848,39 +683,6 @@ inheritance.</p>
 <li><a class="reference internal" href="#functions">Functions</a></li>
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.logger">logger</a></li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType">SessionType</a><ul>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType.WHYLABS_ANONYMOUS">WHYLABS_ANONYMOUS</a></li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType.WHYLABS">WHYLABS</a></li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType.LOCAL">LOCAL</a></li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType.name">name</a></li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionType.value">value</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult">UploadReferenceResult</a><ul>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult.viewing_url">viewing_url</a></li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.UploadReferenceResult.whylabs_response">whylabs_response</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.Session">Session</a><ul>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.Session.get_type">get_type</a></li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.Session.upload_reference_profiles">upload_reference_profiles</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.GuestSession">GuestSession</a><ul>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.GuestSession.get_type">get_type</a></li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.GuestSession.upload_reference_profiles">upload_reference_profiles</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.LocalSession">LocalSession</a><ul>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.LocalSession.get_type">get_type</a></li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.LocalSession.upload_reference_profiles">upload_reference_profiles</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.ApiKeySession">ApiKeySession</a><ul>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.ApiKeySession.get_type">get_type</a></li>
-<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.ApiKeySession.upload_reference_profiles">upload_reference_profiles</a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionManager">SessionManager</a><ul>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionManager.init">init</a></li>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.session_manager.SessionManager.reset">reset</a></li>

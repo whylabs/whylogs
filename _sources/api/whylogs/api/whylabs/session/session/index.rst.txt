@@ -1,0 +1,135 @@
+:py:mod:`whylogs.api.whylabs.session.session`
+=============================================
+
+.. py:module:: whylogs.api.whylabs.session.session
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.session.UploadResult
+   whylogs.api.whylabs.session.session.Session
+   whylogs.api.whylabs.session.session.GuestSession
+   whylogs.api.whylabs.session.session.LocalSession
+   whylogs.api.whylabs.session.session.ApiKeySession
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.session.logger
+
+
+.. py:data:: logger
+
+   
+
+.. py:class:: UploadResult
+
+   .. py:attribute:: result
+      :type: Optional[Any]
+
+      
+
+   .. py:attribute:: viewing_url
+      :type: str
+
+      The url to view uploaded profiles individually if this was a batch upload
+
+   .. py:attribute:: individual_viewing_urls
+      :type: Optional[List[str]]
+
+      
+
+
+.. py:class:: Session(session_config: whylogs.api.whylabs.session.config.SessionConfig)
+
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: get_type() -> whylogs.api.whylabs.session.session_types.SessionType
+
+
+   .. py:method:: get_config() -> whylogs.api.whylabs.session.config.SessionConfig
+
+
+   .. py:method:: upload_reference_profiles(profile_aliases: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> Union[UploadResult, whylogs.api.whylabs.session.session_types.NotSupported]
+      :abstractmethod:
+
+
+   .. py:method:: upload_batch_profile(profile: whylogs.api.logger.result_set.ResultSet) -> Union[UploadResult, whylogs.api.whylabs.session.session_types.NotSupported]
+      :abstractmethod:
+
+
+
+.. py:class:: GuestSession(config: whylogs.api.whylabs.session.config.SessionConfig, whylabs_client: whylabs_client.api_client.ApiClient)
+
+   Bases: :py:obj:`Session`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: upload_batch_profile(result_set: whylogs.api.logger.result_set.ResultSet) -> Union[UploadResult, whylogs.api.whylabs.session.session_types.NotSupported]
+
+
+   .. py:method:: upload_reference_profiles(profile_aliases: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> Union[UploadResult, whylogs.api.whylabs.session.session_types.NotSupported]
+
+
+   .. py:method:: get_type() -> whylogs.api.whylabs.session.session_types.SessionType
+
+
+   .. py:method:: get_config() -> whylogs.api.whylabs.session.config.SessionConfig
+
+
+
+.. py:class:: LocalSession(session_config: whylogs.api.whylabs.session.config.SessionConfig)
+
+   Bases: :py:obj:`Session`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: upload_reference_profiles(profile_aliases: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> Union[UploadResult, whylogs.api.whylabs.session.session_types.NotSupported]
+
+
+   .. py:method:: upload_batch_profile(profile: whylogs.api.logger.result_set.ResultSet) -> Union[UploadResult, whylogs.api.whylabs.session.session_types.NotSupported]
+
+
+   .. py:method:: get_type() -> whylogs.api.whylabs.session.session_types.SessionType
+
+
+   .. py:method:: get_config() -> whylogs.api.whylabs.session.config.SessionConfig
+
+
+
+.. py:class:: ApiKeySession(config: whylogs.api.whylabs.session.config.SessionConfig, whylabs_client: whylabs_client.api_client.ApiClient)
+
+   Bases: :py:obj:`Session`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: upload_reference_profiles(profile_aliases: Dict[str, whylogs.api.logger.result_set.ResultSet]) -> Union[UploadResult, whylogs.api.whylabs.session.session_types.NotSupported]
+
+
+   .. py:method:: upload_batch_profile(profile: whylogs.api.logger.result_set.ResultSet) -> Union[UploadResult, whylogs.api.whylabs.session.session_types.NotSupported]
+
+
+   .. py:method:: get_type() -> whylogs.api.whylabs.session.session_types.SessionType
+
+
+   .. py:method:: get_config() -> whylogs.api.whylabs.session.config.SessionConfig
+
+
+

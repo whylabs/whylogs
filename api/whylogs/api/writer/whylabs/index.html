@@ -454,7 +454,7 @@
 <td><p>This key refresher uses environment variable key. The key is automatically picked up if the</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter" title="whylogs.api.writer.whylabs.WhyLabsWriter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WhyLabsWriter</span></code></a></p></td>
-<td><p>A WhyLogs writer to upload DatasetProfileView's onto the WhyLabs platform.</p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
 </tr>
 </tbody>
 </table>
@@ -484,10 +484,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.writer.whylabs.logger" title="whylogs.api.writer.whylabs.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.writer.whylabs.API_KEY_ENV" title="whylogs.api.writer.whylabs.API_KEY_ENV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">API_KEY_ENV</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.writer.whylabs.KNOWN_CUSTOM_PERFORMANCE_METRICS" title="whylogs.api.writer.whylabs.KNOWN_CUSTOM_PERFORMANCE_METRICS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KNOWN_CUSTOM_PERFORMANCE_METRICS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.writer.whylabs.KNOWN_CUSTOM_PERFORMANCE_METRICS" title="whylogs.api.writer.whylabs.KNOWN_CUSTOM_PERFORMANCE_METRICS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KNOWN_CUSTOM_PERFORMANCE_METRICS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -516,11 +513,6 @@
 <dl class="py data">
 <dt class="sig sig-object py" id="whylogs.api.writer.whylabs.logger">
 <span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.whylabs.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#whylogs.api.writer.whylabs.logger" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="whylogs.api.writer.whylabs.API_KEY_ENV">
-<span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.whylabs.</span></span><span class="sig-name descname"><span class="pre">API_KEY_ENV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WHYLABS_API_KEY'</span></em><a class="headerlink" href="#whylogs.api.writer.whylabs.API_KEY_ENV" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -591,40 +583,20 @@ user changes the environment variable.</p>
 <dt class="sig sig-object py" id="whylogs.api.writer.whylabs.WhyLabsWriter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.whylabs.</span></span><span class="sig-name descname"><span class="pre">WhyLabsWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">org_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">whylabs_client.ApiClient</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ssl_ca_cert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_timeout_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/whylabs.html#WhyLabsWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.whylabs.WhyLabsWriter" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../index.html#whylogs.api.writer.Writer" title="whylogs.api.writer.Writer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.api.writer.Writer</span></code></a></p>
-<p>A WhyLogs writer to upload DatasetProfileView’s onto the WhyLabs platform.</p>
-<p>&gt;**IMPORTANT**: In order to correctly send your profiles over, make sure you have
-the following environment variables set: <cite>[WHYLABS_ORG_ID, WHYLABS_API_KEY, WHYLABS_DEFAULT_DATASET_ID]</cite>. You
-can also set them with the option method or within the constructor, although it
-is highly recommended you don’t persist credentials in code!</p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>org_id</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – Your organization ID on the WhyLabs platform. If not informed, will get the mentioned environment
-variable instead.</p></li>
-<li><p><strong>api_key</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – The API Key to authenticate with WhyLabs. If not informed, will get the mentioned environment
-variable instead.</p></li>
-<li><p><strong>dataset_id</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – The Dataset ID, often referred to as model ID, that will tie the profile to your tracked data.
-If not informed, will get the mentioned environment variable instead.</p></li>
+<li><p><strong>org_id</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>api_key</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>dataset_id</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>api_client</strong> (<em>Optional</em><em>[</em><em>whylabs_client.ApiClient</em><em>]</em>) – </p></li>
 <li><p><strong>ssl_ca_cert</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>_timeout_seconds</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
-</dd>
 </dl>
-<p class="rubric">Examples</p>
-<p>An example usage of this method can be represented with the simple code above. Here we
-are assuming the user has already assigned a pandas.DataFrame to the <cite>df</cite> variable.</p>
-<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
-import whylogs as why</p>
-<p>profile = why.log(pandas=df)
-profile.writer(“whylabs”).write()
-<a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="whylogs.api.writer.whylabs.WhyLabsWriter.key_id">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">key_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.api.writer.whylabs.WhyLabsWriter.key_id" title="Permalink to this definition">#</a></dt>
@@ -904,7 +876,6 @@ If none is passed, defaults to “mean”.</p></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.WEEK_IN_SECONDS">WEEK_IN_SECONDS</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.FIVE_YEARS_IN_SECONDS">FIVE_YEARS_IN_SECONDS</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.logger">logger</a></li>
-<li><a class="reference internal" href="#whylogs.api.writer.whylabs.API_KEY_ENV">API_KEY_ENV</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.KNOWN_CUSTOM_PERFORMANCE_METRICS">KNOWN_CUSTOM_PERFORMANCE_METRICS</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.KeyRefresher">KeyRefresher</a><ul>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.KeyRefresher.key_id">key_id</a></li>

@@ -1,0 +1,34 @@
+:py:mod:`whylogs.api.whylabs.session.prompts`
+=============================================
+
+.. py:module:: whylogs.api.whylabs.session.prompts
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.prompts.prompt_session_type
+   whylogs.api.whylabs.session.prompts.prompt_default_dataset_id
+   whylogs.api.whylabs.session.prompts.prompt_api_key
+   whylogs.api.whylabs.session.prompts.prompt_org_id
+
+
+
+.. py:function:: prompt_session_type(allow_anonymous: bool = True, allow_local: bool = False) -> whylogs.api.whylabs.session.session_types.SessionType
+
+
+.. py:function:: prompt_default_dataset_id() -> Optional[str]
+
+
+.. py:function:: prompt_api_key() -> whylogs.api.whylabs.session.session_types.ApiKey
+
+
+.. py:function:: prompt_org_id() -> str
+
+

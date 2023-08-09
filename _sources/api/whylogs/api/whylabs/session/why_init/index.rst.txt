@@ -1,0 +1,6 @@
+:py:mod:`whylogs.api.whylabs.session.why_init`
+==============================================
+
+.. py:module:: whylogs.api.whylabs.session.why_init
+
+

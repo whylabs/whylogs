@@ -423,6 +423,7 @@
         <article role="main">
           <h1>Source code for whylogs.api.logger</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
@@ -466,22 +467,27 @@
     <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">multiple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Loggable</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultSet</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">multiple</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">result_sets</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">emit_usage</span><span class="p">(</span><span class="s2">&quot;multiple&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">alias</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">multiple</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">result_set</span> <span class="o">=</span> <span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">alias</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">multiple</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">result_set</span> <span class="o">=</span> <span class="n">TransientLogger</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dataset_timestamp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result_set</span><span class="o">.</span><span class="n">set_dataset_timestamp</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">)</span>
             <span class="n">result_sets</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_set</span>
 
         <span class="c1"># Return one result set with everything in it since we have to return result_sets</span>
         <span class="n">result_set</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">:</span> <span class="n">r1</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">r2</span><span class="p">),</span> <span class="n">result_sets</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
         <span class="n">notebook_session_log_comparison</span><span class="p">(</span><span class="n">multiple</span><span class="p">,</span> <span class="n">result_sets</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result_set</span>
-
-    <span class="n">result_set</span> <span class="o">=</span> <span class="n">TransientLogger</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="n">pandas</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">notebook_session_log</span><span class="p">(</span><span class="n">result_set</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="n">pandas</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">result_set</span></div>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result_set</span> <span class="o">=</span> <span class="n">TransientLogger</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="n">pandas</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dataset_timestamp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result_set</span><span class="o">.</span><span class="n">set_dataset_timestamp</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">)</span>
+        <span class="n">notebook_session_log</span><span class="p">(</span><span class="n">result_set</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="n">pandas</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_set</span></div>
 
 
 <span class="k">def</span> <span class="nf">_log_with_metrics</span><span class="p">(</span>
@@ -489,16 +495,22 @@
     <span class="n">metrics</span><span class="p">:</span> <span class="n">ModelPerformanceMetrics</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">],</span>
     <span class="n">include_data</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultSet</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">include_data</span><span class="p">:</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="n">log</span><span class="p">(</span><span class="n">pandas</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">log</span><span class="p">(</span><span class="n">pandas</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">ProfileResultSet</span><span class="p">(</span><span class="n">DatasetProfile</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">dataset_timestamp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">set_dataset_timestamp</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">)</span>
+
     <span class="n">results</span><span class="o">.</span><span class="n">add_model_performance_metrics</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">results</span>
 
 
-<span class="k">def</span> <span class="nf">_performance_metric</span><span class="p">(</span><span class="n">pandas</span><span class="p">,</span> <span class="n">perf_columns</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_performance_metric</span><span class="p">(</span>
+    <span class="n">pandas</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">perf_columns</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelPerformanceMetrics</span><span class="p">:</span>
     <span class="n">performance_values</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">p</span><span class="p">:</span> <span class="n">pandas</span><span class="p">[</span><span class="n">perf_columns</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span> <span class="k">if</span> <span class="n">perf_columns</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="ow">in</span> <span class="n">pandas</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">perf_columns</span>
     <span class="p">}</span>
@@ -508,7 +520,13 @@
     <span class="k">return</span> <span class="n">model_performance_metrics</span>
 
 
-<span class="k">def</span> <span class="nf">_segmented_performance_metrics</span><span class="p">(</span><span class="n">log_full_data</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">performance_column_mapping</span><span class="p">,</span> <span class="n">performance_metric</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_segmented_performance_metrics</span><span class="p">(</span>
+    <span class="n">log_full_data</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">DatasetSchema</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">performance_column_mapping</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">performance_metric</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SegmentedResultSet</span><span class="p">:</span>
     <span class="n">segmented_profiles</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">segment_partitions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">log_full_data</span><span class="p">:</span>
@@ -547,7 +565,7 @@
     <span class="n">score_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">log_full_data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProfileResultSet</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultSet</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to track metrics based on validation data.</span>
 <span class="sd">    user may also pass the associated attribute names associated with</span>
@@ -587,7 +605,8 @@
     <span class="n">prediction_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">log_full_data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProfileResultSet</span><span class="p">:</span>
+    <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultSet</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to track regression metrics based on validation data.</span>
 <span class="sd">    user may also pass the associated attribute names associated with</span>
@@ -602,7 +621,7 @@
 <span class="sd">        assocaited scores for each inferred, all values set to 1 if not</span>
 <span class="sd">        passed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">perf_column_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;predictions&quot;</span><span class="p">:</span> <span class="n">prediction_column</span><span class="p">,</span> <span class="s2">&quot;targets&quot;</span><span class="p">:</span> <span class="n">target_column</span><span class="p">}</span>
+    <span class="n">perf_column_mapping</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;predictions&quot;</span><span class="p">:</span> <span class="n">prediction_column</span><span class="p">,</span> <span class="s2">&quot;targets&quot;</span><span class="p">:</span> <span class="n">target_column</span><span class="p">}</span>
 
     <span class="k">if</span> <span class="n">schema</span> <span class="ow">and</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_segmented_performance_metrics</span><span class="p">(</span>
@@ -617,7 +636,13 @@
         <span class="n">pandas</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">perf_columns</span><span class="o">=</span><span class="n">perf_column_mapping</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;compute_regression_metrics&quot;</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">_log_with_metrics</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">model_performance_metrics</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">include_data</span><span class="o">=</span><span class="n">log_full_data</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_log_with_metrics</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="n">model_performance_metrics</span><span class="p">,</span>
+        <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
+        <span class="n">include_data</span><span class="o">=</span><span class="n">log_full_data</span><span class="p">,</span>
+        <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="read"><a class="viewcode-back" href="../../../api/whylogs/index.html#whylogs.api.read">[docs]</a><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultSet</span><span class="p">:</span>

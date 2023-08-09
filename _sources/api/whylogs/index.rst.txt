@@ -123,10 +123,10 @@ Functions
 
 
 
-.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, name: Optional[str] = None, multiple: Optional[Dict[str, Loggable]] = None) -> result_set.ResultSet
+.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, name: Optional[str] = None, multiple: Optional[Dict[str, Loggable]] = None, dataset_timestamp: Optional[datetime.datetime] = None) -> result_set.ResultSet
 
 
-.. py:function:: log_classification_metrics(data: whylogs.core.stubs.pd.DataFrame, target_column: str, prediction_column: str, score_column: Optional[str] = None, schema: Optional[whylogs.core.DatasetSchema] = None, log_full_data: bool = False) -> result_set.ProfileResultSet
+.. py:function:: log_classification_metrics(data: whylogs.core.stubs.pd.DataFrame, target_column: str, prediction_column: str, score_column: Optional[str] = None, schema: Optional[whylogs.core.DatasetSchema] = None, log_full_data: bool = False) -> result_set.ResultSet
 
    Function to track metrics based on validation data.
    user may also pass the associated attribute names associated with
@@ -140,7 +140,7 @@ Functions
    :type scores: List[float], optional
 
 
-.. py:function:: log_regression_metrics(data: whylogs.core.stubs.pd.DataFrame, target_column: str, prediction_column: str, schema: Optional[whylogs.core.DatasetSchema] = None, log_full_data: bool = False) -> result_set.ProfileResultSet
+.. py:function:: log_regression_metrics(data: whylogs.core.stubs.pd.DataFrame, target_column: str, prediction_column: str, schema: Optional[whylogs.core.DatasetSchema] = None, log_full_data: bool = False, dataset_timestamp: Optional[datetime.datetime] = None) -> result_set.ResultSet
 
    Function to track regression metrics based on validation data.
    user may also pass the associated attribute names associated with
@@ -163,7 +163,38 @@ Functions
 .. py:function:: write(profile: whylogs.core.DatasetProfile, base_dir: str) -> None
 
 
-.. py:function:: init(session_type: Union[SessionType, str] = SessionType.LOCAL, reinit: bool = False) -> None
+.. py:function:: init(reinit: bool = False, allow_anonymous: bool = True, allow_local: bool = False, whylabs_api_key: Optional[str] = None, default_dataset_id: Optional[str] = None) -> None
+
+   Set up authentication for this whylogs logging session. There are three modes that you can authentiate in.
+
+   1. WHYLABS: Data is sent to WhyLabs and is associated with a specific WhyLabs account. You can get a WhyLabs api
+       key from the WhyLabs Settings page after logging in.
+   2. WHYLABS_ANONYMOUS: Data is sent to WhyLabs, but no authentication happens and no WhyLabs account is required.
+       Sessions can be claimed into an account later on the WhyLabs website.
+   3. LOCAL: No authentication. No data is automatically sent anywhere. Use this if you want to explore profiles
+       locally or manually upload them somewhere.
+
+   Typically, you should only have to put `why.init()` with no arguments at the start of your application/notebook/script.
+   The arguments allow for some customization of the logic that determines the session type. Here is the priority order:
+
+   - If there is an api key directly supplied to init, then use it and authenticate session as WHYLABS.
+   - If there is an api key in the environment variable WHYLABS_API_KEY, then use it and authenticate session as WHYLABS.
+   - If there is an api key in the whylogs config file, then use it and authenticate session as WHYLABS.
+   - If we're in an interractive environment (notebook, colab, etc.) then prompt the user to pick a method explicitly.
+       The options are determined by the allow* argument values to init().
+   - If allow_anonymous is True, then authenticate session as WHYLABS_ANONYMOUS.
+   - If allow_local is True, then authenticate session as LOCAL.
+
+   :param reinit: Normally, init() is idempotent, so you can run it over and over again in a notebook without any issues, for example.
+                  If reinit=True then it will run the initialization logic again, so you can switch authentication methods without restarting.
+   :param allow_anonymous: If True, then the user will be able to choose WHYLABS_ANONYMOUS if no other authentication method is found.
+   :param allow_local: If True, then the user will be able to choose LOCAL if no other authentication method is found.
+   :param whylabs_api_key: A WhyLabs api key to use for uploading profiles. There are other ways that you can set an api key that don't
+                           require direclty embedding it in code, like setting WHYLABS_API_KEY env variable or supplying the api key interractively
+                           via the init() prompt in a notebook.
+   :param default_dataset_id: The default dataset id to use for uploading profiles. This is only used if the session is authenticated.
+                              This is a convenience argument so that you don't have to supply the dataset id every time you upload a profile if
+                              you're only using a single dataset id.
 
 
 .. py:class:: DatasetProfileView(*, columns: Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView], dataset_timestamp: Optional[datetime.datetime], creation_timestamp: Optional[datetime.datetime], metrics: Optional[Dict[str, Any]] = None, metadata: Optional[Dict[str, str]] = None)
