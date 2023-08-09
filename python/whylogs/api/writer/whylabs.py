@@ -11,8 +11,8 @@ import requests  # type: ignore
 import whylabs_client  # type: ignore
 from urllib3 import PoolManager, ProxyManager, util
 from whylabs_client import ApiClient, Configuration  # type: ignore
-from whylabs_client.api.dataset_profile_api import DatasetProfileApi
-from whylabs_client.api.feature_weights_api import FeatureWeightsApi
+from whylabs_client.api.dataset_profile_api import DatasetProfileApi  # type: ignore
+from whylabs_client.api.feature_weights_api import FeatureWeightsApi  # type: ignore
 from whylabs_client.api.log_api import AsyncLogResponse  # type: ignore
 from whylabs_client.api.log_api import (
     LogApi,
@@ -20,19 +20,21 @@ from whylabs_client.api.log_api import (
     LogReferenceRequest,
     LogReferenceResponse,
 )
-from whylabs_client.api.models_api import ModelsApi
-from whylabs_client.model.column_schema import ColumnSchema
-from whylabs_client.model.create_reference_profile_request import (
+from whylabs_client.api.models_api import ModelsApi  # type: ignore
+from whylabs_client.model.column_schema import ColumnSchema  # type: ignore
+from whylabs_client.model.create_reference_profile_request import (  # type: ignore
     CreateReferenceProfileRequest,
 )
-from whylabs_client.model.metric_schema import MetricSchema
-from whylabs_client.model.segment import Segment
-from whylabs_client.model.segment_tag import SegmentTag
+from whylabs_client.model.metric_schema import MetricSchema  # type: ignore
+from whylabs_client.model.segment import Segment  # type: ignore
+from whylabs_client.model.segment_tag import SegmentTag  # type: ignore
 from whylabs_client.rest import ForbiddenException  # type: ignore
 
 from whylogs import __version__ as _version
 from whylogs.api.logger import log
 from whylogs.api.logger.result_set import SegmentedResultSet
+from whylogs.api.whylabs.session.config import _INIT_DOCS, SessionConfig
+from whylogs.api.whylabs.session.session_manager import get_current_session
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
@@ -58,8 +60,6 @@ DAY_IN_SECONDS = 60 * 60 * 24
 WEEK_IN_SECONDS = DAY_IN_SECONDS * 7
 FIVE_YEARS_IN_SECONDS = DAY_IN_SECONDS * 365 * 5
 logger = logging.getLogger(__name__)
-
-API_KEY_ENV = "WHYLABS_API_KEY"
 
 _API_CLIENT_CACHE: Dict[str, ApiClient] = dict()
 _UPLOAD_POOLER_CACHE: Dict[str, Union[PoolManager, ProxyManager]] = dict()
@@ -107,6 +107,7 @@ def _check_whylabs_condition_count_uncompound() -> bool:
     return True
 
 
+# TODO update this avliator for new format
 def _validate_api_key(api_key: Optional[str]) -> str:
     if api_key is None:
         raise ValueError("Missing API key. Set it via WHYLABS_API_KEY environment variable or as an api_key option")
@@ -166,7 +167,11 @@ class EnvironmentKeyRefresher(KeyRefresher):
         return self._key_id
 
     def __call__(self, config: Configuration) -> None:
-        api_key = os.environ.get(API_KEY_ENV)
+        session = get_current_session()
+        # TODO this can be removed once we enforce why.init usage. Backwards compatible for now.
+        session_config = session.config if session is not None else SessionConfig()
+
+        api_key = session_config.get_api_key()
         self._key_id = _validate_api_key(api_key)
         assert api_key is not None
         config.api_key = {"ApiKeyAuth": api_key}
@@ -176,13 +181,16 @@ _ENV_KEY_REFRESHER = EnvironmentKeyRefresher()
 
 
 class WhyLabsWriter(Writer):
-    """
+    f"""
     A WhyLogs writer to upload DatasetProfileView's onto the WhyLabs platform.
 
     >**IMPORTANT**: In order to correctly send your profiles over, make sure you have
     the following environment variables set: `[WHYLABS_ORG_ID, WHYLABS_API_KEY, WHYLABS_DEFAULT_DATASET_ID]`. You
-    can also set them with the option method or within the constructor, although it
-    is highly recommended you don't persist credentials in code!
+    can also follow the authentication instructions for the why.init() method at {_INIT_DOCS}.
+    It is highly recommended you don't persist credentials in code!
+
+    You shouldn't have to supply these parameters to the writer in practice. You should depend on why.init() to resolve
+    the credentials for you. These are here for one-offs and testing convenience.
 
     Parameters
     ----------
@@ -209,6 +217,8 @@ class WhyLabsWriter(Writer):
     ```python
     import whylogs as why
 
+    why.init()
+
     profile = why.log(pandas=df)
     profile.writer("whylabs").write()
     ```
@@ -230,11 +240,16 @@ class WhyLabsWriter(Writer):
         ssl_ca_cert: Optional[str] = None,
         _timeout_seconds: Optional[float] = None,
     ):
-        self._org_id = org_id or os.environ.get("WHYLABS_DEFAULT_ORG_ID")
-        self._dataset_id = dataset_id or os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+        session = get_current_session()
+        config = session.config if session is not None else SessionConfig()
+
+        self._org_id = org_id or config.require_org_id()
+        self._dataset_id = dataset_id or config.require_default_dataset_id()
+        _api_key = api_key or config.require_api_key()
+
+        self.whylabs_api_endpoint = config.get_whylabs_endpoint()
         self._feature_weights = None
-        self.whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
-        self._reference_profile_name = os.environ.get("WHYLABS_REFERENCE_PROFILE_NAME")
+        self._reference_profile_name = config.get_whylabs_refernce_profile_name()
         self._ssl_ca_cert = ssl_ca_cert
         self._api_config: Optional[Configuration] = None
 
@@ -242,10 +257,11 @@ class WhyLabsWriter(Writer):
         _https_proxy = os.environ.get("HTTPS_PROXY")
         self._proxy = _https_proxy or _http_proxy
 
-        if api_key:
-            self._key_refresher = StaticKeyRefresher(api_key)
+        if _api_key:
+            self._key_refresher = StaticKeyRefresher(_api_key)
         else:
             self._key_refresher = _ENV_KEY_REFRESHER
+
         if api_client:
             self._api_client = api_client
         else:
@@ -253,19 +269,20 @@ class WhyLabsWriter(Writer):
             self._refresh_client()
 
         # Enable private access to WhyLabs endpoints
-        _private_api_endpoint = os.environ.get("WHYLABS_PRIVATE_API_ENDPOINT")
-        _private_s3_endpoint = os.environ.get("WHYLABS_PRIVATE_S3_ENDPOINT")
+        _private_api_endpoint = config.get_whylabs_private_api_endpoint()
+        _private_s3_endpoint = config.get_whylabs_private_s3_endpoint()
         if _private_api_endpoint:
             logger.debug(f"Using private API endpoint: {_private_api_endpoint}")
             self._endpoint_hostname = urlparse(self.whylabs_api_endpoint).netloc
             self.whylabs_api_endpoint = _private_api_endpoint
 
-        pooler_cache_key = ""
+        pooler_cache_key: str = ""
         if _private_s3_endpoint:
             logger.debug(f"Using private S3 endpoint: {_private_s3_endpoint}")
-            self._s3_private_domain = urlparse(_private_s3_endpoint).netloc
+            _s3_private_domain: str = urlparse(_private_s3_endpoint).netloc
+            self._s3_private_domain = _s3_private_domain
             self._s3_endpoint_subject = _S3_PUBLIC_DOMAIN
-            pooler_cache_key += self._s3_private_domain
+            pooler_cache_key += _s3_private_domain
 
         if _timeout_seconds is not None:
             self._timeout_seconds = _timeout_seconds
@@ -441,7 +458,6 @@ class WhyLabsWriter(Writer):
             Tuple with a boolean indicating success or failure: e.g. (True, "column prediction was updated to
             output") and string with status message.
         """
-        self._validate_org_and_dataset()
         results: Dict[str, str] = dict()
         all_sucessful = True
         # TODO: update the list of columns at once, support arbitrary tags as well.
@@ -716,17 +732,6 @@ class WhyLabsWriter(Writer):
         # TODO: retry
         return response
 
-    def _validate_org_and_dataset(self) -> None:
-        if self._org_id is None:
-            raise EnvironmentError(
-                "Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID " "environment variable"
-            )
-        if self._dataset_id is None:
-            raise EnvironmentError(
-                "Missing dataset ID. Specify it via WHYLABS_DEFAULT_DATASET_ID environment "
-                "variable or on your write method"
-            )
-
     def _do_get_feature_weights(self):
         """Get latest version for the feature weights for the specified dataset
 
@@ -734,8 +739,6 @@ class WhyLabsWriter(Writer):
         -------
             Response of the GET request, with segmentWeights and metadata.
         """
-        self._validate_org_and_dataset()
-
         result = self._get_column_weights()
         return result
 
@@ -747,8 +750,6 @@ class WhyLabsWriter(Writer):
         Tuple[bool, str]
             Tuple with a boolean (1-success, 0-fail) and string with the request's status code.
         """
-
-        self._validate_org_and_dataset()
 
         result = self._put_feature_weights()
         if result == 200:
@@ -783,7 +784,6 @@ class WhyLabsWriter(Writer):
         profile_file: Optional[IO[bytes]] = None,
     ) -> Tuple[bool, str]:
         assert profile_path or profile_file, "Either a file or file path must be specified when uploading profiles"
-        self._validate_org_and_dataset()
 
         # logger.debug("Generating the upload URL")
         if upload_url and not profile_id:
