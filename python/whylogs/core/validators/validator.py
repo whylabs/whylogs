@@ -1,18 +1,17 @@
 import copy
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from whylogs.core.metrics.condition_count_metric import Condition
-from whylogs.core.preprocessing import PreprocessedColumn
 
 
 class Validator(ABC):
     name: str
     conditions: Dict[str, Condition]
-    actions: List[Callable[[str, str, Any], None]]
+    actions: List[Union[Callable[[str, str, Any], None], Callable[[str, str, Any, Optional[Any]], None]]]
 
     @abstractmethod
-    def columnar_validate(self, data: PreprocessedColumn):
+    def columnar_validate(self, data: Any, identity_values: Any = None) -> None:
         pass
 
     @abstractmethod

@@ -18,7 +18,7 @@ class ConditionValidator(Validator):
     A validator that checks if a column satisfies a condition.
 
     Args:
-        name (str): The name of the column to validate
+        name (str): The name of the ConditionValidator.
         conditions (Dict[str, Union[Condition, Callable[[Any], bool]]]): A dictionary of conditions to check.
         actions (List[Callable[[str, str, Any, Any], None]]): A list of actions to take when a condition fails.
         enable_sampling (bool): Whether to enable sampling of failed values. Defaults to True.
@@ -26,7 +26,7 @@ class ConditionValidator(Validator):
     """
 
     conditions: Dict[str, Union[Condition, Callable[[Any], bool]]]
-    actions: List[Callable[[str, str, Any, Any], None]]
+    actions: List[Union[Callable[[str, str, Any], None], Callable[[str, str, Any, Optional[Any]], None]]]
     name: str
     total: int = 0
     failures: Dict[str, int] = field(default_factory=dict)
