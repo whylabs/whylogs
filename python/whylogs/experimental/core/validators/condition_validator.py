@@ -7,14 +7,16 @@ from whylogs.core.validators import ConditionValidator
 _validator_udfs: Dict[str, List[Dict[str, List[ConditionValidator]]]] = defaultdict(list)
 
 
-def register_validator(
-    col_names: List[str],
+def condition_validator(
+    col_names: Union[str, List[str]],
     condition_name: Optional[str] = None,
-    actions: List[Callable[[str, str, Any, Any], None]] = [],
+    actions: List[Callable[[str, str, Any, Optional[Any]], None]] = [],
     namespace: Optional[str] = None,
     schema_name: str = "",
     enable_sampling: bool = True,
 ) -> Callable[[Any], Any]:
+    col_names = col_names if isinstance(col_names, list) else [col_names]
+
     def decorator_register(func):
         global _validator_udfs
         name = condition_name or func.__name__
@@ -32,7 +34,7 @@ def register_validator(
     return decorator_register
 
 
-def _generate_validators(
+def generate_validators(
     initial_validators: Optional[Dict[str, List[ConditionValidator]]],
     schema_name: Union[str, List[str]],
     include_default_schema: bool = True,

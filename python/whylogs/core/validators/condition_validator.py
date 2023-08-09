@@ -20,7 +20,9 @@ class ConditionValidator(Validator):
     Args:
         name (str): The name of the ConditionValidator.
         conditions (Dict[str, Union[Condition, Callable[[Any], bool]]]): A dictionary of conditions to check.
-        actions (List[Callable[[str, str, Any, Any], None]]): A list of actions to take when a condition fails.
+        actions (List[Union[Callable[[str, str, Any], None], Callable[[str, str, Any, Optional[Any]], None]]]):
+            A list of actions to take when a condition fails. The action arguments represent, respectively:
+            condition validator name, condition name, validated value, identity value (if any).
         enable_sampling (bool): Whether to enable sampling of failed values. Defaults to True.
 
     """

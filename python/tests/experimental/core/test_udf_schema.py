@@ -21,7 +21,7 @@ from whylogs.experimental.core.udf_schema import (
     register_type_udf,
     udf_schema,
 )
-from whylogs.experimental.core.validators import register_validator
+from whylogs.experimental.core.validators import condition_validator
 
 
 def test_udf_row() -> None:
@@ -65,15 +65,15 @@ action_list = []
 
 
 def do_something_important(validator_name, condition_name: str, value: Any, column_id=None):
-    global action_counter
     print("Validator: {}\n    Condition name {} failed for value {}".format(validator_name, condition_name, value))
     action_list.append(value)
     if column_id:
+        # this list is just to verify that the action was called with the correct column id
         action_list.append(column_id)
     return
 
 
-@register_validator(["col1", "add5"], condition_name="less_than_four", actions=[do_something_important])
+@condition_validator(["col1", "add5"], condition_name="less_than_four", actions=[do_something_important])
 def lt_4(x):
     return x < 4
 
