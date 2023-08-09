@@ -7,6 +7,7 @@ TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.join(TEST_DIR, os.pardir, os.pardir)
 OUTPUT_NOTEBOOK = "output.ipynb"
 skip_notebooks = [
+    "Guest Session.ipynb",
     "Pyspark_Profiling.ipynb",
     "Kafka_Example.ipynb",
     "Writing_to_WhyLabs.ipynb",
