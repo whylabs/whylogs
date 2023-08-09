@@ -26,9 +26,7 @@ from whylogs.experimental.core.metrics.udf_metric import (
     _reset_metric_udfs,
     generate_udf_resolvers,
 )
-from whylogs.experimental.core.validators.condition_validator import (
-    _generate_validators,
-)
+from whylogs.experimental.core.validators.condition_validator import generate_validators
 
 logger = logging.getLogger(__name__)
 
@@ -351,7 +349,7 @@ def udf_schema(
 
     for name in schema_names:
         resolver_specs += _resolver_specs[name]
-        validators = _generate_validators(validators, name, include_default_schema=True)
+        validators = generate_validators(validators, name, include_default_schema=True)
 
     resolver_specs += generate_udf_resolvers(schema_name, include_default_schema)
     return UdfSchema(

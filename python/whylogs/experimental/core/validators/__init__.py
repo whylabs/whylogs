@@ -1,6 +1,6 @@
-from whylogs.experimental.core.validators.condition_validator import register_validator
+from whylogs.experimental.core.validators.condition_validator import condition_validator
 
 __ALL__ = [
     # column
-    register_validator,
+    condition_validator,
 ]
