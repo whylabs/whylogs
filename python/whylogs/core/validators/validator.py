@@ -9,7 +9,7 @@ from whylogs.core.metrics.condition_count_metric import Condition
 @dataclass
 class Validator(ABC):
     name: str
-    conditions: Dict[str, Union[Condition, Callable]]
+    conditions: Dict[str, Union[Condition, Callable[[Any], bool]]]
     actions: List[Union[Callable[[str, str, Any], None], Callable[[str, str, Any, Optional[Any]], None]]]
 
     @abstractmethod
