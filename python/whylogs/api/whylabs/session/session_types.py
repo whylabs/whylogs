@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Union
 
-from whylogs.api.whylabs.session.notebook_check import is_notebook
+from whylogs.api.whylabs.session.notebook_check import is_interractive
 
 
 # This is used to indicate that a result is either a success or a failure
@@ -24,7 +24,7 @@ class InteractiveLogger:
 
     @staticmethod
     def init_notebook_logging() -> None:
-        if is_notebook():
+        if is_interractive():
             InteractiveLogger._is_notebook = True
 
     @staticmethod

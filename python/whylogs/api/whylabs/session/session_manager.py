@@ -67,6 +67,7 @@ def init(
     allow_local: bool = False,
     whylabs_api_key: Optional[str] = None,
     default_dataset_id: Optional[str] = None,
+    config_path: Optional[str] = None,
 ) -> None:
     """
     Set up authentication for this whylogs logging session. There are three modes that you can authentiate in.
@@ -105,12 +106,17 @@ def init(
     if reinit:
         SessionManager.reset()
 
+    # python name mangling...
+    if SessionManager._SessionManager__instance is not None:  # type: ignore
+        return
+
     session_config = SessionConfig(
         InitConfig(
             allow_anonymous=allow_anonymous,
             allow_local=allow_local,
             whylabs_api_key=whylabs_api_key,
             default_dataset_id=default_dataset_id,
+            config_path=config_path,
         )
     )
 
