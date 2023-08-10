@@ -13,7 +13,7 @@ class Validator(ABC):
     actions: List[Union[Callable[[str, str, Any], None], Callable[[str, str, Any, Optional[Any]], None]]]
 
     @abstractmethod
-    def columnar_validate(self, data: Any, identity_values: Any = None) -> None:
+    def columnar_validate(self, data: Any, identity_values: Optional[Any] = None) -> None:
         pass
 
     @abstractmethod

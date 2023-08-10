@@ -22,7 +22,7 @@ class ConditionValidator(Validator):
         conditions (Dict[str, Union[Condition, Callable[[Any], bool]]]): A dictionary of conditions to check.
         actions (List[Union[Callable[[str, str, Any], None], Callable[[str, str, Any, Optional[Any]], None]]]):
             A list of actions to take when a condition fails. The action arguments represent, respectively:
-            condition validator name, condition name, validated value, identity value (if any).
+            condition validator name, condition name, validated value, row identity value (if any).
         enable_sampling (bool): Whether to enable sampling of failed values. Defaults to True.
 
     """
@@ -46,7 +46,7 @@ class ConditionValidator(Validator):
         if self.enable_sampling:
             self._sampler = ds.var_opt_sketch(k=self.sample_size)
 
-    def columnar_validate(self, data: Any, identity_values: Any = None) -> None:
+    def columnar_validate(self, data: Any, identity_values: Optional[Any] = None) -> None:
         count = 0
         count_failures = 0
         validate_with_row_id = False
