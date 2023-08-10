@@ -422,22 +422,26 @@
         </div>
         <article role="main">
           <h1>Source code for whylogs.api.whylabs.session.notebook_check</h1><div class="highlight"><pre>
-<div class="viewcode-block" id="is_notebook"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/notebook_check/index.html#whylogs.api.whylabs.session.notebook_check.is_notebook">[docs]</a><span></span><span class="k">def</span> <span class="nf">is_notebook</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">is_ipython_notebook</span><span class="p">()</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="k">pass</span>
-    <span class="k">return</span> <span class="n">result</span></div>
-
-
-<div class="viewcode-block" id="is_ipython_notebook"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/notebook_check/index.html#whylogs.api.whylabs.session.notebook_check.is_ipython_notebook">[docs]</a><span class="k">def</span> <span class="nf">is_ipython_notebook</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="is_ipython_notebook"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/notebook_check/index.html#whylogs.api.whylabs.session.notebook_check.is_ipython_notebook">[docs]</a><span></span><span class="k">def</span> <span class="nf">is_ipython_notebook</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Detects whether the current environment is an IPython notebook or not.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">sys</span>
 
     <span class="k">return</span> <span class="s2">&quot;ipykernel&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span></div>
+
+
+<div class="viewcode-block" id="is_ipython_terminal"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/notebook_check/index.html#whylogs.api.whylabs.session.notebook_check.is_ipython_terminal">[docs]</a><span class="k">def</span> <span class="nf">is_ipython_terminal</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="c1"># Works for colab too</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">__IPYTHON__</span>  <span class="c1"># type: ignore</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="is_interractive"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/notebook_check/index.html#whylogs.api.whylabs.session.notebook_check.is_interractive">[docs]</a><span class="k">def</span> <span class="nf">is_interractive</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">is_ipython_terminal</span><span class="p">()</span> <span class="ow">or</span> <span class="n">is_ipython_notebook</span><span class="p">()</span></div>
 </pre></div>
         </article>
       </div>

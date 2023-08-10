@@ -462,6 +462,25 @@
 </tbody>
 </table>
 </div>
+<dl class="py exception">
+<dt class="sig sig-object py" id="whylogs.api.whylabs.session.config.InitException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.config.</span></span><span class="sig-name descname"><span class="pre">InitException</span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/config.html#InitException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.config.InitException" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/exceptions.html#Exception" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>Common base class for all non-exit exceptions.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.api.whylabs.session.config.InitException.args">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">args</span></span><a class="headerlink" href="#whylogs.api.whylabs.session.config.InitException.args" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.api.whylabs.session.config.InitException.with_traceback">
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#whylogs.api.whylabs.session.config.InitException.with_traceback" title="Permalink to this definition">#</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.api.whylabs.session.config.EnvVariableName">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.whylabs.session.config.</span></span><span class="sig-name descname"><span class="pre">EnvVariableName</span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/config.html#EnvVariableName"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.config.EnvVariableName" title="Permalink to this definition">#</a></dt>
@@ -613,6 +632,11 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.api.whylabs.session.config.InitConfig.default_dataset_id">
 <span class="sig-name descname"><span class="pre">default_dataset_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.whylabs.session.config.InitConfig.default_dataset_id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.api.whylabs.session.config.InitConfig.config_path">
+<span class="sig-name descname"><span class="pre">config_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.whylabs.session.config.InitConfig.config_path" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1096,6 +1120,11 @@
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.whylabs.session.config</span></code></a><ul>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#whylogs.api.whylabs.session.config.InitException">InitException</a><ul>
+<li><a class="reference internal" href="#whylogs.api.whylabs.session.config.InitException.args">args</a></li>
+<li><a class="reference internal" href="#whylogs.api.whylabs.session.config.InitException.with_traceback">with_traceback</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.config.EnvVariableName">EnvVariableName</a><ul>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.config.EnvVariableName.WHYLABS_API_KEY">WHYLABS_API_KEY</a></li>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.config.EnvVariableName.WHYLABS_SESSION_ID">WHYLABS_SESSION_ID</a></li>
@@ -1129,6 +1158,7 @@
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.config.InitConfig.allow_anonymous">allow_anonymous</a></li>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.config.InitConfig.allow_local">allow_local</a></li>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.config.InitConfig.default_dataset_id">default_dataset_id</a></li>
+<li><a class="reference internal" href="#whylogs.api.whylabs.session.config.InitConfig.config_path">config_path</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.config.SessionConfig">SessionConfig</a><ul>

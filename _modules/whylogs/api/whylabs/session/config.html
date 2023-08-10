@@ -434,7 +434,7 @@
 
 <span class="kn">from</span> <span class="nn">platformdirs</span> <span class="kn">import</span> <span class="n">user_config_dir</span>
 
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.notebook_check</span> <span class="kn">import</span> <span class="n">is_notebook</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.notebook_check</span> <span class="kn">import</span> <span class="n">is_interractive</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.prompts</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">prompt_api_key</span><span class="p">,</span>
     <span class="n">prompt_default_dataset_id</span><span class="p">,</span>
@@ -452,6 +452,10 @@
 <span class="n">_DEFAULT_WHYLABS_HOST</span> <span class="o">=</span> <span class="s2">&quot;https://api.whylabsapp.com&quot;</span>
 <span class="n">_CONFIG_APP_NAME</span> <span class="o">=</span> <span class="s2">&quot;whylogs&quot;</span>
 <span class="n">_INIT_DOCS</span> <span class="o">=</span> <span class="s2">&quot;https://docs.whylabs.ai/docs/whylabs-whylogs-init&quot;</span>
+
+
+<div class="viewcode-block" id="InitException"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.InitException">[docs]</a><span class="k">class</span> <span class="nc">InitException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="EnvVariableName"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.EnvVariableName">[docs]</a><span class="k">class</span> <span class="nc">EnvVariableName</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
@@ -483,16 +487,17 @@
     <span class="n">whylabs_api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">allow_anonymous</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">allow_local</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">default_dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">default_dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="SessionConfig"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.SessionConfig">[docs]</a><span class="k">class</span> <span class="nc">SessionConfig</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">InitConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_init_config</span> <span class="o">=</span> <span class="n">init_config</span> <span class="ow">or</span> <span class="n">InitConfig</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">auth_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config_file_path</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auth_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">_init_config</span><span class="o">.</span><span class="n">config_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">_init_config</span><span class="o">.</span><span class="n">config_path</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config_file_path</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_parser</span><span class="p">()</span>
 
-        <span class="n">_init_config</span> <span class="o">=</span> <span class="n">init_config</span> <span class="ow">or</span> <span class="n">InitConfig</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmp_api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">_init_config</span><span class="o">.</span><span class="n">whylabs_api_key</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmp_default_dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">_init_config</span><span class="o">.</span><span class="n">default_dataset_id</span>
 
@@ -535,7 +540,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value</span><span class="p">(</span><span class="n">env_name</span><span class="o">=</span><span class="n">env_name</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="n">config_name</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">is_notebook</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">is_interractive</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">password</span><span class="p">:</span>
                 <span class="n">prompt_value</span> <span class="o">=</span> <span class="n">ConfigFile</span><span class="o">.</span><span class="n">get_variable_from_getpass</span><span class="p">(</span><span class="n">config_name</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -743,11 +748,11 @@
 
         <span class="c1"># If there is a session id saved in the config file then use that for an anonymous session</span>
         <span class="n">anonymous_session_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_session_id</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">anonymous_session_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">anonymous_session_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">init_config</span><span class="o">.</span><span class="n">allow_anonymous</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS_ANONYMOUS</span>
 
         <span class="c1"># If we&#39;re in an interactive environment then prompt the user to pick an authentication method</span>
-        <span class="k">if</span> <span class="n">is_notebook</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">is_interractive</span><span class="p">():</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_determine_session_type_prompt</span><span class="p">(</span><span class="n">init_config</span><span class="p">)</span>
 
         <span class="c1"># If we&#39;re not interactive then pick between anonymous and local based on the init config</span>
@@ -757,7 +762,7 @@
         <span class="k">if</span> <span class="n">init_config</span><span class="o">.</span><span class="n">allow_local</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">LOCAL</span>
 
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">InitException</span><span class="p">(</span>
             <span class="s2">&quot;Don&#39;t know how to initialize authentication because allow_anonymous=False, allow_local=False, &quot;</span>
             <span class="s2">&quot;and there is no WhyLabs api key in the environment, config file, or init() call, and this isn&#39;t an &quot;</span>
             <span class="s2">&quot;interactive environment.&quot;</span>

@@ -21,6 +21,22 @@ Classes
 
 
 
+.. py:exception:: InitException
+
+   Bases: :py:obj:`Exception`
+
+   Common base class for all non-exit exceptions.
+
+   .. py:class:: args
+
+
+   .. py:method:: with_traceback()
+
+      Exception.with_traceback(tb) --
+      set self.__traceback__ to tb and return self.
+
+
+
 .. py:class:: EnvVariableName
 
    Bases: :py:obj:`enum.Enum`
@@ -169,6 +185,11 @@ Classes
       
 
    .. py:attribute:: default_dataset_id
+      :type: Optional[str]
+
+      
+
+   .. py:attribute:: config_path
       :type: Optional[str]
 
       
