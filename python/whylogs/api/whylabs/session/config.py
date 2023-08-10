@@ -10,7 +10,7 @@ from typing import Optional
 
 from platformdirs import user_config_dir
 
-from whylogs.api.whylabs.session.notebook_check import is_notebook
+from whylogs.api.whylabs.session.notebook_check import is_interractive
 from whylogs.api.whylabs.session.prompts import (
     prompt_api_key,
     prompt_default_dataset_id,
@@ -28,6 +28,10 @@ from whylogs.api.whylabs.session.session_types import (
 _DEFAULT_WHYLABS_HOST = "https://api.whylabsapp.com"
 _CONFIG_APP_NAME = "whylogs"
 _INIT_DOCS = "https://docs.whylabs.ai/docs/whylabs-whylogs-init"
+
+
+class InitException(Exception):
+    pass
 
 
 class EnvVariableName(Enum):
@@ -60,15 +64,16 @@ class InitConfig:
     allow_anonymous: bool = True
     allow_local: bool = False
     default_dataset_id: Optional[str] = None
+    config_path: Optional[str] = None
 
 
 class SessionConfig:
     def __init__(self, init_config: Optional[InitConfig] = None) -> None:
+        _init_config = init_config or InitConfig()
         self.logger = logging.getLogger("config")
-        self.auth_path = self.get_config_file_path()
+        self.auth_path = Path(_init_config.config_path) if _init_config.config_path else self.get_config_file_path()
         self._init_parser()
 
-        _init_config = init_config or InitConfig()
         self.tmp_api_key: Optional[str] = _init_config.whylabs_api_key
         self.tmp_default_dataset_id: Optional[str] = _init_config.default_dataset_id
 
@@ -111,7 +116,7 @@ class SessionConfig:
         """
         value = self._load_value(env_name=env_name, config_name=config_name)
 
-        if value is None and is_notebook():
+        if value is None and is_interractive():
             if password:
                 prompt_value = ConfigFile.get_variable_from_getpass(config_name)
             else:
@@ -319,11 +324,11 @@ class SessionConfig:
 
         # If there is a session id saved in the config file then use that for an anonymous session
         anonymous_session_id = self.get_session_id()
-        if anonymous_session_id is not None:
+        if anonymous_session_id is not None and init_config.allow_anonymous:
             return SessionType.WHYLABS_ANONYMOUS
 
         # If we're in an interactive environment then prompt the user to pick an authentication method
-        if is_notebook():
+        if is_interractive():
             return self._determine_session_type_prompt(init_config)
 
         # If we're not interactive then pick between anonymous and local based on the init config
@@ -333,7 +338,7 @@ class SessionConfig:
         if init_config.allow_local:
             return SessionType.LOCAL
 
-        raise Exception(
+        raise InitException(
             "Don't know how to initialize authentication because allow_anonymous=False, allow_local=False, "
             "and there is no WhyLabs api key in the environment, config file, or init() call, and this isn't an "
             "interactive environment."
