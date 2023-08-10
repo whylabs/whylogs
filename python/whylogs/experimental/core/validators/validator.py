@@ -5,9 +5,11 @@ from whylogs.core.validators import Validator
 
 _validator_udfs: Dict[str, List[Dict[str, List[Validator]]]] = defaultdict(list)
 
+
 def append_validator(schema_name: str, col_name: str, validator: Validator):
     global _validator_udfs
     _validator_udfs[schema_name].append({col_name: [validator]})
+
 
 def generate_validators(
     initial_validators: Optional[Dict[str, List[Validator]]],
