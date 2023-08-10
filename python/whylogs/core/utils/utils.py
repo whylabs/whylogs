@@ -2,6 +2,9 @@ import datetime
 import functools
 import warnings
 from typing import Any, Callable, Dict
+from urllib.parse import urlparse
+
+from urllib3 import util
 
 
 def deprecated(message):
@@ -29,7 +32,7 @@ def deprecated_alias(**aliases: str) -> Callable:
     return deprecated_decorator
 
 
-def rename_kwargs(func_name: str, kwargs: Dict[str, Any], aliases: Dict[str, str]):
+def rename_kwargs(func_name: str, kwargs: Dict[str, Any], aliases: Dict[str, str]) -> None:
     for alias, new in aliases.items():
         if alias in kwargs:
             if new in kwargs:
@@ -48,3 +51,12 @@ def rename_kwargs(func_name: str, kwargs: Dict[str, Any], aliases: Dict[str, str
 def ensure_timezone(dt: datetime.datetime) -> None:
     if dt.tzinfo is None:
         raise ValueError("whylogs requires timezone-aware datetime. Please use datetime.datetime(..., tzinfo=..) API")
+
+
+def get_auth_headers(proxy_url: str) -> Dict[str, str]:
+    parsed_url = urlparse(proxy_url)
+    if parsed_url.username and parsed_url.password:
+        default_headers = util.make_headers(proxy_basic_auth=f"{str(parsed_url.username)}:{str(parsed_url.password)}")
+    else:
+        default_headers = None
+    return default_headers

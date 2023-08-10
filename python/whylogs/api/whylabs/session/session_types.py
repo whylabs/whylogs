@@ -1,7 +1,7 @@
 # Various common types to avoid circular dependencies
 from dataclasses import dataclass
 from enum import Enum
-from typing import Union
+from typing import Callable, Optional, Set, Union
 
 from whylogs.api.whylabs.session.notebook_check import is_interractive
 
@@ -18,6 +18,7 @@ class InteractiveLogger:
     Logger for interactive environments.
     """
 
+    __warnings: Set[int] = set()
     _is_notebook: bool = False
 
     @staticmethod
@@ -26,12 +27,14 @@ class InteractiveLogger:
             InteractiveLogger._is_notebook = True
 
     @staticmethod
-    def message(message: str = "") -> None:
+    def message(message: str = "", log_fn: Optional[Callable] = None) -> None:
         """
         Log a message only if we're in a notebook environment.
         """
         if InteractiveLogger._is_notebook:
             print(message)
+        elif log_fn is not None:
+            log_fn(message)
 
     @staticmethod
     def option(message: str) -> None:
@@ -70,11 +73,23 @@ class InteractiveLogger:
         InteractiveLogger.message(f"❌ {message}")
 
     @staticmethod
-    def warning(message: str) -> None:
+    def warning(message: str, log_fn: Optional[Callable] = None) -> None:
         """
         Log a warning, which has a warning sign.
         """
-        InteractiveLogger.message(f"⚠️ {message}")
+        InteractiveLogger.message(f"⚠️ {message}", log_fn=log_fn)
+
+    @staticmethod
+    def warning_once(message: str, log_fn: Optional[Callable] = None) -> None:
+        """
+        Like warning, but only logs once.
+        """
+        if not InteractiveLogger._is_notebook:
+            return
+
+        if hash(message) not in InteractiveLogger.__warnings:
+            InteractiveLogger.message(f"⚠️ {message}", log_fn=log_fn)
+            InteractiveLogger.__warnings.add(hash(message))
 
 
 InteractiveLogger.init_notebook_logging()

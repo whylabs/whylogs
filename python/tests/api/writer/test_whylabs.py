@@ -1,15 +1,26 @@
 import datetime
 import logging
 import os
+import random
+import string
 import tempfile
 from unittest.mock import MagicMock
 
 import pytest
 import responses
+from platformdirs import PlatformDirs
 from responses import PUT
 
 import whylogs as why
 from whylogs.api.logger.result_set import SegmentedResultSet
+from whylogs.api.whylabs.session.config import EnvVariableName, SessionConfig
+from whylogs.api.whylabs.session.session_manager import (
+    SessionManager,
+    get_current_session,
+    init,
+)
+from whylogs.api.whylabs.session.session_types import SessionType
+from whylogs.api.whylabs.session.whylabs_client_cache import WhylabsClientCache
 from whylogs.api.writer import Writers
 from whylogs.api.writer.whylabs import WhyLabsWriter
 from whylogs.core.feature_weights import FeatureWeights
@@ -17,23 +28,154 @@ from whylogs.core.schema import DatasetSchema
 from whylogs.core.segmentation_partition import segment_on_column
 
 logger = logging.getLogger(__name__)
+dirs = PlatformDirs("whylogs_tests", "whylogs")
+
+
+def _random_str(n: int) -> str:
+    return "".join(random.choices(string.ascii_letters + string.digits, k=n))
+
+
+class TestWhylabsWriterWithSession(object):
+    # So we don't delete our own configs while running tests
+    def setup_method(self) -> None:
+        WhylabsClientCache.reset()
+        SessionManager.reset()
+
+        os.environ[EnvVariableName.WHYLOGS_CONFIG_PATH.value] = f"{dirs.user_cache_dir}/whylogs_{_random_str(5)}.ini"
+
+        config = SessionConfig()
+        config.reset_config()
+
+    def teardown_method(self) -> None:
+        WhylabsClientCache.reset()
+        SessionManager.reset()
+        del os.environ[EnvVariableName.WHYLOGS_CONFIG_PATH.value]
+
+    def test_writer_throws_for_anon_sessions(self) -> None:
+        session = init()  # Default session is anonymous in this case (no config file content)
+        assert session.get_type() == SessionType.WHYLABS_ANONYMOUS
+
+        with pytest.raises(ValueError):
+            WhyLabsWriter()
+
+    def test_writer_works_for_anon_with_overrides(self) -> None:
+        key_id = "MPq7Hg002z"
+        org_id = "org-xxxxxx"
+        api_key = f"{key_id}.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:{org_id}"
+
+        # You can use the writer if the session is anonymous, but you must provide the required args
+        session = init()  # Default session is anonymous in this case (no config file content)
+        assert session.get_type() == SessionType.WHYLABS_ANONYMOUS
+
+        # No error
+        writer = WhyLabsWriter(
+            api_key=api_key,
+            dataset_id="dataset_id",
+            org_id="org_id",
+        )
+
+        assert writer.key_id == api_key.split(".")[0]
+
+    def test_writer_uses_session_for_creds(self) -> None:
+        key_id = "MPq7Hg002z"
+        org_id = "org-xxxxxx"
+        dataset_id = "model-2"
+        api_key = f"{key_id}.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:{org_id}"
+        session = init(whylabs_api_key=api_key, default_dataset_id=dataset_id)
+
+        assert session.get_type() == SessionType.WHYLABS
+
+        writer = WhyLabsWriter()
+        assert writer.key_id == key_id
+        assert writer._org_id == org_id
+        assert writer._dataset_id == dataset_id
+
+    def test_writer_uses_session_for_creds_implicitly(self) -> None:
+        key_id = "MPq7Hg002z"
+        org_id = "org-xxxxxx"
+        dataset_id = "model-2"
+        api_key = f"{key_id}.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:{org_id}"
+        os.environ["WHYLABS_API_KEY"] = api_key
+        os.environ["WHYLABS_DEFAULT_DATASET_ID"] = dataset_id
+
+        writer = WhyLabsWriter()
+        assert writer.key_id == key_id
+        assert writer._org_id == org_id
+        assert writer._dataset_id == dataset_id
+
+        session = get_current_session()
+        assert session is not None
+        # Session is local, so nothing happens automatically outside of writer.
+        assert session.get_type() == SessionType.LOCAL
+
+        del os.environ["WHYLABS_API_KEY"]
+        del os.environ["WHYLABS_DEFAULT_DATASET_ID"]
+
+    def test_implicit_session_init_fails_without_env_config_set(self) -> None:
+        with pytest.raises(ValueError):
+            WhyLabsWriter()
+
+    def test_implicit_init_works_from_config_file(self) -> None:
+        # Generate a len 10 alphanum string
+        key_id = _random_str(10)
+        org_id = f"org-{_random_str(6)}"
+        dataset_id = "model-2"
+        api_key = f"{key_id}.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:{org_id}"
+
+        #
+        # Part 1: Set up a config file
+        #
+        config = SessionConfig()
+        config.reset_config()
+        config.set_api_key(api_key)
+        config.set_default_dataset_id(dataset_id)
+        session = get_current_session()
+        assert session is None  # No init happened yet
+
+        #
+        # Part 2: Make sure the implicit init uses the config file
+        #
+        writer = WhyLabsWriter()
+        assert writer.key_id == key_id
+        assert writer._org_id == org_id
+        assert writer._dataset_id == dataset_id
+
+        session = get_current_session()
+        assert session is not None
+        assert session.get_type() == SessionType.LOCAL
+
+        # Clean it up
+        config.reset_config()
+
+
+_api_key = "0123456789.any"
 
 
 class TestWhylabsWriter(object):
     @classmethod
-    def setup_class(cls):
-        os.environ["WHYLABS_API_KEY"] = "0123456789.0any"
+    def setup_class(cls) -> None:
+        os.environ["WHYLABS_API_KEY"] = _api_key
         os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-1"
         os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "model-5"
         os.environ["WHYLABS_API_ENDPOINT"] = "https://api.whylabsapp.com"
         os.environ["WHYLABS_V1_ENABLED"] = "True"
+        os.environ[EnvVariableName.WHYLOGS_CONFIG_PATH.value] = f"/tmp/test_why_{_random_str(5)}.ini"
 
     @classmethod
-    def teardown_class(cls):
+    def teardown_class(cls) -> None:
         del os.environ["WHYLABS_API_KEY"]
         del os.environ["WHYLABS_DEFAULT_ORG_ID"]
         del os.environ["WHYLABS_DEFAULT_DATASET_ID"]
         del os.environ["WHYLABS_API_ENDPOINT"]
+        del os.environ["WHYLABS_V1_ENABLED"]
+        del os.environ[EnvVariableName.WHYLOGS_CONFIG_PATH.value]
+
+    def setup_method(self) -> None:
+        init()
+
+    def teardown_method(self) -> None:
+        WhylabsClientCache.reset()
+        SessionManager.reset()
 
     @pytest.fixture
     def results(self, pandas_dataframe):
@@ -178,7 +320,6 @@ class TestWhylabsWriter(object):
         assert writer.key_id == "newkeynewk"
 
     def test_api_key_prefers_parameter_over_env_var(self, results, caplog):
-        os.environ["WHYLABS_API_KEY"] = "0123456789.any"
         with pytest.raises(ValueError):
             results.writer("whylabs").option(org_id="org_id", api_key="api_key_123.foo").write(dataset_id="dataset_id")
 
@@ -193,3 +334,43 @@ class TestWhylabsWriter(object):
                 results.writer("whylabs").option(api_key="bad_key_format").write(dataset_id="dataset_id", dest="tmp")
             )
             assert response[0] is True
+
+    def test_changing_api_key_works(self) -> None:
+        #
+        # Defaults
+        #
+        writer = WhyLabsWriter()  # Using test level default api key via the session
+        assert writer.key_id == _api_key.split(".")[0]
+        cache_api_key_ids = [it.api_key for it in WhylabsClientCache.instance()._api_client_cache.keys()]
+        assert cache_api_key_ids == [_api_key]
+
+        #
+        # Change 1
+        #
+        key2 = "2222222222.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        writer.option(api_key=key2)
+        assert writer.key_id == key2.split(".")[0]
+        cache_api_key_ids = [it.api_key for it in WhylabsClientCache.instance()._api_client_cache.keys()]
+        assert cache_api_key_ids == [_api_key, key2]
+
+        #
+        # Change to original
+        #
+        writer.option(api_key=_api_key)
+        assert writer.key_id == _api_key.split(".")[0]
+        cache_api_key_ids = [it.api_key for it in WhylabsClientCache.instance()._api_client_cache.keys()]
+        assert cache_api_key_ids == [_api_key, key2]
+
+    def test_custom_client(self) -> None:
+        client = MagicMock()
+        writer = WhyLabsWriter(api_client=client)
+
+        # It really can't make any sense. It still uses an EnvKeyRefresher when someone gives it an custom client so
+        # the key won't actually match w/e the client is using, but this is the way it currently behaves. It can't
+        # make sense until we refactor how the client is used.
+        with pytest.raises(AttributeError):
+            # Fails because the key refresher wouldn't have been called yet presumably, and the key id won't be
+            # cached, but even if it was it wouldn't be the right key id because it was never set on the client.
+            writer.key_id
+
+        assert len(WhylabsClientCache.instance()._api_client_cache) == 0

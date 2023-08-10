@@ -96,9 +96,10 @@ class MPRollingLogger(ProcessRollingLogger):
 
 @pytest.fixture(scope="module", autouse=True)
 def init_tests() -> Generator[None, None, None]:
+    SessionManager.reset()  # Ensure this test is in a good state from previous moduels
     init(default_dataset_id=dataset_id)
     yield
-    SessionManager._SessionManager__instance = None  # type: ignore
+    SessionManager.reset()  # Leave it in a good state for future modules
 
 
 params = [MPRollingLogger, ThreadRollingLogger]
