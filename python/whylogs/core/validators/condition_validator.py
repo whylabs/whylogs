@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import whylogs_sketching as ds
 
@@ -27,9 +27,6 @@ class ConditionValidator(Validator):
 
     """
 
-    conditions: Dict[str, Union[Condition, Callable[[Any], bool]]]
-    actions: List[Union[Callable[[str, str, Any], None], Callable[[str, str, Any, Optional[Any]], None]]]
-    name: str
     total: int = 0
     failures: Dict[str, int] = field(default_factory=dict)
     enable_sampling: bool = True

@@ -26,7 +26,7 @@ from whylogs.experimental.core.metrics.udf_metric import (
     _reset_metric_udfs,
     generate_udf_resolvers,
 )
-from whylogs.experimental.core.validators.condition_validator import generate_validators
+from whylogs.experimental.core.validators.validator import generate_validators
 
 logger = logging.getLogger(__name__)
 

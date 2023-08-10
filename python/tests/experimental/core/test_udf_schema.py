@@ -11,6 +11,7 @@ from whylogs.core.metrics import (
     MetricConfig,
     StandardMetric,
 )
+from whylogs.core.preprocessing import ColumnProperties
 from whylogs.core.resolvers import STANDARD_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.segmentation_partition import segment_on_column
 from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
@@ -95,6 +96,17 @@ def test_validator_udf_row_with_id() -> None:
         why.log(d, schema=schema).view()
     assert 9 in action_list
     assert "c3" in action_list
+
+
+def test_validator_udf_homogeneous() -> None:
+    d = {"col1": [42, 2, 3, 1]}
+    df = pd.DataFrame(data=d)
+    types = {
+        "col1": (int, ColumnProperties.homogeneous),  # only this one should take the homogeneous code path
+    }
+    schema = udf_schema(types=types)
+    why.log(df, schema=schema).view()
+    assert 42 in action_list
 
 
 def test_decorator_pandas() -> None:
