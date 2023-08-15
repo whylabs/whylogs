@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import whylogs_sketching as ds
 
@@ -18,16 +18,15 @@ class ConditionValidator(Validator):
     A validator that checks if a column satisfies a condition.
 
     Args:
-        name (str): The name of the column to validate
+        name (str): The name of the ConditionValidator.
         conditions (Dict[str, Union[Condition, Callable[[Any], bool]]]): A dictionary of conditions to check.
-        actions (List[Callable[[str, str, Any, Any], None]]): A list of actions to take when a condition fails.
+        actions (List[Union[Callable[[str, str, Any], None], Callable[[str, str, Any, Optional[Any]], None]]]):
+            A list of actions to take when a condition fails. The action arguments represent, respectively:
+            condition validator name, condition name, invalid value, row identity value (if any).
         enable_sampling (bool): Whether to enable sampling of failed values. Defaults to True.
 
     """
 
-    conditions: Dict[str, Union[Condition, Callable[[Any], bool]]]
-    actions: List[Callable[[str, str, Any, Any], None]]
-    name: str
     total: int = 0
     failures: Dict[str, int] = field(default_factory=dict)
     enable_sampling: bool = True
@@ -47,7 +46,7 @@ class ConditionValidator(Validator):
         if self.enable_sampling:
             self._sampler = ds.var_opt_sketch(k=self.sample_size)
 
-    def columnar_validate(self, data: Any, identity_values: Any = None) -> None:
+    def columnar_validate(self, data: Any, identity_values: Optional[Any] = None) -> None:
         count = 0
         count_failures = 0
         validate_with_row_id = False

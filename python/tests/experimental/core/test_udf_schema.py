@@ -5,7 +5,13 @@ import pandas as pd
 import whylogs as why
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import Fractional, Integral, String
-from whylogs.core.metrics import CardinalityMetric, DistributionMetric, StandardMetric
+from whylogs.core.metrics import (
+    CardinalityMetric,
+    DistributionMetric,
+    MetricConfig,
+    StandardMetric,
+)
+from whylogs.core.preprocessing import ColumnProperties
 from whylogs.core.resolvers import STANDARD_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.segmentation_partition import segment_on_column
 from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
@@ -16,6 +22,7 @@ from whylogs.experimental.core.udf_schema import (
     register_type_udf,
     udf_schema,
 )
+from whylogs.experimental.core.validators import condition_validator
 
 
 def test_udf_row() -> None:
@@ -53,6 +60,53 @@ def add5(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
 
 def square(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return x["col1"] * x["col1"] if isinstance(x, (pd.Series, pd.DataFrame)) else [xx * xx for xx in x["col1"]]
+
+
+action_list = []
+
+
+def do_something_important(validator_name, condition_name: str, value: Any, column_id=None):
+    print("Validator: {}\n    Condition name {} failed for value {}".format(validator_name, condition_name, value))
+    action_list.append(value)
+    if column_id:
+        # this list is just to verify that the action was called with the correct column id
+        action_list.append(column_id)
+    return
+
+
+@condition_validator(["col1", "add5"], condition_name="less_than_four", actions=[do_something_important])
+def lt_4(x):
+    return x < 4
+
+
+def test_validator_udf_pandas() -> None:
+    global action_list
+    data = pd.DataFrame({"col1": [1, 3, 7]})
+    schema = udf_schema()
+    why.log(data, schema=schema).view()
+    assert 7 in action_list
+
+
+def test_validator_udf_row_with_id() -> None:
+    global action_list
+    config = MetricConfig(identity_column="cid")
+    schema = udf_schema(default_config=config)
+    data = [{"col1": 1, "cid": "c1"}, {"col1": 3, "cid": "c2"}, {"col1": 9, "cid": "c3"}]
+    for d in data:
+        why.log(d, schema=schema).view()
+    assert 9 in action_list
+    assert "c3" in action_list
+
+
+def test_validator_udf_homogeneous() -> None:
+    d = {"col1": [42, 2, 3, 1]}
+    df = pd.DataFrame(data=d)
+    types = {
+        "col1": (int, ColumnProperties.homogeneous),  # only this one should take the homogeneous code path
+    }
+    schema = udf_schema(types=types)
+    why.log(df, schema=schema).view()
+    assert 42 in action_list
 
 
 def test_decorator_pandas() -> None:
