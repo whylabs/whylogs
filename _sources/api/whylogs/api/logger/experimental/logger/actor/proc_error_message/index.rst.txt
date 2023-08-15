@@ -1,0 +1,6 @@
+:py:mod:`whylogs.api.logger.experimental.logger.actor.proc_error_message`
+=========================================================================
+
+.. py:module:: whylogs.api.logger.experimental.logger.actor.proc_error_message
+
+

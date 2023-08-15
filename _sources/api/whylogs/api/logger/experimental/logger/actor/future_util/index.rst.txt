@@ -1,0 +1,34 @@
+:py:mod:`whylogs.api.logger.experimental.logger.actor.future_util`
+==================================================================
+
+.. py:module:: whylogs.api.logger.experimental.logger.actor.future_util
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.future_util.wait_result
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.future_util.T
+
+
+.. py:data:: T
+
+   
+
+.. py:function:: wait_result(future: Future[T], timeout: Optional[float] = None) -> T
+
+

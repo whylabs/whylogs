@@ -1,0 +1,24 @@
+:py:mod:`whylogs.api.logger.experimental.logger.actor.signal_util`
+==================================================================
+
+.. py:module:: whylogs.api.logger.experimental.logger.actor.signal_util
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.signal_util.suspended_signals
+
+
+
+.. py:function:: suspended_signals(*signals: Any) -> Any
+
+   Suspends signal handling execution
+
+

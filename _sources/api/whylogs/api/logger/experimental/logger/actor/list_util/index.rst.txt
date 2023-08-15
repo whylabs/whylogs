@@ -1,0 +1,26 @@
+:py:mod:`whylogs.api.logger.experimental.logger.actor.list_util`
+================================================================
+
+.. py:module:: whylogs.api.logger.experimental.logger.actor.list_util
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.list_util.get_like_items
+   whylogs.api.logger.experimental.logger.actor.list_util.type_batched_items
+
+
+
+.. py:function:: get_like_items(items: List[Any]) -> Tuple[List[Any], Type, List[Any]]
+
+
+.. py:function:: type_batched_items(items: List[Any]) -> Generator[Tuple[List[Any], Type], None, None]
+
+

@@ -1,0 +1,189 @@
+:py:mod:`whylogs.api.logger.experimental.logger.actor.actor`
+============================================================
+
+.. py:module:: whylogs.api.logger.experimental.logger.actor.actor
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.actor.QueueWrapper
+   whylogs.api.logger.experimental.logger.actor.actor.CloseMessage
+   whylogs.api.logger.experimental.logger.actor.actor.QueueConfig
+   whylogs.api.logger.experimental.logger.actor.actor.Actor
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.actor.QueueMessageType
+   whylogs.api.logger.experimental.logger.actor.actor.MessageType
+   whylogs.api.logger.experimental.logger.actor.actor.Messages
+
+
+.. py:data:: QueueMessageType
+
+   
+
+.. py:class:: QueueWrapper
+
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`QueueMessageType`\ ]
+
+   Abstract base class for generic types.
+
+   A generic type is typically declared by inheriting from
+   this class parameterized with one or more type variables.
+   For example, a generic mapping type might be defined as::
+
+     class Mapping(Generic[KT, VT]):
+         def __getitem__(self, key: KT) -> VT:
+             ...
+         # Etc.
+
+   This class can then be used as follows::
+
+     def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
+         try:
+             return mapping[key]
+         except KeyError:
+             return default
+
+   .. py:method:: send(message: QueueMessageType, timeout: float = _DEFAULT_TIMEOUT) -> None
+      :abstractmethod:
+
+
+   .. py:method:: send_many(message: QueueMessageType, timeout: float = _DEFAULT_TIMEOUT) -> None
+      :abstractmethod:
+
+
+   .. py:method:: get(timeout: float = _DEFAULT_TIMEOUT) -> Optional[QueueMessageType]
+      :abstractmethod:
+
+
+   .. py:method:: get_many(timeout: float = _DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[QueueMessageType]
+      :abstractmethod:
+
+
+   .. py:method:: size() -> int
+      :abstractmethod:
+
+
+   .. py:method:: close() -> None
+      :abstractmethod:
+
+
+
+.. py:class:: CloseMessage
+
+
+.. py:class:: QueueConfig
+
+   Configuration for the queue used by the actor.
+
+   :param max_batch_size: Maximum number of messages to process in a single batch.
+   :type max_batch_size: int
+   :param message_accumualtion_duration: How long to accumulate messages before processing a batch
+   :type message_accumualtion_duration: float
+   :param message_poll_wait: How long to block when polling for messages in a loop.
+   :type message_poll_wait: float
+
+   .. py:attribute:: max_batch_size
+      :type: int
+      :value: 50000
+
+      
+
+   .. py:attribute:: message_accumualtion_duration
+      :type: float
+      :value: 1.0
+
+      
+
+   .. py:attribute:: message_poll_wait
+      :type: float
+      :value: 0.1
+
+      
+
+
+.. py:data:: MessageType
+
+   
+
+.. py:data:: Messages
+
+   
+
+.. py:class:: Actor(queue_wrapper: QueueWrapper[Messages], queue_config: QueueConfig = QueueConfig())
+
+   Bases: :py:obj:`abc.ABC`, :py:obj:`Generic`\ [\ :py:obj:`MessageType`\ ]
+
+   Simple actor inspired interface designed for batch processing messages.
+   This was created with thread and process based whylogs logging in mind and it has
+   all of the common message passing logic needed.
+
+   .. py:method:: close_message_handled() -> bool
+      :abstractmethod:
+
+
+   .. py:method:: set_close_message_handled() -> None
+      :abstractmethod:
+
+
+   .. py:method:: close_message_wait() -> None
+      :abstractmethod:
+
+
+   .. py:method:: is_done() -> bool
+      :abstractmethod:
+
+
+   .. py:method:: done_wait() -> None
+      :abstractmethod:
+
+
+   .. py:method:: set_done() -> None
+      :abstractmethod:
+
+      Set this actor as done, meaning it has finished processing all messages.
+
+
+   .. py:method:: is_closed() -> bool
+      :abstractmethod:
+
+
+   .. py:method:: set_closed() -> None
+      :abstractmethod:
+
+      Sets this actor as closed, meaning it should no longer accept messages.
+
+
+   .. py:method:: process_batch(batch: List[Messages], batch_type: Type) -> None
+      :abstractmethod:
+
+
+   .. py:method:: send(message: Messages) -> None
+
+
+   .. py:method:: send_many(messages: List[Messages]) -> None
+
+
+   .. py:method:: close() -> None
+
+
+   .. py:method:: process_messages() -> None
+
+
+   .. py:method:: run() -> None
+
+
+

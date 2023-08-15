@@ -1,0 +1,56 @@
+:py:mod:`whylogs.api.logger.experimental.logger.actor.faster_fifo_queue_wrapper`
+================================================================================
+
+.. py:module:: whylogs.api.logger.experimental.logger.actor.faster_fifo_queue_wrapper
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.faster_fifo_queue_wrapper.FasterQueueWrapper
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.faster_fifo_queue_wrapper.FasterQueueMessageType
+
+
+.. py:data:: FasterQueueMessageType
+
+   
+
+.. py:class:: FasterQueueWrapper
+
+   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.QueueWrapper`, :py:obj:`Generic`\ [\ :py:obj:`FasterQueueMessageType`\ ]
+
+   Implementation of QueueWrapper sufficient for use in the threaded actor.
+
+   .. py:method:: send(message: FasterQueueMessageType, timeout: float = _DEFAULT_TIMEOUT) -> None
+
+
+   .. py:method:: send_many(messages: List[FasterQueueMessageType], timeout: float = _DEFAULT_TIMEOUT) -> None
+
+
+   .. py:method:: get(timeout: float = _DEFAULT_TIMEOUT) -> Optional[FasterQueueMessageType]
+
+
+   .. py:method:: get_many(timeout: float = _DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[FasterQueueMessageType]
+
+
+   .. py:method:: size() -> int
+
+
+   .. py:method:: close() -> None
+
+
+

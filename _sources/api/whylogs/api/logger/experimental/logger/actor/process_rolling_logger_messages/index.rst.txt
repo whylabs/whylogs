@@ -1,0 +1,752 @@
+:py:mod:`whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages`
+======================================================================================
+
+.. py:module:: whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages
+
+.. autoapi-nested-parse::
+
+   Messages that the process logger can process.
+
+   These types are core types that you can send to the process logger. They are either subclasses of
+   TypedDict or wrappers around serialized byte versions of those dicts. Everything in here is a
+   TypedDict because we use orjson to deserialize them for performance reasons and that library prefers
+   to output everything as dictionaries.
+
+   The dataclass containers for those messages have helper methods to extract/deserialize the dicts. It's
+   important to not raise exceptions in those data classes because the actor does a lot of large batch processing
+   and exceptions would result in losing the entire batch. Instead, they return None and log errors if there is
+   some issue deserializing or validating.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.DataDict
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogRequestDict
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogEmbeddingRequestDict
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.PubSubMessage
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.PubSubDict
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.DebugMessage
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.FlushMessage
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogMessage
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubMessage
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.PubSubEmbeddingDict
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubEmbeddingMessage
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogEmbeddingsMessage
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.data_dict_from_pandas
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.get_columns
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.log_dict_to_data_frame
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.log_dict_to_embedding_matrix
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.reduce_log_requests
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.reduce_embeddings_request
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.determine_dataset_timestamp
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.DataTypes
+
+
+.. py:data:: DataTypes
+
+   
+
+.. py:class:: DataDict
+
+   Bases: :py:obj:`TypedDict`
+
+   dict() -> new empty dictionary
+   dict(mapping) -> new dictionary initialized from a mapping object's
+       (key, value) pairs
+   dict(iterable) -> new dictionary initialized as if via:
+       d = {}
+       for k, v in iterable:
+           d[k] = v
+   dict(**kwargs) -> new dictionary initialized with the name=value pairs
+       in the keyword argument list.  For example:  dict(one=1, two=2)
+
+   .. py:attribute:: columns
+      :type: List[str]
+
+      
+
+   .. py:attribute:: data
+      :type: List[List[DataTypes]]
+
+      
+
+   .. py:method:: clear()
+
+      D.clear() -> None.  Remove all items from D.
+
+
+   .. py:method:: copy()
+
+      D.copy() -> a shallow copy of D
+
+
+   .. py:method:: get()
+
+      Return the value for key if key is in the dictionary, else default.
+
+
+   .. py:method:: items()
+
+      D.items() -> a set-like object providing a view on D's items
+
+
+   .. py:method:: keys()
+
+      D.keys() -> a set-like object providing a view on D's keys
+
+
+   .. py:method:: pop()
+
+      D.pop(k[,d]) -> v, remove specified key and return the corresponding value.
+
+      If key is not found, default is returned if given, otherwise KeyError is raised
+
+
+   .. py:method:: popitem()
+
+      Remove and return a (key, value) pair as a 2-tuple.
+
+      Pairs are returned in LIFO (last-in, first-out) order.
+      Raises KeyError if the dict is empty.
+
+
+   .. py:method:: setdefault()
+
+      Insert key with a value of default if key is not in the dictionary.
+
+      Return the value for key if key is in the dictionary, else default.
+
+
+   .. py:method:: update()
+
+      D.update([E, ]**F) -> None.  Update D from dict/iterable E and F.
+      If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+      If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+      In either case, this is followed by: for k in F:  D[k] = F[k]
+
+
+   .. py:method:: values()
+
+      D.values() -> an object providing a view on D's values
+
+
+
+.. py:function:: data_dict_from_pandas(df: pandas.DataFrame) -> DataDict
+
+
+.. py:class:: LogRequestDict
+
+   Bases: :py:obj:`TypedDict`
+
+   dict() -> new empty dictionary
+   dict(mapping) -> new dictionary initialized from a mapping object's
+       (key, value) pairs
+   dict(iterable) -> new dictionary initialized as if via:
+       d = {}
+       for k, v in iterable:
+           d[k] = v
+   dict(**kwargs) -> new dictionary initialized with the name=value pairs
+       in the keyword argument list.  For example:  dict(one=1, two=2)
+
+   .. py:attribute:: datasetId
+      :type: str
+
+      
+
+   .. py:attribute:: timestamp
+      :type: Optional[int]
+
+      
+
+   .. py:attribute:: multiple
+      :type: DataDict
+
+      
+
+   .. py:method:: clear()
+
+      D.clear() -> None.  Remove all items from D.
+
+
+   .. py:method:: copy()
+
+      D.copy() -> a shallow copy of D
+
+
+   .. py:method:: get()
+
+      Return the value for key if key is in the dictionary, else default.
+
+
+   .. py:method:: items()
+
+      D.items() -> a set-like object providing a view on D's items
+
+
+   .. py:method:: keys()
+
+      D.keys() -> a set-like object providing a view on D's keys
+
+
+   .. py:method:: pop()
+
+      D.pop(k[,d]) -> v, remove specified key and return the corresponding value.
+
+      If key is not found, default is returned if given, otherwise KeyError is raised
+
+
+   .. py:method:: popitem()
+
+      Remove and return a (key, value) pair as a 2-tuple.
+
+      Pairs are returned in LIFO (last-in, first-out) order.
+      Raises KeyError if the dict is empty.
+
+
+   .. py:method:: setdefault()
+
+      Insert key with a value of default if key is not in the dictionary.
+
+      Return the value for key if key is in the dictionary, else default.
+
+
+   .. py:method:: update()
+
+      D.update([E, ]**F) -> None.  Update D from dict/iterable E and F.
+      If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+      If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+      In either case, this is followed by: for k in F:  D[k] = F[k]
+
+
+   .. py:method:: values()
+
+      D.values() -> an object providing a view on D's values
+
+
+
+.. py:class:: LogEmbeddingRequestDict
+
+   Bases: :py:obj:`TypedDict`
+
+   dict() -> new empty dictionary
+   dict(mapping) -> new dictionary initialized from a mapping object's
+       (key, value) pairs
+   dict(iterable) -> new dictionary initialized as if via:
+       d = {}
+       for k, v in iterable:
+           d[k] = v
+   dict(**kwargs) -> new dictionary initialized with the name=value pairs
+       in the keyword argument list.  For example:  dict(one=1, two=2)
+
+   .. py:attribute:: datasetId
+      :type: str
+
+      
+
+   .. py:attribute:: timestamp
+      :type: Optional[int]
+
+      
+
+   .. py:attribute:: embeddings
+      :type: Dict[str, List[DataTypes]]
+
+      
+
+   .. py:method:: clear()
+
+      D.clear() -> None.  Remove all items from D.
+
+
+   .. py:method:: copy()
+
+      D.copy() -> a shallow copy of D
+
+
+   .. py:method:: get()
+
+      Return the value for key if key is in the dictionary, else default.
+
+
+   .. py:method:: items()
+
+      D.items() -> a set-like object providing a view on D's items
+
+
+   .. py:method:: keys()
+
+      D.keys() -> a set-like object providing a view on D's keys
+
+
+   .. py:method:: pop()
+
+      D.pop(k[,d]) -> v, remove specified key and return the corresponding value.
+
+      If key is not found, default is returned if given, otherwise KeyError is raised
+
+
+   .. py:method:: popitem()
+
+      Remove and return a (key, value) pair as a 2-tuple.
+
+      Pairs are returned in LIFO (last-in, first-out) order.
+      Raises KeyError if the dict is empty.
+
+
+   .. py:method:: setdefault()
+
+      Insert key with a value of default if key is not in the dictionary.
+
+      Return the value for key if key is in the dictionary, else default.
+
+
+   .. py:method:: update()
+
+      D.update([E, ]**F) -> None.  Update D from dict/iterable E and F.
+      If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+      If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+      In either case, this is followed by: for k in F:  D[k] = F[k]
+
+
+   .. py:method:: values()
+
+      D.values() -> an object providing a view on D's values
+
+
+
+.. py:class:: PubSubMessage
+
+   Bases: :py:obj:`TypedDict`
+
+   dict() -> new empty dictionary
+   dict(mapping) -> new dictionary initialized from a mapping object's
+       (key, value) pairs
+   dict(iterable) -> new dictionary initialized as if via:
+       d = {}
+       for k, v in iterable:
+           d[k] = v
+   dict(**kwargs) -> new dictionary initialized with the name=value pairs
+       in the keyword argument list.  For example:  dict(one=1, two=2)
+
+   .. py:attribute:: attributes
+      :type: Dict[str, str]
+
+      
+
+   .. py:attribute:: data
+      :type: str
+
+      
+
+   .. py:attribute:: message_id
+      :type: str
+
+      
+
+   .. py:attribute:: publish_time
+      :type: str
+
+      
+
+   .. py:method:: clear()
+
+      D.clear() -> None.  Remove all items from D.
+
+
+   .. py:method:: copy()
+
+      D.copy() -> a shallow copy of D
+
+
+   .. py:method:: get()
+
+      Return the value for key if key is in the dictionary, else default.
+
+
+   .. py:method:: items()
+
+      D.items() -> a set-like object providing a view on D's items
+
+
+   .. py:method:: keys()
+
+      D.keys() -> a set-like object providing a view on D's keys
+
+
+   .. py:method:: pop()
+
+      D.pop(k[,d]) -> v, remove specified key and return the corresponding value.
+
+      If key is not found, default is returned if given, otherwise KeyError is raised
+
+
+   .. py:method:: popitem()
+
+      Remove and return a (key, value) pair as a 2-tuple.
+
+      Pairs are returned in LIFO (last-in, first-out) order.
+      Raises KeyError if the dict is empty.
+
+
+   .. py:method:: setdefault()
+
+      Insert key with a value of default if key is not in the dictionary.
+
+      Return the value for key if key is in the dictionary, else default.
+
+
+   .. py:method:: update()
+
+      D.update([E, ]**F) -> None.  Update D from dict/iterable E and F.
+      If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+      If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+      In either case, this is followed by: for k in F:  D[k] = F[k]
+
+
+   .. py:method:: values()
+
+      D.values() -> an object providing a view on D's values
+
+
+
+.. py:class:: PubSubDict
+
+   Bases: :py:obj:`TypedDict`
+
+   dict() -> new empty dictionary
+   dict(mapping) -> new dictionary initialized from a mapping object's
+       (key, value) pairs
+   dict(iterable) -> new dictionary initialized as if via:
+       d = {}
+       for k, v in iterable:
+           d[k] = v
+   dict(**kwargs) -> new dictionary initialized with the name=value pairs
+       in the keyword argument list.  For example:  dict(one=1, two=2)
+
+   .. py:attribute:: subscription
+      :type: str
+
+      
+
+   .. py:attribute:: message
+      :type: PubSubMessage
+
+      
+
+   .. py:attribute:: log_request
+      :type: LogRequestDict
+
+      
+
+   .. py:method:: clear()
+
+      D.clear() -> None.  Remove all items from D.
+
+
+   .. py:method:: copy()
+
+      D.copy() -> a shallow copy of D
+
+
+   .. py:method:: get()
+
+      Return the value for key if key is in the dictionary, else default.
+
+
+   .. py:method:: items()
+
+      D.items() -> a set-like object providing a view on D's items
+
+
+   .. py:method:: keys()
+
+      D.keys() -> a set-like object providing a view on D's keys
+
+
+   .. py:method:: pop()
+
+      D.pop(k[,d]) -> v, remove specified key and return the corresponding value.
+
+      If key is not found, default is returned if given, otherwise KeyError is raised
+
+
+   .. py:method:: popitem()
+
+      Remove and return a (key, value) pair as a 2-tuple.
+
+      Pairs are returned in LIFO (last-in, first-out) order.
+      Raises KeyError if the dict is empty.
+
+
+   .. py:method:: setdefault()
+
+      Insert key with a value of default if key is not in the dictionary.
+
+      Return the value for key if key is in the dictionary, else default.
+
+
+   .. py:method:: update()
+
+      D.update([E, ]**F) -> None.  Update D from dict/iterable E and F.
+      If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+      If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+      In either case, this is followed by: for k in F:  D[k] = F[k]
+
+
+   .. py:method:: values()
+
+      D.values() -> an object providing a view on D's values
+
+
+
+.. py:class:: DebugMessage
+
+
+.. py:class:: FlushMessage
+
+
+.. py:class:: ProcessLoggerStatus
+
+   .. py:attribute:: dataset_id
+      :type: str
+
+      
+
+   .. py:attribute:: status
+      :type: whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus
+
+      
+
+
+.. py:class:: ProcessLoggerStatusMessage
+
+   .. py:attribute:: id
+      :type: str
+
+      
+
+
+.. py:class:: LogMessage
+
+   .. py:attribute:: request_time
+      :type: int
+
+      
+
+   .. py:attribute:: log
+      :type: LogRequestDict
+
+      
+
+   .. py:attribute:: id
+      :type: str
+
+      
+
+
+.. py:class:: RawLogMessage
+
+   .. py:attribute:: request
+      :type: bytes
+
+      Bytes that represent json stringified LogRequestDict
+
+   .. py:attribute:: request_time
+      :type: int
+
+      
+
+   .. py:attribute:: id
+      :type: str
+
+      
+
+   .. py:method:: to_log_request_dict() -> Optional[LogRequestDict]
+
+
+
+.. py:function:: get_columns(request: Union[LogRequestDict, LogEmbeddingRequestDict]) -> List[str]
+
+
+.. py:class:: RawPubSubMessage
+
+   .. py:attribute:: request
+      :type: bytes
+
+      
+
+   .. py:attribute:: request_time
+      :type: int
+
+      
+
+   .. py:method:: to_pubsub_message() -> Optional[PubSubDict]
+
+
+
+.. py:class:: PubSubEmbeddingDict
+
+   Bases: :py:obj:`TypedDict`
+
+   dict() -> new empty dictionary
+   dict(mapping) -> new dictionary initialized from a mapping object's
+       (key, value) pairs
+   dict(iterable) -> new dictionary initialized as if via:
+       d = {}
+       for k, v in iterable:
+           d[k] = v
+   dict(**kwargs) -> new dictionary initialized with the name=value pairs
+       in the keyword argument list.  For example:  dict(one=1, two=2)
+
+   .. py:attribute:: subscription
+      :type: str
+
+      
+
+   .. py:attribute:: message
+      :type: PubSubMessage
+
+      
+
+   .. py:attribute:: log_embedding_request
+      :type: LogEmbeddingRequestDict
+
+      
+
+   .. py:method:: clear()
+
+      D.clear() -> None.  Remove all items from D.
+
+
+   .. py:method:: copy()
+
+      D.copy() -> a shallow copy of D
+
+
+   .. py:method:: get()
+
+      Return the value for key if key is in the dictionary, else default.
+
+
+   .. py:method:: items()
+
+      D.items() -> a set-like object providing a view on D's items
+
+
+   .. py:method:: keys()
+
+      D.keys() -> a set-like object providing a view on D's keys
+
+
+   .. py:method:: pop()
+
+      D.pop(k[,d]) -> v, remove specified key and return the corresponding value.
+
+      If key is not found, default is returned if given, otherwise KeyError is raised
+
+
+   .. py:method:: popitem()
+
+      Remove and return a (key, value) pair as a 2-tuple.
+
+      Pairs are returned in LIFO (last-in, first-out) order.
+      Raises KeyError if the dict is empty.
+
+
+   .. py:method:: setdefault()
+
+      Insert key with a value of default if key is not in the dictionary.
+
+      Return the value for key if key is in the dictionary, else default.
+
+
+   .. py:method:: update()
+
+      D.update([E, ]**F) -> None.  Update D from dict/iterable E and F.
+      If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+      If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+      In either case, this is followed by: for k in F:  D[k] = F[k]
+
+
+   .. py:method:: values()
+
+      D.values() -> an object providing a view on D's values
+
+
+
+.. py:class:: RawPubSubEmbeddingMessage
+
+   .. py:attribute:: request
+      :type: bytes
+
+      
+
+   .. py:attribute:: request_time
+      :type: int
+
+      
+
+   .. py:method:: to_pubsub_embedding_message() -> Optional[PubSubEmbeddingDict]
+
+
+
+.. py:class:: RawLogEmbeddingsMessage
+
+   .. py:attribute:: request
+      :type: bytes
+
+      
+
+   .. py:attribute:: request_time
+      :type: int
+
+      
+
+   .. py:method:: to_log_embeddings_request_dict() -> Optional[LogEmbeddingRequestDict]
+
+
+
+.. py:function:: log_dict_to_data_frame(request: LogRequestDict) -> Tuple[pandas.DataFrame, int]
+
+
+.. py:function:: log_dict_to_embedding_matrix(request: LogEmbeddingRequestDict) -> Tuple[Dict[str, numpy.ndarray], int]
+
+
+.. py:function:: reduce_log_requests(acc: LogRequestDict, cur: LogRequestDict) -> LogRequestDict
+
+   Reduce requests, assuming that each request has the same columns.
+   That assumption should be enforced before this is used by grouping by set of columns.
+
+
+.. py:function:: reduce_embeddings_request(acc: LogEmbeddingRequestDict, cur: LogEmbeddingRequestDict) -> LogEmbeddingRequestDict
+
+
+.. py:function:: determine_dataset_timestamp(cadence: whylogs.api.logger.experimental.logger.actor.time_util.TimeGranularity, request: Union[LogRequestDict, LogEmbeddingRequestDict]) -> Optional[int]
+
+

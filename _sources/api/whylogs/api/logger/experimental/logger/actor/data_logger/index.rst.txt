@@ -1,0 +1,81 @@
+:py:mod:`whylogs.api.logger.experimental.logger.actor.data_logger`
+==================================================================
+
+.. py:module:: whylogs.api.logger.experimental.logger.actor.data_logger
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.data_logger.DataLogger
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.data_logger.Row
+   whylogs.api.logger.experimental.logger.actor.data_logger.TrackData
+   whylogs.api.logger.experimental.logger.actor.data_logger.StatusType
+
+
+.. py:data:: Row
+
+   
+
+.. py:data:: TrackData
+
+   
+
+.. py:data:: StatusType
+
+   
+
+.. py:class:: DataLogger
+
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`StatusType`\ ]
+
+   Interface for data loggers. This type has all of the methods that people would need for actually
+   logging data. Its potentially useful to use this as a return type instead of the process/thread logger
+   since those have a lot more private methods that aren't useful to the end user.
+
+   .. py:method:: status(timeout: Optional[float] = 1.0) -> StatusType
+      :abstractmethod:
+
+      Get diagnostic information about the state of the data logger
+
+
+   .. py:method:: log(data: TrackData, timestamp_ms: Optional[int] = None, sync: bool = False) -> None
+      :abstractmethod:
+
+      Log some data.
+
+      :param data: The data to log. This can either be a pandas data frame, a row (dictionary of str to str/int/float/etc),
+                   or a list of rows.
+      :param timestamp_ms: The timestamp of the data. If this isn't supplied then it is assumed to have happened now.
+      :param sync: Whether or not to perform this action synchronously. By default, this is an asynchronous operation.
+                   You can make this synchronous in order to react to errors. Mostly useful when initially setting up
+                   logging since the only errors that can be responded to are data format related.
+
+
+   .. py:method:: flush() -> None
+      :abstractmethod:
+
+      Flush the internal state, causing everything to be written using the configured writers.
+
+
+   .. py:method:: close() -> None
+      :abstractmethod:
+
+      Close the logger, causing all resources to be released.
+
+
+
