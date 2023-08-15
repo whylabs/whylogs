@@ -1,6 +1,6 @@
 import utils as u
 
-from whylogs.api.logger.experimental.multi_dataset_logger.time_util import (
+from whylogs.api.logger.experimental.logger.actor.time_util import (
     FunctionTimer,
     Schedule,
     TimeGranularity,

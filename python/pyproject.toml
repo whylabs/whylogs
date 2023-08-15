@@ -57,6 +57,10 @@ google-cloud-storage = {version = "^2.5.0", optional = true}
 pyarrow = {version = ">=8.0.0, <13", optional = true}
 pyspark = {version = "^3.0.0", optional = true}
 
+# process logging dependencies
+faster-fifo = {version = "^1.4.5", optional = true}
+orjson = {version = "^3.8.10", optional = true}
+
 # Image support related dependencies
 Pillow = {version = "^9.2.0", optional = true}
 
@@ -143,6 +147,15 @@ embeddings = [
   "numpy",
   "scikit-learn",
 ]
+proc = [
+  "faster-fifo",  # For much better queue performance than mp.Queue and bulk retrieval
+  "orjson",  # For faster json parsing when serializing data between processes
+  "pandas",  # For merging dataframes during batch processing
+]
+proc-mp = [
+  "orjson",  # For faster json parsing when serializing data between processes
+  "pandas",  # For merging dataframes during batch processing
+]
 all = [
   "scikit-learn",
   "fugue",
@@ -157,6 +170,8 @@ all = [
   "pybars3",
   "numpy",
   "scipy",
+  "faster-fifo",
+  "orjson",
 ]
 
 [tool.poetry.group.dev.dependencies]

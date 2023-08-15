@@ -107,7 +107,7 @@ def _check_whylabs_condition_count_uncompound() -> bool:
     return True
 
 
-# TODO update this avliator for new format
+# TODO update this validator for new format
 def _validate_api_key(api_key: Optional[str]) -> str:
     if api_key is None:
         raise ValueError("Missing API key. Set it via WHYLABS_API_KEY environment variable or as an api_key option")
