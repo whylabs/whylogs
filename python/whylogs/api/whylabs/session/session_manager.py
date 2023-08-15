@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, Union
 
 from whylabs_client.api_client import ApiClient, Configuration  # type: ignore
 
@@ -11,6 +11,7 @@ from whylogs.api.whylabs.session.session import (
     Session,
 )
 from whylogs.api.whylabs.session.session_types import SessionType
+from whylogs.core.utils.utils import deprecated_alias
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +62,9 @@ class SessionManager:
         return SessionManager.get_instance() is not None
 
 
+@deprecated_alias(session_type="allow_anonymous")
 def init(
+    session_type: Optional[Union[SessionType, str]] = None,
     reinit: bool = False,
     allow_anonymous: bool = True,
     allow_local: bool = False,
@@ -91,6 +94,7 @@ def init(
     - If allow_local is True, then authenticate session as LOCAL.
 
     Args:
+        session_type: Deprecated, use allow_anonymous and allow_local instead
         reinit: Normally, init() is idempotent, so you can run it over and over again in a notebook without any issues, for example.
             If reinit=True then it will run the initialization logic again, so you can switch authentication methods without restarting.
         allow_anonymous: If True, then the user will be able to choose WHYLABS_ANONYMOUS if no other authentication method is found.
@@ -103,6 +107,9 @@ def init(
             you're only using a single dataset id.
 
     """
+    if session_type in ["whylabs_anonymous", SessionType.WHYLABS_ANONYMOUS]:
+        allow_anonymous = True
+
     if reinit:
         SessionManager.reset()
 
