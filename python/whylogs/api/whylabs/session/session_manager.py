@@ -11,7 +11,7 @@ from whylogs.api.whylabs.session.session import (
     Session,
 )
 from whylogs.api.whylabs.session.session_types import SessionType
-from whylogs.core.utils.utils import deprecated, deprecated_alias
+from whylogs.core.utils.utils import deprecated_alias
 
 logger = logging.getLogger(__name__)
 
