@@ -16,6 +16,14 @@ Classes
 
 
 
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.validators.validator.deepcopy_validators
+
+
 
 .. py:class:: Validator
 
@@ -30,21 +38,24 @@ Classes
       
 
    .. py:attribute:: conditions
-      :type: Dict[str, whylogs.core.metrics.condition_count_metric.Condition]
+      :type: Dict[str, Union[whylogs.core.metrics.condition_count_metric.Condition, Callable[[Any], bool]]]
 
       
 
    .. py:attribute:: actions
-      :type: List[Callable[[str, str, Any], None]]
+      :type: List[Union[Callable[[str, str, Any], None], Callable[[str, str, Any, Optional[Any]], None]]]
 
       
 
-   .. py:method:: columnar_validate(data: whylogs.core.preprocessing.PreprocessedColumn)
+   .. py:method:: columnar_validate(data: Any, identity_values: Optional[Any] = None) -> None
       :abstractmethod:
 
 
    .. py:method:: to_summary_dict() -> Dict[str, Any]
       :abstractmethod:
 
+
+
+.. py:function:: deepcopy_validators(obj)
 
 

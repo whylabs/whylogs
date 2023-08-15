@@ -1,0 +1,22 @@
+:py:mod:`whylogs.experimental.core.validators.condition_validator`
+==================================================================
+
+.. py:module:: whylogs.experimental.core.validators.condition_validator
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.core.validators.condition_validator.condition_validator
+
+
+
+.. py:function:: condition_validator(col_names: Union[str, List[str]], condition_name: Optional[str] = None, actions: Union[List[Callable[[str, str, Any, Optional[Any]], None]], Callable[[str, str, Any, Optional[Any]], None]] = [], namespace: Optional[str] = None, schema_name: str = '', enable_sampling: bool = True) -> Callable[[Any], Any]
+
+

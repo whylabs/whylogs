@@ -425,7 +425,7 @@
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">whylogs_sketching</span> <span class="k">as</span> <span class="nn">ds</span>
 
@@ -442,16 +442,15 @@
 <span class="sd">    A validator that checks if a column satisfies a condition.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        name (str): The name of the column to validate</span>
+<span class="sd">        name (str): The name of the ConditionValidator.</span>
 <span class="sd">        conditions (Dict[str, Union[Condition, Callable[[Any], bool]]]): A dictionary of conditions to check.</span>
-<span class="sd">        actions (List[Callable[[str, str, Any, Any], None]]): A list of actions to take when a condition fails.</span>
+<span class="sd">        actions (List[Union[Callable[[str, str, Any], None], Callable[[str, str, Any, Optional[Any]], None]]]):</span>
+<span class="sd">            A list of actions to take when a condition fails. The action arguments represent, respectively:</span>
+<span class="sd">            condition validator name, condition name, invalid value, row identity value (if any).</span>
 <span class="sd">        enable_sampling (bool): Whether to enable sampling of failed values. Defaults to True.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">conditions</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">Condition</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]]</span>
-    <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">total</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">failures</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">enable_sampling</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
@@ -471,7 +470,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_sampling</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sampler</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">var_opt_sketch</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ConditionValidator.columnar_validate"><a class="viewcode-back" href="../../../../api/whylogs/core/validators/index.html#whylogs.core.validators.condition_validator.ConditionValidator.columnar_validate">[docs]</a>    <span class="k">def</span> <span class="nf">columnar_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">identity_values</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="ConditionValidator.columnar_validate"><a class="viewcode-back" href="../../../../api/whylogs/core/validators/index.html#whylogs.core.validators.condition_validator.ConditionValidator.columnar_validate">[docs]</a>    <span class="k">def</span> <span class="nf">columnar_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">identity_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">count_failures</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">validate_with_row_id</span> <span class="o">=</span> <span class="kc">False</span>

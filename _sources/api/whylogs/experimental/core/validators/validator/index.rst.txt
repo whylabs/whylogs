@@ -1,0 +1,28 @@
+:py:mod:`whylogs.experimental.core.validators.validator`
+========================================================
+
+.. py:module:: whylogs.experimental.core.validators.validator
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.experimental.core.validators.validator.append_validator
+   whylogs.experimental.core.validators.validator.generate_validators
+
+
+
+.. py:function:: append_validator(schema_name: str, col_name: str, validator: whylogs.core.validators.Validator)
+
+
+.. py:function:: generate_validators(initial_validators: Optional[Dict[str, List[whylogs.core.validators.Validator]]], schema_name: Union[str, List[str]], include_default_schema: bool = True) -> Dict[str, List[whylogs.core.validators.Validator]]
+
+   Merge registered validators for requested schemas
+
+

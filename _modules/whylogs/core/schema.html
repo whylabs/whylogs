@@ -438,7 +438,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">SegmentationPartition</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.validators.validator</span> <span class="kn">import</span> <span class="n">Validator</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.validators.validator</span> <span class="kn">import</span> <span class="n">Validator</span><span class="p">,</span> <span class="n">deepcopy_validators</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -695,7 +695,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">cache_size</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">schema_based_automerge</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">segments</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
-            <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validators</span><span class="p">),</span>
+            <span class="n">deepcopy_validators</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validators</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">copy</span><span class="o">.</span><span class="n">resolvers</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resolvers</span><span class="p">)</span>
         <span class="n">copy</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">)</span>

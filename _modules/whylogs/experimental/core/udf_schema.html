@@ -450,6 +450,7 @@
     <span class="n">_reset_metric_udfs</span><span class="p">,</span>
     <span class="n">generate_udf_resolvers</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.experimental.core.validators.validator</span> <span class="kn">import</span> <span class="n">generate_validators</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -772,6 +773,7 @@
 
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">schema_names</span><span class="p">:</span>
         <span class="n">resolver_specs</span> <span class="o">+=</span> <span class="n">_resolver_specs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">validators</span> <span class="o">=</span> <span class="n">generate_validators</span><span class="p">(</span><span class="n">validators</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">include_default_schema</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">resolver_specs</span> <span class="o">+=</span> <span class="n">generate_udf_resolvers</span><span class="p">(</span><span class="n">schema_name</span><span class="p">,</span> <span class="n">include_default_schema</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">UdfSchema</span><span class="p">(</span>

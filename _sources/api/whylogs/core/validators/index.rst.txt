@@ -23,6 +23,7 @@ Classes
 .. autoapisummary::
 
    whylogs.core.validators.ConditionValidator
+   whylogs.core.validators.Validator
 
 
 
@@ -44,29 +45,15 @@ Functions
 
    A validator that checks if a column satisfies a condition.
 
-   :param name: The name of the column to validate
+   :param name: The name of the ConditionValidator.
    :type name: str
    :param conditions: A dictionary of conditions to check.
    :type conditions: Dict[str, Union[Condition, Callable[[Any], bool]]]
-   :param actions: A list of actions to take when a condition fails.
-   :type actions: List[Callable[[str, str, Any, Any], None]]
+   :param actions: A list of actions to take when a condition fails. The action arguments represent, respectively:
+                   condition validator name, condition name, invalid value, row identity value (if any).
+   :type actions: List[Union[Callable[[str, str, Any], None], Callable[[str, str, Any, Optional[Any]], None]]]
    :param enable_sampling: Whether to enable sampling of failed values. Defaults to True.
    :type enable_sampling: bool
-
-   .. py:attribute:: conditions
-      :type: Dict[str, Union[whylogs.core.metrics.condition_count_metric.Condition, Callable[[Any], bool]]]
-
-      
-
-   .. py:attribute:: actions
-      :type: List[Callable[[str, str, Any, Any], None]]
-
-      
-
-   .. py:attribute:: name
-      :type: str
-
-      
 
    .. py:attribute:: total
       :type: int
@@ -91,7 +78,22 @@ Functions
 
       
 
-   .. py:method:: columnar_validate(data: Any, identity_values: Any = None) -> None
+   .. py:attribute:: name
+      :type: str
+
+      
+
+   .. py:attribute:: conditions
+      :type: Dict[str, Union[whylogs.core.metrics.condition_count_metric.Condition, Callable[[Any], bool]]]
+
+      
+
+   .. py:attribute:: actions
+      :type: List[Union[Callable[[str, str, Any], None], Callable[[str, str, Any, Optional[Any]], None]]]
+
+      
+
+   .. py:method:: columnar_validate(data: Any, identity_values: Optional[Any] = None) -> None
 
 
    .. py:method:: get_samples() -> List[Any]
@@ -103,6 +105,37 @@ Functions
 
 
    .. py:method:: to_summary_dict() -> Dict[str, Any]
+
+
+
+.. py:class:: Validator
+
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:attribute:: name
+      :type: str
+
+      
+
+   .. py:attribute:: conditions
+      :type: Dict[str, Union[whylogs.core.metrics.condition_count_metric.Condition, Callable[[Any], bool]]]
+
+      
+
+   .. py:attribute:: actions
+      :type: List[Union[Callable[[str, str, Any], None], Callable[[str, str, Any, Optional[Any]], None]]]
+
+      
+
+   .. py:method:: columnar_validate(data: Any, identity_values: Optional[Any] = None) -> None
+      :abstractmethod:
+
+
+   .. py:method:: to_summary_dict() -> Dict[str, Any]
+      :abstractmethod:
 
 
 
