@@ -28,44 +28,36 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
-      - name: Set up python with poetry cache
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
-          cache: poetry
-      - run: echo 'python ${{ matrix.python-version }} poetry cache hit ${{ steps.setup-python.outputs.cache-hit }}'
-
-      - name: Set up pre-commit cache
-        uses: actions/cache@v3
-        if: startsWith(runner.os, 'Linux')
-        with:
-          path: ~/.cache/pre-commit
-          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: ${{ runner.os }}-pre-commit-
-
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
         with:
           version: ${{ env.PROTOC_VERSION }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Check Poetry version
-        run: |
-          POETRY_VERSION_INSTALLED=$(poetry -V)
-          echo "The POETRY_VERSION environment variable is set to $POETRY_VERSION."
-          echo "The installed Poetry version is $POETRY_VERSION_INSTALLED."
-          case $POETRY_VERSION_INSTALLED in
-          *$POETRY_VERSION*) echo "Poetry version correct." ;;
-          *) echo "Poetry version incorrect." && exit 1 ;;
-          esac
-
-      - name: Install dependencies
-        run: make telemetry-opt-out install
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.5.1
+      - uses: actions/cache@v3
+        id: poetry-cache
+        name: Cache dependencies based on poetry.lock file
+        with:
+          path: ./.venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: check poetry env
+        run: poetry env info
+      - name: configure telemetry
+        run: make telemetry-opt-out
+      - name: poetry cache miss -> Install dependencies
+        if: steps.poetry-cache.outputs.cache-hit != 'true'
+        run: make install
+      - name: poetry cache hit
+        if: steps.poetry-cache.outputs.cache-hit == 'true'
+        run: echo 'poetry cache hit, skipping poetry install'
 
       - name: Check virtualenv location
         run: |
