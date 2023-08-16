@@ -74,7 +74,7 @@ scikit-learn = [
 fugue = {version = "^0.8.1", optional = true}
 platformdirs = "^3.5.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 2to3 = "^1.0"
 black = { version = "^22.10.0", allow-prereleases = true }
 bump2version = "^1.0.1"
@@ -173,9 +173,6 @@ all = [
   "faster-fifo",
   "orjson",
 ]
-
-[tool.poetry.group.dev.dependencies]
-types-urllib3 = "^1.26.25.5"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
