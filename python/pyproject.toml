@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "1.2.8"
+version = "1.2.9-dev0"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -14,7 +14,7 @@ include = ["whylogs/core/proto/v0/*.py*", "whylogs/core/proto/*.py*"]
 python = ">=3.7.1, <4"
 whylogs-sketching = ">=3.4.1.dev3"
 protobuf = ">=3.19.4"
-importlib-metadata = { version = "<4.3", python = "<3.8" }
+importlib-metadata = { version = "*", python = "<3.8" }
 typing-extensions = {version = ">=3.10", markers = "python_version < \"4\""}
 whylabs-client = "^0.5.3"
 requests = "^2.27"
@@ -25,7 +25,7 @@ pybars3 = { version = "^0.9", optional = true }
 ipython = { version = "*", optional = true }
 scipy = [
   { version = ">=1.5", python = "<3.11", optional = true },
-  { version = ">=1.9.2", python = ">=3.11", optional = true }
+  { version = "*", python = ">=3.11", optional = true }
 ]
 numpy = [
   { version = "*", python = "<3.11", optional = true },
@@ -49,7 +49,7 @@ nbsphinx = {version = "^0.8.9", optional = true}
 nbconvert = {version = "^7.0.0", optional = true}
 
 # Integrations dependencies
-boto3 = {version = "^1.22.13", optional = true }
+boto3 = {version = ">=1.22.13", optional = true }
 mlflow-skinny = {version = "^1.26.1", optional = true}
 google-cloud-storage = {version = "^2.5.0", optional = true}
 
@@ -72,7 +72,7 @@ scikit-learn = [
 
 # Fugue related dependencies
 fugue = {version = "^0.8.1", optional = true}
-platformdirs = "^3.5.0"
+platformdirs = "*"
 
 [tool.poetry.group.dev.dependencies]
 2to3 = "^1.0"
@@ -98,7 +98,7 @@ types-python-dateutil = "^2.8.12"
 moto = "^4.1.6"
 twine = "^4.0.1"
 gcp-storage-emulator = "^2022.6.11"
-types-urllib3 = "^1.26.25.5"
+types-urllib3 = "*"
 
 [tool.poetry.extras]
 docs = [

@@ -1,4 +1,7 @@
+import json
 import logging
+import time
+from uuid import UUID, uuid4
 from copy import deepcopy
 from dataclasses import dataclass, field
 from itertools import chain
@@ -276,6 +279,88 @@ def log_image(
         raise ValueError("log_image requires DatasetSchema with an ImageMetricConfig as default_configs")
 
     return why.log(row=images, schema=schema)
+
+
+def _get_timed_file_name(
+        uuid: str,
+        timestamp: Optional[float] = None,
+        column_name: Optional[str] = None,
+        prefix: str = "debug_event_",
+        format: str = "%Y-%m-%d_%H-%M", ) -> str:
+    if not timestamp:
+        time_tuple = time.gmtime(time.time())
+    else:
+        time_tuple = time.gmtime(timestamp)
+
+    feature_name = f"{column_name}_" if column_name else ""
+
+    timed_filename = f"{prefix}{feature_name}{uuid}.{time.strftime(format, time_tuple)}.json"
+    return timed_filename
+
+
+# put the segment in here, tags
+def log_debug_event(
+        column_name: Optional[str] = None,
+        trace_id: Optional[str] = None,
+        debug_event: Optional[Dict[str, Any]] = None,
+        tags: Optional[List[str]] = None,
+        timestamp: Optional[float] = None,
+        segment_key_values: Optional[Dict[str, str]] = None,  # hospitals etc
+):
+    if not trace_id:
+        trace_id = str(uuid4())
+
+    debug_event["whylabs.traceId"] = str(trace_id)  # TODO binary serialization
+    debug_event["whylogs.write_timestamp"] = time.time()
+    if timestamp:
+        debug_event["whylogs.timestamp"] = timestamp
+
+    if column_name:
+        debug_event["whylogs.column_name"] = column_name
+    if tags:
+        debug_event["whylogs.tags"] = set(tags)
+    if segment_key_values:
+        debug_event["whylogs.tags"] = segment_key_values
+
+    filename = _get_timed_file_name(uuid=trace_id, column_name=column_name, timestamp=timestamp)
+    # TODO: integrate with DebugEvents service, but for now save the
+    # debug_event dictionary as a JSON file
+    with open(filename, 'w') as json_file:
+        json.dump(debug_event, json_file)
+
+    logger.info(f"debug_event saved to {filename}")
+
+
+def log_single_image(
+    image: ImageType,
+    column_name: str = "image",
+    schema: Optional[DatasetSchema] = None,
+    trace_id: Optional[str] = None,
+    segment_key_values: Optional[Dict[str, str]] = None,
+    debug_event: Optional[Dict[str, Any]] = None,
+) -> ResultSet:
+    image_message = {column_name: image}
+
+    class ImageResolver(Resolver):
+        def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+            return {ImageMetric.get_namespace(): ImageMetric.zero(column_schema.cfg)}
+
+    schema = schema or DatasetSchema(
+        types={column_name: ImageType}, default_configs=ImageMetricConfig(), resolvers=ImageResolver()
+    )
+
+    if not isinstance(schema.default_configs, ImageMetricConfig):
+        raise ValueError("log_single_image requires DatasetSchema with an ImageMetricConfig as default_configs")
+
+    if debug_event:
+        if trace_id is None:
+            trace_id = uuid4()
+        log_debug_event(column_name=column_name, trace_id=trace_id, debug_event=debug_event)
+
+    result_set = why.log(row=image_message, schema=schema)
+    result_set.metadata["whylabs.traceId"] = trace_id
+
+    return result_set
 
 
 # Register it so Multimetric and ProfileView can deserialize
