@@ -1,11 +1,11 @@
 import json
 import logging
 import time
-from uuid import UUID, uuid4
 from copy import deepcopy
 from dataclasses import dataclass, field
 from itertools import chain
 from typing import Any, Dict, List, Optional, Set, Union
+from uuid import uuid4
 
 import whylogs as why
 from whylogs.api.logger.result_set import ResultSet
@@ -282,11 +282,12 @@ def log_image(
 
 
 def _get_timed_file_name(
-        uuid: str,
-        timestamp: Optional[float] = None,
-        column_name: Optional[str] = None,
-        prefix: str = "debug_event_",
-        format: str = "%Y-%m-%d_%H-%M", ) -> str:
+    trace_id: str,
+    timestamp: Optional[float] = None,
+    column_name: Optional[str] = None,
+    prefix: str = "debug_event_",
+    format: str = "%Y-%m-%d_%H-%M",
+) -> str:
     if not timestamp:
         time_tuple = time.gmtime(time.time())
     else:
@@ -294,23 +295,25 @@ def _get_timed_file_name(
 
     feature_name = f"{column_name}_" if column_name else ""
 
-    timed_filename = f"{prefix}{feature_name}{uuid}.{time.strftime(format, time_tuple)}.json"
+    timed_filename = f"{prefix}{feature_name}{trace_id}.{time.strftime(format, time_tuple)}.json"
     return timed_filename
 
 
 # put the segment in here, tags
 def log_debug_event(
-        column_name: Optional[str] = None,
-        trace_id: Optional[str] = None,
-        debug_event: Optional[Dict[str, Any]] = None,
-        tags: Optional[List[str]] = None,
-        timestamp: Optional[float] = None,
-        segment_key_values: Optional[Dict[str, str]] = None,  # hospitals etc
+    column_name: Optional[str] = None,
+    trace_id: Optional[str] = None,
+    debug_event: Optional[Dict[str, Any]] = None,
+    tags: Optional[List[str]] = None,
+    timestamp: Optional[float] = None,
+    segment_key_values: Optional[Dict[str, str]] = None,  # can be used to partition the data
 ):
     if not trace_id:
         trace_id = str(uuid4())
 
-    debug_event["whylabs.traceId"] = str(trace_id)  # TODO binary serialization
+    if debug_event is None:
+        debug_event = dict()
+    debug_event["whylabs.traceId"] = str(trace_id)  # Can be user supplied but needs to be str
     debug_event["whylogs.write_timestamp"] = time.time()
     if timestamp:
         debug_event["whylogs.timestamp"] = timestamp
@@ -320,12 +323,12 @@ def log_debug_event(
     if tags:
         debug_event["whylogs.tags"] = set(tags)
     if segment_key_values:
-        debug_event["whylogs.tags"] = segment_key_values
+        debug_event["whylogs.segments"] = segment_key_values
 
-    filename = _get_timed_file_name(uuid=trace_id, column_name=column_name, timestamp=timestamp)
+    filename = _get_timed_file_name(trace_id=trace_id, column_name=column_name, timestamp=timestamp)
     # TODO: integrate with DebugEvents service, but for now save the
     # debug_event dictionary as a JSON file
-    with open(filename, 'w') as json_file:
+    with open(filename, "w") as json_file:
         json.dump(debug_event, json_file)
 
     logger.info(f"debug_event saved to {filename}")
@@ -354,8 +357,10 @@ def log_single_image(
 
     if debug_event:
         if trace_id is None:
-            trace_id = uuid4()
-        log_debug_event(column_name=column_name, trace_id=trace_id, debug_event=debug_event)
+            trace_id = str(uuid4())
+        log_debug_event(
+            column_name=column_name, trace_id=trace_id, debug_event=debug_event, segment_key_values=segment_key_values
+        )
 
     result_set = why.log(row=image_message, schema=schema)
     result_set.metadata["whylabs.traceId"] = trace_id

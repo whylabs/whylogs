@@ -85,7 +85,7 @@ class DatasetProfileView(Writable):
         return self._metadata
 
     @metadata.setter
-    def metadata(self, values: Optional[Dict[str, str]]):
+    def metadata(self, values: Dict[str, str]):
         if self._metadata:
             logger.info(f"About to overwrite existing metadata: {self._metadata} with {values}")
         self._metadata = values

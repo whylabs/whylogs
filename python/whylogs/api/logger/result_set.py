@@ -215,8 +215,9 @@ class ResultSet(ABC):
 
     @property
     def metadata(self) -> Optional[Dict[str, str]]:
-        if self.view():
-            return self.view().metadata
+        view = self.view()
+        if view is not None and hasattr(view, "metadata"):
+            return view.metadata
         return None
 
     @property

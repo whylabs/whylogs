@@ -29,8 +29,8 @@ from .api import (
 from .api.usage_stats import emit_usage as __emit_usage_stats
 from .api.whylabs import init
 from .core import DatasetProfileView
-from .migration.converters import v0_to_v1_view
 from .extras import log_debug_event, log_single_image
+from .migration.converters import v0_to_v1_view
 
 
 def package_version(package: str = __package__) -> str:
