@@ -704,14 +704,23 @@ div.rendered_html tbody tr:hover {
 <p>But first, let’s talk briefly about whylogs’ data types and basic metrics.</p>
 <section id="Installing-whylogs">
 <h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
 <span class="o">%</span><span class="k">pip</span> install whylogs
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Installing collected packages: whylogs-sketching, types-urllib3, types-requests, whylabs-client, whylogs
+Successfully installed types-requests-2.31.0.2 types-urllib3-1.26.25.14 whylabs-client-0.5.4 whylogs-1.3.0 whylogs-sketching-3.4.1.dev3
+</pre></div></div>
 </div>
 </section>
 <section id="whylogs-DataTypes">
@@ -742,7 +751,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;whylogs.core.datatypes.AnyType at 0x7fcf420ceee0&gt;
+&lt;whylogs.core.datatypes.AnyType at 0x7dde641a70d0&gt;
 </pre></div></div>
 </div>
 </section>
@@ -840,14 +849,21 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:whylogs.api.whylabs.session.session_manager:No session found. Call whylogs.init() to initialize a session and authenticate. See https://docs.whylabs.ai/docs/whylabs-whylogs-init for more information.
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-  <div id="df-7e7813dc-2aa6-4987-8cc4-341e87cf2c52">
-    <div class="colab-df-container">
-      <div>
+  <div id="df-562fa275-103a-4db3-932b-e4dad511c90f" class="colab-df-container">
+    <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -876,6 +892,7 @@ div.rendered_html tbody tr:hover {
       <th>types/integral</th>
       <th>types/object</th>
       <th>types/string</th>
+      <th>types/tensor</th>
       <th>distribution/max</th>
       <th>distribution/mean</th>
       <th>distribution/median</th>
@@ -918,6 +935,7 @@ div.rendered_html tbody tr:hover {
       <th></th>
       <th></th>
       <th></th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -932,6 +950,7 @@ div.rendered_html tbody tr:hover {
       <td>0</td>
       <td>0</td>
       <td>3</td>
+      <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>NaN</td>
@@ -959,6 +978,7 @@ div.rendered_html tbody tr:hover {
       <td>SummaryType.COLUMN</td>
       <td>0</td>
       <td>3</td>
+      <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
@@ -990,6 +1010,7 @@ div.rendered_html tbody tr:hover {
       <td>0</td>
       <td>0</td>
       <td>3</td>
+      <td>0</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1018,6 +1039,7 @@ div.rendered_html tbody tr:hover {
       <td>0</td>
       <td>0</td>
       <td>0</td>
+      <td>0</td>
       <td>5.0</td>
       <td>4.0</td>
       <td>4.0</td>
@@ -1036,21 +1058,21 @@ div.rendered_html tbody tr:hover {
   </tbody>
 </table>
 </div>
-      <button class="colab-df-convert" onclick="convertToInteractive('df-7e7813dc-2aa6-4987-8cc4-341e87cf2c52')"
-              title="Convert this dataframe to an interactive table."
-              style="display:none;">
+    <div class="colab-df-buttons">
 
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
-       width="24px">
-    <path d="M0 0h24v24H0V0z" fill="none"/>
-    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-562fa275-103a-4db3-932b-e4dad511c90f')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
   </svg>
-      </button>
+    </button>
 
   <style>
     .colab-df-container {
       display:flex;
-      flex-wrap:wrap;
       gap: 12px;
     }
 
@@ -1072,6 +1094,10 @@ div.rendered_html tbody tr:hover {
       fill: #174EA6;
     }
 
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
     [theme=dark] .colab-df-convert {
       background-color: #3B4455;
       fill: #D2E3FC;
@@ -1085,30 +1111,91 @@ div.rendered_html tbody tr:hover {
     }
   </style>
 
-      <script>
-        const buttonEl =
-          document.querySelector('#df-7e7813dc-2aa6-4987-8cc4-341e87cf2c52 button.colab-df-convert');
-        buttonEl.style.display =
-          google.colab.kernel.accessAllowed ? 'block' : 'none';
+    <script>
+      const buttonEl =
+        document.querySelector('#df-562fa275-103a-4db3-932b-e4dad511c90f button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
 
-        async function convertToInteractive(key) {
-          const element = document.querySelector('#df-7e7813dc-2aa6-4987-8cc4-341e87cf2c52');
-          const dataTable =
-            await google.colab.kernel.invokeFunction('convertToInteractive',
-                                                     [key], {});
-          if (!dataTable) return;
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-562fa275-103a-4db3-932b-e4dad511c90f');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
 
-          const docLinkHtml = 'Like what you see? Visit the ' +
-            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
-            + ' to learn more about interactive tables.';
-          element.innerHTML = '';
-          dataTable['output_type'] = 'display_data';
-          await google.colab.output.renderOutput(dataTable, element);
-          const docLink = document.createElement('div');
-          docLink.innerHTML = docLinkHtml;
-          element.appendChild(docLink);
-        }
-      </script>
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-0df80d67-7374-4cd8-8c8c-144cdce1c87c">
+  <button class="colab-df-quickchart" onclick="quickchart('df-0df80d67-7374-4cd8-8c8c-144cdce1c87c')"
+            title="Suggest charts."
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+    background-color: #E8F0FE;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: #1967D2;
+    height: 32px;
+    padding: 0 0 0 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: #E2EBFA;
+    box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: #174EA6;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+    background-color: #3B4455;
+    fill: #D2E3FC;
+  }
+
+  [theme=dark] .colab-df-quickchart:hover {
+    background-color: #434B5C;
+    box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+    filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+    fill: #FFFFFF;
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const charts = await google.colab.kernel.invokeFunction(
+          'suggestCharts', [key], {});
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-0df80d67-7374-4cd8-8c8c-144cdce1c87c button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
     </div>
   </div></div>
 </div>
@@ -1182,9 +1269,8 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-  <div id="df-57ac0562-b0a3-4b72-9c0f-5670aa2977f4">
-    <div class="colab-df-container">
-      <div>
+  <div id="df-3fd40544-0669-4500-a843-e4912ed74454" class="colab-df-container">
+    <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -1380,21 +1466,21 @@ div.rendered_html tbody tr:hover {
   </tbody>
 </table>
 </div>
-      <button class="colab-df-convert" onclick="convertToInteractive('df-57ac0562-b0a3-4b72-9c0f-5670aa2977f4')"
-              title="Convert this dataframe to an interactive table."
-              style="display:none;">
+    <div class="colab-df-buttons">
 
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
-       width="24px">
-    <path d="M0 0h24v24H0V0z" fill="none"/>
-    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-3fd40544-0669-4500-a843-e4912ed74454')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
   </svg>
-      </button>
+    </button>
 
   <style>
     .colab-df-container {
       display:flex;
-      flex-wrap:wrap;
       gap: 12px;
     }
 
@@ -1416,6 +1502,10 @@ div.rendered_html tbody tr:hover {
       fill: #174EA6;
     }
 
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
     [theme=dark] .colab-df-convert {
       background-color: #3B4455;
       fill: #D2E3FC;
@@ -1429,30 +1519,91 @@ div.rendered_html tbody tr:hover {
     }
   </style>
 
-      <script>
-        const buttonEl =
-          document.querySelector('#df-57ac0562-b0a3-4b72-9c0f-5670aa2977f4 button.colab-df-convert');
-        buttonEl.style.display =
-          google.colab.kernel.accessAllowed ? 'block' : 'none';
+    <script>
+      const buttonEl =
+        document.querySelector('#df-3fd40544-0669-4500-a843-e4912ed74454 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
 
-        async function convertToInteractive(key) {
-          const element = document.querySelector('#df-57ac0562-b0a3-4b72-9c0f-5670aa2977f4');
-          const dataTable =
-            await google.colab.kernel.invokeFunction('convertToInteractive',
-                                                     [key], {});
-          if (!dataTable) return;
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-3fd40544-0669-4500-a843-e4912ed74454');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
 
-          const docLinkHtml = 'Like what you see? Visit the ' +
-            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
-            + ' to learn more about interactive tables.';
-          element.innerHTML = '';
-          dataTable['output_type'] = 'display_data';
-          await google.colab.output.renderOutput(dataTable, element);
-          const docLink = document.createElement('div');
-          docLink.innerHTML = docLinkHtml;
-          element.appendChild(docLink);
-        }
-      </script>
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-0bb6c348-d86d-40e5-9a4c-032ee175f173">
+  <button class="colab-df-quickchart" onclick="quickchart('df-0bb6c348-d86d-40e5-9a4c-032ee175f173')"
+            title="Suggest charts."
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+    background-color: #E8F0FE;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: #1967D2;
+    height: 32px;
+    padding: 0 0 0 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: #E2EBFA;
+    box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: #174EA6;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+    background-color: #3B4455;
+    fill: #D2E3FC;
+  }
+
+  [theme=dark] .colab-df-quickchart:hover {
+    background-color: #434B5C;
+    box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+    filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+    fill: #FFFFFF;
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const charts = await google.colab.kernel.invokeFunction(
+          'suggestCharts', [key], {});
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-0bb6c348-d86d-40e5-9a4c-032ee175f173 button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
     </div>
   </div></div>
 </div>
@@ -1466,7 +1617,7 @@ div.rendered_html tbody tr:hover {
 <h3>Declarative Schema Specification<a class="headerlink" href="#Declarative-Schema-Specification" title="Permalink to this headline">#</a></h3>
 <p>A <code class="docutils literal notranslate"><span class="pre">ResolverSpec</span></code> specifies a list of metrics to use for columns that match it. We can match columns by name or by type. The column name takes precedence if both are given. Each <code class="docutils literal notranslate"><span class="pre">ResolverSpec</span></code> has a list of <code class="docutils literal notranslate"><span class="pre">MetricSpec</span></code> that specify the <code class="docutils literal notranslate"><span class="pre">Metric</span></code>s (and optionally custom configurations) to apply to matching metrics. For example:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="p">(</span>
@@ -1526,13 +1677,12 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-  <div id="df-7ba37396-70d9-4c07-ab1f-e24703c7a554">
-    <div class="colab-df-container">
-      <div>
+  <div id="df-b2aeca45-1fc7-4f5c-b150-df8064e747b3" class="colab-df-container">
+    <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -1697,21 +1847,21 @@ div.rendered_html tbody tr:hover {
   </tbody>
 </table>
 </div>
-      <button class="colab-df-convert" onclick="convertToInteractive('df-7ba37396-70d9-4c07-ab1f-e24703c7a554')"
-              title="Convert this dataframe to an interactive table."
-              style="display:none;">
+    <div class="colab-df-buttons">
 
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
-       width="24px">
-    <path d="M0 0h24v24H0V0z" fill="none"/>
-    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-b2aeca45-1fc7-4f5c-b150-df8064e747b3')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
   </svg>
-      </button>
+    </button>
 
   <style>
     .colab-df-container {
       display:flex;
-      flex-wrap:wrap;
       gap: 12px;
     }
 
@@ -1733,6 +1883,10 @@ div.rendered_html tbody tr:hover {
       fill: #174EA6;
     }
 
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
     [theme=dark] .colab-df-convert {
       background-color: #3B4455;
       fill: #D2E3FC;
@@ -1746,37 +1900,98 @@ div.rendered_html tbody tr:hover {
     }
   </style>
 
-      <script>
-        const buttonEl =
-          document.querySelector('#df-7ba37396-70d9-4c07-ab1f-e24703c7a554 button.colab-df-convert');
-        buttonEl.style.display =
-          google.colab.kernel.accessAllowed ? 'block' : 'none';
+    <script>
+      const buttonEl =
+        document.querySelector('#df-b2aeca45-1fc7-4f5c-b150-df8064e747b3 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
 
-        async function convertToInteractive(key) {
-          const element = document.querySelector('#df-7ba37396-70d9-4c07-ab1f-e24703c7a554');
-          const dataTable =
-            await google.colab.kernel.invokeFunction('convertToInteractive',
-                                                     [key], {});
-          if (!dataTable) return;
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-b2aeca45-1fc7-4f5c-b150-df8064e747b3');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
 
-          const docLinkHtml = 'Like what you see? Visit the ' +
-            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
-            + ' to learn more about interactive tables.';
-          element.innerHTML = '';
-          dataTable['output_type'] = 'display_data';
-          await google.colab.output.renderOutput(dataTable, element);
-          const docLink = document.createElement('div');
-          docLink.innerHTML = docLinkHtml;
-          element.appendChild(docLink);
-        }
-      </script>
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-05a7b497-d858-4076-ada6-12f4b111cecd">
+  <button class="colab-df-quickchart" onclick="quickchart('df-05a7b497-d858-4076-ada6-12f4b111cecd')"
+            title="Suggest charts."
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+    background-color: #E8F0FE;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: #1967D2;
+    height: 32px;
+    padding: 0 0 0 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: #E2EBFA;
+    box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: #174EA6;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+    background-color: #3B4455;
+    fill: #D2E3FC;
+  }
+
+  [theme=dark] .colab-df-quickchart:hover {
+    background-color: #434B5C;
+    box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+    filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+    fill: #FFFFFF;
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const charts = await google.colab.kernel.invokeFunction(
+          'suggestCharts', [key], {});
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-05a7b497-d858-4076-ada6-12f4b111cecd button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
     </div>
   </div></div>
 </div>
 <p>We can now pass <code class="docutils literal notranslate"><span class="pre">schema</span></code> to <code class="docutils literal notranslate"><span class="pre">why.log()</span></code> to log data according to the schema. Note that we pass the <code class="docutils literal notranslate"><span class="pre">Metric</span></code> class to the the <code class="docutils literal notranslate"><span class="pre">MetricSpec</span></code> constructor, not an instance. In this example, <code class="docutils literal notranslate"><span class="pre">col1</span></code> will have a <code class="docutils literal notranslate"><span class="pre">ConditionCountMetric</span></code> that tracks how often the column entries are above or below 42. Any string column will track how many entries are alphabetic and how many are numeric.</p>
 <p><code class="docutils literal notranslate"><span class="pre">whylogs.core.resolvers.COLUMN_METRICS</span></code> is a list of <code class="docutils literal notranslate"><span class="pre">MetricSpec</span></code>s for the metrics WhyLabs expects in each column. There are also some predefined <code class="docutils literal notranslate"><span class="pre">ResolverSpec</span></code> lists to cover common use cases. For example, <code class="docutils literal notranslate"><span class="pre">STANDARD_RESOLVER</span></code> specifies the same metrics as the <code class="docutils literal notranslate"><span class="pre">StandardResolver</span></code>:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">STANDARD_RESOLVER</span> <span class="o">=</span> <span class="p">[</span>
@@ -1813,10 +2028,10 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<p>There are also declarations for * <code class="docutils literal notranslate"><span class="pre">LIMITED_TRACKING_RESOLVER</span></code> just tracks the metrics required by WhyLogs, plus the distribution metric for numeric columns. * <code class="docutils literal notranslate"><span class="pre">HISTOGRAM_COUNTING_TRACKING_RESOLVER</span></code> tracks only the distribution metric for each column.</p>
+<p>There are also declarations for * <code class="docutils literal notranslate"><span class="pre">LIMITED_TRACKING_RESOLVER</span></code> just tracks the metrics required by WhyLogs, plus the distribution metric for numeric columns. * <code class="docutils literal notranslate"><span class="pre">NO_FI_RESOLVER</span></code> is the same as <code class="docutils literal notranslate"><span class="pre">STANDARD_RESOLVER</span></code> but omits the frequent item metrics. * <code class="docutils literal notranslate"><span class="pre">HISTOGRAM_COUNTING_TRACKING_RESOLVER</span></code> tracks only the distribution metric for each column.</p>
 <p>These provide handy starting places if we just want to add one or two metrics to one of these standard schema using the <code class="docutils literal notranslate"><span class="pre">add_resolver()</span></code> method:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">STANDARD_RESOLVER</span>
@@ -1845,14 +2060,21 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:whylogs.core.resolvers:Conflicting resolvers for distribution metric in column &#39;col1&#39; of type int
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-  <div id="df-33b7d886-6555-4e01-ac30-004238afcc5e">
-    <div class="colab-df-container">
-      <div>
+  <div id="df-85ba5e58-5b4c-497c-852b-d6c28abf1d8d" class="colab-df-container">
+    <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -1903,9 +2125,11 @@ div.rendered_html tbody tr:hover {
       <th>types/integral</th>
       <th>types/object</th>
       <th>types/string</th>
+      <th>types/tensor</th>
     </tr>
     <tr>
       <th>column</th>
+      <th></th>
       <th></th>
       <th></th>
       <th></th>
@@ -1977,6 +2201,7 @@ div.rendered_html tbody tr:hover {
       <td>3</td>
       <td>0</td>
       <td>0</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>col2</th>
@@ -2010,6 +2235,7 @@ div.rendered_html tbody tr:hover {
       <td>SummaryType.COLUMN</td>
       <td>0</td>
       <td>3</td>
+      <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
@@ -2049,6 +2275,7 @@ div.rendered_html tbody tr:hover {
       <td>0</td>
       <td>0</td>
       <td>3</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>col4</th>
@@ -2085,25 +2312,26 @@ div.rendered_html tbody tr:hover {
       <td>0</td>
       <td>0</td>
       <td>0</td>
+      <td>0</td>
     </tr>
   </tbody>
 </table>
 </div>
-      <button class="colab-df-convert" onclick="convertToInteractive('df-33b7d886-6555-4e01-ac30-004238afcc5e')"
-              title="Convert this dataframe to an interactive table."
-              style="display:none;">
+    <div class="colab-df-buttons">
 
-  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
-       width="24px">
-    <path d="M0 0h24v24H0V0z" fill="none"/>
-    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-85ba5e58-5b4c-497c-852b-d6c28abf1d8d')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
   </svg>
-      </button>
+    </button>
 
   <style>
     .colab-df-container {
       display:flex;
-      flex-wrap:wrap;
       gap: 12px;
     }
 
@@ -2125,6 +2353,10 @@ div.rendered_html tbody tr:hover {
       fill: #174EA6;
     }
 
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
     [theme=dark] .colab-df-convert {
       background-color: #3B4455;
       fill: #D2E3FC;
@@ -2138,35 +2370,137 @@ div.rendered_html tbody tr:hover {
     }
   </style>
 
-      <script>
-        const buttonEl =
-          document.querySelector('#df-33b7d886-6555-4e01-ac30-004238afcc5e button.colab-df-convert');
-        buttonEl.style.display =
-          google.colab.kernel.accessAllowed ? 'block' : 'none';
+    <script>
+      const buttonEl =
+        document.querySelector('#df-85ba5e58-5b4c-497c-852b-d6c28abf1d8d button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
 
-        async function convertToInteractive(key) {
-          const element = document.querySelector('#df-33b7d886-6555-4e01-ac30-004238afcc5e');
-          const dataTable =
-            await google.colab.kernel.invokeFunction('convertToInteractive',
-                                                     [key], {});
-          if (!dataTable) return;
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-85ba5e58-5b4c-497c-852b-d6c28abf1d8d');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
 
-          const docLinkHtml = 'Like what you see? Visit the ' +
-            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
-            + ' to learn more about interactive tables.';
-          element.innerHTML = '';
-          dataTable['output_type'] = 'display_data';
-          await google.colab.output.renderOutput(dataTable, element);
-          const docLink = document.createElement('div');
-          docLink.innerHTML = docLinkHtml;
-          element.appendChild(docLink);
-        }
-      </script>
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-c72f1131-6f66-4f2f-86b2-d49df67626bc">
+  <button class="colab-df-quickchart" onclick="quickchart('df-c72f1131-6f66-4f2f-86b2-d49df67626bc')"
+            title="Suggest charts."
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+    background-color: #E8F0FE;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: #1967D2;
+    height: 32px;
+    padding: 0 0 0 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: #E2EBFA;
+    box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: #174EA6;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+    background-color: #3B4455;
+    fill: #D2E3FC;
+  }
+
+  [theme=dark] .colab-df-quickchart:hover {
+    background-color: #434B5C;
+    box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+    filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+    fill: #FFFFFF;
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const charts = await google.colab.kernel.invokeFunction(
+          'suggestCharts', [key], {});
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-c72f1131-6f66-4f2f-86b2-d49df67626bc button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
     </div>
   </div></div>
 </div>
 <p>This example adds a condition count metric to <code class="docutils literal notranslate"><span class="pre">col1</span></code> in addition to the usual default metrics.</p>
 </section>
+<section id="Default-Resolver">
+<h3>Default Resolver<a class="headerlink" href="#Default-Resolver" title="Permalink to this headline">#</a></h3>
+<p>If you instantiate a <code class="docutils literal notranslate"><span class="pre">DeclarativeResolver</span></code> without passing it a list of <code class="docutils literal notranslate"><span class="pre">ResolverSpec</span></code>s, it will use the value of the variable <code class="docutils literal notranslate"><span class="pre">whylogs.core.resovlers.DEFAULT_RESOLVER</span></code>. Initially this has the value of <code class="docutils literal notranslate"><span class="pre">STANDARD_RESOLVER</span></code> which matches whylog’s default behavior. You can set the value to one of the other pre-defined resolver lists or your own custom resolver list to customize the default resolving behavior.</p>
+<p>Similarly, there is a <code class="docutils literal notranslate"><span class="pre">whylogs.experimental.core.metrics.udf_metric.DEFAULT_UDF_RESOLVER</span></code> variable that specifies the default resolvers for the submetrics in a <code class="docutils literal notranslate"><span class="pre">UdfMetric</span></code>.</p>
+</section>
+</section>
+<section id="Excluding-Metrics">
+<h2>Excluding Metrics<a class="headerlink" href="#Excluding-Metrics" title="Permalink to this headline">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ResolverSpec</span></code> has an <code class="docutils literal notranslate"><span class="pre">exclude</span></code> field. If this is set to true, the metrics listed in the <code class="docutils literal notranslate"><span class="pre">ResolverSpec</span></code> are excluded from columns that match it. This can be handy for preventing sensitive information from “leaking” via a frequent items metric:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">DEFAULT_RESOLVER</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;Sensitive&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;private&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">],</span> <span class="s2">&quot;Boring&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="s2">&quot;stuff&quot;</span><span class="p">]})</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="n">DeclarativeSchema</span><span class="p">(</span>
+    <span class="n">DEFAULT_RESOLVER</span> <span class="o">+</span> <span class="p">[</span><span class="n">ResolverSpec</span><span class="p">(</span>
+        <span class="n">column_name</span> <span class="o">=</span> <span class="s2">&quot;Sensitive&quot;</span><span class="p">,</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="n">MetricSpec</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">frequent_items</span><span class="o">.</span><span class="n">value</span><span class="p">)],</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)]</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+<span class="n">result</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()[</span><span class="s2">&quot;frequent_items/frequent_strings&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+column
+Boring       [FrequentItem(value=&#39;normal&#39;, est=1, upper=1, ...
+Sensitive                                                  NaN
+Name: frequent_items/frequent_strings, dtype: object
+</pre></div></div>
+</div>
+<p>The frequent items metrics has been excluded from the <code class="docutils literal notranslate"><span class="pre">Sensitive</span></code> column without affecting the <code class="docutils literal notranslate"><span class="pre">DEFAULT_RESOLVER</span></code>’s treatment of other columns.</p>
 </section>
 </section>
 
@@ -2245,8 +2579,10 @@ div.rendered_html tbody tr:hover {
 </li>
 <li><a class="reference internal" href="#Declarative-Schema">Declarative Schema</a><ul>
 <li><a class="reference internal" href="#Declarative-Schema-Specification">Declarative Schema Specification</a></li>
+<li><a class="reference internal" href="#Default-Resolver">Default Resolver</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#Excluding-Metrics">Excluding Metrics</a></li>
 </ul>
 </li>
 </ul>
