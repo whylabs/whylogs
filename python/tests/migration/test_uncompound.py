@@ -86,6 +86,21 @@ def test_uncompounded_image_profile() -> None:
     assert set(uncomp1.get_columns()) == set(uncompM.get_columns())
 
 
+def test_uncompounded_profile_metadata() -> None:
+    results = why.log({"a": 1.2})
+    view = results.view()
+    test_key = "test_key"
+    test_value = "metadata value"
+    test_metadata = {test_key: test_value}
+    assert view is not None
+    view._metadata = test_metadata
+    uncompounded = _uncompound_dataset_profile(view)
+    assert uncompounded is not None
+    assert uncompounded._metadata is not None
+    assert test_key in uncompounded._metadata
+    assert view._metadata[test_key] == test_value
+
+
 def test_uncompounded_condition_count() -> None:
     conditions = {
         "alpha": Condition(X.matches("[a-zA-Z]+")),
