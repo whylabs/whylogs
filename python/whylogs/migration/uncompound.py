@@ -157,6 +157,7 @@ def _uncompound_dataset_profile(prof: DatasetProfileView, flags: Optional[Featur
         dataset_timestamp=prof._dataset_timestamp,
         creation_timestamp=prof._creation_timestamp,
         metrics=prof._metrics,
+        metadata=prof.metadata,
     )
     new_columns: Dict[str, ColumnProfileView] = dict()
     for col_name, col_prof in new_prof._columns.items():

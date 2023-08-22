@@ -60,7 +60,7 @@ class DatasetProfile(Writable):
         new_cols = schema.get_col_names()
         self._initialize_new_columns(new_cols)
         self._metrics: Dict[str, Union[Metric, Any]] = metrics or dict()
-        self._metadata = metadata
+        self._metadata = metadata or dict()
 
     @property
     def creation_timestamp(self) -> datetime:
@@ -79,6 +79,10 @@ class DatasetProfile(Writable):
     def is_empty(self) -> bool:
         """Returns True if the profile tracking code is currently running."""
         return self._track_count == 0
+
+    @property
+    def metadata(self) -> Optional[Dict[str, str]]:
+        return self._metadata
 
     def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
         if dataset_timestamp.tzinfo is None:
