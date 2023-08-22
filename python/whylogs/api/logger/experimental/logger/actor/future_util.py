@@ -1,11 +1,11 @@
 from concurrent.futures import Future, wait
-from typing import TypeVar
+from typing import Optional, TypeVar
 
 T = TypeVar("T")
 
 
-def wait_result(future: Future[T]) -> T:
-    done, not_done = wait([future])
+def wait_result(future: "Future[T]", timeout: Optional[float] = None) -> T:
+    done, not_done = wait([future], timeout=timeout)
     all = done.union(not_done)
     for it in all:
         e = it.exception()

@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from functools import reduce
 from typing import Any, Dict, List, Optional, Union
 
@@ -42,22 +43,27 @@ def log(
     schema: Optional[DatasetSchema] = None,
     name: Optional[str] = None,
     multiple: Optional[Dict[str, Loggable]] = None,
+    dataset_timestamp: Optional[datetime] = None,
 ) -> ResultSet:
     if multiple is not None:
         result_sets: Dict[str, ResultSet] = {}
         emit_usage("multiple")
-        for alias, d in multiple.items():
-            result_set = log(obj=d, schema=schema)
+        for alias, data in multiple.items():
+            result_set = TransientLogger(schema=schema).log(data)
+            if dataset_timestamp is not None:
+                result_set.set_dataset_timestamp(dataset_timestamp)
             result_sets[alias] = result_set
 
         # Return one result set with everything in it since we have to return result_sets
         result_set = reduce(lambda r1, r2: r1.merge(r2), result_sets.values())
         notebook_session_log_comparison(multiple, result_sets)
         return result_set
-
-    result_set = TransientLogger(schema=schema).log(obj, pandas=pandas, row=row, name=name)
-    notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
-    return result_set
+    else:
+        result_set = TransientLogger(schema=schema).log(obj, pandas=pandas, row=row, name=name)
+        if dataset_timestamp is not None:
+            result_set.set_dataset_timestamp(dataset_timestamp)
+        notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
+        return result_set
 
 
 def _log_with_metrics(
@@ -65,16 +71,22 @@ def _log_with_metrics(
     metrics: ModelPerformanceMetrics,
     schema: Optional[DatasetSchema],
     include_data: bool,
+    dataset_timestamp: Optional[datetime] = None,
 ) -> ResultSet:
     if include_data:
-        results = log(pandas=data, schema=schema)
+        results = log(pandas=data, schema=schema, dataset_timestamp=dataset_timestamp)
     else:
         results = ProfileResultSet(DatasetProfile(schema=schema))
+        if dataset_timestamp is not None:
+            results.set_dataset_timestamp(dataset_timestamp)
+
     results.add_model_performance_metrics(metrics)
     return results
 
 
-def _performance_metric(pandas, perf_columns, metric_name):
+def _performance_metric(
+    pandas: pd.DataFrame, perf_columns: Dict[str, Optional[str]], metric_name: str
+) -> ModelPerformanceMetrics:
     performance_values = {
         p: pandas[perf_columns[p]].to_list() if perf_columns[p] in pandas else None for p in perf_columns
     }
@@ -84,7 +96,13 @@ def _performance_metric(pandas, perf_columns, metric_name):
     return model_performance_metrics
 
 
-def _segmented_performance_metrics(log_full_data, schema, data, performance_column_mapping, performance_metric):
+def _segmented_performance_metrics(
+    log_full_data: bool,
+    schema: DatasetSchema,
+    data: pd.DataFrame,
+    performance_column_mapping: Dict[str, Optional[str]],
+    performance_metric: str,
+) -> SegmentedResultSet:
     segmented_profiles = dict()
     segment_partitions = list()
     if log_full_data:
@@ -123,7 +141,7 @@ def log_classification_metrics(
     score_column: Optional[str] = None,
     schema: Optional[DatasetSchema] = None,
     log_full_data: bool = False,
-) -> ProfileResultSet:
+) -> ResultSet:
     """
     Function to track metrics based on validation data.
     user may also pass the associated attribute names associated with
@@ -163,7 +181,8 @@ def log_regression_metrics(
     prediction_column: str,
     schema: Optional[DatasetSchema] = None,
     log_full_data: bool = False,
-) -> ProfileResultSet:
+    dataset_timestamp: Optional[datetime] = None,
+) -> ResultSet:
     """
     Function to track regression metrics based on validation data.
     user may also pass the associated attribute names associated with
@@ -178,7 +197,7 @@ def log_regression_metrics(
         assocaited scores for each inferred, all values set to 1 if not
         passed
     """
-    perf_column_mapping = {"predictions": prediction_column, "targets": target_column}
+    perf_column_mapping: Dict[str, Optional[str]] = {"predictions": prediction_column, "targets": target_column}
 
     if schema and schema.segments:
         return _segmented_performance_metrics(
@@ -193,7 +212,13 @@ def log_regression_metrics(
         pandas=data, perf_columns=perf_column_mapping, metric_name="compute_regression_metrics"
     )
 
-    return _log_with_metrics(data=data, metrics=model_performance_metrics, schema=schema, include_data=log_full_data)
+    return _log_with_metrics(
+        data=data,
+        metrics=model_performance_metrics,
+        schema=schema,
+        include_data=log_full_data,
+        dataset_timestamp=dataset_timestamp,
+    )
 
 
 def read(path: str) -> ResultSet:
