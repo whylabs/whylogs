@@ -3,7 +3,9 @@ import copy
 import datetime
 import logging
 import os
+import random
 import tempfile
+import time
 from typing import IO, Any, Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
 
@@ -57,6 +59,11 @@ FIVE_MINUTES_IN_SECONDS = 60 * 5
 DAY_IN_SECONDS = 60 * 60 * 24
 WEEK_IN_SECONDS = DAY_IN_SECONDS * 7
 FIVE_YEARS_IN_SECONDS = DAY_IN_SECONDS * 365 * 5
+
+MAX_UPLOAD_RETRY = 3
+BASE_DELAY_SECONDS = 2
+MAX_DELAY_SECONDS = 32
+
 logger = logging.getLogger(__name__)
 
 API_KEY_ENV = "WHYLABS_API_KEY"
@@ -603,6 +610,7 @@ class WhyLabsWriter(Writer):
         if isinstance(view, DatasetProfileView):
             column_names = view.get_columns().keys()
             for column_name in column_names:
+                column_name = str(column_name)
                 for perf_col in KNOWN_CUSTOM_PERFORMANCE_METRICS:
                     if column_name.startswith(perf_col):
                         metric = KNOWN_CUSTOM_PERFORMANCE_METRICS[perf_col]
@@ -727,6 +735,21 @@ class WhyLabsWriter(Writer):
         else:
             return False, str(result)
 
+    def _put_file_with_retry(self, profile_file: IO[bytes], upload_url: str, dataset_timestamp: int):
+        retry_count = 0
+
+        while retry_count < MAX_UPLOAD_RETRY:
+            status = self._put_file(profile_file, upload_url, dataset_timestamp)
+            if status and status[0]:
+                break
+            retry_count = retry_count + 1
+            delay = min(BASE_DELAY_SECONDS * (2**retry_count), MAX_DELAY_SECONDS)
+            max_jitter = min(MAX_DELAY_SECONDS // 2, delay // 2)
+            jitter = random.uniform(0, max_jitter)
+            time.sleep(delay - jitter)
+
+        return status
+
     def _put_file(self, profile_file: IO[bytes], upload_url: str, dataset_timestamp: int) -> Tuple[bool, str]:
         # TODO: probably want to call this API using asyncio
         headers = {"Content-Type": "application/octet-stream"}
@@ -756,7 +779,6 @@ class WhyLabsWriter(Writer):
         assert profile_path or profile_file, "Either a file or file path must be specified when uploading profiles"
         self._validate_org_and_dataset()
 
-        # logger.debug("Generating the upload URL")
         if upload_url and not profile_id:
             raise ValueError("If upload_url is specified, profile_id must also be specified")
         elif profile_id and not upload_url:
@@ -765,12 +787,12 @@ class WhyLabsWriter(Writer):
             upload_url, profile_id = self._get_upload_url(dataset_timestamp=dataset_timestamp)
         try:
             if profile_file:
-                status, reason = self._put_file(profile_file, upload_url, dataset_timestamp)  # type: ignore
+                status, reason = self._put_file_with_retry(profile_file, upload_url, dataset_timestamp)  # type: ignore
                 logger.debug(f"copied file {upload_url} status {status}:{reason}")
                 return status, profile_id  # type: ignore
             elif profile_path:
                 with open(profile_path, "rb") as f:
-                    status, reason = self._put_file(f, upload_url, dataset_timestamp)  # type: ignore
+                    status, reason = self._put_file_with_retry(f, upload_url, dataset_timestamp)  # type: ignore
                     logger.debug(f"copied file {upload_url} status {status}:{reason}")
                     return status, profile_id  # type: ignore
         except requests.RequestException as e:
@@ -914,17 +936,33 @@ class WhyLabsWriter(Writer):
             return (200, no_update_made_message)
 
     def _post_log_async(self, request: LogAsyncRequest, dataset_timestamp: int) -> AsyncLogResponse:
+        retry_count = 0
         log_api = self._get_or_create_api_log_client()
-        try:
-            result = log_api.log_async(org_id=self._org_id, dataset_id=self._dataset_id, log_async_request=request)
-            return result
-        except ForbiddenException as e:
-            logger.exception(
-                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                f"{self.whylabs_api_endpoint}"
-                f" with API token ID: {self.key_id}"
-            )
-            raise e
+        last_exception: Exception = ValueError("Unknown error retrying to log_async")
+        while retry_count < MAX_UPLOAD_RETRY:
+            result = None
+            try:
+                result = log_api.log_async(org_id=self._org_id, dataset_id=self._dataset_id, log_async_request=request)
+                return result
+            except Exception as e:
+                last_exception = e
+                logger.warning(
+                    f"attempt number {retry_count} getting upload url for {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                    f"{self.whylabs_api_endpoint} with API token ID: {self.key_id} encountered: {e} retrying."
+                    f"MAX_UPLOAD_RETRY is {MAX_UPLOAD_RETRY}"
+                )
+            retry_count = retry_count + 1
+            delay = min(BASE_DELAY_SECONDS * (2**retry_count), MAX_DELAY_SECONDS)
+            max_jitter = min(MAX_DELAY_SECONDS // 2, delay // 2)
+            jitter = random.uniform(0, max_jitter)
+            time.sleep(delay - jitter)
+
+        logger.exception(
+            f"Failed to get upload url for {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+            f"{self.whylabs_api_endpoint}"
+            f" with API token ID: {self.key_id} error was {last_exception}"
+        )
+        raise last_exception
 
     def _get_upload_urls_segmented_reference(self, whylabs_tags, dataset_timestamp: int) -> Tuple[str, List[str]]:
         request = self._build_log_segmented_reference_request(

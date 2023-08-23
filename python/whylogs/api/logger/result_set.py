@@ -269,6 +269,24 @@ class ViewResultSet(ResultSet):
         else:
             view.set_dataset_timestamp(dataset_timestamp)
 
+    def serialize(self) -> bytes:
+        if self.view() is None:
+            raise ValueError("Can't serialize result_set without dataset profile view.")
+        view: DatasetProfileView = self.view()
+        return view.serialize()
+
+    @classmethod
+    def deserialize(cls, data: bytes) -> "ViewResultSet":
+        view = DatasetProfileView.deserialize(data)
+        return ViewResultSet(view)
+
+    def __getstate__(self) -> bytes:
+        return self.serialize()
+
+    def __setstate__(self, state: bytes) -> None:
+        view = DatasetProfileView.deserialize(state)
+        self._view = view
+
 
 class ProfileResultSet(ResultSet):
     def __init__(self, profile: DatasetProfile) -> None:
@@ -292,6 +310,17 @@ class ProfileResultSet(ResultSet):
         if not isinstance(other, (ProfileResultSet, ViewResultSet)):
             logger.error(f"Merging potentially incompatible ProfileResultSet and {type(other)}")
         return ViewResultSet(lhs_profile.merge(other.view()))
+
+    def serialize(self) -> bytes:
+        if self.view() is None:
+            raise ValueError("Can't serialize result_set without dataset profile view.")
+        view: DatasetProfileView = self.view()
+        return view.serialize()
+
+    @classmethod
+    def deserialize(cls, data: bytes) -> "ViewResultSet":
+        view = DatasetProfileView.deserialize(data)
+        return ViewResultSet(view)
 
 
 class SegmentedResultSet(ResultSet):
