@@ -4,6 +4,7 @@ from typing import Optional, Union
 from whylabs_client.api_client import ApiClient, Configuration  # type: ignore
 
 from whylogs.api.whylabs.session.config import InitConfig, SessionConfig
+from whylogs.api.whylabs.session.notebook_check import is_interractive
 from whylogs.api.whylabs.session.session import (
     ApiKeySession,
     GuestSession,
@@ -147,7 +148,7 @@ def get_current_session() -> Optional[Session]:
     if manager is not None:
         return manager.session
 
-    if not _missing_session_warned:
+    if not _missing_session_warned and is_interractive():
         logger.warning(
             f"No session found. Call whylogs.init() to initialize a session and authenticate. See {_INIT_DOCS} for more information."
         )
