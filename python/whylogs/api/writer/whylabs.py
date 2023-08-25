@@ -1,6 +1,7 @@
 import abc
 import copy
 import datetime
+import json
 import logging
 import os
 import tempfile
@@ -11,6 +12,7 @@ import requests  # type: ignore
 import whylabs_client  # type: ignore
 from urllib3 import PoolManager, ProxyManager, util
 from whylabs_client import ApiClient, Configuration  # type: ignore
+from whylabs_client.api.dataset_metadata_api import DatasetMetadataApi
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi  # type: ignore
 from whylabs_client.api.feature_weights_api import FeatureWeightsApi  # type: ignore
 from whylabs_client.api.log_api import AsyncLogResponse  # type: ignore
@@ -25,6 +27,7 @@ from whylabs_client.model.column_schema import ColumnSchema  # type: ignore
 from whylabs_client.model.create_reference_profile_request import (  # type: ignore
     CreateReferenceProfileRequest,
 )
+from whylabs_client.model.get_dataset_metadata_response import GetDatasetMetadataResponse
 from whylabs_client.model.metric_schema import MetricSchema  # type: ignore
 from whylabs_client.model.segment import Segment  # type: ignore
 from whylabs_client.model.segment_tag import SegmentTag  # type: ignore
@@ -1018,3 +1021,40 @@ class WhyLabsWriter(Writer):
             logger.debug(f"Replaced URL with our private domain. New URL: {upload_url}")
 
         return upload_url, profile_id
+
+    # TODO: Refactor to pull out client bits that can be shared with JsonStore <: ConfigStore
+    #       Methods below belong in JsonStore
+
+    def _get_metadata_client(self):
+        return DatasetMetadataApi(self._api_client)
+
+    def _get_config(self, what: str) -> str:
+        api_instance = self._get_metadata_client()
+        hub = {}
+        try:
+            hub_response: GetDatasetMetadataResponse = api_instance.get_dataset_metadata(org_id=self._org_id, dataset_id=self._dataset_id)
+            udf_string = json.loads(hub_response.metadata)
+            hub = json.loads(udf_string)
+        except:
+            logger.warning("Failed to get metadata from hub")
+
+        return hub.get(what, "")
+
+    def _write_config(self, proposed: str, what: str) -> None:
+        api_instance = self._get_metadata_client()
+        hub = {}
+        try:
+            hub_response: GetDatasetMetadataResponse = api_instance.get_dataset_metadata(org_id=self._org_id, dataset_id=self._dataset_id)
+            udf_string = json.loads(hub_response.metadata)
+            hub = json.loads(udf_string)
+        except:
+            logger.warning("Failed to get metadata from hub, writing new entry")
+
+        hub[what] = proposed
+        try:
+            updated_hub_string = json.dumps(hub)
+            status = api_instance.put_dataset_metadata(org_id=self._org_id, dataset_id=self._dataset_id, body=updated_hub_string)
+            logger.warning(f"updated {what} from metrics hub and response was {status}")
+        except ForbiddenException as e:
+            logger.exception(f"Failed to update {what} in hub")
+            raise e
