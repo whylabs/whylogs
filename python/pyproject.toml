@@ -50,7 +50,10 @@ nbconvert = {version = "^7.0.0", optional = true}
 
 # Integrations dependencies
 boto3 = {version = "^1.22.13", optional = true }
-mlflow-skinny = {version = "^1.26.1", optional = true}
+mlflow-skinny = [
+  { version = "^2.5.0", python = ">=3.8", optional = true },
+  { version = "<2.0.1", python = "<3.8", optional = true }
+]
 google-cloud-storage = {version = "^2.5.0", optional = true}
 
 # Pyspark related dependencies
