@@ -65,7 +65,7 @@ class DatasetProfileView(Writable):
         self._dataset_timestamp = dataset_timestamp
         self._creation_timestamp = creation_timestamp
         self._metrics = metrics
-        self._metadata = metadata
+        self._metadata = metadata or dict()
 
     @property
     def dataset_timestamp(self) -> Optional[datetime]:
@@ -79,6 +79,16 @@ class DatasetProfileView(Writable):
     @property
     def creation_timestamp(self) -> Optional[datetime]:
         return self._creation_timestamp
+
+    @property
+    def metadata(self) -> Optional[Dict[str, str]]:
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, values: Optional[Dict[str, str]]):
+        if self._metadata:
+            logger.info(f"About to overwrite existing metadata: {self._metadata} with {values}")
+        self._metadata = values
 
     @property
     def model_performance_metrics(self) -> Any:

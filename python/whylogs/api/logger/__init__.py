@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import Literal
 
+from whylogs.api.logger.events import log_debug_event
 from whylogs.api.logger.logger import Logger
 from whylogs.api.logger.result_set import (
     ProfileResultSet,
@@ -254,6 +255,7 @@ def logger(
 
 __ALL__ = [
     "log",
+    "log_debug_event",
     "read",
     "reader",
     "write",

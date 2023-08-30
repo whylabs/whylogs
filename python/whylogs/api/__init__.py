@@ -3,6 +3,7 @@ from .logger import (
     ResultSet,
     log,
     log_classification_metrics,
+    log_debug_event,
     log_regression_metrics,
     logger,
     read,
@@ -12,6 +13,7 @@ from .logger import (
 
 __ALL__ = [
     log,
+    log_debug_event,
     log_classification_metrics,
     log_regression_metrics,
     logger,

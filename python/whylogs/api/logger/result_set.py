@@ -214,6 +214,12 @@ class ResultSet(ABC):
         return result
 
     @property
+    def metadata(self) -> Optional[Dict[str, str]]:
+        if self.view():
+            return self.view().metadata
+        return None
+
+    @property
     def performance_metrics(self) -> Optional[ModelPerformanceMetrics]:
         profile = self.profile()
         if profile:
