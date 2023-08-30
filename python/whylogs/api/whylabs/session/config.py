@@ -44,6 +44,8 @@ class EnvVariableName(Enum):
     WHYLABS_REFERENCE_PROFILE_NAME = "WHYLABS_REFERENCE_PROFILE_NAME"
     WHYLABS_PRIVATE_API_ENDPOINT = "WHYLABS_PRIVATE_API_ENDPOINT"
     WHYLABS_PRIVATE_S3_ENDPOINT = "WHYLABS_PRIVATE_S3_ENDPOINT"
+    HTTP_PROXY = "HTTP_PROXY"
+    HTTPS_PROXY = "HTTPS_PROXY"
 
 
 class ConfigVariableName(Enum):
@@ -56,6 +58,8 @@ class ConfigVariableName(Enum):
     WHYLABS_REFERENCE_PROFILE_NAME = "whylabs_reference_profile_name"
     WHYLABS_PRIVATE_API_ENDPOINT = "whylabs_private_api_endpoint"
     WHYLABS_PRIVATE_S3_ENDPOINT = "whylabs_private_s3_endpoint"
+    HTTP_PROXY = "http_proxy"
+    HTTPS_PROXY = "https_proxy"
 
 
 @dataclass
@@ -65,25 +69,28 @@ class InitConfig:
     allow_local: bool = False
     default_dataset_id: Optional[str] = None
     config_path: Optional[str] = None
+    force_local: Optional[bool] = None
 
 
 class SessionConfig:
     def __init__(self, init_config: Optional[InitConfig] = None) -> None:
-        _init_config = init_config or InitConfig()
+        self._init_config = init_config or InitConfig()
         self.logger = logging.getLogger("config")
-        self.auth_path = Path(_init_config.config_path) if _init_config.config_path else self.get_config_file_path()
+        self.auth_path = (
+            Path(self._init_config.config_path) if self._init_config.config_path else self.get_config_file_path()
+        )
         self._init_parser()
 
-        self.tmp_api_key: Optional[str] = _init_config.whylabs_api_key
-        self.tmp_default_dataset_id: Optional[str] = _init_config.default_dataset_id
+        self.tmp_api_key: Optional[str] = self._init_config.whylabs_api_key
+        self.tmp_default_dataset_id: Optional[str] = self._init_config.default_dataset_id
 
         # Only here for CLI compatibilty. No one should actually set this.
         force_interactive = os.environ.get("WHYLABS_FORCE_INTERACTIVE", "false").lower() == "true"
         if force_interactive:
             self.reset_config()
-            self.session_type = self._determine_session_type_prompt(_init_config)
+            self.session_type = self._determine_session_type_prompt(self._init_config)
         else:
-            self.session_type = self._determine_session_type(_init_config)
+            self.session_type = self._determine_session_type(self._init_config)
 
     def _init_parser(self) -> None:
         try:
@@ -138,6 +145,24 @@ class SessionConfig:
             key=key,
             value=value,
         )
+
+    def get_https_proxy(self) -> Optional[str]:
+        return self._load_value(
+            env_name=EnvVariableName.HTTPS_PROXY,
+            config_name=ConfigVariableName.HTTPS_PROXY,
+        )
+
+    def set_https_proxy(self, proxy: str) -> None:
+        self._set_value(ConfigVariableName.HTTPS_PROXY, proxy)
+
+    def get_http_proxy(self) -> Optional[str]:
+        return self._load_value(
+            env_name=EnvVariableName.HTTP_PROXY,
+            config_name=ConfigVariableName.HTTP_PROXY,
+        )
+
+    def set_http_proxy(self, proxy: str) -> None:
+        self._set_value(ConfigVariableName.HTTP_PROXY, proxy)
 
     def get_whylabs_private_api_endpoint(self) -> Optional[str]:
         return self._load_value(
@@ -221,7 +246,11 @@ class SessionConfig:
 
     def _require(self, name: str, value: Optional[str]) -> str:
         if value is None:
-            raise ValueError(f"Can't determine {name}. See {_INIT_DOCS} for instructions on using why.init().")
+            session_type = self.get_session_type()
+            raise ValueError(
+                f"Can't determine {name}. Current session type if {session_type.value}. "
+                f"See {_INIT_DOCS} for instructions on using why.init()."
+            )
 
         return value
 
@@ -232,6 +261,9 @@ class SessionConfig:
         return self.tmp_api_key or self._load_value(
             env_name=EnvVariableName.WHYLABS_API_KEY, config_name=ConfigVariableName.API_KEY
         )
+
+    def get_env_api_key(self) -> Optional[str]:
+        return os.getenv(EnvVariableName.WHYLABS_API_KEY.value)
 
     def require_api_key(self) -> str:
         return self._require("api key", self.get_api_key())
@@ -286,7 +318,8 @@ class SessionConfig:
     def _notify_type_anon(self) -> None:
         anonymous_session_id = self.get_session_id()
         il.success(f"Using session type: {SessionType.WHYLABS_ANONYMOUS.name}")
-        il.option(f"session id: {anonymous_session_id}")
+        id_text = "<will be generated before upload>" if not anonymous_session_id else anonymous_session_id
+        il.option(f"session id: {id_text}")
 
     def _notify_type_local(self) -> None:
         il.success(
@@ -313,6 +346,9 @@ class SessionConfig:
         return session_type
 
     def _determine_session_type(self, init_config: InitConfig) -> SessionType:
+        if init_config.force_local:
+            return SessionType.LOCAL
+
         # If the user supplied a whylabs api key then use whylabs
         if init_config.whylabs_api_key is not None:
             return SessionType.WHYLABS
@@ -340,8 +376,8 @@ class SessionConfig:
 
         raise InitException(
             "Don't know how to initialize authentication because allow_anonymous=False, allow_local=False, "
-            "and there is no WhyLabs api key in the environment, config file, or init() call, and this isn't an "
-            "interactive environment."
+            "and there is no WhyLabs api key in the environment, config file, or why.init() call, and this isn't an "
+            f"interactive environment. See {_INIT_DOCS} for instructions on using why.init()."
         )
 
 
