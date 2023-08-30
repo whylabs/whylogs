@@ -71,7 +71,9 @@ def notebook_session_log(
     if session is None:
         return
     elif session.get_type() == SessionType.LOCAL:
-        il.message("Skipping uploading profiles to WhyLabs because this session is configured to be local only.")
+        il.warning_once(
+            "Skipping automatic upload because the session type is LOCAL. Uploads have to be done manually."
+        )
         return
 
     # Get the length of whatever was just logged
