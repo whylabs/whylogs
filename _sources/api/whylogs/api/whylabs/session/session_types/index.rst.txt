@@ -53,7 +53,7 @@ Attributes
       :staticmethod:
 
 
-   .. py:method:: message(message: str = '') -> None
+   .. py:method:: message(message: str = '', log_fn: Optional[Callable] = None) -> None
       :staticmethod:
 
       Log a message only if we're in a notebook environment.
@@ -90,10 +90,16 @@ Attributes
       Log a failure, which has a red x.
 
 
-   .. py:method:: warning(message: str) -> None
+   .. py:method:: warning(message: str, log_fn: Optional[Callable] = None) -> None
       :staticmethod:
 
       Log a warning, which has a warning sign.
+
+
+   .. py:method:: warning_once(message: str, log_fn: Optional[Callable] = None) -> None
+      :staticmethod:
+
+      Like warning, but only logs once.
 
 
 

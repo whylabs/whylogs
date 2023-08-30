@@ -444,16 +444,7 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.writer.whylabs.KeyRefresher" title="whylogs.api.writer.whylabs.KeyRefresher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KeyRefresher</span></code></a></p></td>
-<td><p>Helper class that provides a standard way to create an ABC using</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.writer.whylabs.StaticKeyRefresher" title="whylogs.api.writer.whylabs.StaticKeyRefresher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StaticKeyRefresher</span></code></a></p></td>
-<td><p>Helper class that provides a standard way to create an ABC using</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.writer.whylabs.EnvironmentKeyRefresher" title="whylogs.api.writer.whylabs.EnvironmentKeyRefresher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EnvironmentKeyRefresher</span></code></a></p></td>
-<td><p>This key refresher uses environment variable key. The key is automatically picked up if the</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter" title="whylogs.api.writer.whylabs.WhyLabsWriter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WhyLabsWriter</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter" title="whylogs.api.writer.whylabs.WhyLabsWriter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WhyLabsWriter</span></code></a></p></td>
 <td><p>Helper class that provides a standard way to create an ABC using</p></td>
 </tr>
 </tbody>
@@ -519,65 +510,6 @@
 <dt class="sig sig-object py" id="whylogs.api.writer.whylabs.KNOWN_CUSTOM_PERFORMANCE_METRICS">
 <span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.whylabs.</span></span><span class="sig-name descname"><span class="pre">KNOWN_CUSTOM_PERFORMANCE_METRICS</span></span><a class="headerlink" href="#whylogs.api.writer.whylabs.KNOWN_CUSTOM_PERFORMANCE_METRICS" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="whylogs.api.writer.whylabs.KeyRefresher">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.whylabs.</span></span><span class="sig-name descname"><span class="pre">KeyRefresher</span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/whylabs.html#KeyRefresher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.whylabs.KeyRefresher" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/abc.html#abc.ABC" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
-<p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="whylogs.api.writer.whylabs.KeyRefresher.key_id">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">key_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.api.writer.whylabs.KeyRefresher.key_id" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="whylogs.api.writer.whylabs.StaticKeyRefresher">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.whylabs.</span></span><span class="sig-name descname"><span class="pre">StaticKeyRefresher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/whylabs.html#StaticKeyRefresher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.whylabs.StaticKeyRefresher" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#whylogs.api.writer.whylabs.KeyRefresher" title="whylogs.api.writer.whylabs.KeyRefresher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KeyRefresher</span></code></a></p>
-<p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>api_key</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
-</dd>
-</dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="whylogs.api.writer.whylabs.StaticKeyRefresher.key_id">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">key_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.api.writer.whylabs.StaticKeyRefresher.key_id" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="whylogs.api.writer.whylabs.EnvironmentKeyRefresher">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.whylabs.</span></span><span class="sig-name descname"><span class="pre">EnvironmentKeyRefresher</span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/whylabs.html#EnvironmentKeyRefresher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.whylabs.EnvironmentKeyRefresher" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#whylogs.api.writer.whylabs.KeyRefresher" title="whylogs.api.writer.whylabs.KeyRefresher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KeyRefresher</span></code></a></p>
-<p>This key refresher uses environment variable key. The key is automatically picked up if the
-user changes the environment variable.</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="whylogs.api.writer.whylabs.EnvironmentKeyRefresher.key_id">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">key_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.api.writer.whylabs.EnvironmentKeyRefresher.key_id" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.api.writer.whylabs.WhyLabsWriter">
@@ -877,18 +809,6 @@ If none is passed, defaults to “mean”.</p></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.FIVE_YEARS_IN_SECONDS">FIVE_YEARS_IN_SECONDS</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.logger">logger</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.KNOWN_CUSTOM_PERFORMANCE_METRICS">KNOWN_CUSTOM_PERFORMANCE_METRICS</a></li>
-<li><a class="reference internal" href="#whylogs.api.writer.whylabs.KeyRefresher">KeyRefresher</a><ul>
-<li><a class="reference internal" href="#whylogs.api.writer.whylabs.KeyRefresher.key_id">key_id</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#whylogs.api.writer.whylabs.StaticKeyRefresher">StaticKeyRefresher</a><ul>
-<li><a class="reference internal" href="#whylogs.api.writer.whylabs.StaticKeyRefresher.key_id">key_id</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#whylogs.api.writer.whylabs.EnvironmentKeyRefresher">EnvironmentKeyRefresher</a><ul>
-<li><a class="reference internal" href="#whylogs.api.writer.whylabs.EnvironmentKeyRefresher.key_id">key_id</a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter">WhyLabsWriter</a><ul>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter.key_id">key_id</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter.check_interval">check_interval</a></li>

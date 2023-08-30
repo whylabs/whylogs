@@ -422,9 +422,7 @@
         </div>
         <article role="main">
           <h1>Source code for whylogs.api.writer.whylabs</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">abc</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">datetime</span>
+<span></span><span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
@@ -432,8 +430,7 @@
 <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
 
 <span class="kn">import</span> <span class="nn">requests</span>  <span class="c1"># type: ignore</span>
-<span class="kn">import</span> <span class="nn">whylabs_client</span>  <span class="c1"># type: ignore</span>
-<span class="kn">from</span> <span class="nn">urllib3</span> <span class="kn">import</span> <span class="n">PoolManager</span><span class="p">,</span> <span class="n">ProxyManager</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">urllib3</span> <span class="kn">import</span> <span class="n">PoolManager</span><span class="p">,</span> <span class="n">ProxyManager</span>
 <span class="kn">from</span> <span class="nn">whylabs_client</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">Configuration</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.dataset_profile_api</span> <span class="kn">import</span> <span class="n">DatasetProfileApi</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.feature_weights_api</span> <span class="kn">import</span> <span class="n">FeatureWeightsApi</span>  <span class="c1"># type: ignore</span>
@@ -454,11 +451,16 @@
 <span class="kn">from</span> <span class="nn">whylabs_client.model.segment_tag</span> <span class="kn">import</span> <span class="n">SegmentTag</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.rest</span> <span class="kn">import</span> <span class="n">ForbiddenException</span>  <span class="c1"># type: ignore</span>
 
-<span class="kn">from</span> <span class="nn">whylogs</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">_version</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger</span> <span class="kn">import</span> <span class="n">log</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">SegmentedResultSet</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.config</span> <span class="kn">import</span> <span class="n">_INIT_DOCS</span><span class="p">,</span> <span class="n">SessionConfig</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">get_current_session</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.config</span> <span class="kn">import</span> <span class="n">_INIT_DOCS</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">_default_init</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.whylabs_client_cache</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ClientCacheConfig</span><span class="p">,</span>
+    <span class="n">EnvironmentKeyRefresher</span><span class="p">,</span>
+    <span class="n">KeyRefresher</span><span class="p">,</span>
+    <span class="n">WhylabsClientCache</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer</span> <span class="kn">import</span> <span class="n">Writer</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer.writer</span> <span class="kn">import</span> <span class="n">Writable</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfileView</span>
@@ -466,6 +468,7 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.errors</span> <span class="kn">import</span> <span class="n">BadConfigError</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.feature_weights</span> <span class="kn">import</span> <span class="n">FeatureWeights</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.utils</span> <span class="kn">import</span> <span class="n">deprecated_alias</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.utils.utils</span> <span class="kn">import</span> <span class="n">get_auth_headers</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.view.segmented_dataset_profile_view</span> <span class="kn">import</span> <span class="n">SegmentedDatasetProfileView</span>
 <span class="kn">from</span> <span class="nn">whylogs.experimental.performance_estimation.estimation_results</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">EstimationResult</span><span class="p">,</span>
@@ -531,79 +534,6 @@
     <span class="k">return</span> <span class="kc">True</span>
 
 
-<span class="c1"># TODO update this validator for new format</span>
-<span class="k">def</span> <span class="nf">_validate_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">api_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing API key. Set it via WHYLABS_API_KEY environment variable or as an api_key option&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">12</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;API key too short&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">80</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;API key too long&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">api_key</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid format. Expecting a dot at an index 10&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">api_key</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>
-
-
-<span class="k">def</span> <span class="nf">_get_auth_headers</span><span class="p">(</span><span class="n">proxy_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-    <span class="n">parsed_url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">proxy_url</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">parsed_url</span><span class="o">.</span><span class="n">username</span> <span class="ow">and</span> <span class="n">parsed_url</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
-        <span class="n">default_headers</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">make_headers</span><span class="p">(</span><span class="n">proxy_basic_auth</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">parsed_url</span><span class="o">.</span><span class="n">username</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">parsed_url</span><span class="o">.</span><span class="n">password</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">default_headers</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="n">default_headers</span>
-
-
-<div class="viewcode-block" id="KeyRefresher"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.KeyRefresher">[docs]</a><span class="k">class</span> <span class="nc">KeyRefresher</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="nd">@property</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">key_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">pass</span>
-
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Configuration</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">pass</span></div>
-
-
-<div class="viewcode-block" id="StaticKeyRefresher"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.StaticKeyRefresher">[docs]</a><span class="k">class</span> <span class="nc">StaticKeyRefresher</span><span class="p">(</span><span class="n">KeyRefresher</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_key_id</span> <span class="o">=</span> <span class="n">_validate_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_api_key</span> <span class="o">=</span> <span class="n">api_key</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">key_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_id</span>
-
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Configuration</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ApiKeyAuth&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api_key</span><span class="p">}</span>
-
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_key</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="EnvironmentKeyRefresher"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.EnvironmentKeyRefresher">[docs]</a><span class="k">class</span> <span class="nc">EnvironmentKeyRefresher</span><span class="p">(</span><span class="n">KeyRefresher</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This key refresher uses environment variable key. The key is automatically picked up if the</span>
-<span class="sd">    user changes the environment variable.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">key_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_id</span>
-
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Configuration</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">session</span> <span class="o">=</span> <span class="n">get_current_session</span><span class="p">()</span>
-        <span class="c1"># TODO this can be removed once we enforce why.init usage. Backwards compatible for now.</span>
-        <span class="n">session_config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span> <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">SessionConfig</span><span class="p">()</span>
-
-        <span class="n">api_key</span> <span class="o">=</span> <span class="n">session_config</span><span class="o">.</span><span class="n">get_api_key</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_key_id</span> <span class="o">=</span> <span class="n">_validate_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">api_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ApiKeyAuth&quot;</span><span class="p">:</span> <span class="n">api_key</span><span class="p">}</span></div>
-
-
-<span class="n">_ENV_KEY_REFRESHER</span> <span class="o">=</span> <span class="n">EnvironmentKeyRefresher</span><span class="p">()</span>
-
-
 <div class="viewcode-block" id="WhyLabsWriter"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WhyLabsWriter">[docs]</a><span class="k">class</span> <span class="nc">WhyLabsWriter</span><span class="p">(</span><span class="n">Writer</span><span class="p">):</span>
     <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    A WhyLogs writer to upload DatasetProfileView&#39;s onto the WhyLabs platform.</span>
@@ -664,41 +594,32 @@
         <span class="n">ssl_ca_cert</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_timeout_seconds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">session</span> <span class="o">=</span> <span class="n">get_current_session</span><span class="p">()</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span> <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">SessionConfig</span><span class="p">()</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">_default_init</span><span class="p">()</span>  <span class="c1"># Force an init if the user didn&#39;t do it, it&#39;s idempotent</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span> <span class="o">=</span> <span class="n">org_id</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">require_org_id</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span> <span class="o">=</span> <span class="n">dataset_id</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">require_default_dataset_id</span><span class="p">()</span>
-        <span class="n">_api_key</span> <span class="o">=</span> <span class="n">api_key</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">require_api_key</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_whylabs_endpoint</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_feature_weights</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_whylabs_refernce_profile_name</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_ssl_ca_cert</span> <span class="o">=</span> <span class="n">ssl_ca_cert</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_api_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Configuration</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">_http_proxy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HTTP_PROXY&quot;</span><span class="p">)</span>
         <span class="n">_https_proxy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HTTPS_PROXY&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span> <span class="o">=</span> <span class="n">_https_proxy</span> <span class="ow">or</span> <span class="n">_http_proxy</span>
 
-        <span class="k">if</span> <span class="n">_api_key</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span> <span class="o">=</span> <span class="n">StaticKeyRefresher</span><span class="p">(</span><span class="n">_api_key</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span> <span class="o">=</span> <span class="n">_ENV_KEY_REFRESHER</span>
-
-        <span class="k">if</span> <span class="n">api_client</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span> <span class="o">=</span> <span class="n">api_client</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">()</span>
-
         <span class="c1"># Enable private access to WhyLabs endpoints</span>
         <span class="n">_private_api_endpoint</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_whylabs_private_api_endpoint</span><span class="p">()</span>
+        <span class="n">_whylabs_endpoint</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_whylabs_endpoint</span><span class="p">()</span>
+        <span class="c1"># TODO everything is incoherant when a client is supplied because all of these other variables are ignored,</span>
+        <span class="c1"># the custom client should probably just be a parameter of write() and never be stored, or all of this other state</span>
+        <span class="c1"># needs to be abstracted into some other container</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span> <span class="o">=</span> <span class="n">_private_api_endpoint</span> <span class="ow">or</span> <span class="n">_whylabs_endpoint</span>
+
         <span class="n">_private_s3_endpoint</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_whylabs_private_s3_endpoint</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">_private_api_endpoint</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using private API endpoint: </span><span class="si">{</span><span class="n">_private_api_endpoint</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_hostname</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span> <span class="o">=</span> <span class="n">_private_api_endpoint</span>
 
         <span class="n">pooler_cache_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="n">_private_s3_endpoint</span><span class="p">:</span>
@@ -711,13 +632,29 @@
         <span class="k">if</span> <span class="n">_timeout_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_timeout_seconds</span> <span class="o">=</span> <span class="n">_timeout_seconds</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span> <span class="o">=</span> <span class="n">ClientCacheConfig</span><span class="p">(</span>
+            <span class="n">ssl_ca_cert</span><span class="o">=</span><span class="n">ssl_ca_cert</span><span class="p">,</span>
+            <span class="n">whylabs_api_endpoint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="p">,</span>
+            <span class="n">endpoint_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_hostname</span><span class="p">,</span>
+            <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">require_api_key</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">api_client</span><span class="p">:</span>
+            <span class="c1"># Just ignore the other args if a client was passed in. They&#39;re saved in the cache config if we need them.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span> <span class="o">=</span> <span class="n">api_client</span>
+            <span class="c1"># TODO this key refresher is only used to print the key id from the env, it isn&#39;t actually in the api client because</span>
+            <span class="c1"># someone else constructed the client and its config.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span> <span class="o">=</span> <span class="n">EnvironmentKeyRefresher</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="p">)</span>
+
         <span class="c1"># Using a pooler for uploading data</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">_UPLOAD_POOLER_CACHE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pooler_cache_key</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">pool</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pooler is not available. Creating a new one for key: </span><span class="si">{</span><span class="n">pooler_cache_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span><span class="p">:</span>
                 <span class="n">proxy_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span>
-                <span class="n">default_headers</span> <span class="o">=</span> <span class="n">_get_auth_headers</span><span class="p">(</span><span class="n">proxy_url</span><span class="p">)</span>
+                <span class="n">default_headers</span> <span class="o">=</span> <span class="n">get_auth_headers</span><span class="p">(</span><span class="n">proxy_url</span><span class="p">)</span>
                 <span class="n">pool</span> <span class="o">=</span> <span class="n">ProxyManager</span><span class="p">(</span>
                     <span class="n">proxy_url</span><span class="p">,</span>
                     <span class="n">num_pools</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
@@ -742,57 +679,8 @@
     <span class="k">def</span> <span class="nf">key_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span><span class="o">.</span><span class="n">key_id</span>
 
-    <span class="k">def</span> <span class="nf">_refresh_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Refresh the API client by comparing various configs. We try to</span>
-<span class="sd">        re-use the client as much as we can since using a new client</span>
-<span class="sd">        every time can be expensive.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">cache_key</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">:</span>
-            <span class="n">config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="o">.</span><span class="n">configuration</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="p">()</span>
-        <span class="c1"># Set an empty api key. The key refresher will refresh it</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ApiKeyAuth&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">refresh_api_key_hook</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span>
-        <span class="n">cache_key</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span><span class="p">))</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span><span class="p">:</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">proxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span>
-            <span class="n">default_header</span> <span class="o">=</span> <span class="n">_get_auth_headers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">default_header</span><span class="p">:</span>
-                <span class="n">config</span><span class="o">.</span><span class="n">proxy_headers</span> <span class="o">=</span> <span class="n">default_header</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">discard_unknown_keys</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="c1"># Disable client side validation and trust the server</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">client_side_validation</span> <span class="o">=</span> <span class="kc">False</span>
-
-        <span class="n">cache_key</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">hash</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ssl_ca_cert</span><span class="p">:</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">ssl_ca_cert</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ssl_ca_cert</span>
-            <span class="n">cache_key</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ssl_ca_cert</span><span class="p">))</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span>
-        <span class="n">cache_key</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="p">))</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_hostname</span><span class="p">:</span>
-            <span class="n">cache_key</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_hostname</span><span class="p">))</span>
-
-        <span class="n">existing_client</span> <span class="o">=</span> <span class="n">_API_CLIENT_CACHE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">existing_client</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found existing client under cache key: </span><span class="si">{</span><span class="n">cache_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span> <span class="o">=</span> <span class="n">existing_client</span>
-            <span class="k">return</span>
-
-        <span class="n">client</span> <span class="o">=</span> <span class="n">whylabs_client</span><span class="o">.</span><span class="n">ApiClient</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">client</span><span class="o">.</span><span class="n">user_agent</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;whylogs/python/</span><span class="si">{</span><span class="n">_version</span><span class="si">}</span><span class="s2">&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span> <span class="o">=</span> <span class="n">client</span>
-        <span class="n">_API_CLIENT_CACHE</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">client</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created and updated new client for cache key: </span><span class="si">{</span><span class="n">cache_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_hostname</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Override endpoint hostname for TLS verification is set to: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_hostname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_update_hostname_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_hostname</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_refresh_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_config</span><span class="p">:</span> <span class="n">ClientCacheConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span> <span class="o">=</span> <span class="n">WhylabsClientCache</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">get_client</span><span class="p">(</span><span class="n">cache_config</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_update_hostname_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint_hostname_override</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -850,8 +738,15 @@
         <span class="k">if</span> <span class="n">org_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span> <span class="o">=</span> <span class="n">org_id</span>
         <span class="k">if</span> <span class="n">api_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span> <span class="o">=</span> <span class="n">StaticKeyRefresher</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">(</span>
+                <span class="n">ClientCacheConfig</span><span class="p">(</span>
+                    <span class="n">ssl_ca_cert</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">ssl_ca_cert</span><span class="p">,</span>
+                    <span class="n">whylabs_api_endpoint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="p">,</span>
+                    <span class="n">endpoint_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">endpoint_hostname</span><span class="p">,</span>
+                    <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
         <span class="k">if</span> <span class="n">reference_profile_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_name</span> <span class="o">=</span> <span class="n">reference_profile_name</span>
         <span class="k">if</span> <span class="n">configuration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -859,8 +754,14 @@
         <span class="k">if</span> <span class="n">api_client</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span> <span class="o">=</span> <span class="n">api_client</span>
         <span class="k">if</span> <span class="n">ssl_ca_cert</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ssl_ca_cert</span> <span class="o">=</span> <span class="n">ssl_ca_cert</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">(</span>
+                <span class="n">ClientCacheConfig</span><span class="p">(</span>
+                    <span class="n">ssl_ca_cert</span><span class="o">=</span><span class="n">ssl_ca_cert</span><span class="p">,</span>
+                    <span class="n">whylabs_api_endpoint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="p">,</span>
+                    <span class="n">endpoint_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">endpoint_hostname</span><span class="p">,</span>
+                    <span class="n">api_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">api_key</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="n">timeout_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_timeout_seconds</span> <span class="o">=</span> <span class="n">timeout_seconds</span>
         <span class="k">return</span> <span class="bp">self</span></div>
@@ -954,7 +855,7 @@
             <span class="n">column</span><span class="o">=</span><span class="n">column</span><span class="p">,</span>
             <span class="n">default_metric</span><span class="o">=</span><span class="n">default_metric</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_org_and_dataset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_org_and_dataset</span><span class="p">()</span>  <span class="c1"># TODO this just doesn&#39;t exist?</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">res</span> <span class="o">=</span> <span class="n">api_instance</span><span class="o">.</span><span class="n">put_entity_schema_metric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">metric_schema</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>

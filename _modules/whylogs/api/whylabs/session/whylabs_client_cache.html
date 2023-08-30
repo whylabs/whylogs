@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
-        <title>whylogs.api.whylabs.session.session_types - whylogs v1.3.1</title>
+        <title>whylogs.api.whylabs.session.whylabs_client_cache - whylogs v1.3.1</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css" />
@@ -421,162 +421,184 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for whylogs.api.whylabs.session.session_types</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Various common types to avoid circular dependencies</span>
+          <h1>Source code for whylogs.api.whylabs.session.whylabs_client_cache</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.notebook_check</span> <span class="kn">import</span> <span class="n">is_interractive</span>
+<span class="kn">from</span> <span class="nn">urllib3</span> <span class="kn">import</span> <span class="n">ProxyManager</span>
+<span class="kn">from</span> <span class="nn">whylabs_client</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">Configuration</span>  <span class="c1"># type: ignore</span>
+
+<span class="kn">from</span> <span class="nn">whylogs.core.utils.utils</span> <span class="kn">import</span> <span class="n">get_auth_headers</span>
 
 
-<span class="c1"># This is used to indicate that a result is either a success or a failure</span>
-<div class="viewcode-block" id="NotSupported"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.NotSupported">[docs]</a><span class="k">class</span> <span class="nc">NotSupported</span><span class="p">:</span>
+<div class="viewcode-block" id="KeyRefresher"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/whylabs_client_cache/index.html#whylogs.api.whylabs.session.whylabs_client_cache.KeyRefresher">[docs]</a><span class="k">class</span> <span class="nc">KeyRefresher</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">key_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Configuration</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_validate_api_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">api_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing API key. Set it via WHYLABS_API_KEY environment variable or as an api_key option&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;API key too short&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">80</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;API key too long&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">api_key</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid format. Expecting a dot at an index 10&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">api_key</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="StaticKeyRefresher"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/whylabs_client_cache/index.html#whylogs.api.whylabs.session.whylabs_client_cache.StaticKeyRefresher">[docs]</a><span class="k">class</span> <span class="nc">StaticKeyRefresher</span><span class="p">(</span><span class="n">KeyRefresher</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_key_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_api_key</span> <span class="o">=</span> <span class="n">api_key</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">key_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_id</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Configuration</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ApiKeyAuth&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api_key</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_key</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EnvironmentKeyRefresher"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/whylabs_client_cache/index.html#whylogs.api.whylabs.session.whylabs_client_cache.EnvironmentKeyRefresher">[docs]</a><span class="k">class</span> <span class="nc">EnvironmentKeyRefresher</span><span class="p">(</span><span class="n">KeyRefresher</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Indicates that one of the session apis isn&#39;t supported for the current session type.</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
-
-
-<div class="viewcode-block" id="InteractiveLogger"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger">[docs]</a><span class="k">class</span> <span class="nc">InteractiveLogger</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Logger for interactive environments.</span>
+<span class="sd">    This key refresher uses environment variable key. The key is automatically picked up if the</span>
+<span class="sd">    user changes the environment variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">__warnings</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-    <span class="n">_is_notebook</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">key_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_id</span>
 
-<div class="viewcode-block" id="InteractiveLogger.init_notebook_logging"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.init_notebook_logging">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">init_notebook_logging</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">is_interractive</span><span class="p">():</span>
-            <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">_is_notebook</span> <span class="o">=</span> <span class="kc">True</span></div>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Configuration</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">_default_init</span>
 
-<div class="viewcode-block" id="InteractiveLogger.message"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.message">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">message</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">log_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">_default_init</span><span class="p">()</span>
+        <span class="n">session_config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">api_key</span> <span class="o">=</span> <span class="n">session_config</span><span class="o">.</span><span class="n">get_env_api_key</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_key_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">api_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ApiKeyAuth&quot;</span><span class="p">:</span> <span class="n">api_key</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="ClientCacheConfig"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/whylabs_client_cache/index.html#whylogs.api.whylabs.session.whylabs_client_cache.ClientCacheConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ClientCacheConfig</span><span class="p">:</span>
+    <span class="n">api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ssl_ca_cert</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">whylabs_api_endpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">endpoint_hostname</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># TODO What is this thing?</span></div>
+
+
+<div class="viewcode-block" id="WhylabsClientCache"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/whylabs_client_cache/index.html#whylogs.api.whylabs.session.whylabs_client_cache.WhylabsClientCache">[docs]</a><span class="k">class</span> <span class="nc">WhylabsClientCache</span><span class="p">:</span>
+    <span class="n">__instance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;WhylabsClientCache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Must be initialized from the session code as a side effect of why.init()</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__init_instance</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">WhylabsClientCache</span><span class="o">.</span><span class="n">__instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">WhylabsClientCache</span><span class="o">.</span><span class="n">__instance</span> <span class="o">=</span> <span class="n">WhylabsClientCache</span><span class="p">()</span>
+
+<div class="viewcode-block" id="WhylabsClientCache.reset"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/whylabs_client_cache/index.html#whylogs.api.whylabs.session.whylabs_client_cache.WhylabsClientCache.reset">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">WhylabsClientCache</span><span class="o">.</span><span class="n">__instance</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="WhylabsClientCache.instance"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/whylabs_client_cache/index.html#whylogs.api.whylabs.session.whylabs_client_cache.WhylabsClientCache.instance">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">instance</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;WhylabsClientCache&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">WhylabsClientCache</span><span class="o">.</span><span class="n">__instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Internally, we&#39;ll call _default_init() to initialize the instance wherever we need</span>
+            <span class="c1"># a guarantee that one exists.</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;WhylabsClientCache is not initialized. Call why.init() to initialize it.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">WhylabsClientCache</span><span class="o">.</span><span class="n">__instance</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_api_client_cache</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">ClientCacheConfig</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ApiClient</span><span class="p">,</span> <span class="n">KeyRefresher</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="WhylabsClientCache.get_client"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/whylabs_client_cache/index.html#whylogs.api.whylabs.session.whylabs_client_cache.WhylabsClientCache.get_client">[docs]</a>    <span class="k">def</span> <span class="nf">get_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ClientCacheConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ApiClient</span><span class="p">,</span> <span class="n">KeyRefresher</span><span class="p">]:</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api_client_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_client</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_api_client_cache</span><span class="p">[</span><span class="n">config</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
+
+        <span class="k">return</span> <span class="n">entry</span></div>
+
+    <span class="k">def</span> <span class="nf">_create_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_config</span><span class="p">:</span> <span class="n">ClientCacheConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ApiClient</span><span class="p">,</span> <span class="n">KeyRefresher</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Log a message only if we&#39;re in a notebook environment.</span>
+<span class="sd">        Refresh the API client by comparing various configs. We try to</span>
+<span class="sd">        re-use the client as much as we can since using a new client</span>
+<span class="sd">        every time can be expensive.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">_is_notebook</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">log_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">log_fn</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+        <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">_default_init</span>
 
-<div class="viewcode-block" id="InteractiveLogger.option"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.option">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">option</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">_default_init</span><span class="p">()</span>
+        <span class="n">session_config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span> <span class="o">=</span> <span class="n">session_config</span><span class="o">.</span><span class="n">get_https_proxy</span><span class="p">()</span> <span class="ow">or</span> <span class="n">session_config</span><span class="o">.</span><span class="n">get_http_proxy</span><span class="p">()</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="p">()</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ApiKeyAuth&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+        <span class="n">refresher</span><span class="p">:</span> <span class="n">KeyRefresher</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">StaticKeyRefresher</span><span class="p">(</span><span class="n">cache_config</span><span class="o">.</span><span class="n">api_key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cache_config</span><span class="o">.</span><span class="n">api_key</span>
+            <span class="k">else</span> <span class="n">EnvironmentKeyRefresher</span><span class="p">()</span>  <span class="c1"># TODO when would this be used? I&#39;m requiring api keys right now in the whylabs writer</span>
+        <span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">refresh_api_key_hook</span> <span class="o">=</span> <span class="n">refresher</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">discard_unknown_keys</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">client_side_validation</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Disable client side validation and trust the server</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">proxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span>
+            <span class="n">default_header</span> <span class="o">=</span> <span class="n">get_auth_headers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proxy</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">default_header</span><span class="p">:</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">proxy_headers</span> <span class="o">=</span> <span class="n">default_header</span>
+
+        <span class="k">if</span> <span class="n">cache_config</span><span class="o">.</span><span class="n">ssl_ca_cert</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">ssl_ca_cert</span> <span class="o">=</span> <span class="n">cache_config</span><span class="o">.</span><span class="n">ssl_ca_cert</span>
+
+        <span class="n">config</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">cache_config</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span> <span class="ow">or</span> <span class="n">session_config</span><span class="o">.</span><span class="n">get_whylabs_endpoint</span><span class="p">()</span>
+
+        <span class="n">client</span> <span class="o">=</span> <span class="n">ApiClient</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">whylogs</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">_version</span>
+
+        <span class="n">client</span><span class="o">.</span><span class="n">user_agent</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;whylogs/python/</span><span class="si">{</span><span class="n">_version</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="n">cache_config</span><span class="o">.</span><span class="n">endpoint_hostname</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Override endpoint hostname for TLS verification is set to: </span><span class="si">{</span><span class="n">cache_config</span><span class="o">.</span><span class="n">endpoint_hostname</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_hostname_config</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">cache_config</span><span class="o">.</span><span class="n">endpoint_hostname</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">client</span><span class="p">,</span> <span class="n">refresher</span>
+
+    <span class="k">def</span> <span class="nf">_update_hostname_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">endpoint_hostname_override</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Log an option line, which is anything that has multiple related lines in a row like</span>
-<span class="sd">        multiple choices or a list things.</span>
+<span class="sd">        This method overrides the pool manager&#39;s new connection method to add the hostname</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; ⤷ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">rest_client</span><span class="o">.</span><span class="n">pool_manager</span><span class="p">,</span> <span class="n">ProxyManager</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Endpoint hostname override is not supported when using with proxy&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="InteractiveLogger.inspect"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.inspect">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">inspect</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Log a message that the user is intended to interact with or inspect, like a url</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔍 </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Override endpoint hostname to: </span><span class="si">{</span><span class="n">endpoint_hostname_override</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">old_conn_factory</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">rest_client</span><span class="o">.</span><span class="n">pool_manager</span><span class="o">.</span><span class="n">connection_from_host</span>
 
-<div class="viewcode-block" id="InteractiveLogger.question"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.question">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">question</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Log a question.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❓ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="k">def</span> <span class="nf">new_conn_factory</span><span class="p">(</span><span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">scheme</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pool_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pool_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">pool_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">pool_kwargs</span><span class="p">[</span><span class="s2">&quot;assert_hostname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">endpoint_hostname_override</span>
+            <span class="n">pool_kwargs</span><span class="p">[</span><span class="s2">&quot;server_hostname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">endpoint_hostname_override</span>
+            <span class="k">return</span> <span class="n">old_conn_factory</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">scheme</span><span class="p">,</span> <span class="n">pool_kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="InteractiveLogger.success"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.success">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Log a success line, which has a green checkmark.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="InteractiveLogger.failure"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.failure">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">failure</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Log a failure, which has a red x.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="InteractiveLogger.warning"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.warning">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Log a warning, which has a warning sign.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="n">log_fn</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="InteractiveLogger.warning_once"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.warning_once">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">warning_once</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Like warning, but only logs once.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">_is_notebook</span><span class="p">:</span>
-            <span class="k">return</span>
-
-        <span class="k">if</span> <span class="nb">hash</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">__warnings</span><span class="p">:</span>
-            <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="n">log_fn</span><span class="p">)</span>
-            <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">__warnings</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">hash</span><span class="p">(</span><span class="n">message</span><span class="p">))</span></div></div>
-
-
-<span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">init_notebook_logging</span><span class="p">()</span>
-
-
-<div class="viewcode-block" id="SessionType"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.SessionType">[docs]</a><span class="k">class</span> <span class="nc">SessionType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">WHYLABS_ANONYMOUS</span> <span class="o">=</span> <span class="s2">&quot;whylabs_anonymous&quot;</span>
-    <span class="n">WHYLABS</span> <span class="o">=</span> <span class="s2">&quot;whylabs&quot;</span>
-    <span class="n">LOCAL</span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span></div>
-
-
-<div class="viewcode-block" id="ApiKeyV1"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.ApiKeyV1">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">ApiKeyV1</span><span class="p">:</span>
-    <span class="n">api_key_id</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">full_key</span><span class="p">:</span> <span class="nb">str</span></div>
-
-
-<div class="viewcode-block" id="ApiKeyV2"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.ApiKeyV2">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">ApiKeyV2</span><span class="p">:</span>
-    <span class="n">api_key_id</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">org_id</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">full_key</span><span class="p">:</span> <span class="nb">str</span></div>
-
-
-<span class="n">ApiKey</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">ApiKeyV1</span><span class="p">,</span> <span class="n">ApiKeyV2</span><span class="p">]</span>
-
-
-<div class="viewcode-block" id="parse_api_key"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.parse_api_key">[docs]</a><span class="k">def</span> <span class="nf">parse_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApiKey</span><span class="p">:</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">parse_api_key_v2</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">parse_api_key_v1</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="validate_org_id"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.validate_org_id">[docs]</a><span class="k">def</span> <span class="nf">validate_org_id</span><span class="p">(</span><span class="n">org_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">org_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;org-&quot;</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="parse_api_key_v1"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.parse_api_key_v1">[docs]</a><span class="k">def</span> <span class="nf">parse_api_key_v1</span><span class="p">(</span><span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApiKeyV1</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Parse the key id from an api key.</span>
-<span class="sd">    V1 api keys have the format key_id.key</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># split on . and get the first part</span>
-    <span class="n">api_key_id</span> <span class="o">=</span> <span class="n">api_key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-
-    <span class="k">assert</span> <span class="s2">&quot;:&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">api_key</span>
-    <span class="k">return</span> <span class="n">ApiKeyV1</span><span class="p">(</span><span class="n">api_key_id</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="parse_api_key_v2"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.parse_api_key_v2">[docs]</a><span class="k">def</span> <span class="nf">parse_api_key_v2</span><span class="p">(</span><span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApiKeyV2</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Parse the key id and the org id from an api key</span>
-<span class="sd">    V2 api keys have the format key_id.key:org_id</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># split on . and get the first part</span>
-    <span class="n">api_key_id</span> <span class="o">=</span> <span class="n">api_key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-
-    <span class="c1"># split on : and get the second part</span>
-    <span class="n">org_id</span> <span class="o">=</span> <span class="n">api_key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">ApiKeyV2</span><span class="p">(</span><span class="n">api_key_id</span><span class="p">,</span> <span class="n">org_id</span><span class="p">,</span> <span class="n">api_key</span><span class="p">)</span></div>
+        <span class="n">client</span><span class="o">.</span><span class="n">rest_client</span><span class="o">.</span><span class="n">pool_manager</span><span class="o">.</span><span class="n">connection_from_host</span> <span class="o">=</span> <span class="n">new_conn_factory</span></div>
 </pre></div>
         </article>
       </div>

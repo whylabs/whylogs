@@ -12,9 +12,6 @@ Classes
 
 .. autoapisummary::
 
-   whylogs.api.writer.whylabs.KeyRefresher
-   whylogs.api.writer.whylabs.StaticKeyRefresher
-   whylogs.api.writer.whylabs.EnvironmentKeyRefresher
    whylogs.api.writer.whylabs.WhyLabsWriter
 
 
@@ -56,43 +53,6 @@ Attributes
 .. py:data:: KNOWN_CUSTOM_PERFORMANCE_METRICS
 
    
-
-.. py:class:: KeyRefresher
-
-   Bases: :py:obj:`abc.ABC`
-
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
-
-   .. py:property:: key_id
-      :type: str
-      :abstractmethod:
-
-
-
-.. py:class:: StaticKeyRefresher(api_key: str)
-
-   Bases: :py:obj:`KeyRefresher`
-
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
-
-   .. py:property:: key_id
-      :type: str
-
-
-
-.. py:class:: EnvironmentKeyRefresher
-
-   Bases: :py:obj:`KeyRefresher`
-
-   This key refresher uses environment variable key. The key is automatically picked up if the
-   user changes the environment variable.
-
-   .. py:property:: key_id
-      :type: str
-
-
 
 .. py:class:: WhyLabsWriter(org_id: Optional[str] = None, api_key: Optional[str] = None, dataset_id: Optional[str] = None, api_client: Optional[whylabs_client.ApiClient] = None, ssl_ca_cert: Optional[str] = None, _timeout_seconds: Optional[float] = None)
 

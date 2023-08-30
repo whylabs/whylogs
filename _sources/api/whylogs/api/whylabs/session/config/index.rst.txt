@@ -90,6 +90,16 @@ Classes
 
       
 
+   .. py:attribute:: HTTP_PROXY
+      :value: 'HTTP_PROXY'
+
+      
+
+   .. py:attribute:: HTTPS_PROXY
+      :value: 'HTTPS_PROXY'
+
+      
+
    .. py:method:: name()
 
       The name of the Enum member.
@@ -154,6 +164,16 @@ Classes
 
       
 
+   .. py:attribute:: HTTP_PROXY
+      :value: 'http_proxy'
+
+      
+
+   .. py:attribute:: HTTPS_PROXY
+      :value: 'https_proxy'
+
+      
+
    .. py:method:: name()
 
       The name of the Enum member.
@@ -194,10 +214,27 @@ Classes
 
       
 
+   .. py:attribute:: force_local
+      :type: Optional[bool]
+
+      
+
 
 .. py:class:: SessionConfig(init_config: Optional[InitConfig] = None)
 
    .. py:method:: get_session_type() -> whylogs.api.whylabs.session.session_types.SessionType
+
+
+   .. py:method:: get_https_proxy() -> Optional[str]
+
+
+   .. py:method:: set_https_proxy(proxy: str) -> None
+
+
+   .. py:method:: get_http_proxy() -> Optional[str]
+
+
+   .. py:method:: set_http_proxy(proxy: str) -> None
 
 
    .. py:method:: get_whylabs_private_api_endpoint() -> Optional[str]
@@ -246,6 +283,9 @@ Classes
 
 
    .. py:method:: get_api_key() -> Optional[str]
+
+
+   .. py:method:: get_env_api_key() -> Optional[str]
 
 
    .. py:method:: require_api_key() -> str

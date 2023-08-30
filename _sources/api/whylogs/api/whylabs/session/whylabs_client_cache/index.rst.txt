@@ -1,0 +1,97 @@
+:py:mod:`whylogs.api.whylabs.session.whylabs_client_cache`
+==========================================================
+
+.. py:module:: whylogs.api.whylabs.session.whylabs_client_cache
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.whylabs_client_cache.KeyRefresher
+   whylogs.api.whylabs.session.whylabs_client_cache.StaticKeyRefresher
+   whylogs.api.whylabs.session.whylabs_client_cache.EnvironmentKeyRefresher
+   whylogs.api.whylabs.session.whylabs_client_cache.ClientCacheConfig
+   whylogs.api.whylabs.session.whylabs_client_cache.WhylabsClientCache
+
+
+
+
+.. py:class:: KeyRefresher
+
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:property:: key_id
+      :type: str
+      :abstractmethod:
+
+
+
+.. py:class:: StaticKeyRefresher(api_key: str)
+
+   Bases: :py:obj:`KeyRefresher`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:property:: key_id
+      :type: str
+
+
+
+.. py:class:: EnvironmentKeyRefresher
+
+   Bases: :py:obj:`KeyRefresher`
+
+   This key refresher uses environment variable key. The key is automatically picked up if the
+   user changes the environment variable.
+
+   .. py:property:: key_id
+      :type: str
+
+
+
+.. py:class:: ClientCacheConfig
+
+   .. py:attribute:: api_key
+      :type: Optional[str]
+
+      
+
+   .. py:attribute:: ssl_ca_cert
+      :type: Optional[str]
+
+      
+
+   .. py:attribute:: whylabs_api_endpoint
+      :type: Optional[str]
+
+      
+
+   .. py:attribute:: endpoint_hostname
+      :type: Optional[str]
+
+      
+
+
+.. py:class:: WhylabsClientCache
+
+   .. py:method:: reset() -> None
+      :staticmethod:
+
+
+   .. py:method:: instance() -> WhylabsClientCache
+      :staticmethod:
+
+
+   .. py:method:: get_client(config: ClientCacheConfig) -> Tuple[whylabs_client.ApiClient, KeyRefresher]
+
+
+

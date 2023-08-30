@@ -73,7 +73,7 @@ Attributes
 
 
 
-.. py:class:: GuestSession(config: whylogs.api.whylabs.session.config.SessionConfig, whylabs_client: whylabs_client.api_client.ApiClient)
+.. py:class:: GuestSession(config: whylogs.api.whylabs.session.config.SessionConfig)
 
    Bases: :py:obj:`Session`
 
@@ -113,7 +113,7 @@ Attributes
 
 
 
-.. py:class:: ApiKeySession(config: whylogs.api.whylabs.session.config.SessionConfig, whylabs_client: whylabs_client.api_client.ApiClient)
+.. py:class:: ApiKeySession(config: whylogs.api.whylabs.session.config.SessionConfig)
 
    Bases: :py:obj:`Session`
 

@@ -423,20 +423,17 @@
         <article role="main">
           <h1>Source code for whylogs.api.whylabs.session.session_manager</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
-
-<span class="kn">from</span> <span class="nn">whylabs_client.api_client</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">Configuration</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.config</span> <span class="kn">import</span> <span class="n">InitConfig</span><span class="p">,</span> <span class="n">SessionConfig</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.notebook_check</span> <span class="kn">import</span> <span class="n">is_interractive</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ApiKeySession</span><span class="p">,</span>
     <span class="n">GuestSession</span><span class="p">,</span>
     <span class="n">LocalSession</span><span class="p">,</span>
     <span class="n">Session</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_types</span> <span class="kn">import</span> <span class="n">InteractiveLogger</span> <span class="k">as</span> <span class="n">il</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_types</span> <span class="kn">import</span> <span class="n">SessionType</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.utils.utils</span> <span class="kn">import</span> <span class="n">deprecated_alias</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -448,20 +445,14 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">config</span><span class="p">:</span> <span class="n">SessionConfig</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
-        <span class="n">client_config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="p">()</span>
-        <span class="n">client_config</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_whylabs_endpoint</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_whylabs_client</span> <span class="o">=</span> <span class="n">ApiClient</span><span class="p">(</span><span class="n">client_config</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">:</span> <span class="n">Session</span>
         <span class="n">session_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_session_type</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">session_type</span> <span class="o">==</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">LocalSession</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">LocalSession</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">session_type</span> <span class="o">==</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS_ANONYMOUS</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">GuestSession</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_whylabs_client</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">GuestSession</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">session_type</span> <span class="o">==</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS</span><span class="p">:</span>
-            <span class="n">client_config</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ApiKeyAuth&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">require_api_key</span><span class="p">()}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">ApiKeySession</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_whylabs_client</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">ApiKeySession</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown session type: </span><span class="si">{</span><span class="n">session_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -487,16 +478,15 @@
         <span class="k">return</span> <span class="n">SessionManager</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div></div>
 
 
-<div class="viewcode-block" id="init"><a class="viewcode-back" href="../../../../../api/whylogs/index.html#whylogs.api.whylabs.init">[docs]</a><span class="nd">@deprecated_alias</span><span class="p">(</span><span class="n">session_type</span><span class="o">=</span><span class="s2">&quot;allow_anonymous&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">init</span><span class="p">(</span>
-    <span class="n">session_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">SessionType</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="init"><a class="viewcode-back" href="../../../../../api/whylogs/index.html#whylogs.api.whylabs.init">[docs]</a><span class="k">def</span> <span class="nf">init</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
     <span class="n">reinit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">allow_anonymous</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">allow_local</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">whylabs_api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set up authentication for this whylogs logging session. There are three modes that you can authentiate in.</span>
 
@@ -532,15 +522,12 @@
 <span class="sd">            you&#39;re only using a single dataset id.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">session_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;whylabs_anonymous&quot;</span><span class="p">,</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS_ANONYMOUS</span><span class="p">]:</span>
-        <span class="n">allow_anonymous</span> <span class="o">=</span> <span class="kc">True</span>
-
     <span class="k">if</span> <span class="n">reinit</span><span class="p">:</span>
         <span class="n">SessionManager</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
-    <span class="c1"># python name mangling...</span>
-    <span class="k">if</span> <span class="n">SessionManager</span><span class="o">.</span><span class="n">_SessionManager__instance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
-        <span class="k">return</span>
+    <span class="n">manager</span><span class="p">:</span> <span class="n">SessionManager</span> <span class="o">=</span> <span class="n">SessionManager</span><span class="o">.</span><span class="n">_SessionManager__instance</span>  <span class="c1"># type: ignore</span>
+    <span class="k">if</span> <span class="n">manager</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">manager</span><span class="o">.</span><span class="n">session</span>
 
     <span class="n">session_config</span> <span class="o">=</span> <span class="n">SessionConfig</span><span class="p">(</span>
         <span class="n">InitConfig</span><span class="p">(</span>
@@ -549,36 +536,54 @@
             <span class="n">whylabs_api_key</span><span class="o">=</span><span class="n">whylabs_api_key</span><span class="p">,</span>
             <span class="n">default_dataset_id</span><span class="o">=</span><span class="n">default_dataset_id</span><span class="p">,</span>
             <span class="n">config_path</span><span class="o">=</span><span class="n">config_path</span><span class="p">,</span>
+            <span class="n">force_local</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;force_local&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
         <span class="p">)</span>
     <span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">SessionManager</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">session_config</span><span class="p">)</span>
+        <span class="n">manager</span> <span class="o">=</span> <span class="n">SessionManager</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">session_config</span><span class="p">)</span>
         <span class="n">session_config</span><span class="o">.</span><span class="n">notify_session_type</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">manager</span><span class="o">.</span><span class="n">session</span>
     <span class="k">except</span> <span class="ne">PermissionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># TODO PR this implies that we need disk access to work correctly, but isn&#39;t that already the case</span>
+        <span class="c1"># because we write profilfes to disk as tmp files?</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Could not create or read configuration file for session. Profiles won&#39;t be uploaded.&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">e</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Could not initialize session&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Could not initialize session&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">e</span></div>
 
-
-<span class="n">_missing_session_warned</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="n">_INIT_DOCS</span> <span class="o">=</span> <span class="s2">&quot;https://docs.whylabs.ai/docs/whylabs-whylogs-init&quot;</span>
 
 
 <div class="viewcode-block" id="get_current_session"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_manager/index.html#whylogs.api.whylabs.get_current_session">[docs]</a><span class="k">def</span> <span class="nf">get_current_session</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Session</span><span class="p">]:</span>
-    <span class="k">global</span> <span class="n">_missing_session_warned</span>
     <span class="n">manager</span> <span class="o">=</span> <span class="n">SessionManager</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">manager</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">manager</span><span class="o">.</span><span class="n">session</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">_missing_session_warned</span> <span class="ow">and</span> <span class="n">is_interractive</span><span class="p">():</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;No session found. Call whylogs.init() to initialize a session and authenticate. See </span><span class="si">{</span><span class="n">_INIT_DOCS</span><span class="si">}</span><span class="s2"> for more information.&quot;</span>
-        <span class="p">)</span>
-        <span class="n">_missing_session_warned</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">il</span><span class="o">.</span><span class="n">warning_once</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;No session found. Call whylogs.init() to initialize a session and authenticate. See </span><span class="si">{</span><span class="n">_INIT_DOCS</span><span class="si">}</span><span class="s2"> for more information.&quot;</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<span class="k">def</span> <span class="nf">_default_init</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For internal use. This initializes a default session for the user if they don&#39;t call why.init() themselves.</span>
+<span class="sd">    This will behave as though they called why.init() with no arguments and print out a warning with a link to the docs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">manager</span> <span class="o">=</span> <span class="n">SessionManager</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">manager</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">warning_once</span><span class="p">(</span><span class="s2">&quot;Initializing default session because no session was found.&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">)</span>
+
+        <span class="c1"># To be safe, don&#39;t allow default session to be anonymous or local if this is happening as a side effect</span>
+        <span class="c1"># that users don&#39;t know about.</span>
+        <span class="k">return</span> <span class="n">init</span><span class="p">(</span><span class="n">allow_anonymous</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_local</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force_local</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">manager</span><span class="o">.</span><span class="n">session</span>
 </pre></div>
         </article>
       </div>

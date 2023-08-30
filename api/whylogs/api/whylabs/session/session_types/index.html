@@ -525,11 +525,14 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_types.InteractiveLogger.message">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_types.html#InteractiveLogger.message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_types.InteractiveLogger.message" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_types.html#InteractiveLogger.message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_types.InteractiveLogger.message" title="Permalink to this definition">#</a></dt>
 <dd><p>Log a message only if we’re in a notebook environment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>log_fn</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
@@ -610,11 +613,31 @@ multiple choices or a list things.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_types.InteractiveLogger.warning">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_types.html#InteractiveLogger.warning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_types.InteractiveLogger.warning" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_types.html#InteractiveLogger.warning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_types.InteractiveLogger.warning" title="Permalink to this definition">#</a></dt>
 <dd><p>Log a warning, which has a warning sign.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>log_fn</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.api.whylabs.session.session_types.InteractiveLogger.warning_once">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">warning_once</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../../_modules/whylogs/api/whylabs/session/session_types.html#InteractiveLogger.warning_once"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.whylabs.session.session_types.InteractiveLogger.warning_once" title="Permalink to this definition">#</a></dt>
+<dd><p>Like warning, but only logs once.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>log_fn</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
@@ -838,6 +861,7 @@ V2 api keys have the format key_id.key:org_id</p>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.session_types.InteractiveLogger.success">success</a></li>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.session_types.InteractiveLogger.failure">failure</a></li>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.session_types.InteractiveLogger.warning">warning</a></li>
+<li><a class="reference internal" href="#whylogs.api.whylabs.session.session_types.InteractiveLogger.warning_once">warning_once</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.whylabs.session.session_types.SessionType">SessionType</a><ul>
