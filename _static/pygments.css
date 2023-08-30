@@ -17,6 +17,7 @@
 .highlight .cs { color: #60a0b0; background-color: #fff0f0 } /* Comment.Special */
 .highlight .gd { color: #A00000 } /* Generic.Deleted */
 .highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
 .highlight .gr { color: #FF0000 } /* Generic.Error */
 .highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
 .highlight .gi { color: #00A000 } /* Generic.Inserted */
@@ -97,6 +98,7 @@ body[data-theme="dark"] .highlight .c1 { color: #546E7A; font-style: italic } /*
 body[data-theme="dark"] .highlight .cs { color: #546E7A; font-style: italic } /* Comment.Special */
 body[data-theme="dark"] .highlight .gd { color: #FF5370 } /* Generic.Deleted */
 body[data-theme="dark"] .highlight .ge { color: #89DDFF } /* Generic.Emph */
+body[data-theme="dark"] .highlight .ges { color: #FFCB6B } /* Generic.EmphStrong */
 body[data-theme="dark"] .highlight .gr { color: #FF5370 } /* Generic.Error */
 body[data-theme="dark"] .highlight .gh { color: #C3E88D } /* Generic.Heading */
 body[data-theme="dark"] .highlight .gi { color: #C3E88D } /* Generic.Inserted */
@@ -181,6 +183,7 @@ body:not([data-theme="light"]) .highlight .c1 { color: #546E7A; font-style: ital
 body:not([data-theme="light"]) .highlight .cs { color: #546E7A; font-style: italic } /* Comment.Special */
 body:not([data-theme="light"]) .highlight .gd { color: #FF5370 } /* Generic.Deleted */
 body:not([data-theme="light"]) .highlight .ge { color: #89DDFF } /* Generic.Emph */
+body:not([data-theme="light"]) .highlight .ges { color: #FFCB6B } /* Generic.EmphStrong */
 body:not([data-theme="light"]) .highlight .gr { color: #FF5370 } /* Generic.Error */
 body:not([data-theme="light"]) .highlight .gh { color: #C3E88D } /* Generic.Heading */
 body:not([data-theme="light"]) .highlight .gi { color: #C3E88D } /* Generic.Inserted */
