@@ -149,7 +149,7 @@ def get_current_session() -> Optional[Session]:
         return manager.session
 
     if not _missing_session_warned and is_interractive():
-        logger.warning(
+        logger.info(
             f"No session found. Call whylogs.init() to initialize a session and authenticate. See {_INIT_DOCS} for more information."
         )
         _missing_session_warned = True
