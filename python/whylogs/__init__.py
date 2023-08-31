@@ -18,8 +18,8 @@ These three functionalities enable a variety of use cases for data scientists, m
 from .api import (
     ResultSet,
     log,
-    log_debug_event,
     log_classification_metrics,
+    log_debug_event,
     log_regression_metrics,
     logger,
     profiling,
