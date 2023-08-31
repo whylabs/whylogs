@@ -76,6 +76,7 @@ class Logger(ABC):
         timestamp_ms: Optional[int] = None,  # Not the dataset timestamp, but the timestamp of the data
         name: Optional[str] = None,
         trace_id: Optional[str] = None,
+        debug_event: Optional[Dict[str, Any]] = None,
         tags: Optional[List[str]] = None,
         segment_key_values: Optional[List[Dict[str, str]]] = None,
     ) -> ResultSet:

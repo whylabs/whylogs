@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from functools import reduce
 from typing import Any, Dict, List, Optional, Union
+from uuid import uuid4
 
 from typing_extensions import Literal
 
@@ -46,9 +47,30 @@ def log(
     multiple: Optional[Dict[str, Loggable]] = None,
     dataset_timestamp: Optional[datetime] = None,
     trace_id: Optional[str] = None,
+    debug_event: Optional[Dict[str, Any]] = None,
     tags: Optional[List[str]] = None,
     segment_key_values: Optional[List[Dict[str, str]]] = None,
+    preserve_record: bool = False,
 ) -> ResultSet:
+    if not trace_id:
+        trace_id = str(uuid4())
+    if debug_event:
+        log_debug_event(
+            debug_event=debug_event,
+            trace_id=trace_id,
+            tags=tags,
+            segment_key_values=segment_key_values,
+        )
+
+    if preserve_record:
+        if obj is not None and isinstance(obj, pd.DataFrame):
+            pandas_record = obj
+        if pandas is not None:
+            pandas_record = pandas
+        record_count = pandas_record.shape[0]
+        if record_count != 1:
+            diagnostic_logger.warning(f"log call had preserve_record=True but the dataframe had {record_count} rows.")
+
     if multiple is not None:
         result_sets: Dict[str, ResultSet] = {}
         emit_usage("multiple")
@@ -63,7 +85,15 @@ def log(
         notebook_session_log_comparison(multiple, result_sets)
         return result_set
     else:
-        result_set = TransientLogger(schema=schema).log(obj, pandas=pandas, row=row, name=name)
+        result_set = TransientLogger(schema=schema).log(
+            obj,
+            pandas=pandas,
+            row=row,
+            name=name,
+            trace_id=trace_id,
+            tags=tags,
+            segment_key_values=segment_key_values,
+        )
         if dataset_timestamp is not None:
             result_set.set_dataset_timestamp(dataset_timestamp)
         notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
