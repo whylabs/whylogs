@@ -18,6 +18,7 @@ These three functionalities enable a variety of use cases for data scientists, m
 from .api import (
     ResultSet,
     log,
+    log_debug_event,
     log_classification_metrics,
     log_regression_metrics,
     logger,
@@ -29,7 +30,6 @@ from .api import (
 from .api.usage_stats import emit_usage as __emit_usage_stats
 from .api.whylabs import init
 from .core import DatasetProfileView
-from .extras import log_debug_event, log_single_image
 from .migration.converters import v0_to_v1_view
 
 
@@ -58,7 +58,6 @@ __ALL__ = [
     log_classification_metrics,
     log_regression_metrics,
     log_debug_event,
-    log_single_image,
     logger,
     read,
     reader,

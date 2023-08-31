@@ -45,6 +45,9 @@ def log(
     name: Optional[str] = None,
     multiple: Optional[Dict[str, Loggable]] = None,
     dataset_timestamp: Optional[datetime] = None,
+    trace_id: Optional[str] = None,
+    tags: Optional[List[str]] = None,
+    segment_key_values: Optional[List[Dict[str, str]]] = None,
 ) -> ResultSet:
     if multiple is not None:
         result_sets: Dict[str, ResultSet] = {}
@@ -254,14 +257,14 @@ def logger(
 
 
 __ALL__ = [
-    "log",
-    "log_debug_event",
-    "read",
-    "reader",
-    "write",
-    "logger",
-    "Logger",
-    "ResultSet",
-    "RollingLogger",
-    "SegmentedResultSet",
+    log,
+    log_debug_event,
+    read,
+    reader,
+    write,
+    logger,
+    Logger,
+    ResultSet,
+    TimedRollingLogger,
+    SegmentedResultSet,
 ]

@@ -76,3 +76,7 @@ def log_debug_event(
             json.dump(extracted_event, json_file)
 
         diagnostic_logger.info(f"debug_event saved to {filename}")
+    else:
+        diagnostic_logger.warning(
+            "debug_event not writing to WhyLabs, only local file write is supported in this build"
+        )

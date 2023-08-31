@@ -3,6 +3,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
+from whylogs.api.logger.events.event import _extract_default_metadata
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
 from whylogs.api.logger.segment_processing import segment_processing
 from whylogs.api.store import ProfileStore
@@ -74,6 +75,9 @@ class Logger(ABC):
         schema: Optional[DatasetSchema] = None,
         timestamp_ms: Optional[int] = None,  # Not the dataset timestamp, but the timestamp of the data
         name: Optional[str] = None,
+        trace_id: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        segment_key_values: Optional[List[Dict[str, str]]] = None,
     ) -> ResultSet:
         """
         Args:
@@ -104,7 +108,11 @@ class Logger(ABC):
 
         for prof in profiles:
             prof.track(obj, pandas=pandas, row=row, execute_udfs=False)
-            prof._metadata
+            prof._metadata = _extract_default_metadata(
+                trace_id=trace_id,
+                tags=tags,
+                segment_key_values=segment_key_values,
+            )
 
         first_profile = profiles[0]
         if name is not None:
