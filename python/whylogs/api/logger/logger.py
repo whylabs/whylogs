@@ -10,6 +10,7 @@ from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.errors import LoggingError
 from whylogs.core.input_resolver import _pandas_or_dict
+from whylogs.core.metadata import _extract_common_profile_metadata
 from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
@@ -74,6 +75,9 @@ class Logger(ABC):
         schema: Optional[DatasetSchema] = None,
         timestamp_ms: Optional[int] = None,  # Not the dataset timestamp, but the timestamp of the data
         name: Optional[str] = None,
+        trace_id: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        segment_key_values: Optional[List[Dict[str, str]]] = None,
     ) -> ResultSet:
         """
         Args:
@@ -98,13 +102,22 @@ class Logger(ABC):
 
         # If segments are defined use segment_processing to return a SegmentedResultSet
         if active_schema and active_schema.segments:
-            return segment_processing(active_schema, obj, pandas, row, self._segment_cache)
+            segmented_results = segment_processing(active_schema, obj, pandas, row, self._segment_cache)
+            _extract_common_profile_metadata(
+                segmented_results.metadata, trace_id=trace_id, tags=tags, segment_key_values=segment_key_values
+            )
+            return segmented_results
 
         profiles = self._get_matching_profiles(obj, pandas=pandas, row=row, schema=active_schema)
 
         for prof in profiles:
             prof.track(obj, pandas=pandas, row=row, execute_udfs=False)
-            prof._metadata
+            prof._metadata = _extract_common_profile_metadata(
+                prof._metadata,
+                trace_id=trace_id,
+                tags=tags,
+                segment_key_values=segment_key_values,
+            )
 
         first_profile = profiles[0]
         if name is not None:

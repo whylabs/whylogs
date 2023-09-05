@@ -126,6 +126,7 @@ def segment_processing(
     pandas: Optional[pd.DataFrame] = None,
     row: Optional[Dict[str, Any]] = None,
     segment_cache: Optional[SegmentCache] = None,
+    trace_id: Optional[str] = None,
 ) -> SegmentedResultSet:
     number_of_partitions = len(schema.segments)
     logger.info(f"The specified schema defines segments with {number_of_partitions} partitions.")
