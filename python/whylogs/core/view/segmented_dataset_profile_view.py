@@ -216,6 +216,7 @@ class SegmentedDatasetProfileView(Writable):
 
     def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         if kwargs.get("use_v0"):
+            logger.warning("writing segmented profile as v0 format, some info may be converted")
             return self._write_as_v0_message(path, **kwargs)
         else:
             return self._write_v1(path, **kwargs)

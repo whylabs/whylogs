@@ -348,6 +348,11 @@ def v1_to_dataset_profile_message_v0(
         raise NotImplementedError(
             f"Conversion of custom v1 segmented profiles to v0 not supported! please use column value segmentation, found tags: {segment_tags}"
         )
+    if profile_view.metadata:
+        if segment_metadata is not None:
+            segment_metadata.update(profile_view.metadata)
+        else:
+            segment_metadata = profile_view.metadata
 
     properties_v0 = DatasetPropertiesV0(
         schema_major_version=1,  # https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/src/whylogs/core/datasetprofile.py#L37-L38
