@@ -15,7 +15,7 @@ USER_TAGS_KEY = "whylogs.user.tags"
 NAME_KEY = "whylogs.name"
 
 
-def _extract_common_profile_metadata(
+def _populate_common_profile_metadata(
     metadata: Optional[Dict[str, str]] = None,
     *,
     name: Optional[str] = None,

@@ -10,7 +10,7 @@ from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.errors import LoggingError
 from whylogs.core.input_resolver import _pandas_or_dict
-from whylogs.core.metadata import _extract_common_profile_metadata
+from whylogs.core.metadata import _populate_common_profile_metadata
 from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
@@ -103,7 +103,8 @@ class Logger(ABC):
         # If segments are defined use segment_processing to return a SegmentedResultSet
         if active_schema and active_schema.segments:
             segmented_results = segment_processing(active_schema, obj, pandas, row, self._segment_cache)
-            _extract_common_profile_metadata(
+            # Update the existing segmented_results metadata with the trace_id and other keys if not present
+            _populate_common_profile_metadata(
                 segmented_results.metadata, trace_id=trace_id, tags=tags, segment_key_values=segment_key_values
             )
             return segmented_results
@@ -112,7 +113,7 @@ class Logger(ABC):
 
         for prof in profiles:
             prof.track(obj, pandas=pandas, row=row, execute_udfs=False)
-            prof._metadata = _extract_common_profile_metadata(
+            prof._metadata = _populate_common_profile_metadata(
                 prof._metadata,
                 trace_id=trace_id,
                 tags=tags,

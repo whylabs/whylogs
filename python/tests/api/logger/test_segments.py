@@ -126,6 +126,8 @@ def test_single_column_segment_with_trace_id() -> None:
     )
     cardinality = segment_cardinality.estimate
     assert cardinality is not None
+    # cardinality is an estimate, and because this is the segment column, it should
+    #  by definition contain only one unique value per segment.
     assert cardinality == 1.0
     assert results.metadata is not None
     assert results.metadata["whylabs.traceId"] == trace_id
