@@ -44,12 +44,15 @@ def log(
     name: Optional[str] = None,
     multiple: Optional[Dict[str, Loggable]] = None,
     dataset_timestamp: Optional[datetime] = None,
+    trace_id: Optional[str] = None,
+    tags: Optional[List[str]] = None,
+    segment_key_values: Optional[List[Dict[str, str]]] = None,
 ) -> ResultSet:
     if multiple is not None:
         result_sets: Dict[str, ResultSet] = {}
         emit_usage("multiple")
         for alias, data in multiple.items():
-            result_set = TransientLogger(schema=schema).log(data)
+            result_set = TransientLogger(schema=schema).log(data, trace_id=trace_id)
             if dataset_timestamp is not None:
                 result_set.set_dataset_timestamp(dataset_timestamp)
             result_sets[alias] = result_set
@@ -59,10 +62,13 @@ def log(
         notebook_session_log_comparison(multiple, result_sets)
         return result_set
     else:
-        result_set = TransientLogger(schema=schema).log(obj, pandas=pandas, row=row, name=name)
+        result_set = TransientLogger(schema=schema).log(
+            obj, pandas=pandas, row=row, name=name, trace_id=trace_id, tags=tags, segment_key_values=segment_key_values
+        )
         if dataset_timestamp is not None:
             result_set.set_dataset_timestamp(dataset_timestamp)
         notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
+
         return result_set
 
 

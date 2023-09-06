@@ -130,4 +130,4 @@ def test_dataset_profile_name() -> None:
     assert "name" in named_view._metadata
     assert named_view._metadata["name"] == dataset_name
 
-    assert unnamed_prof._metadata is None
+    assert "name" not in unnamed_prof._metadata
