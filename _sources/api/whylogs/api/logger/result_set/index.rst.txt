@@ -67,6 +67,10 @@ Attributes
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
+   .. py:property:: metadata
+      :type: Optional[Dict[str, str]]
+
+
    .. py:property:: count
       :type: int
 
@@ -122,6 +126,10 @@ Attributes
 
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
+
+   .. py:property:: metadata
+      :type: Optional[Dict[str, str]]
+
 
    .. py:property:: count
       :type: int
@@ -179,6 +187,10 @@ Attributes
 
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
+
+   .. py:property:: metadata
+      :type: Optional[Dict[str, str]]
+
 
    .. py:property:: count
       :type: int
@@ -255,6 +267,10 @@ Attributes
 
    .. py:property:: model_performance_metric
       :type: Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+
+
+   .. py:property:: metadata
+      :type: Optional[Dict[str, str]]
 
 
    .. py:property:: performance_metrics

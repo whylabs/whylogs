@@ -63,6 +63,10 @@ Attributes
 
       Returns True if the profile tracking code is currently running.
 
+   .. py:property:: metadata
+      :type: Dict[str, str]
+
+
    .. py:property:: model_performance_metrics
       :type: whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics
 

@@ -56,6 +56,10 @@ Attributes
       :type: Optional[datetime.datetime]
 
 
+   .. py:property:: metadata
+      :type: Dict[str, str]
+
+
    .. py:method:: get_default_path() -> str
 
 

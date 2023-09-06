@@ -1,0 +1,38 @@
+:py:mod:`whylogs.core.metadata`
+===============================
+
+.. py:module:: whylogs.core.metadata
+
+
+Module Contents
+---------------
+
+.. py:data:: diagnostic_logger
+
+   
+
+.. py:data:: WHYLABS_TRACE_ID_KEY
+   :value: 'whylabs.traceId'
+
+   
+
+.. py:data:: CREATION_TIMESTAMP_KEY
+   :value: 'whylogs.creationTimestamp'
+
+   
+
+.. py:data:: DATASET_TIMESTAMP_KEY
+   :value: 'whylogs.datasetTimestamp'
+
+   
+
+.. py:data:: USER_TAGS_KEY
+   :value: 'whylogs.user.tags'
+
+   
+
+.. py:data:: NAME_KEY
+   :value: 'whylogs.name'
+
+   
+

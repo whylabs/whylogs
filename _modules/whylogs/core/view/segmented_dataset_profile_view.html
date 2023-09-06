@@ -326,6 +326,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/feature_weights/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.feature_weights</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/input_resolver/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.input_resolver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/metadata/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metadata</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/metric_getters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metric_getters</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/predicate_parser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.predicate_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/core/preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
@@ -492,6 +493,10 @@
     <span class="k">def</span> <span class="nf">creation_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_view</span><span class="o">.</span><span class="n">creation_timestamp</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_view</span><span class="o">.</span><span class="n">metadata</span>
+
 <div class="viewcode-block" id="SegmentedDatasetProfileView.get_default_path"><a class="viewcode-back" href="../../../../api/whylogs/core/view/segmented_dataset_profile_view/index.html#whylogs.core.view.segmented_dataset_profile_view.SegmentedDatasetProfileView.get_default_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;profile_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_profile_view</span><span class="o">.</span><span class="n">creation_timestamp</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_segment_string</span><span class="p">()</span><span class="si">}</span><span class="s2">.bin&quot;</span></div>
 
@@ -587,6 +592,10 @@
             <span class="n">segment_message</span> <span class="o">=</span> <span class="n">SegmentMessage</span><span class="p">()</span>
             <span class="n">segment_message</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">segment_tags</span><span class="p">)</span>
             <span class="n">segments_message_field</span> <span class="o">=</span> <span class="p">[</span><span class="n">segment_message</span><span class="p">]</span>
+
+            <span class="c1"># Make sure to promote the contained profile&#39;s metadata to the DatasetProperties</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
+                <span class="n">segment_metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
 
             <span class="n">properties</span> <span class="o">=</span> <span class="n">DatasetProperties</span><span class="p">(</span>
                 <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">to_utc_milliseconds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_view</span><span class="o">.</span><span class="n">_dataset_timestamp</span><span class="p">),</span>

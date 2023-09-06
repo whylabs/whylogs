@@ -335,6 +335,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../core/errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../core/feature_weights/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.feature_weights</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../core/input_resolver/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.input_resolver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../core/metadata/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metadata</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../core/metric_getters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metric_getters</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../core/predicate_parser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.predicate_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../core/preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
@@ -573,6 +574,16 @@ simplifies the navigation among these profiles.</p>
 <p>Note that currently we only hold one profile but we’re planning to add other
 kinds of profiles such as segmented profiles here.</p>
 <dl class="py property">
+<dt class="sig sig-object py" id="whylogs.api.logger.result_set.ResultSet.metadata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.logger.result_set.ResultSet.metadata" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="whylogs.api.logger.result_set.ResultSet.count">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><a class="headerlink" href="#whylogs.api.logger.result_set.ResultSet.count" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -732,6 +743,16 @@ kinds of profiles such as segmented profiles here.</p>
 <dd class="field-odd"><p><strong>view</strong> (<a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><em>whylogs.core.DatasetProfileView</em></a>) – </p>
 </dd>
 </dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.api.logger.result_set.ViewResultSet.metadata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.logger.result_set.ViewResultSet.metadata" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="whylogs.api.logger.result_set.ViewResultSet.count">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><a class="headerlink" href="#whylogs.api.logger.result_set.ViewResultSet.count" title="Permalink to this definition">#</a></dt>
@@ -902,6 +923,16 @@ kinds of profiles such as segmented profiles here.</p>
 <dd class="field-odd"><p><strong>profile</strong> (<a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfile" title="whylogs.core.DatasetProfile"><em>whylogs.core.DatasetProfile</em></a>) – </p>
 </dd>
 </dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.api.logger.result_set.ProfileResultSet.metadata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.logger.result_set.ProfileResultSet.metadata" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="whylogs.api.logger.result_set.ProfileResultSet.count">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><a class="headerlink" href="#whylogs.api.logger.result_set.ProfileResultSet.count" title="Permalink to this definition">#</a></dt>
@@ -1123,6 +1154,16 @@ kinds of profiles such as segmented profiles here.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Optional[<a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.api.logger.result_set.SegmentedResultSet.metadata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.logger.result_set.SegmentedResultSet.metadata" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1436,6 +1477,7 @@ kinds of profiles such as segmented profiles here.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet">ResultSet</a><ul>
+<li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.metadata">metadata</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.count">count</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.performance_metrics">performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ResultSet.read">read</a></li>
@@ -1451,6 +1493,7 @@ kinds of profiles such as segmented profiles here.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet">ViewResultSet</a><ul>
+<li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.metadata">metadata</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.count">count</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.performance_metrics">performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ViewResultSet.profile">profile</a></li>
@@ -1467,6 +1510,7 @@ kinds of profiles such as segmented profiles here.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet">ProfileResultSet</a><ul>
+<li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.metadata">metadata</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.count">count</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.performance_metrics">performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.ProfileResultSet.profile">profile</a></li>
@@ -1488,6 +1532,7 @@ kinds of profiles such as segmented profiles here.</p>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.partitions">partitions</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.count">count</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.model_performance_metric">model_performance_metric</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.metadata">metadata</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.performance_metrics">performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.profile">profile</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.result_set.SegmentedResultSet.set_dataset_timestamp">set_dataset_timestamp</a></li>

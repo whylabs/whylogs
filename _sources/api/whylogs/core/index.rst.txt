@@ -32,6 +32,7 @@ Submodules
    errors/index.rst
    feature_weights/index.rst
    input_resolver/index.rst
+   metadata/index.rst
    metric_getters/index.rst
    predicate_parser/index.rst
    preprocessing/index.rst
@@ -147,6 +148,10 @@ Attributes
       :type: bool
 
       Returns True if the profile tracking code is currently running.
+
+   .. py:property:: metadata
+      :type: Dict[str, str]
+
 
    .. py:property:: model_performance_metrics
       :type: whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics
@@ -619,6 +624,10 @@ Attributes
 
    .. py:property:: creation_timestamp
       :type: Optional[datetime.datetime]
+
+
+   .. py:property:: metadata
+      :type: Dict[str, str]
 
 
    .. py:property:: model_performance_metrics

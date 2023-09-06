@@ -335,6 +335,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../feature_weights/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.feature_weights</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../input_resolver/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.input_resolver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metadata</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../metric_getters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metric_getters</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../predicate_parser/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.predicate_parser</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
@@ -681,6 +682,16 @@ inheritance.</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="whylogs.core.view.DatasetProfileView.metadata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.view.DatasetProfileView.metadata" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="whylogs.core.view.DatasetProfileView.model_performance_metrics">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_performance_metrics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><a class="headerlink" href="#whylogs.core.view.DatasetProfileView.model_performance_metrics" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -942,6 +953,7 @@ inheritance.</p>
 <li><a class="reference internal" href="#whylogs.core.view.DatasetProfileView">DatasetProfileView</a><ul>
 <li><a class="reference internal" href="#whylogs.core.view.DatasetProfileView.dataset_timestamp">dataset_timestamp</a></li>
 <li><a class="reference internal" href="#whylogs.core.view.DatasetProfileView.creation_timestamp">creation_timestamp</a></li>
+<li><a class="reference internal" href="#whylogs.core.view.DatasetProfileView.metadata">metadata</a></li>
 <li><a class="reference internal" href="#whylogs.core.view.DatasetProfileView.model_performance_metrics">model_performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.core.view.DatasetProfileView.add_model_performance_metrics">add_model_performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.core.view.DatasetProfileView.merge">merge</a></li>

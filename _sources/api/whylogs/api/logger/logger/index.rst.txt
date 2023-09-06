@@ -56,7 +56,7 @@ Attributes
    .. py:method:: append_store(store: whylogs.api.store.ProfileStore) -> None
 
 
-   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None, name: Optional[str] = None) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None, name: Optional[str] = None, trace_id: Optional[str] = None, tags: Optional[List[str]] = None, segment_key_values: Optional[List[Dict[str, str]]] = None) -> whylogs.api.logger.result_set.ResultSet
 
       :param timestamp_ms: The timestamp of the data being logged. This defaults to now if it isn't provided.
                            This is used to determine what the dataset timestamp should be. For an hourly model, the dataset
