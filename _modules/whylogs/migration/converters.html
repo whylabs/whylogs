@@ -773,6 +773,11 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Conversion of custom v1 segmented profiles to v0 not supported! please use column value segmentation, found tags: </span><span class="si">{</span><span class="n">segment_tags</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
+    <span class="k">if</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">segment_metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">segment_metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">profile_view</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">segment_metadata</span> <span class="o">=</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">metadata</span>
 
     <span class="n">properties_v0</span> <span class="o">=</span> <span class="n">DatasetPropertiesV0</span><span class="p">(</span>
         <span class="n">schema_major_version</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/src/whylogs/core/datasetprofile.py#L37-L38</span>
