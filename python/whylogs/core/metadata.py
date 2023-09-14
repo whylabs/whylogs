@@ -19,11 +19,9 @@ def _populate_common_profile_metadata(
     metadata: Optional[Dict[str, str]] = None,
     *,
     name: Optional[str] = None,
-    column_name: Optional[str] = None,
     trace_id: Optional[str] = None,
     tags: Optional[List[str]] = None,
     timestamp: Optional[int] = None,
-    segment_key_values: Optional[List[Dict[str, str]]] = None,
 ) -> Dict[str, Any]:
     if trace_id is not None:
         if not isinstance(trace_id, str):

@@ -77,7 +77,8 @@ class Logger(ABC):
         name: Optional[str] = None,
         trace_id: Optional[str] = None,
         tags: Optional[List[str]] = None,
-        segment_key_values: Optional[List[Dict[str, str]]] = None,
+        segment_key_values: Optional[Dict[str, str]] = None,
+        preserve_record: bool = False,
     ) -> ResultSet:
         """
         Args:
@@ -90,6 +91,12 @@ class Logger(ABC):
         if obj is None and pandas is None and row is None:
             # TODO: check for shell environment and emit more verbose error string to let user know how to correct.
             raise LoggingError("log() was called without passing in any input!")
+        if preserve_record and hasattr(self, "_aggregates"):
+            raise ValueError(
+                f"Logger of type: {type(self).__name__} does not support 'preserve_record=True', "
+                "please use a different Logger type, perhaps try the TransientLogger."
+            )
+
         if name is not None:
             if self._metadata is None:
                 self._metadata = dict()
@@ -102,23 +109,22 @@ class Logger(ABC):
 
         # If segments are defined use segment_processing to return a SegmentedResultSet
         if active_schema and active_schema.segments:
-            segmented_results = segment_processing(active_schema, obj, pandas, row, self._segment_cache)
-            # Update the existing segmented_results metadata with the trace_id and other keys if not present
-            _populate_common_profile_metadata(
-                segmented_results.metadata, trace_id=trace_id, tags=tags, segment_key_values=segment_key_values
+            segmented_results = segment_processing(
+                schema=active_schema,
+                obj=obj,
+                pandas=pandas,
+                row=row,
+                segment_cache=self._segment_cache,
             )
+            # Update the existing segmented_results metadata with the trace_id and other keys if not present
+            _populate_common_profile_metadata(segmented_results.metadata, trace_id=trace_id, tags=tags)
             return segmented_results
 
         profiles = self._get_matching_profiles(obj, pandas=pandas, row=row, schema=active_schema)
 
         for prof in profiles:
             prof.track(obj, pandas=pandas, row=row, execute_udfs=False)
-            prof._metadata = _populate_common_profile_metadata(
-                prof._metadata,
-                trace_id=trace_id,
-                tags=tags,
-                segment_key_values=segment_key_values,
-            )
+            prof._metadata = _populate_common_profile_metadata(prof._metadata, trace_id=trace_id, tags=tags)
 
         first_profile = profiles[0]
         if name is not None:

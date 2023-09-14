@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import Literal
 
+from whylogs.api.logger.events import log_debug_event
 from whylogs.api.logger.logger import Logger
 from whylogs.api.logger.result_set import (
     ProfileResultSet,
@@ -46,7 +47,9 @@ def log(
     dataset_timestamp: Optional[datetime] = None,
     trace_id: Optional[str] = None,
     tags: Optional[List[str]] = None,
-    segment_key_values: Optional[List[Dict[str, str]]] = None,
+    segment_key_values: Optional[Dict[str, str]] = None,
+    debug_event: Optional[Dict[str, Any]] = None,
+    **kwargs,
 ) -> ResultSet:
     if multiple is not None:
         result_sets: Dict[str, ResultSet] = {}
@@ -69,6 +72,18 @@ def log(
             result_set.set_dataset_timestamp(dataset_timestamp)
         notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
 
+        if debug_event is not None:
+            preserve_record = kwargs.get("preserve_record")
+            if preserve_record is not None:
+                diagnostic_logger.info(f"log was called with preserve_record: {preserve_record}")
+            debug_event_status = log_debug_event(
+                debug_event=debug_event,
+                trace_id=trace_id,
+                tags=tags,
+                segment_key_values=segment_key_values,
+                timestamp=dataset_timestamp,
+            )
+            diagnostic_logger.info(f"Done log_debug_event: {debug_event_status}")
         return result_set
 
 
