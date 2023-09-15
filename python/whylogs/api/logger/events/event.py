@@ -12,6 +12,7 @@ from whylogs.api.whylabs.session.whylabs_client_cache import (
     WhylabsClientCache,
 )
 from whylogs.core.metadata import _populate_common_profile_metadata
+from whylogs.core.utils import ensure_timezone
 from whylogs.core.utils.timestamp_calculations import to_utc_milliseconds
 
 from .file_name import _get_event_file_name
@@ -62,10 +63,10 @@ class DebugClient:
             diagnostic_logger.warning(
                 f"segment_key_values should be a dictionary of key value pairs but was passed as type: {type(segment_key_values)}"
             )
-        debug_segment = None
+
+        segment_tags = list()
         now_ms = to_utc_milliseconds(datetime.datetime.now(datetime.timezone.utc))
         if segment_key_values is not None:
-            segment_tags = list()
             for segment_key, segment_value in segment_key_values.items():
                 if not isinstance(segment_value, str):
                     diagnostic_logger.info(
@@ -79,14 +80,16 @@ class DebugClient:
                     )
                     segment_value = str(segment_value)
                 segment_tags.append(SegmentTag(key=segment_key, value=segment_value))
-            debug_segment = Segment(tags=segment_tags)
-
+        debug_segment = Segment(tags=segment_tags)
+        if dataset_timestamp is not None:
+            ensure_timezone(dataset_timestamp)
+        checked_dataset_timestamp = dataset_timestamp or now_ms
         whylabs_debug_event = DebugEvent(
             content=json.dumps(debug_event),
             trace_id=trace_id,
             tags=tags,
             segment=debug_segment,
-            dataset_timestamp=dataset_timestamp or now_ms,
+            dataset_timestamp=checked_dataset_timestamp,
             creation_timestamp=now_ms,
         )
         # TODO: retry with jittered backoff
