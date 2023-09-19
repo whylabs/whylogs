@@ -248,7 +248,7 @@ class SessionConfig:
         if value is None:
             session_type = self.get_session_type()
             raise ValueError(
-                f"Can't determine {name}. Current session type if {session_type.value}. "
+                f"Can't determine {name}. Current session type is {session_type.value}. "
                 f"See {_INIT_DOCS} for instructions on using why.init()."
             )
 
