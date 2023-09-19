@@ -485,7 +485,6 @@
 
 <span class="n">FIVE_MINUTES_IN_SECONDS</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">5</span>
 <span class="n">DAY_IN_SECONDS</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">24</span>
-<span class="n">WEEK_IN_SECONDS</span> <span class="o">=</span> <span class="n">DAY_IN_SECONDS</span> <span class="o">*</span> <span class="mi">7</span>
 <span class="n">FIVE_YEARS_IN_SECONDS</span> <span class="o">=</span> <span class="n">DAY_IN_SECONDS</span> <span class="o">*</span> <span class="mi">365</span> <span class="o">*</span> <span class="mi">5</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -1021,19 +1020,12 @@
                     <span class="sa">f</span><span class="s2">&quot;About to upload a profile with a dataset_timestamp that is in the future: &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">time_delta_seconds</span><span class="si">}</span><span class="s2">s old.&quot;</span>
                 <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">time_delta_seconds</span> <span class="o">&gt;</span> <span class="n">WEEK_IN_SECONDS</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">time_delta_seconds</span> <span class="o">&gt;</span> <span class="n">FIVE_YEARS_IN_SECONDS</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;A profile being uploaded to WhyLabs has a dataset_timestamp of(</span><span class="si">{</span><span class="n">dataset_timestamp</span><span class="si">}</span><span class="s2">) &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;compared to current datetime: </span><span class="si">{</span><span class="n">utc_now</span><span class="si">}</span><span class="s2">. Uploads of profiles older than 5 years &quot;</span>
-                        <span class="s2">&quot;might not be monitored in WhyLabs and may take up to 24 hours to show up.&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;A profile being uploaded to WhyLabs has a dataset_timestamp of </span><span class="si">{</span><span class="n">dataset_timestamp</span><span class="si">}</span><span class="s2"> &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;which is older than 7 days compared to </span><span class="si">{</span><span class="n">utc_now</span><span class="si">}</span><span class="s2">. These profiles should be processed &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;within 24 hours.&quot;</span>
-                    <span class="p">)</span>
+            <span class="k">if</span> <span class="n">time_delta_seconds</span> <span class="o">&gt;</span> <span class="n">FIVE_YEARS_IN_SECONDS</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;A profile being uploaded to WhyLabs has a dataset_timestamp of(</span><span class="si">{</span><span class="n">dataset_timestamp</span><span class="si">}</span><span class="s2">) &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;compared to current datetime: </span><span class="si">{</span><span class="n">utc_now</span><span class="si">}</span><span class="s2">. Uploads of profiles older than 5 years &quot;</span>
+                    <span class="s2">&quot;might not be monitored in WhyLabs and may take up to 24 hours to show up.&quot;</span>
+                <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">stamp</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>

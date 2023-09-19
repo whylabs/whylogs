@@ -24,7 +24,6 @@ Attributes
 
    whylogs.api.writer.whylabs.FIVE_MINUTES_IN_SECONDS
    whylogs.api.writer.whylabs.DAY_IN_SECONDS
-   whylogs.api.writer.whylabs.WEEK_IN_SECONDS
    whylogs.api.writer.whylabs.FIVE_YEARS_IN_SECONDS
    whylogs.api.writer.whylabs.logger
    whylogs.api.writer.whylabs.KNOWN_CUSTOM_PERFORMANCE_METRICS
@@ -35,10 +34,6 @@ Attributes
    
 
 .. py:data:: DAY_IN_SECONDS
-
-   
-
-.. py:data:: WEEK_IN_SECONDS
 
    
 
