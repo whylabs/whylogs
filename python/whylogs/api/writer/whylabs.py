@@ -603,12 +603,6 @@ class WhyLabsWriter(Writer):
                         f"compared to current datetime: {utc_now}. Uploads of profiles older than 5 years "
                         "might not be monitored in WhyLabs and may take up to 24 hours to show up."
                     )
-                else:
-                    logger.warning(
-                        f"A profile being uploaded to WhyLabs has a dataset_timestamp of {dataset_timestamp} "
-                        f"which is older than 7 days compared to {utc_now}. These profiles should be processed "
-                        f"within 24 hours."
-                    )
 
             if stamp <= 0:
                 logger.error(
