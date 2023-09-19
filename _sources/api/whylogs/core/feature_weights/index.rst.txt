@@ -71,8 +71,8 @@ Classes
 
       Validate an interval configuration for a given writer.
 
-      Some writer only accepts certain interval configuration. By default, this should return True for a valid
-      non-negative interval.
+      Some writer only accepts certain interval configuration. Raise BadConfigError for
+      an unacceptable interval.
 
 
 

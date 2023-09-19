@@ -57,8 +57,8 @@ Attributes
 
       Validate an interval configuration for a given writer.
 
-      Some writer only accepts certain interval configuration. By default, this should return True for a valid
-      non-negative interval.
+      Some writer only accepts certain interval configuration. Raise BadConfigError for
+      an unacceptable interval.
 
 
    .. py:method:: write(file: Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]

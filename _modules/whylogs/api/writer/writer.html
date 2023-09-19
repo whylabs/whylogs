@@ -454,8 +454,9 @@
 <div class="viewcode-block" id="Writer.check_interval"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/writer/index.html#whylogs.api.writer.Writer.check_interval">[docs]</a>    <span class="k">def</span> <span class="nf">check_interval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval_seconds</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate an interval configuration for a given writer.</span>
 
-<span class="sd">        Some writer only accepts certain interval configuration. By default, this should return True for a valid</span>
-<span class="sd">        non-negative interval.&quot;&quot;&quot;</span></div>
+<span class="sd">        Some writer only accepts certain interval configuration. Raise BadConfigError for</span>
+<span class="sd">        an unacceptable interval.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Writer.write"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/writer/index.html#whylogs.api.writer.Writer.write">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">write</span><span class="p">(</span>

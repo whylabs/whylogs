@@ -673,7 +673,7 @@
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">session_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_session_type</span><span class="p">()</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Can&#39;t determine </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">. Current session type if </span><span class="si">{</span><span class="n">session_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Can&#39;t determine </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">. Current session type is </span><span class="si">{</span><span class="n">session_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">. &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;See </span><span class="si">{</span><span class="n">_INIT_DOCS</span><span class="si">}</span><span class="s2"> for instructions on using why.init().&quot;</span>
             <span class="p">)</span>
 

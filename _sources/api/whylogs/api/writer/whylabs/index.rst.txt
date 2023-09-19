@@ -69,8 +69,8 @@ Attributes
 
       Validate an interval configuration for a given writer.
 
-      Some writer only accepts certain interval configuration. By default, this should return True for a valid
-      non-negative interval.
+      Some writer only accepts certain interval configuration. Raise BadConfigError for
+      an unacceptable interval.
 
 
    .. py:method:: option(org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None, reference_profile_name: Optional[str] = None, configuration: Optional[whylabs_client.Configuration] = None, ssl_ca_cert: Optional[str] = None, api_client: Optional[whylabs_client.ApiClient] = None, timeout_seconds: Optional[float] = None) -> WhyLabsWriter
