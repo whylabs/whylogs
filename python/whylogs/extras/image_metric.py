@@ -29,10 +29,10 @@ from whylogs.core.schema import ColumnSchema, DatasetSchema
 logger = logging.getLogger(__name__)
 
 try:
-    from PIL.Image import Image as ImageType
-    from PIL.ImageStat import Stat
-    from PIL.TiffImagePlugin import IFDRational
-    from PIL.TiffTags import TAGS
+    from PIL.Image import Image as ImageType  # type: ignore
+    from PIL.ImageStat import Stat  # type: ignore
+    from PIL.TiffImagePlugin import IFDRational  # type: ignore
+    from PIL.TiffTags import TAGS  # type: ignore
 except ImportError as e:
     ImageType = None  # type: ignore
     logger.warning(str(e))
@@ -100,7 +100,7 @@ def get_pil_exif_metadata(img: ImageType) -> Dict:
     return metadata
 
 
-def image_based_metadata(img):
+def image_based_metadata(img: ImageType) -> Dict[str, int]:
     return {
         "ImagePixelWidth": img.width,
         "ImagePixelHeight": img.height,
@@ -248,6 +248,7 @@ def log_image(
     images: Union[ImageType, List[ImageType], Dict[str, ImageType]],
     default_column_prefix: str = "image",
     schema: Optional[DatasetSchema] = None,
+    trace_id: Optional[str] = None,
 ) -> ResultSet:
     if isinstance(images, ImageType):
         images = {default_column_prefix: images}
@@ -275,7 +276,7 @@ def log_image(
     if not isinstance(schema.default_configs, ImageMetricConfig):
         raise ValueError("log_image requires DatasetSchema with an ImageMetricConfig as default_configs")
 
-    return why.log(row=images, schema=schema)
+    return why.log(row=images, schema=schema, trace_id=trace_id)
 
 
 # Register it so Multimetric and ProfileView can deserialize
