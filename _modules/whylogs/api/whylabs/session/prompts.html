@@ -436,14 +436,14 @@
 
 
 <span class="k">def</span> <span class="nf">_get_user_choice</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="n">il</span><span class="o">.</span><span class="n">question</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+    <span class="n">il</span><span class="o">.</span><span class="n">question</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">option</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">il</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-            <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">()</span>
+            <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">ignore_suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">choice</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter a number from the list: &quot;</span><span class="p">))</span>
             <span class="k">if</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">choice</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">choice</span>
@@ -460,6 +460,9 @@
     <span class="k">if</span> <span class="n">allow_local</span><span class="p">:</span>
         <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Local. Don&#39;t upload data anywhere.&quot;</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS</span>
+
     <span class="n">choice</span> <span class="o">=</span> <span class="n">_get_user_choice</span><span class="p">(</span><span class="s2">&quot;What kind of session do you want to use?&quot;</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS</span><span class="p">,</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS_ANONYMOUS</span><span class="p">,</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">][</span><span class="n">choice</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span></div>
 
@@ -467,7 +470,7 @@
 <div class="viewcode-block" id="prompt_default_dataset_id"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/prompts/index.html#whylogs.api.whylabs.session.prompts.prompt_default_dataset_id">[docs]</a><span class="k">def</span> <span class="nf">prompt_default_dataset_id</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-        <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">()</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">ignore_suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">default_dataset_id</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;[OPTIONAL] Enter a default dataset id to upload to: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">default_dataset_id</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -478,14 +481,15 @@
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-            <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">()</span>
+            <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">ignore_suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">api_key</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
                 <span class="s2">&quot;Enter your WhyLabs api key. You can find it at https://hub.whylabsapp.com/settings/access-tokens: &quot;</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">parse_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">il</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t parse the api key. Expected a key with the format &#39;key_id.key:org_id&#39;. Got: </span><span class="si">{</span><span class="n">api_key</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t parse the api key. Expected a key with the format &#39;key_id.key:org_id&#39;. Got: </span><span class="si">{</span><span class="n">api_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">ignore_suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span></div>
 
 
@@ -493,12 +497,15 @@
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-            <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">()</span>
+            <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="n">ignore_suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">org_id</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter your org id. You can find it at https://hub.whylabsapp.com/settings/access-tokens: &quot;</span><span class="p">)</span>
             <span class="n">validate_org_id</span><span class="p">(</span><span class="n">org_id</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">org_id</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="n">il</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t parse the org id. Expected an id that starts with &#39;org-&#39;. Got: </span><span class="si">{</span><span class="n">org_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+            <span class="n">il</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t parse the org id. Expected an id that starts with &#39;org-&#39;. Got: </span><span class="si">{</span><span class="n">org_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">ignore_suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span></div>
 </pre></div>
         </article>
       </div>

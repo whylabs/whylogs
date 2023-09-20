@@ -53,13 +53,18 @@ Attributes
       :staticmethod:
 
 
-   .. py:method:: message(message: str = '', log_fn: Optional[Callable] = None) -> None
+   .. py:method:: message(message: str = '', log_fn: Optional[Callable] = None, ignore_suppress: bool = False) -> None
       :staticmethod:
 
       Log a message only if we're in a notebook environment.
 
+      :param message: The message to log
+      :param log_fn: A function to log to instead of printing if we're not in a notebook.
+      :param ignore_suppress: If true, will log even if WHYLOGS_SUPPRESS_LOG_OUTPUT is set. It still needs
+                              to be in a notebook though or it won't show.
 
-   .. py:method:: option(message: str) -> None
+
+   .. py:method:: option(message: str, ignore_suppress: bool = False) -> None
       :staticmethod:
 
       Log an option line, which is anything that has multiple related lines in a row like
@@ -72,31 +77,31 @@ Attributes
       Log a message that the user is intended to interact with or inspect, like a url
 
 
-   .. py:method:: question(message: str) -> None
+   .. py:method:: question(message: str, ignore_suppress: bool = False) -> None
       :staticmethod:
 
       Log a question.
 
 
-   .. py:method:: success(message: str) -> None
+   .. py:method:: success(message: str, ignore_suppress: bool = False) -> None
       :staticmethod:
 
       Log a success line, which has a green checkmark.
 
 
-   .. py:method:: failure(message: str) -> None
+   .. py:method:: failure(message: str, ignore_suppress: bool = False) -> None
       :staticmethod:
 
       Log a failure, which has a red x.
 
 
-   .. py:method:: warning(message: str, log_fn: Optional[Callable] = None) -> None
+   .. py:method:: warning(message: str, log_fn: Optional[Callable] = None, ignore_suppress: bool = False) -> None
       :staticmethod:
 
       Log a warning, which has a warning sign.
 
 
-   .. py:method:: warning_once(message: str, log_fn: Optional[Callable] = None) -> None
+   .. py:method:: warning_once(message: str, log_fn: Optional[Callable] = None, ignore_suppress: bool = False) -> None
       :staticmethod:
 
       Like warning, but only logs once.

@@ -77,7 +77,7 @@ Attributes
    :rtype: Dict
 
 
-.. py:function:: image_based_metadata(img)
+.. py:function:: image_based_metadata(img: PIL.Image.Image) -> Dict[str, int]
 
 
 .. py:function:: get_pil_image_metadata(img: PIL.Image.Image) -> Dict
@@ -246,6 +246,6 @@ Attributes
 
 
 
-.. py:function:: log_image(images: Union[PIL.Image.Image, List[PIL.Image.Image], Dict[str, PIL.Image.Image]], default_column_prefix: str = 'image', schema: Optional[whylogs.core.schema.DatasetSchema] = None) -> whylogs.api.logger.result_set.ResultSet
+.. py:function:: log_image(images: Union[PIL.Image.Image, List[PIL.Image.Image], Dict[str, PIL.Image.Image]], default_column_prefix: str = 'image', schema: Optional[whylogs.core.schema.DatasetSchema] = None, trace_id: Optional[str] = None) -> whylogs.api.logger.result_set.ResultSet
 
 

@@ -424,6 +424,7 @@
         <article role="main">
           <h1>Source code for whylogs.api.whylabs.session.session_types</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Various common types to avoid circular dependencies</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Union</span>
@@ -451,23 +452,39 @@
         <span class="k">if</span> <span class="n">is_interractive</span><span class="p">():</span>
             <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">_is_notebook</span> <span class="o">=</span> <span class="kc">True</span></div>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__should_log</span><span class="p">(</span><span class="n">ignore_suppress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns true if we should log, false otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ignore_suppress</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">_is_notebook</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;WHYLOGS_SUPPRESS_LOG_OUTPUT&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">_is_notebook</span>
+
 <div class="viewcode-block" id="InteractiveLogger.message"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.message">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">message</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">log_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">message</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">log_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Log a message only if we&#39;re in a notebook environment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            message: The message to log</span>
+<span class="sd">            log_fn: A function to log to instead of printing if we&#39;re not in a notebook.</span>
+<span class="sd">            ignore_suppress: If true, will log even if WHYLOGS_SUPPRESS_LOG_OUTPUT is set. It still needs</span>
+<span class="sd">                to be in a notebook though or it won&#39;t show.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">_is_notebook</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">__should_log</span><span class="p">(</span><span class="n">ignore_suppress</span><span class="o">=</span><span class="n">ignore_suppress</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">log_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">log_fn</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="InteractiveLogger.option"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.option">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">option</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">option</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Log an option line, which is anything that has multiple related lines in a row like</span>
 <span class="sd">        multiple choices or a list things.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; ⤷ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; ⤷ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="o">=</span><span class="n">ignore_suppress</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="InteractiveLogger.inspect"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.inspect">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">inspect</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -477,39 +494,39 @@
         <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔍 </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="InteractiveLogger.question"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.question">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">question</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">question</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Log a question.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❓ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❓ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="o">=</span><span class="n">ignore_suppress</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="InteractiveLogger.success"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.success">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Log a success line, which has a green checkmark.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="o">=</span><span class="n">ignore_suppress</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="InteractiveLogger.failure"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.failure">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">failure</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">failure</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Log a failure, which has a red x.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="o">=</span><span class="n">ignore_suppress</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="InteractiveLogger.warning"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.warning">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Log a warning, which has a warning sign.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="n">log_fn</span><span class="p">)</span></div>
+        <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">log_fn</span><span class="o">=</span><span class="n">log_fn</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="o">=</span><span class="n">ignore_suppress</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="InteractiveLogger.warning_once"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/session_types/index.html#whylogs.api.whylabs.session.session_types.InteractiveLogger.warning_once">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">warning_once</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">warning_once</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Like warning, but only logs once.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">_is_notebook</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">__should_log</span><span class="p">(</span><span class="n">ignore_suppress</span><span class="o">=</span><span class="n">ignore_suppress</span><span class="p">):</span>
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="nb">hash</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">InteractiveLogger</span><span class="o">.</span><span class="n">__warnings</span><span class="p">:</span>
