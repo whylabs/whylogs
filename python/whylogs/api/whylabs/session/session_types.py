@@ -1,4 +1,5 @@
 # Various common types to avoid circular dependencies
+import os
 from dataclasses import dataclass
 from enum import Enum
 from typing import Callable, Optional, Set, Union
@@ -27,22 +28,38 @@ class InteractiveLogger:
             InteractiveLogger._is_notebook = True
 
     @staticmethod
-    def message(message: str = "", log_fn: Optional[Callable] = None) -> None:
+    def __should_log(ignore_suppress: bool = False) -> bool:
+        """
+        Returns true if we should log, false otherwise.
+        """
+        if ignore_suppress:
+            return InteractiveLogger._is_notebook
+        else:
+            return not os.environ.get("WHYLOGS_SUPPRESS_LOG_OUTPUT") and InteractiveLogger._is_notebook
+
+    @staticmethod
+    def message(message: str = "", log_fn: Optional[Callable] = None, ignore_suppress: bool = False) -> None:
         """
         Log a message only if we're in a notebook environment.
+
+        Args:
+            message: The message to log
+            log_fn: A function to log to instead of printing if we're not in a notebook.
+            ignore_suppress: If true, will log even if WHYLOGS_SUPPRESS_LOG_OUTPUT is set. It still needs
+                to be in a notebook though or it won't show.
         """
-        if InteractiveLogger._is_notebook:
+        if InteractiveLogger.__should_log(ignore_suppress=ignore_suppress):
             print(message)
         elif log_fn is not None:
             log_fn(message)
 
     @staticmethod
-    def option(message: str) -> None:
+    def option(message: str, ignore_suppress: bool = False) -> None:
         """
         Log an option line, which is anything that has multiple related lines in a row like
         multiple choices or a list things.
         """
-        InteractiveLogger.message(f" ⤷ {message}")
+        InteractiveLogger.message(f" ⤷ {message}", ignore_suppress=ignore_suppress)
 
     @staticmethod
     def inspect(message: str) -> None:
@@ -52,39 +69,39 @@ class InteractiveLogger:
         InteractiveLogger.message(f"🔍 {message}")
 
     @staticmethod
-    def question(message: str) -> None:
+    def question(message: str, ignore_suppress: bool = False) -> None:
         """
         Log a question.
         """
-        InteractiveLogger.message(f"❓ {message}")
+        InteractiveLogger.message(f"❓ {message}", ignore_suppress=ignore_suppress)
 
     @staticmethod
-    def success(message: str) -> None:
+    def success(message: str, ignore_suppress: bool = False) -> None:
         """
         Log a success line, which has a green checkmark.
         """
-        InteractiveLogger.message(f"✅ {message}")
+        InteractiveLogger.message(f"✅ {message}", ignore_suppress=ignore_suppress)
 
     @staticmethod
-    def failure(message: str) -> None:
+    def failure(message: str, ignore_suppress: bool = False) -> None:
         """
         Log a failure, which has a red x.
         """
-        InteractiveLogger.message(f"❌ {message}")
+        InteractiveLogger.message(f"❌ {message}", ignore_suppress=ignore_suppress)
 
     @staticmethod
-    def warning(message: str, log_fn: Optional[Callable] = None) -> None:
+    def warning(message: str, log_fn: Optional[Callable] = None, ignore_suppress: bool = False) -> None:
         """
         Log a warning, which has a warning sign.
         """
-        InteractiveLogger.message(f"⚠️ {message}", log_fn=log_fn)
+        InteractiveLogger.message(f"⚠️ {message}", log_fn=log_fn, ignore_suppress=ignore_suppress)
 
     @staticmethod
-    def warning_once(message: str, log_fn: Optional[Callable] = None) -> None:
+    def warning_once(message: str, log_fn: Optional[Callable] = None, ignore_suppress: bool = False) -> None:
         """
         Like warning, but only logs once.
         """
-        if not InteractiveLogger._is_notebook:
+        if not InteractiveLogger.__should_log(ignore_suppress=ignore_suppress):
             return
 
         if hash(message) not in InteractiveLogger.__warnings:

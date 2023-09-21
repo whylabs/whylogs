@@ -13,6 +13,7 @@ from whylogs.core.schema import DatasetSchema
 # TODO: These won't work well if multiple tests run concurrently
 
 # TODO: Aim this at an org with granular profiles
+# API key needs to come from the environment
 ORG_ID = "org-BDw3Jt"
 API_KEY = "KyaubnkdlK....:org-BDw3Jt"
 MODEL_ID = "model-2"
