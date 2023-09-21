@@ -29,8 +29,9 @@ class Writer(ABC):
     def check_interval(self, interval_seconds: int) -> None:
         """Validate an interval configuration for a given writer.
 
-        Some writer only accepts certain interval configuration. By default, this should return True for a valid
-        non-negative interval."""
+        Some writers only accepts certain interval configuration. Raise BadConfigError for
+        an unacceptable interval."""
+        pass
 
     @abstractmethod
     def write(

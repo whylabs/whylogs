@@ -36,6 +36,7 @@ def _random_str(n: int) -> str:
 
 
 class TestWhylabsWriterWithSession(object):
+
     # So we don't delete our own configs while running tests
     def setup_method(self) -> None:
         WhylabsClientCache.reset()
@@ -51,12 +52,16 @@ class TestWhylabsWriterWithSession(object):
         SessionManager.reset()
         del os.environ[EnvVariableName.WHYLOGS_CONFIG_PATH.value]
 
-    def test_writer_throws_for_anon_sessions(self) -> None:
+    @pytest.fixture
+    def results(self, pandas_dataframe):
+        return why.log(pandas=pandas_dataframe)
+
+    def test_writer_throws_for_anon_sessions(self, results) -> None:
         session = init()  # Default session is anonymous in this case (no config file content)
         assert session.get_type() == SessionType.WHYLABS_ANONYMOUS
 
         with pytest.raises(ValueError):
-            WhyLabsWriter()
+            WhyLabsWriter().write(results.profile())
 
     def test_writer_works_for_anon_with_overrides(self) -> None:
         key_id = "MPq7Hg002z"
@@ -111,9 +116,9 @@ class TestWhylabsWriterWithSession(object):
         del os.environ["WHYLABS_API_KEY"]
         del os.environ["WHYLABS_DEFAULT_DATASET_ID"]
 
-    def test_implicit_session_init_fails_without_env_config_set(self) -> None:
+    def test_implicit_session_init_fails_without_env_config_set(self, results) -> None:
         with pytest.raises(ValueError):
-            WhyLabsWriter()
+            WhyLabsWriter().write(results)
 
     def test_implicit_init_works_from_config_file(self) -> None:
         # Generate a len 10 alphanum string
