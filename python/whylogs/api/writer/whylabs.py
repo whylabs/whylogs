@@ -60,7 +60,6 @@ from whylogs.migration.uncompound import (
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 DAY_IN_SECONDS = 60 * 60 * 24
-WEEK_IN_SECONDS = DAY_IN_SECONDS * 7
 FIVE_YEARS_IN_SECONDS = DAY_IN_SECONDS * 365 * 5
 logger = logging.getLogger(__name__)
 
@@ -597,19 +596,12 @@ class WhyLabsWriter(Writer):
                     f"About to upload a profile with a dataset_timestamp that is in the future: "
                     f"{time_delta_seconds}s old."
                 )
-            elif time_delta_seconds > WEEK_IN_SECONDS:
-                if time_delta_seconds > FIVE_YEARS_IN_SECONDS:
-                    logger.error(
-                        f"A profile being uploaded to WhyLabs has a dataset_timestamp of({dataset_timestamp}) "
-                        f"compared to current datetime: {utc_now}. Uploads of profiles older than 5 years "
-                        "might not be monitored in WhyLabs and may take up to 24 hours to show up."
-                    )
-                else:
-                    logger.warning(
-                        f"A profile being uploaded to WhyLabs has a dataset_timestamp of {dataset_timestamp} "
-                        f"which is older than 7 days compared to {utc_now}. These profiles should be processed "
-                        f"within 24 hours."
-                    )
+            if time_delta_seconds > FIVE_YEARS_IN_SECONDS:
+                logger.error(
+                    f"A profile being uploaded to WhyLabs has a dataset_timestamp of({dataset_timestamp}) "
+                    f"compared to current datetime: {utc_now}. Uploads of profiles older than 5 years "
+                    "might not be monitored in WhyLabs and may take up to 24 hours to show up."
+                )
 
             if stamp <= 0:
                 logger.error(
