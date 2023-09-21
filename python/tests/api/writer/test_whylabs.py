@@ -36,7 +36,6 @@ def _random_str(n: int) -> str:
 
 
 class TestWhylabsWriterWithSession(object):
-
     # So we don't delete our own configs while running tests
     def setup_method(self) -> None:
         WhylabsClientCache.reset()

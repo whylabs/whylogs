@@ -1,7 +1,7 @@
 import os
-import pytest
 from uuid import uuid4
 
+import pytest
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi
 
 import whylogs as why
@@ -17,10 +17,10 @@ ORG_ID = "org-BDw3Jt"
 API_KEY = "KyaubnkdlK....:org-BDw3Jt"
 MODEL_ID = "model-2"
 
-os.environ['WHYLOGS_NO_ANALYTICS']='True'
+os.environ["WHYLOGS_NO_ANALYTICS"] = "True"
 os.environ["WHYLABS_API_ENDPOINT"] = "https://songbird.development.whylabsdev.com"
 os.environ["WHYLABS_DEFAULT_ORG_ID"] = ORG_ID
-#os.environ["WHYLABS_API_KEY"] = API_KEY
+# os.environ["WHYLABS_API_KEY"] = API_KEY
 os.environ["WHYLABS_DEFAULT_DATASET_ID"] = MODEL_ID
 
 
@@ -52,6 +52,7 @@ def test_whylabs_writer():
 
 
 # The following tests assume the platform already has the model
+
 
 @pytest.mark.load
 def test_tag_columns():

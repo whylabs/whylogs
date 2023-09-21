@@ -30,7 +30,7 @@ from whylabs_client.rest import ForbiddenException  # type: ignore
 from whylogs.api.logger import log
 from whylogs.api.logger.result_set import ResultSet, SegmentedResultSet
 from whylogs.api.whylabs.session.config import _INIT_DOCS
-from whylogs.api.whylabs.session.session_manager import _default_init, _INIT_DOCS
+from whylogs.api.whylabs.session.session_manager import _INIT_DOCS, _default_init
 from whylogs.api.whylabs.session.whylabs_client_cache import (
     ClientCacheConfig,
     EnvironmentKeyRefresher,
