@@ -500,3 +500,27 @@ def test_schema_copy() -> None:
     assert copy.default_configs == schema.default_configs
     assert schema.multicolumn_udfs == copy.multicolumn_udfs
     assert schema.type_udfs == copy.type_udfs
+
+
+@register_dataset_udf(["phase1"])
+def phase2(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
+    return x["phase1"] + 5 if isinstance(x, pd.DataFrame) else [xx + 5 for xx in x["phase1"]]
+
+
+@register_dataset_udf(["phase1", "phase2"], schema_name="phase2_schema")
+def phase3(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
+    return x["phase1"] * x["phase2"] if isinstance(x, pd.DataFrame) else [xx * yy for xx, yy in zip(x["phase1"], x["phase2"])]
+
+
+@register_dataset_udf(["phase1", "phase2", "phase3"], schema_name="phase3_schema")
+def phase4(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
+    return x["phase1"] + x["phase2"] + x["phase3"]
+
+
+def test_chained_schemas() -> None:
+    schema = udf_schema(chained_schemas=["phase2_schema", "phase3_schema"])
+    assert schema.next_schema is not None
+    data = pd.DataFrame({"phase1": [1, 2, 3]})
+    view = why.log(data, schema=schema).view()
+    assert "phase3" in view.get_columns()
+    assert "phase4" in view.get_columns()

@@ -121,6 +121,7 @@ class UdfSchema(DeclarativeSchema):
         segments: Optional[Dict[str, SegmentationPartition]] = None,
         validators: Optional[Dict[str, List[Validator]]] = None,
         udf_specs: Optional[List[UdfSpec]] = None,
+        next_schema: Optional["UdfSchema"] = None,
     ) -> None:
         super().__init__(
             resolvers=resolvers,
@@ -132,6 +133,7 @@ class UdfSchema(DeclarativeSchema):
             segments=segments,
             validators=validators,
         )
+        self.next_schema = next_schema
         udf_specs = udf_specs if udf_specs else []
         self.multicolumn_udfs = [spec for spec in udf_specs if spec.column_names]
         self.type_udfs = defaultdict(list)
@@ -181,6 +183,9 @@ class UdfSchema(DeclarativeSchema):
         if pandas is not None:
             self._run_udfs_on_dataframe(pandas, new_df, pandas.keys())
             new_df = pd.concat([pandas, new_df], axis=1)
+
+        if self.next_schema is not None:
+            new_df, new_columns = self.next_schema._run_udfs(new_df, new_columns)
 
         return new_df, new_columns
 
@@ -337,6 +342,7 @@ def udf_schema(
     validators: Optional[Dict[str, List[Validator]]] = None,
     schema_name: Union[str, List[str]] = "",
     include_default_schema: bool = True,
+    chained_schemas: List[str] = [],
 ) -> UdfSchema:
     """
     Returns a UdfSchema that implements any registered UDFs, along with any
@@ -362,4 +368,11 @@ def udf_schema(
         segments,
         validators,
         generate_udf_specs(other_udf_specs, schema_name, include_default_schema),
+        next_schema = udf_schema(
+            types=types,  # we might need to determine column types for typed UDFs
+            type_mapper=type_mapper,
+            schema_name=chained_schemas[0],
+            include_default_schema=False,
+            chained_schemas=chained_schemas[1:],
+        ) if chained_schemas else None
     )
