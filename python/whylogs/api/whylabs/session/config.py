@@ -248,7 +248,7 @@ class SessionConfig:
         if value is None:
             session_type = self.get_session_type()
             raise ValueError(
-                f"Can't determine {name}. Current session type if {session_type.value}. "
+                f"Can't determine {name}. Current session type is {session_type.value}. "
                 f"See {_INIT_DOCS} for instructions on using why.init()."
             )
 
@@ -292,8 +292,8 @@ class SessionConfig:
 
     def notify_session_type(self) -> None:
         config_path = self.get_config_file_path()
-        il.message(f"Initializing session with config {config_path}")
-        il.message()
+        il.message(f"Initializing session with config {config_path}", ignore_suppress=True)
+        il.message(ignore_suppress=True)
         if self.session_type == SessionType.WHYLABS:
             self._notify_type_whylabs(self.require_api_key())
         elif self.session_type == SessionType.LOCAL:
@@ -309,22 +309,23 @@ class SessionConfig:
         else:
             org_id = self.get_org_id() or "not set"  # Shouldn't be possible to be None at this point
 
-        il.success(f"Using session type: {SessionType.WHYLABS.name}")
-        il.option(f"org id: {org_id}")
-        il.option(f"api key: {parsed_api_key.api_key_id}")
+        il.success(f"Using session type: {SessionType.WHYLABS.name}", ignore_suppress=True)
+        il.option(f"org id: {org_id}", ignore_suppress=True)
+        il.option(f"api key: {parsed_api_key.api_key_id}", ignore_suppress=True)
         if default_dataset_id:
             il.option(f"default dataset: {default_dataset_id}")
 
     def _notify_type_anon(self) -> None:
         anonymous_session_id = self.get_session_id()
-        il.success(f"Using session type: {SessionType.WHYLABS_ANONYMOUS.name}")
+        il.success(f"Using session type: {SessionType.WHYLABS_ANONYMOUS.name}", ignore_suppress=True)
         id_text = "<will be generated before upload>" if not anonymous_session_id else anonymous_session_id
-        il.option(f"session id: {id_text}")
+        il.option(f"session id: {id_text}", ignore_suppress=True)
 
     def _notify_type_local(self) -> None:
         il.success(
             f"Using session type: {SessionType.LOCAL.name}. "
-            "Profiles won't be uploaded or written anywhere automatically."
+            "Profiles won't be uploaded or written anywhere automatically.",
+            ignore_suppress=True,
         )
 
     def _determine_session_type_prompt(self, init_config: InitConfig) -> SessionType:
