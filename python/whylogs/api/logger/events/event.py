@@ -1,6 +1,6 @@
-import datetime
 import json
 import logging
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from whylabs_client import ApiClient
@@ -52,7 +52,7 @@ class DebugClient:
         *,
         trace_id: str,
         tags: Optional[List[str]] = None,
-        dataset_timestamp: Optional[int] = None,
+        dataset_timestamp: Optional[datetime] = None,
         segment_key_values: Optional[Dict[str, str]] = None,
     ):
         from whylabs_client.model.debug_event import DebugEvent
@@ -65,7 +65,7 @@ class DebugClient:
             )
 
         segment_tags = list()
-        now_ms = to_utc_milliseconds(datetime.datetime.now(datetime.timezone.utc))
+        now_ms = to_utc_milliseconds(datetime.now(timezone.utc))
         if segment_key_values is not None:
             for segment_key, segment_value in segment_key_values.items():
                 if not isinstance(segment_value, str):
@@ -92,10 +92,14 @@ class DebugClient:
             dataset_timestamp=checked_dataset_timestamp,
             creation_timestamp=now_ms,
         )
-        # TODO: retry with jittered backoff
+        # TODO: retry
         try:
-            self._debug_events_api.log_debug_event(
+            status = self._debug_events_api.log_debug_event(
                 org_id=self._org_id, dataset_id=self._dataset_id, debug_event=whylabs_debug_event
+            )
+            diagnostic_logger.info(
+                f"Wrote debug event to WhyLabs with trace_id: {trace_id} and content {debug_event}"
+                f" status is ({status})"
             )
             return (True, trace_id)
         except Exception as e:
@@ -112,7 +116,7 @@ def log_debug_event(
     trace_id: str,
     name: Optional[str] = None,
     tags: Optional[List[str]] = None,
-    timestamp: Optional[int] = None,
+    dataset_timestamp: Optional[datetime] = None,
     segment_key_values: Optional[Dict[str, str]] = None,
     write_local_file: bool = False,
 ):
@@ -120,9 +124,9 @@ def log_debug_event(
     file_results = None
     api_client_results = None
     if write_local_file:
-        filename = _get_event_file_name(trace_id=trace_id, timestamp=timestamp)
+        filename = _get_event_file_name(trace_id=trace_id, timestamp=dataset_timestamp)
         extracted_event = _populate_common_profile_metadata(
-            metadata=debug_event, name=name, trace_id=trace_id, tags=tags, timestamp=timestamp
+            metadata=debug_event, name=name, trace_id=trace_id, tags=tags, timestamp=dataset_timestamp
         )
         with open(filename, "w") as json_file:
             json.dump(extracted_event, json_file)
@@ -135,7 +139,7 @@ def log_debug_event(
             debug_event=debug_event,
             trace_id=trace_id,
             tags=tags,
-            dataset_timestamp=timestamp,
+            dataset_timestamp=dataset_timestamp,
             segment_key_values=segment_key_values,
         )
 

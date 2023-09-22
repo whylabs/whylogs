@@ -81,7 +81,7 @@ def log(
                 trace_id=trace_id,
                 tags=tags,
                 segment_key_values=segment_key_values,
-                timestamp=dataset_timestamp,
+                dataset_timestamp=dataset_timestamp,
             )
             diagnostic_logger.info(f"Done log_debug_event: {debug_event_status}")
         return result_set

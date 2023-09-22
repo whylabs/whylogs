@@ -247,13 +247,20 @@ class ResultSet(ABC):
 class ViewResultSet(ResultSet):
     def __init__(self, view: DatasetProfileView) -> None:
         self._view = view
-        self._metadata: Dict[str, str] = dict()
 
     def profile(self) -> Optional[DatasetProfile]:
         raise ValueError("No profile available. Can only view")
 
     def view(self) -> Optional[DatasetProfileView]:
         return self._view
+
+    @property
+    def metadata(self) -> Optional[Dict[str, str]]:
+        view = self.view()
+        if view:
+            return view.metadata
+        else:
+            return None
 
     @staticmethod
     def zero() -> "ViewResultSet":
@@ -280,13 +287,20 @@ class ViewResultSet(ResultSet):
 class ProfileResultSet(ResultSet):
     def __init__(self, profile: DatasetProfile) -> None:
         self._profile = profile
-        self._metadata: Dict[str, str] = dict()
 
     def profile(self) -> Optional[DatasetProfile]:
         return self._profile
 
     def view(self) -> Optional[DatasetProfileView]:
         return self._profile.view()
+
+    @property
+    def metadata(self) -> Optional[Dict[str, str]]:
+        view = self.view()
+        if view:
+            return view.metadata
+        else:
+            return None
 
     @staticmethod
     def zero() -> "ProfileResultSet":
