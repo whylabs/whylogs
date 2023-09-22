@@ -509,7 +509,11 @@ def phase2(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
 
 @register_dataset_udf(["phase1", "phase2"], schema_name="phase2_schema")
 def phase3(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
-    return x["phase1"] * x["phase2"] if isinstance(x, pd.DataFrame) else [xx * yy for xx, yy in zip(x["phase1"], x["phase2"])]
+    return (
+        x["phase1"] * x["phase2"]
+        if isinstance(x, pd.DataFrame)
+        else [xx * yy for xx, yy in zip(x["phase1"], x["phase2"])]
+    )
 
 
 @register_dataset_udf(["phase1", "phase2", "phase3"], schema_name="phase3_schema")

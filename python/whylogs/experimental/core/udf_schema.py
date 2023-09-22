@@ -174,7 +174,7 @@ class UdfSchema(DeclarativeSchema):
 
     def _run_udfs(
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
-    ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
+    ) -> Tuple[Optional[pd.DataFrame], Optional[Dict[str, Any]]]:
         new_columns = deepcopy(row) if row else None
         new_df = pd.DataFrame() if pandas is not None else None
         if row is not None:
@@ -368,11 +368,13 @@ def udf_schema(
         segments,
         validators,
         generate_udf_specs(other_udf_specs, schema_name, include_default_schema),
-        next_schema = udf_schema(
+        next_schema=udf_schema(
             types=types,  # we might need to determine column types for typed UDFs
             type_mapper=type_mapper,
             schema_name=chained_schemas[0],
             include_default_schema=False,
             chained_schemas=chained_schemas[1:],
-        ) if chained_schemas else None
+        )
+        if chained_schemas
+        else None,
     )
