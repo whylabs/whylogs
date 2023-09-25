@@ -1,8 +1,10 @@
 import os
+import time
 from uuid import uuid4
 
 import pytest
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi
+from whylabs_client.model.profile_traces_response import ProfileTracesResponse
 
 import whylogs as why
 from whylogs.api.writer.whylabs import WhyLabsWriter
@@ -12,17 +14,15 @@ from whylogs.core.schema import DatasetSchema
 
 # TODO: These won't work well if multiple tests run concurrently
 
-# TODO: Aim this at an org with granular profiles
-# API key needs to come from the environment
-ORG_ID = "org-BDw3Jt"
-API_KEY = "KyaubnkdlK....:org-BDw3Jt"
-MODEL_ID = "model-2"
+
+ORG_ID = "org-0"
+MODEL_ID = "model-2250"
 
 os.environ["WHYLOGS_NO_ANALYTICS"] = "True"
 os.environ["WHYLABS_API_ENDPOINT"] = "https://songbird.development.whylabsdev.com"
 os.environ["WHYLABS_DEFAULT_ORG_ID"] = ORG_ID
-# os.environ["WHYLABS_API_KEY"] = API_KEY
 os.environ["WHYLABS_DEFAULT_DATASET_ID"] = MODEL_ID
+# WHYLABS_API_KEY needs to come from the environment
 
 
 @pytest.mark.load
@@ -34,19 +34,19 @@ def test_whylabs_writer():
     result = why.log(data, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter()
     writer.write(result.profile())
+    time.sleep(30)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
         org_id=ORG_ID,
         dataset_id=MODEL_ID,
         trace_id=trace_id,
     )
-    """
-    download_url1 = response.get("traces")[0]["download_url"]
+    download_url = response.get("traces")[0]["download_url"]
     headers = {"Content-Type": "application/octet-stream"}
-    downloaded_profile1 = writer._s3_pool.request("GET", download_url1, headers=headers, timeout=writer._timeout_seconds)
-    deserialized_view1 = DatasetProfileView.deserialize(downloaded_profile1.data)
-    assert deserialized_view1 == result.profile().view()
-    """
+    downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
+    deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+    print(deserialized_view)
+    assert deserialized_view.get_columns().keys() == data.keys()
 
 
 # TODO: test writing segmented profile, [Segmented]ResultSet, [un]segmented reference profiles

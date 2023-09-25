@@ -29,7 +29,6 @@ from whylabs_client.rest import ForbiddenException  # type: ignore
 
 from whylogs.api.logger import log
 from whylogs.api.logger.result_set import ResultSet, SegmentedResultSet
-from whylogs.api.whylabs.session.config import _INIT_DOCS
 from whylogs.api.whylabs.session.session_manager import _INIT_DOCS, _default_init
 from whylogs.api.whylabs.session.whylabs_client_cache import (
     ClientCacheConfig,
@@ -214,16 +213,13 @@ class WhyLabsWriter(Writer):
             api_key=self._api_key,
         )
 
-        if api_client:
-            # Just ignore the other args if a client was passed in. They're saved in the cache config if we need them.
-            self._custom_api_client = api_client
-            self._api_client = None
-            # TODO this key refresher is only used to print the key id from the env, it isn't actually in the api client because
-            # someone else constructed the client and its config.
-            self._key_refresher = EnvironmentKeyRefresher()
-        else:
-            self._custom_api_client = None
-            self._api_client = None  # lazily instantiated when needed
+        # Just ignore the other args if api_client was passed in. They're saved in the cache config if we need them.
+        self._custom_api_client: ApiClient = api_client
+        self._api_client: ApiClient = None  # lazily instantiated when needed
+
+        # TODO: if api_client is passed in, this key refresher is only used to print the key id from the
+        # env, it isn't actually in the api client because someone else constructed the client and its config.
+        self._key_refresher = EnvironmentKeyRefresher() if api_client else None
 
         # Using a pooler for uploading data
         pool = _UPLOAD_POOLER_CACHE.get(pooler_cache_key)
@@ -268,6 +264,7 @@ class WhyLabsWriter(Writer):
         """
         import urllib3
 
+        self._refresh_client()
         if isinstance(self._api_client.rest_client.pool_manager, urllib3.ProxyManager):
             raise ValueError("Endpoint hostname override is not supported when using with proxy")
 
