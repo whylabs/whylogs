@@ -2,7 +2,7 @@ import html
 import json
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from IPython.core.display import HTML  # type: ignore
 
@@ -323,7 +323,7 @@ class NotebookProfileVisualizer:
         summary_drift_report = self._display(rendered_template, page_spec, height)
         return summary_drift_report
 
-    def double_histogram(self, feature_name: str, cell_height: Optional[str] = None) -> HTML:
+    def double_histogram(self, feature_name: Optional[Union[str,List]], cell_height: Optional[str] = None) -> HTML:
         """Plot overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.
 
         Applicable to numerical features only.
@@ -346,6 +346,12 @@ class NotebookProfileVisualizer:
 
             visualization.double_histogram(feature_name="weight")
         """
+        if isinstance(feature_name, list):
+            html_contents = []
+            for feature in feature_name:
+                html_content = self.double_histogram(feature, cell_height).data
+                html_contents.append(html_content)
+            return HTML("<br>".join(html_contents))
         double_histogram = self._display_histogram_chart(feature_name, cell_height)
         return double_histogram
 
