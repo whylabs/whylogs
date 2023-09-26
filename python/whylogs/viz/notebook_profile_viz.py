@@ -346,16 +346,15 @@ class NotebookProfileVisualizer:
 
             visualization.double_histogram(feature_name="weight")
         """
-        if isinstance(feature_name, list):
-            html_contents = []
-            for feature in feature_name:
-                html_content = self.double_histogram(feature, cell_height).data
-                html_contents.append(html_content)
-            return HTML("<br>".join(html_contents))
-        double_histogram = self._display_histogram_chart(feature_name, cell_height)
-        return double_histogram
+        if isinstance(feature_name, str):
+            feature_name = [feature_name]
+        html_contents = []
+        for feature in feature_name:
+            html_content = self._display_histogram_chart(feature, cell_height).data
+            html_contents.append(html_content)
+        return HTML("<br>".join(html_contents))
 
-    def distribution_chart(self, feature_name: str, cell_height: Optional[str] = None) -> HTML:
+    def distribution_chart(self, feature_name: Optional[Union[str,List]], cell_height: Optional[str] = None) -> HTML:
         """Plot overlayed distribution charts for specified feature between two profiles.
 
         Applicable to categorical features.
@@ -384,11 +383,17 @@ class NotebookProfileVisualizer:
 
             visualization.distribution_chart(feature_name="animal")
         """
+        if isinstance(feature_name, str):
+            feature_name = [feature_name]
         difference = False
-        distribution_chart = self._display_distribution_chart(feature_name, difference, cell_height)
-        return distribution_chart
 
-    def difference_distribution_chart(self, feature_name: str, cell_height: Optional[str] = None) -> HTML:
+        html_contents = []
+        for feature in feature_name:
+            html_content = self._display_distribution_chart(feature, difference, cell_height).data
+            html_contents.append(html_content)
+        return HTML("<br>".join(html_contents))
+
+    def difference_distribution_chart(self, feature_name: Optional[Union[str,List]], cell_height: Optional[str] = None) -> HTML:
         """Plot overlayed distribution charts of differences between the categories of both profiles.
 
         Applicable to categorical features.
@@ -416,10 +421,16 @@ class NotebookProfileVisualizer:
             visualization.difference_distribution_chart(feature_name="animal")
 
         """
+        if isinstance(feature_name, str):
+            feature_name = [feature_name]
         difference = True
-        difference_distribution_chart = self._display_distribution_chart(feature_name, difference, cell_height)
-        return difference_distribution_chart
 
+        html_contents = []
+        for feature in feature_name:
+            html_content = self._display_distribution_chart(feature, difference, cell_height).data
+            html_contents.append(html_content)
+        return HTML("<br>".join(html_contents))
+    
     def constraints_report(self, constraints: Constraints, cell_height: Optional[str] = None) -> HTML:
         page_spec = PageSpecEnum.CONSTRAINTS_REPORT.value
         template = _get_compiled_template(page_spec.html)
@@ -430,7 +441,7 @@ class NotebookProfileVisualizer:
         return constraints_report
 
     def feature_statistics(
-        self, feature_name: str, profile: str = "reference", cell_height: Optional[str] = None
+        self, feature_name: Optional[Union[str,List]], profile: str = "reference", cell_height: Optional[str] = None
     ) -> HTML:
         """
         Generate a report for the main statistics of specified feature, for a given profile (target or reference).
@@ -459,22 +470,27 @@ class NotebookProfileVisualizer:
             visualization.feature_statistics(feature_name="weight", profile="target")
 
         """
+        if isinstance(feature_name, str):
+            feature_name = [feature_name]
         page_spec = PageSpecEnum.FEATURE_STATISTICS.value
         template = _get_compiled_template(page_spec.html)
-        if self._ref_view and profile.lower() == "reference":
-            selected_profile_column = self._ref_view.get_column(feature_name)
-        else:
-            selected_profile_column = self._target_view.get_column(feature_name)
+        feature_statistics = []
+        for feature in feature_name:
+            if self._ref_view and profile.lower() == "reference":
+                selected_profile_column = self._ref_view.get_column(feature)
+            else:
+                selected_profile_column = self._target_view.get_column(feature)
 
-        rendered_template = template(
-            {
-                "profile_feature_statistics_from_whylogs": json.dumps(
-                    add_feature_statistics(feature_name, selected_profile_column)
-                )
-            }
-        )
-        feature_statistics = self._display(rendered_template, page_spec, cell_height)
-        return feature_statistics
+            rendered_template = template(
+                {
+                    "profile_feature_statistics_from_whylogs": json.dumps(
+                        add_feature_statistics(feature, selected_profile_column)
+                    )
+                }
+            )
+            html_content = self._display(rendered_template, page_spec, cell_height).data
+            feature_statistics.append(html_content)
+        return HTML("<br>".join(feature_statistics))
 
     @staticmethod
     def write(
