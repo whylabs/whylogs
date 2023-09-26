@@ -2,6 +2,7 @@ import os
 import time
 from uuid import uuid4
 
+import pandas as pd
 import pytest
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi
 from whylabs_client.model.profile_traces_response import ProfileTracesResponse
@@ -11,6 +12,7 @@ from whylogs.api.writer.whylabs import WhyLabsWriter
 from whylogs.core import DatasetProfileView
 from whylogs.core.feature_weights import FeatureWeights
 from whylogs.core.schema import DatasetSchema
+from whylogs.core.segmentation_partition import segment_on_column
 
 # TODO: These won't work well if multiple tests run concurrently
 
@@ -49,7 +51,62 @@ def test_whylabs_writer():
     assert deserialized_view.get_columns().keys() == data.keys()
 
 
-# TODO: test writing segmented profile, [Segmented]ResultSet, [un]segmented reference profiles
+@pytest.mark.load
+@pytest.mark.parametrize("raw_result", [(True), (False)])
+def test_whylabs_writer_segmented(raw_result: bool):
+    why.init(force_local=True)
+    schema = DatasetSchema(segments=segment_on_column("col1"))
+    data = {"col1": [1, 2, 1, 3, 2, 2], "col2": ["foo", "bar", "wat", "foo", "baz", "wat"]}
+    df = pd.DataFrame(data)
+    trace_id = str(uuid4())
+    result = why.log(df, schema=schema, trace_id=trace_id)
+    writer = WhyLabsWriter()
+    writable = result if raw_result else result.profile()
+    writer.write(writable)
+    time.sleep(30)  # platform needs time to become aware of the profile
+    dataset_api = DatasetProfileApi(writer._api_client)
+    response: ProfileTracesResponse = dataset_api.get_profile_traces(
+        org_id=ORG_ID,
+        dataset_id=MODEL_ID,
+        trace_id=trace_id,
+    )
+    download_url = response.get("traces")[0]["download_url"]
+    headers = {"Content-Type": "application/octet-stream"}
+    downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
+    deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+    print(deserialized_view)
+    assert deserialized_view.get_columns().keys() == data.keys()
+
+
+@pytest.mark.load
+@pytest.mark.parametrize("segmented", [(True), (False)])
+def test_whylabs_writer_reference(segmented: bool):
+    why.init(force_local=True)
+    if segmented:
+        schema = DatasetSchema(segments=segment_on_column("col1"))
+    else:
+        schema = DatasetSchema()
+
+    data = {"col1": [1, 2, 1, 3, 2, 2], "col2": ["foo", "bar", "wat", "foo", "baz", "wat"]}
+    df = pd.DataFrame(data)
+    trace_id = str(uuid4())
+    result = why.log(df, schema=schema, trace_id=trace_id)
+    writer = WhyLabsWriter().option(reference_profile_name="monty")
+    writer.write(result)
+    time.sleep(120)  # platform needs time to become aware of the profile
+    dataset_api = DatasetProfileApi(writer._api_client)
+    response: ProfileTracesResponse = dataset_api.get_profile_traces(
+        org_id=ORG_ID,
+        dataset_id=MODEL_ID,
+        trace_id=trace_id,
+    )
+    print(response)
+    download_url = response.get("traces")[0]["download_url"]
+    headers = {"Content-Type": "application/octet-stream"}
+    downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
+    deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+    print(deserialized_view)
+    assert deserialized_view.get_columns().keys() == data.keys()
 
 
 # The following tests assume the platform already has the model
