@@ -713,8 +713,8 @@ together!</em></p>
 <section id="Installing-dependencies">
 <h2>Installing dependencies<a class="headerlink" href="#Installing-dependencies" title="Permalink to this headline">#</a></h2>
 <p>First, let’s make sure you have the required packages installed:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
@@ -723,13 +723,56 @@ together!</em></p>
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Requirement already satisfied: whylogs in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (1.3.1)
+Requirement already satisfied: platformdirs&lt;4.0.0,&gt;=3.5.0 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (3.10.0)
+Requirement already satisfied: protobuf&gt;=3.19.4 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (4.24.2)
+Requirement already satisfied: requests&lt;3.0,&gt;=2.27 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (2.31.0)
+Requirement already satisfied: types-requests&lt;3.0.0.0,&gt;=2.30.0.0 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (2.31.0.2)
+Requirement already satisfied: typing-extensions&gt;=3.10 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (4.7.1)
+Requirement already satisfied: whylabs-client&lt;0.6.0,&gt;=0.5.5 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (0.5.5)
+Requirement already satisfied: whylogs-sketching&gt;=3.4.1.dev3 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (3.4.1.dev3)
+Requirement already satisfied: charset-normalizer&lt;4,&gt;=2 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from requests&lt;3.0,&gt;=2.27-&gt;whylogs) (3.2.0)
+Requirement already satisfied: idna&lt;4,&gt;=2.5 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from requests&lt;3.0,&gt;=2.27-&gt;whylogs) (3.4)
+Requirement already satisfied: urllib3&lt;3,&gt;=1.21.1 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from requests&lt;3.0,&gt;=2.27-&gt;whylogs) (1.26.16)
+Requirement already satisfied: certifi&gt;=2017.4.17 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from requests&lt;3.0,&gt;=2.27-&gt;whylogs) (2023.7.22)
+Requirement already satisfied: types-urllib3 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from types-requests&lt;3.0.0.0,&gt;=2.30.0.0-&gt;whylogs) (1.26.25.14)
+Requirement already satisfied: python-dateutil in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylabs-client&lt;0.6.0,&gt;=0.5.5-&gt;whylogs) (2.8.2)
+Requirement already satisfied: six&gt;=1.5 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from python-dateutil-&gt;whylabs-client&lt;0.6.0,&gt;=0.5.5-&gt;whylogs) (1.16.0)
+<span class="ansi-yellow-fg">DEPRECATION: feast 0.22.4 has a non-standard dependency specifier googleapis-common-protos&lt;2,&gt;=1.52.*. pip 23.3 will enforce this behaviour change. A possible replacement is to upgrade to a newer version of feast or contact the author to suggest that they release a version with a conforming dependency specifiers. Discussion can be found at https://github.com/pypa/pip/issues/12063</span><span class="ansi-yellow-fg">
+</span><span class="ansi-yellow-fg">DEPRECATION: feast 0.22.4 has a non-standard dependency specifier PyYAML&lt;7,&gt;=5.4.*. pip 23.3 will enforce this behaviour change. A possible replacement is to upgrade to a newer version of feast or contact the author to suggest that they release a version with a conforming dependency specifiers. Discussion can be found at https://github.com/pypa/pip/issues/12063</span><span class="ansi-yellow-fg">
+</span><span class="ansi-yellow-fg">DEPRECATION: feast 0.22.4 has a non-standard dependency specifier dask&lt;2022.02.0,&gt;=2021.*. pip 23.3 will enforce this behaviour change. A possible replacement is to upgrade to a newer version of feast or contact the author to suggest that they release a version with a conforming dependency specifiers. Discussion can be found at https://github.com/pypa/pip/issues/12063</span><span class="ansi-yellow-fg">
+</span>Note: you may need to restart the kernel to use updated packages.
+Collecting scikit-learn==1.0.2
+  Downloading scikit_learn-1.0.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (26.4 MB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">26.4/26.4 MB</span> <span class="ansi-red-fg">3.4 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>00:0100:01
+Requirement already satisfied: numpy&gt;=1.14.6 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from scikit-learn==1.0.2) (1.25.2)
+Requirement already satisfied: scipy&gt;=1.1.0 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from scikit-learn==1.0.2) (1.9.3)
+Requirement already satisfied: joblib&gt;=0.11 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from scikit-learn==1.0.2) (1.3.2)
+Requirement already satisfied: threadpoolctl&gt;=2.0.0 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from scikit-learn==1.0.2) (3.2.0)
+<span class="ansi-yellow-fg">DEPRECATION: feast 0.22.4 has a non-standard dependency specifier googleapis-common-protos&lt;2,&gt;=1.52.*. pip 23.3 will enforce this behaviour change. A possible replacement is to upgrade to a newer version of feast or contact the author to suggest that they release a version with a conforming dependency specifiers. Discussion can be found at https://github.com/pypa/pip/issues/12063</span><span class="ansi-yellow-fg">
+</span><span class="ansi-yellow-fg">DEPRECATION: feast 0.22.4 has a non-standard dependency specifier PyYAML&lt;7,&gt;=5.4.*. pip 23.3 will enforce this behaviour change. A possible replacement is to upgrade to a newer version of feast or contact the author to suggest that they release a version with a conforming dependency specifiers. Discussion can be found at https://github.com/pypa/pip/issues/12063</span><span class="ansi-yellow-fg">
+</span><span class="ansi-yellow-fg">DEPRECATION: feast 0.22.4 has a non-standard dependency specifier dask&lt;2022.02.0,&gt;=2021.*. pip 23.3 will enforce this behaviour change. A possible replacement is to upgrade to a newer version of feast or contact the author to suggest that they release a version with a conforming dependency specifiers. Discussion can be found at https://github.com/pypa/pip/issues/12063</span><span class="ansi-yellow-fg">
+</span>Installing collected packages: scikit-learn
+  Attempting uninstall: scikit-learn
+    Found existing installation: scikit-learn 1.3.0
+    Uninstalling scikit-learn-1.3.0:
+      Successfully uninstalled scikit-learn-1.3.0
+Successfully installed scikit-learn-1.0.2
+Note: you may need to restart the kernel to use updated packages.
+</pre></div></div>
+</div>
 </section>
 <section id="Calculating-Feature-Weights">
 <h2>Calculating Feature Weights<a class="headerlink" href="#Calculating-Feature-Weights" title="Permalink to this headline">#</a></h2>
 <p>There are several different ways of calculating feature importance. One such way is calculating the model coefficients of a linear regression model, which can be interpreted as a feature importance score. That’s the method we’ll use for this demonstration. We’ll create 5 informative features and 5 random ones.</p>
 <p>The code below was based on the article <a class="reference external" href="https://machinelearningmastery.com/calculate-feature-importance-with-python/">How to Calculate Feature Importance With Python</a>, by Jason Brownlee. I definitely recommend it if you are interested in other ways of calculating feature importance.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_regression</span>
@@ -751,21 +794,21 @@ together!</em></p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{&#39;Feature_0&#39;: -3.330399790430435e-15,
- &#39;Feature_1&#39;: 12.44482785538977,
- &#39;Feature_2&#39;: -4.393883142916863e-14,
- &#39;Feature_3&#39;: -2.7047779443616894e-14,
+{&#39;Feature_0&#39;: 3.4778530780712388e-15,
+ &#39;Feature_1&#39;: 12.444827855389764,
+ &#39;Feature_2&#39;: -3.108624468950438e-14,
+ &#39;Feature_3&#39;: -1.9095836023552692e-14,
  &#39;Feature_4&#39;: 93.32225450776932,
- &#39;Feature_5&#39;: 86.50810998606804,
- &#39;Feature_6&#39;: 26.746066698034504,
- &#39;Feature_7&#39;: 3.285346398262185,
- &#39;Feature_8&#39;: -2.7795267559640957e-14,
- &#39;Feature_9&#39;: 3.430594380756143e-14}
+ &#39;Feature_5&#39;: 86.50810998606799,
+ &#39;Feature_6&#39;: 26.74606669803453,
+ &#39;Feature_7&#39;: 3.285346398262155,
+ &#39;Feature_8&#39;: -2.531308496145357e-14,
+ &#39;Feature_9&#39;: 1.9539925233402755e-14}
 </pre></div></div>
 </div>
 <p>We end up with a dictionary with the features as keys and the respective scores as values. This is an example of <em>global</em> feature importance, as opposed to <em>local</em> feature importance, which would show the contribution of features for a specific prediction. Currently, WhyLabs and whylogs support only global feature importance. Therefore, this is the structure we’ll use to later send the Feature Weights to WhyLabs.</p>
@@ -781,28 +824,39 @@ together!</em></p>
 </ul>
 <p>First, grab a <a class="reference external" href="https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&amp;utm_medium=whylogs-example&amp;utm_campaign=Writing_Feature_Weights_to_WhyLabs">free WhyLabs account</a> if you haven’t already. You can follow along with the examples if you wish, but if you’re interested in only following this demonstration, you can go ahead and skip the quick start instructions.</p>
 <p>After that, you’ll be prompted to create an API token. Once you create it, copy and store it locally. The second important information here is your org ID. Take note of it as well. After you get your API Token and Org ID, you can go to <a class="reference external" href="https://hub.whylabsapp.com/models">https://hub.whylabsapp.com/models</a> to see your projects dashboard. You can create a new project and take note of it’s ID (if it’s a model project it will look like <code class="docutils literal notranslate"><span class="pre">model-xxxx</span></code>).</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">getpass</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 
-<span class="c1"># set your org-id here - should be something like &quot;org-xxxx&quot;</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs Org ID&quot;</span><span class="p">)</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_ORG_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
-
-<span class="c1"># set your datased_id (or model_id) here - should be something like &quot;model-xxxx&quot;</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs Dataset ID&quot;</span><span class="p">)</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_DATASET_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
-
-<span class="c1"># set your API key here</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs API key&quot;</span><span class="p">)</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">()</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using API Key ID: &quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_API_KEY&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">])</span>
+<span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Initializing session with config /home/anthony/.config/whylogs/config.ini
+
+✅ Using session type: WHYLABS
+ ⤷ org id: org-JpsdM6
+ ⤷ api key: l70gARzBVZ
+ ⤷ default dataset: model-66
+
+In production, you should pass the api key as an environment variable WHYLABS_API_KEY, the org id as WHYLABS_DEFAULT_ORG_ID, and the default dataset id as WHYLABS_DEFAULT_DATASET_ID.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;whylogs.api.whylabs.session.session.ApiKeySession at 0x7fd8b24392b0&gt;
+</pre></div></div>
 </div>
 </section>
 <section id="Writing-Feature-Weights-to-WhyLabs">
@@ -810,7 +864,7 @@ together!</em></p>
 <p>Once the feature weights are calculated, sending them to WhyLabs is very simple.</p>
 <p>We first need to wrap the dictionary into a <code class="docutils literal notranslate"><span class="pre">FeatureWeights</span></code> object:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.feature_weights</span> <span class="kn">import</span> <span class="n">FeatureWeights</span>
@@ -820,7 +874,7 @@ together!</em></p>
 </div>
 <p>And then use the <code class="docutils literal notranslate"><span class="pre">WhyLabsWriter</span></code> to write it, provided your environment variables are properly set:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span>
@@ -831,7 +885,7 @@ together!</em></p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -841,7 +895,7 @@ together!</em></p>
 </div>
 <p>Another way of doing the exact same thing is by instantiating the Writer itself, and then calling <code class="docutils literal notranslate"><span class="pre">write</span></code>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">WhyLabsWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">feature_weights</span><span class="p">)</span>
@@ -849,7 +903,7 @@ together!</em></p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -862,7 +916,7 @@ together!</em></p>
 <h2>Getting Feature Weights from WhyLabs<a class="headerlink" href="#Getting-Feature-Weights-from-WhyLabs" title="Permalink to this headline">#</a></h2>
 <p>You can also get the feature weights from WhyLabs with <code class="docutils literal notranslate"><span class="pre">get_feature_weights()</span></code>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">WhyLabsWriter</span><span class="p">()</span><span class="o">.</span><span class="n">get_feature_weights</span><span class="p">()</span>
@@ -877,8 +931,8 @@ together!</em></p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{&#39;Feature_4&#39;: 93.32225450776932, &#39;Feature_5&#39;: 86.50810998606804, &#39;Feature_6&#39;: 26.746066698034504, &#39;Feature_1&#39;: 12.44482785538977, &#39;Feature_7&#39;: 3.285346398262185, &#39;Feature_2&#39;: -4.393883142916863e-14, &#39;Feature_9&#39;: 3.430594380756143e-14, &#39;Feature_8&#39;: -2.7795267559640957e-14, &#39;Feature_3&#39;: -2.7047779443616894e-14, &#39;Feature_0&#39;: -3.330399790430435e-15}
-{&#39;version&#39;: 28, &#39;updatedTimestamp&#39;: 1664373654215, &#39;author&#39;: &#39;system&#39;}
+{&#39;Feature_4&#39;: 93.32225450776932, &#39;Feature_5&#39;: 86.50810998606799, &#39;Feature_6&#39;: 26.74606669803453, &#39;Feature_1&#39;: 12.444827855389764, &#39;Feature_7&#39;: 3.285346398262155, &#39;Feature_2&#39;: -3.108624468950438e-14, &#39;Feature_8&#39;: -2.531308496145357e-14, &#39;Feature_9&#39;: 1.9539925233402755e-14, &#39;Feature_3&#39;: -1.9095836023552692e-14, &#39;Feature_0&#39;: 3.4778530780712388e-15}
+{&#39;author&#39;: &#39;system&#39;, &#39;updated_timestamp&#39;: 1694207704547, &#39;version&#39;: 2}
 </pre></div></div>
 </div>
 <p>As you can see, the result will contain the set of weights in <code class="docutils literal notranslate"><span class="pre">result.weights</span></code>, along with additional metadata in <code class="docutils literal notranslate"><span class="pre">result.metadata</span></code>.</p>

@@ -496,9 +496,6 @@
     <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
     <span class="k">elif</span> <span class="n">session</span><span class="o">.</span><span class="n">get_type</span><span class="p">()</span> <span class="o">==</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">:</span>
-        <span class="n">il</span><span class="o">.</span><span class="n">warning_once</span><span class="p">(</span>
-            <span class="s2">&quot;Skipping automatic upload because the session type is LOCAL. Uploads have to be done manually.&quot;</span>
-        <span class="p">)</span>
         <span class="k">return</span>
 
     <span class="c1"># Get the length of whatever was just logged</span>

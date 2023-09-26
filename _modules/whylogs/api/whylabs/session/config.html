@@ -740,6 +740,13 @@
         <span class="k">if</span> <span class="n">default_dataset_id</span><span class="p">:</span>
             <span class="n">il</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;default dataset: </span><span class="si">{</span><span class="n">default_dataset_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+        <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">()</span>
+        <span class="n">il</span><span class="o">.</span><span class="n">message</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;In production, you should pass the api key as an environment variable </span><span class="si">{</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">WHYLABS_API_KEY</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;the org id as </span><span class="si">{</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">WHYLABS_ORG_ID</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">, and the default dataset id as &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">EnvVariableName</span><span class="o">.</span><span class="n">WHYLABS_DEFAULT_DATASET_ID</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_notify_type_anon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">anonymous_session_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_session_id</span><span class="p">()</span>
         <span class="n">il</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using session type: </span><span class="si">{</span><span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS_ANONYMOUS</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ignore_suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
