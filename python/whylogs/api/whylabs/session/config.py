@@ -315,6 +315,13 @@ class SessionConfig:
         if default_dataset_id:
             il.option(f"default dataset: {default_dataset_id}")
 
+        il.message()
+        il.message(
+            f"In production, you should pass the api key as an environment variable {EnvVariableName.WHYLABS_API_KEY.value}, "
+            f"the org id as {EnvVariableName.WHYLABS_ORG_ID.value}, and the default dataset id as "
+            f"{EnvVariableName.WHYLABS_DEFAULT_DATASET_ID.value}."
+        )
+
     def _notify_type_anon(self) -> None:
         anonymous_session_id = self.get_session_id()
         il.success(f"Using session type: {SessionType.WHYLABS_ANONYMOUS.name}", ignore_suppress=True)
