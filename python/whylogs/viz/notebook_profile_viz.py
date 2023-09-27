@@ -323,7 +323,7 @@ class NotebookProfileVisualizer:
         summary_drift_report = self._display(rendered_template, page_spec, height)
         return summary_drift_report
 
-    def double_histogram(self, feature_name: Optional[Union[str,List]], cell_height: Optional[str] = None) -> HTML:
+    def double_histogram(self, feature_name: Union[str, List[str]], cell_height: Optional[str] = None) -> HTML:
         """Plot overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.
 
         Applicable to numerical features only.
@@ -350,11 +350,12 @@ class NotebookProfileVisualizer:
             feature_name = [feature_name]
         html_contents = []
         for feature in feature_name:
-            html_content = self._display_histogram_chart(feature, cell_height).data
-            html_contents.append(html_content)
+            html_content = self._display_histogram_chart(feature, cell_height)
+            if html_content:
+                html_contents.append(html_content.data)
         return HTML("<br>".join(html_contents))
 
-    def distribution_chart(self, feature_name: Optional[Union[str,List]], cell_height: Optional[str] = None) -> HTML:
+    def distribution_chart(self, feature_name: Union[str, List[str]], cell_height: Optional[str] = None) -> HTML:
         """Plot overlayed distribution charts for specified feature between two profiles.
 
         Applicable to categorical features.
@@ -389,11 +390,14 @@ class NotebookProfileVisualizer:
 
         html_contents = []
         for feature in feature_name:
-            html_content = self._display_distribution_chart(feature, difference, cell_height).data
-            html_contents.append(html_content)
+            html_content = self._display_distribution_chart(feature, difference, cell_height)
+            if html_content:
+                html_contents.append(html_content.data)
         return HTML("<br>".join(html_contents))
 
-    def difference_distribution_chart(self, feature_name: Optional[Union[str,List]], cell_height: Optional[str] = None) -> HTML:
+    def difference_distribution_chart(
+        self, feature_name: Union[str, List[str]], cell_height: Optional[str] = None
+    ) -> HTML:
         """Plot overlayed distribution charts of differences between the categories of both profiles.
 
         Applicable to categorical features.
@@ -427,10 +431,11 @@ class NotebookProfileVisualizer:
 
         html_contents = []
         for feature in feature_name:
-            html_content = self._display_distribution_chart(feature, difference, cell_height).data
-            html_contents.append(html_content)
+            html_content = self._display_distribution_chart(feature, difference, cell_height)
+            if html_content:
+                html_contents.append(html_content.data)
         return HTML("<br>".join(html_contents))
-    
+
     def constraints_report(self, constraints: Constraints, cell_height: Optional[str] = None) -> HTML:
         page_spec = PageSpecEnum.CONSTRAINTS_REPORT.value
         template = _get_compiled_template(page_spec.html)
@@ -441,7 +446,7 @@ class NotebookProfileVisualizer:
         return constraints_report
 
     def feature_statistics(
-        self, feature_name: Optional[Union[str,List]], profile: str = "reference", cell_height: Optional[str] = None
+        self, feature_name: Union[str, List[str]], profile: str = "reference", cell_height: Optional[str] = None
     ) -> HTML:
         """
         Generate a report for the main statistics of specified feature, for a given profile (target or reference).
