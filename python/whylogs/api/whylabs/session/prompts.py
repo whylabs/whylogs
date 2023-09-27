@@ -1,3 +1,4 @@
+import getpass
 import sys
 from typing import List, Optional
 
@@ -57,7 +58,7 @@ def prompt_api_key() -> ApiKey:
         try:
             sys.stdout.flush()
             il.message(ignore_suppress=True)
-            api_key = input(
+            api_key = getpass.getpass(
                 "Enter your WhyLabs api key. You can find it at https://hub.whylabsapp.com/settings/access-tokens: "
             )
             return parse_api_key(api_key)
