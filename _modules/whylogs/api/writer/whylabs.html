@@ -950,7 +950,10 @@
         <span class="n">upload_statuses</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">view</span><span class="p">,</span> <span class="n">url</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">upload_urls</span><span class="p">):</span>
             <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_file</span><span class="p">:</span>
-                <span class="n">view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">tmp_file</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;use_v0&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;use_v0&quot;</span><span class="p">):</span>
+                    <span class="n">view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">tmp_file</span><span class="p">,</span> <span class="n">use_v0</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">tmp_file</span><span class="p">)</span>
                 <span class="n">tmp_file</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
                 <span class="n">tmp_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
@@ -1008,7 +1011,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_id&quot;</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_file</span><span class="p">:</span>
-            <span class="n">view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">tmp_file</span><span class="p">)</span>
+            <span class="c1"># currently whylabs is not ingesting the v1 format of segmented profiles as segmented</span>
+            <span class="c1"># so we default to sending them as v0 profiles if the override `use_v0` is not defined,</span>
+            <span class="c1"># if `use_v0` is defined then pass that through to control the serialization format.</span>
+            <span class="k">if</span> <span class="n">has_segments</span> <span class="ow">and</span> <span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;use_v0&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;use_v0&quot;</span><span class="p">)):</span>
+                <span class="n">view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">tmp_file</span><span class="p">,</span> <span class="n">use_v0</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">tmp_file</span><span class="p">)</span>
             <span class="n">tmp_file</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="n">tmp_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">utc_now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
