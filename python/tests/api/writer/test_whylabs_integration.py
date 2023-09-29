@@ -51,7 +51,7 @@ def test_whylabs_writer():
 
 
 @pytest.mark.load
-def test_whylabs_writer_segmented(raw_result: bool):
+def test_whylabs_writer_segmented():
     why.init(force_local=True)
     schema = DatasetSchema(segments=segment_on_column("col1"))
     data = {"col1": [1, 2, 1, 3, 2, 2], "col2": ["foo", "bar", "wat", "foo", "baz", "wat"]}
