@@ -534,6 +534,36 @@ class WhyLabsWriter(Writer):
         else:
             return False, "Failed to upload all segments"
 
+    def _write_segmented_result_set(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
+        """Put segmented result set for the specified dataset.
+
+        Parameters
+        ----------
+        file : SegmentedResultSet
+            SegmentedResultSet object representing the segmented result set for the specified dataset
+
+        Returns
+        -------
+        Tuple[bool, str]
+        """
+        # multi-profile writer
+        files = file.get_writables()
+        statuses: List[str] = list()
+        and_status: bool = True
+        if not files:
+            logger.warning("Attempt to write a result set with no writables, nothing written!")
+            return True, ""
+
+        logger.debug(f"About to write {len(files)} files:")
+        # TODO: special handling of large number of files, handle throttling
+        for view in files:
+            bool_status, status = self.write(file=view, **kwargs)
+            and_status = and_status and bool_status
+            statuses.append(status)
+        logger.debug(f"Completed writing {len(files)} files!")
+
+        return bool_status, ";".join(statuses)
+
     def _tag_custom_perf_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView]):
         if isinstance(view, DatasetProfileView):
             column_names = view.get_columns().keys()
@@ -551,10 +581,12 @@ class WhyLabsWriter(Writer):
         elif isinstance(file, EstimationResult):
             return self.write_estimation_result(file, **kwargs)
         elif isinstance(file, ResultSet):
-            if isinstance(file, SegmentedResultSet) and self._reference_profile_name is not None:
-                return self._write_segmented_reference_result_set(file, **kwargs)
-                # TODO: why does segmented reference profile need special handling, but
-                # segmented non-reference profile and unsegmented reference profile just work?
+            if isinstance(file, SegmentedResultSet):
+                if self._reference_profile_name is not None:
+                    return self._write_segmented_reference_result_set(file, **kwargs)
+                else:
+                    return self._write_segmented_result_set(file, **kwargs)
+
             file = file.profile()
 
         view = file.view() if isinstance(file, DatasetProfile) else file

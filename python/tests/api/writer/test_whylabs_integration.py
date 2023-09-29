@@ -47,12 +47,10 @@ def test_whylabs_writer():
     headers = {"Content-Type": "application/octet-stream"}
     downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
     deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
-    print(deserialized_view)
     assert deserialized_view.get_columns().keys() == data.keys()
 
 
 @pytest.mark.load
-@pytest.mark.parametrize("raw_result", [(True), (False)])
 def test_whylabs_writer_segmented(raw_result: bool):
     why.init(force_local=True)
     schema = DatasetSchema(segments=segment_on_column("col1"))
@@ -61,8 +59,7 @@ def test_whylabs_writer_segmented(raw_result: bool):
     trace_id = str(uuid4())
     result = why.log(df, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter()
-    writable = result if raw_result else result.profile()
-    writer.write(writable)
+    writer.write(result)
     time.sleep(30)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
@@ -74,7 +71,6 @@ def test_whylabs_writer_segmented(raw_result: bool):
     headers = {"Content-Type": "application/octet-stream"}
     downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
     deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
-    print(deserialized_view)
     assert deserialized_view.get_columns().keys() == data.keys()
 
 
@@ -93,19 +89,17 @@ def test_whylabs_writer_reference(segmented: bool):
     result = why.log(df, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter().option(reference_profile_name="monty")
     writer.write(result)
-    time.sleep(120)  # platform needs time to become aware of the profile
+    time.sleep(30)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
         org_id=ORG_ID,
         dataset_id=MODEL_ID,
         trace_id=trace_id,
     )
-    print(response)
     download_url = response.get("traces")[0]["download_url"]
     headers = {"Content-Type": "application/octet-stream"}
     downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
     deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
-    print(deserialized_view)
     assert deserialized_view.get_columns().keys() == data.keys()
 
 
