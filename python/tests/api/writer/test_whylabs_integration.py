@@ -67,11 +67,15 @@ def test_whylabs_writer_segmented():
         dataset_id=MODEL_ID,
         trace_id=trace_id,
     )
-    download_url = response.get("traces")[0]["download_url"]
-    headers = {"Content-Type": "application/octet-stream"}
-    downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
-    deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
-    assert deserialized_view.get_columns().keys() == data.keys()
+    assert len(response.get("traces")) == 3
+    for trace in response.get("traces"):
+        download_url = trace.get("download_url")
+        headers = {"Content-Type": "application/octet-stream"}
+        downloaded_profile = writer._s3_pool.request(
+            "GET", download_url, headers=headers, timeout=writer._timeout_seconds
+        )
+        deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+        assert deserialized_view.get_columns().keys() == data.keys()
 
 
 @pytest.mark.load
@@ -142,10 +146,18 @@ def test_feature_weights():
 
 
 @pytest.mark.load
+@pytest.mark.xfail(raises=AttributeError, reason="writer calls non-existant function")
 def test_performance_column():
-    pass
+    writer = WhyLabsWriter()
+    _, res = writer.tag_custom_performance_column("col1", "perf column", "mean")
+    assert res == "OK"
+    model_api_instance = writer._get_or_create_models_client()
+    col1_schema = writer._get_existing_column_schema(model_api_instance, "col1")
+    assert col1_schema["label"] == "perf column"
+    assert col1_schema["default_metric"] == "mean"
 
 
 @pytest.mark.load
 def test_estimation_result():
+    # TODO: WhyLabsWriter::write_estimation_result() needs a trace id
     pass
