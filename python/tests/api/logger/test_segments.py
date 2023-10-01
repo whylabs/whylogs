@@ -210,6 +210,7 @@ def test_segment_write_roundtrip_versions(tmp_path: Any, v0) -> None:
     input_rows = 10
     segment_column = "col3"
     number_of_segments = 2
+    trace_id = "123-456"
     values_per_segment = input_rows / number_of_segments
     d = {
         "col1": [i for i in range(input_rows)],
@@ -220,7 +221,7 @@ def test_segment_write_roundtrip_versions(tmp_path: Any, v0) -> None:
     df = pd.DataFrame(data=d)
     test_segments = segment_on_column(segment_column)
 
-    results: SegmentedResultSet = why.log(df, schema=DatasetSchema(segments=test_segments))
+    results: SegmentedResultSet = why.log(df, trace_id=trace_id, schema=DatasetSchema(segments=test_segments))
     assert results.count == number_of_segments
     partitions = results.partitions
     assert len(partitions) == 1
@@ -255,6 +256,11 @@ def test_segment_write_roundtrip_versions(tmp_path: Any, v0) -> None:
     post_deserialization_first_view = roundtrip_profiles[0]
     assert post_deserialization_first_view is not None
     assert isinstance(post_deserialization_first_view, DatasetProfileView)
+
+    # check that trace_id is preserved round trip in metadata
+    assert post_deserialization_first_view.metadata
+    assert "whylabs.traceId" in post_deserialization_first_view.metadata
+    assert trace_id == post_deserialization_first_view.metadata["whylabs.traceId"]
     pre_serialization_first_view = first_segment_profile.view()
     pre_columns = pre_serialization_first_view.get_columns()
     post_columns = post_deserialization_first_view.get_columns()
