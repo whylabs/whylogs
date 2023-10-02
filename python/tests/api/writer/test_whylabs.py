@@ -56,21 +56,32 @@ class TestWhylabsWriterWithSession(object):
         return why.log(pandas=pandas_dataframe)
 
     def test_writer_throws_for_anon_sessions(self, results) -> None:
-        # NOTE: Assumes WHYLABS_API_KEY environment variable is not set
+        old_key = os.environ.get(EnvVariableName.WHYLABS_API_KEY.value, None)
+        if EnvVariableName.WHYLABS_API_KEY.value in os.environ:
+            os.environ.pop(EnvVariableName.WHYLABS_API_KEY.value)
         session = init()  # Default session is anonymous in this case (no config file content)
+        if old_key:
+            os.environ[EnvVariableName.WHYLABS_API_KEY.value] = old_key
+
         assert session.get_type() == SessionType.WHYLABS_ANONYMOUS
 
         with pytest.raises(ValueError):
             WhyLabsWriter().write(results.profile())
 
     def test_writer_works_for_anon_with_overrides(self) -> None:
-        # NOTE: Assumes WHYLABS_API_KEY environment variable is not set
+        old_key = os.environ.get(EnvVariableName.WHYLABS_API_KEY.value, None)
+        if EnvVariableName.WHYLABS_API_KEY.value in os.environ:
+            os.environ.pop(EnvVariableName.WHYLABS_API_KEY.value)
         key_id = "MPq7Hg002z"
         org_id = "org-xxxxxx"
         api_key = f"{key_id}.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:{org_id}"
 
         # You can use the writer if the session is anonymous, but you must provide the required args
         session = init()  # Default session is anonymous in this case (no config file content)
+
+        if old_key:
+            os.environ[EnvVariableName.WHYLABS_API_KEY.value] = old_key
+
         assert session.get_type() == SessionType.WHYLABS_ANONYMOUS
 
         # No error
