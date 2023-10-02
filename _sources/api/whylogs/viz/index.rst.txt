@@ -216,7 +216,7 @@ Classes
           visualization.summary_drift_report()
 
 
-   .. py:method:: double_histogram(feature_name: str, cell_height: Optional[str] = None) -> IPython.core.display.HTML
+   .. py:method:: double_histogram(feature_name: Union[str, List[str]], cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
       Plot overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.
 
@@ -238,7 +238,7 @@ Classes
           visualization.double_histogram(feature_name="weight")
 
 
-   .. py:method:: distribution_chart(feature_name: str, cell_height: Optional[str] = None) -> IPython.core.display.HTML
+   .. py:method:: distribution_chart(feature_name: Union[str, List[str]], cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
       Plot overlayed distribution charts for specified feature between two profiles.
 
@@ -264,7 +264,7 @@ Classes
           visualization.distribution_chart(feature_name="animal")
 
 
-   .. py:method:: difference_distribution_chart(feature_name: str, cell_height: Optional[str] = None) -> IPython.core.display.HTML
+   .. py:method:: difference_distribution_chart(feature_name: Union[str, List[str]], cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
       Plot overlayed distribution charts of differences between the categories of both profiles.
 
@@ -291,7 +291,7 @@ Classes
    .. py:method:: constraints_report(constraints: whylogs.core.constraints.Constraints, cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
 
-   .. py:method:: feature_statistics(feature_name: str, profile: str = 'reference', cell_height: Optional[str] = None) -> IPython.core.display.HTML
+   .. py:method:: feature_statistics(feature_name: Union[str, List[str]], profile: str = 'reference', cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
       Generate a report for the main statistics of specified feature, for a given profile (target or reference).
 
