@@ -10,11 +10,11 @@ jobs:
     steps:
       - uses: actions/stale@v3
         with:
-          days-before-stale: 30
-          days-before-close: 1
+          days-before-stale: 90
+          days-before-close: 7
           stale-issue-label: "stale :zzz:"
-          stale-issue-message: "This issue is stale. Remove stale label or it will be closed tomorrow."
+          stale-issue-message: "This issue is stale. Remove stale label or it will be closed next week."
           stale-pr-label: "stale :zzz:"
-          stale-pr-message: "This PR is stale. Remove stale label or it will be closed tomorrow."
+          stale-pr-message: "This PR is stale. Remove stale label or it will be closed next week."
           exempt-issue-labels: "in progress :construction:"
           exempt-pr-labels: "in progress :construction:"
