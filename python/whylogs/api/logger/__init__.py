@@ -49,7 +49,6 @@ def log(
     tags: Optional[List[str]] = None,
     segment_key_values: Optional[Dict[str, str]] = None,
     debug_event: Optional[Dict[str, Any]] = None,
-    **kwargs,
 ) -> ResultSet:
     if multiple is not None:
         result_sets: Dict[str, ResultSet] = {}
@@ -73,9 +72,6 @@ def log(
         notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
 
         if debug_event is not None:
-            preserve_record = kwargs.get("preserve_record")
-            if preserve_record is not None:
-                diagnostic_logger.info(f"log was called with preserve_record: {preserve_record}")
             debug_event_status = log_debug_event(
                 debug_event=debug_event,
                 trace_id=trace_id,

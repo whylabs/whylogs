@@ -83,7 +83,6 @@ class TimedRollingLogger(Logger):
             base_name = "profile"
         if file_extension is None:
             file_extension = ".bin"
-        self._aggregates = True
 
         self.file_extension = file_extension
         self.base_name = base_name
