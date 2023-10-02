@@ -27,6 +27,7 @@ skip_notebooks = [
     "performance_estimation.ipynb",
     "Embeddings_Distance_Logging.ipynb",  # skipped due to data download
     "whylogs_Audio_examples.ipynb",  # skipped because of Kaggle data download and API key for whylabs upload
+    "Logging_with_Debug_Events.ipynb",  # skipped because of API key required with whylabs writing
     "NLP_Summarization.ipynb",
     "Multi dataset logger.ipynb",
     "Pyspark_and_Constraints.ipynb",
