@@ -551,7 +551,7 @@ class WhyLabsWriter(Writer):
         """
         # multi-profile writer
         files = file.get_writables()
-        statuses: List[str] = list()
+        messages: List[str] = list()
         and_status: bool = True
         if not files:
             logger.warning("Attempt to write a result set with no writables, nothing written!")
@@ -560,12 +560,12 @@ class WhyLabsWriter(Writer):
         logger.debug(f"About to write {len(files)} files:")
         # TODO: special handling of large number of files, handle throttling
         for view in files:
-            bool_status, status = self.write(file=view, **kwargs)
+            bool_status, message = self.write(file=view, **kwargs)
             and_status = and_status and bool_status
-            statuses.append(status)
+            messages.append(message)
         logger.debug(f"Completed writing {len(files)} files!")
 
-        return bool_status, ";".join(statuses)
+        return and_status, "; ".join(messages)
 
     def _tag_custom_perf_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView]):
         if isinstance(view, DatasetProfileView):
