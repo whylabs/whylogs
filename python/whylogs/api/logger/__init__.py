@@ -94,8 +94,6 @@ def _log_with_metrics(
         results = log(pandas=data, schema=schema, dataset_timestamp=dataset_timestamp)
     else:
         results = ProfileResultSet(DatasetProfile(schema=schema))
-        if dataset_timestamp is not None:
-            results.set_dataset_timestamp(dataset_timestamp)
 
     results.add_model_performance_metrics(metrics)
     return results
@@ -119,6 +117,7 @@ def _segmented_performance_metrics(
     data: pd.DataFrame,
     performance_column_mapping: Dict[str, Optional[str]],
     performance_metric: str,
+    dataset_timestamp: Optional[datetime] = None,
 ) -> SegmentedResultSet:
     segmented_profiles = dict()
     segment_partitions = list()
@@ -148,7 +147,11 @@ def _segmented_performance_metrics(
         segmented_profiles[partition.id] = partition_segments
         segment_partitions.append(partition)
 
-    return SegmentedResultSet(segments=segmented_profiles, partitions=segment_partitions)
+    result_set = SegmentedResultSet(segments=segmented_profiles, partitions=segment_partitions)
+    if dataset_timestamp is not None:
+        result_set.set_dataset_timestamp(dataset_timestamp)
+
+    return result_set
 
 
 def log_classification_metrics(
@@ -158,6 +161,7 @@ def log_classification_metrics(
     score_column: Optional[str] = None,
     schema: Optional[DatasetSchema] = None,
     log_full_data: bool = False,
+    dataset_timestamp: Optional[datetime] = None,
 ) -> ResultSet:
     """
     Function to track metrics based on validation data.
@@ -183,13 +187,20 @@ def log_classification_metrics(
             data=data,
             performance_column_mapping=perf_column_mapping,
             performance_metric="compute_confusion_matrix",
+            dataset_timestamp=dataset_timestamp,
         )
 
     model_performance_metrics = _performance_metric(
         pandas=data, perf_columns=perf_column_mapping, metric_name="compute_confusion_matrix"
     )
 
-    return _log_with_metrics(data=data, metrics=model_performance_metrics, schema=schema, include_data=log_full_data)
+    return _log_with_metrics(
+        data=data,
+        metrics=model_performance_metrics,
+        schema=schema,
+        include_data=log_full_data,
+        dataset_timestamp=dataset_timestamp,
+    )
 
 
 def log_regression_metrics(
@@ -223,6 +234,7 @@ def log_regression_metrics(
             data=data,
             performance_column_mapping=perf_column_mapping,
             performance_metric="compute_regression_metrics",
+            dataset_timestamp=dataset_timestamp,
         )
 
     model_performance_metrics = _performance_metric(
