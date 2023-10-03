@@ -1,0 +1,48 @@
+:py:mod:`whylogs.api.logger.events.event`
+=========================================
+
+.. py:module:: whylogs.api.logger.events.event
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.events.event.DebugClient
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.events.event.log_debug_event
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.events.event.diagnostic_logger
+
+
+.. py:data:: diagnostic_logger
+
+   
+
+.. py:class:: DebugClient(api_client: Optional[whylabs_client.ApiClient] = None, org_id: Optional[str] = None, dataset_id: Optional[str] = None, ssl_ca_cert: Optional[str] = None)
+
+   .. py:method:: log_debug_event(debug_event: Optional[Dict[str, Any]] = None, *, trace_id: str, tags: Optional[List[str]] = None, dataset_timestamp: Optional[datetime.datetime] = None, segment_key_values: Optional[Dict[str, str]] = None)
+
+
+
+.. py:function:: log_debug_event(debug_event: Optional[Dict[str, Any]] = None, *, trace_id: str, name: Optional[str] = None, tags: Optional[List[str]] = None, dataset_timestamp: Optional[datetime.datetime] = None, segment_key_values: Optional[Dict[str, str]] = None, write_local_file: bool = False)
+
+

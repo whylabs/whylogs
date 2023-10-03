@@ -4,6 +4,15 @@
 .. py:module:: whylogs.api.logger
 
 
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   events/index.rst
+
+
 Submodules
 ----------
 .. toctree::
@@ -44,6 +53,7 @@ Functions
 
 .. autoapisummary::
 
+   whylogs.api.logger.log_debug_event
    whylogs.api.logger.emit_usage
    whylogs.api.logger.notebook_session_log
    whylogs.api.logger.notebook_session_log_comparison
@@ -66,6 +76,9 @@ Attributes
    whylogs.api.logger.Loggable
 
 
+.. py:function:: log_debug_event(debug_event: Optional[Dict[str, Any]] = None, *, trace_id: str, name: Optional[str] = None, tags: Optional[List[str]] = None, dataset_timestamp: Optional[datetime.datetime] = None, segment_key_values: Optional[Dict[str, str]] = None, write_local_file: bool = False)
+
+
 .. py:class:: Logger(schema: Optional[whylogs.core.DatasetSchema] = None)
 
    Bases: :py:obj:`abc.ABC`
@@ -84,7 +97,7 @@ Attributes
    .. py:method:: append_store(store: whylogs.api.store.ProfileStore) -> None
 
 
-   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None, name: Optional[str] = None, trace_id: Optional[str] = None, tags: Optional[List[str]] = None, segment_key_values: Optional[List[Dict[str, str]]] = None) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None, name: Optional[str] = None, trace_id: Optional[str] = None, tags: Optional[List[str]] = None, segment_key_values: Optional[Dict[str, str]] = None) -> whylogs.api.logger.result_set.ResultSet
 
       :param timestamp_ms: The timestamp of the data being logged. This defaults to now if it isn't provided.
                            This is used to determine what the dataset timestamp should be. For an hourly model, the dataset
@@ -334,7 +347,7 @@ Attributes
    .. py:method:: append_store(store: whylogs.api.store.ProfileStore) -> None
 
 
-   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None, name: Optional[str] = None, trace_id: Optional[str] = None, tags: Optional[List[str]] = None, segment_key_values: Optional[List[Dict[str, str]]] = None) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None, name: Optional[str] = None, trace_id: Optional[str] = None, tags: Optional[List[str]] = None, segment_key_values: Optional[Dict[str, str]] = None) -> whylogs.api.logger.result_set.ResultSet
 
       :param timestamp_ms: The timestamp of the data being logged. This defaults to now if it isn't provided.
                            This is used to determine what the dataset timestamp should be. For an hourly model, the dataset
@@ -360,7 +373,7 @@ Attributes
    .. py:method:: append_store(store: whylogs.api.store.ProfileStore) -> None
 
 
-   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None, name: Optional[str] = None, trace_id: Optional[str] = None, tags: Optional[List[str]] = None, segment_key_values: Optional[List[Dict[str, str]]] = None) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, timestamp_ms: Optional[int] = None, name: Optional[str] = None, trace_id: Optional[str] = None, tags: Optional[List[str]] = None, segment_key_values: Optional[Dict[str, str]] = None) -> whylogs.api.logger.result_set.ResultSet
 
       :param timestamp_ms: The timestamp of the data being logged. This defaults to now if it isn't provided.
                            This is used to determine what the dataset timestamp should be. For an hourly model, the dataset
@@ -580,7 +593,7 @@ Attributes
 
    
 
-.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, name: Optional[str] = None, multiple: Optional[Dict[str, Loggable]] = None, dataset_timestamp: Optional[datetime.datetime] = None, trace_id: Optional[str] = None, tags: Optional[List[str]] = None, segment_key_values: Optional[List[Dict[str, str]]] = None) -> result_set.ResultSet
+.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, name: Optional[str] = None, multiple: Optional[Dict[str, Loggable]] = None, dataset_timestamp: Optional[datetime.datetime] = None, trace_id: Optional[str] = None, tags: Optional[List[str]] = None, segment_key_values: Optional[Dict[str, str]] = None, debug_event: Optional[Dict[str, Any]] = None) -> result_set.ResultSet
 
 
 .. py:function:: log_classification_metrics(data: whylogs.core.stubs.pd.DataFrame, target_column: str, prediction_column: str, score_column: Optional[str] = None, schema: Optional[whylogs.core.DatasetSchema] = None, log_full_data: bool = False, dataset_timestamp: Optional[datetime.datetime] = None) -> result_set.ResultSet

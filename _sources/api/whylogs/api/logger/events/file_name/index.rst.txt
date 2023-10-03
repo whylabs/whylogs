@@ -1,0 +1,6 @@
+:py:mod:`whylogs.api.logger.events.file_name`
+=============================================
+
+.. py:module:: whylogs.api.logger.events.file_name
+
+
