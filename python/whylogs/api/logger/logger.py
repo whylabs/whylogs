@@ -78,7 +78,6 @@ class Logger(ABC):
         trace_id: Optional[str] = None,
         tags: Optional[List[str]] = None,
         segment_key_values: Optional[Dict[str, str]] = None,
-        preserve_record: bool = False,
     ) -> ResultSet:
         """
         Args:
@@ -91,11 +90,6 @@ class Logger(ABC):
         if obj is None and pandas is None and row is None:
             # TODO: check for shell environment and emit more verbose error string to let user know how to correct.
             raise LoggingError("log() was called without passing in any input!")
-        if preserve_record and hasattr(self, "_aggregates"):
-            raise ValueError(
-                f"Logger of type: {type(self).__name__} does not support 'preserve_record=True', "
-                "please use a different Logger type, perhaps try the TransientLogger."
-            )
 
         if name is not None:
             if self._metadata is None:
