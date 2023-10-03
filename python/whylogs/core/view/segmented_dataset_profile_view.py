@@ -69,6 +69,10 @@ class SegmentedDatasetProfileView(Writable):
         return self.profile_view.creation_timestamp
 
     @property
+    def model_performance_metrics(self) -> Any:
+        return self.profile_view.model_performance_metrics
+
+    @property
     def metadata(self) -> Dict[str, str]:
         return self.profile_view.metadata
 

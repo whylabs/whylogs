@@ -592,7 +592,9 @@ class WhyLabsWriter(Writer):
             file = file.profile()
 
         view = file.view() if isinstance(file, DatasetProfile) else file
+
         has_segments = isinstance(view, SegmentedDatasetProfileView)
+        has_performance_metrics = view.model_performance_metrics
         self._tag_custom_perf_metrics(view)
         if not has_segments and not isinstance(view, DatasetProfileView):
             raise ValueError(
@@ -618,7 +620,7 @@ class WhyLabsWriter(Writer):
             # currently whylabs is not ingesting the v1 format of segmented profiles as segmented
             # so we default to sending them as v0 profiles if the override `use_v0` is not defined,
             # if `use_v0` is defined then pass that through to control the serialization format.
-            if has_segments and (kwargs.get("use_v0") is None or kwargs.get("use_v0")):
+            if has_performance_metrics or kwargs.get("use_v0"):
                 view.write(file=tmp_file, use_v0=True)
             else:
                 view.write(file=tmp_file)
