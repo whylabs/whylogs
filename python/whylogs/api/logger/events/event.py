@@ -69,11 +69,6 @@ class DebugClient:
             for segment_key, segment_value in segment_key_values.items():
                 if not isinstance(segment_value, str):
                     diagnostic_logger.info(
-                        "debug event segment_key_values has a non-string key for " f"{segment_key}, converting to str"
-                    )
-                    segment_value = str(segment_value)
-                if not isinstance(segment_value, str):
-                    diagnostic_logger.info(
                         "debug event segment_key_values has a non-string value for "
                         f"{segment_key}: {segment_value}, converting to str"
                     )
