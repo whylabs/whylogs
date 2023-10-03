@@ -27,6 +27,7 @@ Functions
    whylogs.extras.image_metric.get_pil_exif_metadata
    whylogs.extras.image_metric.image_based_metadata
    whylogs.extras.image_metric.get_pil_image_metadata
+   whylogs.extras.image_metric.init_image_schema
    whylogs.extras.image_metric.log_image
 
 
@@ -244,6 +245,16 @@ Attributes
    .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
       :classmethod:
 
+
+
+.. py:function:: init_image_schema(column_prefix: str = 'image') -> whylogs.core.schema.DatasetSchema
+
+   Initialize a DatasetSchema for logging images. This can be passed into a logger or why.log.
+
+   :param column_prefix: The prefix that appears in the dataset profiles along with all of the
+   :type column_prefix: str
+   :param image features. If the prefix is "image": image_data}).
+   :param then you'll log image with why.log({image: image_data}).
 
 
 .. py:function:: log_image(images: Union[PIL.Image.Image, List[PIL.Image.Image], Dict[str, PIL.Image.Image]], default_column_prefix: str = 'image', schema: Optional[whylogs.core.schema.DatasetSchema] = None, trace_id: Optional[str] = None) -> whylogs.api.logger.result_set.ResultSet

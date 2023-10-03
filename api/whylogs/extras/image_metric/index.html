@@ -479,7 +479,10 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.get_pil_image_metadata" title="whylogs.extras.image_metric.get_pil_image_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pil_image_metadata</span></code></a>(→ Dict)</p></td>
 <td><p>Grab statistics data from a PIL ImageStats.Stat</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.log_image" title="whylogs.extras.image_metric.log_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_image</span></code></a>(→ whylogs.api.logger.result_set.ResultSet)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.init_image_schema" title="whylogs.extras.image_metric.init_image_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_image_schema</span></code></a>(→ whylogs.core.schema.DatasetSchema)</p></td>
+<td><p>Initialize a DatasetSchema for logging images. This can be passed into a logger or why.log.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.extras.image_metric.log_image" title="whylogs.extras.image_metric.log_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_image</span></code></a>(→ whylogs.api.logger.result_set.ResultSet)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -873,6 +876,24 @@ the Metric interface. Don’t use / or : in the subclass’ namespace.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="whylogs.extras.image_metric.init_image_schema">
+<span class="sig-prename descclassname"><span class="pre">whylogs.extras.image_metric.</span></span><span class="sig-name descname"><span class="pre">init_image_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'image'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../core/schema/index.html#whylogs.core.schema.DatasetSchema" title="whylogs.core.schema.DatasetSchema"><span class="pre">whylogs.core.schema.DatasetSchema</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#init_image_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.init_image_schema" title="Permalink to this definition">#</a></dt>
+<dd><p>Initialize a DatasetSchema for logging images. This can be passed into a logger or why.log.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column_prefix</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The prefix that appears in the dataset profiles along with all of the</p></li>
+<li><p><strong>&quot;image&quot;</strong> (<em>image features. If the prefix is</em>) – image_data}).</p></li>
+<li><p><strong>why.log</strong><strong>(</strong><strong>{image</strong> (<em>then you'll log image with</em>) – image_data}).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../../core/schema/index.html#whylogs.core.schema.DatasetSchema" title="whylogs.core.schema.DatasetSchema">whylogs.core.schema.DatasetSchema</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="whylogs.extras.image_metric.log_image">
 <span class="sig-prename descclassname"><span class="pre">whylogs.extras.image_metric.</span></span><span class="sig-name descname"><span class="pre">log_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">PIL.Image.Image</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">PIL.Image.Image</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PIL.Image.Image</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_column_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'image'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../core/schema/index.html#whylogs.core.schema.DatasetSchema" title="whylogs.core.schema.DatasetSchema"><span class="pre">whylogs.core.schema.DatasetSchema</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../api/logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet"><span class="pre">whylogs.api.logger.result_set.ResultSet</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/extras/image_metric.html#log_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.extras.image_metric.log_image" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -1007,6 +1028,7 @@ the Metric interface. Don’t use / or : in the subclass’ namespace.</p>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.ImageMetric.get_namespace">get_namespace</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#whylogs.extras.image_metric.init_image_schema">init_image_schema</a></li>
 <li><a class="reference internal" href="#whylogs.extras.image_metric.log_image">log_image</a></li>
 </ul>
 </li>
