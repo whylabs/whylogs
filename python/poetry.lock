@@ -4304,13 +4304,13 @@ watchdog = ["watchdog"]
 
 [[package]]
 name = "whylabs-client"
-version = "0.5.5"
+version = "0.5.6"
 description = "WhyLabs API client"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "whylabs-client-0.5.5.tar.gz", hash = "sha256:d11b68f587d9e8c46342e0d17323b009df3d85f725fc026bfcaeed3a21253a52"},
-    {file = "whylabs_client-0.5.5-py3-none-any.whl", hash = "sha256:ecef28d118aaaaffc6472637d71aa2ee4582de4846da6a4b334253c15ce3eb50"},
+    {file = "whylabs-client-0.5.6.tar.gz", hash = "sha256:8c8eaa1df6db3abb3359b3d7b520e37150d462f9679e19c3761e83984ca95a15"},
+    {file = "whylabs_client-0.5.6-py3-none-any.whl", hash = "sha256:3a8181c5fa080ecb72ddb3bb432af8b5d8f08cbebbe0be6392651cafd101d6c3"},
 ]
 
 [package.dependencies]
@@ -4485,4 +4485,4 @@ viz = ["Pillow", "ipython", "numpy", "numpy", "pybars3", "scipy", "scipy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.1, <4"
-content-hash = "cb4731c3d5db991e79d1d3ce78bd2387c1e0abc6c8dc127e142acdc5a7698ffd"
+content-hash = "2b7e0dcf57ca87ab5c709e76d0321b9e98fecdf21c9b0451d52eb97448a8c73c"
