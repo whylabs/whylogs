@@ -5,6 +5,7 @@ RUN mkdir /workspace && \
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 RUN apt-get install apt-utils -y -q
 RUN apt-get install git -y && \
+    apt-get install awscli -y && \
     apt-get install sudo -y && \
     adduser --quiet --disabled-password --gecos "" whyuser && \
     adduser whyuser sudo && \
