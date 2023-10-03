@@ -23,6 +23,8 @@ os.environ["WHYLOGS_NO_ANALYTICS"] = "True"
 ORG_ID = os.environ["WHYLABS_DEFAULT_ORG_ID"]
 MODEL_ID = os.environ["WHYLABS_DEFAULT_DATASET_ID"]
 
+SLEEP_TIME = 30
+
 
 @pytest.mark.load
 def test_whylabs_writer():
@@ -33,7 +35,7 @@ def test_whylabs_writer():
     result = why.log(data, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter()
     writer.write(result.profile())
-    time.sleep(30)  # platform needs time to become aware of the profile
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
         org_id=ORG_ID,
@@ -57,7 +59,7 @@ def test_whylabs_writer_segmented():
     result = why.log(df, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter()
     writer.write(result)
-    time.sleep(30)  # platform needs time to become aware of the profile
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
         org_id=ORG_ID,
@@ -90,7 +92,7 @@ def test_whylabs_writer_reference(segmented: bool):
     result = why.log(df, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter().option(reference_profile_name="monty")
     writer.write(result)
-    time.sleep(30)  # platform needs time to become aware of the profile
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
         org_id=ORG_ID,
