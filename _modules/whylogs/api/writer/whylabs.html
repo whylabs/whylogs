@@ -855,7 +855,6 @@
             <span class="n">column</span><span class="o">=</span><span class="n">column</span><span class="p">,</span>
             <span class="n">default_metric</span><span class="o">=</span><span class="n">default_metric</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_org_and_dataset</span><span class="p">()</span>  <span class="c1"># TODO this just doesn&#39;t exist?</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">res</span> <span class="o">=</span> <span class="n">api_instance</span><span class="o">.</span><span class="n">put_entity_schema_metric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">metric_schema</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
