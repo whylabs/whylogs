@@ -20,14 +20,14 @@ os.environ["WHYLOGS_NO_ANALYTICS"] = "True"
 # WHYLABS_API_ENDPOINT, WHYLABS_API_KEY, WHYLABS_DEFAULT_ORG_ID, and
 # WHYLABS_DEFAULT_DATASET_ID need to come from the environment
 
-ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
-MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
 
 SLEEP_TIME = 30
 
 
 @pytest.mark.load
 def test_whylabs_writer():
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
     schema = DatasetSchema()
     data = {"col1": 1, "col2": "foo"}
@@ -51,6 +51,8 @@ def test_whylabs_writer():
 
 @pytest.mark.load
 def test_whylabs_writer_segmented():
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
     schema = DatasetSchema(segments=segment_on_column("col1"))
     data = {"col1": [1, 2, 1, 3, 2, 2], "col2": ["foo", "bar", "wat", "foo", "baz", "wat"]}
@@ -80,6 +82,8 @@ def test_whylabs_writer_segmented():
 @pytest.mark.load
 @pytest.mark.parametrize("segmented", [(True), (False)])
 def test_whylabs_writer_reference(segmented: bool):
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
     if segmented:
         schema = DatasetSchema(segments=segment_on_column("col1"))
