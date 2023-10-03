@@ -430,7 +430,6 @@ class WhyLabsWriter(Writer):
             column=column,
             default_metric=default_metric,
         )
-        self._validate_org_and_dataset()  # TODO this just doesn't exist?
         try:
             res = api_instance.put_entity_schema_metric(self._org_id, self._dataset_id, metric_schema)
             return True, str(res)
