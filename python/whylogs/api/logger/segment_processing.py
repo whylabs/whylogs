@@ -146,7 +146,14 @@ def segment_processing(
             logger.debug(
                 f"{partition_name}: defines mapper on colums ({segment_partition.mapper.col_names}) and id ({segment_partition.mapper.id})"
             )
-        partition_segments = _log_segment(segment_partition, schema, obj, pandas, row, segment_cache)
+        partition_segments = _log_segment(
+            partition=segment_partition,
+            schema=schema,
+            obj=obj,
+            pandas=pandas,
+            row=row,
+            segment_cache=segment_cache,
+        )
         segmented_profiles[segment_partition.id] = partition_segments
         segment_partitions.append(segment_partition)
         logger.debug(f"Done profiling for partition with name({partition_name})")
