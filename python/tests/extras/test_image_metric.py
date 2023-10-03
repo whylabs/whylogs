@@ -10,11 +10,17 @@ from whylogs.core.metrics import Metric
 from whylogs.core.preprocessing import ListView, PreprocessedColumn
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
-from whylogs.extras.image_metric import ImageMetric, ImageMetricConfig, log_image
+from whylogs.extras.image_metric import (
+    ImageMetric,
+    ImageMetricConfig,
+    init_image_schema,
+    log_image,
+)
 
 logger = logging.getLogger(__name__)
 
 try:
+    import numpy as np
     from PIL.Image import Image as ImageType
 except ImportError as e:
     ImageType = None
@@ -78,6 +84,20 @@ def test_image_metric() -> None:
         assert namespace in metric.submetrics["Software"]
     assert "distribution" not in metric.submetrics["Software"]
     assert "ints" not in metric.submetrics["Software"]
+
+
+def test_log_np_image() -> None:
+    image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
+    img = np.array(image_loader(image_path))
+
+    schema = init_image_schema()
+    profile = why.log({"image": img}, schema=schema)
+    df = profile.profile().view().to_pandas()
+
+    # Ensure a few columns are in the data frame from the image metric
+    assert "image/Brightness.mean:cardinality/est" in df.columns
+    assert "image/Brightness.mean:cardinality/lower_1" in df.columns
+    assert "image/entropy:types/tensor" in df.columns
 
 
 def test_allowed_exif_tags() -> None:
