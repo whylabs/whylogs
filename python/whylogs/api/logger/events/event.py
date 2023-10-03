@@ -31,7 +31,6 @@ class DebugClient:
         if api_client is None:
             session = _default_init()
             config = session.config
-            print(config)
             self._cache_config = ClientCacheConfig(
                 ssl_ca_cert=ssl_ca_cert,
                 api_key=config.require_api_key(),
