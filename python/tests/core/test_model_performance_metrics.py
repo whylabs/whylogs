@@ -1,6 +1,7 @@
 import base64
 from logging import getLogger
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -90,6 +91,19 @@ def test_binary_classification_compute_confusion_matrix():
 
     TEST_LOGGER.info(confusion_matrix.confusion_matrix)
     assert confusion_matrix.confusion_matrix is not None
+
+
+def test_confusion_matrix_with_nans():
+    df = pd.DataFrame({"label_output": [0, 1, 0, 1, None, 1, np.nan], "pred_output": [0, 0, 1, 1, 0, np.nan, None]})
+    predictions = df["pred_output"].to_list()
+    targets = df["label_output"].to_list()
+
+    labels = sorted(list(set(targets + predictions)))
+    print("labels fed to the matrix:", labels)
+    confusion_matrix = ConfusionMatrix(labels=labels)
+    confusion_matrix.add(predictions=predictions, targets=targets, scores=None)
+    assert len(confusion_matrix.confusion_matrix) == 7
+    assert confusion_matrix.labels == [0, 1, "None"]
 
 
 def test_model_performance_metrics_binary():
