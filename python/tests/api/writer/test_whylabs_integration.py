@@ -16,15 +16,9 @@ from whylogs.core.segmentation_partition import segment_on_column
 
 # TODO: These won't work well if multiple tests run concurrently
 
-
-ORG_ID = "org-0"
-MODEL_ID = "model-2250"
-
 os.environ["WHYLOGS_NO_ANALYTICS"] = "True"
-os.environ["WHYLABS_API_ENDPOINT"] = "https://songbird.development.whylabsdev.com"
-os.environ["WHYLABS_DEFAULT_ORG_ID"] = ORG_ID
-os.environ["WHYLABS_DEFAULT_DATASET_ID"] = MODEL_ID
-# WHYLABS_API_KEY needs to come from the environment
+# WHYLABS_API_ENDPOINT, WHYLABS_API_KEY, WHYLABS_DEFAULT_ORG_ID, and
+# WHYLABS_DEFAULT_DATASET_ID need to come from the environment
 
 
 @pytest.mark.load
