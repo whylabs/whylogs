@@ -20,6 +20,9 @@ os.environ["WHYLOGS_NO_ANALYTICS"] = "True"
 # WHYLABS_API_ENDPOINT, WHYLABS_API_KEY, WHYLABS_DEFAULT_ORG_ID, and
 # WHYLABS_DEFAULT_DATASET_ID need to come from the environment
 
+ORG_ID = os.environ["WHYLABS_DEFAULT_ORG_ID"]
+MODEL_ID = os.environ["WHYLABS_DEFAULT_DATASET_ID"]
+
 
 @pytest.mark.load
 def test_whylabs_writer():
