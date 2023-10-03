@@ -56,6 +56,10 @@ Attributes
       :type: Optional[datetime.datetime]
 
 
+   .. py:property:: model_performance_metrics
+      :type: Any
+
+
    .. py:property:: metadata
       :type: Dict[str, str]
 
