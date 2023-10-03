@@ -28,9 +28,8 @@ from whylabs_client.model.segment_tag import SegmentTag  # type: ignore
 from whylabs_client.rest import ForbiddenException  # type: ignore
 
 from whylogs.api.logger import log
-from whylogs.api.logger.result_set import SegmentedResultSet
-from whylogs.api.whylabs.session.config import _INIT_DOCS
-from whylogs.api.whylabs.session.session_manager import _default_init
+from whylogs.api.logger.result_set import ResultSet, SegmentedResultSet
+from whylogs.api.whylabs.session.session_manager import _INIT_DOCS, _default_init
 from whylogs.api.whylabs.session.whylabs_client_cache import (
     ClientCacheConfig,
     EnvironmentKeyRefresher,
@@ -172,9 +171,9 @@ class WhyLabsWriter(Writer):
         session = _default_init()  # Force an init if the user didn't do it, it's idempotent
         config = session.config
 
-        self._org_id = org_id or config.require_org_id()
-        self._dataset_id = dataset_id or config.require_default_dataset_id()
-
+        self._org_id = org_id or config.get_org_id()
+        self._dataset_id = dataset_id or config.get_default_dataset_id()
+        self._api_key = api_key or config.get_api_key()
         self._feature_weights = None
         self._reference_profile_name = config.get_whylabs_refernce_profile_name()
         self._api_config: Optional[Configuration] = None
@@ -211,17 +210,16 @@ class WhyLabsWriter(Writer):
             ssl_ca_cert=ssl_ca_cert,
             whylabs_api_endpoint=self.whylabs_api_endpoint,
             endpoint_hostname=self._endpoint_hostname,
-            api_key=api_key or config.require_api_key(),
+            api_key=self._api_key,
         )
 
-        if api_client:
-            # Just ignore the other args if a client was passed in. They're saved in the cache config if we need them.
-            self._api_client = api_client
-            # TODO this key refresher is only used to print the key id from the env, it isn't actually in the api client because
-            # someone else constructed the client and its config.
-            self._key_refresher = EnvironmentKeyRefresher()
-        else:
-            self._refresh_client(self._cache_config)
+        # Just ignore the other args if api_client was passed in. They're saved in the cache config if we need them.
+        self._custom_api_client: ApiClient = api_client
+        self._api_client: ApiClient = None  # lazily instantiated when needed
+
+        # TODO: if api_client is passed in, this key refresher is only used to print the key id from the
+        # env, it isn't actually in the api client because someone else constructed the client and its config.
+        self._key_refresher = EnvironmentKeyRefresher() if api_client else None
 
         # Using a pooler for uploading data
         pool = _UPLOAD_POOLER_CACHE.get(pooler_cache_key)
@@ -252,10 +250,12 @@ class WhyLabsWriter(Writer):
 
     @property
     def key_id(self) -> str:
+        self._refresh_client()
         return self._key_refresher.key_id
 
-    def _refresh_client(self, cache_config: ClientCacheConfig) -> None:
-        self._api_client, self._key_refresher = WhylabsClientCache.instance().get_client(cache_config)
+    def _refresh_client(self) -> None:
+        if self._custom_api_client is None:
+            self._api_client, self._key_refresher = WhylabsClientCache.instance().get_client(self._cache_config)
 
     def _update_hostname_config(self, endpoint_hostname_override: str) -> None:
         """
@@ -264,6 +264,7 @@ class WhyLabsWriter(Writer):
         """
         import urllib3
 
+        self._refresh_client()
         if isinstance(self._api_client.rest_client.pool_manager, urllib3.ProxyManager):
             raise ValueError("Endpoint hostname override is not supported when using with proxy")
 
@@ -313,32 +314,23 @@ class WhyLabsWriter(Writer):
         if org_id is not None:
             self._org_id = org_id
         if api_key is not None:
-            self._refresh_client(
-                ClientCacheConfig(
-                    ssl_ca_cert=self._cache_config.ssl_ca_cert,
-                    whylabs_api_endpoint=self._cache_config.whylabs_api_endpoint,
-                    endpoint_hostname=self._cache_config.endpoint_hostname,
-                    api_key=api_key,
-                )
-            )
-
+            self._api_key = api_key
         if reference_profile_name is not None:
             self._reference_profile_name = reference_profile_name
         if configuration is not None:
             raise ValueError("Manual configuration is not supported. Please override the api_client instead")
         if api_client is not None:
-            self._api_client = api_client
-        if ssl_ca_cert is not None:
-            self._refresh_client(
-                ClientCacheConfig(
-                    ssl_ca_cert=ssl_ca_cert,
-                    whylabs_api_endpoint=self._cache_config.whylabs_api_endpoint,
-                    endpoint_hostname=self._cache_config.endpoint_hostname,
-                    api_key=self._cache_config.api_key,
-                )
-            )
+            self._custom_api_client = api_client
+            self._api_client = None
         if timeout_seconds is not None:
             self._timeout_seconds = timeout_seconds
+
+        self._cache_config = ClientCacheConfig(
+            api_key=self._api_key or self._cache_config.api_key,
+            ssl_ca_cert=ssl_ca_cert or self._cache_config.ssl_ca_cert,
+            whylabs_api_endpoint=self._cache_config.whylabs_api_endpoint,
+            endpoint_hostname=self._cache_config.endpoint_hostname,
+        )
         return self
 
     def _tag_columns(self, columns: List[str], value: str) -> Tuple[bool, str]:
@@ -422,6 +414,7 @@ class WhyLabsWriter(Writer):
         Note: the resulting custom performance metric is considered an unmergeable metric.
 
         """
+        self._refresh_client()
         if not label:
             label = column
         api_instance = ModelsApi(self._api_client)
@@ -543,6 +536,36 @@ class WhyLabsWriter(Writer):
         else:
             return False, "Failed to upload all segments"
 
+    def _write_segmented_result_set(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
+        """Put segmented result set for the specified dataset.
+
+        Parameters
+        ----------
+        file : SegmentedResultSet
+            SegmentedResultSet object representing the segmented result set for the specified dataset
+
+        Returns
+        -------
+        Tuple[bool, str]
+        """
+        # multi-profile writer
+        files = file.get_writables()
+        messages: List[str] = list()
+        and_status: bool = True
+        if not files:
+            logger.warning("Attempt to write a result set with no writables, nothing written!")
+            return True, ""
+
+        logger.debug(f"About to write {len(files)} files:")
+        # TODO: special handling of large number of files, handle throttling
+        for view in files:
+            bool_status, message = self.write(file=view, **kwargs)
+            and_status = and_status and bool_status
+            messages.append(message)
+        logger.debug(f"Completed writing {len(files)} files!")
+
+        return and_status, "; ".join(messages)
+
     def _tag_custom_perf_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView]):
         if isinstance(view, DatasetProfileView):
             column_names = view.get_columns().keys()
@@ -559,8 +582,15 @@ class WhyLabsWriter(Writer):
             return self.write_feature_weights(file, **kwargs)
         elif isinstance(file, EstimationResult):
             return self.write_estimation_result(file, **kwargs)
-        elif isinstance(file, SegmentedResultSet) and self._reference_profile_name is not None:
-            return self._write_segmented_reference_result_set(file, **kwargs)
+        elif isinstance(file, ResultSet):
+            if isinstance(file, SegmentedResultSet):
+                if self._reference_profile_name is not None:
+                    return self._write_segmented_reference_result_set(file, **kwargs)
+                else:
+                    return self._write_segmented_result_set(file, **kwargs)
+
+            file = file.profile()
+
         view = file.view() if isinstance(file, DatasetProfile) else file
         has_segments = isinstance(view, SegmentedDatasetProfileView)
         self._tag_custom_perf_metrics(view)
@@ -702,16 +732,35 @@ class WhyLabsWriter(Writer):
             return False, str(e)
         return False, "Either a profile_file or profile_path must be specified when uploading profiles to WhyLabs!"
 
+    def _require(self, name: str, value: Optional[str]) -> None:
+        if value is None:
+            session = _default_init()
+            session_type = session.get_type().value
+            raise ValueError(
+                f"Can't determine {name}. Current session type is {session_type}. "
+                f"See {_INIT_DOCS} for instructions on using why.init()."
+            )
+
+    def _validate_client(self) -> None:
+        self._refresh_client()
+        self._require("org id", self._org_id)
+        self._require("default dataset id", self._dataset_id)
+        self._require("api key", self._cache_config.api_key)
+
     def _get_or_create_feature_weights_client(self) -> FeatureWeightsApi:
+        self._validate_client()
         return FeatureWeightsApi(self._api_client)
 
     def _get_or_create_models_client(self) -> ModelsApi:
+        self._validate_client()
         return ModelsApi(self._api_client)
 
     def _get_or_create_api_log_client(self) -> LogApi:
+        self._validate_client()
         return LogApi(self._api_client)
 
     def _get_or_create_api_dataset_client(self) -> DatasetProfileApi:
+        self._validate_client()
         return DatasetProfileApi(self._api_client)
 
     @staticmethod
@@ -790,7 +839,7 @@ class WhyLabsWriter(Writer):
                 return column_schema
         except ForbiddenException as e:
             logger.exception(
-                f"Failed to set column outputs {self._org_id}/{self._dataset_id} for column name: ({column_name}) "
+                f"Failed to retrieve column schema {self._org_id}/{self._dataset_id} for column name: ({column_name}) "
                 f"{self.whylabs_api_endpoint}"
                 f" with API token ID: {self.key_id}"
             )
