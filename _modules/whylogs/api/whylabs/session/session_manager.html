@@ -585,7 +585,7 @@
     <span class="k">if</span> <span class="n">manager</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">il</span><span class="o">.</span><span class="n">warning_once</span><span class="p">(</span><span class="s2">&quot;Initializing default session because no session was found.&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">)</span>
 
-        <span class="c1"># To be safe, don&#39;t allow default session to be anonymous or local if this is happening as a side effect</span>
+        <span class="c1"># To be safe, don&#39;t allow default session to be anonymous if this is happening as a side effect</span>
         <span class="c1"># that users don&#39;t know about.</span>
         <span class="k">return</span> <span class="n">init</span><span class="p">(</span><span class="n">allow_anonymous</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_local</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force_local</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>

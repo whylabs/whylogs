@@ -549,7 +549,7 @@ profile.writer(“s3”).option(bucket_name=”my_bucket”).write()
 <dt class="sig sig-object py" id="whylogs.api.writer.s3.S3Writer.check_interval">
 <span class="sig-name descname"><span class="pre">check_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#whylogs.api.writer.s3.S3Writer.check_interval" title="Permalink to this definition">#</a></dt>
 <dd><p>Validate an interval configuration for a given writer.</p>
-<p>Some writer only accepts certain interval configuration. Raise BadConfigError for
+<p>Some writers only accepts certain interval configuration. Raise BadConfigError for
 an unacceptable interval.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

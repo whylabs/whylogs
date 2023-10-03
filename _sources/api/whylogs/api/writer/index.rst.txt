@@ -43,7 +43,7 @@ Classes
 
       Validate an interval configuration for a given writer.
 
-      Some writer only accepts certain interval configuration. Raise BadConfigError for
+      Some writers only accepts certain interval configuration. Raise BadConfigError for
       an unacceptable interval.
 
 

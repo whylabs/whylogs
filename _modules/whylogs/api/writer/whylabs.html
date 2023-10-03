@@ -458,9 +458,8 @@
 <span class="kn">from</span> <span class="nn">whylabs_client.rest</span> <span class="kn">import</span> <span class="n">ForbiddenException</span>  <span class="c1"># type: ignore</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger</span> <span class="kn">import</span> <span class="n">log</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">SegmentedResultSet</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.config</span> <span class="kn">import</span> <span class="n">_INIT_DOCS</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">_default_init</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">SegmentedResultSet</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">_INIT_DOCS</span><span class="p">,</span> <span class="n">_default_init</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.whylabs_client_cache</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ClientCacheConfig</span><span class="p">,</span>
     <span class="n">EnvironmentKeyRefresher</span><span class="p">,</span>
@@ -602,9 +601,9 @@
         <span class="n">session</span> <span class="o">=</span> <span class="n">_default_init</span><span class="p">()</span>  <span class="c1"># Force an init if the user didn&#39;t do it, it&#39;s idempotent</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span> <span class="o">=</span> <span class="n">org_id</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">require_org_id</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span> <span class="o">=</span> <span class="n">dataset_id</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">require_default_dataset_id</span><span class="p">()</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span> <span class="o">=</span> <span class="n">org_id</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">get_org_id</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span> <span class="o">=</span> <span class="n">dataset_id</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">get_default_dataset_id</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_api_key</span> <span class="o">=</span> <span class="n">api_key</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">get_api_key</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_feature_weights</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_whylabs_refernce_profile_name</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_api_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Configuration</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -641,17 +640,16 @@
             <span class="n">ssl_ca_cert</span><span class="o">=</span><span class="n">ssl_ca_cert</span><span class="p">,</span>
             <span class="n">whylabs_api_endpoint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="p">,</span>
             <span class="n">endpoint_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_endpoint_hostname</span><span class="p">,</span>
-            <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">require_api_key</span><span class="p">(),</span>
+            <span class="n">api_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_key</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">api_client</span><span class="p">:</span>
-            <span class="c1"># Just ignore the other args if a client was passed in. They&#39;re saved in the cache config if we need them.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span> <span class="o">=</span> <span class="n">api_client</span>
-            <span class="c1"># TODO this key refresher is only used to print the key id from the env, it isn&#39;t actually in the api client because</span>
-            <span class="c1"># someone else constructed the client and its config.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span> <span class="o">=</span> <span class="n">EnvironmentKeyRefresher</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="p">)</span>
+        <span class="c1"># Just ignore the other args if api_client was passed in. They&#39;re saved in the cache config if we need them.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_custom_api_client</span><span class="p">:</span> <span class="n">ApiClient</span> <span class="o">=</span> <span class="n">api_client</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">:</span> <span class="n">ApiClient</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># lazily instantiated when needed</span>
+
+        <span class="c1"># TODO: if api_client is passed in, this key refresher is only used to print the key id from the</span>
+        <span class="c1"># env, it isn&#39;t actually in the api client because someone else constructed the client and its config.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span> <span class="o">=</span> <span class="n">EnvironmentKeyRefresher</span><span class="p">()</span> <span class="k">if</span> <span class="n">api_client</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="c1"># Using a pooler for uploading data</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">_UPLOAD_POOLER_CACHE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pooler_cache_key</span><span class="p">)</span>
@@ -682,10 +680,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span><span class="o">.</span><span class="n">key_id</span>
 
-    <span class="k">def</span> <span class="nf">_refresh_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_config</span><span class="p">:</span> <span class="n">ClientCacheConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span> <span class="o">=</span> <span class="n">WhylabsClientCache</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">get_client</span><span class="p">(</span><span class="n">cache_config</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_refresh_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_api_client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span> <span class="o">=</span> <span class="n">WhylabsClientCache</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">get_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_update_hostname_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint_hostname_override</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -694,6 +694,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">urllib3</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="o">.</span><span class="n">rest_client</span><span class="o">.</span><span class="n">pool_manager</span><span class="p">,</span> <span class="n">urllib3</span><span class="o">.</span><span class="n">ProxyManager</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Endpoint hostname override is not supported when using with proxy&quot;</span><span class="p">)</span>
 
@@ -743,32 +744,23 @@
         <span class="k">if</span> <span class="n">org_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span> <span class="o">=</span> <span class="n">org_id</span>
         <span class="k">if</span> <span class="n">api_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">(</span>
-                <span class="n">ClientCacheConfig</span><span class="p">(</span>
-                    <span class="n">ssl_ca_cert</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">ssl_ca_cert</span><span class="p">,</span>
-                    <span class="n">whylabs_api_endpoint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="p">,</span>
-                    <span class="n">endpoint_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">endpoint_hostname</span><span class="p">,</span>
-                    <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-
+            <span class="bp">self</span><span class="o">.</span><span class="n">_api_key</span> <span class="o">=</span> <span class="n">api_key</span>
         <span class="k">if</span> <span class="n">reference_profile_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_name</span> <span class="o">=</span> <span class="n">reference_profile_name</span>
         <span class="k">if</span> <span class="n">configuration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Manual configuration is not supported. Please override the api_client instead&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">api_client</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span> <span class="o">=</span> <span class="n">api_client</span>
-        <span class="k">if</span> <span class="n">ssl_ca_cert</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">(</span>
-                <span class="n">ClientCacheConfig</span><span class="p">(</span>
-                    <span class="n">ssl_ca_cert</span><span class="o">=</span><span class="n">ssl_ca_cert</span><span class="p">,</span>
-                    <span class="n">whylabs_api_endpoint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="p">,</span>
-                    <span class="n">endpoint_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">endpoint_hostname</span><span class="p">,</span>
-                    <span class="n">api_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">api_key</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_custom_api_client</span> <span class="o">=</span> <span class="n">api_client</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">timeout_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_timeout_seconds</span> <span class="o">=</span> <span class="n">timeout_seconds</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span> <span class="o">=</span> <span class="n">ClientCacheConfig</span><span class="p">(</span>
+            <span class="n">api_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_key</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">api_key</span><span class="p">,</span>
+            <span class="n">ssl_ca_cert</span><span class="o">=</span><span class="n">ssl_ca_cert</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">ssl_ca_cert</span><span class="p">,</span>
+            <span class="n">whylabs_api_endpoint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="p">,</span>
+            <span class="n">endpoint_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">endpoint_hostname</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
     <span class="k">def</span> <span class="nf">_tag_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
@@ -852,6 +844,7 @@
 <span class="sd">        Note: the resulting custom performance metric is considered an unmergeable metric.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">label</span><span class="p">:</span>
             <span class="n">label</span> <span class="o">=</span> <span class="n">column</span>
         <span class="n">api_instance</span> <span class="o">=</span> <span class="n">ModelsApi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">)</span>
@@ -973,6 +966,36 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Failed to upload all segments&quot;</span>
 
+    <span class="k">def</span> <span class="nf">_write_segmented_result_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">SegmentedResultSet</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Put segmented result set for the specified dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file : SegmentedResultSet</span>
+<span class="sd">            SegmentedResultSet object representing the segmented result set for the specified dataset</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[bool, str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># multi-profile writer</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">get_writables</span><span class="p">()</span>
+        <span class="n">messages</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">and_status</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Attempt to write a result set with no writables, nothing written!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;About to write </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files:&quot;</span><span class="p">)</span>
+        <span class="c1"># TODO: special handling of large number of files, handle throttling</span>
+        <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">bool_status</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">view</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">and_status</span> <span class="o">=</span> <span class="n">and_status</span> <span class="ow">and</span> <span class="n">bool_status</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Completed writing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files!&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">and_status</span><span class="p">,</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_tag_custom_perf_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">]):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">):</span>
             <span class="n">column_names</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -989,8 +1012,15 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_feature_weights</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">EstimationResult</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_estimation_result</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">SegmentedResultSet</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_segmented_reference_result_set</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">SegmentedResultSet</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_segmented_reference_result_set</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_segmented_result_set</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">file</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
+
         <span class="n">view</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">view</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">DatasetProfile</span><span class="p">)</span> <span class="k">else</span> <span class="n">file</span>
         <span class="n">has_segments</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tag_custom_perf_metrics</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
@@ -1132,16 +1162,35 @@
             <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Either a profile_file or profile_path must be specified when uploading profiles to WhyLabs!&quot;</span>
 
+    <span class="k">def</span> <span class="nf">_require</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">session</span> <span class="o">=</span> <span class="n">_default_init</span><span class="p">()</span>
+            <span class="n">session_type</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get_type</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Can&#39;t determine </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">. Current session type is </span><span class="si">{</span><span class="n">session_type</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;See </span><span class="si">{</span><span class="n">_INIT_DOCS</span><span class="si">}</span><span class="s2"> for instructions on using why.init().&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_require</span><span class="p">(</span><span class="s2">&quot;org id&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_require</span><span class="p">(</span><span class="s2">&quot;default dataset id&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_require</span><span class="p">(</span><span class="s2">&quot;api key&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">api_key</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_get_or_create_feature_weights_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeatureWeightsApi</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_client</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">FeatureWeightsApi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_or_create_models_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelsApi</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_client</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">ModelsApi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_or_create_api_log_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LogApi</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_client</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">LogApi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_or_create_api_dataset_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileApi</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_client</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">DatasetProfileApi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
@@ -1220,7 +1269,7 @@
                 <span class="k">return</span> <span class="n">column_schema</span>
         <span class="k">except</span> <span class="n">ForbiddenException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Failed to set column outputs </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="si">}</span><span class="s2"> for column name: (</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">) &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to retrieve column schema </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="si">}</span><span class="s2"> for column name: (</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">) &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot; with API token ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key_id</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
