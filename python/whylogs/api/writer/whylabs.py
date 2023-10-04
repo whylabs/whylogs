@@ -516,9 +516,8 @@ class WhyLabsWriter(Writer):
         profile_id, upload_urls = self._get_upload_urls_segmented_reference(whylabs_tags, dataset_timestamp_epoch)
         upload_statuses = list()
         for view, url in zip(files, upload_urls):
-            has_performance_metrics = view.model_performance_metrics
             with tempfile.NamedTemporaryFile() as tmp_file:
-                if has_performance_metrics or kwargs.get("use_v0"):
+                if kwargs.get("use_v0") is None or kwargs.get("use_v0"):
                     view.write(file=tmp_file, use_v0=True)
                 else:
                     view.write(file=tmp_file)

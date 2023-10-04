@@ -95,7 +95,7 @@ def test_whylabs_writer_reference(segmented: bool):
     trace_id = str(uuid4())
     result = why.log(df, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter().option(reference_profile_name="monty")
-    writer.write(result)
+    writer.write(result, use_v0=False)
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
