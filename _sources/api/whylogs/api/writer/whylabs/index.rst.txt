@@ -26,6 +26,7 @@ Attributes
    whylogs.api.writer.whylabs.DAY_IN_SECONDS
    whylogs.api.writer.whylabs.FIVE_YEARS_IN_SECONDS
    whylogs.api.writer.whylabs.logger
+   whylogs.api.writer.whylabs.WHYLOGS_PREFER_SYNC_KEY
    whylogs.api.writer.whylabs.KNOWN_CUSTOM_PERFORMANCE_METRICS
 
 
@@ -42,6 +43,11 @@ Attributes
    
 
 .. py:data:: logger
+
+   
+
+.. py:data:: WHYLOGS_PREFER_SYNC_KEY
+   :value: 'WHYLOGS_PREFER_SYNC'
 
    
 
@@ -68,7 +74,7 @@ Attributes
       an unacceptable interval.
 
 
-   .. py:method:: option(org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None, reference_profile_name: Optional[str] = None, configuration: Optional[whylabs_client.Configuration] = None, ssl_ca_cert: Optional[str] = None, api_client: Optional[whylabs_client.ApiClient] = None, timeout_seconds: Optional[float] = None) -> WhyLabsWriter
+   .. py:method:: option(org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None, reference_profile_name: Optional[str] = None, configuration: Optional[whylabs_client.Configuration] = None, ssl_ca_cert: Optional[str] = None, api_client: Optional[whylabs_client.ApiClient] = None, timeout_seconds: Optional[float] = None, prefer_sync: Optional[bool] = None) -> WhyLabsWriter
 
       :param org_id the organization ID:
       :param dataset_id the dataset Id:

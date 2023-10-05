@@ -1,0 +1,22 @@
+:py:mod:`whylogs.context.environ`
+=================================
+
+.. py:module:: whylogs.context.environ
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.context.environ.read_bool_env_var
+
+
+
+.. py:function:: read_bool_env_var(env_var_name, default_value=False)
+
+

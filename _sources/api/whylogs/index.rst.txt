@@ -30,6 +30,7 @@ Subpackages
    :maxdepth: 3
 
    api/index.rst
+   context/index.rst
    core/index.rst
    datasets/index.rst
    experimental/index.rst
