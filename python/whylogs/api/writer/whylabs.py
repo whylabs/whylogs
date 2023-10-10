@@ -38,6 +38,7 @@ from whylogs.api.whylabs.session.whylabs_client_cache import (
 )
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
+from whylogs.context.environ import read_bool_env_var
 from whylogs.core import DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.errors import BadConfigError
@@ -61,6 +62,7 @@ FIVE_MINUTES_IN_SECONDS = 60 * 5
 DAY_IN_SECONDS = 60 * 60 * 24
 FIVE_YEARS_IN_SECONDS = DAY_IN_SECONDS * 365 * 5
 logger = logging.getLogger(__name__)
+WHYLOGS_PREFER_SYNC_KEY = "WHYLOGS_PREFER_SYNC"
 
 _API_CLIENT_CACHE: Dict[str, ApiClient] = dict()
 _UPLOAD_POOLER_CACHE: Dict[str, Union[PoolManager, ProxyManager]] = dict()
@@ -177,6 +179,7 @@ class WhyLabsWriter(Writer):
         self._feature_weights = None
         self._reference_profile_name = config.get_whylabs_refernce_profile_name()
         self._api_config: Optional[Configuration] = None
+        self._prefer_sync = read_bool_env_var(WHYLOGS_PREFER_SYNC_KEY, False)
 
         _http_proxy = os.environ.get("HTTP_PROXY")
         _https_proxy = os.environ.get("HTTPS_PROXY")
@@ -294,6 +297,7 @@ class WhyLabsWriter(Writer):
         ssl_ca_cert: Optional[str] = None,
         api_client: Optional[ApiClient] = None,
         timeout_seconds: Optional[float] = None,
+        prefer_sync: Optional[bool] = None,
     ) -> "WhyLabsWriter":
         """
 
@@ -324,6 +328,8 @@ class WhyLabsWriter(Writer):
             self._api_client = None
         if timeout_seconds is not None:
             self._timeout_seconds = timeout_seconds
+        if prefer_sync is not None:
+            self._prefer_sync = prefer_sync
 
         self._cache_config = ClientCacheConfig(
             api_key=self._api_key or self._cache_config.api_key,
@@ -912,7 +918,7 @@ class WhyLabsWriter(Writer):
                 org_id=self._org_id,
                 dataset_id=self._dataset_id,
                 create_reference_profile_request=request,
-                async_req=True,
+                async_req=not self._prefer_sync,
             )
 
             result = async_result.get()
@@ -929,9 +935,12 @@ class WhyLabsWriter(Writer):
         log_api = self._get_or_create_api_log_client()
         try:
             async_result = log_api.log_reference(
-                org_id=self._org_id, model_id=self._dataset_id, log_reference_request=request, async_req=True
+                org_id=self._org_id,
+                model_id=self._dataset_id,
+                log_reference_request=request,
+                async_req=not self._prefer_sync,
             )
-            result = async_result.get()
+            result = async_result if self._prefer_sync else async_result.get()
             return result
         except ForbiddenException as e:
             logger.exception(
