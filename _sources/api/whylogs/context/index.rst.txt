@@ -11,5 +11,6 @@ Submodules
    :maxdepth: 1
 
    environ/index.rst
+   version/index.rst
 
 

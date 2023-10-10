@@ -36,3 +36,8 @@ Module Contents
 
    
 
+.. py:data:: WHYLOGS_VERSION_KEY
+   :value: 'whylogs.version'
+
+   
+

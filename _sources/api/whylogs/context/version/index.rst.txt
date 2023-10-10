@@ -1,0 +1,36 @@
+:py:mod:`whylogs.context.version`
+=================================
+
+.. py:module:: whylogs.context.version
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.context.version.package_version
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.context.version.whylogs_version
+
+
+.. py:function:: package_version(package: str = __package__) -> str
+
+   Calculate version number based on pyproject.toml
+
+
+.. py:data:: whylogs_version
+
+   
+
