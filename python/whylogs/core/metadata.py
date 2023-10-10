@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
+from whylogs.context.version import whylogs_version
 from whylogs.core.utils.timestamp_calculations import to_utc_milliseconds
 
 diagnostic_logger = logging.getLogger(__name__)
@@ -13,6 +14,7 @@ CREATION_TIMESTAMP_KEY = "whylogs.creationTimestamp"
 DATASET_TIMESTAMP_KEY = "whylogs.datasetTimestamp"
 USER_TAGS_KEY = "whylogs.user.tags"
 NAME_KEY = "whylogs.name"
+WHYLOGS_VERSION_KEY = "whylogs.version"
 
 
 def _populate_common_profile_metadata(
@@ -52,5 +54,8 @@ def _populate_common_profile_metadata(
         metadata[NAME_KEY] = name
     if tags and USER_TAGS_KEY not in metadata:
         metadata[USER_TAGS_KEY] = json.dumps(sorted(set(tags)))
+
+    if WHYLOGS_VERSION_KEY not in metadata:
+        metadata[WHYLOGS_VERSION_KEY] = whylogs_version
 
     return metadata
