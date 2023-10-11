@@ -1,4 +1,6 @@
 import logging
+import math
+from functools import reduce
 from typing import Any, Dict, Iterable, Iterator, List, Mapping, Optional, Tuple
 
 from whylogs.api.logger.result_set import SegmentedResultSet
@@ -9,8 +11,6 @@ from whylogs.core.input_resolver import _pandas_or_dict
 from whylogs.core.segment import Segment
 from whylogs.core.segmentation_partition import SegmentationPartition, SegmentFilter
 from whylogs.core.stubs import pd
-from functools import reduce
-import math
 
 logger = logging.getLogger(__name__)
 
@@ -59,14 +59,14 @@ def _process_simple_partition(
         # simple means we can segment on column values
         grouped_data = pandas.groupby(columns)
         for group in grouped_data.groups.keys():
-            if any([math.isnan(x) for x in group]):
+            if isinstance(group, tuple) and any([math.isnan(x) for x in group]):
                 evaluations = []
-                for val,col in zip(group,columns):
+                for val, col in zip(group, columns):
                     if math.isnan(val):
                         evaluations.append((pandas[col].isna()))
                     else:
                         evaluations.append((pandas[col] == val))
-                mask = reduce(lambda x,y: x&y, evaluations)
+                mask = reduce(lambda x, y: x & y, evaluations)
                 pandas_segment = pandas[mask]
             else:
                 pandas_segment = grouped_data.get_group(group)
