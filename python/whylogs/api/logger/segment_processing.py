@@ -46,6 +46,13 @@ def _get_segment_from_group_key(group_key, partition_id) -> Tuple[str, ...]:
     return Segment(segment_tuple_key, partition_id)
 
 
+def _is_nan(x):
+    try:
+        return math.isnan(x)
+    except TypeError:
+        return False
+
+
 def _process_simple_partition(
     partition_id: str,
     schema: DatasetSchema,
@@ -59,10 +66,10 @@ def _process_simple_partition(
         # simple means we can segment on column values
         grouped_data = pandas.groupby(columns)
         for group in grouped_data.groups.keys():
-            if isinstance(group, tuple) and any([math.isnan(x) for x in group]):
+            if isinstance(group, tuple) and any([_is_nan(x) for x in group]):
                 evaluations = []
                 for val, col in zip(group, columns):
-                    if math.isnan(val):
+                    if _is_nan(val):
                         evaluations.append((pandas[col].isna()))
                     else:
                         evaluations.append((pandas[col] == val))
