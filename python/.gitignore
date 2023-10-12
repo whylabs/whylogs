@@ -7,3 +7,8 @@
 dist
 output.ipynb
 whylogs_data
+
+# These are created during the sagemaker notebook example
+examples/integrations/sagemaker_whylabs_example/model.tar.gz
+examples/integrations/sagemaker_whylabs_example/resnet.pt
+examples/integrations/sagemaker_whylabs_example/code

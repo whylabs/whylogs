@@ -10,6 +10,7 @@ skip_notebooks = [
     "Guest Session.ipynb",
     "Single_Image_Tracing_Profile_to_WhyLabs.ipynb",
     "Pyspark_Profiling.ipynb",
+    "WhyLabs_Sagemaker-PyTorch.ipynb",
     "Kafka_Example.ipynb",
     "Writing_to_WhyLabs.ipynb",
     "Writing_Reference_Profiles_to_WhyLabs.ipynb",
