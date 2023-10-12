@@ -39,7 +39,7 @@ def _populate_common_profile_metadata(
         if not trace_id:
             trace_id = str(uuid4())
         metadata[WHYLABS_TRACE_ID_KEY] = trace_id
-    elif metadata[WHYLABS_TRACE_ID_KEY] != trace_id:
+    elif metadata[WHYLABS_TRACE_ID_KEY] != trace_id and trace_id is not None:
         diagnostic_logger.warning(
             f"trace_id was specified as {trace_id} but there is already a trace_id defined "
             f"in metadata[{WHYLABS_TRACE_ID_KEY}]: {metadata[WHYLABS_TRACE_ID_KEY]}"
