@@ -434,6 +434,8 @@
         <article role="main">
           <h1>Source code for whylogs.api.logger.segment_processing</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">SegmentedResultSet</span>
@@ -479,6 +481,13 @@
     <span class="k">return</span> <span class="n">Segment</span><span class="p">(</span><span class="n">segment_tuple_key</span><span class="p">,</span> <span class="n">partition_id</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">_is_nan</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
 <span class="k">def</span> <span class="nf">_process_simple_partition</span><span class="p">(</span>
     <span class="n">partition_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="n">DatasetSchema</span><span class="p">,</span>
@@ -492,7 +501,17 @@
         <span class="c1"># simple means we can segment on column values</span>
         <span class="n">grouped_data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">grouped_data</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">pandas_segment</span> <span class="o">=</span> <span class="n">grouped_data</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">([</span><span class="n">_is_nan</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">group</span><span class="p">]):</span>
+                <span class="n">evaluations</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">val</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">_is_nan</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                        <span class="n">evaluations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pandas</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">evaluations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pandas</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="n">val</span><span class="p">))</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&amp;</span> <span class="n">y</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">)</span>
+                <span class="n">pandas_segment</span> <span class="o">=</span> <span class="n">pandas</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pandas_segment</span> <span class="o">=</span> <span class="n">grouped_data</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
             <span class="n">segment_key</span> <span class="o">=</span> <span class="n">_get_segment_from_group_key</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">partition_id</span><span class="p">)</span>
             <span class="n">_process_segment</span><span class="p">(</span><span class="n">pandas_segment</span><span class="p">,</span> <span class="n">segment_key</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">segment_cache</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">row</span><span class="p">:</span>
