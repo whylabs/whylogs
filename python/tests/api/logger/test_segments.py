@@ -1,3 +1,4 @@
+import math
 import os
 import pickle
 import tempfile
@@ -426,3 +427,27 @@ def test_segment_merge_different_columns() -> None:
             assert segmented_view._columns["A"] is not None
             assert segmented_view._columns["B"] is not None
         assert segmented_view._columns["A"]._metrics["cardinality"].estimate == pytest.approx(1.0)
+
+
+def test_segment_with_nans() -> None:
+    df = pd.DataFrame({"col_1": [1, 2, 3, 4, 5, 6], "col_nan": [True, True, None, None, np.nan, math.nan]})
+    column_segments = segment_on_column("col_nan")
+    schema = DatasetSchema(segments=column_segments)
+    profile_results = why.log(df, schema=schema)
+    assert profile_results.count == 1  # col_nan = True
+    segment = profile_results.segments()[0]
+    segmented_view = profile_results.profile(segment).view()
+    assert segmented_view.get_column("col_nan").get_metric("counts").to_summary_dict()["n"] == 2
+
+    segmentation_partition = SegmentationPartition(
+        name="col_1,col_nan", mapper=ColumnMapperFunction(col_names=["col_1", "col_nan"])
+    )
+    multi_column_segments = {segmentation_partition.name: segmentation_partition}
+    schema = DatasetSchema(segments=multi_column_segments)
+
+    profile_results = why.log(df, schema=schema)
+    assert profile_results.count == 6  # (1,True), (2,True), (3,nan), (4,nan), (5,nan), (6,nan)
+    for segment in profile_results.segments():
+        segmented_view = profile_results.profile(segment).view()
+        # each segment has n=1
+        assert segmented_view.get_column("col_nan").get_metric("counts").to_summary_dict()["n"] == 1
