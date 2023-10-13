@@ -4,6 +4,7 @@ import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from functools import partial
 from typing import Any, Dict, List, Optional, Set, Union, cast
 
 import requests as web_requests
@@ -24,12 +25,13 @@ from whylabs_client.api.sessions_api import (  # type: ignore
     LogSessionReferenceResponse,
     SessionsApi,
 )
-from whylabs_client.api_client import ApiClient  # type: ignore
 
 from whylogs.api.logger.result_set import ResultSet
 from whylogs.api.whylabs.session.config import _INIT_DOCS, SessionConfig
+from whylogs.api.whylabs.session.lazy import Lazy
 from whylogs.api.whylabs.session.session_types import InteractiveLogger as il
 from whylogs.api.whylabs.session.session_types import NotSupported, SessionType
+from whylogs.api.whylabs.session.whylabs_client_cache import WhylabsClientCache
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.migration.uncompound import _uncompound_dataset_profile
 
@@ -50,6 +52,7 @@ class UploadResult:
 class Session(ABC):
     def __init__(self, session_config: SessionConfig) -> None:
         self.config = session_config
+        WhylabsClientCache._WhylabsClientCache__init_instance()  # type: ignore
         super().__init__()
 
     def get_type(self) -> SessionType:
@@ -68,7 +71,7 @@ class Session(ABC):
 
 
 class GuestSession(Session):
-    def __init__(self, config: SessionConfig, whylabs_client: ApiClient) -> None:
+    def __init__(self, config: SessionConfig) -> None:
         """
         Get a guest session that uses the id that is in the env, or the config if there is no env.
         If neither exist then this will attempt to create a new session and store the id in the config,
@@ -77,10 +80,23 @@ class GuestSession(Session):
         from whylogs.api.usage_stats import emit_usage
 
         super().__init__(config)
-        self._whylabs_session_api = SessionsApi(whylabs_client)
+
+        # Using lazy initialization to work around circular dependency issues
+        self._whylabs_session_api = Lazy(self.__create_session_api)
         self._user_guid = self._get_or_create_user_guid()
-        self._session_id = self._get_or_create_session_id()
         emit_usage("guest_session")
+
+    def __create_session_api(self) -> SessionsApi:
+        from whylogs.api.whylabs.session.whylabs_client_cache import ClientCacheConfig
+
+        fake_key = "xxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        client, _ = WhylabsClientCache.instance().get_client(
+            ClientCacheConfig(
+                api_key=fake_key,  # Key doesn't matter for anonymous sessions
+            )
+        )
+
+        return SessionsApi(client)
 
     def _validate_config_session(self) -> Optional[str]:
         """
@@ -129,7 +145,7 @@ class GuestSession(Session):
             request = BatchLogReferenceRequest(
                 session_id=session_id, references=[LogReferenceRequest(alias="test", datasetTimestamp=0)]
             )
-            self._whylabs_session_api.batch_create_reference_profile_upload(
+            self._whylabs_session_api.value.batch_create_reference_profile_upload(
                 batch_log_reference_request=request, session_id=session_id
             )
             return True
@@ -139,7 +155,9 @@ class GuestSession(Session):
     def _create_session_id(self) -> str:
         try:
             user_guid = self._user_guid
-            response: CreateSessionResponse = self._whylabs_session_api.create_session(CreateSessionRequest(user_guid))
+            response: CreateSessionResponse = self._whylabs_session_api.value.create_session(
+                CreateSessionRequest(user_guid)
+            )
             logger.debug(f"Created session {response.id}")
             return response.id
         except ApiException as e:
@@ -163,8 +181,9 @@ class GuestSession(Session):
                 timestamp = int(datetime.now(timezone.utc).timestamp() * 1000)
 
             request = LogAsyncRequest(datasetTimestamp=timestamp, dataset="model-1", segment_tags=[])
-            response: CreateDatasetProfileUploadResponse = self._whylabs_session_api.create_dataset_profile_upload(
-                self._session_id, request
+            session_id = self._get_or_create_session_id()
+            response: CreateDatasetProfileUploadResponse = (
+                self._whylabs_session_api.value.create_dataset_profile_upload(session_id, request)
             )
             viewing_url: str = response.observatory_url
             upload_url: str = response.upload_url
@@ -183,10 +202,11 @@ class GuestSession(Session):
             requests.append(LogReferenceRequest(alias=alias, datasetTimestamp=0))
 
         try:
-            request = BatchLogReferenceRequest(session_id=self._session_id, references=requests)
+            session_id = self._get_or_create_session_id()
+            request = BatchLogReferenceRequest(session_id=session_id, references=requests)
             response: BatchLogSessionReferenceResponse = (
-                self._whylabs_session_api.batch_create_reference_profile_upload(
-                    batch_log_reference_request=request, session_id=self._session_id
+                self._whylabs_session_api.value.batch_create_reference_profile_upload(
+                    batch_log_reference_request=request, session_id=session_id
                 )
             )
 
@@ -234,14 +254,27 @@ class LocalSession(Session):
 
 
 class ApiKeySession(Session):
-    def __init__(self, config: SessionConfig, whylabs_client: ApiClient) -> None:
+    def __init__(self, config: SessionConfig) -> None:
         from whylogs.api.usage_stats import emit_usage
 
         super().__init__(config)
         self.api_key = config.get_api_key()
         self.org_id = config.get_org_id()
-        self._whylabs_log_api = LogApi(whylabs_client)
+
+        # Using lazy initialization to work around circular dependency issues
+        self._whylabs_log_api = Lazy(partial(self.__create_log_api, config))
         emit_usage("api_key_session")
+
+    def __create_log_api(self, config: SessionConfig) -> LogApi:
+        from whylogs.api.whylabs.session.whylabs_client_cache import ClientCacheConfig
+
+        client, _ = WhylabsClientCache.instance().get_client(
+            ClientCacheConfig(
+                api_key=config.get_api_key(),
+            )
+        )
+
+        return LogApi(client)
 
     def upload_reference_profiles(self, profile_aliases: Dict[str, ResultSet]) -> Union[UploadResult, NotSupported]:
         results: List[str] = []
@@ -255,7 +288,7 @@ class ApiKeySession(Session):
 
         org_id = self.config.require_org_id()
         dataset_id = self.config.require_default_dataset_id()
-        response: GetProfileObservatoryLinkResponse = self._whylabs_log_api.get_profile_observatory_link(
+        response: GetProfileObservatoryLinkResponse = self._whylabs_log_api.value.get_profile_observatory_link(
             dataset_id, org_id, request
         )
 
@@ -287,7 +320,7 @@ class ApiKeySession(Session):
 
         org_id = self.config.require_org_id()
         dataset_id = self.config.require_default_dataset_id()
-        response: GetProfileObservatoryLinkResponse = self._whylabs_log_api.get_profile_observatory_link(
+        response: GetProfileObservatoryLinkResponse = self._whylabs_log_api.value.get_profile_observatory_link(
             dataset_id, org_id, request
         )
 

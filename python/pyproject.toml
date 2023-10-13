@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "1.3.1"
+version = "1.3.9"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -16,7 +16,7 @@ whylogs-sketching = ">=3.4.1.dev3"
 protobuf = ">=3.19.4"
 importlib-metadata = { version = "<4.3", python = "<3.8" }
 typing-extensions = {version = ">=3.10", markers = "python_version < \"4\""}
-whylabs-client = "^0.5.3"
+whylabs-client = "^0.5.6"
 requests = "^2.27"
 types-requests = "^2.30.0.0"
 
@@ -50,7 +50,10 @@ nbconvert = {version = "^7.0.0", optional = true}
 
 # Integrations dependencies
 boto3 = {version = "^1.22.13", optional = true }
-mlflow-skinny = {version = "^1.26.1", optional = true}
+mlflow-skinny = [
+  { version = "^2.5.0", python = ">=3.8", optional = true },
+  { version = "<2.0.1", python = "<3.8", optional = true }
+]
 google-cloud-storage = {version = "^2.5.0", optional = true}
 
 # Pyspark related dependencies
@@ -77,31 +80,6 @@ platformdirs = "^3.5.0"
 # confighub related dependencies
 semantic-version = {version = "^2.10.0", optional = true}
 
-[tool.poetry.dev-dependencies]
-2to3 = "^1.0"
-black = { version = "^22.10.0", allow-prereleases = true }
-bump2version = "^1.0.1"
-flake8 = "^5"
-isort = "^5.6"
-mypy = ">=0.942,<1"
-pre-commit = "^2.8"
-pytest = "^7.2.0"
-pytest-cov = ">=3"
-pytest-mock = "^3.3"
-pytest-spark = ">=0.6.0"
-mistune = ">=2.0.4"
-papermill = "^2.4.0"
-autoflake = "^1.4"
-mypy-protobuf = ">=3.2.0"
-types-protobuf = ">=0.1.14"
-pandas = "*"
-pandas-stubs = "*"
-ipykernel = ">=6.11" # for developing in Jupyter notebook
-types-python-dateutil = "^2.8.12"
-moto = "^4.1.6"
-twine = "^4.0.1"
-gcp-storage-emulator = "^2022.6.11"
-types-urllib3 = "^1.26.25.5"
 
 [tool.poetry.extras]
 docs = [
@@ -141,7 +119,8 @@ mlflow = [
   "mlflow-skinny"
 ]
 image = [
-  "Pillow"
+  "Pillow",
+  "numpy"
 ]
 fugue = [
   "fugue",
@@ -182,6 +161,29 @@ all = [
 ]
 
 [tool.poetry.group.dev.dependencies]
+2to3 = "^1.0"
+black = { version = "^22.10.0", allow-prereleases = true }
+bump2version = "^1.0.1"
+flake8 = "^5"
+isort = "^5.6"
+mypy = ">=0.942,<1"
+pre-commit = "^2.8"
+pytest = "^7.2.0"
+pytest-cov = ">=3"
+pytest-mock = "^3.3"
+pytest-spark = ">=0.6.0"
+mistune = ">=2.0.4"
+papermill = "^2.4.0"
+autoflake = "^1.4"
+mypy-protobuf = ">=3.2.0"
+types-protobuf = ">=0.1.14"
+pandas = "*"
+pandas-stubs = "*"
+ipykernel = ">=6.11" # for developing in Jupyter notebook
+types-python-dateutil = "^2.8.12"
+moto = "^4.1.6"
+twine = "^4.0.1"
+gcp-storage-emulator = "^2022.6.11"
 types-urllib3 = "^1.26.25.5"
 
 [build-system]

@@ -65,7 +65,7 @@ class DatasetProfileView(Writable):
         self._dataset_timestamp = dataset_timestamp
         self._creation_timestamp = creation_timestamp
         self._metrics = metrics
-        self._metadata = metadata
+        self._metadata: Dict[str, str] = metadata or dict()
 
     @property
     def dataset_timestamp(self) -> Optional[datetime]:
@@ -79,6 +79,10 @@ class DatasetProfileView(Writable):
     @property
     def creation_timestamp(self) -> Optional[datetime]:
         return self._creation_timestamp
+
+    @property
+    def metadata(self) -> Dict[str, str]:
+        return self._metadata
 
     @property
     def model_performance_metrics(self) -> Any:
@@ -220,8 +224,10 @@ class DatasetProfileView(Writable):
             if key and key.startswith(_TAG_PREFIX):
                 if message_tags is None:
                     message_tags = dict()
-                message_tags[key] = value
+                message_tags[key] = str(value)
                 tag_keys.append(key)
+            if not isinstance(value, str):
+                metadata[key] = str(value)
         for key in tag_keys:
             metadata.pop(key)
         return message_tags, metadata

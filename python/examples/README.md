@@ -101,6 +101,7 @@ Here you will find examples of features that are still on an experimental stage.
 | [Extracting and Monitoring Audio Samples](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/whylogs_Audio_examples.ipynb)                                         | Extract features from audio samples for the purpose of monitoring for drift/quality |
 | [NLP Summarization](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/NLP_Summarization.ipynb)                                                                    | Monitor a document summarization task with whylogs                                  |
 | [Embeddings Distance Logging](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/embeddings/Embeddings_Distance_Logging.ipynb)                                     | Profile embedding values by comparing them to reference data points                 |
+| [Condition Validator UDFs](https://nbviewer.org/github/whylabs/whylogs/blob/mainline/python/examples/experimental/Condition_Validator_UDF.ipynb)                                                       | Easily create condition validators based on user-defined functions                  |
 
 ## 📓 Benchmarks
 

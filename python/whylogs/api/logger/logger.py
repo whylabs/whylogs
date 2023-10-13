@@ -10,6 +10,7 @@ from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.errors import LoggingError
 from whylogs.core.input_resolver import _pandas_or_dict
+from whylogs.core.metadata import _populate_common_profile_metadata
 from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
@@ -74,6 +75,9 @@ class Logger(ABC):
         schema: Optional[DatasetSchema] = None,
         timestamp_ms: Optional[int] = None,  # Not the dataset timestamp, but the timestamp of the data
         name: Optional[str] = None,
+        trace_id: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        segment_key_values: Optional[Dict[str, str]] = None,
     ) -> ResultSet:
         """
         Args:
@@ -86,6 +90,7 @@ class Logger(ABC):
         if obj is None and pandas is None and row is None:
             # TODO: check for shell environment and emit more verbose error string to let user know how to correct.
             raise LoggingError("log() was called without passing in any input!")
+
         if name is not None:
             if self._metadata is None:
                 self._metadata = dict()
@@ -98,13 +103,22 @@ class Logger(ABC):
 
         # If segments are defined use segment_processing to return a SegmentedResultSet
         if active_schema and active_schema.segments:
-            return segment_processing(active_schema, obj, pandas, row, self._segment_cache)
+            segmented_results = segment_processing(
+                schema=active_schema,
+                obj=obj,
+                pandas=pandas,
+                row=row,
+                segment_cache=self._segment_cache,
+            )
+            # Update the existing segmented_results metadata with the trace_id and other keys if not present
+            _populate_common_profile_metadata(segmented_results.metadata, trace_id=trace_id, tags=tags)
+            return segmented_results
 
         profiles = self._get_matching_profiles(obj, pandas=pandas, row=row, schema=active_schema)
 
         for prof in profiles:
             prof.track(obj, pandas=pandas, row=row, execute_udfs=False)
-            prof._metadata
+            prof._metadata = _populate_common_profile_metadata(prof._metadata, trace_id=trace_id, tags=tags)
 
         first_profile = profiles[0]
         if name is not None:

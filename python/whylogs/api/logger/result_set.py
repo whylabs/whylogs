@@ -195,6 +195,12 @@ class ResultSet(ABC):
     def profile(self) -> Optional[DatasetProfile]:
         pass
 
+    @property
+    def metadata(self) -> Optional[Dict[str, str]]:
+        if hasattr(self, "_metadata"):
+            return self._metadata
+        return None
+
     def get_writables(self) -> Optional[List[Writable]]:
         return [self.view()]
 
@@ -248,6 +254,14 @@ class ViewResultSet(ResultSet):
     def view(self) -> Optional[DatasetProfileView]:
         return self._view
 
+    @property
+    def metadata(self) -> Optional[Dict[str, str]]:
+        view = self.view()
+        if view:
+            return view.metadata
+        else:
+            return None
+
     @staticmethod
     def zero() -> "ViewResultSet":
         return ViewResultSet(DatasetProfileView.zero())
@@ -280,6 +294,14 @@ class ProfileResultSet(ResultSet):
     def view(self) -> Optional[DatasetProfileView]:
         return self._profile.view()
 
+    @property
+    def metadata(self) -> Optional[Dict[str, str]]:
+        view = self.view()
+        if view:
+            return view.metadata
+        else:
+            return None
+
     @staticmethod
     def zero() -> "ProfileResultSet":
         return ProfileResultSet(DatasetProfile())
@@ -306,6 +328,7 @@ class SegmentedResultSet(ResultSet):
         self._partitions = partitions
         self._metrics = metrics or dict()
         self._dataset_properties = properties or dict()
+        self._metadata: Dict[str, str] = dict()
 
     def profile(self, segment: Optional[Segment] = None) -> Optional[Union[DatasetProfile, DatasetProfileView]]:
         if not self._segments:
@@ -438,6 +461,8 @@ class SegmentedResultSet(ResultSet):
                     segmented_profile = SegmentedDatasetProfileView(
                         profile_view=view, segment=segment_key, partition=first_partition
                     )
+                    if self.metadata:
+                        segmented_profile.metadata.update(self.metadata)
                     results.append(segmented_profile)
             else:
                 logger.warning(

@@ -1,18 +1,15 @@
 import logging
-from typing import Optional, Union
-
-from whylabs_client.api_client import ApiClient, Configuration  # type: ignore
+from typing import Optional
 
 from whylogs.api.whylabs.session.config import InitConfig, SessionConfig
-from whylogs.api.whylabs.session.notebook_check import is_interractive
 from whylogs.api.whylabs.session.session import (
     ApiKeySession,
     GuestSession,
     LocalSession,
     Session,
 )
+from whylogs.api.whylabs.session.session_types import InteractiveLogger as il
 from whylogs.api.whylabs.session.session_types import SessionType
-from whylogs.core.utils.utils import deprecated_alias
 
 logger = logging.getLogger(__name__)
 
@@ -24,20 +21,14 @@ class SessionManager:
         self,
         config: SessionConfig,
     ):
-        self._config = config
-        client_config = Configuration()
-        client_config.host = self._config.get_whylabs_endpoint()
-        self._whylabs_client = ApiClient(client_config)
-
         self.session: Session
         session_type = config.get_session_type()
         if session_type == SessionType.LOCAL:
-            self.session = LocalSession(self._config)
+            self.session = LocalSession(config)
         elif session_type == SessionType.WHYLABS_ANONYMOUS:
-            self.session = GuestSession(self._config, self._whylabs_client)
+            self.session = GuestSession(config)
         elif session_type == SessionType.WHYLABS:
-            client_config.api_key = {"ApiKeyAuth": self._config.require_api_key()}
-            self.session = ApiKeySession(self._config, self._whylabs_client)
+            self.session = ApiKeySession(config)
         else:
             raise ValueError(f"Unknown session type: {session_type}")
 
@@ -63,16 +54,15 @@ class SessionManager:
         return SessionManager.get_instance() is not None
 
 
-@deprecated_alias(session_type="allow_anonymous")
-def init(
-    session_type: Optional[Union[SessionType, str]] = None,
+def init(  # type: ignore
     reinit: bool = False,
     allow_anonymous: bool = True,
     allow_local: bool = False,
     whylabs_api_key: Optional[str] = None,
     default_dataset_id: Optional[str] = None,
     config_path: Optional[str] = None,
-) -> None:
+    **kwargs,
+) -> Session:
     """
     Set up authentication for this whylogs logging session. There are three modes that you can authentiate in.
 
@@ -108,15 +98,12 @@ def init(
             you're only using a single dataset id.
 
     """
-    if session_type in ["whylabs_anonymous", SessionType.WHYLABS_ANONYMOUS]:
-        allow_anonymous = True
-
     if reinit:
         SessionManager.reset()
 
-    # python name mangling...
-    if SessionManager._SessionManager__instance is not None:  # type: ignore
-        return
+    manager: SessionManager = SessionManager._SessionManager__instance  # type: ignore
+    if manager is not None:
+        return manager.session
 
     session_config = SessionConfig(
         InitConfig(
@@ -125,33 +112,51 @@ def init(
             whylabs_api_key=whylabs_api_key,
             default_dataset_id=default_dataset_id,
             config_path=config_path,
+            force_local=kwargs.get("force_local", False),
         )
     )
 
     try:
-        SessionManager.init(session_config)
+        manager = SessionManager.init(session_config)
         session_config.notify_session_type()
+        return manager.session
     except PermissionError as e:
+        # TODO PR this implies that we need disk access to work correctly, but isn't that already the case
+        # because we write profilfes to disk as tmp files?
         logger.warning("Could not create or read configuration file for session. Profiles won't be uploaded.", e)
+        raise e
     except Exception as e:
         logger.warning("Could not initialize session", e)
+        raise e
 
-
-_missing_session_warned = False
 
 _INIT_DOCS = "https://docs.whylabs.ai/docs/whylabs-whylogs-init"
 
 
 def get_current_session() -> Optional[Session]:
-    global _missing_session_warned
     manager = SessionManager.get_instance()
     if manager is not None:
         return manager.session
 
-    if not _missing_session_warned and is_interractive():
-        logger.warning(
-            f"No session found. Call whylogs.init() to initialize a session and authenticate. See {_INIT_DOCS} for more information."
-        )
-        _missing_session_warned = True
+    il.warning_once(
+        f"No session found. Call whylogs.init() to initialize a session and authenticate. See {_INIT_DOCS} for more information.",
+        logger.warning,
+    )
 
     return None
+
+
+def _default_init() -> Session:
+    """
+    For internal use. This initializes a default session for the user if they don't call why.init() themselves.
+    This will behave as though they called why.init() with no arguments and print out a warning with a link to the docs.
+    """
+    manager = SessionManager.get_instance()
+    if manager is None:
+        il.warning_once("Initializing default session because no session was found.", logger.warning)
+
+        # To be safe, don't allow default session to be anonymous if this is happening as a side effect
+        # that users don't know about.
+        return init(allow_anonymous=False, allow_local=True, force_local=True)
+    else:
+        return manager.session

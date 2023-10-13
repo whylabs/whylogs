@@ -1,3 +1,4 @@
+import math
 import os
 import pickle
 import tempfile
@@ -94,6 +95,45 @@ def test_single_column_segment() -> None:
     assert cardinality == 1.0
 
 
+def test_single_column_segment_with_trace_id() -> None:
+    input_rows = 100
+    segment_column = "col3"
+    number_of_segments = 5
+    trace_id = "123-456"
+    d = {
+        "col1": [i for i in range(input_rows)],
+        "col2": [i * i * 1.1 for i in range(input_rows)],
+        segment_column: [f"x{str(i%number_of_segments)}" for i in range(input_rows)],
+    }
+
+    df = pd.DataFrame(data=d)
+    test_segments = segment_on_column("col3")
+    results: SegmentedResultSet = why.log(df, schema=DatasetSchema(segments=test_segments), trace_id=trace_id)
+    assert results.count == number_of_segments
+    partitions = results.partitions
+    assert len(partitions) == 1
+    partition = partitions[0]
+    segments = results.segments_in_partition(partition)
+    assert len(segments) == number_of_segments
+
+    first_segment = next(iter(segments))
+    first_segment_profile = results.profile(first_segment)
+    assert first_segment_profile is not None
+    assert first_segment_profile._columns["col1"]._schema.dtype == np.int64
+    assert first_segment_profile._columns["col2"]._schema.dtype == np.float64
+    assert first_segment_profile._columns["col3"]._schema.dtype.name == "object"
+    segment_cardinality: CardinalityMetric = (
+        first_segment_profile.view().get_column(segment_column).get_metric("cardinality")
+    )
+    cardinality = segment_cardinality.estimate
+    assert cardinality is not None
+    # cardinality is an estimate, and because this is the segment column, it should
+    #  by definition contain only one unique value per segment.
+    assert cardinality == 1.0
+    assert results.metadata is not None
+    assert results.metadata["whylabs.traceId"] == trace_id
+
+
 def test_single_integer_column_segment() -> None:
     input_rows = 100
     segment_column = "col3"
@@ -171,6 +211,7 @@ def test_segment_write_roundtrip_versions(tmp_path: Any, v0) -> None:
     input_rows = 10
     segment_column = "col3"
     number_of_segments = 2
+    trace_id = "123-456"
     values_per_segment = input_rows / number_of_segments
     d = {
         "col1": [i for i in range(input_rows)],
@@ -181,7 +222,7 @@ def test_segment_write_roundtrip_versions(tmp_path: Any, v0) -> None:
     df = pd.DataFrame(data=d)
     test_segments = segment_on_column(segment_column)
 
-    results: SegmentedResultSet = why.log(df, schema=DatasetSchema(segments=test_segments))
+    results: SegmentedResultSet = why.log(df, trace_id=trace_id, schema=DatasetSchema(segments=test_segments))
     assert results.count == number_of_segments
     partitions = results.partitions
     assert len(partitions) == 1
@@ -216,6 +257,11 @@ def test_segment_write_roundtrip_versions(tmp_path: Any, v0) -> None:
     post_deserialization_first_view = roundtrip_profiles[0]
     assert post_deserialization_first_view is not None
     assert isinstance(post_deserialization_first_view, DatasetProfileView)
+
+    # check that trace_id is preserved round trip in metadata
+    assert post_deserialization_first_view.metadata
+    assert "whylabs.traceId" in post_deserialization_first_view.metadata
+    assert trace_id == post_deserialization_first_view.metadata["whylabs.traceId"]
     pre_serialization_first_view = first_segment_profile.view()
     pre_columns = pre_serialization_first_view.get_columns()
     post_columns = post_deserialization_first_view.get_columns()
@@ -381,3 +427,27 @@ def test_segment_merge_different_columns() -> None:
             assert segmented_view._columns["A"] is not None
             assert segmented_view._columns["B"] is not None
         assert segmented_view._columns["A"]._metrics["cardinality"].estimate == pytest.approx(1.0)
+
+
+def test_segment_with_nans() -> None:
+    df = pd.DataFrame({"col_1": [1, 2, 3, 4, 5, 6], "col_nan": [True, True, None, None, np.nan, math.nan]})
+    column_segments = segment_on_column("col_nan")
+    schema = DatasetSchema(segments=column_segments)
+    profile_results = why.log(df, schema=schema)
+    assert profile_results.count == 1  # col_nan = True
+    segment = profile_results.segments()[0]
+    segmented_view = profile_results.profile(segment).view()
+    assert segmented_view.get_column("col_nan").get_metric("counts").to_summary_dict()["n"] == 2
+
+    segmentation_partition = SegmentationPartition(
+        name="col_1,col_nan", mapper=ColumnMapperFunction(col_names=["col_1", "col_nan"])
+    )
+    multi_column_segments = {segmentation_partition.name: segmentation_partition}
+    schema = DatasetSchema(segments=multi_column_segments)
+
+    profile_results = why.log(df, schema=schema)
+    assert profile_results.count == 6  # (1,True), (2,True), (3,nan), (4,nan), (5,nan), (6,nan)
+    for segment in profile_results.segments():
+        segmented_view = profile_results.profile(segment).view()
+        # each segment has n=1
+        assert segmented_view.get_column("col_nan").get_metric("counts").to_summary_dict()["n"] == 1

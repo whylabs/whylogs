@@ -1,3 +1,4 @@
+import math
 from logging import getLogger
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -23,6 +24,14 @@ EMPTY_THETA: bytes = _empty_theta_union.get_result().serialize()
 _logger = getLogger("whylogs")
 
 
+def _check_and_replace_nones(
+    values: List[Union[str, int, bool, float]]
+) -> Tuple[List[Union[str, int, bool, float]], bool]:
+    has_nans = any([x is None or (isinstance(x, float) and math.isnan(x)) for x in values])
+    replaced_values = [x if x is not None and not (isinstance(x, float) and math.isnan(x)) else "None" for x in values]
+    return replaced_values, has_nans
+
+
 def _encode_to_integers(values, uniques):
     table = {val: i for i, val in enumerate(uniques)}
     for v in values:
@@ -45,7 +54,20 @@ class ConfusionMatrix:
         labels: Optional[List[Union[str, int, bool, float]]] = None,
     ):
         if labels:
-            labels_size = len(labels)
+            labels, hasnans = _check_and_replace_nones(labels)
+            if hasnans or (labels and "None" in labels):
+                _logger.warning(
+                    "ConfusionMatrix - Nones or NaNs detected in labels, replacing with 'None' for confusion matrix calculation"
+                )
+                labels_set = set(labels)  # type: ignore
+                # sorted() fails if "None" is in a non-string set
+                labels_set.discard("None")
+                # "None" is always last
+                labels = sorted(labels_set) + ["None"]  # type: ignore
+                self.labels = labels
+            else:
+                self.labels = sorted(labels)
+            labels_size = len(labels)  # type: ignore
             if labels_size > MODEL_METRICS_LABEL_SIZE_WARNING_THRESHOLD:
                 _logger.warning(
                     f"The initialized confusion matrix has {labels_size} labels and the resulting"
@@ -60,8 +82,6 @@ class ConfusionMatrix:
                     " selectively log the most important labels or configure the threshold of"
                     " {MODEL_METRICS_MAX_LABELS} higher by setting MODEL_METRICS_MAX_LABELS."
                 )
-
-            self.labels = sorted(labels)
         else:
             self.labels = list()
 
@@ -97,7 +117,12 @@ class ConfusionMatrix:
 
         if len(targets) != len(predictions):
             raise ValueError("both targets and predictions need to have the same length")
-
+        targets, target_has_nans = _check_and_replace_nones(targets)
+        predictions, prediction_has_nans = _check_and_replace_nones(predictions)
+        if target_has_nans or prediction_has_nans:
+            _logger.warning(
+                "Nones or NaNs detected in targets or predictions, replacing with 'None' for confusion matrix calculation"
+            )
         targets_indx = _encode_to_integers(targets, self.labels)
         prediction_indx = _encode_to_integers(predictions, self.labels)
 
