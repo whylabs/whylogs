@@ -1,83 +1,67 @@
 from logging import getLogger
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import yaml
-from typing_extensions import TypedDict
 
 from whylogs.core.constraints import PrefixCondition
 from whylogs.core.constraints.factories import (
-#    IsInRangeParams,
-#    NoMissingValues,
-#    ColumnIsProbablyUniqueParams,
     column_is_probably_unique,
     condition_meets,
-#    ConditionMeetsParams,
     count_below_number,
-#    CountBelowNumber,
     distinct_number_in_range,
-#    DistinctNumberInRangeParams,
     is_in_range,
     is_non_negative,
-#    IsNonNegativeParams,
     no_missing_values,
 )
 from whylogs.core.constraints.metric_constraints import (
-    Constraints,
     DatasetConstraint,
     MetricConstraint,
 )
 
 logger = getLogger(__name__)
 
-"""
+
 constraints_mapping = {
     "no_missing_values": {
         "constraint_function": no_missing_values,
         "whylabs_datatypes": ["string", "integral", "fractional", "bool", "unknown"],
-        "parameters": NoMissingValues,
     },
     "is_in_range": {
         "constraint_function": is_in_range,
         "whylabs_datatypes": ["integral", "fractional"],
-        "parameters": IsInRangeParams,
     },
     "column_is_probably_unique": {
         "constraint_function": column_is_probably_unique,
         "whylabs_datatypes": ["string", "integral"],
-        "parameters": ColumnIsProbablyUniqueParams,
     },
     "distinct_number_in_range": {
         "constraint_function": distinct_number_in_range,
         "whylabs_datatypes": ["string", "integral"],
-        "parameters": DistinctNumberInRangeParams,
     },
     "count_below_number": {
         "constraint_function": count_below_number,
         "whylabs_datatypes": ["string", "integral", "fractional", "bool", "unknown"],
-        "parameters": CountBelowNumber,
     },
     "is_non_negative": {
         "constraint_function": is_non_negative,
         "whylabs_datatypes": ["integral", "fractional"],
-        "parameters": IsNonNegativeParams,
     },
     "condition_meets": {
         "constraint_function": condition_meets,
         "whylabs_datatypes": ["string", "integral", "fractional", "bool", "unknown"],
-        "parameters": ConditionMeetsParams,
     },
 }
-"""
 
-def assemble_constraint(constraint_dict: dict) -> Optional[TypedDict]:
+
+def assemble_constraint(constraint_dict: dict) -> Optional[Union[MetricConstraint, DatasetConstraint]]:
     constraint_name = None
     if constraint_dict.get("expression") and constraint_dict.get("name"):
         condition = PrefixCondition(constraint_dict.get("expression"))
         returned_constraint = DatasetConstraint(condition=condition, name=constraint_dict.get("name"))
         return returned_constraint
-    """
+
     if constraint_dict.get("factory") in constraints_mapping:
-        constraint_function = constraints_mapping[constraint_dict.get("factory")]["constraint_function"]
+        constraint_function = constraints_mapping[constraint_dict.get("factory")]["constraint_function"]  # type: ignore
         constraint_dict.pop("factory")
         constraint_dict.pop("metric")
         if constraint_dict.get("name"):
@@ -89,7 +73,6 @@ def assemble_constraint(constraint_dict: dict) -> Optional[TypedDict]:
     else:
         logger.warning(f"Constraint factory {constraint_dict.get('factory')} not found.")
         return None
-    """
 
 
 class ConstraintTranslator:
@@ -101,20 +84,21 @@ class ConstraintTranslator:
 
     def read_constraints_from_yaml(
         self, input_path: Optional[str] = None, input_str: Optional[str] = None
-    ) -> List[Union[MetricConstraint, DatasetConstraint]]:
-        constraints = []
+    ) -> Optional[List[Union[MetricConstraint, DatasetConstraint]]]:
+        constraints: List = []
         if input_path is None and input_str is None:
             raise ValueError("Must provide either input_path or input_str.")
         if input_str is not None:
             data = yaml.safe_load(input_str)
         else:
-            with open(input_path, "r") as f:
+            with open(input_path, "r") as f:  # type: ignore
                 data = yaml.safe_load(f)
         checks = data["constraints"]
         for check in checks:
             params = {k: v for k, v in check.items()}
             self.validate_params(params)
-            constraints.append(assemble_constraint(params))
+            cn = assemble_constraint(params)
+            constraints.append(cn)
         if constraints:
             return constraints
         else:
@@ -140,7 +124,7 @@ class ConstraintTranslator:
                     constraint_params = constraint._params
                     try:
                         constraint_params["metric"] = constraint.metric_selector.metric_name
-                    except:
+                    except:  # noqa: E722
                         raise ValueError(f"Metric selector not found for constraint {constraint_name}.")
                     constraint_params["name"] = constraint_name
                     constraint_params["column_name"] = constraint.metric_selector.column_name
@@ -157,7 +141,7 @@ class ConstraintTranslator:
                 else:
                     logger.warning(f"Constraint {constraint_name} - no parameters found. Skipping.")
 
-        to_dump = {"constraints": constraints_list}
+        to_dump: Dict = {"constraints": constraints_list}
         if org_id:
             to_dump["org_id"] = org_id
         if dataset_id:
@@ -167,5 +151,5 @@ class ConstraintTranslator:
         if output_str:
             return yaml.dump(to_dump)
         else:
-            with open(output_path, "w") as f:
+            with open(output_path, "w") as f:  # type: ignore
                 yaml.dump(to_dump, f)

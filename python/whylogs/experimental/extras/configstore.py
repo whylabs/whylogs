@@ -1,12 +1,11 @@
 import logging
 import os
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from semantic_version import Version
 
 from whylogs.api.writer.whylabs import WhyLabsWriter
-
 
 logger = logging.getLogger(__name__)
 
@@ -151,7 +150,6 @@ class LocalGitConfigStore(ConfigStore):
 
 
 class JsonStore(ConfigStore):
-
     def __init__(self, client: WhyLabsWriter, what: str):
         self._client = client
         self._what = what
@@ -175,7 +173,7 @@ class JsonStore(ConfigStore):
         if ver != Version("0.0.0"):
             logger.warning("JsonStore does not currently support versioning, returning version 0.0.0")
 
-        return self._client._get_config(self._what)        
+        return self._client._get_config(self._what)
 
     def get_available_versions(self) -> List[Version]:
         """

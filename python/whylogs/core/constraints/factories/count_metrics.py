@@ -18,6 +18,9 @@ def no_missing_values(column_name: str) -> MetricConstraint:
         name=f"{column_name} has no missing values",
         condition=Require("null").equals(0),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="counts"),
+        _params={
+            "factory": "no_missing_values",
+        },
     )
     return constraint
 
@@ -40,6 +43,10 @@ def count_below_number(column_name: str, number: int) -> MetricConstraint:
         name=f"count of {column_name} lower than {number}",
         condition=is_count_below,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="counts"),
+        _params={
+            "factory": "count_below_number",
+            "number": number,
+        },
     )
     return constraint
 
@@ -62,6 +69,10 @@ def null_values_below_number(column_name: str, number: int) -> MetricConstraint:
         name=f"null values of {column_name} lower than {number}",
         condition=is_null_below,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="counts"),
+        _params={
+            "factory": "null_values_below_number",
+            "number": number,
+        },
     )
     return constraint
 
@@ -84,5 +95,9 @@ def null_percentage_below_number(column_name: str, number: float) -> MetricConst
         name=f"null percentage of {column_name} lower than {number}",
         condition=is_null_percentage_below_number,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="counts"),
+        _params={
+            "factory": "null_percentage_below_number",
+            "number": number,
+        },
     )
     return constraint

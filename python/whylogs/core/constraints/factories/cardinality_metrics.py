@@ -28,5 +28,10 @@ def distinct_number_in_range(column_name: str, lower: Union[int, float], upper: 
         name=f"{column_name} distinct values estimate between {lower} and {upper} (inclusive)",
         condition=distinct_in_range,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="cardinality"),
+        _params={
+            "factory": "distinct_number_in_range",
+            "lower": lower,
+            "upper": upper,
+        },
     )
     return constraint

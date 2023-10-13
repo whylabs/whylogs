@@ -16,37 +16,15 @@ from whylogs.core.relations import Predicate
 from whylogs.core.resolvers import STANDARD_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
 from whylogs.experimental.api.constraints import ConstraintTranslator
-from whylogs.experimental.constraints_generation import (
-    generate_constraints_from_reference_profile,
-)
 
 yaml_string = """\
-
 id: "model-23"
 version: 1
 hash: abcabc231 # maybe from git?
-
-id: "model-23"
-version: 1
-hash: abcabc231 # maybe from git?
-
 constraints:
 - expression: and <= :animal:cardinality/lower_1 :animal:counts/n <= :animal:counts/n :animal:cardinality/upper_1
   name: animal is probably unique
   metric: dataset-metric
-
-    """
-
-"""
-id: "model-23"
-version: 1
-hash: abcabc231 # maybe from git?
-
-id: "model-23"
-version: 1
-hash: abcabc231 # maybe from git?
-
-constraints:
 - column_name: weight
   factory: no_missing_values
   metric: counts
@@ -77,11 +55,6 @@ constraints:
   factory: is_non_negative
   metric: distribution
   name: weight is non negative
-- expression: and <= animal:cardinality/lower_1 :animal:counts/n <= :animal:counts/n
-    :animal:cardinality/upper_1
-  name: animal is probably unique
-  metric: dataset-metric
-
 """
 
 
@@ -119,6 +92,7 @@ def reference_profile_view():
 
 
 def test_round_trip_constraints_yaml_file(reference_profile_view):
+    parsed_yaml = yaml.safe_load(yaml_string)
     translator = ConstraintTranslator()
     with tempfile.TemporaryDirectory() as temp_dir:
         input_yaml_name = "example.yaml"
@@ -129,28 +103,38 @@ def test_round_trip_constraints_yaml_file(reference_profile_view):
         # Write the YAML string to a file
         with open(yaml_path, "w") as file:
             file.write(yaml_string)
-        constraints = translator.read_constraints_from_yaml(os.path.join(temp_dir, input_yaml_name))
+
+        constraints = translator.read_constraints_from_yaml(yaml_path)
+        assert len(parsed_yaml["constraints"]) == len(constraints)
         builder = ConstraintsBuilder(dataset_profile_view=reference_profile_view)
         builder.add_constraints(constraints)
         rehydrated_constraints = builder.build()
         translator.write_constraints_to_yaml(
-            constraints=rehydrated_constraints.dataset_constraints, output_path=os.path.join(temp_dir, output_yaml_name)
+            constraints=rehydrated_constraints.get_constraints(), output_path=os.path.join(temp_dir, output_yaml_name)
         )
         constraints_out = translator.read_constraints_from_yaml(os.path.join(temp_dir, output_yaml_name))
         assert len(constraints) == len(constraints_out)
 
 
 def test_round_trip_constraints_yaml_string(reference_profile_view):
+    parsed_yaml = yaml.safe_load(yaml_string)
     translator = ConstraintTranslator()
     constraints = translator.read_constraints_from_yaml(input_str=yaml_string)
+    assert len(parsed_yaml["constraints"]) == len(constraints)
     builder = ConstraintsBuilder(dataset_profile_view=reference_profile_view)
     builder.add_constraints(constraints)
     rehydrated_constraints = builder.build()
-    rehydrated_yaml_string = translator.write_constraints_to_yaml(constraints=rehydrated_constraints.dataset_constraints, output_str=True)
+    rehydrated_yaml_string = translator.write_constraints_to_yaml(
+        constraints=rehydrated_constraints.get_constraints(), output_str=True
+    )
     data1 = yaml.safe_load(yaml_string)
     data2 = yaml.safe_load(rehydrated_yaml_string)
     constraints1 = data1.get("constraints", [])
     constraints2 = data2.get("constraints", [])
-    set1 = {frozenset(d.items()) for d in constraints1}
-    set2 = {frozenset(d.items()) for d in constraints2}
-    assert set1 == set2
+    assert len(constraints1) == len(constraints2)
+    map1 = {d["name"]: d for d in constraints1}
+    map2 = {d["name"]: d for d in constraints2}
+    for k in map1.keys():
+        if "skip_missing" in map2[k]:
+            map2[k].pop("skip_missing")  # it's defaulted in the original YAML string
+    assert map1 == map2

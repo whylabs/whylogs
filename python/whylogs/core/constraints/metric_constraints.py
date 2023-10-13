@@ -74,6 +74,7 @@ class MetricConstraint:
     name: str
     metric_selector: MetricsSelector
     require_column_existence: bool = True
+    _params: Optional[Dict[str, Any]] = None
 
     def _validate_metrics(self, metrics: List[Metric]) -> bool:
         for metric in metrics:
@@ -502,6 +503,13 @@ class Constraints:
         self.dataset_comparison_constraints = []
         self.dataset_profile_view = dataset_profile_view
         self.reference_profile_view = reference_profile_view
+
+    def get_constraints(self) -> List[Union[MetricConstraint, DatasetConstraint]]:
+        result: List[Union[MetricConstraint, DatasetConstraint]] = deepcopy(self.dataset_constraints)  # type: ignore
+        for constraint_dict in self.column_constraints.values():
+            for cn in constraint_dict.values():
+                result.append(cn)
+        return result
 
     def validate(self, profile_view: Optional[DatasetProfileView] = None) -> bool:
         profile = self._resolve_profile_view(profile_view)

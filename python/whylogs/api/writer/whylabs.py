@@ -27,7 +27,9 @@ from whylabs_client.model.column_schema import ColumnSchema  # type: ignore
 from whylabs_client.model.create_reference_profile_request import (  # type: ignore
     CreateReferenceProfileRequest,
 )
-from whylabs_client.model.get_dataset_metadata_response import GetDatasetMetadataResponse
+from whylabs_client.model.get_dataset_metadata_response import (
+    GetDatasetMetadataResponse,
+)
 from whylabs_client.model.metric_schema import MetricSchema  # type: ignore
 from whylabs_client.model.segment import Segment  # type: ignore
 from whylabs_client.model.segment_tag import SegmentTag  # type: ignore
@@ -1032,10 +1034,12 @@ class WhyLabsWriter(Writer):
         api_instance = self._get_metadata_client()
         hub = {}
         try:
-            hub_response: GetDatasetMetadataResponse = api_instance.get_dataset_metadata(org_id=self._org_id, dataset_id=self._dataset_id)
+            hub_response: GetDatasetMetadataResponse = api_instance.get_dataset_metadata(
+                org_id=self._org_id, dataset_id=self._dataset_id
+            )
             udf_string = json.loads(hub_response.metadata)
             hub = json.loads(udf_string)
-        except:
+        except:  # noqa: E722
             logger.warning("Failed to get metadata from hub")
 
         return hub.get(what, "")
@@ -1044,16 +1048,20 @@ class WhyLabsWriter(Writer):
         api_instance = self._get_metadata_client()
         hub = {}
         try:
-            hub_response: GetDatasetMetadataResponse = api_instance.get_dataset_metadata(org_id=self._org_id, dataset_id=self._dataset_id)
+            hub_response: GetDatasetMetadataResponse = api_instance.get_dataset_metadata(
+                org_id=self._org_id, dataset_id=self._dataset_id
+            )
             udf_string = json.loads(hub_response.metadata)
             hub = json.loads(udf_string)
-        except:
+        except:  # noqa: E722
             logger.warning("Failed to get metadata from hub, writing new entry")
 
         hub[what] = proposed
         try:
             updated_hub_string = json.dumps(hub)
-            status = api_instance.put_dataset_metadata(org_id=self._org_id, dataset_id=self._dataset_id, body=updated_hub_string)
+            status = api_instance.put_dataset_metadata(
+                org_id=self._org_id, dataset_id=self._dataset_id, body=updated_hub_string
+            )
             logger.warning(f"updated {what} from metrics hub and response was {status}")
         except ForbiddenException as e:
             logger.exception(f"Failed to update {what} in hub")

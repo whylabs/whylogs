@@ -23,6 +23,11 @@ def greater_than_number(column_name: str, number: Union[float, int], skip_missin
         condition=Require("min").greater_than(number),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         require_column_existence=not skip_missing,
+        _params={
+            "factory": "grater_than_number",
+            "number": number,
+            "skip_missing": skip_missing,
+        },
     )
     return constraint
 
@@ -46,6 +51,11 @@ def smaller_than_number(column_name: str, number: float, skip_missing: bool = Tr
         condition=lambda x: number > x.max,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         require_column_existence=not skip_missing,
+        _params={
+            "factory": "smaller_than_number",
+            "number": number,
+            "skip_missing": skip_missing,
+        },
     )
     return constraint
 
@@ -66,6 +76,10 @@ def is_non_negative(column_name: str, skip_missing: bool = True) -> MetricConstr
         condition=Require("min").greater_or_equals(0),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         require_column_existence=not skip_missing,
+        _params={
+            "factory": "is_non_negative",
+            "skip_missing": skip_missing,
+        },
     )
     return constraint
 
@@ -95,6 +109,12 @@ def is_in_range(
         condition=Require("min").greater_or_equals(lower).and_(Require("max").less_or_equals(upper)),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         require_column_existence=not skip_missing,
+        _params={
+            "factory": "is_in_range",
+            "lower": lower,
+            "upper": upper,
+            "skip_missing": skip_missing,
+        },
     )
     return constraint
 
@@ -120,6 +140,12 @@ def mean_between_range(column_name: str, lower: float, upper: float, skip_missin
         condition=Require("mean").greater_or_equals(lower).and_(Require("mean").less_or_equals(upper)),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         require_column_existence=not skip_missing,
+        _params={
+            "factory": "mean_between_range",
+            "lower": lower,
+            "upper": upper,
+            "skip_missing": skip_missing,
+        },
     )
     return constraint
 
@@ -145,6 +171,12 @@ def stddev_between_range(column_name: str, lower: float, upper: float, skip_miss
         condition=Require("stddev").greater_or_equals(lower).and_(Require("stddev").less_or_equals(upper)),
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         require_column_existence=not skip_missing,
+        _params={
+            "factory": "stddev_between_range",
+            "lower": lower,
+            "upper": upper,
+            "skip_missing": skip_missing,
+        },
     )
     return constraint
 
@@ -179,5 +211,12 @@ def quantile_between_range(
         condition=quantile_in_range,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
         require_column_existence=not skip_missing,
+        _params={
+            "factory": "quantile_between_range",
+            "quantile": quantile,
+            "lower": lower,
+            "upper": upper,
+            "skip_missing": skip_missing,
+        },
     )
     return constraint

@@ -22,7 +22,15 @@ def frequent_strings_in_reference_set(column_name: str, reference_set: dict) -> 
         return result
 
     constraint_name = f"{column_name} values in set {reference_set}"
-    constraint = MetricConstraint(name=constraint_name, condition=labels_in_set, metric_selector=frequent_strings)
+    constraint = MetricConstraint(
+        name=constraint_name,
+        condition=labels_in_set,
+        metric_selector=frequent_strings,
+        _params={
+            "factory": "frequent_strings_in_reference_set",
+            "reference_set": reference_set,
+        },
+    )
     return constraint
 
 
@@ -47,5 +55,14 @@ def n_most_common_items_in_set(column_name: str, n: int, reference_set: dict) ->
         result = all(item.value in reference_set for item in most_common_items)
         return result
 
-    constraint = MetricConstraint(name=constraint_name, condition=most_common_in_set, metric_selector=frequent_strings)
+    constraint = MetricConstraint(
+        name=constraint_name,
+        condition=most_common_in_set,
+        metric_selector=frequent_strings,
+        _params={
+            "factory": "n_most_common_items_in_set",
+            "n": n,
+            "reference_set": reference_set,
+        },
+    )
     return constraint

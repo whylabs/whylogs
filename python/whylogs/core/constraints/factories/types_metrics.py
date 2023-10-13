@@ -17,6 +17,10 @@ def column_has_non_zero_types(column_name: str, types_list: List[str]) -> Metric
         name=f"{column_name} types count non-zero for {types_list}",
         condition=has_non_zero_types,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="types"),
+        _params={
+            "factory": "column_has_non_zero_types",
+            "types_list": types_list,
+        },
     )
     return constraint
 
@@ -35,6 +39,10 @@ def column_has_zero_count_types(column_name: str, types_list: List[str]) -> Metr
         name=f"{column_name} allows for types {complement_types}",
         condition=has_zero_types,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="types"),
+        _params={
+            "factory": "column_has_zero_count_types",
+            "types_list": types_list,
+        },
     )
     return constraint
 
@@ -85,5 +93,6 @@ def column_is_nullable_datatype(column_name: str, datatype: str) -> MetricConstr
         name=f"{column_name} is nullable {datatype}",
         condition=is_integer,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="types"),
+        _params={"factory": f"column_is_nullable_{datatype}"},
     )
     return constraint

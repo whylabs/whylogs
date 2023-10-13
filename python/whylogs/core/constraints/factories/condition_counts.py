@@ -21,6 +21,10 @@ def condition_meets(column_name: str, condition_name: str) -> MetricConstraint:
         name=f"{column_name} meets condition {condition_name}",
         condition=matches_all,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="condition_count"),
+        _params={
+            "factory": "condition_meets",
+            "condition_name": condition_name,
+        },
     )
     return constraint
 
@@ -45,6 +49,10 @@ def condition_never_meets(column_name: str, condition_name: str) -> MetricConstr
         name=f"{column_name} never meets condition {condition_name}",
         condition=matches_none,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="condition_count"),
+        _params={
+            "factory": "condition_never_meets",
+            "condition_name": condition_name,
+        },
     )
     return constraint
 
@@ -57,5 +65,10 @@ def condition_count_below(column_name: str, condition_name: str, max_count: int)
         name=f"{column_name}.{condition_name} lower than or equal to {max_count}",
         condition=is_count_below,
         metric_selector=MetricsSelector(column_name=column_name, metric_name="condition_count"),
+        _params={
+            "factory": "condition_count_below",
+            "condition_name": condition_name,
+            "max_count": max_count,
+        },
     )
     return constraint
