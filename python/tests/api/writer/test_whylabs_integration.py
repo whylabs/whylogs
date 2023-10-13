@@ -5,6 +5,8 @@ from uuid import uuid4
 import pandas as pd
 import pytest
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi
+from whylabs_client.api.models_api import ModelsApi
+from whylabs_client.model.entity_schema import EntitySchema
 from whylabs_client.model.profile_traces_response import ProfileTracesResponse
 
 import whylogs as why
@@ -34,7 +36,8 @@ def test_whylabs_writer():
     trace_id = str(uuid4())
     result = why.log(data, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter()
-    writer.write(result.profile())
+    success, _ = writer.write(result.profile())
+    assert success
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
@@ -95,17 +98,20 @@ def test_whylabs_writer_reference(segmented: bool):
     trace_id = str(uuid4())
     result = why.log(df, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter().option(reference_profile_name="monty")
-    writer.write(result)
+    success, ref_id = writer.write(result, use_v0=not segmented)
+    assert success
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
-    response: ProfileTracesResponse = dataset_api.get_profile_traces(
-        org_id=ORG_ID,
-        dataset_id=MODEL_ID,
-        trace_id=trace_id,
+    response: ReferenceProfileItemResponse = dataset_api.get_reference_profile(
+        ORG_ID,
+        MODEL_ID,
+        ref_id,
     )
-    download_url = response.get("traces")[0]["download_url"]
+    download_url = response.get("download_url") or response.get("download_urls")[0]
     headers = {"Content-Type": "application/octet-stream"}
     downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
+    from icecream import ic
+    ic(downloaded_profile.data)
     deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
     assert deserialized_view.get_columns().keys() == data.keys()
 
@@ -150,10 +156,22 @@ def test_feature_weights():
 
 @pytest.mark.load
 def test_performance_column():
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     writer = WhyLabsWriter()
     status, _ = writer.tag_custom_performance_column("col1", "perf column", "mean")
     assert status
-    # TODO: verify custom performance matches what was set
+    model_api = ModelsApi(writer._api_client)
+    response: EntitySchema = model_api.get_entity_schema(ORG_ID, MODEL_ID)
+    assert response["metrics"]["perf column"]["column"] == "col1" and \
+           response["metrics"]["perf column"]["default_metric"] == "mean" and \
+           response["metrics"]["perf column"]["label"] == "perf column"
+
+    # change it so we won't accidentally pass from previous state
+    status, _ = writer.tag_custom_performance_column("col1", "perf column", "median")
+    assert status
+    response = model_api.get_entity_schema(ORG_ID, MODEL_ID)
+    assert response["metrics"]["perf column"]["default_metric"] == "median"
 
 
 @pytest.mark.load
