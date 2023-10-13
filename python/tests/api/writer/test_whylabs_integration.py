@@ -110,7 +110,6 @@ def test_whylabs_writer_reference(segmented: bool):
     download_url = response.get("download_url") or response.get("download_urls")[0]
     headers = {"Content-Type": "application/octet-stream"}
     downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
-    from icecream import ic
     ic(downloaded_profile.data)
     deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
     assert deserialized_view.get_columns().keys() == data.keys()
