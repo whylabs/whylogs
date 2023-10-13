@@ -8,6 +8,9 @@ from whylabs_client.api.dataset_profile_api import DatasetProfileApi
 from whylabs_client.api.models_api import ModelsApi
 from whylabs_client.model.entity_schema import EntitySchema
 from whylabs_client.model.profile_traces_response import ProfileTracesResponse
+from whylabs_client.model.reference_profile_item_response import (
+    ReferenceProfileItemResponse,
+)
 
 import whylogs as why
 from whylogs.api.writer.whylabs import WhyLabsWriter
@@ -161,9 +164,11 @@ def test_performance_column():
     assert status
     model_api = ModelsApi(writer._api_client)
     response: EntitySchema = model_api.get_entity_schema(ORG_ID, MODEL_ID)
-    assert response["metrics"]["perf column"]["column"] == "col1" and \
-           response["metrics"]["perf column"]["default_metric"] == "mean" and \
-           response["metrics"]["perf column"]["label"] == "perf column"
+    assert (
+        response["metrics"]["perf column"]["column"] == "col1"
+        and response["metrics"]["perf column"]["default_metric"] == "mean"
+        and response["metrics"]["perf column"]["label"] == "perf column"
+    )
 
     # change it so we won't accidentally pass from previous state
     status, _ = writer.tag_custom_performance_column("col1", "perf column", "median")
