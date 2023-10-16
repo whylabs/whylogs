@@ -34,7 +34,7 @@ endif
 
 install-poetry:
 	@$(call i, Installing Poetry)
-	curl -sSL https://install.python-poetry.org | python3 - --version 1.2.1
+	curl -sSL https://install.python-poetry.org | python3 - --version 1.4.1
 	echo "Add ~/.local/bin to your PATH"
 
 help:
