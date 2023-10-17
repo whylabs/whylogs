@@ -301,6 +301,38 @@ def test_track_errors_throw(Act: Union[Type[ProcessRollingLogger], Type[ThreadRo
     assert_profile(cast(DatasetProfileView, writer1.last_writables[0]), ["a", "b", "c"])
 
 
+def test_closing_works(actor: Tuple[DataLogger, FakeWriter]) -> None:
+    logger, writer = actor
+    ms = 1689881671000
+
+    logger.log(data={"a": 1}, sync=True, timestamp_ms=ms)
+    logger.log(data={"b": 2}, sync=True, timestamp_ms=add_days(ms, 1))
+    logger.log(data={"c": 3}, sync=True, timestamp_ms=add_days(ms, 2))
+    status = logger.status()
+    logger.close()
+
+    assert_status_single(
+        status,
+        LoggerStatus(dataset_profiles=3, dataset_timestamps=3, pending_writables=0, segment_caches=0, writers=1),
+        dataset_id,
+    )
+
+    assert writer.write_calls == 3
+    assert len(writer.last_writables) == 3
+
+    assert_profile(cast(DatasetProfileView, writer.last_writables[0]), ["a"])
+    assert_profile(cast(DatasetProfileView, writer.last_writables[1]), ["b"])
+    assert_profile(cast(DatasetProfileView, writer.last_writables[2]), ["c"])
+
+    # Further calls after close should throw
+    with pytest.raises(Exception, match="Actor is closed, can't send message."):
+        logger.log(data={"a": 1}, sync=True, timestamp_ms=ms)
+
+    # These shouldn't change
+    assert writer.write_calls == 3
+    assert len(writer.last_writables) == 3
+
+
 def test_actor_multiple_days(actor: Tuple[DataLogger, FakeWriter]) -> None:
     logger, writer = actor
     ms = 1689881671000
