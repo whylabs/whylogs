@@ -77,7 +77,7 @@ class DebugClient:
         debug_segment = Segment(tags=segment_tags)
         if dataset_timestamp is not None:
             ensure_timezone(dataset_timestamp)
-        dataset_timestamp_in_ms = to_utc_milliseconds(dataset_timestamp) or now_ms
+        dataset_timestamp_in_ms = to_utc_milliseconds(dataset_timestamp) if dataset_timestamp else now_ms
         whylabs_debug_event = DebugEvent(
             content=json.dumps(debug_event),
             trace_id=trace_id,
