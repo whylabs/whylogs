@@ -37,7 +37,7 @@ RUN apt-get install less -y && \
 USER whyuser
 
 WORKDIR /home/whyuser
-RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.4.1 && \
+RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.6.1 && \
     echo 'export PATH="$PATH:$HOME/.local/bin"' >> .bashrc
 
 WORKDIR /workspace
