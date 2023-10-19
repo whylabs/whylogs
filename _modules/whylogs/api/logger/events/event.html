@@ -512,13 +512,13 @@
         <span class="n">debug_segment</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="n">segment_tags</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dataset_timestamp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ensure_timezone</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">)</span>
-        <span class="n">checked_dataset_timestamp</span> <span class="o">=</span> <span class="n">dataset_timestamp</span> <span class="ow">or</span> <span class="n">now_ms</span>
+        <span class="n">dataset_timestamp_in_ms</span> <span class="o">=</span> <span class="n">to_utc_milliseconds</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">)</span> <span class="k">if</span> <span class="n">dataset_timestamp</span> <span class="k">else</span> <span class="n">now_ms</span>
         <span class="n">whylabs_debug_event</span> <span class="o">=</span> <span class="n">DebugEvent</span><span class="p">(</span>
             <span class="n">content</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">debug_event</span><span class="p">),</span>
             <span class="n">trace_id</span><span class="o">=</span><span class="n">trace_id</span><span class="p">,</span>
             <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
             <span class="n">segment</span><span class="o">=</span><span class="n">debug_segment</span><span class="p">,</span>
-            <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">checked_dataset_timestamp</span><span class="p">,</span>
+            <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp_in_ms</span><span class="p">,</span>
             <span class="n">creation_timestamp</span><span class="o">=</span><span class="n">now_ms</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># TODO: retry</span>

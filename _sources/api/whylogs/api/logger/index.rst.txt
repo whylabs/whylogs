@@ -72,6 +72,7 @@ Attributes
 
 .. autoapisummary::
 
+   whylogs.api.logger.WHYLABS_TRACE_ID_KEY
    whylogs.api.logger.diagnostic_logger
    whylogs.api.logger.Loggable
 
@@ -530,6 +531,11 @@ Attributes
    .. py:method:: get(name: str) -> Optional[ColumnSchema]
 
 
+
+.. py:data:: WHYLABS_TRACE_ID_KEY
+   :value: 'whylabs.traceId'
+
+   
 
 .. py:class:: ModelPerformanceMetrics(confusion_matrix: Optional[whylogs.core.model_performance_metrics.confusion_matrix.ConfusionMatrix] = None, regression_metrics: Optional[whylogs.core.model_performance_metrics.regression_metrics.RegressionMetrics] = None, metrics: Optional[Dict[str, whylogs.core.metrics.metrics.Metric]] = None, field_metadata: Optional[Dict[str, Set[str]]] = None)
 
