@@ -23,4 +23,6 @@ Functions
    This is useful for generating group keys based on string lists that don't care about order
    and have reasonably low collision rate without having to sort everything.
 
+   :param col_names: list of column names to encode.
+
 
