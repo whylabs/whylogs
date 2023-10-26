@@ -29,7 +29,7 @@ class Writer(ABC):
     def check_interval(self, interval_seconds: int) -> None:
         """Validate an interval configuration for a given writer.
 
-        Some writer only accepts certain interval configuration. Raise BadConfigError for
+        Some writers only accepts certain interval configuration. Raise BadConfigError for
         an unacceptable interval."""
         pass
 

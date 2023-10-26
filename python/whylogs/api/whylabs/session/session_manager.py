@@ -155,7 +155,7 @@ def _default_init() -> Session:
     if manager is None:
         il.warning_once("Initializing default session because no session was found.", logger.warning)
 
-        # To be safe, don't allow default session to be anonymous or local if this is happening as a side effect
+        # To be safe, don't allow default session to be anonymous if this is happening as a side effect
         # that users don't know about.
         return init(allow_anonymous=False, allow_local=True, force_local=True)
     else:

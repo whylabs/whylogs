@@ -29,6 +29,8 @@ from whylogs.core.schema import ColumnSchema, DatasetSchema
 logger = logging.getLogger(__name__)
 
 try:
+    import numpy as np  # type: ignore
+    from PIL import Image
     from PIL.Image import Image as ImageType  # type: ignore
     from PIL.ImageStat import Stat  # type: ignore
     from PIL.TiffImagePlugin import IFDRational  # type: ignore
@@ -211,6 +213,9 @@ class ImageMetric(MultiMetric):
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         count = 0
         for image in list(chain.from_iterable(view.raw_iterator())):
+            if isinstance(image, np.ndarray):
+                image = Image.fromarray(image.astype(np.uint8))
+
             if isinstance(image, ImageType):
                 metadata = get_pil_exif_metadata(image)
                 for name, value in metadata.items():
@@ -242,6 +247,24 @@ class ImageMetric(MultiMetric):
             None,  # use standard TypeMapper
             config.fi_disabled,
         )
+
+
+def init_image_schema(column_prefix: str = "image") -> DatasetSchema:
+    """
+    Initialize a DatasetSchema for logging images. This can be passed into a logger or why.log.
+
+    Args:
+        column_prefix (str): The prefix that appears in the dataset profiles along with all of the
+        image features. If the prefix is "image", then you'll log image with why.log({image: image_data}).
+    """
+
+    class ImageResolver(Resolver):
+        def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+            return {ImageMetric.get_namespace(): ImageMetric.zero(column_schema.cfg)}
+
+    return DatasetSchema(
+        types={column_prefix: Image.Image}, default_configs=ImageMetricConfig(), resolvers=ImageResolver()
+    )
 
 
 def log_image(

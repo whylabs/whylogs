@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
+from whylogs.context.version import whylogs_version
 from whylogs.core.utils.timestamp_calculations import to_utc_milliseconds
 
 diagnostic_logger = logging.getLogger(__name__)
@@ -13,17 +14,16 @@ CREATION_TIMESTAMP_KEY = "whylogs.creationTimestamp"
 DATASET_TIMESTAMP_KEY = "whylogs.datasetTimestamp"
 USER_TAGS_KEY = "whylogs.user.tags"
 NAME_KEY = "whylogs.name"
+WHYLOGS_VERSION_KEY = "whylogs.version"
 
 
 def _populate_common_profile_metadata(
     metadata: Optional[Dict[str, str]] = None,
     *,
     name: Optional[str] = None,
-    column_name: Optional[str] = None,
     trace_id: Optional[str] = None,
     tags: Optional[List[str]] = None,
     timestamp: Optional[int] = None,
-    segment_key_values: Optional[List[Dict[str, str]]] = None,
 ) -> Dict[str, Any]:
     if trace_id is not None:
         if not isinstance(trace_id, str):
@@ -39,7 +39,7 @@ def _populate_common_profile_metadata(
         if not trace_id:
             trace_id = str(uuid4())
         metadata[WHYLABS_TRACE_ID_KEY] = trace_id
-    elif metadata[WHYLABS_TRACE_ID_KEY] != trace_id:
+    elif metadata[WHYLABS_TRACE_ID_KEY] != trace_id and trace_id is not None:
         diagnostic_logger.warning(
             f"trace_id was specified as {trace_id} but there is already a trace_id defined "
             f"in metadata[{WHYLABS_TRACE_ID_KEY}]: {metadata[WHYLABS_TRACE_ID_KEY]}"
@@ -54,5 +54,8 @@ def _populate_common_profile_metadata(
         metadata[NAME_KEY] = name
     if tags and USER_TAGS_KEY not in metadata:
         metadata[USER_TAGS_KEY] = json.dumps(sorted(set(tags)))
+
+    if WHYLOGS_VERSION_KEY not in metadata:
+        metadata[WHYLOGS_VERSION_KEY] = whylogs_version
 
     return metadata

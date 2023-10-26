@@ -1,4 +1,6 @@
 import logging
+import math
+from functools import reduce
 from typing import Any, Dict, Iterable, Iterator, List, Mapping, Optional, Tuple
 
 from whylogs.api.logger.result_set import SegmentedResultSet
@@ -44,6 +46,13 @@ def _get_segment_from_group_key(group_key, partition_id) -> Tuple[str, ...]:
     return Segment(segment_tuple_key, partition_id)
 
 
+def _is_nan(x):
+    try:
+        return math.isnan(x)
+    except TypeError:
+        return False
+
+
 def _process_simple_partition(
     partition_id: str,
     schema: DatasetSchema,
@@ -57,7 +66,17 @@ def _process_simple_partition(
         # simple means we can segment on column values
         grouped_data = pandas.groupby(columns)
         for group in grouped_data.groups.keys():
-            pandas_segment = grouped_data.get_group(group)
+            if isinstance(group, tuple) and any([_is_nan(x) for x in group]):
+                evaluations = []
+                for val, col in zip(group, columns):
+                    if _is_nan(val):
+                        evaluations.append((pandas[col].isna()))
+                    else:
+                        evaluations.append((pandas[col] == val))
+                mask = reduce(lambda x, y: x & y, evaluations)
+                pandas_segment = pandas[mask]
+            else:
+                pandas_segment = grouped_data.get_group(group)
             segment_key = _get_segment_from_group_key(group, partition_id)
             _process_segment(pandas_segment, segment_key, segments, schema, segment_cache)
     elif row:
@@ -146,7 +165,14 @@ def segment_processing(
             logger.debug(
                 f"{partition_name}: defines mapper on colums ({segment_partition.mapper.col_names}) and id ({segment_partition.mapper.id})"
             )
-        partition_segments = _log_segment(segment_partition, schema, obj, pandas, row, segment_cache)
+        partition_segments = _log_segment(
+            partition=segment_partition,
+            schema=schema,
+            obj=obj,
+            pandas=pandas,
+            row=row,
+            segment_cache=segment_cache,
+        )
         segmented_profiles[segment_partition.id] = partition_segments
         segment_partitions.append(segment_partition)
         logger.debug(f"Done profiling for partition with name({partition_name})")

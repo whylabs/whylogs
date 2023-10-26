@@ -5,7 +5,7 @@ src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 src.proto.v0.dir := ../proto/v0
 src.proto.v0 := $(shell find $(src.proto.v0.dir) -type f -name "*.proto")
-version := 1.3.7
+version := 1.3.11
 
 dist.dir := dist
 egg.dir := .eggs
@@ -34,7 +34,7 @@ endif
 
 install-poetry:
 	@$(call i, Installing Poetry)
-	curl -sSL https://install.python-poetry.org | python3 - --version 1.2.1
+	curl -sSL https://install.python-poetry.org | python3 - --version 1.6.1
 	echo "Add ~/.local/bin to your PATH"
 
 help:
