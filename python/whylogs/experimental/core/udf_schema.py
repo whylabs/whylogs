@@ -260,7 +260,7 @@ def unregister_udf(udf_name: str, namespace: Optional[str] = None, schema_name: 
             del spec.udfs[name]
     if not found:
         logger.warn(f"UDF {name} could not be found for unregistering")
-    _resolver_specs[schema_name] = filter(lambda x: x.column_name == name, _resolver_specs[schema_name])
+    _resolver_specs[schema_name] = list(filter(lambda x: x.column_name == name, _resolver_specs[schema_name]))
 
 
 def register_type_udf(
