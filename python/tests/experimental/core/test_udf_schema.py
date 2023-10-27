@@ -519,4 +519,5 @@ def test_unregister() -> None:
     results = why.log(row=data, schema=schema).view()
     assert "unregister_me" not in results.get_columns()
     from whylogs.experimental.core.udf_schema import _resolver_specs
+
     assert "unregister_me" not in [spec.column_name for spec in _resolver_specs["unit-tests"]]
