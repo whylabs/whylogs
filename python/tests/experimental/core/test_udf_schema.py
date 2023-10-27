@@ -21,6 +21,7 @@ from whylogs.experimental.core.udf_schema import (
     register_dataset_udf,
     register_type_udf,
     udf_schema,
+    unregister_udf,
 )
 from whylogs.experimental.core.validators import condition_validator
 
@@ -500,3 +501,20 @@ def test_schema_copy() -> None:
     assert copy.default_configs == schema.default_configs
     assert schema.multicolumn_udfs == copy.multicolumn_udfs
     assert schema.type_udfs == copy.type_udfs
+
+
+@register_dataset_udf(["col1"], metrics=[MetricSpec(StandardMetric.frequent_items.value)], schema_name="unit-tests")
+def unregister_me(x):
+    return 42.0
+
+
+def test_unregister() -> None:
+    schema = udf_schema(schema_name="unit-tests")
+    data = {"col1": 42, "col2": 2, "col3": 2}
+    results = why.log(row=data, schema=schema).view()
+    udf_summary = results.get_column("unregister_me").to_summary_dict()
+    assert "frequent_items/frequent_strings" in udf_summary
+    unregister_udf("unregister_me", schema_name="unit-tests")
+    schema = udf_schema(schema_name="unit-tests")
+    results = why.log(row=data, schema=schema).view()
+    assert "unregister_me" not in results.get_columns()
