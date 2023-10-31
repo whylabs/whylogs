@@ -70,11 +70,16 @@ class ProcessActor(Actor, mp.Process, Generic[ProcessMessageType]):
         self._is_closed.set()
 
     def is_closed(self) -> bool:
-        return self._is_closed.is_set()
+        # Include is_alive here to try to make the exit more graceful when something crazy happens that results
+        # in the process being killed.
+        return not self.is_alive() or self._is_closed.is_set()
 
     def close(self) -> None:
         if self.pid is None:
             raise Exception("Process hasn't been started yet.")
+
+        if not self.is_alive():
+            raise Exception("Process isn't active. It might have been killed.")
 
         super().close()
         self._wrapper.close()

@@ -36,7 +36,7 @@ from whylogs.api.logger.experimental.logger.actor.data_logger import (
     DataLogger,
     TrackData,
 )
-from whylogs.api.logger.experimental.logger.actor.future_util import wait_result
+from whylogs.api.logger.experimental.logger.actor.future_util import wait_result_while
 from whylogs.api.logger.experimental.logger.actor.process_actor import (
     ProcessActor,
     QueueType,
@@ -243,7 +243,7 @@ class ProcessRollingLogger(ProcessActor[MessageType], DataLogger[Dict[str, Proce
         statuses: List[ProcessLoggerStatus] = []
         for dataset_id, future in futures:
             try:
-                status = ProcessLoggerStatus(dataset_id=dataset_id, status=wait_result(future))
+                status = ProcessLoggerStatus(dataset_id=dataset_id, status=wait_result_while(future, self.is_alive))
                 statuses.append(status)
             except Exception as e:
                 for message in messages:
@@ -269,7 +269,7 @@ class ProcessRollingLogger(ProcessActor[MessageType], DataLogger[Dict[str, Proce
         future: "Future[Dict[str, ProcessLoggerStatus]]" = Future()
         self._pipe_signaler.register(future, message.id)
         self.send(message)
-        return wait_result(future, timeout=timeout)
+        return wait_result_while(future, self.is_alive)
 
     def process_pubsub_embedding(self, messages: List[RawPubSubEmbeddingMessage]) -> None:
         self._logger.info("Processing pubsub embedding message")
@@ -376,6 +376,9 @@ class ProcessRollingLogger(ProcessActor[MessageType], DataLogger[Dict[str, Proce
         if self.pid is None:
             raise Exception("Logger hasn't been started yet. Call start() first.")
 
+        if not self.is_alive():
+            raise Exception("Logger is no longer alive. It may have been killed.")
+
         if dataset_id is None:
             dataset_id = self._session.config.get_default_dataset_id()
             if dataset_id is None:
@@ -403,8 +406,11 @@ class ProcessRollingLogger(ProcessActor[MessageType], DataLogger[Dict[str, Proce
 
         if result is not None:
             self._logger.debug(f"Waiting on id {message.id}")
-            it = wait_result(result)
-            self._logger.debug(f"Result id {message.id} done {it}")
+            try:
+                it = wait_result_while(result, self.is_alive)
+                self._logger.debug(f"Result id {message.id} done {it}")
+            except TimeoutError as e:
+                raise Exception("Logger killed while waiting for result") from e
 
     def flush(self) -> None:
         """
