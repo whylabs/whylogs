@@ -1,6 +1,7 @@
 import os
 import time
 from uuid import uuid4
+import logging
 
 import pandas as pd
 import pytest
@@ -18,6 +19,9 @@ from whylogs.core import DatasetProfileView
 from whylogs.core.feature_weights import FeatureWeights
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.segmentation_partition import segment_on_column
+
+logger = logging.getLogger(__name__)
+
 
 # TODO: These won't work well if multiple tests run concurrently
 
@@ -37,6 +41,7 @@ def test_whylabs_writer():
     schema = DatasetSchema()
     data = {"col1": 1, "col2": "foo"}
     trace_id = str(uuid4())
+    logger.info(f"trace ID {trace_id}")
     result = why.log(data, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter()
     success, _ = writer.write(result.profile())
@@ -48,6 +53,7 @@ def test_whylabs_writer():
         dataset_id=MODEL_ID,
         trace_id=trace_id,
     )
+    logger.info(f"traces response {response}")
     download_url = response.get("traces")[0]["download_url"]
     headers = {"Content-Type": "application/octet-stream"}
     downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
@@ -64,6 +70,7 @@ def test_whylabs_writer_segmented():
     data = {"col1": [1, 2, 1, 3, 2, 2], "col2": ["foo", "bar", "wat", "foo", "baz", "wat"]}
     df = pd.DataFrame(data)
     trace_id = str(uuid4())
+    logger.info(f"trace ID {trace_id}")
     result = why.log(df, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter()
     writer.write(result)
@@ -74,6 +81,7 @@ def test_whylabs_writer_segmented():
         dataset_id=MODEL_ID,
         trace_id=trace_id,
     )
+    logger.info(f"traces response {response}")
     assert len(response.get("traces")) == 3
     for trace in response.get("traces"):
         download_url = trace.get("download_url")
@@ -99,6 +107,7 @@ def test_whylabs_writer_reference(segmented: bool):
     data = {"col1": [1, 2, 1, 3, 2, 2], "col2": ["foo", "bar", "wat", "foo", "baz", "wat"]}
     df = pd.DataFrame(data)
     trace_id = str(uuid4())
+    logger.info(f"trace ID {trace_id}")
     result = why.log(df, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter().option(reference_profile_name="monty")
     # The test currently fails without use_v0 = !segmented. This may not be the final/intended behavior.
@@ -111,6 +120,7 @@ def test_whylabs_writer_reference(segmented: bool):
         MODEL_ID,
         ref_id,
     )
+    logger.info(f"traces response {response}")
     download_url = response.get("download_url") or response.get("download_urls")[0]
     headers = {"Content-Type": "application/octet-stream"}
     downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
