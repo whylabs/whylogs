@@ -1,7 +1,7 @@
+import logging
 import os
 import time
 from uuid import uuid4
-import logging
 
 import pandas as pd
 import pytest
