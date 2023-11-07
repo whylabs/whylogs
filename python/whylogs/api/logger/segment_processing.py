@@ -63,6 +63,11 @@ def _process_simple_partition(
     segment_cache: Optional[SegmentCache] = None,
 ):
     if pandas is not None:
+        # there are some edge cases where upstream callers might have already done a groupby to produce
+        # this pandas dataframe, in which case we can get back errant ('nan','nan'...) groups if we don't
+        # first reset the pandas dataframe index.
+        if len(columns) > 1:
+            pandas = pandas.reset_index()
         # simple means we can segment on column values
         grouped_data = pandas.groupby(columns)
         for group in grouped_data.groups.keys():
