@@ -59,3 +59,21 @@ def _populate_common_profile_metadata(
         metadata[WHYLOGS_VERSION_KEY] = whylogs_version
 
     return metadata
+
+
+def _safe_merge_metadata(
+    default_metadata: Optional[Dict[str, str]], incoming_metadata: Optional[Dict[str, str]]
+) -> Dict[str, str]:
+    if default_metadata is None:
+        default_metadata = dict()
+    if not incoming_metadata:
+        return default_metadata
+
+    for key in incoming_metadata:
+        if not default_metadata.get(key):
+            default_metadata[key] = incoming_metadata[key]
+        elif incoming_metadata[key] != default_metadata[key] and incoming_metadata[key]:
+            diagnostic_logger.warning(
+                f"metadata collision on key {key}. Current value is {default_metadata[key]} so ignoring attempt to set to {incoming_metadata[key]}"
+            )
+    return default_metadata

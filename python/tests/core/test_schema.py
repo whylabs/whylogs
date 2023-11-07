@@ -20,6 +20,15 @@ def test_schema_default_value_overrides() -> None:
     assert schema.cache_size == 12
 
 
+def test_schema_metadata() -> None:
+    custom_key = "custom_key"
+    custom_value = "1.2.3"
+    schema = DatasetSchema(metadata={custom_key: custom_value})
+
+    assert custom_key in schema.metadata
+    assert schema.metadata[custom_key] == custom_value
+
+
 def test_schema_subclass_copy() -> None:
     schema = DatasetSchema(
         types={"col1": str, "col2": np.int32, "col3": pd.CategoricalDtype(categories=("foo", "bar"), ordered=True)},
