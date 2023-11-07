@@ -269,11 +269,19 @@ def test_rolling_row_messages_with_segments(tmp_path: Any) -> None:
 def test_rolling_do_rollover():
     import pandas as pd
 
+    custom_key = "my_version"
+    custom_value = "2.1.0"
+
+    colliding_key = "whylogs.version"
+    bad_version = "bad_version"
+    schema = DatasetSchema(metadata={custom_key: custom_value, colliding_key: bad_version})
+
     df = pd.DataFrame(data={"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]})
-    rolling_logger = why.logger(mode="rolling", interval=5, when="M", base_name="profile_")
+    rolling_logger = why.logger(mode="rolling", interval=5, when="M", base_name="profile_", schema=schema)
     rolling_logger.append_writer("local")
     rolling_logger.log(df)
     now = datetime.now(timezone.utc)
+    initial_profile = rolling_logger._current_profile
     initial_profile_id = id(rolling_logger._current_profile)
     profile_timestamp = rolling_logger._current_profile.dataset_timestamp
     rolling_logger._do_rollover()
@@ -281,6 +289,9 @@ def test_rolling_do_rollover():
     rolling_logger.close()
     assert initial_profile_id != post_rollover_profile_id
     assert now.timestamp() == pytest.approx(profile_timestamp.timestamp())
-    # these lines below fail as a comparison
-    # now_plus_1h = now + datetime.timedelta(hours=1)
-    # assert now.timestamp() == pytest.approx(now_plus_1h.timestamp())
+    assert initial_profile.metadata
+    assert custom_key in initial_profile.metadata
+    assert initial_profile.metadata[custom_key] == custom_value
+
+    assert colliding_key in initial_profile.metadata
+    assert initial_profile.metadata[colliding_key] != bad_version
