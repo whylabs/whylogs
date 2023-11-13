@@ -37,7 +37,7 @@ class DebugClient:
             )
             cache = WhylabsClientCache.instance()
             self._api_client, _ = cache.get_client(self._cache_config)
-            self._org_id = config.require_api_key().split(":")[-1]
+            self._org_id = config.require_org_id()
             self._dataset_id = config.require_default_dataset_id()
         else:
             self._api_client = api_client
