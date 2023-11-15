@@ -1,7 +1,10 @@
+import numpy as np
 import pandas as pd
 import pytest
+from PIL import Image
 
 import whylogs as why
+from whylogs.extras.image_metric import log_image
 from whylogs.viz.drift.column_drift_algorithms import (
     KS,
     ChiSquare,
@@ -14,10 +17,6 @@ from whylogs.viz.drift.configs import (
     HellingerConfig,
     KSTestConfig,
 )
-
-import numpy as np
-from PIL import Image
-from whylogs.extras.image_metric import log_image
 
 
 @pytest.fixture

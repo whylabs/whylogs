@@ -9,6 +9,7 @@ from scipy.spatial.distance import euclidean
 
 from whylogs.core.view.column_profile_view import ColumnProfileView  # type: ignore
 from whylogs.core.view.dataset_profile_view import DatasetProfileView  # type: ignore
+from whylogs.migration.uncompound import _uncompound_dataset_profile
 from whylogs.viz.drift.configs import (
     ChiSquareConfig,
     DriftThresholds,
@@ -21,7 +22,6 @@ from whylogs.viz.utils.frequent_items_calculations import (
     get_frequent_stats,
     zero_padding_frequent_items,
 )
-from whylogs.migration.uncompound import _uncompound_dataset_profile
 
 
 @dataclass
