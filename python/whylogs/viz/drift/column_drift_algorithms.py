@@ -21,6 +21,7 @@ from whylogs.viz.utils.frequent_items_calculations import (
     get_frequent_stats,
     zero_padding_frequent_items,
 )
+from whylogs.migration.uncompound import _uncompound_dataset_profile
 
 
 @dataclass
@@ -483,8 +484,10 @@ def calculate_drift_scores(
         )
     """
     drift_scores: Dict[str, Optional[Dict[str, Any]]] = {}
-    target_view_columns = target_view.get_columns()
-    reference_view_columns = reference_view.get_columns()
+    target_view_uncompounded = _uncompound_dataset_profile(target_view)
+    reference_view_uncompounded = _uncompound_dataset_profile(reference_view)
+    target_view_columns = target_view_uncompounded.get_columns()
+    reference_view_columns = reference_view_uncompounded.get_columns()
     if drift_map:
         for column_name in drift_map.keys():
             if column_name not in target_view_columns.keys():
