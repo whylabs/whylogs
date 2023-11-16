@@ -2,6 +2,7 @@ from typing import Generic, List, Optional, TypeVar
 
 from whylogs.api.logger.experimental.logger.actor.actor import (
     _DEFAULT_TIMEOUT,
+    QueueConfig,
     QueueWrapper,
 )
 
@@ -14,7 +15,6 @@ except ImportError:
 
     raise ImportError(_proc_error_message)
 
-_DEFAULT_QUEUE_SiZE = 1000 * 1000 * 1000
 
 FasterQueueMessageType = TypeVar("FasterQueueMessageType")
 
@@ -24,8 +24,8 @@ class FasterQueueWrapper(QueueWrapper, Generic[FasterQueueMessageType]):
     Implementation of QueueWrapper sufficient for use in the threaded actor.
     """
 
-    def __init__(self) -> None:
-        self._queue = FasterQueue(_DEFAULT_QUEUE_SiZE)
+    def __init__(self, config: QueueConfig) -> None:
+        self._queue = FasterQueue(config.max_buffer_bytes)
 
     def send(self, message: FasterQueueMessageType, timeout: float = _DEFAULT_TIMEOUT) -> None:
         self._queue.put(message, timeout=timeout)

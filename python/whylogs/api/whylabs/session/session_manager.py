@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from whylogs.api.whylabs.session.config import InitConfig, SessionConfig
+from whylogs.api.whylabs.session.config import _INIT_DOCS, InitConfig, SessionConfig
 from whylogs.api.whylabs.session.session import (
     ApiKeySession,
     GuestSession,
@@ -128,9 +128,6 @@ def init(  # type: ignore
     except Exception as e:
         logger.warning("Could not initialize session", e)
         raise e
-
-
-_INIT_DOCS = "https://docs.whylabs.ai/docs/whylabs-whylogs-init"
 
 
 def get_current_session() -> Optional[Session]:

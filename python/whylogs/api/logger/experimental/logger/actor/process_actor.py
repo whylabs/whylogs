@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import signal
 import sys
 from enum import Enum
 from typing import Generic, TypeVar
@@ -8,6 +9,7 @@ from whylogs.api.logger.experimental.logger.actor.actor import (
     QueueConfig,
     QueueWrapper,
 )
+from whylogs.api.logger.experimental.logger.actor.signal_util import suspended_signals
 
 
 class QueueType(Enum):
@@ -38,7 +40,7 @@ class ProcessActor(Actor, mp.Process, Generic[ProcessMessageType]):
                 FasterQueueWrapper,
             )
 
-            self._wrapper = FasterQueueWrapper()
+            self._wrapper = FasterQueueWrapper(queue_config)
         else:
             raise ValueError(f"Unknown queue type: {queue_type}")
 
@@ -85,7 +87,16 @@ class ProcessActor(Actor, mp.Process, Generic[ProcessMessageType]):
         self._wrapper.close()
 
     def run(self) -> None:
-        super().run()
+        try:
+            with suspended_signals(signal.SIGINT, signal.SIGTERM):
+                self.process_messages()
+        except KeyboardInterrupt:
+            # Swallow this to prevent annoying stack traces in dev.
+            self._logger.info("Keyboard interrupt ignored in sub process.")
+        except Exception as e:
+            self._logger.error("Error while in main processing loop")
+            self._logger.exception(e)
+
         sys.exit(0)
 
     def start(self) -> None:

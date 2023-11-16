@@ -4,14 +4,15 @@ from typing import Callable, Optional, TypeVar
 T = TypeVar("T")
 
 
-def wait_result(future: "Future[T]", timeout: Optional[float] = None) -> T:
+def _wait_result(future: "Future[T]", timeout: Optional[float] = None) -> T:
     """
-    Wait on a future with an optional timeout.
+    Wait on a future with an optional timeout without side effects. This won't update
+    the status of the future for errors/timeouts.
     """
     done, not_done = wait([future], timeout=timeout)
 
-    for timeouts in not_done:
-        timeouts.set_exception(TimeoutError("Timeout waiting for result"))
+    if len(not_done) > 0:
+        raise TimeoutError("Timeout waiting for result")
 
     all = done.union(not_done)
     for it in all:
@@ -28,18 +29,30 @@ def wait_result(future: "Future[T]", timeout: Optional[float] = None) -> T:
     raise Exception("Couldn't find a result")
 
 
+def wait_result(future: "Future[T]", timeout: Optional[float] = None) -> T:
+    """
+    Wait on a future with an optional timeout.
+    """
+    try:
+        return _wait_result(future, timeout=timeout)
+    except TimeoutError as e:
+        future.set_exception(e)
+        raise e
+
+
 def wait_result_while(future: "Future[T]", predicate: Callable[[], bool]) -> T:
     """
     Wait on a future while the condition is true.
     """
-    result: Optional[T] = None
-    while predicate():
-        try:
-            result = wait_result(future, 1.0)
-        except TimeoutError:
-            pass
+    try:
+        while predicate():
+            try:
+                return _wait_result(future, 1.0)
+            except TimeoutError:
+                pass
+    except Exception as e:
+        if future.exception() is None:
+            future.set_exception(e)
+        raise e
 
-    if result is None:
-        raise TimeoutError("Wait signal stopped before result was available.")
-
-    return result
+    raise TimeoutError("Wait signal stopped before result was available.")
