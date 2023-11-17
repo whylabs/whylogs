@@ -114,6 +114,12 @@ Attributes
 
       
 
+   .. py:attribute:: max_buffer_bytes
+      :type: int
+      :value: 100000000
+
+      
+
 
 .. py:data:: MessageType
 

@@ -434,13 +434,21 @@
         <article role="main">
           <h1>Source code for whylogs.api.logger.experimental.logger.actor.future_util</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">Future</span><span class="p">,</span> <span class="n">wait</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="wait_result"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/future_util/index.html#whylogs.api.logger.experimental.logger.actor.future_util.wait_result">[docs]</a><span class="k">def</span> <span class="nf">wait_result</span><span class="p">(</span><span class="n">future</span><span class="p">:</span> <span class="s2">&quot;Future[T]&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_wait_result</span><span class="p">(</span><span class="n">future</span><span class="p">:</span> <span class="s2">&quot;Future[T]&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wait on a future with an optional timeout without side effects. This won&#39;t update</span>
+<span class="sd">    the status of the future for errors/timeouts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">done</span><span class="p">,</span> <span class="n">not_done</span> <span class="o">=</span> <span class="n">wait</span><span class="p">([</span><span class="n">future</span><span class="p">],</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">not_done</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">(</span><span class="s2">&quot;Timeout waiting for result&quot;</span><span class="p">)</span>
+
     <span class="nb">all</span> <span class="o">=</span> <span class="n">done</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">not_done</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">all</span><span class="p">:</span>
         <span class="n">e</span> <span class="o">=</span> <span class="n">it</span><span class="o">.</span><span class="n">exception</span><span class="p">()</span>
@@ -453,7 +461,36 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">r</span>
 
-    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find a result&quot;</span><span class="p">)</span></div>
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find a result&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="wait_result"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/future_util/index.html#whylogs.api.logger.experimental.logger.actor.future_util.wait_result">[docs]</a><span class="k">def</span> <span class="nf">wait_result</span><span class="p">(</span><span class="n">future</span><span class="p">:</span> <span class="s2">&quot;Future[T]&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wait on a future with an optional timeout.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_wait_result</span><span class="p">(</span><span class="n">future</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TimeoutError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">future</span><span class="o">.</span><span class="n">set_exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">e</span></div>
+
+
+<div class="viewcode-block" id="wait_result_while"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/future_util/index.html#whylogs.api.logger.experimental.logger.actor.future_util.wait_result_while">[docs]</a><span class="k">def</span> <span class="nf">wait_result_while</span><span class="p">(</span><span class="n">future</span><span class="p">:</span> <span class="s2">&quot;Future[T]&quot;</span><span class="p">,</span> <span class="n">predicate</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wait on a future while the condition is true.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">predicate</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_wait_result</span><span class="p">(</span><span class="n">future</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TimeoutError</span><span class="p">:</span>
+                <span class="k">pass</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">future</span><span class="o">.</span><span class="n">exception</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">future</span><span class="o">.</span><span class="n">set_exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">e</span>
+
+    <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">(</span><span class="s2">&quot;Wait signal stopped before result was available.&quot;</span><span class="p">)</span></div>
 </pre></div>
         </article>
       </div>

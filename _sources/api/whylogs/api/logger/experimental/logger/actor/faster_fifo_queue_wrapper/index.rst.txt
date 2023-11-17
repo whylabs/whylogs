@@ -29,7 +29,7 @@ Attributes
 
    
 
-.. py:class:: FasterQueueWrapper
+.. py:class:: FasterQueueWrapper(config: whylogs.api.logger.experimental.logger.actor.actor.QueueConfig)
 
    Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.QueueWrapper`, :py:obj:`Generic`\ [\ :py:obj:`FasterQueueMessageType`\ ]
 

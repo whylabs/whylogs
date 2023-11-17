@@ -17,7 +17,7 @@ Functions
 
 
 
-.. py:function:: suspended_signals(*signals: Any) -> Any
+.. py:function:: suspended_signals(*signals: signal.Signals) -> Any
 
    Suspends signal handling execution
 

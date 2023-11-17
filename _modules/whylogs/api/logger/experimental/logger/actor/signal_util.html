@@ -438,11 +438,17 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 
 
+<span class="k">def</span> <span class="nf">_ignore</span><span class="p">(</span><span class="n">signal</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+
 <div class="viewcode-block" id="suspended_signals"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/signal_util/index.html#whylogs.api.logger.experimental.logger.actor.signal_util.suspended_signals">[docs]</a><span class="nd">@contextmanager</span>
-<span class="k">def</span> <span class="nf">suspended_signals</span><span class="p">(</span><span class="o">*</span><span class="n">signals</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">suspended_signals</span><span class="p">(</span><span class="o">*</span><span class="n">signals</span><span class="p">:</span> <span class="n">signal</span><span class="o">.</span><span class="n">Signals</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Suspends signal handling execution</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">sig</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">:</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="n">_ignore</span><span class="p">)</span>
     <span class="n">signal</span><span class="o">.</span><span class="n">pthread_sigmask</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIG_BLOCK</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">signals</span><span class="p">))</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">yield</span> <span class="kc">None</span>

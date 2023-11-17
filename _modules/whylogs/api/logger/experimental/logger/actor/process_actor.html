@@ -434,6 +434,7 @@
         <article role="main">
           <h1>Source code for whylogs.api.logger.experimental.logger.actor.process_actor</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="kn">import</span> <span class="nn">signal</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">TypeVar</span>
@@ -443,6 +444,7 @@
     <span class="n">QueueConfig</span><span class="p">,</span>
     <span class="n">QueueWrapper</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.logger.experimental.logger.actor.signal_util</span> <span class="kn">import</span> <span class="n">suspended_signals</span>
 
 
 <div class="viewcode-block" id="QueueType"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/process_actor/index.html#whylogs.api.logger.experimental.logger.actor.process_actor.QueueType">[docs]</a><span class="k">class</span> <span class="nc">QueueType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
@@ -473,7 +475,7 @@
                 <span class="n">FasterQueueWrapper</span><span class="p">,</span>
             <span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_wrapper</span> <span class="o">=</span> <span class="n">FasterQueueWrapper</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wrapper</span> <span class="o">=</span> <span class="n">FasterQueueWrapper</span><span class="p">(</span><span class="n">queue_config</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown queue type: </span><span class="si">{</span><span class="n">queue_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -505,17 +507,31 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span><span class="o">.</span><span class="n">set</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ProcessActor.is_closed"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/process_actor/index.html#whylogs.api.logger.experimental.logger.actor.process_actor.ProcessActor.is_closed">[docs]</a>    <span class="k">def</span> <span class="nf">is_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span></div>
+        <span class="c1"># Include is_alive here to try to make the exit more graceful when something crazy happens that results</span>
+        <span class="c1"># in the process being killed.</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ProcessActor.close"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/process_actor/index.html#whylogs.api.logger.experimental.logger.actor.process_actor.ProcessActor.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Process hasn&#39;t been started yet.&quot;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Process isn&#39;t active. It might have been killed.&quot;</span><span class="p">)</span>
+
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wrapper</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ProcessActor.run"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/process_actor/index.html#whylogs.api.logger.experimental.logger.actor.process_actor.ProcessActor.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">suspended_signals</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">process_messages</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="c1"># Swallow this to prevent annoying stack traces in dev.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Keyboard interrupt ignored in sub process.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error while in main processing loop&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ProcessActor.start"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/process_actor/index.html#whylogs.api.logger.experimental.logger.actor.process_actor.ProcessActor.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

@@ -456,7 +456,10 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.future_util.wait_result" title="whylogs.api.logger.experimental.logger.actor.future_util.wait_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wait_result</span></code></a>(→ T)</p></td>
-<td><p></p></td>
+<td><p>Wait on a future with an optional timeout.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.future_util.wait_result_while" title="whylogs.api.logger.experimental.logger.actor.future_util.wait_result_while"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wait_result_while</span></code></a>(→ T)</p></td>
+<td><p>Wait on a future while the condition is true.</p></td>
 </tr>
 </tbody>
 </table>
@@ -485,11 +488,29 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.future_util.wait_result">
 <span class="sig-prename descclassname"><span class="pre">whylogs.api.logger.experimental.logger.actor.future_util.</span></span><span class="sig-name descname"><span class="pre">wait_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">future</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Future</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.future_util.T" title="whylogs.api.logger.experimental.logger.actor.future_util.T"><span class="pre">T</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.future_util.T" title="whylogs.api.logger.experimental.logger.actor.future_util.T"><span class="pre">T</span></a></span></span><a class="reference internal" href="../../../../../../../../_modules/whylogs/api/logger/experimental/logger/actor/future_util.html#wait_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.future_util.wait_result" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Wait on a future with an optional timeout.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>future</strong> (<em>Future</em><em>[</em><em>T</em><em>]</em>) – </p></li>
 <li><p><strong>timeout</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>T</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.future_util.wait_result_while">
+<span class="sig-prename descclassname"><span class="pre">whylogs.api.logger.experimental.logger.actor.future_util.</span></span><span class="sig-name descname"><span class="pre">wait_result_while</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">future</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Future</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.future_util.T" title="whylogs.api.logger.experimental.logger.actor.future_util.T"><span class="pre">T</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.future_util.T" title="whylogs.api.logger.experimental.logger.actor.future_util.T"><span class="pre">T</span></a></span></span><a class="reference internal" href="../../../../../../../../_modules/whylogs/api/logger/experimental/logger/actor/future_util.html#wait_result_while"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.future_util.wait_result_while" title="Permalink to this definition">#</a></dt>
+<dd><p>Wait on a future while the condition is true.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>future</strong> (<em>Future</em><em>[</em><em>T</em><em>]</em>) – </p></li>
+<li><p><strong>predicate</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -572,6 +593,7 @@
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.future_util.T">T</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.future_util.wait_result">wait_result</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.future_util.wait_result_while">wait_result_while</a></li>
 </ul>
 </li>
 </ul>
