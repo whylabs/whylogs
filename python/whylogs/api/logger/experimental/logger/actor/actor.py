@@ -1,13 +1,11 @@
 import logging
 import queue
-import signal
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Generic, List, Optional, Type, TypeVar, Union
 
 from whylogs.api.logger.experimental.logger.actor.list_util import type_batched_items
-from whylogs.api.logger.experimental.logger.actor.signal_util import suspended_signals
 
 QueueMessageType = TypeVar("QueueMessageType")
 _DEFAULT_TIMEOUT = 0.1
@@ -43,7 +41,7 @@ class CloseMessage:
     pass
 
 
-@dataclass
+@dataclass(frozen=True)
 class QueueConfig:
     """
     Configuration for the queue used by the actor.
@@ -61,6 +59,7 @@ class QueueConfig:
     max_batch_size: int = 50_000
     message_accumualtion_duration: float = 1.0  # seconds
     message_poll_wait: float = 0.1  # seconds
+    max_buffer_bytes: int = 100_000_000  # 100 MB
 
 
 MessageType = TypeVar("MessageType")
@@ -223,11 +222,7 @@ class Actor(ABC, Generic[MessageType]):
 
     def run(self) -> None:
         try:
-            with suspended_signals(signal.SIGINT, signal.SIGTERM):
-                self.process_messages()
-        except KeyboardInterrupt:
-            # Swallow this to prevent annoying stack traces in dev.
-            pass
+            self.process_messages()
         except Exception as e:
             self._logger.error("Error while in main processing loop")
             self._logger.exception(e)

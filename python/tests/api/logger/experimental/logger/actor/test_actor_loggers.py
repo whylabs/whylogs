@@ -2,15 +2,13 @@ import datetime
 import logging
 import multiprocessing as mp
 import os
+import time
 from typing import Any, Dict, Generator, List, Optional, Tuple, Type, Union, cast
 
 import pytest
 
 from whylogs.api.logger.experimental.logger.actor.data_logger import DataLogger
-from whylogs.api.logger.experimental.logger.actor.process_actor import (
-    ProcessActor,
-    QueueType,
-)
+from whylogs.api.logger.experimental.logger.actor.process_actor import QueueType
 from whylogs.api.logger.experimental.logger.actor.process_rolling_logger import (
     ProcessRollingLogger,
     WriterFactory,
@@ -120,7 +118,7 @@ def actor(
             # during unit tests though.
             return [writer]
 
-    if issubclass(Act, ProcessActor):
+    if issubclass(Act, ProcessRollingLogger):
         actor = Act(
             write_schedule=None,
             aggregate_by=TimeGranularity.Day,
@@ -212,7 +210,7 @@ def test_multiple_writers(Act: Union[Type[ProcessRollingLogger], Type[ThreadRoll
         def create_writers(self, dataset_id: str) -> List[Writer]:
             return [writer1, writer2]
 
-    if issubclass(Act, ProcessActor):
+    if issubclass(Act, ProcessRollingLogger):
         actor = Act(
             write_schedule=None,
             aggregate_by=TimeGranularity.Day,
@@ -264,7 +262,7 @@ def test_track_errors_throw(Act: Union[Type[ProcessRollingLogger], Type[ThreadRo
         def create_writers(self, dataset_id: str) -> List[Writer]:
             return [writer1]
 
-    if issubclass(Act, ProcessActor):
+    if issubclass(Act, ProcessRollingLogger):
         actor = Act(
             write_schedule=None,
             aggregate_by=TimeGranularity.Day,
@@ -325,12 +323,67 @@ def test_closing_works(actor: Tuple[DataLogger, FakeWriter]) -> None:
     assert_profile(cast(DatasetProfileView, writer.last_writables[2]), ["c"])
 
     # Further calls after close should throw
-    with pytest.raises(Exception, match="Actor is closed, can't send message."):
+    if isinstance(logger, ProcessRollingLogger):
+        match = "Logger process is no longer alive. It may have been killed."
+    else:
+        match = "Actor is closed, can't send message."
+    with pytest.raises(Exception, match=match):
         logger.log(data={"a": 1}, sync=True, timestamp_ms=ms)
 
     # These shouldn't change
     assert writer.write_calls == 3
     assert len(writer.last_writables) == 3
+
+
+def test_process_throws_after_killed(actor: Tuple[DataLogger, FakeWriter]) -> None:
+    """
+    Test that the logger throws after the process is killed on the caller side. This
+    version of the test asserts against the sync=True behavior. First the process is force
+    killed and then immediately after the logger is used, which means the is_alive check
+    won't have time to start returning false. This tests the case where something kills the process
+    while something else is trying to use it.
+    """
+    logger, writer = actor
+    if isinstance(logger, ProcessRollingLogger):
+        logger = cast(ProcessRollingLogger, logger)  # type: ignore
+        ms = 1689881671000
+
+        # kill it
+        os.kill(logger.pid, 9)  # type: ignore
+
+        # Further sync calls close should throw
+        with pytest.raises(Exception):
+            logger.log(data={"a": 1}, sync=True, timestamp_ms=ms)
+
+        with pytest.raises(Exception, match="Process isn't active. It might have been killed."):
+            logger.close()
+
+
+def test_process_throws_after_killed_delay(actor: Tuple[DataLogger, FakeWriter]) -> None:
+    """
+    Very similar to test_process_throws_after_killed but there is a delay after the process is killed
+    before logging so the log() call will throw before doing any actual work with a clear error message.
+    """
+    logger, writer = actor
+    if isinstance(logger, ProcessRollingLogger):
+        logger = cast(ProcessRollingLogger, logger)  # type: ignore
+        ms = 1689881671000
+
+        # kill it
+        os.kill(logger.pid, 9)  # type: ignore
+        time.sleep(2)  # should be enough
+
+        # Further sync calls close should throw
+        if isinstance(logger, ProcessRollingLogger):
+            match = "Logger process is no longer alive. It may have been killed."
+        else:
+            match = "Actor is closed, can't send message."
+        with pytest.raises(Exception, match=match):
+            # Throws even when it isn't sync
+            logger.log(data={"a": 1}, timestamp_ms=ms)
+
+        with pytest.raises(Exception, match="Process isn't active. It might have been killed."):
+            logger.close()
 
 
 def test_actor_multiple_days(actor: Tuple[DataLogger, FakeWriter]) -> None:
@@ -378,7 +431,11 @@ def test_close_stops_accepting_logs(actor: Tuple[DataLogger, FakeWriter]) -> Non
     assert_profile(cast(DatasetProfileView, writer.last_writables[1]), ["b"])
     assert_profile(cast(DatasetProfileView, writer.last_writables[2]), ["c"])
 
-    with pytest.raises(Exception, match="Actor is closed, can't send message."):
+    if isinstance(logger, ProcessRollingLogger):
+        match = "Logger process is no longer alive. It may have been killed."
+    else:
+        match = "Actor is closed, can't send message."
+    with pytest.raises(Exception, match=match):
         logger.log(data={"a": 1}, sync=True, timestamp_ms=ms)
 
 

@@ -27,11 +27,12 @@ class Writable(ABC):
 class Writer(ABC):
     # noinspection PyMethodMayBeStatic
     def check_interval(self, interval_seconds: int) -> None:
-        """Validate an interval configuration for a given writer.
+        """
+        Validate an interval configuration for a given writer.
 
         Some writers only accepts certain interval configuration. Raise BadConfigError for
-        an unacceptable interval."""
-        pass
+        an unacceptable interval.
+        """
 
     @abstractmethod
     def write(

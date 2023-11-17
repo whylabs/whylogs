@@ -5,12 +5,14 @@ import threading as th
 import time
 from abc import abstractmethod
 from concurrent.futures import Future
+from dataclasses import dataclass, field
 from functools import reduce
 from itertools import groupby
 from typing import (
     Any,
     Callable,
     Dict,
+    Generic,
     List,
     Optional,
     Tuple,
@@ -21,6 +23,7 @@ from typing import (
 )
 
 from whylogs.api.whylabs.session.config import _INIT_DOCS
+from whylogs.api.whylabs.session.session_manager import _default_init
 
 try:
     import orjson
@@ -36,7 +39,7 @@ from whylogs.api.logger.experimental.logger.actor.data_logger import (
     DataLogger,
     TrackData,
 )
-from whylogs.api.logger.experimental.logger.actor.future_util import wait_result
+from whylogs.api.logger.experimental.logger.actor.future_util import wait_result_while
 from whylogs.api.logger.experimental.logger.actor.process_actor import (
     ProcessActor,
     QueueType,
@@ -72,12 +75,11 @@ from whylogs.api.logger.experimental.logger.actor.time_util import (
     TimeGranularity,
     current_time_ms,
 )
-from whylogs.api.whylabs.session.session_manager import get_current_session
 from whylogs.api.writer import Writer, Writers
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.stubs import pd
 
-MessageType = Union[
+BuiltinMessageTypes = Union[
     FlushMessage,
     RawLogMessage,
     RawLogEmbeddingsMessage,
@@ -110,7 +112,49 @@ class WhyLabsWriterFactory(WriterFactory):
         ]
 
 
-class ProcessRollingLogger(ProcessActor[MessageType], DataLogger[Dict[str, ProcessLoggerStatus]]):
+@dataclass
+class LoggerOptions:
+    aggregate_by: TimeGranularity = TimeGranularity.Hour
+    write_schedule: Optional[Schedule] = field(
+        default_factory=lambda: Schedule(cadence=TimeGranularity.Minute, interval=5)
+    )
+    schema: Optional[DatasetSchema] = None
+    sync_enabled: bool = False
+    current_time_fn: Optional[Callable[[], int]] = None
+    queue_config: QueueConfig = QueueConfig()
+    thread_queue_config: QueueConfig = QueueConfig()
+    writer_factory: WriterFactory = field(default_factory=WhyLabsWriterFactory)
+    queue_type: QueueType = QueueType.FASTER_FIFO
+
+
+class LoggerFactory:
+    @abstractmethod
+    def create_logger(self, dataset_id: str, options: LoggerOptions) -> ThreadRollingLogger:
+        raise NotImplementedError()
+
+
+class ThreadLoggerFactory(LoggerFactory):
+    def create_logger(self, dataset_id: str, options: LoggerOptions) -> ThreadRollingLogger:
+        logger = ThreadRollingLogger(
+            aggregate_by=options.aggregate_by,
+            writers=options.writer_factory.create_writers(dataset_id),
+            schema=options.schema,
+            write_schedule=options.write_schedule,
+            current_time_fn=options.current_time_fn,
+            queue_config=options.thread_queue_config,
+        )
+
+        return logger
+
+
+AdditionalMessages = TypeVar("AdditionalMessages")
+
+
+class BaseProcessRollingLogger(
+    ProcessActor[Union[AdditionalMessages, BuiltinMessageTypes]],
+    DataLogger[Dict[str, ProcessLoggerStatus]],
+    Generic[AdditionalMessages],
+):
     """
     Log data asynchronously using a separate process.
 
@@ -135,6 +179,9 @@ class ProcessRollingLogger(ProcessActor[MessageType], DataLogger[Dict[str, Proce
     You should be able to get around it by setting the environment variable OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
     in the environment that the process logger runs in, but you can't set it in Python (no using os.environ).
 
+    Most of the arguments that are passed to the underlying loggers are considered the default options for those
+    loggers. If you supply a logger_factory then you can override the options for each dataset id's logger.
+
     Args:
         aggregate_by: The time granularity to aggregate data by. This determines how the time bucketing is done. For
             the Hour type, the logger will end up pooling data into profiles by the hour.
@@ -152,8 +199,8 @@ class ProcessRollingLogger(ProcessActor[MessageType], DataLogger[Dict[str, Proce
 
     def __init__(
         self,
-        aggregate_by: TimeGranularity = TimeGranularity.Hour,
-        write_schedule: Optional[Schedule] = Schedule(cadence=TimeGranularity.Minute, interval=10),
+        aggregate_by: TimeGranularity = TimeGranularity.Day,
+        write_schedule: Optional[Schedule] = Schedule(cadence=TimeGranularity.Minute, interval=5),
         schema: Optional[DatasetSchema] = None,
         sync_enabled: bool = False,
         current_time_fn: Optional[Callable[[], int]] = None,
@@ -161,38 +208,39 @@ class ProcessRollingLogger(ProcessActor[MessageType], DataLogger[Dict[str, Proce
         thread_queue_config: QueueConfig = QueueConfig(),
         writer_factory: WriterFactory = WhyLabsWriterFactory(),
         queue_type: QueueType = QueueType.FASTER_FIFO,
+        logger_factory: LoggerFactory = ThreadLoggerFactory(),
     ) -> None:
         super().__init__(queue_config=queue_config, queue_type=queue_type)
+        self._logger_options = LoggerOptions(
+            aggregate_by=aggregate_by,
+            write_schedule=write_schedule,
+            schema=schema,
+            sync_enabled=sync_enabled,
+            current_time_fn=current_time_fn,
+            queue_config=queue_config,
+            thread_queue_config=thread_queue_config,
+            writer_factory=writer_factory,
+        )
+        self._logger_factory = logger_factory
+
         self._sync_enabled = sync_enabled
         self._thread_queue_config = thread_queue_config
         self._writer_factory = writer_factory
         self.current_time_ms = current_time_fn or current_time_ms
         self.loggers: Dict[str, ThreadRollingLogger] = {}
-        self.write_schedule = write_schedule
         self.schema = schema
-        self.aggregate_by = aggregate_by
         self._pipe_signaler: Optional[PipeSignaler] = PipeSignaler() if sync_enabled else None
-        self._session = get_current_session()
+        self._session = _default_init()
 
     def _create_logger(self, dataset_id: str) -> ThreadRollingLogger:
-        logger = ThreadRollingLogger(
-            aggregate_by=self.aggregate_by,
-            writers=self._writer_factory.create_writers(dataset_id),
-            schema=self.schema,
-            write_schedule=self.write_schedule,
-            current_time_fn=self.current_time_ms,
-            queue_config=self._thread_queue_config,
-        )
-
-        self._logger.info(f"Created logger for {dataset_id}")
-        return logger
+        return self._logger_factory.create_logger(dataset_id, self._logger_options)
 
     def _get_logger(self, dataset_id: str) -> ThreadRollingLogger:
         if dataset_id not in self.loggers:
             self.loggers[dataset_id] = self._create_logger(dataset_id)
         return self.loggers[dataset_id]
 
-    def process_batch(self, batch: List[MessageType], batch_type: Type) -> None:
+    def process_batch(self, batch: List[Union[AdditionalMessages, BuiltinMessageTypes]], batch_type: Type) -> None:
         if batch_type == FlushMessage:
             self.process_flush_message(cast(List[FlushMessage], batch))
         elif batch_type == LogMessage:
@@ -243,7 +291,7 @@ class ProcessRollingLogger(ProcessActor[MessageType], DataLogger[Dict[str, Proce
         statuses: List[ProcessLoggerStatus] = []
         for dataset_id, future in futures:
             try:
-                status = ProcessLoggerStatus(dataset_id=dataset_id, status=wait_result(future))
+                status = ProcessLoggerStatus(dataset_id=dataset_id, status=wait_result_while(future, self.is_alive))
                 statuses.append(status)
             except Exception as e:
                 for message in messages:
@@ -269,7 +317,7 @@ class ProcessRollingLogger(ProcessActor[MessageType], DataLogger[Dict[str, Proce
         future: "Future[Dict[str, ProcessLoggerStatus]]" = Future()
         self._pipe_signaler.register(future, message.id)
         self.send(message)
-        return wait_result(future, timeout=timeout)
+        return wait_result_while(future, self.is_alive)
 
     def process_pubsub_embedding(self, messages: List[RawPubSubEmbeddingMessage]) -> None:
         self._logger.info("Processing pubsub embedding message")
@@ -329,7 +377,7 @@ class ProcessRollingLogger(ProcessActor[MessageType], DataLogger[Dict[str, Proce
     ) -> None:
         for dataset_id, group in groupby(dicts, lambda it: it["datasetId"]):
             for dataset_timestamp, ts_grouped in groupby(
-                group, lambda it: determine_dataset_timestamp(self.aggregate_by, it)
+                group, lambda it: determine_dataset_timestamp(self._logger_options.aggregate_by, it)
             ):
                 for n, sub_group in groupby(ts_grouped, lambda it: encode_strings(get_columns(it))):
                     self._logger.info(
@@ -376,6 +424,9 @@ class ProcessRollingLogger(ProcessActor[MessageType], DataLogger[Dict[str, Proce
         if self.pid is None:
             raise Exception("Logger hasn't been started yet. Call start() first.")
 
+        if not self.is_alive():
+            raise Exception("Logger process is no longer alive. It may have been killed.")
+
         if dataset_id is None:
             dataset_id = self._session.config.get_default_dataset_id()
             if dataset_id is None:
@@ -403,8 +454,11 @@ class ProcessRollingLogger(ProcessActor[MessageType], DataLogger[Dict[str, Proce
 
         if result is not None:
             self._logger.debug(f"Waiting on id {message.id}")
-            it = wait_result(result)
-            self._logger.debug(f"Result id {message.id} done {it}")
+            try:
+                it = wait_result_while(result, self.is_alive)
+                self._logger.debug(f"Result id {message.id} done {it}")
+            except TimeoutError as e:
+                raise Exception("Logger killed while waiting for result") from e
 
     def flush(self) -> None:
         """
@@ -491,6 +545,7 @@ class PipeSignaler(th.Thread):
                     if future is not None:
                         self._logger.debug(f"Setting result for message id {message_id} {exception}")
                         if exception is None:
+                            print(f"Setting result for message id {message_id} {data}")
                             future.set_result(data)
                         else:
                             future.set_exception(exception)
@@ -498,8 +553,10 @@ class PipeSignaler(th.Thread):
             except EOFError:
                 self._logger.exception("Broken pipe")
                 break
-            except Exception:
-                self._logger.exception("Error in ipc pipe")
+            except OSError as e:
+                self._logger.exception(f"OS Error in ipc pipe. Was the logger closed? {e}")
+            except Exception as e:
+                self._logger.exception(f"Error in ipc pipe {e}")
 
         self._done.set()
 
@@ -524,3 +581,7 @@ class PipeSignaler(th.Thread):
         self._end_polling.set()
         self._done.wait()
         self.join()
+
+
+class ProcessRollingLogger(BaseProcessRollingLogger[None]):
+    pass
