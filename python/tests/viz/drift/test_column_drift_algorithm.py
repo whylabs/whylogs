@@ -1,7 +1,10 @@
+import numpy as np
 import pandas as pd
 import pytest
+from PIL import Image
 
 import whylogs as why
+from whylogs.extras.image_metric import log_image
 from whylogs.viz.drift.column_drift_algorithms import (
     KS,
     ChiSquare,
@@ -38,6 +41,34 @@ def reference_view():
     df = pd.DataFrame(data)
     prof_view = why.log(df).profile().view()
     return prof_view
+
+
+ref_image_data = [np.zeros((100, 100)) for _ in range(20)]
+target_image_data = [np.ones((100, 100)) for _ in range(20)]
+
+
+def create_profile(image_list):
+    agg_profile = None
+    for img_arr in image_list:
+        img_pil = Image.fromarray(img_arr)
+        profile = log_image(img_pil).profile()
+        profile_view = profile.view()
+
+        if agg_profile is None:
+            agg_profile = profile_view
+        else:
+            agg_profile = agg_profile.merge(profile_view)
+    return agg_profile
+
+
+@pytest.fixture
+def target_image_view():
+    return create_profile(target_image_data)
+
+
+@pytest.fixture
+def reference_image_view():
+    return create_profile(ref_image_data)
 
 
 def test_calculate_drift_score(target_view, reference_view):
@@ -120,3 +151,12 @@ def test_calculate_drift_conflicting_thresholds(target_view, reference_view):
         scores = calculate_drift_scores(
             target_view=target_view, reference_view=reference_view, drift_map=drift_map, with_thresholds=True
         )
+
+
+def test_calculate_drift_score_with_image(target_image_view, reference_image_view):
+    drift_scores = calculate_drift_scores(
+        target_view=target_image_view, reference_view=reference_image_view, with_thresholds=True
+    )
+    assert len(drift_scores) == 11
+    assert drift_scores["image.Brightness.mean"]["pvalue"] == 0.0
+    assert drift_scores["image.ImagePixelWidth"]["pvalue"] == 1.0
