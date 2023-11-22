@@ -72,6 +72,7 @@ class UdfSpec:
 def _apply_udfs_on_row(
     values: Union[List, Dict[str, List]], udfs: Dict, new_columns: Dict[str, Any], input_cols: Collection[str]
 ) -> None:
+    """multiple input columns, single output column"""
     for new_col, udf in udfs.items():
         if new_col in input_cols:
             continue
@@ -91,7 +92,10 @@ def _apply_udf_on_row(
     new_columns: Dict[str, Any],
     input_cols: Collection[str],
 ) -> None:
-    """udf(Union[Dict[str, List], pd.DataFrame]) -> Union[Dict[str, List], pd.DataFrame]"""
+    """
+    multiple input columns, multiple output columns
+    udf(Union[Dict[str, List], pd.DataFrame]) -> Union[Dict[str, List], pd.DataFrame]
+    """
 
     try:
         # TODO: Document assumption: dictionary in -> dictionary out
@@ -106,6 +110,7 @@ def _apply_udf_on_row(
 def _apply_udfs_on_dataframe(
     pandas: pd.DataFrame, udfs: Dict, new_df: pd.DataFrame, input_cols: Collection[str]
 ) -> None:
+    """multiple input columns, single output column"""
     for new_col, udf in udfs.items():
         if new_col in input_cols:
             continue
@@ -125,7 +130,10 @@ def _apply_udf_on_dataframe(
     new_df: pd.DataFrame,
     input_cols: Collection[str],
 ) -> None:
-    """udf(Union[Dict[str, List], pd.DataFrame]) -> Union[Dict[str, List], pd.DataFrame]"""
+    """
+    multiple input columns, multiple output columns
+    udf(Union[Dict[str, List], pd.DataFrame]) -> Union[Dict[str, List], pd.DataFrame]
+    """
 
     try:
         # TODO: I think it's OKAY if udf returns a dictionary
@@ -264,7 +272,23 @@ def register_multioutput_udf(
     namespace: Optional[str] = None,
     schema_name: str = "",
 ) -> Callable[[Any], Any]:
-    """UDF signature f(Union[Dict[str, List], pd.DataFrame]) -> Union[Dict[str, List], pd.DataFrame]"""
+    """
+    Decorator to easily configure UDFs for your data set. Decorate your UDF
+    functions, then call generate_udf_dataset_schema() to create a UdfSchema
+    that includes the UDFs configured by your decorator parameters. The decorated
+    function will automatically be a UDF in the UdfSchema.
+
+    Specify udf_name to give the output of the UDF a name. udf_name
+    defautls to the name of the decorated function. Note that all lambdas are
+    named "lambda", so omitting udf_name on more than one lambda will result
+    in name collisions. If you pass a namespace, it will be prepended to the UDF name.
+    Specifying schema_name will register the UDF in a particular schema. If omitted,
+    it will be registered to the defualt schema.
+
+    For multiple output column UDFs, the udf_name is prepended to the column
+    name supplied by the UDF. The signature for multiple output column UDFs
+    is f(Union[Dict[str, List], pd.DataFrame]) -> Union[Dict[str, List], pd.DataFrame]
+    """
 
     def decorator_register(func):
         global _multicolumn_udfs
