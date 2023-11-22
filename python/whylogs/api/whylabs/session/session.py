@@ -27,13 +27,13 @@ from whylabs_client.api.sessions_api import (  # type: ignore
 )
 
 from whylogs.api.logger.result_set import ResultSet
-from whylogs.api.whylabs.session.config import _INIT_DOCS, SessionConfig
+from whylogs.api.whylabs.session.config import INIT_DOCS, SessionConfig
 from whylogs.api.whylabs.session.lazy import Lazy
 from whylogs.api.whylabs.session.session_types import InteractiveLogger as il
 from whylogs.api.whylabs.session.session_types import NotSupported, SessionType
 from whylogs.api.whylabs.session.whylabs_client_cache import WhylabsClientCache
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
-from whylogs.migration.uncompound import _uncompound_dataset_profile
+from whylogs.migration.uncompound import _uncompound_dataset_profile  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class Session(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def upload_batch_profile(self, profile: ResultSet) -> Union[UploadResult, NotSupported]:
+    def upload_batch_profile(self, result_set: ResultSet) -> Union[UploadResult, NotSupported]:
         raise NotImplementedError()
 
 
@@ -113,7 +113,7 @@ class GuestSession(Session):
             il.warning(
                 f"Session {session_id} is no longer valid, generating a new one. If you want to upload to your WhyLabs "
                 "account then authenticate with an api token using `python -m whylogs.api.whylabs.session.why_init`."
-                f"See {_INIT_DOCS}"
+                f"See {INIT_DOCS}"
             )
             return None
         else:
@@ -142,10 +142,10 @@ class GuestSession(Session):
         Check to see if the session id is valid by calling WhyLabs.
         """
         try:
-            request = BatchLogReferenceRequest(
+            request = BatchLogReferenceRequest(  # type: ignore
                 session_id=session_id, references=[LogReferenceRequest(alias="test", datasetTimestamp=0)]
             )
-            self._whylabs_session_api.value.batch_create_reference_profile_upload(
+            self._whylabs_session_api.value.batch_create_reference_profile_upload(  # type: ignore
                 batch_log_reference_request=request, session_id=session_id
             )
             return True
@@ -155,11 +155,11 @@ class GuestSession(Session):
     def _create_session_id(self) -> str:
         try:
             user_guid = self._user_guid
-            response: CreateSessionResponse = self._whylabs_session_api.value.create_session(
+            response: CreateSessionResponse = self._whylabs_session_api.value.create_session(  # type: ignore
                 CreateSessionRequest(user_guid)
             )
-            logger.debug(f"Created session {response.id}")
-            return response.id
+            logger.debug(f"Created session {response.id}")  # type: ignore
+            return response.id  # type: ignore
         except ApiException as e:
             logger.error(e)
             raise e
@@ -175,8 +175,8 @@ class GuestSession(Session):
         if profile is None:
             raise Exception("Profile did not contain any data.")
         try:
-            if profile._dataset_timestamp is not None:
-                timestamp = int(profile._dataset_timestamp.timestamp() * 1000)
+            if profile._dataset_timestamp is not None:  # type: ignore
+                timestamp = int(profile._dataset_timestamp.timestamp() * 1000)  # type: ignore
             else:
                 timestamp = int(datetime.now(timezone.utc).timestamp() * 1000)
 

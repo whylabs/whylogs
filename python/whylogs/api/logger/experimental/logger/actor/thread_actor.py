@@ -3,7 +3,7 @@ import threading as th
 from typing import Generic, List, Optional, TypeVar
 
 from whylogs.api.logger.experimental.logger.actor.actor import (
-    _DEFAULT_TIMEOUT,
+    DEFAULT_TIMEOUT,
     Actor,
     QueueConfig,
     QueueWrapper,
@@ -12,7 +12,7 @@ from whylogs.api.logger.experimental.logger.actor.actor import (
 DefaultQueueWrapperType = TypeVar("DefaultQueueWrapperType")
 
 
-class ThreadQueueWrapper(QueueWrapper, Generic[DefaultQueueWrapperType]):
+class ThreadQueueWrapper(QueueWrapper[DefaultQueueWrapperType], Generic[DefaultQueueWrapperType]):
     """
     Implementation of QueueWrapper sufficient for use in the threaded actor.
     """
@@ -20,17 +20,17 @@ class ThreadQueueWrapper(QueueWrapper, Generic[DefaultQueueWrapperType]):
     def __init__(self) -> None:
         self._queue: queue.Queue[DefaultQueueWrapperType] = queue.Queue(100_000)
 
-    def send(self, message: DefaultQueueWrapperType, timeout: float = _DEFAULT_TIMEOUT) -> None:
+    def send(self, message: DefaultQueueWrapperType, timeout: float = DEFAULT_TIMEOUT) -> None:
         self._queue.put(message, timeout=timeout)
 
-    def send_many(self, messages: List[DefaultQueueWrapperType], timeout: float = _DEFAULT_TIMEOUT) -> None:
+    def send_many(self, messages: List[DefaultQueueWrapperType], timeout: float = DEFAULT_TIMEOUT) -> None:
         for message in messages:
             self._queue.put(message, timeout=timeout)
 
-    def get(self, timeout: float = _DEFAULT_TIMEOUT) -> Optional[DefaultQueueWrapperType]:
+    def get(self, timeout: float = DEFAULT_TIMEOUT) -> Optional[DefaultQueueWrapperType]:
         return self._queue.get(timeout=timeout)
 
-    def get_many(self, timeout: float = _DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[DefaultQueueWrapperType]:
+    def get_many(self, timeout: float = DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[DefaultQueueWrapperType]:
         if max is None or max < 1:
             return []
 
@@ -57,14 +57,14 @@ class ThreadQueueWrapper(QueueWrapper, Generic[DefaultQueueWrapperType]):
 ThreadMessageType = TypeVar("ThreadMessageType")
 
 
-class ThreadActor(Actor, th.Thread, Generic[ThreadMessageType]):
+class ThreadActor(Actor[ThreadMessageType], th.Thread, Generic[ThreadMessageType]):
     """
     Subclass of Actor that uses a thread to process messages.
     """
 
     def __init__(self, queue_config: QueueConfig = QueueConfig()) -> None:
-        # our mypy version has a false positive on this super call
-        super().__init__(ThreadQueueWrapper[ThreadMessageType](), queue_config)  # type: ignore
+        # mypy can't infer but pyright can
+        super().__init__(ThreadQueueWrapper(), queue_config)  # type: ignore
         self._event = th.Event()
         self._is_closed = th.Event()
         self._close_handled = th.Event()

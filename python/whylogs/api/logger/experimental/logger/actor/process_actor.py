@@ -20,15 +20,16 @@ class QueueType(Enum):
 ProcessMessageType = TypeVar("ProcessMessageType")
 
 
-class ProcessActor(Actor, mp.Process, Generic[ProcessMessageType]):
+class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessageType]):
     """
     Subclass of Actor that uses a process to process messages.
     """
 
+    _wrapper: QueueWrapper[ProcessMessageType]
+
     def __init__(
         self, queue_config: QueueConfig = QueueConfig(), queue_type: QueueType = QueueType.FASTER_FIFO
     ) -> None:
-        self._wrapper: QueueWrapper[ProcessMessageType]
         if queue_type == QueueType.MP:
             from whylogs.api.logger.experimental.logger.actor.mp_queue_wrapper import (
                 MPQueueWrapper,

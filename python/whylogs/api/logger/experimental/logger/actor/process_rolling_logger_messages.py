@@ -20,14 +20,14 @@ else:
 
 import base64
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 from whylogs.api.logger.experimental.logger.actor.thread_rolling_logger import (
     LoggerStatus,
 )
 
 try:
-    import orjson
+    import orjson  # type: ignore
 except ImportError:
     raise ImportError("Install whylogs with extra [proc] for process based logging: pip install whylogs[proc]")
 import logging
@@ -243,11 +243,11 @@ def log_dict_to_data_frame(request: LogRequestDict) -> Tuple[pd.DataFrame, int]:
     return df, len(df)
 
 
-def log_dict_to_embedding_matrix(request: LogEmbeddingRequestDict) -> Tuple[Dict[str, np.ndarray], int]:
-    row: Dict[str, np.ndarray] = {}
+def log_dict_to_embedding_matrix(request: LogEmbeddingRequestDict) -> Tuple[Dict[str, "np.ndarray[Any, Any]"], int]:
+    row: Dict[str, np.ndarray[Any, Any]] = {}
     row_count = 0
     for col, embeddings in request["embeddings"].items():
-        row[col] = np.array(embeddings)
+        row[col] = np.array(embeddings)  # type: ignore
         row_count += len(embeddings)
 
     return row, row_count

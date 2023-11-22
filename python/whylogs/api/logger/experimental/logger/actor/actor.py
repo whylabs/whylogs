@@ -8,24 +8,24 @@ from typing import Generic, List, Optional, Type, TypeVar, Union
 from whylogs.api.logger.experimental.logger.actor.list_util import type_batched_items
 
 QueueMessageType = TypeVar("QueueMessageType")
-_DEFAULT_TIMEOUT = 0.1
+DEFAULT_TIMEOUT = 0.1
 
 
 class QueueWrapper(Generic[QueueMessageType]):
     @abstractmethod
-    def send(self, message: QueueMessageType, timeout: float = _DEFAULT_TIMEOUT) -> None:
+    def send(self, message: QueueMessageType, timeout: float = DEFAULT_TIMEOUT) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def send_many(self, message: QueueMessageType, timeout: float = _DEFAULT_TIMEOUT) -> None:
+    def send_many(self, messages: List[QueueMessageType], timeout: float = DEFAULT_TIMEOUT) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def get(self, timeout: float = _DEFAULT_TIMEOUT) -> Optional[QueueMessageType]:
+    def get(self, timeout: float = DEFAULT_TIMEOUT) -> Optional[QueueMessageType]:
         raise NotImplementedError()
 
     @abstractmethod
-    def get_many(self, timeout: float = _DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[QueueMessageType]:
+    def get_many(self, timeout: float = DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[QueueMessageType]:
         raise NotImplementedError()
 
     @abstractmethod
@@ -63,7 +63,6 @@ class QueueConfig:
 
 
 MessageType = TypeVar("MessageType")
-Messages = Union[MessageType, CloseMessage]
 
 
 class Actor(ABC, Generic[MessageType]):
@@ -75,10 +74,10 @@ class Actor(ABC, Generic[MessageType]):
 
     def __init__(
         self,
-        queue_wrapper: QueueWrapper[Messages],
+        queue_wrapper: QueueWrapper[Union[MessageType, CloseMessage]],
         queue_config: QueueConfig = QueueConfig(),
     ) -> None:
-        self._queue: QueueWrapper[Messages] = queue_wrapper
+        self._queue: QueueWrapper[Union[MessageType, CloseMessage]] = queue_wrapper
         self._logger = logging.getLogger(f"ai.whylabs.actor.{type(self).__name__}")
         self._logger.setLevel(logging.DEBUG)
         self._queue_config = queue_config
@@ -123,10 +122,12 @@ class Actor(ABC, Generic[MessageType]):
         raise NotImplementedError()
 
     @abstractmethod
-    def process_batch(self, batch: List[Messages], batch_type: Type) -> None:
+    def process_batch(
+        self, batch: List[Union[MessageType, CloseMessage]], batch_type: Type[Union[MessageType, CloseMessage]]
+    ) -> None:
         raise NotImplementedError()
 
-    def send(self, message: Messages) -> None:
+    def send(self, message: Union[MessageType, CloseMessage]) -> None:
         if self.is_closed():
             raise Exception("Actor is closed, can't send message.")
 
@@ -152,8 +153,9 @@ class Actor(ABC, Generic[MessageType]):
             except Exception as e:
                 self._logger.exception(e)
 
-    def send_many(self, messages: List[Messages]) -> None:
-        self._queue.send_many(messages)
+    def send_many(self, messages: List[Union[MessageType, CloseMessage]]) -> None:
+        for message in messages:
+            self._queue.send(message)
 
     def close(self) -> None:
         self._logger.info("Sending Close message.")
@@ -175,9 +177,9 @@ class Actor(ABC, Generic[MessageType]):
 
         return True
 
-    def _load_messages(self) -> Optional[List[Messages]]:
+    def _load_messages(self) -> Optional[List[Union[MessageType, CloseMessage]]]:
         max = self._queue_config.max_batch_size
-        batch: List[Messages] = []
+        batch: List[Union[MessageType, CloseMessage]] = []
         last_message_time = time.perf_counter()
 
         while self._polling_condition(len(batch), max, last_message_time, self._queue.size()):
@@ -192,15 +194,15 @@ class Actor(ABC, Generic[MessageType]):
         return batch
 
     def process_messages(self) -> None:
-        messages: Optional[List[Messages]] = []
+        messages: Optional[List[Union[MessageType, CloseMessage]]] = []
         while messages is not None:
             messages = self._load_messages()
 
-            if messages is None:
+            if not messages:
                 continue
 
             for batch, batch_type in type_batched_items(messages):
-                if batch == []:
+                if batch is None or batch_type is None:
                     continue
 
                 self._logger.info(

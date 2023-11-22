@@ -1,8 +1,17 @@
 from abc import abstractmethod
 from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
-from whylogs.core.stubs import pd
+try:
+    import pandas as pd  # type: ignore
+except ImportError:
+    pd: Any = None  # type: ignore
 
+
+# TODO add strong typing here. whylogs takes pretty much anything in log() so we don't actually
+# know which types are ok upfront. Right now, this ends up making numpy arrays ok, which is true,
+# but the logger just so happens to not really throw when something happens to be a numpy array, it
+# isn't explicitly supported. The process logger also supports fewer data types than the thread logger
+# because it needs the data to be serializable.
 Row = Dict[str, Any]
 TrackData = Union[pd.DataFrame, Row, List[Row]]
 

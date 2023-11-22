@@ -3,14 +3,14 @@ from queue import Empty
 from typing import Generic, List, Optional, TypeVar
 
 from whylogs.api.logger.experimental.logger.actor.actor import (
-    _DEFAULT_TIMEOUT,
+    DEFAULT_TIMEOUT,
     QueueWrapper,
 )
 
 MPWrapperType = TypeVar("MPWrapperType")
 
 
-class MPQueueWrapper(QueueWrapper, Generic[MPWrapperType]):
+class MPQueueWrapper(QueueWrapper[MPWrapperType], Generic[MPWrapperType]):
     """
     Implementation of QueueWrapper sufficient for use in the threaded actor.
     """
@@ -18,17 +18,17 @@ class MPQueueWrapper(QueueWrapper, Generic[MPWrapperType]):
     def __init__(self) -> None:
         self._queue: Queue[MPWrapperType] = Queue(100_000)
 
-    def send(self, message: MPWrapperType, timeout: float = _DEFAULT_TIMEOUT) -> None:
+    def send(self, message: MPWrapperType, timeout: float = DEFAULT_TIMEOUT) -> None:
         self._queue.put(message, timeout=timeout)
 
-    def send_many(self, messages: List[MPWrapperType], timeout: float = _DEFAULT_TIMEOUT) -> None:
+    def send_many(self, messages: List[MPWrapperType], timeout: float = DEFAULT_TIMEOUT) -> None:
         for message in messages:
             self._queue.put(message, timeout=timeout)
 
-    def get(self, timeout: float = _DEFAULT_TIMEOUT) -> Optional[MPWrapperType]:
+    def get(self, timeout: float = DEFAULT_TIMEOUT) -> Optional[MPWrapperType]:
         return self._queue.get(timeout=timeout)
 
-    def get_many(self, timeout: float = _DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[MPWrapperType]:
+    def get_many(self, timeout: float = DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[MPWrapperType]:
         if max is None or max < 1:
             return []
 
