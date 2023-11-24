@@ -98,6 +98,7 @@ def test_validator_double_register_udf_pandas() -> None:
     schema = udf_schema()
     # registering the same validator twice should keep only the latest registration
     assert schema.validators["col1"][0].conditions["less_than_four"].__name__ == "lt_4_2"
+    assert len(schema.validators["col1"]) == 1
 
 
 def test_validator_udf_row_with_id() -> None:
