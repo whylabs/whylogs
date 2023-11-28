@@ -32,7 +32,7 @@ Functions
 .. py:function:: condition_validator(col_names: Union[str, List[str]], condition_name: Optional[str] = None, actions: Union[List[Callable[[str, str, Any, Optional[Any]], None]], Callable[[str, str, Any, Optional[Any]], None]] = [], namespace: Optional[str] = None, schema_name: str = '', enable_sampling: bool = True) -> Callable[[Any], Any]
 
 
-.. py:function:: append_validator(schema_name: str, col_name: str, validator: whylogs.core.validators.Validator)
+.. py:function:: append_validator(schema_name, col_name: str, validator: whylogs.core.validators.Validator)
 
 
 .. py:function:: generate_validators(initial_validators: Optional[Dict[str, List[whylogs.core.validators.Validator]]], schema_name: Union[str, List[str]], include_default_schema: bool = True) -> Dict[str, List[whylogs.core.validators.Validator]]

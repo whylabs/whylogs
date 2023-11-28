@@ -18,7 +18,7 @@ Functions
 
 
 
-.. py:function:: append_validator(schema_name: str, col_name: str, validator: whylogs.core.validators.Validator)
+.. py:function:: append_validator(schema_name, col_name: str, validator: whylogs.core.validators.Validator)
 
 
 .. py:function:: generate_validators(initial_validators: Optional[Dict[str, List[whylogs.core.validators.Validator]]], schema_name: Union[str, List[str]], include_default_schema: bool = True) -> Dict[str, List[whylogs.core.validators.Validator]]
