@@ -11,7 +11,7 @@ QueueMessageType = TypeVar("QueueMessageType")
 DEFAULT_TIMEOUT = 0.1
 
 
-class QueueWrapper(Generic[QueueMessageType]):
+class QueueWrapper(ABC, Generic[QueueMessageType]):
     @abstractmethod
     def send(self, message: QueueMessageType, timeout: float = DEFAULT_TIMEOUT) -> None:
         raise NotImplementedError()

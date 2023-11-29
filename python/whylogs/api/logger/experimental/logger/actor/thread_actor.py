@@ -53,6 +53,9 @@ class ThreadQueueWrapper(QueueWrapper[DefaultQueueWrapperType], Generic[DefaultQ
     def size(self) -> int:
         return self._queue.qsize()
 
+    def close(self) -> None:
+        pass
+
 
 ThreadMessageType = TypeVar("ThreadMessageType")
 

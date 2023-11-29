@@ -115,7 +115,7 @@ class WhyLabsWriter(Writer):
     A WhyLogs writer to upload DatasetProfileView's onto the WhyLabs platform.
 
     >**IMPORTANT**: In order to correctly send your profiles over, make sure you have
-    the following environment variables set: `[WHYLABS_ORG_ID, WHYLABS_API_KEY, WHYLABSdefault_DATASET_ID]`. You
+    the following environment variables set: `[WHYLABS_ORG_ID, WHYLABS_API_KEY, WHYLABS_DEFAULT_DATASET_ID]`. You
     can also follow the authentication instructions for the why.init() method at {INIT_DOCS}.
     It is highly recommended you don't persist credentials in code!
 
