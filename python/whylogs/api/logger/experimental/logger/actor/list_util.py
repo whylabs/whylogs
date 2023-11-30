@@ -12,6 +12,8 @@ def get_like_items(items: List[K]) -> Tuple[Optional[List[K]], Optional[Type[K]]
       type.
     - The type of the items in the first list
     - The remaining items in the list
+
+    This is most useful when K is a union type but also works when K is a single type, or just an optional.
     """
     if not items:
         return (None, None, items)
@@ -22,6 +24,11 @@ def get_like_items(items: List[K]) -> Tuple[Optional[List[K]], Optional[Type[K]]
 
 
 def type_batched_items(items: List[K]) -> Generator[Tuple[Optional[List[K]], Optional[Type[K]]], None, None]:
+    """
+    Given a list of items, return a generator that yields tuples. This is a generator version of
+    get_like_items and has the same semantics.
+
+    """
     (matches, item_type, rest) = get_like_items(items)
     yield (matches, item_type)
     if not rest:
