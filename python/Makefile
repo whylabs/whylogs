@@ -24,6 +24,8 @@ release: install pre-commit test dist ## Compile distribution files and run all 
 pre-commit: proto
 	@$(call i, Running pre-commit checks)
 	poetry run pre-commit run --all-files
+	@# There is no official hook for pyright and the community one requires duplicating config from pyproject.toml
+	poetry run pyright
 
 .PHONY: dist clean clean-test help format lint test install coverage docs livedocs default proto proto-v0 github release
 .PHONY: test-system-python format-fix blackd jupyter-kernel docs livedocs

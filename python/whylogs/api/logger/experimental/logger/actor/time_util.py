@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from threading import Timer
-from typing import Callable, Type
+from typing import Any, Callable, Type
 
 from dateutil import tz
 
@@ -55,7 +55,7 @@ class FunctionTimer:
     execute in five minutes, and then each hour after that.
     """
 
-    def __init__(self, schedule: Schedule, fn: Callable, timer_class: Type = Timer) -> None:
+    def __init__(self, schedule: Schedule, fn: Callable[[], Any], timer_class: Type[Any] = Timer) -> None:
         self._logger = logging.getLogger(f"{type(self).__name__}_{id(self)}")
         self._fn = fn
         self._schedule = schedule
@@ -84,6 +84,10 @@ class FunctionTimer:
             initial_interval = (next_day - now).seconds
         elif schedule.cadence == TimeGranularity.Month:
             raise Exception("Can't use Monthly schedule.")
+        elif schedule.cadence == TimeGranularity.Year:
+            raise Exception("Can't use Yearly schedule.")
+        else:
+            raise Exception(f"Unsupported cadence {schedule.cadence}")
 
         self._logger.debug(f"scheduled for {initial_interval} seconds from now")
         self._timer = timer_class(initial_interval, self._run)
