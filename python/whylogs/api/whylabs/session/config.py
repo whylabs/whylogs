@@ -27,7 +27,7 @@ from whylogs.api.whylabs.session.session_types import (
 
 _DEFAULT_WHYLABS_HOST = "https://api.whylabsapp.com"
 _CONFIG_APP_NAME = "whylogs"
-_INIT_DOCS = "https://docs.whylabs.ai/docs/whylabs-whylogs-init"
+INIT_DOCS = "https://docs.whylabs.ai/docs/whylabs-whylogs-init"
 
 
 class InitException(Exception):
@@ -249,7 +249,7 @@ class SessionConfig:
             session_type = self.get_session_type()
             raise ValueError(
                 f"Can't determine {name}. Current session type is {session_type.value}. "
-                f"See {_INIT_DOCS} for instructions on using why.init()."
+                f"See {INIT_DOCS} for instructions on using why.init()."
             )
 
         return value
@@ -385,7 +385,7 @@ class SessionConfig:
         raise InitException(
             "Don't know how to initialize authentication because allow_anonymous=False, allow_local=False, "
             "and there is no WhyLabs api key in the environment, config file, or why.init() call, and this isn't an "
-            f"interactive environment. See {_INIT_DOCS} for instructions on using why.init()."
+            f"interactive environment. See {INIT_DOCS} for instructions on using why.init()."
         )
 
 

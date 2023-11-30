@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 from whylabs_client import ApiClient
 from whylabs_client.api.debug_events_api import DebugEventsApi
 
-from whylogs.api.whylabs.session.session_manager import _default_init
+from whylogs.api.whylabs.session.session_manager import default_init
 from whylogs.api.whylabs.session.whylabs_client_cache import (
     ClientCacheConfig,
     WhylabsClientCache,
@@ -29,7 +29,7 @@ class DebugClient:
         ssl_ca_cert: Optional[str] = None,
     ):
         if api_client is None:
-            session = _default_init()
+            session = default_init()
             config = session.config
             self._cache_config = ClientCacheConfig(
                 ssl_ca_cert=ssl_ca_cert,

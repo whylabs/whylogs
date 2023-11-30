@@ -178,6 +178,7 @@ moto = "^4.1.6"
 twine = "^4.0.1"
 gcp-storage-emulator = "^2022.6.11"
 types-urllib3 = "^1.26.25.5"
+pyright = "^1.1.338"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -266,3 +267,11 @@ exclude = '''
                      # the root of the project
 )
 '''
+
+[tool.pyright]
+include = ["whylogs/api/logger/experimental/logger/**/*.py"]
+typeCheckingMode = "strict"
+
+reportMissingTypeStubs = false
+reportMissingParameterType = false
+reportMissingTypeArgumet = false

@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from whylogs.api.whylabs.session.config import _INIT_DOCS, InitConfig, SessionConfig
+from whylogs.api.whylabs.session.config import INIT_DOCS, InitConfig, SessionConfig
 from whylogs.api.whylabs.session.session import (
     ApiKeySession,
     GuestSession,
@@ -15,13 +15,13 @@ logger = logging.getLogger(__name__)
 
 
 class SessionManager:
-    __instance: Optional["SessionManager"] = None
+    _instance: Optional["SessionManager"] = None
+    session: Session
 
     def __init__(
         self,
         config: SessionConfig,
     ):
-        self.session: Session
         session_type = config.get_session_type()
         if session_type == SessionType.LOCAL:
             self.session = LocalSession(config)
@@ -34,34 +34,34 @@ class SessionManager:
 
     @staticmethod
     def init(session_config: SessionConfig) -> "SessionManager":
-        if SessionManager.__instance is None:
-            SessionManager.__instance = SessionManager(session_config)
+        if SessionManager._instance is None:
+            SessionManager._instance = SessionManager(session_config)
         else:
             logger.debug("SessionManager is already initialized. Ignoring call to init()")
 
-        return SessionManager.__instance
+        return SessionManager._instance
 
     @staticmethod
     def reset() -> None:
-        SessionManager.__instance = None
+        SessionManager._instance = None
 
     @staticmethod
     def get_instance() -> Optional["SessionManager"]:
-        return SessionManager.__instance
+        return SessionManager._instance
 
     @staticmethod
     def is_active() -> bool:
         return SessionManager.get_instance() is not None
 
 
-def init(  # type: ignore
+def init(
     reinit: bool = False,
     allow_anonymous: bool = True,
     allow_local: bool = False,
     whylabs_api_key: Optional[str] = None,
     default_dataset_id: Optional[str] = None,
     config_path: Optional[str] = None,
-    **kwargs,
+    **kwargs: bool,
 ) -> Session:
     """
     Set up authentication for this whylogs logging session. There are three modes that you can authentiate in.
@@ -101,7 +101,7 @@ def init(  # type: ignore
     if reinit:
         SessionManager.reset()
 
-    manager: SessionManager = SessionManager._SessionManager__instance  # type: ignore
+    manager: Optional[SessionManager] = SessionManager._instance  # type: ignore
     if manager is not None:
         return manager.session
 
@@ -136,14 +136,14 @@ def get_current_session() -> Optional[Session]:
         return manager.session
 
     il.warning_once(
-        f"No session found. Call whylogs.init() to initialize a session and authenticate. See {_INIT_DOCS} for more information.",
+        f"No session found. Call whylogs.init() to initialize a session and authenticate. See {INIT_DOCS} for more information.",
         logger.warning,
     )
 
     return None
 
 
-def _default_init() -> Session:
+def default_init() -> Session:
     """
     For internal use. This initializes a default session for the user if they don't call why.init() themselves.
     This will behave as though they called why.init() with no arguments and print out a warning with a link to the docs.

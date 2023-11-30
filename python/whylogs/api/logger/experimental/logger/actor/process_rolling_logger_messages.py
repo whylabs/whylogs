@@ -20,14 +20,14 @@ else:
 
 import base64
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 from whylogs.api.logger.experimental.logger.actor.thread_rolling_logger import (
     LoggerStatus,
 )
 
 try:
-    import orjson
+    import orjson  # type: ignore
 except ImportError:
     raise ImportError("Install whylogs with extra [proc] for process based logging: pip install whylogs[proc]")
 import logging
@@ -129,11 +129,11 @@ class RawLogMessage:
         if "timestamp" not in d or d["timestamp"] is None:
             d["timestamp"] = self.request_time
 
-        if "datasetId" not in d or d["datasetId"] is None:
+        if "datasetId" not in d or d["datasetId"] is None:  # type: ignore
             _logger.error(f"Request missing dataset id {d}")
             return None
 
-        if "multiple" not in d or d["multiple"] is None:
+        if "multiple" not in d or d["multiple"] is None:  # type: ignore
             _logger.error(f"Request has no 'multiple' field {d}")
             return None
 
@@ -142,12 +142,12 @@ class RawLogMessage:
 
 def get_columns(request: Union[LogRequestDict, LogEmbeddingRequestDict]) -> List[str]:
     maybe_request = cast(LogRequestDict, request)
-    if "multiple" in maybe_request and maybe_request["multiple"] is not None:
+    if "multiple" in maybe_request and maybe_request["multiple"] is not None:  # type: ignore
         return maybe_request["multiple"]["columns"]
 
     maybe_embedding = cast(LogEmbeddingRequestDict, request)
     embeddings = maybe_embedding["embeddings"]
-    if embeddings is not None:
+    if embeddings is not None:  # type: ignore
         return list(embeddings.keys())
 
     raise Exception(f"Don't know how to get column names for request {request}.")
@@ -181,7 +181,7 @@ class PubSubEmbeddingDict(TypedDict):
 
 
 def _decode_pubsub_data(data: Union[PubSubEmbeddingDict, PubSubDict]) -> Optional[bytes]:
-    if "message" not in data or data["message"] is None:
+    if "message" not in data or data["message"] is None:  # type: ignore
         _logger.error(f"Request missing message field {data}")
         return None
 
@@ -220,15 +220,15 @@ class RawLogEmbeddingsMessage:
         if "timestamp" not in d or d["timestamp"] is None:
             d["timestamp"] = self.request_time
 
-        if "datasetId" not in d or d["datasetId"] is None:
+        if "datasetId" not in d or d["datasetId"] is None:  # type: ignore
             _logger.error(f"Request missing dataset id {d}")
             return None
 
-        if "embeddings" not in d or d["embeddings"] is None:
+        if "embeddings" not in d or d["embeddings"] is None:  # type: ignore
             _logger.error(f"Request has no embeddings field {d}")
             return None
 
-        if not isinstance(d["embeddings"], dict):
+        if not isinstance(d["embeddings"], dict):  # type: ignore
             # TODO test recovering from errors like this. It seems to brick the container
             _logger.error(
                 f'Expected a dictionary format for embeddings of the form {{"column_name": "embedding_2d_list"}}. Got {self.request}'
@@ -243,11 +243,11 @@ def log_dict_to_data_frame(request: LogRequestDict) -> Tuple[pd.DataFrame, int]:
     return df, len(df)
 
 
-def log_dict_to_embedding_matrix(request: LogEmbeddingRequestDict) -> Tuple[Dict[str, np.ndarray], int]:
-    row: Dict[str, np.ndarray] = {}
+def log_dict_to_embedding_matrix(request: LogEmbeddingRequestDict) -> Tuple[Dict[str, "np.ndarray[Any, Any]"], int]:
+    row: Dict[str, np.ndarray[Any, Any]] = {}
     row_count = 0
     for col, embeddings in request["embeddings"].items():
-        row[col] = np.array(embeddings)
+        row[col] = np.array(embeddings)  # type: ignore
         row_count += len(embeddings)
 
     return row, row_count
