@@ -61,7 +61,7 @@ Attributes
 
 .. py:class:: ProcessActor(queue_config: whylogs.api.logger.experimental.logger.actor.actor.QueueConfig = QueueConfig(), queue_type: QueueType = QueueType.FASTER_FIFO)
 
-   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.Actor`, :py:obj:`multiprocessing.Process`, :py:obj:`Generic`\ [\ :py:obj:`ProcessMessageType`\ ]
+   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.Actor`\ [\ :py:obj:`ProcessMessageType`\ ], :py:obj:`multiprocessing.Process`, :py:obj:`Generic`\ [\ :py:obj:`ProcessMessageType`\ ]
 
    Subclass of Actor that uses a process to process messages.
 
@@ -140,14 +140,14 @@ Attributes
       from within its init. There must be some post-init setup that needs to be done.
 
 
-   .. py:method:: process_batch(batch: List[Messages], batch_type: Type) -> None
+   .. py:method:: process_batch(batch: List[Union[MessageType, CloseMessage]], batch_type: Type[Union[MessageType, CloseMessage]]) -> None
       :abstractmethod:
 
 
-   .. py:method:: send(message: Messages) -> None
+   .. py:method:: send(message: Union[MessageType, CloseMessage]) -> None
 
 
-   .. py:method:: send_many(messages: List[Messages]) -> None
+   .. py:method:: send_many(messages: List[Union[MessageType, CloseMessage]]) -> None
 
 
    .. py:method:: process_messages() -> None

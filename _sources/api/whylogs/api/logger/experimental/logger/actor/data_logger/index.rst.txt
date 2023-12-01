@@ -22,10 +22,16 @@ Attributes
 
 .. autoapisummary::
 
+   whylogs.api.logger.experimental.logger.actor.data_logger.pd
    whylogs.api.logger.experimental.logger.actor.data_logger.Row
    whylogs.api.logger.experimental.logger.actor.data_logger.TrackData
    whylogs.api.logger.experimental.logger.actor.data_logger.StatusType
 
+
+.. py:data:: pd
+   :type: Any
+
+   
 
 .. py:data:: Row
 

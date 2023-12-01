@@ -33,27 +33,26 @@ Attributes
 
 .. py:class:: ThreadQueueWrapper
 
-   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.QueueWrapper`, :py:obj:`Generic`\ [\ :py:obj:`DefaultQueueWrapperType`\ ]
+   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.QueueWrapper`\ [\ :py:obj:`DefaultQueueWrapperType`\ ], :py:obj:`Generic`\ [\ :py:obj:`DefaultQueueWrapperType`\ ]
 
    Implementation of QueueWrapper sufficient for use in the threaded actor.
 
-   .. py:method:: send(message: DefaultQueueWrapperType, timeout: float = _DEFAULT_TIMEOUT) -> None
+   .. py:method:: send(message: DefaultQueueWrapperType, timeout: float = DEFAULT_TIMEOUT) -> None
 
 
-   .. py:method:: send_many(messages: List[DefaultQueueWrapperType], timeout: float = _DEFAULT_TIMEOUT) -> None
+   .. py:method:: send_many(messages: List[DefaultQueueWrapperType], timeout: float = DEFAULT_TIMEOUT) -> None
 
 
-   .. py:method:: get(timeout: float = _DEFAULT_TIMEOUT) -> Optional[DefaultQueueWrapperType]
+   .. py:method:: get(timeout: float = DEFAULT_TIMEOUT) -> Optional[DefaultQueueWrapperType]
 
 
-   .. py:method:: get_many(timeout: float = _DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[DefaultQueueWrapperType]
+   .. py:method:: get_many(timeout: float = DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[DefaultQueueWrapperType]
 
 
    .. py:method:: size() -> int
 
 
    .. py:method:: close() -> None
-      :abstractmethod:
 
 
 
@@ -63,7 +62,7 @@ Attributes
 
 .. py:class:: ThreadActor(queue_config: whylogs.api.logger.experimental.logger.actor.actor.QueueConfig = QueueConfig())
 
-   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.Actor`, :py:obj:`threading.Thread`, :py:obj:`Generic`\ [\ :py:obj:`ThreadMessageType`\ ]
+   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.Actor`\ [\ :py:obj:`ThreadMessageType`\ ], :py:obj:`threading.Thread`, :py:obj:`Generic`\ [\ :py:obj:`ThreadMessageType`\ ]
 
    Subclass of Actor that uses a thread to process messages.
 
@@ -135,14 +134,14 @@ Attributes
    .. py:method:: close() -> None
 
 
-   .. py:method:: process_batch(batch: List[Messages], batch_type: Type) -> None
+   .. py:method:: process_batch(batch: List[Union[MessageType, CloseMessage]], batch_type: Type[Union[MessageType, CloseMessage]]) -> None
       :abstractmethod:
 
 
-   .. py:method:: send(message: Messages) -> None
+   .. py:method:: send(message: Union[MessageType, CloseMessage]) -> None
 
 
-   .. py:method:: send_many(messages: List[Messages]) -> None
+   .. py:method:: send_many(messages: List[Union[MessageType, CloseMessage]]) -> None
 
 
    .. py:method:: process_messages() -> None

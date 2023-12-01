@@ -68,7 +68,7 @@ Attributes
       :abstractmethod:
 
 
-   .. py:method:: upload_batch_profile(profile: whylogs.api.logger.result_set.ResultSet) -> Union[UploadResult, whylogs.api.whylabs.session.session_types.NotSupported]
+   .. py:method:: upload_batch_profile(result_set: whylogs.api.logger.result_set.ResultSet) -> Union[UploadResult, whylogs.api.whylabs.session.session_types.NotSupported]
       :abstractmethod:
 
 

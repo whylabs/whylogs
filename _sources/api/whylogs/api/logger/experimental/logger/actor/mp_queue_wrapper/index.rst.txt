@@ -31,20 +31,20 @@ Attributes
 
 .. py:class:: MPQueueWrapper
 
-   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.QueueWrapper`, :py:obj:`Generic`\ [\ :py:obj:`MPWrapperType`\ ]
+   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.QueueWrapper`\ [\ :py:obj:`MPWrapperType`\ ], :py:obj:`Generic`\ [\ :py:obj:`MPWrapperType`\ ]
 
    Implementation of QueueWrapper sufficient for use in the threaded actor.
 
-   .. py:method:: send(message: MPWrapperType, timeout: float = _DEFAULT_TIMEOUT) -> None
+   .. py:method:: send(message: MPWrapperType, timeout: float = DEFAULT_TIMEOUT) -> None
 
 
-   .. py:method:: send_many(messages: List[MPWrapperType], timeout: float = _DEFAULT_TIMEOUT) -> None
+   .. py:method:: send_many(messages: List[MPWrapperType], timeout: float = DEFAULT_TIMEOUT) -> None
 
 
-   .. py:method:: get(timeout: float = _DEFAULT_TIMEOUT) -> Optional[MPWrapperType]
+   .. py:method:: get(timeout: float = DEFAULT_TIMEOUT) -> Optional[MPWrapperType]
 
 
-   .. py:method:: get_many(timeout: float = _DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[MPWrapperType]
+   .. py:method:: get_many(timeout: float = DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[MPWrapperType]
 
 
    .. py:method:: size() -> int

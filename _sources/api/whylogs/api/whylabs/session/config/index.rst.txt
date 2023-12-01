@@ -21,6 +21,19 @@ Classes
 
 
 
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.whylabs.session.config.INIT_DOCS
+
+
+.. py:data:: INIT_DOCS
+   :value: 'https://docs.whylabs.ai/docs/whylabs-whylogs-init'
+
+   
+
 .. py:exception:: InitException
 
    Bases: :py:obj:`Exception`

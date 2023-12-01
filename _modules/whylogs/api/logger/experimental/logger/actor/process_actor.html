@@ -455,15 +455,16 @@
 <span class="n">ProcessMessageType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ProcessMessageType&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ProcessActor"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/process_actor/index.html#whylogs.api.logger.experimental.logger.actor.process_actor.ProcessActor">[docs]</a><span class="k">class</span> <span class="nc">ProcessActor</span><span class="p">(</span><span class="n">Actor</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">ProcessMessageType</span><span class="p">]):</span>
+<div class="viewcode-block" id="ProcessActor"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/process_actor/index.html#whylogs.api.logger.experimental.logger.actor.process_actor.ProcessActor">[docs]</a><span class="k">class</span> <span class="nc">ProcessActor</span><span class="p">(</span><span class="n">Actor</span><span class="p">[</span><span class="n">ProcessMessageType</span><span class="p">],</span> <span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">ProcessMessageType</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Subclass of Actor that uses a process to process messages.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">_wrapper</span><span class="p">:</span> <span class="n">QueueWrapper</span><span class="p">[</span><span class="n">ProcessMessageType</span><span class="p">]</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">queue_config</span><span class="p">:</span> <span class="n">QueueConfig</span> <span class="o">=</span> <span class="n">QueueConfig</span><span class="p">(),</span> <span class="n">queue_type</span><span class="p">:</span> <span class="n">QueueType</span> <span class="o">=</span> <span class="n">QueueType</span><span class="o">.</span><span class="n">FASTER_FIFO</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_wrapper</span><span class="p">:</span> <span class="n">QueueWrapper</span><span class="p">[</span><span class="n">ProcessMessageType</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">queue_type</span> <span class="o">==</span> <span class="n">QueueType</span><span class="o">.</span><span class="n">MP</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">whylogs.api.logger.experimental.logger.actor.mp_queue_wrapper</span> <span class="kn">import</span> <span class="p">(</span>
                 <span class="n">MPQueueWrapper</span><span class="p">,</span>

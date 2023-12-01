@@ -96,7 +96,7 @@ Functions
       
 
 
-.. py:class:: FunctionTimer(schedule: Schedule, fn: Callable, timer_class: Type = Timer)
+.. py:class:: FunctionTimer(schedule: Schedule, fn: Callable[[], Any], timer_class: Type[Any] = Timer)
 
    A timer that executes a function repeatedly given a Schedule. It will execute at the bottom of
    that time period. For example, a schedule of Schedule(TimeGranularity.Hour, 1) will execute at

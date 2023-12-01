@@ -735,7 +735,7 @@ Attributes
 .. py:function:: log_dict_to_data_frame(request: LogRequestDict) -> Tuple[pandas.DataFrame, int]
 
 
-.. py:function:: log_dict_to_embedding_matrix(request: LogEmbeddingRequestDict) -> Tuple[Dict[str, numpy.ndarray], int]
+.. py:function:: log_dict_to_embedding_matrix(request: LogEmbeddingRequestDict) -> Tuple[Dict[str, numpy.ndarray[Any, Any]], int]
 
 
 .. py:function:: reduce_log_requests(acc: LogRequestDict, cur: LogRequestDict) -> LogRequestDict

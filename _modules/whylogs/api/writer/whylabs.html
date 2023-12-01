@@ -464,7 +464,7 @@
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger</span> <span class="kn">import</span> <span class="n">log</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">SegmentedResultSet</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">_INIT_DOCS</span><span class="p">,</span> <span class="n">_default_init</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">INIT_DOCS</span><span class="p">,</span> <span class="n">default_init</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.whylabs_client_cache</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ClientCacheConfig</span><span class="p">,</span>
     <span class="n">EnvironmentKeyRefresher</span><span class="p">,</span>
@@ -551,7 +551,7 @@
 
 <span class="s2">    &gt;**IMPORTANT**: In order to correctly send your profiles over, make sure you have</span>
 <span class="s2">    the following environment variables set: `[WHYLABS_ORG_ID, WHYLABS_API_KEY, WHYLABS_DEFAULT_DATASET_ID]`. You</span>
-<span class="s2">    can also follow the authentication instructions for the why.init() method at </span><span class="si">{</span><span class="n">_INIT_DOCS</span><span class="si">}</span><span class="s2">.</span>
+<span class="s2">    can also follow the authentication instructions for the why.init() method at </span><span class="si">{</span><span class="n">INIT_DOCS</span><span class="si">}</span><span class="s2">.</span>
 <span class="s2">    It is highly recommended you don&#39;t persist credentials in code!</span>
 
 <span class="s2">    You shouldn&#39;t have to supply these parameters to the writer in practice. You should depend on why.init() to resolve</span>
@@ -605,7 +605,7 @@
         <span class="n">ssl_ca_cert</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_timeout_seconds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">session</span> <span class="o">=</span> <span class="n">_default_init</span><span class="p">()</span>  <span class="c1"># Force an init if the user didn&#39;t do it, it&#39;s idempotent</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">default_init</span><span class="p">()</span>  <span class="c1"># Force an init if the user didn&#39;t do it, it&#39;s idempotent</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span> <span class="o">=</span> <span class="n">org_id</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">get_org_id</span><span class="p">()</span>
@@ -1177,11 +1177,11 @@
 
     <span class="k">def</span> <span class="nf">_require</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">session</span> <span class="o">=</span> <span class="n">_default_init</span><span class="p">()</span>
+            <span class="n">session</span> <span class="o">=</span> <span class="n">default_init</span><span class="p">()</span>
             <span class="n">session_type</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get_type</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Can&#39;t determine </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">. Current session type is </span><span class="si">{</span><span class="n">session_type</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;See </span><span class="si">{</span><span class="n">_INIT_DOCS</span><span class="si">}</span><span class="s2"> for instructions on using why.init().&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;See </span><span class="si">{</span><span class="n">INIT_DOCS</span><span class="si">}</span><span class="s2"> for instructions on using why.init().&quot;</span>
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_validate_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

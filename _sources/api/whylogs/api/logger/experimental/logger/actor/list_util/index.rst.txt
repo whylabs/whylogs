@@ -18,9 +18,34 @@ Functions
 
 
 
-.. py:function:: get_like_items(items: List[Any]) -> Tuple[List[Any], Type, List[Any]]
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.experimental.logger.actor.list_util.K
 
 
-.. py:function:: type_batched_items(items: List[Any]) -> Generator[Tuple[List[Any], Type], None, None]
+.. py:data:: K
+
+   
+
+.. py:function:: get_like_items(items: List[K]) -> Tuple[Optional[List[K]], Optional[Type[K]], List[K]]
+
+   Given a list of items, return a tuple of:
+
+   - A list of the items that are of the same type. It will take items from the input until it encounters an item that is not of the same
+     type.
+   - The type of the items in the first list
+   - The remaining items in the list
+
+   This is most useful when K is a union type but also works when K is a single type, or just an optional.
+
+
+.. py:function:: type_batched_items(items: List[K]) -> Generator[Tuple[Optional[List[K]], Optional[Type[K]]], None, None]
+
+   Given a list of items, return a generator that yields tuples. This is a generator version of
+   get_like_items and has the same semantics.
+
 
 

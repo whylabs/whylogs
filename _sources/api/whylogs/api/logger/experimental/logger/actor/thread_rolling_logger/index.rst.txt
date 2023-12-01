@@ -29,9 +29,15 @@ Attributes
 
 .. autoapisummary::
 
+   whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.pd
    whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.Row
    whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerMessage
 
+
+.. py:data:: pd
+   :type: Any
+
+   
 
 .. py:data:: Row
 
@@ -44,6 +50,9 @@ Attributes
    This does the work of deciding how to track data and how to create profiles given a DatasetSchema.
    This can only be used to manage a single entity for a given time. For example, this can represent
    a normal DatasetProfile or segment that has a given dataset timestamp.
+
+   .. py:method:: has_segments() -> bool
+
 
    .. py:method:: track(data: whylogs.api.logger.experimental.logger.actor.data_logger.TrackData) -> None
 
@@ -237,7 +246,7 @@ Attributes
 
       The entire Python program exits when only daemon threads are left.
 
-   .. py:method:: process_batch(batch: List[LoggerMessage], batch_type: Type) -> None
+   .. py:method:: process_batch(batch: List[LoggerMessage], batch_type: Type[LoggerMessage]) -> None
 
 
    .. py:method:: status(timeout: Optional[float] = None) -> LoggerStatus
@@ -311,10 +320,10 @@ Attributes
    .. py:method:: is_closed() -> bool
 
 
-   .. py:method:: send(message: Messages) -> None
+   .. py:method:: send(message: Union[MessageType, CloseMessage]) -> None
 
 
-   .. py:method:: send_many(messages: List[Messages]) -> None
+   .. py:method:: send_many(messages: List[Union[MessageType, CloseMessage]]) -> None
 
 
    .. py:method:: process_messages() -> None

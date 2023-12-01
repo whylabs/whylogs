@@ -37,6 +37,7 @@ Attributes
 
 .. autoapisummary::
 
+   whylogs.api.whylabs.session.session_types.LogFunction
    whylogs.api.whylabs.session.session_types.ApiKey
 
 
@@ -44,6 +45,10 @@ Attributes
 
    Indicates that one of the session apis isn't supported for the current session type.
 
+
+.. py:data:: LogFunction
+
+   
 
 .. py:class:: InteractiveLogger
 
@@ -53,7 +58,7 @@ Attributes
       :staticmethod:
 
 
-   .. py:method:: message(message: str = '', log_fn: Optional[Callable] = None, ignore_suppress: bool = False) -> None
+   .. py:method:: message(message: str = '', log_fn: Optional[LogFunction] = None, ignore_suppress: bool = False) -> None
       :staticmethod:
 
       Log a message only if we're in a notebook environment.
@@ -95,13 +100,13 @@ Attributes
       Log a failure, which has a red x.
 
 
-   .. py:method:: warning(message: str, log_fn: Optional[Callable] = None, ignore_suppress: bool = False) -> None
+   .. py:method:: warning(message: str, log_fn: Optional[LogFunction] = None, ignore_suppress: bool = False) -> None
       :staticmethod:
 
       Log a warning, which has a warning sign.
 
 
-   .. py:method:: warning_once(message: str, log_fn: Optional[Callable] = None, ignore_suppress: bool = False) -> None
+   .. py:method:: warning_once(message: str, log_fn: Optional[LogFunction] = None, ignore_suppress: bool = False) -> None
       :staticmethod:
 
       Like warning, but only logs once.

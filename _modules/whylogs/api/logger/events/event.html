@@ -441,7 +441,7 @@
 <span class="kn">from</span> <span class="nn">whylabs_client</span> <span class="kn">import</span> <span class="n">ApiClient</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.debug_events_api</span> <span class="kn">import</span> <span class="n">DebugEventsApi</span>
 
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">_default_init</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">default_init</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.whylabs_client_cache</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ClientCacheConfig</span><span class="p">,</span>
     <span class="n">WhylabsClientCache</span><span class="p">,</span>
@@ -464,7 +464,7 @@
         <span class="n">ssl_ca_cert</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">api_client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">session</span> <span class="o">=</span> <span class="n">_default_init</span><span class="p">()</span>
+            <span class="n">session</span> <span class="o">=</span> <span class="n">default_init</span><span class="p">()</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span> <span class="o">=</span> <span class="n">ClientCacheConfig</span><span class="p">(</span>
                 <span class="n">ssl_ca_cert</span><span class="o">=</span><span class="n">ssl_ca_cert</span><span class="p">,</span>

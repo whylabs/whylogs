@@ -457,12 +457,17 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ProfileResultSet</span><span class="p">,</span> <span class="n">ResultSet</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.segment_cache</span> <span class="kn">import</span> <span class="n">SegmentCache</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.logger.segment_processing</span> <span class="kn">import</span> <span class="n">segment_processing</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.logger.segment_processing</span> <span class="kn">import</span> <span class="n">segment_processing</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.store</span> <span class="kn">import</span> <span class="n">ProfileStore</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer</span> <span class="kn">import</span> <span class="n">Writer</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer.writer</span> <span class="kn">import</span> <span class="n">Writable</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">DatasetSchema</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>  <span class="c1"># type: ignore</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">pd</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore</span>
+
 
 <span class="n">Row</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
 
@@ -482,13 +487,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_active</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">dataset_timestamp</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="n">tz</span><span class="o">.</span><span class="n">tzutc</span><span class="p">())</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_segments</span><span class="p">()</span> <span class="ow">and</span> <span class="n">schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Need the duplicate None check for type safety</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_segments</span><span class="p">()</span> <span class="ow">and</span> <span class="n">schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Need the duplicate None check for type safety</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">SegmentCache</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">DatasetProfile</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_has_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="o">.</span><span class="n">segments</span><span class="p">)</span>
+<div class="viewcode-block" id="DatasetProfileContainer.has_segments"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/thread_rolling_logger/index.html#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.DatasetProfileContainer.has_segments">[docs]</a>    <span class="k">def</span> <span class="nf">has_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="o">.</span><span class="n">segments</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_track_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">TrackData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -509,9 +514,9 @@
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">List</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
 <div class="viewcode-block" id="DatasetProfileContainer.track"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/thread_rolling_logger/index.html#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.DatasetProfileContainer.track">[docs]</a>    <span class="k">def</span> <span class="nf">track</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">TrackData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -521,7 +526,7 @@
             <span class="c1"># Should never happen</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Profile container no longer active.&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_segments</span><span class="p">():</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_segments</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_track_segments</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_track_profile</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
@@ -536,7 +541,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">SegmentCache</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">flush</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">DatasetProfile</span><span class="p">):</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">ProfileResultSet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_active</span> <span class="o">=</span> <span class="kc">False</span></div>
@@ -546,10 +551,8 @@
             <span class="n">result_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">get_result_set</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span><span class="p">)</span>
             <span class="n">segments</span> <span class="o">=</span> <span class="n">result_set</span><span class="o">.</span><span class="n">segments</span><span class="p">()</span> <span class="ow">or</span> <span class="p">[]</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="p">[</span><span class="n">result_set</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span> <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">]</span> <span class="k">if</span> <span class="n">it</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">DatasetProfile</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">view</span><span class="p">()]</span>
-
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown profile type&quot;</span><span class="p">)</span></div></div>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">view</span><span class="p">()]</span></div></div>
 
 
 <div class="viewcode-block" id="TrackMessage"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/thread_rolling_logger/index.html#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.TrackMessage">[docs]</a><span class="nd">@dataclass</span>
@@ -679,7 +682,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created thread logger, pid </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ThreadRollingLogger.process_batch"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/thread_rolling_logger/index.html#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.ThreadRollingLogger.process_batch">[docs]</a>    <span class="k">def</span> <span class="nf">process_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LoggerMessage</span><span class="p">],</span> <span class="n">batch_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="ThreadRollingLogger.process_batch"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/thread_rolling_logger/index.html#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.ThreadRollingLogger.process_batch">[docs]</a>    <span class="k">def</span> <span class="nf">process_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LoggerMessage</span><span class="p">],</span> <span class="n">batch_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">LoggerMessage</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="n">TrackMessage</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_process_track_messages</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">List</span><span class="p">[</span><span class="n">TrackMessage</span><span class="p">],</span> <span class="n">batch</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="n">FlushMessage</span><span class="p">:</span>
@@ -713,15 +716,15 @@
     <span class="k">def</span> <span class="nf">_process_status_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">StatusMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">profiles</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">segment_caches</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">ts</span><span class="p">,</span> <span class="n">container</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">container</span><span class="o">.</span><span class="n">_has_segments</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">container</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">container</span><span class="o">.</span><span class="n">has_segments</span><span class="p">():</span>
                 <span class="n">segment_caches</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">profiles</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="n">writers</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">writables</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">writer</span><span class="p">,</span> <span class="n">stuff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">stuff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">writers</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">writables</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stuff</span><span class="p">)</span>
 
@@ -746,7 +749,7 @@
 
     <span class="k">def</span> <span class="nf">_has_pending</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">has_pending</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">for</span> <span class="n">writer</span><span class="p">,</span> <span class="n">pending</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">pending</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">has_pending</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pending</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">has_pending</span>
 

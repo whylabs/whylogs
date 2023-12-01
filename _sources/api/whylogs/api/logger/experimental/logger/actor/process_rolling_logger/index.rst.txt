@@ -29,26 +29,17 @@ Attributes
 
 .. autoapisummary::
 
-   whylogs.api.logger.experimental.logger.actor.process_rolling_logger.BuiltinMessageTypes
    whylogs.api.logger.experimental.logger.actor.process_rolling_logger.DataTypes
    whylogs.api.logger.experimental.logger.actor.process_rolling_logger.DictType
-   whylogs.api.logger.experimental.logger.actor.process_rolling_logger.Loggable
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger.BuiltinMessageTypes
    whylogs.api.logger.experimental.logger.actor.process_rolling_logger.AdditionalMessages
 
-
-.. py:data:: BuiltinMessageTypes
-
-   
 
 .. py:data:: DataTypes
 
    
 
 .. py:data:: DictType
-
-   
-
-.. py:data:: Loggable
 
    
 
@@ -131,6 +122,10 @@ Attributes
 
 
 
+.. py:data:: BuiltinMessageTypes
+
+   
+
 .. py:data:: AdditionalMessages
 
    
@@ -205,7 +200,7 @@ Attributes
 
       
 
-   .. py:method:: process_batch(batch: List[Union[AdditionalMessages, BuiltinMessageTypes]], batch_type: Type) -> None
+   .. py:method:: process_batch(batch: List[Union[AdditionalMessages, BuiltinMessageTypes]], batch_type: Type[Union[AdditionalMessages, BuiltinMessageTypes]]) -> None
 
 
    .. py:method:: process_close_message(messages: List[whylogs.api.logger.experimental.logger.actor.actor.CloseMessage]) -> None
@@ -305,10 +300,10 @@ Attributes
    .. py:method:: is_closed() -> bool
 
 
-   .. py:method:: send(message: Messages) -> None
+   .. py:method:: send(message: Union[MessageType, CloseMessage]) -> None
 
 
-   .. py:method:: send_many(messages: List[Messages]) -> None
+   .. py:method:: send_many(messages: List[Union[MessageType, CloseMessage]]) -> None
 
 
    .. py:method:: process_messages() -> None
@@ -395,7 +390,7 @@ Attributes
       This should be called from the child process.
 
 
-   .. py:method:: register(future: concurrent.futures.Future, message_id: str) -> None
+   .. py:method:: register(future: Future[Any], message_id: str) -> None
 
       Register a future to be signaled when the message id is received.
       This should be called from the parent process.
@@ -486,7 +481,7 @@ Attributes
 
 .. py:class:: ProcessRollingLogger(aggregate_by: whylogs.api.logger.experimental.logger.actor.time_util.TimeGranularity = TimeGranularity.Day, write_schedule: Optional[whylogs.api.logger.experimental.logger.actor.time_util.Schedule] = Schedule(cadence=TimeGranularity.Minute, interval=5), schema: Optional[whylogs.core.schema.DatasetSchema] = None, sync_enabled: bool = False, current_time_fn: Optional[Callable[[], int]] = None, queue_config: whylogs.api.logger.experimental.logger.actor.actor.QueueConfig = QueueConfig(), thread_queue_config: whylogs.api.logger.experimental.logger.actor.actor.QueueConfig = QueueConfig(), writer_factory: WriterFactory = WhyLabsWriterFactory(), queue_type: whylogs.api.logger.experimental.logger.actor.process_actor.QueueType = QueueType.FASTER_FIFO, logger_factory: LoggerFactory = ThreadLoggerFactory())
 
-   Bases: :py:obj:`BaseProcessRollingLogger`\ [\ :py:obj:`None`\ ]
+   Bases: :py:obj:`BaseProcessRollingLogger`\ [\ :py:obj:`NoReturn`\ ]
 
    Log data asynchronously using a separate process.
 
@@ -554,7 +549,7 @@ Attributes
 
       
 
-   .. py:method:: process_batch(batch: List[Union[AdditionalMessages, BuiltinMessageTypes]], batch_type: Type) -> None
+   .. py:method:: process_batch(batch: List[Union[AdditionalMessages, BuiltinMessageTypes]], batch_type: Type[Union[AdditionalMessages, BuiltinMessageTypes]]) -> None
 
 
    .. py:method:: process_close_message(messages: List[whylogs.api.logger.experimental.logger.actor.actor.CloseMessage]) -> None
@@ -654,10 +649,10 @@ Attributes
    .. py:method:: is_closed() -> bool
 
 
-   .. py:method:: send(message: Messages) -> None
+   .. py:method:: send(message: Union[MessageType, CloseMessage]) -> None
 
 
-   .. py:method:: send_many(messages: List[Messages]) -> None
+   .. py:method:: send_many(messages: List[Union[MessageType, CloseMessage]]) -> None
 
 
    .. py:method:: process_messages() -> None

@@ -168,7 +168,7 @@ Functions
 .. py:function:: write(profile: whylogs.core.DatasetProfile, base_dir: str) -> None
 
 
-.. py:function:: init(reinit: bool = False, allow_anonymous: bool = True, allow_local: bool = False, whylabs_api_key: Optional[str] = None, default_dataset_id: Optional[str] = None, config_path: Optional[str] = None, **kwargs) -> whylogs.api.whylabs.session.session.Session
+.. py:function:: init(reinit: bool = False, allow_anonymous: bool = True, allow_local: bool = False, whylabs_api_key: Optional[str] = None, default_dataset_id: Optional[str] = None, config_path: Optional[str] = None, **kwargs: bool) -> whylogs.api.whylabs.session.session.Session
 
    Set up authentication for this whylogs logging session. There are three modes that you can authentiate in.
 

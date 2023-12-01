@@ -462,7 +462,7 @@
 
 <span class="n">_DEFAULT_WHYLABS_HOST</span> <span class="o">=</span> <span class="s2">&quot;https://api.whylabsapp.com&quot;</span>
 <span class="n">_CONFIG_APP_NAME</span> <span class="o">=</span> <span class="s2">&quot;whylogs&quot;</span>
-<span class="n">_INIT_DOCS</span> <span class="o">=</span> <span class="s2">&quot;https://docs.whylabs.ai/docs/whylabs-whylogs-init&quot;</span>
+<span class="n">INIT_DOCS</span> <span class="o">=</span> <span class="s2">&quot;https://docs.whylabs.ai/docs/whylabs-whylogs-init&quot;</span>
 
 
 <div class="viewcode-block" id="InitException"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/config/index.html#whylogs.api.whylabs.session.config.InitException">[docs]</a><span class="k">class</span> <span class="nc">InitException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -684,7 +684,7 @@
             <span class="n">session_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_session_type</span><span class="p">()</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Can&#39;t determine </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">. Current session type is </span><span class="si">{</span><span class="n">session_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;See </span><span class="si">{</span><span class="n">_INIT_DOCS</span><span class="si">}</span><span class="s2"> for instructions on using why.init().&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;See </span><span class="si">{</span><span class="n">INIT_DOCS</span><span class="si">}</span><span class="s2"> for instructions on using why.init().&quot;</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">value</span>
@@ -820,7 +820,7 @@
         <span class="k">raise</span> <span class="n">InitException</span><span class="p">(</span>
             <span class="s2">&quot;Don&#39;t know how to initialize authentication because allow_anonymous=False, allow_local=False, &quot;</span>
             <span class="s2">&quot;and there is no WhyLabs api key in the environment, config file, or why.init() call, and this isn&#39;t an &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;interactive environment. See </span><span class="si">{</span><span class="n">_INIT_DOCS</span><span class="si">}</span><span class="s2"> for instructions on using why.init().&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;interactive environment. See </span><span class="si">{</span><span class="n">INIT_DOCS</span><span class="si">}</span><span class="s2"> for instructions on using why.init().&quot;</span>
         <span class="p">)</span></div>
 
 

@@ -31,20 +31,20 @@ Attributes
 
 .. py:class:: FasterQueueWrapper(config: whylogs.api.logger.experimental.logger.actor.actor.QueueConfig)
 
-   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.QueueWrapper`, :py:obj:`Generic`\ [\ :py:obj:`FasterQueueMessageType`\ ]
+   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.QueueWrapper`\ [\ :py:obj:`FasterQueueMessageType`\ ], :py:obj:`Generic`\ [\ :py:obj:`FasterQueueMessageType`\ ]
 
    Implementation of QueueWrapper sufficient for use in the threaded actor.
 
-   .. py:method:: send(message: FasterQueueMessageType, timeout: float = _DEFAULT_TIMEOUT) -> None
+   .. py:method:: send(message: FasterQueueMessageType, timeout: float = DEFAULT_TIMEOUT) -> None
 
 
-   .. py:method:: send_many(messages: List[FasterQueueMessageType], timeout: float = _DEFAULT_TIMEOUT) -> None
+   .. py:method:: send_many(messages: List[FasterQueueMessageType], timeout: float = DEFAULT_TIMEOUT) -> None
 
 
-   .. py:method:: get(timeout: float = _DEFAULT_TIMEOUT) -> Optional[FasterQueueMessageType]
+   .. py:method:: get(timeout: float = DEFAULT_TIMEOUT) -> Optional[FasterQueueMessageType]
 
 
-   .. py:method:: get_many(timeout: float = _DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[FasterQueueMessageType]
+   .. py:method:: get_many(timeout: float = DEFAULT_TIMEOUT, max: Optional[int] = None) -> List[FasterQueueMessageType]
 
 
    .. py:method:: size() -> int

@@ -23,6 +23,7 @@ Functions
 
    whylogs.api.whylabs.session.session_manager.init
    whylogs.api.whylabs.session.session_manager.get_current_session
+   whylogs.api.whylabs.session.session_manager.default_init
 
 
 
@@ -39,6 +40,11 @@ Attributes
    
 
 .. py:class:: SessionManager(config: whylogs.api.whylabs.session.config.SessionConfig)
+
+   .. py:attribute:: session
+      :type: whylogs.api.whylabs.session.session.Session
+
+      
 
    .. py:method:: init(session_config: whylogs.api.whylabs.session.config.SessionConfig) -> SessionManager
       :staticmethod:
@@ -57,7 +63,7 @@ Attributes
 
 
 
-.. py:function:: init(reinit: bool = False, allow_anonymous: bool = True, allow_local: bool = False, whylabs_api_key: Optional[str] = None, default_dataset_id: Optional[str] = None, config_path: Optional[str] = None, **kwargs) -> whylogs.api.whylabs.session.session.Session
+.. py:function:: init(reinit: bool = False, allow_anonymous: bool = True, allow_local: bool = False, whylabs_api_key: Optional[str] = None, default_dataset_id: Optional[str] = None, config_path: Optional[str] = None, **kwargs: bool) -> whylogs.api.whylabs.session.session.Session
 
    Set up authentication for this whylogs logging session. There are three modes that you can authentiate in.
 
@@ -93,5 +99,11 @@ Attributes
 
 
 .. py:function:: get_current_session() -> Optional[whylogs.api.whylabs.session.session.Session]
+
+
+.. py:function:: default_init() -> whylogs.api.whylabs.session.session.Session
+
+   For internal use. This initializes a default session for the user if they don't call why.init() themselves.
+   This will behave as though they called why.init() with no arguments and print out a warning with a link to the docs.
 
 
