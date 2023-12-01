@@ -40,7 +40,8 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
                              private val timeColumn: String = null,
                              private val groupByColumns: Seq[String] = List(),
                              // model metrics
-                             private val modelProfile: ModelProfileSession = null
+                             private val modelProfile: ModelProfileSession = null,
+                             private val excludeNonPerformanceMetrics: Boolean = false
                             ) {
   private val logger = LoggerFactory.getLogger(getClass)
   private val columnNames = dataFrame.schema.fieldNames.toSet
@@ -107,6 +108,10 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     this.copy(modelProfile = ModelProfileSession(predictionField, targetField))
   }
 
+  def excludeNonPerformanceMetricsProfiling(value: Boolean = true): WhyProfileSession = {
+    this.copy(excludeNonPerformanceMetrics = value)
+  }
+
   /**
    * Run aggregation and build profile based on the specification of this session
    *
@@ -146,12 +151,23 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     })
 
     val fields = dataFrame.schema.fields.map(_.name)
-    val remainingFields = fields.filter(!groupByWithTime.contains(_)).filter(!profileMetricsFields.contains(_))
+
+    val remainingFields = fields
+        .filter(field_name => !excludeNonPerformanceMetrics)
+        .filter(!groupByWithTime.contains(_))
+        .filter(!profileMetricsFields.contains(_))
+
     val columnGroups = remainingFields.grouped(100).toSeq
 
     val primaryProfiles = coalesced.select((groupByWithTime ++ profileMetricsFields).map(col):_*)
       .groupBy(groupByWithTime.map(col):_*)
-      .agg(DatasetProfileAggregator(name, timeInMillis, timeColumn, groupByColumns, modelProfile)
+      .agg(DatasetProfileAggregator(
+        datasetName = name,
+        sessionTimeInMillis = timeInMillis,
+        timeColumn = timeColumn,
+        groupByColumns = groupByColumns,
+        model = modelProfile,
+        perfOnly = excludeNonPerformanceMetrics)
         .toColumn
         .alias(PROFILE_FIELD))
 

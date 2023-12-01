@@ -30,7 +30,8 @@ case class DatasetProfileAggregator(datasetName: String,
                                     timeColumn: String = null,
                                     groupByColumns: Seq[String] = Seq(),
                                     model: ModelProfileSession = null,
-                                    sessionId: String = UUID.randomUUID().toString)
+                                    sessionId: String = UUID.randomUUID().toString,
+                                    perfOnly: Boolean = false)
   extends Aggregator[Row, DatasetProfile, Array[Byte]] with Serializable {
 
   private val allGroupByColumns = (groupByColumns ++ Option(timeColumn).toSeq).toSet
@@ -97,7 +98,17 @@ case class DatasetProfileAggregator(datasetName: String,
       .filter(f => f.name != timeColumn)
       .map(f => f.name -> row.get(schema.fieldIndex(f.name)))
       .toMap.asJava
-    timedProfile.track(values);
+    if (perfOnly) {
+      val modelPerf = timedProfile.getModelProfile()
+      logger.info("whylogs profile Aggregator called with perfOnly")
+      if (modelPerf != null) {
+        modelPerf.track(values); 
+      } else {
+         logger.warn("whylogs profile Aggregator called with perfOnly but there is no modelProfile!")
+      }
+    } else {
+      timedProfile.track(values);
+    }
 
     logger.debug(s"whylogs profile Aggregator reduce with timeColumn value: [${timedProfile.getDataTimestamp}] and tags: ${timedProfile.getTags}")
 

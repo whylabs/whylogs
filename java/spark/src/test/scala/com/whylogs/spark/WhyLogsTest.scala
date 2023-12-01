@@ -122,7 +122,6 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
     val dp = DatasetProfile.parse(new ByteArrayInputStream(bytes))
 
     assert(dp.getModelProfile != null)
-    assert(dp.getModelProfile != null)
     assert(dp.getModelProfile.getMetrics.getClassificationMetrics == null)
     assert(dp.getModelProfile.getMetrics.getRegressionMetrics != null)
   }
@@ -149,6 +148,32 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
     assert(dp.getModelProfile.getMetrics.getRegressionMetrics != null)
     assert(dp.getColumns.size() == 608)
   }
+
+  test("test WhyLogsSession with ModelMetrics exclude perf metrics") {
+    import com.whylogs.spark.WhyLogs._
+
+    val file = Files.createTempFile("data", ".parquet")
+    Files.copy(WhyLogs.getClass.getResourceAsStream("/prediction_data.parquet"), file, StandardCopyOption.REPLACE_EXISTING)
+
+    val df = spark.read.parquet("file://" + file.toAbsolutePath)
+    val res = df.newProfilingSession("model")
+      .withRegressionModel("predictions", "targets")
+      .excludeNonPerformanceMetricsProfiling()
+      .aggProfiles(Instant.now())
+    res.count()
+    val bytes = res.collect()(0).getAs[Array[Byte]](0)
+    val dp = DatasetProfile.parse(new ByteArrayInputStream(bytes))
+
+    assert(dp.getModelProfile != null)
+    assert(dp.getModelProfile.getMetrics.getClassificationMetrics == null)
+    assert(dp.getModelProfile.getMetrics.getRegressionMetrics != null)
+    val columnMap = dp.getColumns()
+    val predictionsColumnProfile = columnMap.get("predictions")
+    val targetsColumnProfile = columnMap.get("targets")
+    assert(predictionsColumnProfile == null, "'predictions' should not be present in the profile when excludeNonPerformanceMetricsProfiling is specified!")
+    assert(targetsColumnProfile == null, "'targets' should not be present in the profile when excludeNonPerformanceMetricsProfiling is specified!")
+  }
+
 
   test("profile null value") {
     val schema = List(
