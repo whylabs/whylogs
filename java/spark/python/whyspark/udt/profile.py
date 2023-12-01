@@ -17,7 +17,7 @@ class WhyProfileSession:
     A class that enable easy access to the profiling API
     """
 
-    def __init__(self, dataframe: DataFrame, name: str, time_column: Optional[str] = None, group_by_columns=None, model_profile: ModelProfileSession = None):
+    def __init__(self, dataframe: DataFrame, name: str, time_column: Optional[str] = None, group_by_columns=None, model_profile: ModelProfileSession = None, perf_only: bool= False):
         if group_by_columns is None:
             group_by_columns = []
         self._group_by_columns = group_by_columns
@@ -26,6 +26,7 @@ class WhyProfileSession:
         self._name = name
         self._time_colunn = time_column
         self._model_profile = model_profile
+        self._perf_only = perf_only
 
     def withTimeColumn(self, time_column: str):  # noqa
         """
@@ -36,9 +37,13 @@ class WhyProfileSession:
 
         :rtype: WhyLogSession
         """
-        return WhyProfileSession(dataframe=self._df, name=self._name, time_column=time_column, group_by_columns=self._group_by_columns)
+        return WhyProfileSession(dataframe=self._df,
+                                 name=self._name,
+                                 time_column=time_column,
+                                 group_by_columns=self._group_by_columns,
+                                 perf_only=self._perf_only)
 
-    def withClassificationModel(self, prediction_field: str, target_field: str, score_field: str):  # noqa
+    def withClassificationModel(self, prediction_field: str, target_field: str, score_field: str, perf_only: bool = False):  # noqa
         """
         Track model performance. Specify the prediction field, target field and score field.
 
@@ -48,10 +53,15 @@ class WhyProfileSession:
         """
         model_profile = ModelProfileSession(prediction_field, target_field, score_field)
         return WhyProfileSession(
-            dataframe=self._df, name=self._name, time_column=self._time_colunn, group_by_columns=self._group_by_columns, model_profile=model_profile
+            dataframe=self._df,
+            name=self._name,
+            time_column=self._time_colunn,
+            group_by_columns=self._group_by_columns,
+            model_profile=model_profile,
+            perf_only=perf_only
         )
 
-    def withRegressionModel(self, prediction_field: str, target_field: str):  # noqa
+    def withRegressionModel(self, prediction_field: str, target_field: str, perf_only: bool = False):  # noqa
         """
         Track model performance. Specify the prediction field, target field and score field.
 
@@ -61,11 +71,21 @@ class WhyProfileSession:
         """
         model_profile = ModelProfileSession(prediction_field, target_field, None)
         return WhyProfileSession(
-            dataframe=self._df, name=self._name, time_column=self._time_colunn, group_by_columns=self._group_by_columns, model_profile=model_profile
+            dataframe=self._df,
+            name=self._name,
+            time_column=self._time_colunn,
+            group_by_columns=self._group_by_columns,
+            model_profile=model_profile,
+            perf_only=perf_only
         )
 
     def groupBy(self, col: str, *cols):  # noqa
-        return WhyProfileSession(dataframe=self._df, name=self._name, time_column=self._time_colunn, group_by_columns=[col] + list(cols))
+        return WhyProfileSession(
+            dataframe=self._df,
+            name=self._name,
+            time_column=self._time_colunn,
+            group_by_columns=[col] + list(cols),
+            perf_only=self._perf_only)
 
     def aggProfiles(self, datetime_ts: Optional[datetime] = None, timestamp_ms: int = None) -> DataFrame:  # noqa
         if datetime_ts is not None:
@@ -90,6 +110,7 @@ class WhyProfileSession:
                 j_session = j_session.withClassificationModel(mp.prediction_field, mp.target_field, mp.score_field)
             else:
                 j_session = j_session.withRegressionModel(mp.prediction_field, mp.target_field)
+            j_session = j_session.excludeNonPerformanceMetricsProfiling(self._perf_only)
         return j_session
 
     def aggParquet(self, path: str, datetime_ts: Optional[datetime] = None, timestamp_ms: int = None):  # noqa
