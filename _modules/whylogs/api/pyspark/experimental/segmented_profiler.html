@@ -565,8 +565,8 @@
 <div class="viewcode-block" id="collect_segmented_results"><a class="viewcode-back" href="../../../../../api/whylogs/api/pyspark/experimental/segmented_profiler/index.html#whylogs.api.pyspark.experimental.collect_segmented_results">[docs]</a><span class="k">def</span> <span class="nf">collect_segmented_results</span><span class="p">(</span>
     <span class="n">input_df</span><span class="p">:</span> <span class="n">SparkDataFrame</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="n">DatasetSchema</span><span class="p">,</span>
-    <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">creation_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">creation_timestamp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultSet</span><span class="p">:</span>
     <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
 

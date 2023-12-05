@@ -58,6 +58,6 @@ Attributes
 .. py:function:: collect_column_profile_views(input_df: pyspark.sql.DataFrame, schema: Optional[whylogs.core.DatasetSchema] = None) -> Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView]
 
 
-.. py:function:: collect_dataset_profile_view(input_df: pyspark.sql.DataFrame, dataset_timestamp: Optional[int] = None, creation_timestamp: Optional[int] = None, schema: Optional[whylogs.core.DatasetSchema] = None) -> whylogs.core.view.dataset_profile_view.DatasetProfileView
+.. py:function:: collect_dataset_profile_view(input_df: pyspark.sql.DataFrame, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None, schema: Optional[whylogs.core.DatasetSchema] = None) -> whylogs.core.view.dataset_profile_view.DatasetProfileView
 
 
