@@ -132,7 +132,7 @@ Attributes
 
 .. py:class:: BaseProcessRollingLogger(aggregate_by: whylogs.api.logger.experimental.logger.actor.time_util.TimeGranularity = TimeGranularity.Day, write_schedule: Optional[whylogs.api.logger.experimental.logger.actor.time_util.Schedule] = Schedule(cadence=TimeGranularity.Minute, interval=5), schema: Optional[whylogs.core.schema.DatasetSchema] = None, sync_enabled: bool = False, current_time_fn: Optional[Callable[[], int]] = None, queue_config: whylogs.api.logger.experimental.logger.actor.actor.QueueConfig = QueueConfig(), thread_queue_config: whylogs.api.logger.experimental.logger.actor.actor.QueueConfig = QueueConfig(), writer_factory: WriterFactory = WhyLabsWriterFactory(), queue_type: whylogs.api.logger.experimental.logger.actor.process_actor.QueueType = QueueType.FASTER_FIFO, logger_factory: LoggerFactory = ThreadLoggerFactory())
 
-   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.process_actor.ProcessActor`\ [\ :py:obj:`Union`\ [\ :py:obj:`AdditionalMessages`\ , :py:obj:`BuiltinMessageTypes`\ ]\ ], :py:obj:`whylogs.api.logger.experimental.logger.actor.data_logger.DataLogger`\ [\ :py:obj:`Dict`\ [\ :py:obj:`str`\ , :py:obj:`whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus`\ ]\ ], :py:obj:`Generic`\ [\ :py:obj:`AdditionalMessages`\ ]
+   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.process_actor.ProcessActor`\ [\ :py:obj:`Union`\ [\ :py:obj:`AdditionalMessages`\ , :py:obj:`BuiltinMessageTypes`\ ]\ ], :py:obj:`whylogs.api.logger.experimental.logger.actor.data_logger.DataLogger`\ [\ :py:obj:`whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus`\ ], :py:obj:`Generic`\ [\ :py:obj:`AdditionalMessages`\ ]
 
    Log data asynchronously using a separate process.
 
@@ -209,9 +209,10 @@ Attributes
    .. py:method:: process_pubsub(messages: List[whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubMessage]) -> None
 
 
-   .. py:method:: status(timeout: Optional[float] = 1.0) -> Dict[str, whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus]
+   .. py:method:: status(timeout: Optional[float] = 1.0) -> whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus
 
       Get the internal status of the logger. Used for diangostics and debugging.
+      This is always synchronous and requires the logger to be created with sync_enabled=True.
 
 
    .. py:method:: process_pubsub_embedding(messages: List[whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubEmbeddingMessage]) -> None
@@ -558,9 +559,10 @@ Attributes
    .. py:method:: process_pubsub(messages: List[whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubMessage]) -> None
 
 
-   .. py:method:: status(timeout: Optional[float] = 1.0) -> Dict[str, whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus]
+   .. py:method:: status(timeout: Optional[float] = 1.0) -> whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus
 
       Get the internal status of the logger. Used for diangostics and debugging.
+      This is always synchronous and requires the logger to be created with sync_enabled=True.
 
 
    .. py:method:: process_pubsub_embedding(messages: List[whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubEmbeddingMessage]) -> None

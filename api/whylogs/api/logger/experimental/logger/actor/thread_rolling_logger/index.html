@@ -576,6 +576,16 @@ is inside when this is called.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.DatasetProfileContainer.to_serialized_views">
+<span class="sig-name descname"><span class="pre">to_serialized_views</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../../../../_modules/whylogs/api/logger/experimental/logger/actor/thread_rolling_logger.html#DatasetProfileContainer.to_serialized_views"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.DatasetProfileContainer.to_serialized_views" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -697,6 +707,16 @@ to aggregate by hour and TrackMessages come in for two hours, then there will be
 <span class="sig-name descname"><span class="pre">pending_writables</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><a class="headerlink" href="#id7" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus.pending_views">
+<span class="sig-name descname"><span class="pre">pending_views</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus.pending_views" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus.views">
+<span class="sig-name descname"><span class="pre">views</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus.views" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -815,7 +835,8 @@ the main thread default to daemon = False.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.ThreadRollingLogger.status">
 <span class="sig-name descname"><span class="pre">status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus" title="whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus"><span class="pre">LoggerStatus</span></a></span></span><a class="reference internal" href="../../../../../../../../_modules/whylogs/api/logger/experimental/logger/actor/thread_rolling_logger.html#ThreadRollingLogger.status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.ThreadRollingLogger.status" title="Permalink to this definition">#</a></dt>
-<dd><p>Get diagnostic information about the state of the data logger</p>
+<dd><p>Get the status of the logger.
+This is always synchronous.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>timeout</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>]</em>) – </p>
@@ -1154,6 +1175,7 @@ enumerate().</p>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.DatasetProfileContainer.track">track</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.DatasetProfileContainer.to_result_set">to_result_set</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.DatasetProfileContainer.to_views">to_views</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.DatasetProfileContainer.to_serialized_views">to_serialized_views</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.TrackMessage">TrackMessage</a><ul>
@@ -1181,6 +1203,8 @@ enumerate().</p>
 <li><a class="reference internal" href="#id5">segment_caches</a></li>
 <li><a class="reference internal" href="#id6">writers</a></li>
 <li><a class="reference internal" href="#id7">pending_writables</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus.pending_views">pending_views</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus.views">views</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.StatusMessage">StatusMessage</a><ul>

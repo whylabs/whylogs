@@ -1109,13 +1109,8 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 <dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.</span></span><span class="sig-name descname"><span class="pre">ProcessLoggerStatus</span></span><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus.dataset_id">
-<span class="sig-name descname"><span class="pre">dataset_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus.dataset_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus.status">
-<span class="sig-name descname"><span class="pre">status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../thread_rolling_logger/index.html#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus" title="whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus"><span class="pre">whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus</span></a></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus.status" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus.statuses">
+<span class="sig-name descname"><span class="pre">statuses</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../thread_rolling_logger/index.html#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus" title="whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus"><span class="pre">whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus.statuses" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1126,6 +1121,11 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage.id">
 <span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage.id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage.timeout">
+<span class="sig-name descname"><span class="pre">timeout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage.timeout" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1606,12 +1606,12 @@ That assumption should be enforced before this is used by grouping by set of col
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.DebugMessage">DebugMessage</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.FlushMessage">FlushMessage</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus">ProcessLoggerStatus</a><ul>
-<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus.dataset_id">dataset_id</a></li>
-<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus.status">status</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus.statuses">statuses</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage">ProcessLoggerStatusMessage</a><ul>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage.id">id</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage.timeout">timeout</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogMessage">LogMessage</a><ul>

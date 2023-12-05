@@ -70,6 +70,9 @@ Attributes
    .. py:method:: to_views() -> List[whylogs.core.DatasetProfileView]
 
 
+   .. py:method:: to_serialized_views() -> List[bytes]
+
+
 
 .. py:class:: TrackMessage
 
@@ -171,6 +174,16 @@ Attributes
 
       
 
+   .. py:attribute:: pending_views
+      :type: List[bytes]
+
+      
+
+   .. py:attribute:: views
+      :type: List[bytes]
+
+      
+
 
 .. py:class:: StatusMessage
 
@@ -251,7 +264,8 @@ Attributes
 
    .. py:method:: status(timeout: Optional[float] = None) -> LoggerStatus
 
-      Get diagnostic information about the state of the data logger
+      Get the status of the logger.
+      This is always synchronous.
 
 
    .. py:method:: log(data: whylogs.api.logger.experimental.logger.actor.data_logger.TrackData, timestamp_ms: Optional[int] = None, sync: bool = False) -> None

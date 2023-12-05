@@ -462,6 +462,7 @@
 <span class="kn">from</span> <span class="nn">whylogs.api.writer</span> <span class="kn">import</span> <span class="n">Writer</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer.writer</span> <span class="kn">import</span> <span class="n">Writable</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">DatasetSchema</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.view.segmented_dataset_profile_view</span> <span class="kn">import</span> <span class="n">SegmentedDatasetProfileView</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>  <span class="c1"># type: ignore</span>
@@ -552,7 +553,13 @@
             <span class="n">segments</span> <span class="o">=</span> <span class="n">result_set</span><span class="o">.</span><span class="n">segments</span><span class="p">()</span> <span class="ow">or</span> <span class="p">[]</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="p">[</span><span class="n">result_set</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span> <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">]</span> <span class="k">if</span> <span class="n">it</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">view</span><span class="p">()]</span></div></div>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">view</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="DatasetProfileContainer.to_serialized_views"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/thread_rolling_logger/index.html#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.DatasetProfileContainer.to_serialized_views">[docs]</a>    <span class="k">def</span> <span class="nf">to_serialized_views</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
+        <span class="n">views</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_views</span><span class="p">():</span>
+            <span class="n">views</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">view</span><span class="o">.</span><span class="n">serialize</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">views</span></div></div>
 
 
 <div class="viewcode-block" id="TrackMessage"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/thread_rolling_logger/index.html#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.TrackMessage">[docs]</a><span class="nd">@dataclass</span>
@@ -606,7 +613,9 @@
     <span class="n">dataset_profiles</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">segment_caches</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">writers</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">pending_writables</span><span class="p">:</span> <span class="nb">int</span></div>
+    <span class="n">pending_writables</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">pending_views</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span>
+    <span class="n">views</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="StatusMessage"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/thread_rolling_logger/index.html#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.StatusMessage">[docs]</a><span class="nd">@dataclass</span>
@@ -622,6 +631,17 @@
 <span class="k">class</span> <span class="nc">PendingWritable</span><span class="p">:</span>
     <span class="n">attempts</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">writable</span><span class="p">:</span> <span class="n">Writable</span></div>
+
+
+<span class="k">def</span> <span class="nf">_extract_profile_view_bytes</span><span class="p">(</span><span class="n">pending</span><span class="p">:</span> <span class="n">PendingWritable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pending</span><span class="o">.</span><span class="n">writable</span><span class="p">,</span> <span class="n">DatasetProfile</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pending</span><span class="o">.</span><span class="n">writable</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pending</span><span class="o">.</span><span class="n">writable</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pending</span><span class="o">.</span><span class="n">writable</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pending</span><span class="o">.</span><span class="n">writable</span><span class="p">,</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pending</span><span class="o">.</span><span class="n">writable</span><span class="o">.</span><span class="n">profile_view</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
 
 <span class="n">LoggerMessage</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">TrackMessage</span><span class="p">,</span> <span class="n">FlushMessage</span><span class="p">,</span> <span class="n">StatusMessage</span><span class="p">,</span> <span class="n">GetResultsMessage</span><span class="p">,</span> <span class="n">CloseMessage</span><span class="p">]</span>
@@ -716,17 +736,25 @@
     <span class="k">def</span> <span class="nf">_process_status_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">StatusMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">profiles</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">segment_caches</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">views</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">container</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">container</span><span class="o">.</span><span class="n">has_segments</span><span class="p">():</span>
                 <span class="n">segment_caches</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">profiles</span> <span class="o">+=</span> <span class="mi">1</span>
 
+            <span class="n">views</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">to_serialized_views</span><span class="p">())</span>
+
         <span class="n">writers</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">writables</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pending_views</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">stuff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">writers</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">writables</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stuff</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">pending</span> <span class="ow">in</span> <span class="n">stuff</span><span class="p">:</span>
+                <span class="n">view</span> <span class="o">=</span> <span class="n">_extract_profile_view_bytes</span><span class="p">(</span><span class="n">pending</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">view</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">pending_views</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
 
         <span class="n">status</span> <span class="o">=</span> <span class="n">LoggerStatus</span><span class="p">(</span>
             <span class="n">dataset_timestamps</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">),</span>
@@ -734,6 +762,8 @@
             <span class="n">segment_caches</span><span class="o">=</span><span class="n">segment_caches</span><span class="p">,</span>
             <span class="n">writers</span><span class="o">=</span><span class="n">writers</span><span class="p">,</span>
             <span class="n">pending_writables</span><span class="o">=</span><span class="n">writables</span><span class="p">,</span>
+            <span class="n">pending_views</span><span class="o">=</span><span class="n">pending_views</span><span class="p">,</span>
+            <span class="n">views</span><span class="o">=</span><span class="n">views</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">message</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 
@@ -824,6 +854,10 @@
                 <span class="n">message</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">set_exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ThreadRollingLogger.status"><a class="viewcode-back" href="../../../../../../../api/whylogs/api/logger/experimental/logger/actor/thread_rolling_logger/index.html#whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.ThreadRollingLogger.status">[docs]</a>    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoggerStatus</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the status of the logger.</span>
+<span class="sd">        This is always synchronous.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span><span class="p">:</span> <span class="s2">&quot;Future[LoggerStatus]&quot;</span> <span class="o">=</span> <span class="n">Future</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">StatusMessage</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">wait_result</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span></div>

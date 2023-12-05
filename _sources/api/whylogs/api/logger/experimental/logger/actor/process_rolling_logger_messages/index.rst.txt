@@ -533,13 +533,8 @@ Attributes
 
 .. py:class:: ProcessLoggerStatus
 
-   .. py:attribute:: dataset_id
-      :type: str
-
-      
-
-   .. py:attribute:: status
-      :type: whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus
+   .. py:attribute:: statuses
+      :type: Dict[str, whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus]
 
       
 
@@ -548,6 +543,11 @@ Attributes
 
    .. py:attribute:: id
       :type: str
+
+      
+
+   .. py:attribute:: timeout
+      :type: Optional[float]
 
       
 
