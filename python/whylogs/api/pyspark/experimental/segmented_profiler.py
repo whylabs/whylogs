@@ -130,8 +130,8 @@ def _lookup_segment_partition_by_id(schema: DatasetSchema, partition_id: str) ->
 def collect_segmented_results(
     input_df: SparkDataFrame,
     schema: DatasetSchema,
-    dataset_timestamp: Optional[int] = None,
-    creation_timestamp: Optional[int] = None,
+    dataset_timestamp: Optional[datetime] = None,
+    creation_timestamp: Optional[datetime] = None,
 ) -> ResultSet:
     now = datetime.now(timezone.utc)
 

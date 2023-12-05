@@ -121,8 +121,8 @@ def _get_column_batch_size() -> Optional[int]:
 
 def collect_dataset_profile_view(
     input_df: SparkDataFrame,
-    dataset_timestamp: Optional[int] = None,
-    creation_timestamp: Optional[int] = None,
+    dataset_timestamp: Optional[datetime] = None,
+    creation_timestamp: Optional[datetime] = None,
     schema: Optional[DatasetSchema] = None,
 ) -> DatasetProfileView:
     now = datetime.now(timezone.utc)
