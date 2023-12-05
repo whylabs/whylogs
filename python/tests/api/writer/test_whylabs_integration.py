@@ -102,7 +102,7 @@ def test_whylabs_writer_reference(segmented: bool):
     result = why.log(df, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter().option(reference_profile_name="monty")
     # The test currently fails without use_v0 = !segmented. This may not be the final/intended behavior.
-    success, ref_id = writer.write(result, use_v0=not segmented)
+    success, ref_id = writer.write(result, use_v0=not segmented, zip=segmented)
     assert success
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
