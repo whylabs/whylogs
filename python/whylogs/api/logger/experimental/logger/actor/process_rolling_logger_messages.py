@@ -95,13 +95,13 @@ class FlushMessage:
 
 @dataclass
 class ProcessLoggerStatus:
-    dataset_id: str
-    status: LoggerStatus
+    statuses: Dict[str, LoggerStatus] = field(default_factory=dict)
 
 
 @dataclass
 class ProcessLoggerStatusMessage:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    timeout: Optional[float] = None
 
 
 @dataclass

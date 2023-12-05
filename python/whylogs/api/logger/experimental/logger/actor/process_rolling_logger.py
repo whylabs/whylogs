@@ -155,7 +155,7 @@ AdditionalMessages = TypeVar("AdditionalMessages")
 
 class BaseProcessRollingLogger(
     ProcessActor[Union[AdditionalMessages, BuiltinMessageTypes]],
-    DataLogger[Dict[str, ProcessLoggerStatus]],
+    DataLogger[ProcessLoggerStatus],
     Generic[AdditionalMessages],
 ):
     """
@@ -295,11 +295,12 @@ class BaseProcessRollingLogger(
             logger.send(StatusMessage(result=future))
             futures.append((dataset_id, future))
 
-        statuses: List[ProcessLoggerStatus] = []
+        statuses: Dict[str, LoggerStatus] = {}
         for dataset_id, future in futures:
             try:
-                status = ProcessLoggerStatus(dataset_id=dataset_id, status=wait_result_while(future, self.is_alive))
-                statuses.append(status)
+                # status = ProcessLoggerStatus(dataset_id=dataset_id, status=wait_result_while(future, self.is_alive))
+                statuses[dataset_id] = wait_result_while(future, self.is_alive)
+                # statuses.append(status)
             except Exception as e:
                 for message in messages:
                     self._pipe_signaler.signal((message.id, e, None))
@@ -307,13 +308,15 @@ class BaseProcessRollingLogger(
         # Signal all of the status. In practice, there will really only be a single message in messages
         # but we do handle messages in batches so its technically possible to have multiple if the caller
         # is just spamming status requests for some reason.
-        status_dict = {status.dataset_id: status for status in statuses}
+        # status_dict = {status.dataset_id: status for status in statuses}
+        process_logger_status = ProcessLoggerStatus(statuses=statuses)
         for message in messages:
-            self._pipe_signaler.signal((message.id, None, status_dict))
+            self._pipe_signaler.signal((message.id, None, process_logger_status))
 
-    def status(self, timeout: Optional[float] = 1.0) -> Dict[str, ProcessLoggerStatus]:
+    def status(self, timeout: Optional[float] = 1.0) -> ProcessLoggerStatus:
         """
         Get the internal status of the logger. Used for diangostics and debugging.
+        This is always synchronous and requires the logger to be created with sync_enabled=True.
         """
         if self._pipe_signaler is None:
             raise Exception(
@@ -321,7 +324,7 @@ class BaseProcessRollingLogger(
             )
 
         message = ProcessLoggerStatusMessage()
-        future: "Future[Dict[str, ProcessLoggerStatus]]" = Future()
+        future: "Future[ProcessLoggerStatus]" = Future()
         self._pipe_signaler.register(future, message.id)
         self.send(message)
         return wait_result_while(future, self.is_alive)
@@ -584,11 +587,12 @@ class PipeSignaler(th.Thread):
         Closes the thread and all resources. This should be
         called from the parent side.
         """
+        self._end_polling.set()
+        self._done.wait()
+
         self._conn.close()
         self._parent_conn.close()
 
-        self._end_polling.set()
-        self._done.wait()
         self.join()
 
 
