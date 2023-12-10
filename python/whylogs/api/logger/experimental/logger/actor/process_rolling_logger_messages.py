@@ -20,7 +20,7 @@ else:
 
 import base64
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Dict, List, Optional, Protocol, Tuple, Union, cast
 
 from whylogs.api.logger.experimental.logger.actor.thread_rolling_logger import (
     LoggerStatus,
@@ -109,6 +109,18 @@ class LogMessage:
     request_time: int
     log: LogRequestDict
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    sync: bool = False
+
+
+class SyncMessage(Protocol):
+    """
+    A message can be sent synchronously if it has an id and it has a sync flag set to True.
+    It doesnt magically make the message synchrnous, but allows us to create a synchronous
+    convenience method for that message type. See log and status on the ProcessRollingLogger.
+    """
+
+    id: str
+    sync: bool
 
 
 @dataclass
@@ -119,6 +131,7 @@ class RawLogMessage:
     """
     request_time: int
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    sync: bool = False
 
     def __post_init__(self) -> None:
         if self.id == "None":
@@ -180,7 +193,9 @@ class PubSubEmbeddingDict(TypedDict):
     log_embedding_request: LogEmbeddingRequestDict
 
 
-def _decode_pubsub_data(data: Union[PubSubEmbeddingDict, PubSubDict]) -> Optional[bytes]:
+def _decode_pubsub_data(
+    data: Union[PubSubEmbeddingDict, PubSubDict],
+) -> Optional[bytes]:
     if "message" not in data or data["message"] is None:  # type: ignore
         _logger.error(f"Request missing message field {data}")
         return None
@@ -243,7 +258,9 @@ def log_dict_to_data_frame(request: LogRequestDict) -> Tuple[pd.DataFrame, int]:
     return df, len(df)
 
 
-def log_dict_to_embedding_matrix(request: LogEmbeddingRequestDict) -> Tuple[Dict[str, "np.ndarray[Any, Any]"], int]:
+def log_dict_to_embedding_matrix(
+    request: LogEmbeddingRequestDict,
+) -> Tuple[Dict[str, "np.ndarray[Any, Any]"], int]:
     row: Dict[str, np.ndarray[Any, Any]] = {}
     row_count = 0
     for col, embeddings in request["embeddings"].items():
