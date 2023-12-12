@@ -14,6 +14,7 @@ from typing import (
     Dict,
     Generic,
     List,
+    NoReturn,
     Optional,
     Tuple,
     Type,
@@ -22,17 +23,20 @@ from typing import (
     cast,
 )
 
-from whylogs.api.whylabs.session.config import _INIT_DOCS
-from whylogs.api.whylabs.session.session_manager import _default_init
+from whylogs.api.whylabs.session.config import INIT_DOCS
+from whylogs.api.whylabs.session.session_manager import default_init
 
 try:
-    import orjson
+    import orjson  # type: ignore
 except ImportError:
     from whylogs.api.logger.experimental.logger.actor.proc_error_message import (
-        _proc_error_message,
+        proc_error_message,
     )
 
-    raise ImportError(_proc_error_message)
+    raise ImportError(proc_error_message)
+
+# Pandas/numpy required in the proc extra that this class requires
+import pandas as pd
 
 from whylogs.api.logger.experimental.logger.actor.actor import CloseMessage, QueueConfig
 from whylogs.api.logger.experimental.logger.actor.data_logger import (
@@ -77,23 +81,11 @@ from whylogs.api.logger.experimental.logger.actor.time_util import (
 )
 from whylogs.api.writer import Writer, Writers
 from whylogs.core.schema import DatasetSchema
-from whylogs.core.stubs import pd
-
-BuiltinMessageTypes = Union[
-    FlushMessage,
-    RawLogMessage,
-    RawLogEmbeddingsMessage,
-    RawPubSubMessage,
-    RawPubSubEmbeddingMessage,
-    LogMessage,
-    CloseMessage,
-    ProcessLoggerStatusMessage,
-]
 
 DataTypes = Union[str, int, float, bool, List[float], List[int], List[str]]
 
-DictType = TypeVar("DictType", bound="Union[LogRequestDict, LogEmbeddingRequestDict]")
-Loggable = Union[pd.DataFrame, Dict[str, Any]]
+DictType = TypeVar("DictType", LogRequestDict, LogEmbeddingRequestDict)
+# Loggable = Union[pd.DataFrame, Dict[str, Any], "np.ndarray[Any, Any]"]
 
 
 class WriterFactory:
@@ -147,12 +139,23 @@ class ThreadLoggerFactory(LoggerFactory):
         return logger
 
 
+BuiltinMessageTypes = Union[
+    FlushMessage,
+    RawLogMessage,
+    RawLogEmbeddingsMessage,
+    RawPubSubMessage,
+    RawPubSubEmbeddingMessage,
+    LogMessage,
+    CloseMessage,
+    ProcessLoggerStatusMessage,
+]
+
 AdditionalMessages = TypeVar("AdditionalMessages")
 
 
 class BaseProcessRollingLogger(
     ProcessActor[Union[AdditionalMessages, BuiltinMessageTypes]],
-    DataLogger[Dict[str, ProcessLoggerStatus]],
+    DataLogger[ProcessLoggerStatus],
     Generic[AdditionalMessages],
 ):
     """
@@ -230,7 +233,7 @@ class BaseProcessRollingLogger(
         self.loggers: Dict[str, ThreadRollingLogger] = {}
         self.schema = schema
         self._pipe_signaler: Optional[PipeSignaler] = PipeSignaler() if sync_enabled else None
-        self._session = _default_init()
+        self._session = default_init()
 
     def _create_logger(self, dataset_id: str) -> ThreadRollingLogger:
         return self._logger_factory.create_logger(dataset_id, self._logger_options)
@@ -240,7 +243,11 @@ class BaseProcessRollingLogger(
             self.loggers[dataset_id] = self._create_logger(dataset_id)
         return self.loggers[dataset_id]
 
-    def process_batch(self, batch: List[Union[AdditionalMessages, BuiltinMessageTypes]], batch_type: Type) -> None:
+    def process_batch(
+        self,
+        batch: List[Union[AdditionalMessages, BuiltinMessageTypes]],
+        batch_type: Type[Union[AdditionalMessages, BuiltinMessageTypes]],
+    ) -> None:
         if batch_type == FlushMessage:
             self.process_flush_message(cast(List[FlushMessage], batch))
         elif batch_type == LogMessage:
@@ -288,11 +295,12 @@ class BaseProcessRollingLogger(
             logger.send(StatusMessage(result=future))
             futures.append((dataset_id, future))
 
-        statuses: List[ProcessLoggerStatus] = []
+        statuses: Dict[str, LoggerStatus] = {}
         for dataset_id, future in futures:
             try:
-                status = ProcessLoggerStatus(dataset_id=dataset_id, status=wait_result_while(future, self.is_alive))
-                statuses.append(status)
+                # status = ProcessLoggerStatus(dataset_id=dataset_id, status=wait_result_while(future, self.is_alive))
+                statuses[dataset_id] = wait_result_while(future, self.is_alive)
+                # statuses.append(status)
             except Exception as e:
                 for message in messages:
                     self._pipe_signaler.signal((message.id, e, None))
@@ -300,13 +308,15 @@ class BaseProcessRollingLogger(
         # Signal all of the status. In practice, there will really only be a single message in messages
         # but we do handle messages in batches so its technically possible to have multiple if the caller
         # is just spamming status requests for some reason.
-        status_dict = {status.dataset_id: status for status in statuses}
+        # status_dict = {status.dataset_id: status for status in statuses}
+        process_logger_status = ProcessLoggerStatus(statuses=statuses)
         for message in messages:
-            self._pipe_signaler.signal((message.id, None, status_dict))
+            self._pipe_signaler.signal((message.id, None, process_logger_status))
 
-    def status(self, timeout: Optional[float] = 1.0) -> Dict[str, ProcessLoggerStatus]:
+    def status(self, timeout: Optional[float] = 1.0) -> ProcessLoggerStatus:
         """
         Get the internal status of the logger. Used for diangostics and debugging.
+        This is always synchronous and requires the logger to be created with sync_enabled=True.
         """
         if self._pipe_signaler is None:
             raise Exception(
@@ -314,7 +324,7 @@ class BaseProcessRollingLogger(
             )
 
         message = ProcessLoggerStatusMessage()
-        future: "Future[Dict[str, ProcessLoggerStatus]]" = Future()
+        future: "Future[ProcessLoggerStatus]" = Future()
         self._pipe_signaler.register(future, message.id)
         self.send(message)
         return wait_result_while(future, self.is_alive)
@@ -331,7 +341,7 @@ class BaseProcessRollingLogger(
     def process_log_messages(self, messages: List[LogMessage]) -> None:
         try:
             self._logger.info("Processing log message")
-            log_dicts = [msg for msg in [m.log for m in messages] if msg is not None]
+            log_dicts = [m.log for m in messages]
             self.process_log_dicts(log_dicts)
 
             for message in messages:
@@ -373,7 +383,7 @@ class BaseProcessRollingLogger(
         self,
         dicts: List[DictType],
         reducer: Callable[[DictType, DictType], DictType],
-        pre_processor: Callable[[DictType], Tuple[Loggable, int]],
+        pre_processor: Callable[[DictType], Tuple[TrackData, int]],
     ) -> None:
         for dataset_id, group in groupby(dicts, lambda it: it["datasetId"]):
             for dataset_timestamp, ts_grouped in groupby(
@@ -387,6 +397,8 @@ class BaseProcessRollingLogger(
                     loggable, row_count = pre_processor(giga_message)
                     start = time.perf_counter()
                     logger = self._get_logger(dataset_id)
+                    # TODO this error looks real. I think the thread logger can't handle numpy arrays currently
+                    # TODO unify the Loggable and TrackData types?
                     logger.log(loggable, timestamp_ms=dataset_timestamp, sync=True)
                     self._logger.debug(f"Took {time.perf_counter() - start}s to log {row_count} rows")
 
@@ -431,7 +443,7 @@ class BaseProcessRollingLogger(
             dataset_id = self._session.config.get_default_dataset_id()
             if dataset_id is None:
                 raise Exception(
-                    f"Need to specify a dataset_id when calling log, or set it through why.init(). See {_INIT_DOCS}"
+                    f"Need to specify a dataset_id when calling log, or set it through why.init(). See {INIT_DOCS}"
                 )
 
         log_request = LogRequestDict(
@@ -441,7 +453,7 @@ class BaseProcessRollingLogger(
         )
 
         message = RawLogMessage(request=orjson.dumps(log_request), request_time=self.current_time_ms())
-        result: Optional["Future[None]"] = Future() if sync else None
+        result: Optional["Future[None]"] = cast("Future[None]", Future()) if sync else None
         if result is not None:
             self._logger.debug(f"Registering result id {message.id} for synchronous logging")
             if self._pipe_signaler is None:
@@ -515,7 +527,7 @@ class PipeSignaler(th.Thread):
         self.daemon = True
         self._logger = logging.getLogger(__name__)
         self._parent_conn, self._conn = mp.Pipe()
-        self.futures: Dict[str, Future] = {}
+        self.futures: Dict[str, "Future[Any]"] = {}
         self._end_polling = th.Event()
         self._done = th.Event()
 
@@ -527,7 +539,7 @@ class PipeSignaler(th.Thread):
         """
         self._parent_conn.send(result)
 
-    def register(self, future: Future, message_id: str) -> None:
+    def register(self, future: "Future[Any]", message_id: str) -> None:
         """
         Register a future to be signaled when the message id is received.
         This should be called from the parent process.
@@ -541,7 +553,7 @@ class PipeSignaler(th.Thread):
                 if self._conn.poll(timeout=0.1):
                     message_id, exception, data = self._conn.recv()
                     self._logger.debug(f"Received message id {message_id}")
-                    future: Optional[Future] = self.futures.pop(message_id)
+                    future: Optional["Future[Any]"] = self.futures.pop(message_id, None)
                     if future is not None:
                         self._logger.debug(f"Setting result for message id {message_id} {exception}")
                         if exception is None:
@@ -575,13 +587,14 @@ class PipeSignaler(th.Thread):
         Closes the thread and all resources. This should be
         called from the parent side.
         """
+        self._end_polling.set()
+        self._done.wait()
+
         self._conn.close()
         self._parent_conn.close()
 
-        self._end_polling.set()
-        self._done.wait()
         self.join()
 
 
-class ProcessRollingLogger(BaseProcessRollingLogger[None]):
+class ProcessRollingLogger(BaseProcessRollingLogger[NoReturn]):
     pass

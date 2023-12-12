@@ -6,6 +6,7 @@ import time
 from typing import Any, Dict, Generator, List, Optional, Tuple, Type, Union, cast
 
 import pytest
+from dateutil import tz
 
 from whylogs.api.logger.experimental.logger.actor.data_logger import DataLogger
 from whylogs.api.logger.experimental.logger.actor.process_actor import QueueType
@@ -23,6 +24,7 @@ from whylogs.api.logger.experimental.logger.actor.thread_rolling_logger import (
 from whylogs.api.logger.experimental.logger.actor.time_util import TimeGranularity
 from whylogs.api.whylabs.session.session_manager import SessionManager, init
 from whylogs.api.writer.writer import Writable, Writer
+from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 logging.basicConfig(level=logging.DEBUG)
@@ -149,9 +151,23 @@ def test_actor_happy_path(actor: Tuple[DataLogger, FakeWriter]) -> None:
     status = logger.status()
     logger.close()
 
+    dt = datetime.datetime.fromtimestamp(ms / 1000.0, tz=tz.tzutc())
+    profile = DatasetProfile(dataset_timestamp=dt)
+    profile.track({"a": 1})
+    profile.track({"b": 2})
+    profile.track({"c": 3})
+
     assert_status_single(
         status,
-        LoggerStatus(dataset_profiles=1, dataset_timestamps=1, pending_writables=0, segment_caches=0, writers=1),
+        LoggerStatus(
+            dataset_profiles=1,
+            dataset_timestamps=1,
+            pending_writables=0,
+            segment_caches=0,
+            writers=1,
+            views=[profile.view().serialize()],
+            pending_views=[],
+        ),
         dataset_id,
     )
 
@@ -168,9 +184,20 @@ def test_actor_null_timestamp(actor: Tuple[DataLogger, FakeWriter]) -> None:
     status = logger.status()
     logger.close()
 
+    profile = DatasetProfile()
+    profile.track({"a": 1})
+
     assert_status_single(
         status,
-        LoggerStatus(dataset_profiles=1, dataset_timestamps=1, pending_writables=0, segment_caches=0, writers=1),
+        LoggerStatus(
+            dataset_profiles=1,
+            dataset_timestamps=1,
+            pending_writables=0,
+            segment_caches=0,
+            writers=1,
+            views=[profile.view().serialize()],
+            pending_views=[],
+        ),
         dataset_id,
     )
 
@@ -229,9 +256,22 @@ def test_multiple_writers(Act: Union[Type[ProcessRollingLogger], Type[ThreadRoll
     status = actor.status()
     actor.close()
 
+    profile = DatasetProfile()
+    profile.track({"a": 1})
+    profile.track({"b": 2})
+    profile.track({"c": 3})
+
     assert_status_single(
         status,
-        LoggerStatus(dataset_profiles=1, dataset_timestamps=1, pending_writables=0, segment_caches=0, writers=2),
+        LoggerStatus(
+            dataset_profiles=1,
+            dataset_timestamps=1,
+            pending_writables=0,
+            segment_caches=0,
+            writers=2,
+            views=[profile.view().serialize()],
+            pending_views=[],
+        ),
         dataset_id,
     )
 
@@ -302,16 +342,35 @@ def test_track_errors_throw(Act: Union[Type[ProcessRollingLogger], Type[ThreadRo
 def test_closing_works(actor: Tuple[DataLogger, FakeWriter]) -> None:
     logger, writer = actor
     ms = 1689881671000
+    ms1 = add_days(ms, 1)
+    ms2 = add_days(ms, 2)
 
     logger.log(data={"a": 1}, sync=True, timestamp_ms=ms)
-    logger.log(data={"b": 2}, sync=True, timestamp_ms=add_days(ms, 1))
-    logger.log(data={"c": 3}, sync=True, timestamp_ms=add_days(ms, 2))
+    logger.log(data={"b": 2}, sync=True, timestamp_ms=ms1)
+    logger.log(data={"c": 3}, sync=True, timestamp_ms=ms2)
     status = logger.status()
     logger.close()
 
+    profile = DatasetProfile(dataset_timestamp=datetime.datetime.fromtimestamp(ms / 1000.0, tz=tz.tzutc()))
+    profile.track({"a": 1})
+
+    profile1 = DatasetProfile(dataset_timestamp=datetime.datetime.fromtimestamp(ms1 / 1000.0, tz=tz.tzutc()))
+    profile1.track({"b": 2})
+
+    profile2 = DatasetProfile(dataset_timestamp=datetime.datetime.fromtimestamp(ms2 / 1000.0, tz=tz.tzutc()))
+    profile2.track({"c": 3})
+
     assert_status_single(
         status,
-        LoggerStatus(dataset_profiles=3, dataset_timestamps=3, pending_writables=0, segment_caches=0, writers=1),
+        LoggerStatus(
+            dataset_profiles=3,
+            dataset_timestamps=3,
+            pending_writables=0,
+            segment_caches=0,
+            writers=1,
+            views=[profile.view().serialize(), profile1.view().serialize(), profile2.view().serialize()],
+            pending_views=[],
+        ),
         dataset_id,
     )
 
@@ -389,16 +448,35 @@ def test_process_throws_after_killed_delay(actor: Tuple[DataLogger, FakeWriter])
 def test_actor_multiple_days(actor: Tuple[DataLogger, FakeWriter]) -> None:
     logger, writer = actor
     ms = 1689881671000
+    ms1 = add_days(ms, 1)
+    ms2 = add_days(ms, 2)
 
     logger.log(data={"a": 1}, sync=True, timestamp_ms=ms)
-    logger.log(data={"b": 2}, sync=True, timestamp_ms=add_days(ms, 1))
-    logger.log(data={"c": 3}, sync=True, timestamp_ms=add_days(ms, 2))
+    logger.log(data={"b": 2}, sync=True, timestamp_ms=ms1)
+    logger.log(data={"c": 3}, sync=True, timestamp_ms=ms2)
     status = logger.status()
     logger.close()
 
+    profile = DatasetProfile(dataset_timestamp=datetime.datetime.fromtimestamp(ms / 1000.0, tz=tz.tzutc()))
+    profile.track({"a": 1})
+
+    profile1 = DatasetProfile(dataset_timestamp=datetime.datetime.fromtimestamp(ms1 / 1000.0, tz=tz.tzutc()))
+    profile1.track({"b": 2})
+
+    profile2 = DatasetProfile(dataset_timestamp=datetime.datetime.fromtimestamp(ms2 / 1000.0, tz=tz.tzutc()))
+    profile2.track({"c": 3})
+
     assert_status_single(
         status,
-        LoggerStatus(dataset_profiles=3, dataset_timestamps=3, pending_writables=0, segment_caches=0, writers=1),
+        LoggerStatus(
+            dataset_profiles=3,
+            dataset_timestamps=3,
+            pending_writables=0,
+            segment_caches=0,
+            writers=1,
+            views=[profile.view().serialize(), profile1.view().serialize(), profile2.view().serialize()],
+            pending_views=[],
+        ),
         dataset_id,
     )
 
@@ -456,41 +534,69 @@ def test_multiple_datasets() -> None:
     logger.start()
 
     ms = 1689881671000
+    ms1 = add_days(ms, 1)
+    ms2 = add_days(ms, 2)
+    ms3 = add_days(ms, 3)
+    ms4 = add_days(ms, 4)
 
     logger.log(data={"a": 1}, sync=True, timestamp_ms=ms, dataset_id="dataset1")
     logger.log(data={"z": 7}, sync=True, timestamp_ms=ms, dataset_id="dataset1")
-    logger.log(data={"b": 2}, sync=True, timestamp_ms=add_days(ms, 1), dataset_id="dataset1")
-    logger.log(data={"c": 3}, sync=True, timestamp_ms=add_days(ms, 2), dataset_id="dataset1")
+    logger.log(data={"b": 2}, sync=True, timestamp_ms=ms1, dataset_id="dataset1")
+    logger.log(data={"c": 3}, sync=True, timestamp_ms=ms2, dataset_id="dataset1")
 
     logger.log(data={"d": 1}, sync=True, timestamp_ms=ms, dataset_id="dataset2")
-    logger.log(data={"e": 2}, sync=True, timestamp_ms=add_days(ms, 3), dataset_id="dataset2")
-    logger.log(data={"f": 3}, sync=True, timestamp_ms=add_days(ms, 4), dataset_id="dataset2")
+    logger.log(data={"e": 2}, sync=True, timestamp_ms=ms3, dataset_id="dataset2")
+    logger.log(data={"f": 3}, sync=True, timestamp_ms=ms4, dataset_id="dataset2")
 
     status = logger.status()
     logger.close()
 
-    assert status == {
-        "dataset1": ProcessLoggerStatus(
-            dataset_id="dataset1",
-            status=LoggerStatus(
-                dataset_profiles=3,
-                dataset_timestamps=3,
-                pending_writables=0,
-                segment_caches=0,
-                writers=1,
-            ),
+    profile = DatasetProfile(dataset_timestamp=datetime.datetime.fromtimestamp(ms / 1000.0, tz=tz.tzutc()))
+    profile.track({"a": 1})
+    profile.track({"z": 7})
+
+    profile1 = DatasetProfile(dataset_timestamp=datetime.datetime.fromtimestamp(ms1 / 1000.0, tz=tz.tzutc()))
+    profile1.track({"b": 2})
+
+    profile2 = DatasetProfile(dataset_timestamp=datetime.datetime.fromtimestamp(ms2 / 1000.0, tz=tz.tzutc()))
+    profile2.track({"c": 3})
+
+    profile_ms_2 = DatasetProfile(dataset_timestamp=datetime.datetime.fromtimestamp(ms / 1000.0, tz=tz.tzutc()))
+    profile_ms_2.track({"d": 1})
+
+    profile3 = DatasetProfile(dataset_timestamp=datetime.datetime.fromtimestamp(ms / 1000.0, tz=tz.tzutc()))
+    profile3.track({"e": 2})
+
+    profile4 = DatasetProfile(dataset_timestamp=datetime.datetime.fromtimestamp(ms3 / 1000.0, tz=tz.tzutc()))
+    profile4.track({"f": 3})
+
+    assert_status_single(
+        status,
+        LoggerStatus(
+            dataset_profiles=3,
+            dataset_timestamps=3,
+            pending_writables=0,
+            segment_caches=0,
+            writers=1,
+            views=[profile.view().serialize(), profile1.view().serialize(), profile2.view().serialize()],
+            pending_views=[],
         ),
-        "dataset2": ProcessLoggerStatus(
-            dataset_id="dataset2",
-            status=LoggerStatus(
-                dataset_profiles=3,
-                dataset_timestamps=3,
-                pending_writables=0,
-                segment_caches=0,
-                writers=1,
-            ),
+        "dataset1",
+    )
+
+    assert_status_single(
+        status,
+        LoggerStatus(
+            dataset_profiles=3,
+            dataset_timestamps=3,
+            pending_writables=0,
+            segment_caches=0,
+            writers=1,
+            views=[profile_ms_2.view().serialize(), profile3.view().serialize(), profile4.view().serialize()],
+            pending_views=[],
         ),
-    }
+        "dataset2",
+    )
 
     assert writer.write_calls == 6
 
@@ -516,9 +622,36 @@ def add_days(ms: int, days: int) -> int:
 
 
 def assert_status_single(
-    status: Union[Dict[str, ProcessLoggerStatus], LoggerStatus], expected: LoggerStatus, dataset_id: str = ""
+    status: Union[ProcessLoggerStatus, LoggerStatus], expected: LoggerStatus, dataset_id: str = ""
 ) -> None:
-    if isinstance(status, dict):
-        assert status[dataset_id] == ProcessLoggerStatus(dataset_id=dataset_id, status=expected)
-    else:
-        assert status == expected
+    def view_to_dict(view_bytes: bytes) -> Dict[Any, Any]:
+        return DatasetProfileView.deserialize(view_bytes).to_pandas().to_dict()  # type: ignore
+
+    expected_views: List[Dict[Any, Any]] = [view_to_dict(it) for it in expected.views]
+    expected_pending_views: List[Dict[Any, Any]] = [view_to_dict(it) for it in expected.pending_views]
+
+    expected_copy = {
+        "dataset_timestamps": expected.dataset_timestamps,
+        "dataset_profiles": expected.dataset_profiles,
+        "pending_writables": expected.pending_writables,
+        "segment_caches": expected.segment_caches,
+        "writers": expected.writers,
+        "views": expected_views,
+        "pending_views": expected_pending_views,
+    }
+
+    actual: LoggerStatus = status if isinstance(status, LoggerStatus) else status.statuses[dataset_id]
+    actual_views: List[Dict[Any, Any]] = [view_to_dict(it) for it in actual.views]
+    actual_pending_views: List[Dict[Any, Any]] = [view_to_dict(it) for it in actual.pending_views]
+
+    actual_copy = {
+        "dataset_timestamps": actual.dataset_timestamps,
+        "dataset_profiles": actual.dataset_profiles,
+        "pending_writables": actual.pending_writables,
+        "segment_caches": actual.segment_caches,
+        "writers": actual.writers,
+        "views": actual_views,
+        "pending_views": actual_pending_views,
+    }
+
+    assert expected_copy == actual_copy
