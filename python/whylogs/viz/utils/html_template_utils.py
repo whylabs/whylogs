@@ -18,9 +18,11 @@ def _get_compiled_template(template_name: str) -> "Callable":
     try:
         from pybars import Compiler  # type: ignore
     except ImportError as e:
+        msg = "Unable to load pybars; install pybars3 to load profile directly from the current session or \
+        pip install whylogs[viz] to install dependencies for this module"
         logger.debug(e, exc_info=True)
-        logger.warning("Unable to load pybars; install pybars3 to load profile directly from the current session ")
-        return lambda _: None  # returns a no-op lambda
+        logger.error(msg)
+        raise ImportError(msg)
 
     with open(template_path, "rt") as file_with_template:
         source = file_with_template.read()
