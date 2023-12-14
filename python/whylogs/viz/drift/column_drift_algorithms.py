@@ -9,6 +9,7 @@ from scipy.spatial.distance import euclidean
 
 from whylogs.core.view.column_profile_view import ColumnProfileView  # type: ignore
 from whylogs.core.view.dataset_profile_view import DatasetProfileView  # type: ignore
+from whylogs.migration.uncompound import _uncompound_dataset_profile
 from whylogs.viz.drift.configs import (
     ChiSquareConfig,
     DriftThresholds,
@@ -483,8 +484,10 @@ def calculate_drift_scores(
         )
     """
     drift_scores: Dict[str, Optional[Dict[str, Any]]] = {}
-    target_view_columns = target_view.get_columns()
-    reference_view_columns = reference_view.get_columns()
+    target_view_uncompounded = _uncompound_dataset_profile(target_view)
+    reference_view_uncompounded = _uncompound_dataset_profile(reference_view)
+    target_view_columns = target_view_uncompounded.get_columns()
+    reference_view_columns = reference_view_uncompounded.get_columns()
     if drift_map:
         for column_name in drift_map.keys():
             if column_name not in target_view_columns.keys():

@@ -58,9 +58,9 @@ class EnvironmentKeyRefresher(KeyRefresher):
         return self._key_id
 
     def __call__(self, config: Configuration) -> None:
-        from whylogs.api.whylabs.session.session_manager import _default_init
+        from whylogs.api.whylabs.session.session_manager import default_init
 
-        session = _default_init()
+        session = default_init()
         session_config = session.config
         api_key = session_config.get_env_api_key()
         self._key_id = self._validate_api_key(api_key)
@@ -92,7 +92,7 @@ class WhylabsClientCache:
     @staticmethod
     def instance() -> "WhylabsClientCache":
         if WhylabsClientCache.__instance is None:
-            # Internally, we'll call _default_init() to initialize the instance wherever we need
+            # Internally, we'll call default_init() to initialize the instance wherever we need
             # a guarantee that one exists.
             raise ValueError("WhylabsClientCache is not initialized. Call why.init() to initialize it.")
         return WhylabsClientCache.__instance
@@ -116,9 +116,9 @@ class WhylabsClientCache:
         re-use the client as much as we can since using a new client
         every time can be expensive.
         """
-        from whylogs.api.whylabs.session.session_manager import _default_init
+        from whylogs.api.whylabs.session.session_manager import default_init
 
-        session = _default_init()
+        session = default_init()
         session_config = session.config
         self._proxy = session_config.get_https_proxy() or session_config.get_http_proxy()
 

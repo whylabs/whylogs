@@ -14,6 +14,9 @@ class NotSupported:
     """
 
 
+LogFunction = Callable[[str], None]
+
+
 class InteractiveLogger:
     """
     Logger for interactive environments.
@@ -38,7 +41,7 @@ class InteractiveLogger:
             return not os.environ.get("WHYLOGS_SUPPRESS_LOG_OUTPUT") and InteractiveLogger._is_notebook
 
     @staticmethod
-    def message(message: str = "", log_fn: Optional[Callable] = None, ignore_suppress: bool = False) -> None:
+    def message(message: str = "", log_fn: Optional[LogFunction] = None, ignore_suppress: bool = False) -> None:
         """
         Log a message only if we're in a notebook environment.
 
@@ -90,14 +93,14 @@ class InteractiveLogger:
         InteractiveLogger.message(f"❌ {message}", ignore_suppress=ignore_suppress)
 
     @staticmethod
-    def warning(message: str, log_fn: Optional[Callable] = None, ignore_suppress: bool = False) -> None:
+    def warning(message: str, log_fn: Optional[LogFunction] = None, ignore_suppress: bool = False) -> None:
         """
         Log a warning, which has a warning sign.
         """
         InteractiveLogger.message(f"⚠️ {message}", log_fn=log_fn, ignore_suppress=ignore_suppress)
 
     @staticmethod
-    def warning_once(message: str, log_fn: Optional[Callable] = None, ignore_suppress: bool = False) -> None:
+    def warning_once(message: str, log_fn: Optional[LogFunction] = None, ignore_suppress: bool = False) -> None:
         """
         Like warning, but only logs once.
         """

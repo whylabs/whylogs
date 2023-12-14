@@ -29,7 +29,7 @@ from whylabs_client.rest import ForbiddenException  # type: ignore
 
 from whylogs.api.logger import log
 from whylogs.api.logger.result_set import ResultSet, SegmentedResultSet
-from whylogs.api.whylabs.session.session_manager import _INIT_DOCS, _default_init
+from whylogs.api.whylabs.session.session_manager import INIT_DOCS, default_init
 from whylogs.api.whylabs.session.whylabs_client_cache import (
     ClientCacheConfig,
     EnvironmentKeyRefresher,
@@ -116,7 +116,7 @@ class WhyLabsWriter(Writer):
 
     >**IMPORTANT**: In order to correctly send your profiles over, make sure you have
     the following environment variables set: `[WHYLABS_ORG_ID, WHYLABS_API_KEY, WHYLABS_DEFAULT_DATASET_ID]`. You
-    can also follow the authentication instructions for the why.init() method at {_INIT_DOCS}.
+    can also follow the authentication instructions for the why.init() method at {INIT_DOCS}.
     It is highly recommended you don't persist credentials in code!
 
     You shouldn't have to supply these parameters to the writer in practice. You should depend on why.init() to resolve
@@ -170,7 +170,7 @@ class WhyLabsWriter(Writer):
         ssl_ca_cert: Optional[str] = None,
         _timeout_seconds: Optional[float] = None,
     ):
-        session = _default_init()  # Force an init if the user didn't do it, it's idempotent
+        session = default_init()  # Force an init if the user didn't do it, it's idempotent
         config = session.config
 
         self._org_id = org_id or config.get_org_id()
@@ -742,11 +742,11 @@ class WhyLabsWriter(Writer):
 
     def _require(self, name: str, value: Optional[str]) -> None:
         if value is None:
-            session = _default_init()
+            session = default_init()
             session_type = session.get_type().value
             raise ValueError(
                 f"Can't determine {name}. Current session type is {session_type}. "
-                f"See {_INIT_DOCS} for instructions on using why.init()."
+                f"See {INIT_DOCS} for instructions on using why.init()."
             )
 
     def _validate_client(self) -> None:

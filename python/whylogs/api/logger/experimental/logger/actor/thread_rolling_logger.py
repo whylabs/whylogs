@@ -22,12 +22,18 @@ from whylogs.api.logger.experimental.logger.actor.time_util import (
 )
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
 from whylogs.api.logger.segment_cache import SegmentCache
-from whylogs.api.logger.segment_processing import segment_processing
+from whylogs.api.logger.segment_processing import segment_processing  # type: ignore
 from whylogs.api.store import ProfileStore
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
-from whylogs.core.stubs import pd
+from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
+
+try:
+    import pandas as pd  # type: ignore
+except ImportError:
+    pd: Any = None  # type: ignore
+
 
 Row = Dict[str, Any]
 
@@ -47,12 +53,12 @@ class DatasetProfileContainer:
         self._schema: Optional[DatasetSchema] = schema
         self._active = True
         self._dataset_timestamp = datetime.fromtimestamp(dataset_timestamp / 1000.0, tz=tz.tzutc())
-        if self._has_segments() and schema is not None:  # Need the duplicate None check for type safety
+        if self.has_segments() and schema is not None:  # Need the duplicate None check for type safety
             self._target = SegmentCache(schema=schema)
         else:
             self._target = DatasetProfile(dataset_timestamp=self._dataset_timestamp, schema=schema)
 
-    def _has_segments(self) -> bool:
+    def has_segments(self) -> bool:
         return self._schema is not None and bool(self._schema.segments)
 
     def _track_segments(self, data: TrackData) -> None:
@@ -74,9 +80,9 @@ class DatasetProfileContainer:
 
         if isinstance(data, List):
             for row in data:
-                self._target.track(row=row)
+                self._target.track(row=row)  # type: ignore
         else:
-            self._target.track(data)
+            self._target.track(data)  # type: ignore
 
     def track(self, data: TrackData) -> None:
         """
@@ -86,7 +92,7 @@ class DatasetProfileContainer:
             # Should never happen
             raise Exception("Profile container no longer active.")
 
-        if self._has_segments():
+        if self.has_segments():
             self._track_segments(data)
         else:
             self._track_profile(data)
@@ -101,7 +107,7 @@ class DatasetProfileContainer:
         try:
             if isinstance(self._target, SegmentCache):
                 return self._target.flush(dataset_timestamp=self._dataset_timestamp)
-            elif isinstance(self._target, DatasetProfile):
+            else:
                 return ProfileResultSet(self._target)
         finally:
             self._active = False
@@ -111,10 +117,14 @@ class DatasetProfileContainer:
             result_set = self._target.get_result_set(dataset_timestamp=self._dataset_timestamp)
             segments = result_set.segments() or []
             return [it for it in [result_set.view(segment) for segment in segments] if it is not None]
-        elif isinstance(self._target, DatasetProfile):
+        else:
             return [self._target.view()]
 
-        raise Exception("Unknown profile type")
+    def to_serialized_views(self) -> List[bytes]:
+        views: List[bytes] = []
+        for view in self.to_views():
+            views.append(view.serialize())
+        return views
 
 
 @dataclass
@@ -169,6 +179,8 @@ class LoggerStatus:
     segment_caches: int
     writers: int
     pending_writables: int
+    pending_views: List[bytes]
+    views: List[bytes]
 
 
 @dataclass
@@ -184,6 +196,17 @@ class StatusMessage:
 class PendingWritable:
     attempts: int
     writable: Writable
+
+
+def _extract_profile_view_bytes(pending: PendingWritable) -> Optional[bytes]:
+    if isinstance(pending.writable, DatasetProfile):
+        return pending.writable.view().serialize()
+    elif isinstance(pending.writable, DatasetProfileView):
+        return pending.writable.serialize()
+    elif isinstance(pending.writable, SegmentedDatasetProfileView):
+        return pending.writable.profile_view.serialize()
+    else:
+        return None
 
 
 LoggerMessage = Union[TrackMessage, FlushMessage, StatusMessage, GetResultsMessage, CloseMessage]
@@ -244,7 +267,7 @@ class ThreadRollingLogger(ThreadActor[LoggerMessage], DataLogger[LoggerStatus]):
 
         self._logger.debug(f"Created thread logger, pid {os.getpid()}")
 
-    def process_batch(self, batch: List[LoggerMessage], batch_type: Type) -> None:
+    def process_batch(self, batch: List[LoggerMessage], batch_type: Type[LoggerMessage]) -> None:
         if batch_type == TrackMessage:
             self._process_track_messages(cast(List[TrackMessage], batch))
         elif batch_type == FlushMessage:
@@ -278,17 +301,25 @@ class ThreadRollingLogger(ThreadActor[LoggerMessage], DataLogger[LoggerStatus]):
     def _process_status_message(self, message: StatusMessage) -> None:
         profiles = 0
         segment_caches = 0
-        for ts, container in self._cache.items():
-            if container._has_segments():
+        views: List[bytes] = []
+        for container in self._cache.values():
+            if container.has_segments():
                 segment_caches += 1
             else:
                 profiles += 1
 
+            views.extend(container.to_serialized_views())
+
         writers = 0
         writables = 0
-        for writer, stuff in self._writers.items():
+        pending_views: List[bytes] = []
+        for stuff in self._writers.values():
             writers += 1
             writables += len(stuff)
+            for pending in stuff:
+                view = _extract_profile_view_bytes(pending)
+                if view is not None:
+                    pending_views.append(view)
 
         status = LoggerStatus(
             dataset_timestamps=len(self._cache),
@@ -296,6 +327,8 @@ class ThreadRollingLogger(ThreadActor[LoggerMessage], DataLogger[LoggerStatus]):
             segment_caches=segment_caches,
             writers=writers,
             pending_writables=writables,
+            pending_views=pending_views,
+            views=views,
         )
         message.result.set_result(status)
 
@@ -311,7 +344,7 @@ class ThreadRollingLogger(ThreadActor[LoggerMessage], DataLogger[LoggerStatus]):
 
     def _has_pending(self) -> bool:
         has_pending = False
-        for writer, pending in self._writers.items():
+        for pending in self._writers.values():
             has_pending = len(pending) > 0
         return has_pending
 
@@ -386,6 +419,10 @@ class ThreadRollingLogger(ThreadActor[LoggerMessage], DataLogger[LoggerStatus]):
                 message.result.set_exception(e)
 
     def status(self, timeout: Optional[float] = None) -> LoggerStatus:
+        """
+        Get the status of the logger.
+        This is always synchronous.
+        """
         result: "Future[LoggerStatus]" = Future()
         self.send(StatusMessage(result))
         return wait_result(result, timeout=timeout)

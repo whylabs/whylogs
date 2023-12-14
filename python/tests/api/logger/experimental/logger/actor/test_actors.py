@@ -1,7 +1,7 @@
 import multiprocessing as mp
 import os
 from dataclasses import dataclass
-from typing import Generic, List, Type, TypeVar, Union
+from typing import List, Type, Union
 
 import pytest
 
@@ -23,17 +23,19 @@ class Message2:
     pass
 
 
-T = TypeVar("T")
+Messages = Union[Message1, Message2]
 
 
-class CountingActorBase(Generic[T]):
+class Counter:
     def __init__(self) -> None:
         self.m1 = mp.Value("i", 0)
         self.m2 = mp.Value("i", 0)
         self.total = mp.Value("i", 0)
         self.call_count = mp.Value("i", 0)
 
-    def process_batch(self, batch: List[T], batch_type: Type) -> None:
+    def process_batch(
+        self, batch: List[Union[Messages, CloseMessage]], batch_type: Type[Union[Messages, CloseMessage]]
+    ) -> None:
         with self.call_count.get_lock():
             self.call_count.value += 1  # type: ignore
 
@@ -50,43 +52,48 @@ class CountingActorBase(Generic[T]):
             raise Exception(f"Unknown batch type: {batch_type}")
 
 
-Messages = Union[Message1, Message2, CloseMessage]
-
-
-class CountingMPProcessActor(CountingActorBase[Messages], ProcessActor[Messages]):
+class CountingMPProcessActor(ProcessActor[Messages]):
     def __init__(self, queue_config: QueueConfig = QueueConfig()) -> None:
-        CountingActorBase.__init__(self)
-        ProcessActor.__init__(self, queue_config, queue_type=QueueType.MP)
+        super().__init__(queue_config, queue_type=QueueType.MP)
+        self.counter = Counter()
 
-    def process_batch(self, batch: List[Messages], batch_type: Type) -> None:
-        CountingActorBase.process_batch(self, batch, batch_type)
+    def process_batch(
+        self, batch: List[Union[Messages, CloseMessage]], batch_type: Type[Union[Messages, CloseMessage]]
+    ) -> None:
+        self.counter.process_batch(batch, batch_type)
 
 
-class CountingFasterFifoProcessActor(CountingActorBase[Messages], ProcessActor[Messages]):
+class CountingFasterFifoProcessActor(ProcessActor[Messages]):
     def __init__(self, queue_config: QueueConfig = QueueConfig()) -> None:
-        CountingActorBase.__init__(self)
-        ProcessActor.__init__(self, queue_config, queue_type=QueueType.FASTER_FIFO)
+        super().__init__(queue_config, queue_type=QueueType.FASTER_FIFO)
+        self.counter = Counter()
 
-    def process_batch(self, batch: List[Messages], batch_type: Type) -> None:
-        CountingActorBase.process_batch(self, batch, batch_type)
+    def process_batch(
+        self, batch: List[Union[Messages, CloseMessage]], batch_type: Type[Union[Messages, CloseMessage]]
+    ) -> None:
+        self.counter.process_batch(batch, batch_type)
 
 
-class CountingThreadActor(CountingActorBase[Messages], ThreadActor[Messages]):
+class CountingThreadActor(ThreadActor[Messages]):
     def __init__(self, queue_config: QueueConfig = QueueConfig()) -> None:
-        CountingActorBase.__init__(self)
-        ThreadActor.__init__(self, queue_config)
+        super().__init__(queue_config)
+        self.counter = Counter()
 
-    def process_batch(self, batch: List[Messages], batch_type: Type) -> None:
-        CountingActorBase.process_batch(self, batch, batch_type)
+    def process_batch(
+        self, batch: List[Union[Messages, CloseMessage]], batch_type: Type[Union[Messages, CloseMessage]]
+    ) -> None:
+        self.counter.process_batch(batch, batch_type)
 
 
-actors = [CountingMPProcessActor, CountingThreadActor]
+ActorTypes = Union[Type[CountingMPProcessActor], Type[CountingThreadActor], Type[CountingFasterFifoProcessActor]]
+
+actors: List[ActorTypes] = [CountingMPProcessActor, CountingThreadActor]
 if os.name != "nt":
     actors.append(CountingFasterFifoProcessActor)
 
 
 @pytest.mark.parametrize("Act", actors)
-def test_process_actor_happy_path(Act: Union[Type[CountingMPProcessActor], Type[CountingThreadActor]]) -> None:
+def test_process_actor_happy_path(Act: ActorTypes) -> None:
     actor = Act()  # type: ignore
     if isinstance(actor, ProcessActor):
         actor.start()
@@ -100,13 +107,13 @@ def test_process_actor_happy_path(Act: Union[Type[CountingMPProcessActor], Type[
 
     actor.close()
 
-    with actor.call_count.get_lock():
+    with actor.counter.call_count.get_lock():
         # 1 for the Message1 block, 1 for the Message2 block, 1 for the CloseMessage
-        assert actor.call_count.value == 3  # type: ignore
-    with actor.total.get_lock(), actor.m1.get_lock(), actor.m2.get_lock():
-        assert actor.total.value == 5  # type: ignore
-        assert actor.m1.value == 3  # type: ignore
-        assert actor.m2.value == 2  # type: ignore
+        assert actor.counter.call_count.value == 3  # type: ignore
+    with actor.counter.total.get_lock(), actor.counter.m1.get_lock(), actor.counter.m2.get_lock():
+        assert actor.counter.total.value == 5  # type: ignore
+        assert actor.counter.m1.value == 3  # type: ignore
+        assert actor.counter.m2.value == 2  # type: ignore
 
 
 @pytest.mark.parametrize("Act", actors)
@@ -125,13 +132,13 @@ def test_process_actor_sparse_batches(Act: Union[Type[CountingMPProcessActor], T
 
     actor.close()
 
-    with actor.call_count.get_lock():
+    with actor.counter.call_count.get_lock():
         # 1 for the Message1 block, 1 for the Message2 block, 1 for the CloseMessage
-        assert actor.call_count.value == 6  # type: ignore
-    with actor.total.get_lock(), actor.m1.get_lock(), actor.m2.get_lock():
-        assert actor.total.value == 5  # type: ignore
-        assert actor.m1.value == 3  # type: ignore
-        assert actor.m2.value == 2  # type: ignore
+        assert actor.counter.call_count.value == 6  # type: ignore
+    with actor.counter.total.get_lock(), actor.counter.m1.get_lock(), actor.counter.m2.get_lock():
+        assert actor.counter.total.value == 5  # type: ignore
+        assert actor.counter.m1.value == 3  # type: ignore
+        assert actor.counter.m2.value == 2  # type: ignore
 
 
 @pytest.mark.parametrize("Act", actors)
@@ -150,11 +157,11 @@ def test_large_batches(Act: Union[Type[CountingMPProcessActor], Type[CountingThr
 
     actor.close()
 
-    with actor.call_count.get_lock():
+    with actor.counter.call_count.get_lock():
         # 1 for the Message1 block, 1 for the Message2 block, 1 for the CloseMessage
-        assert actor.call_count.value == 3  # type: ignore
+        assert actor.counter.call_count.value == 3  # type: ignore
 
-    with actor.total.get_lock(), actor.m1.get_lock(), actor.m2.get_lock():
-        assert actor.total.value == 5  # type: ignore
-        assert actor.m1.value == 3  # type: ignore
-        assert actor.m2.value == 2  # type: ignore
+    with actor.counter.total.get_lock(), actor.counter.m1.get_lock(), actor.counter.m2.get_lock():
+        assert actor.counter.total.value == 5  # type: ignore
+        assert actor.counter.m1.value == 3  # type: ignore
+        assert actor.counter.m2.value == 2  # type: ignore

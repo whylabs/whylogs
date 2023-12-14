@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import signal
 import sys
 from enum import Enum
 from typing import Generic, TypeVar
@@ -8,6 +9,7 @@ from whylogs.api.logger.experimental.logger.actor.actor import (
     QueueConfig,
     QueueWrapper,
 )
+from whylogs.api.logger.experimental.logger.actor.signal_util import suspended_signals
 
 
 class QueueType(Enum):
@@ -18,15 +20,16 @@ class QueueType(Enum):
 ProcessMessageType = TypeVar("ProcessMessageType")
 
 
-class ProcessActor(Actor, mp.Process, Generic[ProcessMessageType]):
+class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessageType]):
     """
     Subclass of Actor that uses a process to process messages.
     """
 
+    _wrapper: QueueWrapper[ProcessMessageType]
+
     def __init__(
         self, queue_config: QueueConfig = QueueConfig(), queue_type: QueueType = QueueType.FASTER_FIFO
     ) -> None:
-        self._wrapper: QueueWrapper[ProcessMessageType]
         if queue_type == QueueType.MP:
             from whylogs.api.logger.experimental.logger.actor.mp_queue_wrapper import (
                 MPQueueWrapper,
@@ -38,7 +41,7 @@ class ProcessActor(Actor, mp.Process, Generic[ProcessMessageType]):
                 FasterQueueWrapper,
             )
 
-            self._wrapper = FasterQueueWrapper()
+            self._wrapper = FasterQueueWrapper(queue_config)
         else:
             raise ValueError(f"Unknown queue type: {queue_type}")
 
@@ -70,17 +73,31 @@ class ProcessActor(Actor, mp.Process, Generic[ProcessMessageType]):
         self._is_closed.set()
 
     def is_closed(self) -> bool:
-        return self._is_closed.is_set()
+        # Include is_alive here to try to make the exit more graceful when something crazy happens that results
+        # in the process being killed.
+        return not self.is_alive() or self._is_closed.is_set()
 
     def close(self) -> None:
         if self.pid is None:
             raise Exception("Process hasn't been started yet.")
 
+        if not self.is_alive():
+            raise Exception("Process isn't active. It might have been killed.")
+
         super().close()
         self._wrapper.close()
 
     def run(self) -> None:
-        super().run()
+        try:
+            with suspended_signals(signal.SIGINT, signal.SIGTERM):
+                self.process_messages()
+        except KeyboardInterrupt:
+            # Swallow this to prevent annoying stack traces in dev.
+            self._logger.info("Keyboard interrupt ignored in sub process.")
+        except Exception as e:
+            self._logger.error("Error while in main processing loop")
+            self._logger.exception(e)
+
         sys.exit(0)
 
     def start(self) -> None:
