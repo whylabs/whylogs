@@ -50,7 +50,6 @@ from whylogs.api.logger.experimental.logger.actor.process_actor import (
 from whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages import (
     DataDict,
     FlushMessage,
-    Identifieable,
     LogEmbeddingRequestDict,
     LogMessage,
     LogRequestDict,
@@ -60,6 +59,7 @@ from whylogs.api.logger.experimental.logger.actor.process_rolling_logger_message
     RawLogMessage,
     RawPubSubEmbeddingMessage,
     RawPubSubMessage,
+    SyncMessage,
     data_dict_from_pandas,
     determine_dataset_timestamp,
     get_columns,
@@ -349,7 +349,7 @@ class BaseProcessRollingLogger(
             self._logger.exception("Error processing log message")
             self._signal(messages, e)
 
-    def _signal(self, messages: Sequence[Identifieable] = [], error: Optional[Exception] = None) -> None:
+    def _signal(self, messages: Sequence[SyncMessage] = [], error: Optional[Exception] = None) -> None:
         if self._pipe_signaler is None:
             self._logger.error("afdsafasfasf")
             return
