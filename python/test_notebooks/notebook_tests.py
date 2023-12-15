@@ -20,6 +20,7 @@ skip_notebooks = [
     "Writing_Regression_Performance_Metrics_to_WhyLabs.ipynb",
     "Writing_Classification_Performance_Metrics_to_WhyLabs.ipynb",
     "Getting_Started_with_WhyLabsV1.ipynb",
+    "Getting_Started_with_UDFs.ipynb",
     "Writing_Feature_Weights_to_WhyLabs.ipynb",
     "Image_Logging.ipynb",
     "Writing_Ranking_Performance_Metrics_to_WhyLabs.ipynb",
