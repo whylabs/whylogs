@@ -99,9 +99,10 @@ class ProcessLoggerStatus:
 
 
 @dataclass
-class ProcessLoggerStatusMessage:
+class ProcessStatusMessage:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    timeout: Optional[float] = None
+    timeout: float = 1.0
+    sync: bool = True
 
 
 @dataclass

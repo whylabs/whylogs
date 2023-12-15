@@ -6,14 +6,12 @@ from dataclasses import dataclass, field
 from functools import reduce
 from itertools import groupby
 from typing import (
-    Any,
     Callable,
     Dict,
     Generic,
     List,
     NoReturn,
     Optional,
-    Sequence,
     Tuple,
     Type,
     TypeVar,
@@ -21,7 +19,6 @@ from typing import (
     cast,
 )
 
-from whylogs.api.logger.experimental.logger.actor.pipe_signaler import PipeSignaler
 from whylogs.api.whylabs.session.config import INIT_DOCS
 from whylogs.api.whylabs.session.session_manager import default_init
 
@@ -54,12 +51,11 @@ from whylogs.api.logger.experimental.logger.actor.process_rolling_logger_message
     LogMessage,
     LogRequestDict,
     ProcessLoggerStatus,
-    ProcessLoggerStatusMessage,
+    ProcessStatusMessage,
     RawLogEmbeddingsMessage,
     RawLogMessage,
     RawPubSubEmbeddingMessage,
     RawPubSubMessage,
-    SyncMessage,
     data_dict_from_pandas,
     determine_dataset_timestamp,
     get_columns,
@@ -147,7 +143,7 @@ BuiltinMessageTypes = Union[
     RawPubSubEmbeddingMessage,
     LogMessage,
     CloseMessage,
-    ProcessLoggerStatusMessage,
+    ProcessStatusMessage,
 ]
 
 AdditionalMessages = TypeVar("AdditionalMessages")
@@ -213,7 +209,7 @@ class BaseProcessRollingLogger(
         queue_type: QueueType = QueueType.FASTER_FIFO,
         logger_factory: LoggerFactory = ThreadLoggerFactory(),
     ) -> None:
-        super().__init__(queue_config=queue_config, queue_type=queue_type)
+        super().__init__(queue_config=queue_config, queue_type=queue_type, sync_enabled=sync_enabled)
         self._logger_options = LoggerOptions(
             aggregate_by=aggregate_by,
             write_schedule=write_schedule,
@@ -225,14 +221,11 @@ class BaseProcessRollingLogger(
             writer_factory=writer_factory,
         )
         self._logger_factory = logger_factory
-
-        self._sync_enabled = sync_enabled
         self._thread_queue_config = thread_queue_config
         self._writer_factory = writer_factory
         self.current_time_ms = current_time_fn or current_time_ms
         self.loggers: Dict[str, ThreadRollingLogger] = {}
         self.schema = schema
-        self._pipe_signaler: Optional[PipeSignaler[Any]] = PipeSignaler() if sync_enabled else None
         self._session = default_init()
 
     def _create_logger(self, dataset_id: str) -> ThreadRollingLogger:
@@ -262,8 +255,8 @@ class BaseProcessRollingLogger(
             self.process_pubsub_embedding(cast(List[RawPubSubEmbeddingMessage], batch))
         elif batch_type == CloseMessage:
             self.process_close_message(cast(List[CloseMessage], batch))
-        elif batch_type == ProcessLoggerStatusMessage:
-            self._process_logger_status_message(cast(List[ProcessLoggerStatusMessage], batch))
+        elif batch_type == ProcessStatusMessage:
+            self._process_logger_status_message(cast(List[ProcessStatusMessage], batch))
         else:
             raise Exception(f"Unknown message type {batch_type}")
 
@@ -282,7 +275,7 @@ class BaseProcessRollingLogger(
         msgs = [msg["log_request"] for msg in [it.to_pubsub_message() for it in messages] if msg is not None]
         self.process_log_dicts(msgs)
 
-    def _process_logger_status_message(self, messages: List[ProcessLoggerStatusMessage]) -> None:
+    def _process_logger_status_message(self, messages: List[ProcessStatusMessage]) -> None:
         if self._pipe_signaler is None:
             raise Exception(
                 "Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True."
@@ -313,7 +306,8 @@ class BaseProcessRollingLogger(
         for message in messages:
             self._pipe_signaler.signal((message.id, None, process_logger_status))
 
-    def status(self, timeout: Optional[float] = 1.0) -> ProcessLoggerStatus:
+    # TODO include timeout
+    def status(self) -> ProcessLoggerStatus:
         """
         Get the internal status of the logger. Used for diangostics and debugging.
         This is always synchronous and requires the logger to be created with sync_enabled=True.
@@ -323,7 +317,7 @@ class BaseProcessRollingLogger(
                 "Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True."
             )
 
-        message = ProcessLoggerStatusMessage()
+        message = ProcessStatusMessage()
         future: "Future[ProcessLoggerStatus]" = Future()
         self._pipe_signaler.register(future, message.id)
         self.send(message)
@@ -348,15 +342,6 @@ class BaseProcessRollingLogger(
         except Exception as e:
             self._logger.exception("Error processing log message")
             self._signal(messages, e)
-
-    def _signal(self, messages: Sequence[SyncMessage] = [], error: Optional[Exception] = None) -> None:
-        if self._pipe_signaler is None:
-            self._logger.error("afdsafasfasf")
-            return
-
-        for message in messages:
-            if message.sync:
-                self._pipe_signaler.signal((message.id, error, None))
 
     def process_raw_log_dicts(self, messages: List[RawLogMessage]) -> None:
         try:

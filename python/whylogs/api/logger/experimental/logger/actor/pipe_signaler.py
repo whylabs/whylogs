@@ -22,7 +22,9 @@ class PipeSignaler(th.Thread, Generic[T]):
         self.daemon = True
         self._logger = logging.getLogger(__name__)
         self._queue_config = QueueConfig()
-        self.queue: FasterQueueWrapper[Tuple[str, Optional[Exception], Optional[T]]] = FasterQueueWrapper(self._queue_config)
+        self.queue: FasterQueueWrapper[Tuple[str, Optional[Exception], Optional[T]]] = FasterQueueWrapper(
+            self._queue_config
+        )
         self.futures: Dict[str, "Future[Any]"] = {}
         self._end_polling = th.Event()
         self._done = th.Event()
