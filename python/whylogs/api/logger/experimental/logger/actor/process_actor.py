@@ -1,11 +1,12 @@
 from concurrent.futures import Future
 import logging
 import multiprocessing as mp
+import threading as th
 import signal
 import sys
 from concurrent.futures import Future
 from enum import Enum
-from typing import Generic, Optional, Sequence, TypeVar
+from typing import Any, Dict, Generic, Optional, Sequence, Tuple, TypeVar
 
 from whylogs.api.logger.experimental.logger.actor.actor import (
     Actor,
