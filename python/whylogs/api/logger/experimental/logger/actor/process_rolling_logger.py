@@ -52,7 +52,7 @@ from whylogs.api.logger.experimental.logger.actor.process_rolling_logger_message
     LogMessage,
     LogRequestDict,
     ProcessLoggerStatus,
-    ProcessLoggerStatusMessage,
+    ProcessStatusMessage,
     RawLogEmbeddingsMessage,
     RawLogMessage,
     RawPubSubEmbeddingMessage,
@@ -144,7 +144,7 @@ BuiltinMessageTypes = Union[
     RawPubSubEmbeddingMessage,
     LogMessage,
     CloseMessage,
-    ProcessLoggerStatusMessage,
+    ProcessStatusMessage,
 ]
 
 AdditionalMessages = TypeVar("AdditionalMessages")
@@ -210,7 +210,7 @@ class BaseProcessRollingLogger(
         queue_type: QueueType = QueueType.FASTER_FIFO,
         logger_factory: LoggerFactory = ThreadLoggerFactory(),
     ) -> None:
-        super().__init__(queue_config=queue_config, queue_type=queue_type)
+        super().__init__(queue_config=queue_config, queue_type=queue_type, sync_enabled=sync_enabled)
         self._logger_options = LoggerOptions(
             aggregate_by=aggregate_by,
             write_schedule=write_schedule,
@@ -222,14 +222,11 @@ class BaseProcessRollingLogger(
             writer_factory=writer_factory,
         )
         self._logger_factory = logger_factory
-
-        self._sync_enabled = sync_enabled
         self._thread_queue_config = thread_queue_config
         self._writer_factory = writer_factory
         self.current_time_ms = current_time_fn or current_time_ms
         self.loggers: Dict[str, ThreadRollingLogger] = {}
         self.schema = schema
-        self._pipe_signaler: Optional[PipeSignaler] = PipeSignaler() if sync_enabled else None
         self._session = default_init()
 
     def _create_logger(self, dataset_id: str) -> ThreadRollingLogger:
@@ -259,8 +256,8 @@ class BaseProcessRollingLogger(
             self.process_pubsub_embedding(cast(List[RawPubSubEmbeddingMessage], batch))
         elif batch_type == CloseMessage:
             self.process_close_message(cast(List[CloseMessage], batch))
-        elif batch_type == ProcessLoggerStatusMessage:
-            self._process_logger_status_message(cast(List[ProcessLoggerStatusMessage], batch))
+        elif batch_type == ProcessStatusMessage:
+            self._process_logger_status_message(cast(List[ProcessStatusMessage], batch))
         else:
             raise Exception(f"Unknown message type {batch_type}")
 
@@ -279,7 +276,7 @@ class BaseProcessRollingLogger(
         msgs = [msg["log_request"] for msg in [it.to_pubsub_message() for it in messages] if msg is not None]
         self.process_log_dicts(msgs)
 
-    def _process_logger_status_message(self, messages: List[ProcessLoggerStatusMessage]) -> None:
+    def _process_logger_status_message(self, messages: List[ProcessStatusMessage]) -> None:
         if self._pipe_signaler is None:
             raise Exception(
                 "Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True."
@@ -311,6 +308,22 @@ class BaseProcessRollingLogger(
         for message in messages:
             self._pipe_signaler.signal((message.id, None, process_logger_status))
 
+    # TODO include timeout
+    def status(self) -> ProcessLoggerStatus:
+        """
+        Get the internal status of the logger. Used for diangostics and debugging.
+        This is always synchronous and requires the logger to be created with sync_enabled=True.
+        """
+        if self._pipe_signaler is None:
+            raise Exception(
+                "Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True."
+            )
+
+        message = ProcessStatusMessage()
+        future: "Future[ProcessLoggerStatus]" = Future()
+        self._pipe_signaler.register(future, message.id)
+        self.send(message)
+        return wait_result_while(future, self.is_alive)
 
     def process_pubsub_embedding(self, messages: List[RawPubSubEmbeddingMessage]) -> None:
         self._logger.info("Processing pubsub embedding message")
@@ -327,28 +340,21 @@ class BaseProcessRollingLogger(
             log_dicts = [m.log for m in messages]
             self.process_log_dicts(log_dicts)
 
-            for message in messages:
-                self._signal(message.id, None)
+            self._signal(messages, None)
         except Exception as e:
             self._logger.exception("Error processing log message")
-            for message in messages:
-                self._signal(message.id, e)
-
-    def _signal(self, message_id: str, error: Optional[Exception] = None) -> None:
-        if self._pipe_signaler is not None:
-            self._pipe_signaler.signal((message_id, error, None))
+            self._signal(messages, e)
 
     def process_raw_log_dicts(self, messages: List[RawLogMessage]) -> None:
         try:
             self._logger.info("Processing raw log request message")
             log_dicts = [msg for msg in [m.to_log_request_dict() for m in messages] if msg is not None]
             self.process_log_dicts(log_dicts)
-            for message in messages:
-                self._signal(message.id, None)
+            # for message in messages:
+            self._signal(messages, None)
         except Exception as e:
             self._logger.exception("Error processing log message")
-            for message in messages:
-                self._signal(message.id, e)
+            self._signal(messages, e)
 
     def process_log_embeddings_messages(self, messages: List[RawLogEmbeddingsMessage]) -> None:
         self._logger.info("Processing log embeddings messages")
@@ -370,7 +376,8 @@ class BaseProcessRollingLogger(
     ) -> None:
         for dataset_id, group in groupby(dicts, lambda it: it["datasetId"]):
             for dataset_timestamp, ts_grouped in groupby(
-                group, lambda it: determine_dataset_timestamp(self._logger_options.aggregate_by, it)
+                group,
+                lambda it: determine_dataset_timestamp(self._logger_options.aggregate_by, it),
             ):
                 for n, sub_group in groupby(ts_grouped, lambda it: encode_strings(get_columns(it))):
                     self._logger.info(
@@ -435,7 +442,12 @@ class BaseProcessRollingLogger(
             multiple=self._create_multiple(data),
         )
 
-        message = RawLogMessage(request=orjson.dumps(log_request), request_time=self.current_time_ms())
+        message = RawLogMessage(
+            request=orjson.dumps(log_request),
+            request_time=self.current_time_ms(),
+            sync=sync,
+        )
+
         result: Optional["Future[None]"] = cast("Future[None]", Future()) if sync else None
         if result is not None:
             self._logger.debug(f"Registering result id {message.id} for synchronous logging")
