@@ -4,6 +4,7 @@ import os
 import tempfile
 from typing import IO, Any, Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
+from zipfile import ZipFile
 
 import requests  # type: ignore
 from urllib3 import PoolManager, ProxyManager
@@ -496,6 +497,7 @@ class WhyLabsWriter(Writer):
         -------
         Tuple[bool, str]
         """
+        zipit = kwargs.get("zip")
         utc_now = datetime.datetime.now(datetime.timezone.utc)
 
         files = file.get_writables()
@@ -519,24 +521,46 @@ class WhyLabsWriter(Writer):
             whylabs_tags.append(view_tags)
         stamp = dataset_timestamp.timestamp()
         dataset_timestamp_epoch = int(stamp * 1000)
-        profile_id, upload_urls = self._get_upload_urls_segmented_reference(whylabs_tags, dataset_timestamp_epoch)
         upload_statuses = list()
-        for view, url in zip(files, upload_urls):
-            with tempfile.NamedTemporaryFile() as tmp_file:
-                if kwargs.get("use_v0") is None or kwargs.get("use_v0"):
-                    view.write(file=tmp_file, use_v0=True)
-                else:
-                    view.write(file=tmp_file)
+        use_v0 = kwargs.get("use_v0") is None or kwargs.get("use_v0")
+        if zipit:
+            profile_id, upload_url = self._get_upload_urls_segmented_reference_zip(
+                whylabs_tags, dataset_timestamp_epoch
+            )
+            with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp_file:
+                with ZipFile(tmp_file, "w", allowZip64=True) as zip_file:
+                    for view in files:
+                        with tempfile.NamedTemporaryFile() as seg_file:
+                            view.write(file=seg_file, use_v0=use_v0)
+                            seg_file.flush()
+                            seg_file.seek(0)
+                            zip_file.write(seg_file.name, seg_file.name.split("/")[-1])
+
                 tmp_file.flush()
                 tmp_file.seek(0)
-
                 upload_res = self._do_upload(
                     dataset_timestamp=dataset_timestamp_epoch,
-                    upload_url=url,
+                    upload_url=upload_url,
                     profile_id=profile_id,
                     profile_file=tmp_file,
                 )
                 upload_statuses.append(upload_res)
+        else:
+            profile_id, upload_urls = self._get_upload_urls_segmented_reference(whylabs_tags, dataset_timestamp_epoch)
+            for view, url in zip(files, upload_urls):
+                with tempfile.NamedTemporaryFile() as tmp_file:
+                    view.write(file=tmp_file, use_v0=use_v0)
+                    tmp_file.flush()
+                    tmp_file.seek(0)
+
+                    upload_res = self._do_upload(
+                        dataset_timestamp=dataset_timestamp_epoch,
+                        upload_url=url,
+                        profile_id=profile_id,
+                        profile_file=tmp_file,
+                    )
+                    upload_statuses.append(upload_res)
+
         if all([status[0] for status in upload_statuses]):
             return upload_statuses[0]
         else:
@@ -910,6 +934,15 @@ class WhyLabsWriter(Writer):
         )
         res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
         return res["id"], res["upload_urls"]
+
+    # TODO: add this to client API
+    def _get_upload_urls_segmented_reference_zip(self, whylabs_tags, dataset_timestamp: int) -> Tuple[str, str]:
+        request = self._build_log_segmented_reference_request(
+            dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name
+        )
+        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
+        url = res["upload_urls"]
+        return res["id"], url[0]  # .replace(".bin?", ".zip?")
 
     def _post_log_segmented_reference(self, request: LogAsyncRequest, dataset_timestamp: int) -> LogReferenceResponse:
         dataset_api = self._get_or_create_api_dataset_client()
