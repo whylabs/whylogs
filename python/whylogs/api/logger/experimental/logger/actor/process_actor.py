@@ -22,6 +22,7 @@ from whylogs.api.logger.experimental.logger.actor.process_rolling_logger_message
 from whylogs.api.logger.experimental.logger.actor.signal_util import suspended_signals
 
 StatusType = TypeVar("StatusType")
+ProcessMessageType = TypeVar("ProcessMessageType")
 
 
 class QueueType(Enum):
@@ -29,10 +30,7 @@ class QueueType(Enum):
     FASTER_FIFO = "FASTER_FIFO"
 
 
-ProcessMessageType = TypeVar("ProcessMessageType")
-
-
-class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessageType]):
+class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessageType, StatusType]):
     """
     Subclass of Actor that uses a process to process messages.
     """
@@ -114,7 +112,7 @@ class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessage
                 self._pipe_signaler.signal((message.id, error, None))
 
     # TODO
-    def status(self, timeout: Optional[float] = 1.0) -> Generic[StatusType]:  # type: ignore
+    def status(self, timeout: Optional[float] = 1.0) -> StatusType:
         """
         Get the internal status of the Process Actor. Used for diagnostics and debugging.
         This is always synchronous and requires the ProcessActor to be created with sync_enabled=True.

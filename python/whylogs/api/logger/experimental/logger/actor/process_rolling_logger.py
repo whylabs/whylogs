@@ -151,7 +151,7 @@ AdditionalMessages = TypeVar("AdditionalMessages")
 
 
 class BaseProcessRollingLogger(
-    ProcessActor[Union[AdditionalMessages, BuiltinMessageTypes]],
+    ProcessActor[Union[AdditionalMessages, BuiltinMessageTypes], ProcessLoggerStatus],
     DataLogger[ProcessLoggerStatus],
     Generic[AdditionalMessages],
 ):
@@ -308,22 +308,6 @@ class BaseProcessRollingLogger(
         for message in messages:
             self._pipe_signaler.signal((message.id, None, process_logger_status))
 
-    # TODO include timeout
-    def status(self) -> ProcessLoggerStatus:
-        """
-        Get the internal status of the logger. Used for diangostics and debugging.
-        This is always synchronous and requires the logger to be created with sync_enabled=True.
-        """
-        if self._pipe_signaler is None:
-            raise Exception(
-                "Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True."
-            )
-
-        message = ProcessStatusMessage()
-        future: "Future[ProcessLoggerStatus]" = Future()
-        self._pipe_signaler.register(future, message.id)
-        self.send(message)
-        return wait_result_while(future, self.is_alive)
 
     def process_pubsub_embedding(self, messages: List[RawPubSubEmbeddingMessage]) -> None:
         self._logger.info("Processing pubsub embedding message")
