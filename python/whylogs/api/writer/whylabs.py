@@ -71,6 +71,7 @@ _UPLOAD_POOLER_CACHE: Dict[str, Union[PoolManager, ProxyManager]] = dict()
 _US_WEST2_DOMAIN = "songbird-20201223060057342600000001.s3.us-west-2.amazonaws.com"
 _S3_PUBLIC_DOMAIN = os.environ.get("_WHYLABS_PRIVATE_S3_DOMAIN") or _US_WEST2_DOMAIN
 _WHYLABS_SKIP_CONFIG_READ = os.environ.get("_WHYLABS_SKIP_CONFIG_READ") or False
+_SUPPORTED_REGIONS = ["us-west-2", "ap-southeast-2", "ca-central-1"]
 
 KNOWN_CUSTOM_PERFORMANCE_METRICS = {
     "mean_average_precision_k_": "mean",
@@ -796,12 +797,14 @@ class WhyLabsWriter(Writer):
         return DatasetProfileApi(self._api_client)
 
     @staticmethod
-    def _build_log_async_request(dataset_timestamp: int) -> LogAsyncRequest:
-        return LogAsyncRequest(dataset_timestamp=dataset_timestamp, segment_tags=[])
+    def _build_log_async_request(dataset_timestamp: int, region: Optional[str] = None) -> LogAsyncRequest:
+        return LogAsyncRequest(dataset_timestamp=dataset_timestamp, segment_tags=[], region=region)
 
     @staticmethod
-    def _build_log_reference_request(dataset_timestamp: int, alias: Optional[str] = None) -> LogReferenceRequest:
-        return LogReferenceRequest(dataset_timestamp=dataset_timestamp, alias=alias)
+    def _build_log_reference_request(
+        dataset_timestamp: int, alias: Optional[str] = None, region: Optional[str] = None
+    ) -> LogReferenceRequest:
+        return LogReferenceRequest(dataset_timestamp=dataset_timestamp, alias=alias, region=region)
 
     @staticmethod
     def _build_log_segmented_reference_request(
@@ -984,11 +987,16 @@ class WhyLabsWriter(Writer):
             raise e
 
     def _get_upload_url(self, dataset_timestamp: int) -> Tuple[str, str]:
+        region = os.getenv("WHYLABS_UPLOAD_REGION", None)
+        if region and region not in _SUPPORTED_REGIONS:
+            raise ValueError(f"Provided region {region} not supported for WhyLabs upload.")
         if self._reference_profile_name is not None:
-            request = self._build_log_reference_request(dataset_timestamp, alias=self._reference_profile_name)
+            request = self._build_log_reference_request(
+                dataset_timestamp, alias=self._reference_profile_name, region=region
+            )
             res = self._post_log_reference(request=request, dataset_timestamp=dataset_timestamp)
         else:
-            request = self._build_log_async_request(dataset_timestamp)
+            request = self._build_log_async_request(dataset_timestamp, region=region)
             res = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
 
         upload_url = res["upload_url"]
