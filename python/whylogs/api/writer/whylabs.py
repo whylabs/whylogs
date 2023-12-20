@@ -71,7 +71,6 @@ _UPLOAD_POOLER_CACHE: Dict[str, Union[PoolManager, ProxyManager]] = dict()
 _US_WEST2_DOMAIN = "songbird-20201223060057342600000001.s3.us-west-2.amazonaws.com"
 _S3_PUBLIC_DOMAIN = os.environ.get("_WHYLABS_PRIVATE_S3_DOMAIN") or _US_WEST2_DOMAIN
 _WHYLABS_SKIP_CONFIG_READ = os.environ.get("_WHYLABS_SKIP_CONFIG_READ") or False
-_SUPPORTED_REGIONS = ["us-west-2", "ap-southeast-2", "ca-central-1"]
 
 KNOWN_CUSTOM_PERFORMANCE_METRICS = {
     "mean_average_precision_k_": "mean",
@@ -988,8 +987,6 @@ class WhyLabsWriter(Writer):
 
     def _get_upload_url(self, dataset_timestamp: int) -> Tuple[str, str]:
         region = os.getenv("WHYLABS_UPLOAD_REGION", None)
-        if region and region not in _SUPPORTED_REGIONS:
-            raise ValueError(f"Provided region {region} not supported for WhyLabs upload.")
         if self._reference_profile_name is not None:
             request = self._build_log_reference_request(
                 dataset_timestamp, alias=self._reference_profile_name, region=region
