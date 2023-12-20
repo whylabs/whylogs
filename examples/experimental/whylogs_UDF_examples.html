@@ -707,7 +707,7 @@ and apply a suite of UDFs suitable for an application area (e.g., <a class="refe
 <section id="Install-whylogs">
 <h2>Install whylogs<a class="headerlink" href="#Install-whylogs" title="Permalink to this headline">#</a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="n">whylogs</span>
@@ -726,19 +726,26 @@ Successfully installed types-requests-2.31.0.2 types-urllib3-1.26.25.14 whylabs-
 </section>
 <section id="Types-of-UDF">
 <h2>Types of UDF<a class="headerlink" href="#Types-of-UDF" title="Permalink to this headline">#</a></h2>
-<p>whylogs supports three kinds of UDFs:</p>
+<p>whylogs supports four kinds of UDFs:</p>
 <ul class="simple">
 <li><p>Dataset UDFs take one or more named columns as input and produce a new column as output.</p></li>
+<li><p>Multioutput UDFs take one or more named columns as input and produce one or more new columns as output.</p></li>
 <li><p>Type UDFs are applied to all columns of a specified type and produce a new column as output.</p></li>
 <li><p>Metric UDFs can be applied to a column specified by name or type, and do not produce a column. Instead, their output is tracked by a whylogs <code class="docutils literal notranslate"><span class="pre">UdfMetric</span></code> instance attached to input column in the dataset profile.</p></li>
 </ul>
-<p>Dataset and type UDFs produce their output columns before whylogs profiles the dataset. Thus the full machinery of whylogs schema specification and segmentation apply to the output columns. The <code class="docutils literal notranslate"><span class="pre">UdfMetric</span></code> has its own submetric schema mechanism to control the statistics tracked for metric UDF output, but since metric UDFs do not create columns they cannot be used for segmentation.</p>
+<p>Dataset, multioutput, and type UDFs produce their output columns before whylogs profiles the dataset. Thus the full machinery of whylogs schema specification and segmentation apply to the output columns. The <code class="docutils literal notranslate"><span class="pre">UdfMetric</span></code> has its own submetric schema mechanism to control the statistics tracked for metric UDF output, but since metric UDFs do not create columns they cannot be used for segmentation.</p>
 <section id="Dataset-UDFs">
 <h3>Dataset UDFs<a class="headerlink" href="#Dataset-UDFs" title="Permalink to this headline">#</a></h3>
 <p>The signature for dataset UDFs is</p>
 <p><code class="docutils literal notranslate"><span class="pre">f(x:</span> <span class="pre">Union[Dict[str,</span> <span class="pre">List],</span> <span class="pre">pd.DataFrame])</span> <span class="pre">-&gt;</span> <span class="pre">Union[List,</span> <span class="pre">pd.Series]</span></code></p>
 <p>The dataframe or dictionary only contains the columns the UDF is registered to access (see the section on registration below). <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> inputs may contain multiple rows. Dictionary inputs contain only a single row, but it is presented as a list containing one value. This allows UDFs to be written using the intersection of the <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> and dictionary/list APIs to handle both cases. Performance-critical UDFs can check the type of input to provide implementations optimized for the
 specific input type. The returned list or series should contain one value for each input row.</p>
+</section>
+<section id="Multioutput-UDFs">
+<h3>Multioutput UDFs<a class="headerlink" href="#Multioutput-UDFs" title="Permalink to this headline">#</a></h3>
+<p>The signature for multioutput UDFs is</p>
+<p><code class="docutils literal notranslate"><span class="pre">f(Union[Dict[str,</span> <span class="pre">List],</span> <span class="pre">pd.DataFrame])</span> <span class="pre">-&gt;</span> <span class="pre">Union[Dict[str,</span> <span class="pre">List],</span> <span class="pre">pd.DataFrame]</span></code></p>
+<p>These are very similar to dataset UDFs. Where dataset UDFs use the UDF’s name as the name of their single output column, multioutput UDFs prepend the UDF’s name to the names of the columns returned by the UDF.</p>
 </section>
 <section id="Type-UDFs">
 <h3>Type UDFs<a class="headerlink" href="#Type-UDFs" title="Permalink to this headline">#</a></h3>
@@ -787,7 +794,28 @@ metrics are determined by the defualt schema or any metric specifications passed
 merges the UDFs registered in the requested schemas.</p>
 </section>
 <section id="id2">
-<h3>Type UDFs<a class="headerlink" href="#id2" title="Permalink to this headline">#</a></h3>
+<h3>Multioutput UDFs<a class="headerlink" href="#id2" title="Permalink to this headline">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;register_multioutput_udf</span></code> decorator declares multioutput UDFs.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from whylogs.experimental.core.udf_schema import register_multioutput_udf
+import pandas as pd
+
+@register_multioutput_udf([&quot;x&quot;])
+def powers(data: Union[Dict[str, List], pd.DataFrame]) -&gt; Union[Dict[str, List], pd.DataFrame]:
+  if isinstance(data, pd.DataFrame):
+    result = pd.DataFrame()
+    result[&quot;xx&quot;] = data[&quot;x&quot;] * data[&quot;x&quot;]
+    result[&quot;xxx&quot;] = data[&quot;x&quot;] * data[&quot;x&quot;] * data[&quot;x&quot;]
+    return result
+  else:
+    result = {&quot;xx&quot; : [data[&quot;x&quot;][0] * data[&quot;x&quot;][0]]}
+    result[&quot;xxx&quot;] = [data[&quot;x&quot;][0] * data[&quot;x&quot;][0] * data[&quot;x&quot;][0]]
+    return result
+</pre></div>
+</div>
+<p>If you log a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> (or single row via a dictionary) containing a column named <code class="docutils literal notranslate"><span class="pre">x</span></code>, columns named <code class="docutils literal notranslate"><span class="pre">powers.xx</span></code> and <code class="docutils literal notranslate"><span class="pre">powers.xxx</span></code> containing the squared and cubed input column will be added by applying the <code class="docutils literal notranslate"><span class="pre">powers()</span></code> function before whylogs produces its profile. If any of the input columns is missing, the UDF will not be invoked. While dataset UDFs do not execute if their output column already exists, multioutput UDFs always produce their output columns.</p>
+</section>
+<section id="id3">
+<h3>Type UDFs<a class="headerlink" href="#id3" title="Permalink to this headline">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;register_type_udf</span></code> decorator declares type UDFs to be applied to columns of a specified type. Types can be specified as subclass of <code class="docutils literal notranslate"><span class="pre">whylogs.core.datatypes.DataType</span></code> or a plain Python type.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from whylogs.experimental.core.udf_schema import register_type_udf
 from whylogs.core.datatypes import Fractional
@@ -817,8 +845,8 @@ def square(input: Union[List, pd.Series]) -&gt; Union[List, pd.Series]:
 <li><p><code class="docutils literal notranslate"><span class="pre">type_mapper</span></code> is an instance of <code class="docutils literal notranslate"><span class="pre">whylogs.core.datatype.TypeMapper</span></code> responsible for mapping native Python data types to a subclass of <code class="docutils literal notranslate"><span class="pre">whylogs.core.datatype.DataType</span></code>.</p></li>
 </ul>
 </section>
-<section id="id3">
-<h3>Metric UDFs<a class="headerlink" href="#id3" title="Permalink to this headline">#</a></h3>
+<section id="id4">
+<h3>Metric UDFs<a class="headerlink" href="#id4" title="Permalink to this headline">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">&#64;register_metric_udf</span></code> decorator declares metric UDFs to be applied to columns specified by name or type. Types can be specified as subclass of <code class="docutils literal notranslate"><span class="pre">whylogs.core.datatypes.DataType</span></code> or a plain Python type.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
 from whylogs.core.datatypes import String
@@ -855,12 +883,17 @@ by specifying your own <code class="docutils literal notranslate"><span class="p
 <h3>Logging<a class="headerlink" href="#Logging" title="Permalink to this headline">#</a></h3>
 <p>Let’s look at a full example using the UDFs defined above:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">Fractional</span><span class="p">,</span> <span class="n">String</span>
-<span class="kn">from</span> <span class="nn">whylogs.experimental.core.udf_schema</span> <span class="kn">import</span> <span class="n">register_dataset_udf</span><span class="p">,</span> <span class="n">register_type_udf</span><span class="p">,</span> <span class="n">udf_schema</span>
+<span class="kn">from</span> <span class="nn">whylogs.experimental.core.udf_schema</span> <span class="kn">import</span> <span class="p">(</span>
+  <span class="n">register_dataset_udf</span><span class="p">,</span>
+  <span class="n">register_multioutput_udf</span><span class="p">,</span>
+  <span class="n">register_type_udf</span><span class="p">,</span>
+  <span class="n">udf_schema</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.experimental.core.metrics.udf_metric</span> <span class="kn">import</span> <span class="n">register_metric_udf</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
@@ -874,6 +907,19 @@ by specifying your own <code class="docutils literal notranslate"><span class="p
     <span class="k">return</span> <span class="p">[</span><span class="n">mass</span> <span class="o">/</span> <span class="n">volume</span> <span class="k">for</span> <span class="n">mass</span><span class="p">,</span> <span class="n">volume</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;mass&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;volume&quot;</span><span class="p">])]</span>
 
 
+<span class="nd">@register_multioutput_udfs</span><span class="p">([</span><span class="s2">&quot;x&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">powers</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;xx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
+    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;xxx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">result</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;xx&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]]}</span>
+    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;xxx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
 <span class="nd">@register_type_udf</span><span class="p">(</span><span class="n">Fractional</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">square</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
   <span class="k">return</span> <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">input</span><span class="p">]</span>
@@ -884,7 +930,13 @@ by specifying your own <code class="docutils literal notranslate"><span class="p
   <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
 
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;mass&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;volume&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.9</span><span class="p">,</span> <span class="mf">4.2</span><span class="p">,</span> <span class="mf">3.1</span><span class="p">],</span> <span class="s2">&quot;lower&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">]})</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;mass&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="s2">&quot;volume&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+    <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.9</span><span class="p">,</span> <span class="mf">4.2</span><span class="p">,</span> <span class="mf">3.1</span><span class="p">],</span>
+    <span class="s2">&quot;lower&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="p">})</span>
 <span class="n">schema</span> <span class="o">=</span> <span class="n">udf_schema</span><span class="p">()</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
 <span class="n">result</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
@@ -892,8 +944,7 @@ by specifying your own <code class="docutils literal notranslate"><span class="p
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
   <div id="df-7f35e440-c6b9-4519-be9a-2c3c51852920">
@@ -1256,7 +1307,7 @@ function displayQuickchartButton(domScope) {
   </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="s2">&quot;lower&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="s2">&quot;udf&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">()[</span><span class="s2">&quot;upper:frequent_items/frequent_strings&quot;</span><span class="p">]</span>
@@ -1264,8 +1315,7 @@ function displayQuickchartButton(domScope) {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
@@ -1279,7 +1329,7 @@ function displayQuickchartButton(domScope) {
 <h3>Direct invocation<a class="headerlink" href="#Direct-invocation" title="Permalink to this headline">#</a></h3>
 <p>Sometimes you might want to apply the UDFs before or instead of logging data for profiling. You can do that with the <code class="docutils literal notranslate"><span class="pre">apply_udfs()</span></code> method of the <code class="docutils literal notranslate"><span class="pre">UdfSchema</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">new_df</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">apply_udfs</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -1288,8 +1338,7 @@ function displayQuickchartButton(domScope) {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
   <div id="df-433580a6-842c-4f9e-801c-61c3b9512eba">
@@ -1495,7 +1544,7 @@ function displayQuickchartButton(domScope) {
   </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">new_row</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">apply_udfs</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mass&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;volume&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;lower&quot;</span><span class="p">:</span> <span class="s2">&quot;d&quot;</span><span class="p">})</span>
@@ -1504,8 +1553,7 @@ function displayQuickchartButton(domScope) {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
@@ -1591,14 +1639,16 @@ function displayQuickchartButton(domScope) {
 <li><a class="reference internal" href="#Install-whylogs">Install whylogs</a></li>
 <li><a class="reference internal" href="#Types-of-UDF">Types of UDF</a><ul>
 <li><a class="reference internal" href="#Dataset-UDFs">Dataset UDFs</a></li>
+<li><a class="reference internal" href="#Multioutput-UDFs">Multioutput UDFs</a></li>
 <li><a class="reference internal" href="#Type-UDFs">Type UDFs</a></li>
 <li><a class="reference internal" href="#Metric-UDFs">Metric UDFs</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#UDF-Registration">UDF Registration</a><ul>
 <li><a class="reference internal" href="#id1">Dataset UDFs</a></li>
-<li><a class="reference internal" href="#id2">Type UDFs</a></li>
-<li><a class="reference internal" href="#id3">Metric UDFs</a></li>
+<li><a class="reference internal" href="#id2">Multioutput UDFs</a></li>
+<li><a class="reference internal" href="#id3">Type UDFs</a></li>
+<li><a class="reference internal" href="#id4">Metric UDFs</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#Examples">Examples</a><ul>

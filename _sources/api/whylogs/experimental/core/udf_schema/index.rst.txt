@@ -22,6 +22,7 @@ Functions
 
 .. autoapisummary::
 
+   whylogs.experimental.core.udf_schema.register_multioutput_udf
    whylogs.experimental.core.udf_schema.register_dataset_udf
    whylogs.experimental.core.udf_schema.unregister_udf
    whylogs.experimental.core.udf_schema.register_type_udf
@@ -73,6 +74,21 @@ Attributes
 
       
 
+   .. py:attribute:: prefix
+      :type: Optional[str]
+
+      
+
+   .. py:attribute:: udf
+      :type: Optional[Callable[[Any], Any]]
+
+      
+
+   .. py:attribute:: name
+      :type: Optional[str]
+
+      
+
 
 .. py:class:: UdfSchema(resolvers: Optional[List[whylogs.core.resolvers.ResolverSpec]] = None, types: Optional[Dict[str, Any]] = None, default_config: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Optional[Dict[str, List[whylogs.core.validators.validator.Validator]]] = None, udf_specs: Optional[List[UdfSpec]] = None)
 
@@ -103,6 +119,25 @@ Attributes
 
    .. py:method:: get(name: str) -> Optional[ColumnSchema]
 
+
+
+.. py:function:: register_multioutput_udf(col_names: List[str], udf_name: Optional[str] = None, prefix: Optional[str] = None, namespace: Optional[str] = None, schema_name: str = '') -> Callable[[Any], Any]
+
+   Decorator to easily configure UDFs for your data set. Decorate your UDF
+   functions, then call generate_udf_dataset_schema() to create a UdfSchema
+   that includes the UDFs configured by your decorator parameters. The decorated
+   function will automatically be a UDF in the UdfSchema.
+
+   Specify udf_name to give the output of the UDF a name. udf_name
+   defautls to the name of the decorated function. Note that all lambdas are
+   named "lambda", so omitting udf_name on more than one lambda will result
+   in name collisions. If you pass a namespace, it will be prepended to the UDF name.
+   Specifying schema_name will register the UDF in a particular schema. If omitted,
+   it will be registered to the defualt schema.
+
+   For multiple output column UDFs, the udf_name is prepended to the column
+   name supplied by the UDF. The signature for multiple output column UDFs
+   is f(Union[Dict[str, List], pd.DataFrame]) -> Union[Dict[str, List], pd.DataFrame]
 
 
 .. py:function:: register_dataset_udf(col_names: List[str], udf_name: Optional[str] = None, metrics: Optional[List[whylogs.core.resolvers.MetricSpec]] = None, namespace: Optional[str] = None, schema_name: str = '', anti_metrics: Optional[List[whylogs.core.metrics.metrics.Metric]] = None) -> Callable[[Any], Any]
@@ -149,7 +184,7 @@ Attributes
 
 .. py:function:: generate_udf_specs(other_udf_specs: Optional[List[UdfSpec]] = None, schema_name: Union[str, List[str]] = '', include_default_schema: bool = True) -> List[UdfSpec]
 
-   Generates a list UdfSpecs that implement the UDFs specified by the
+   Generates a list of UdfSpecs that implement the UDFs specified by the
    @register_dataset_udf, @register_type_udf, and @register_metric_udf
    decorators. You can provide a list of other_udf_specs to include in
    addition to those UDFs registered via the decorator.
