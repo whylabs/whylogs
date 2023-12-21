@@ -19,6 +19,7 @@ from whylogs.experimental.core.udf_schema import (
     UdfSchema,
     UdfSpec,
     register_dataset_udf,
+    register_multioutput_udf,
     register_type_udf,
     udf_schema,
     unregister_udf,
@@ -52,6 +53,42 @@ def test_udf_pandas() -> None:
     col3 = results.get_column("col3").to_summary_dict()
     assert col1 == col2 == col3
     assert len(data.columns) == 1
+
+
+@register_multioutput_udf(["xx1", "xx2"])
+def f1(x: Union[Dict[str, List], pd.DataFrame]) -> Union[Dict[str, List], pd.DataFrame]:
+    if isinstance(x, dict):
+        return {"foo": [x["xx1"][0]], "bar": [x["xx2"][0]]}
+    else:
+        return pd.DataFrame({"foo": x["xx1"], "bar": x["xx2"]})
+
+
+@register_multioutput_udf(["xx1", "xx2"], prefix="blah")
+def f2(x: Union[Dict[str, List], pd.DataFrame]) -> Union[Dict[str, List], pd.DataFrame]:
+    if isinstance(x, dict):
+        return {"foo": [x["xx1"][0]], "bar": [x["xx2"][0]]}
+    else:
+        return pd.DataFrame({"foo": x["xx1"], "bar": x["xx2"]})
+
+
+def test_multioutput_udf_row() -> None:
+    schema = udf_schema()
+    row = {"xx1": 42, "xx2": 3.14}
+    results = why.log(row, schema=schema).view()
+    assert results.get_column("f1.foo") is not None
+    assert results.get_column("f1.bar") is not None
+    assert results.get_column("blah.foo") is not None
+    assert results.get_column("blah.bar") is not None
+
+
+def test_multioutput_udf_dataframe() -> None:
+    schema = udf_schema()
+    df = pd.DataFrame({"xx1": [42, 7], "xx2": [3.14, 2.72]})
+    results = why.log(df, schema=schema).view()
+    assert results.get_column("f1.foo") is not None
+    assert results.get_column("f1.bar") is not None
+    assert results.get_column("blah.foo") is not None
+    assert results.get_column("blah.bar") is not None
 
 
 @register_dataset_udf(["col1"], schema_name="unit-tests")
