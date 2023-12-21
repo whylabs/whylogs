@@ -18,7 +18,6 @@ from typing import (
     Union,
     cast,
 )
-from python.whylogs.api.logger.experimental.logger.actor.process_actor import PipeSignaler
 
 from whylogs.api.whylabs.session.config import INIT_DOCS
 from whylogs.api.whylabs.session.session_manager import default_init
@@ -33,7 +32,7 @@ except ImportError:
     raise ImportError(proc_error_message)
 
 # Pandas/numpy required in the proc extra that this class requires
-from whylogs.core.stubs import pd
+import pandas as pd
 
 from whylogs.api.logger.experimental.logger.actor.actor import CloseMessage, QueueConfig
 from whylogs.api.logger.experimental.logger.actor.data_logger import (
@@ -145,6 +144,7 @@ BuiltinMessageTypes = Union[
     LogMessage,
     CloseMessage,
     ProcessStatusMessage,
+    ProcessLoggerStatus
 ]
 
 AdditionalMessages = TypeVar("AdditionalMessages")
