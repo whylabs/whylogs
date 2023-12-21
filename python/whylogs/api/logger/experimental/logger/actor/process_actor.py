@@ -58,7 +58,9 @@ class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessage
 
         self._sync_enabled = sync_enabled
 
-        self._pipe_signaler: Optional[PipeSignaler[Union[ProcessMessageType, StatusType]]] = PipeSignaler() if self._sync_enabled is True else None
+        self._pipe_signaler: Optional[PipeSignaler[Union[ProcessMessageType, StatusType]]] = (
+            PipeSignaler() if self._sync_enabled is True else None
+        )
 
         self._event = mp.Event()
         self._is_closed = mp.Event()

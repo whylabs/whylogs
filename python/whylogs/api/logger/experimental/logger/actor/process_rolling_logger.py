@@ -144,7 +144,7 @@ BuiltinMessageTypes = Union[
     LogMessage,
     CloseMessage,
     ProcessStatusMessage,
-    ProcessLoggerStatus
+    ProcessLoggerStatus,
 ]
 
 AdditionalMessages = TypeVar("AdditionalMessages")
@@ -307,7 +307,6 @@ class BaseProcessRollingLogger(
         process_logger_status = ProcessLoggerStatus(statuses=statuses)
         for message in messages:
             self._pipe_signaler.signal((message.id, None, process_logger_status))
-
 
     def process_pubsub_embedding(self, messages: List[RawPubSubEmbeddingMessage]) -> None:
         self._logger.info("Processing pubsub embedding message")
