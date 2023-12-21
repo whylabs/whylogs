@@ -22,6 +22,7 @@ class Message1:
 class Message2:
     pass
 
+
 StatusType = TypeVar("StatusType")
 
 

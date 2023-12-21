@@ -14,13 +14,12 @@ some issue deserializing or validating.
 import sys
 
 if sys.version_info >= (3, 8):
-    from typing import TypedDict, Protocol  # pylint: disable=no-name-in-module
+    from typing import Protocol, TypedDict  # pylint: disable=no-name-in-module
 else:
     from typing_extensions import TypedDict, Protocol
 
 import base64
 from dataclasses import dataclass, field
-
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 from whylogs.api.logger.experimental.logger.actor.thread_rolling_logger import (

@@ -1,4 +1,3 @@
-from concurrent.futures import Future
 import multiprocessing as mp
 import signal
 import sys
