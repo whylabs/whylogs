@@ -3,7 +3,7 @@ import signal
 import sys
 from concurrent.futures import Future
 from enum import Enum
-from typing import Generic, Optional, Sequence, TypeVar, Union
+from typing import Any, Generic, Optional, Sequence, TypeVar, Union
 
 from whylogs.api.logger.experimental.logger.actor.actor import (
     Actor,
@@ -27,7 +27,9 @@ class QueueType(Enum):
     FASTER_FIFO = "FASTER_FIFO"
 
 
-class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessageType, StatusType]):
+class ProcessActor(
+    Actor[Union[ProcessMessageType, ProcessStatusMessage]], mp.Process, Generic[ProcessMessageType, StatusType]
+):
     """
     Subclass of Actor that uses a process to process messages.
     """
@@ -57,9 +59,10 @@ class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessage
 
         self._sync_enabled = sync_enabled
 
-        self._pipe_signaler: Optional[PipeSignaler[Union[ProcessMessageType, StatusType]]] = (
-            PipeSignaler() if self._sync_enabled is True else None
-        )
+        # TODO is Any the right type here? It's the type of the PipeSignaler's message
+        # but BaseProcessRollingLogger appears to need some different things to work
+        # properly
+        self._pipe_signaler: Optional[PipeSignaler[Any]] = PipeSignaler() if self._sync_enabled is True else None
 
         self._event = mp.Event()
         self._is_closed = mp.Event()
