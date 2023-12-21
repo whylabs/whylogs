@@ -14,13 +14,14 @@ some issue deserializing or validating.
 import sys
 
 if sys.version_info >= (3, 8):
-    from typing import TypedDict  # pylint: disable=no-name-in-module
+    from typing import TypedDict, Protocol  # pylint: disable=no-name-in-module
 else:
-    from typing_extensions import TypedDict
+    from typing_extensions import TypedDict, Protocol
 
 import base64
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Protocol, Tuple, Union, cast
+
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 from whylogs.api.logger.experimental.logger.actor.thread_rolling_logger import (
     LoggerStatus,
@@ -116,7 +117,7 @@ class LogMessage:
 class SyncMessage(Protocol):
     """
     A message can be sent synchronously if it has an id and it has a sync flag set to True.
-    It doesnt magically make the message synchrnous, but allows us to create a synchronous
+    It doesnt magically make the message synchronous, but allows us to create a synchronous
     convenience method for that message type. See log and status on the ProcessRollingLogger.
     """
 

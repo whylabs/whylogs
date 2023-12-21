@@ -1,12 +1,10 @@
 from concurrent.futures import Future
-import logging
 import multiprocessing as mp
-import threading as th
 import signal
 import sys
 from concurrent.futures import Future
 from enum import Enum
-from typing import Any, Dict, Generic, Optional, Sequence, Tuple, TypeVar
+from typing import Generic, Optional, Sequence, TypeVar, Union
 
 from whylogs.api.logger.experimental.logger.actor.actor import (
     Actor,
@@ -59,7 +57,8 @@ class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessage
             raise ValueError(f"Unknown queue type: {queue_type}")
 
         self._sync_enabled = sync_enabled
-        self._pipe_signaler: Optional[PipeSignaler] = PipeSignaler() if self._sync_enabled is True else None
+
+        self._pipe_signaler: Optional[PipeSignaler[Union[ProcessMessageType, StatusType]]] = PipeSignaler() if self._sync_enabled is True else None
 
         self._event = mp.Event()
         self._is_closed = mp.Event()
@@ -151,103 +150,3 @@ class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessage
         self.daemon = True
         super().start()
         self.join(0.1)  # This does apparently need to happen after several manual tests.
-
-
-class PipeSignaler(th.Thread):
-    """
-    A thread that listens on a pipe for messages and signals the corresponding futures.
-
-    This class is used in the process actor to enable synchronous requests across processes.
-    It's essentially a dictionary of futures that are registered by the main process and signaled by the
-    child process. A lot of the behavior is implicit because it involves properties of processes, so it's
-    worth documenting here.
-
-    - This thread has to be started from the main process, which means it has to be started right before the
-        process logger is started (before the os.fork under the hood). It has to be started from the main process
-        because the main process will be registering futures on it, and those can't cross the process boundary.
-    - The parent and child process each have references to the pipes and they each need to close their references,
-        which means close_child has to be called from the child process and close has to be called from the parent.
-        Calling close_child in the main processing code will have right effect.
-    - The process actor does message batching so multiple ids may be signaled even though a single batch was processed
-        because that batch could have contained multiple messages.
-    - The signaler uses Events under the hood to know when to stop working. They can be th.Events even though this
-        is being used in a multiprocessing environment because nothing the child does can affect them. Keep in mind
-        that introducing any behavior on the child side that depends on knowing whether those events are set won't work
-        though, they would have to be switched to mp.Events for that.
-
-    This class should really never be used by anyone in most cases. It will just slow down the main process by making
-    it wait for logging to complete, but it enables a lot of testing and debugging.
-    """
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.daemon = True
-        self._logger = logging.getLogger(__name__)
-        self._parent_conn, self._conn = mp.Pipe()
-        self.futures: Dict[str, "Future[Any]"] = {}
-        self._end_polling = th.Event()
-        self._done = th.Event()
-
-    def signal(self, result: Tuple[str, Optional[Exception], Any]) -> None:
-        """
-        Signal that a message was handled by sending a tuple of (message id, exception, data).
-        data and exception can be None.
-        This should be called from the child process.
-        """
-        self._parent_conn.send(result)
-
-    def register(self, future: "Future[Any]", message_id: str) -> None:
-        """
-        Register a future to be signaled when the message id is received.
-        This should be called from the parent process.
-        """
-        self._logger.debug(f"Received register request for id {message_id}")
-        self.futures[message_id] = future
-
-    def _start_poll_conn(self) -> None:
-        while not self._end_polling.is_set():
-            try:
-                if self._conn.poll(timeout=0.1):
-                    message_id, exception, data = self._conn.recv()
-                    self._logger.debug(f"Received message id {message_id}")
-                    future: Optional["Future[Any]"] = self.futures.pop(message_id, None)
-                    if future is not None:
-                        self._logger.debug(f"Setting result for message id {message_id} {exception}")
-                        if exception is None:
-                            print(f"Setting result for message id {message_id} {data}")
-                            future.set_result(data)
-                        else:
-                            future.set_exception(exception)
-
-            except EOFError:
-                self._logger.exception("Broken pipe")
-                break
-            except OSError as e:
-                self._logger.exception(f"OS Error in ipc pipe. Was the logger closed? {e}")
-            except Exception as e:
-                self._logger.exception(f"Error in ipc pipe {e}")
-
-        self._done.set()
-
-    def run(self) -> None:
-        self._start_poll_conn()
-
-    def close_child(self) -> None:
-        """
-        Closes the file descriptors from the child process side.
-        """
-        self._conn.close()
-        self._parent_conn.close()
-
-    def close(self) -> None:
-        """
-        Closes the thread and all resources. This should be
-        called from the parent side.
-        """
-        self._end_polling.set()
-        self._done.wait()
-
-        self._conn.close()
-        self._parent_conn.close()
-
-        self.join()
