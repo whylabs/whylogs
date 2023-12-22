@@ -333,7 +333,6 @@ class BaseProcessRollingLogger(
             self._logger.info("Processing raw log request message")
             log_dicts = [msg for msg in [m.to_log_request_dict() for m in messages] if msg is not None]
             self.process_log_dicts(log_dicts)
-            # for message in messages:
             self._signal(messages, None)
         except Exception as e:
             self._logger.exception("Error processing log message")

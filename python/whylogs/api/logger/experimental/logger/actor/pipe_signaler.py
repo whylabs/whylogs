@@ -14,7 +14,25 @@ T = TypeVar("T")
 
 class PipeSignaler(th.Thread, Generic[T]):
     """
-    ... [Your existing docstring] ...
+    A thread that listens on a pipe for messages and signals the corresponding futures.
+    This class is used in the process logger to enable synchronous logging requests across processes.
+    It's essentially a dictionary of futures that are registered by the main process and signaled by the
+    child process. A lot of the behavior is implicit because it involves properties of processes, so it's
+    worth documenting here.
+    - This thread has to be started from the main process, which means it has to be started right before the
+        process logger is started (before the os.fork under the hood). It has to be started from the main process
+        because the main process will be registering futures on it, and those can't cross the process boundary.
+    - The parent and child process each have references to the pipes and they each need to close their references,
+        which means close_child has to be called from the child process and close has to be called from the parent.
+        Calling close_child in the main processing code will have right effect.
+    - The process actor does message batching so multiple ids may be signaled even though a single batch was processed
+        because that batch could have contained multiple messages.
+    - The signaler uses Events under the hood to know when to stop working. They can be th.Events even though this
+        is being used in a multiprocessing environment because nothing the child does can affect them. Keep in mind
+        that introducing any behavior on the child side that depends on knowing whether those events are set won't work
+        though, they would have to be switched to mp.Events for that.
+    This class should really never be used by anyone in most cases. It will just slow down the main process by making
+    it wait for logging to complete, but it enables a lot of testing and debugging.
     """
 
     def __init__(self) -> None:
@@ -31,7 +49,9 @@ class PipeSignaler(th.Thread, Generic[T]):
 
     def signal(self, result: Tuple[str, Optional[Exception], Optional[T]]) -> None:
         """
-        ... [Your existing docstring] ...
+        Signal that a message was handled by sending a tuple of (message id, exception, data).
+        data and exception can be None.
+        This should be called from the child process.
         """
         self.queue.send(result)
 
@@ -40,7 +60,8 @@ class PipeSignaler(th.Thread, Generic[T]):
 
     def register(self, future: "Future[T]", message_id: str) -> None:
         """
-        ... [Your existing docstring] ...
+        Register a future to be signaled when the message id is received.
+        This should be called from the parent process.
         """
         self._logger.debug(f"Received register request for id {message_id}")
         self.futures[message_id] = future

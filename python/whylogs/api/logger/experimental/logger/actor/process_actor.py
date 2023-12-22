@@ -114,7 +114,6 @@ class ProcessActor(
             if message.sync:
                 self._pipe_signaler.signal((message.id, error, None))
 
-    # TODO
     def status(self, timeout: Optional[float] = 1.0) -> StatusType:
         """
         Get the internal status of the Process Actor. Used for diagnostics and debugging.
