@@ -194,9 +194,7 @@ class PubSubEmbeddingDict(TypedDict):
     log_embedding_request: LogEmbeddingRequestDict
 
 
-def _decode_pubsub_data(
-    data: Union[PubSubEmbeddingDict, PubSubDict],
-) -> Optional[bytes]:
+def _decode_pubsub_data(data: Union[PubSubEmbeddingDict, PubSubDict]) -> Optional[bytes]:
     if "message" not in data or data["message"] is None:  # type: ignore
         _logger.error(f"Request missing message field {data}")
         return None
@@ -259,9 +257,7 @@ def log_dict_to_data_frame(request: LogRequestDict) -> Tuple[pd.DataFrame, int]:
     return df, len(df)
 
 
-def log_dict_to_embedding_matrix(
-    request: LogEmbeddingRequestDict,
-) -> Tuple[Dict[str, "np.ndarray[Any, Any]"], int]:
+def log_dict_to_embedding_matrix(request: LogEmbeddingRequestDict) -> Tuple[Dict[str, "np.ndarray[Any, Any]"], int]:
     row: Dict[str, np.ndarray[Any, Any]] = {}
     row_count = 0
     for col, embeddings in request["embeddings"].items():
