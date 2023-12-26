@@ -796,16 +796,18 @@ class WhyLabsWriter(Writer):
         return DatasetProfileApi(self._api_client)
 
     @staticmethod
-    def _build_log_async_request(dataset_timestamp: int) -> LogAsyncRequest:
-        return LogAsyncRequest(dataset_timestamp=dataset_timestamp, segment_tags=[])
+    def _build_log_async_request(dataset_timestamp: int, region: Optional[str] = None) -> LogAsyncRequest:
+        return LogAsyncRequest(dataset_timestamp=dataset_timestamp, segment_tags=[], region=region)
 
     @staticmethod
-    def _build_log_reference_request(dataset_timestamp: int, alias: Optional[str] = None) -> LogReferenceRequest:
-        return LogReferenceRequest(dataset_timestamp=dataset_timestamp, alias=alias)
+    def _build_log_reference_request(
+        dataset_timestamp: int, alias: Optional[str] = None, region: Optional[str] = None
+    ) -> LogReferenceRequest:
+        return LogReferenceRequest(dataset_timestamp=dataset_timestamp, alias=alias, region=region)
 
     @staticmethod
     def _build_log_segmented_reference_request(
-        dataset_timestamp: int, tags: Optional[dict] = None, alias: Optional[str] = None
+        dataset_timestamp: int, tags: Optional[dict] = None, alias: Optional[str] = None, region: Optional[str] = None
     ) -> LogReferenceRequest:
         segments = list()
         if not alias:
@@ -814,9 +816,11 @@ class WhyLabsWriter(Writer):
             for segment_tags in tags:
                 segments.append(Segment(tags=[SegmentTag(key=tag["key"], value=tag["value"]) for tag in segment_tags]))
         if not segments:
-            return CreateReferenceProfileRequest(alias=alias, dataset_timestamp=dataset_timestamp)
+            return CreateReferenceProfileRequest(alias=alias, dataset_timestamp=dataset_timestamp, region=region)
         else:
-            return CreateReferenceProfileRequest(alias=alias, dataset_timestamp=dataset_timestamp, segments=segments)
+            return CreateReferenceProfileRequest(
+                alias=alias, dataset_timestamp=dataset_timestamp, segments=segments, region=region
+            )
 
     def _get_column_weights(self):
         feature_weight_api = self._get_or_create_feature_weights_client()
@@ -929,16 +933,18 @@ class WhyLabsWriter(Writer):
             raise e
 
     def _get_upload_urls_segmented_reference(self, whylabs_tags, dataset_timestamp: int) -> Tuple[str, List[str]]:
+        region = os.getenv("WHYLABS_UPLOAD_REGION", None)
         request = self._build_log_segmented_reference_request(
-            dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name
+            dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name, region=region
         )
         res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
         return res["id"], res["upload_urls"]
 
     # TODO: add this to client API
     def _get_upload_urls_segmented_reference_zip(self, whylabs_tags, dataset_timestamp: int) -> Tuple[str, str]:
+        region = os.getenv("WHYLABS_UPLOAD_REGION", None)
         request = self._build_log_segmented_reference_request(
-            dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name
+            dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name, region=region
         )
         res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
         url = res["upload_urls"]
@@ -984,11 +990,14 @@ class WhyLabsWriter(Writer):
             raise e
 
     def _get_upload_url(self, dataset_timestamp: int) -> Tuple[str, str]:
+        region = os.getenv("WHYLABS_UPLOAD_REGION", None)
         if self._reference_profile_name is not None:
-            request = self._build_log_reference_request(dataset_timestamp, alias=self._reference_profile_name)
+            request = self._build_log_reference_request(
+                dataset_timestamp, alias=self._reference_profile_name, region=region
+            )
             res = self._post_log_reference(request=request, dataset_timestamp=dataset_timestamp)
         else:
-            request = self._build_log_async_request(dataset_timestamp)
+            request = self._build_log_async_request(dataset_timestamp, region=region)
             res = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
 
         upload_url = res["upload_url"]
