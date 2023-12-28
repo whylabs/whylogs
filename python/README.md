@@ -73,7 +73,7 @@ df = pd.read_csv("path/to/file.csv")
 results = why.log(df)
 ```
 
-And voilà, you now have a whylogs profile. To learn more about what a whylogs profile is and what you can do with it, read on.
+And there you have it, you now have a whylogs profile. To learn more about what a whylogs profile is and what you can do with it, read on.
 
 ## Table of Contents
 
