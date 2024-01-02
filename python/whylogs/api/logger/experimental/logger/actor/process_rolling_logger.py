@@ -151,8 +151,8 @@ AdditionalMessages = TypeVar("AdditionalMessages")
 
 
 class BaseProcessRollingLogger(
-    ProcessActor[Union[AdditionalMessages, BuiltinMessageTypes], ProcessLoggerStatus],
-    DataLogger[ProcessLoggerStatus],
+    ProcessActor[Union[AdditionalMessages, BuiltinMessageTypes], Union[ProcessLoggerStatus, LoggerStatus, None]],
+    DataLogger[Union[ProcessLoggerStatus, LoggerStatus, None]],
     Generic[AdditionalMessages],
 ):
     """
@@ -292,10 +292,7 @@ class BaseProcessRollingLogger(
         statuses: Dict[str, LoggerStatus] = {}
         for dataset_id, future in futures:
             try:
-                # TODO is this \/ required?
-                # status = ProcessLoggerStatus(dataset_id=dataset_id, status=wait_result_while(future, self.is_alive))
                 statuses[dataset_id] = wait_result_while(future, self.is_alive)
-                # statuses.append(status)
             except Exception as e:
                 for message in messages:
                     self._pipe_signaler.signal((message.id, e, None))
@@ -430,7 +427,9 @@ class BaseProcessRollingLogger(
             sync=sync,
         )
 
-        result: Optional["Future[None]"] = cast("Future[None]", Future()) if sync else None
+        result: Optional["Future[Union[ProcessLoggerStatus, LoggerStatus, None]]"] = (
+            cast("Future[Union[ProcessLoggerStatus, LoggerStatus, None]]", Future()) if sync else None
+        )
         if result is not None:
             self._logger.debug(f"Registering result id {message.id} for synchronous logging")
             if self._pipe_signaler is None:
