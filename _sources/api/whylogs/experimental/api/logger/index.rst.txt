@@ -12,7 +12,7 @@ Classes
 
 .. autoapisummary::
 
-   whylogs.experimental.api.logger.ProfileResultSet
+   whylogs.experimental.api.logger.ViewResultSet
    whylogs.experimental.api.logger.DatasetSchema
 
 
@@ -38,7 +38,7 @@ Attributes
 .. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None, name: Optional[str] = None, multiple: Optional[Dict[str, Loggable]] = None, dataset_timestamp: Optional[datetime.datetime] = None, trace_id: Optional[str] = None, tags: Optional[List[str]] = None, segment_key_values: Optional[Dict[str, str]] = None, debug_event: Optional[Dict[str, Any]] = None) -> result_set.ResultSet
 
 
-.. py:class:: ProfileResultSet(profile: whylogs.core.DatasetProfile)
+.. py:class:: ViewResultSet(view: whylogs.core.DatasetProfileView)
 
    Bases: :py:obj:`ResultSet`
 
@@ -68,11 +68,14 @@ Attributes
    .. py:method:: view() -> Optional[whylogs.core.DatasetProfileView]
 
 
-   .. py:method:: zero() -> ProfileResultSet
+   .. py:method:: zero() -> ViewResultSet
       :staticmethod:
 
 
    .. py:method:: merge(other: ResultSet) -> ViewResultSet
+
+
+   .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
 
 
    .. py:method:: read(multi_profile_file: str) -> ResultSet
@@ -87,9 +90,6 @@ Attributes
 
 
    .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
-
-
-   .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
@@ -166,6 +166,6 @@ Attributes
 
    
 
-.. py:function:: log_batch_ranking_metrics(k: int, data: whylogs.core.stubs.pd.core.frame.DataFrame, prediction_column: str, target_column: Optional[str] = None, score_column: Optional[str] = None, schema: Union[whylogs.core.DatasetSchema, None] = None, log_full_data: bool = False) -> whylogs.api.logger.result_set.ProfileResultSet
+.. py:function:: log_batch_ranking_metrics(k: int, data: whylogs.core.stubs.pd.core.frame.DataFrame, prediction_column: str, target_column: Optional[str] = None, score_column: Optional[str] = None, schema: Union[whylogs.core.DatasetSchema, None] = None, log_full_data: bool = False) -> whylogs.api.logger.result_set.ViewResultSet
 
 

@@ -679,14 +679,14 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;This result set did not define merge, see ProfileResultSet or SegmentedResulSet.&quot;</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="ViewResultSet"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ViewResultSet">[docs]</a><span class="k">class</span> <span class="nc">ViewResultSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
+<div class="viewcode-block" id="ViewResultSet"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.ViewResultSet">[docs]</a><span class="k">class</span> <span class="nc">ViewResultSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">:</span> <span class="n">DatasetProfileView</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_view</span> <span class="o">=</span> <span class="n">view</span>
 
-<div class="viewcode-block" id="ViewResultSet.profile"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ViewResultSet.profile">[docs]</a>    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfile</span><span class="p">]:</span>
+<div class="viewcode-block" id="ViewResultSet.profile"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.ViewResultSet.profile">[docs]</a>    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfile</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No profile available. Can only view&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ViewResultSet.view"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ViewResultSet.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]:</span>
+<div class="viewcode-block" id="ViewResultSet.view"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.ViewResultSet.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span></div>
 
     <span class="nd">@property</span>
@@ -697,11 +697,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="ViewResultSet.zero"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ViewResultSet.zero">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ViewResultSet.zero"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.ViewResultSet.zero">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">zero</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ViewResultSet&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ViewResultSet</span><span class="p">(</span><span class="n">DatasetProfileView</span><span class="o">.</span><span class="n">zero</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="ViewResultSet.merge"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ViewResultSet.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;ResultSet&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ViewResultSet&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="ViewResultSet.merge"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.ViewResultSet.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;ResultSet&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ViewResultSet&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
 
@@ -710,23 +710,23 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Merging potentially incompatible ViewResultSet and </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ViewResultSet</span><span class="p">(</span><span class="n">lhs_view</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">view</span><span class="p">()))</span></div>
 
-<div class="viewcode-block" id="ViewResultSet.set_dataset_timestamp"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ViewResultSet.set_dataset_timestamp">[docs]</a>    <span class="k">def</span> <span class="nf">set_dataset_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="ViewResultSet.set_dataset_timestamp"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.ViewResultSet.set_dataset_timestamp">[docs]</a>    <span class="k">def</span> <span class="nf">set_dataset_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ensure_timezone</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">)</span>
         <span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">view</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot set timestamp on a view result set without a view!&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">view</span><span class="o">.</span><span class="n">set_dataset_timestamp</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">)</span></div></div>
+            <span class="n">view</span><span class="o">.</span><span class="n">dataset_timestamp</span> <span class="o">=</span> <span class="n">dataset_timestamp</span></div></div>
 
 
-<div class="viewcode-block" id="ProfileResultSet"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.ProfileResultSet">[docs]</a><span class="k">class</span> <span class="nc">ProfileResultSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileResultSet"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ProfileResultSet">[docs]</a><span class="k">class</span> <span class="nc">ProfileResultSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">:</span> <span class="n">DatasetProfile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span> <span class="o">=</span> <span class="n">profile</span>
 
-<div class="viewcode-block" id="ProfileResultSet.profile"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.ProfileResultSet.profile">[docs]</a>    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfile</span><span class="p">]:</span>
+<div class="viewcode-block" id="ProfileResultSet.profile"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ProfileResultSet.profile">[docs]</a>    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfile</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span></div>
 
-<div class="viewcode-block" id="ProfileResultSet.view"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.ProfileResultSet.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]:</span>
+<div class="viewcode-block" id="ProfileResultSet.view"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ProfileResultSet.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span></div>
 
     <span class="nd">@property</span>
@@ -737,11 +737,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="ProfileResultSet.zero"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.ProfileResultSet.zero">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ProfileResultSet.zero"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ProfileResultSet.zero">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">zero</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">&quot;ProfileResultSet&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ProfileResultSet</span><span class="p">(</span><span class="n">DatasetProfile</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="ProfileResultSet.merge"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.ProfileResultSet.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;ResultSet&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ViewResultSet</span><span class="p">:</span>
+<div class="viewcode-block" id="ProfileResultSet.merge"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ProfileResultSet.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;ResultSet&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ViewResultSet</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
 

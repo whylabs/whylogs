@@ -437,7 +437,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger</span> <span class="kn">import</span> <span class="n">log</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ProfileResultSet</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ViewResultSet</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">np</span><span class="p">,</span> <span class="n">pd</span>
 
@@ -452,7 +452,7 @@
     <span class="n">score_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">log_full_data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProfileResultSet</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ViewResultSet</span><span class="p">:</span>
     <span class="n">formatted_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># TODO: does this have to be deep?</span>
 
     <span class="n">relevant_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">prediction_column</span><span class="p">]</span>
