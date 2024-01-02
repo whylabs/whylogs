@@ -1,4 +1,7 @@
 #! /bin/sh
 
-cd python
-make install test
+git config --global --add safe.directory /workspace
+export PATH=$PATH:/home/whyuser/.local/bin
+cd /workspace/python
+make install
+make test
