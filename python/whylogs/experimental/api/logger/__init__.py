@@ -2,7 +2,7 @@ import logging
 from typing import Optional, Union
 
 from whylogs.api.logger import log
-from whylogs.api.logger.result_set import ProfileResultSet
+from whylogs.api.logger.result_set import ViewResultSet
 from whylogs.core import DatasetSchema
 from whylogs.core.stubs import np, pd
 
@@ -17,7 +17,7 @@ def log_batch_ranking_metrics(
     score_column: Optional[str] = None,
     schema: Union[DatasetSchema, None] = None,
     log_full_data: bool = False,
-) -> ProfileResultSet:
+) -> ViewResultSet:
     formatted_data = data.copy(deep=True)  # TODO: does this have to be deep?
 
     relevant_cols = [prediction_column]

@@ -281,7 +281,7 @@ class ViewResultSet(ResultSet):
         if view is None:
             raise ValueError("Cannot set timestamp on a view result set without a view!")
         else:
-            view.set_dataset_timestamp(dataset_timestamp)
+            view.dataset_timestamp = dataset_timestamp
 
 
 class ProfileResultSet(ResultSet):
