@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Test Dockerfile.dev
-      run: |
-        docker build -t whylogs -f Dockerfile.dev .
-        docker run --rm -it -v $(pwd):/workspace whylogs docker_test.sh
+      - name: Test Dockerfile.dev
+        run: |
+          docker build -t whylogs -f Dockerfile.dev .
+          docker run --rm -it -v $(pwd):/workspace whylogs docker_test.sh
