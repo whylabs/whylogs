@@ -1,7 +1,4 @@
-import logging
-import multiprocessing as mp
 import os
-import threading as th
 import time
 from abc import abstractmethod
 from concurrent.futures import Future
@@ -9,7 +6,6 @@ from dataclasses import dataclass, field
 from functools import reduce
 from itertools import groupby
 from typing import (
-    Any,
     Callable,
     Dict,
     Generic,
@@ -55,7 +51,7 @@ from whylogs.api.logger.experimental.logger.actor.process_rolling_logger_message
     LogMessage,
     LogRequestDict,
     ProcessLoggerStatus,
-    ProcessLoggerStatusMessage,
+    ProcessStatusMessage,
     RawLogEmbeddingsMessage,
     RawLogMessage,
     RawPubSubEmbeddingMessage,
@@ -147,15 +143,16 @@ BuiltinMessageTypes = Union[
     RawPubSubEmbeddingMessage,
     LogMessage,
     CloseMessage,
-    ProcessLoggerStatusMessage,
+    ProcessStatusMessage,
+    ProcessLoggerStatus,
 ]
 
 AdditionalMessages = TypeVar("AdditionalMessages")
 
 
 class BaseProcessRollingLogger(
-    ProcessActor[Union[AdditionalMessages, BuiltinMessageTypes]],
-    DataLogger[ProcessLoggerStatus],
+    ProcessActor[Union[AdditionalMessages, BuiltinMessageTypes], Union[ProcessLoggerStatus, LoggerStatus, None]],
+    DataLogger[Union[ProcessLoggerStatus, LoggerStatus, None]],
     Generic[AdditionalMessages],
 ):
     """
@@ -213,7 +210,7 @@ class BaseProcessRollingLogger(
         queue_type: QueueType = QueueType.FASTER_FIFO,
         logger_factory: LoggerFactory = ThreadLoggerFactory(),
     ) -> None:
-        super().__init__(queue_config=queue_config, queue_type=queue_type)
+        super().__init__(queue_config=queue_config, queue_type=queue_type, sync_enabled=sync_enabled)
         self._logger_options = LoggerOptions(
             aggregate_by=aggregate_by,
             write_schedule=write_schedule,
@@ -225,14 +222,11 @@ class BaseProcessRollingLogger(
             writer_factory=writer_factory,
         )
         self._logger_factory = logger_factory
-
-        self._sync_enabled = sync_enabled
         self._thread_queue_config = thread_queue_config
         self._writer_factory = writer_factory
         self.current_time_ms = current_time_fn or current_time_ms
         self.loggers: Dict[str, ThreadRollingLogger] = {}
         self.schema = schema
-        self._pipe_signaler: Optional[PipeSignaler] = PipeSignaler() if sync_enabled else None
         self._session = default_init()
 
     def _create_logger(self, dataset_id: str) -> ThreadRollingLogger:
@@ -262,8 +256,8 @@ class BaseProcessRollingLogger(
             self.process_pubsub_embedding(cast(List[RawPubSubEmbeddingMessage], batch))
         elif batch_type == CloseMessage:
             self.process_close_message(cast(List[CloseMessage], batch))
-        elif batch_type == ProcessLoggerStatusMessage:
-            self._process_logger_status_message(cast(List[ProcessLoggerStatusMessage], batch))
+        elif batch_type == ProcessStatusMessage:
+            self._process_logger_status_message(cast(List[ProcessStatusMessage], batch))
         else:
             raise Exception(f"Unknown message type {batch_type}")
 
@@ -282,7 +276,7 @@ class BaseProcessRollingLogger(
         msgs = [msg["log_request"] for msg in [it.to_pubsub_message() for it in messages] if msg is not None]
         self.process_log_dicts(msgs)
 
-    def _process_logger_status_message(self, messages: List[ProcessLoggerStatusMessage]) -> None:
+    def _process_logger_status_message(self, messages: List[ProcessStatusMessage]) -> None:
         if self._pipe_signaler is None:
             raise Exception(
                 "Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True."
@@ -298,9 +292,7 @@ class BaseProcessRollingLogger(
         statuses: Dict[str, LoggerStatus] = {}
         for dataset_id, future in futures:
             try:
-                # status = ProcessLoggerStatus(dataset_id=dataset_id, status=wait_result_while(future, self.is_alive))
                 statuses[dataset_id] = wait_result_while(future, self.is_alive)
-                # statuses.append(status)
             except Exception as e:
                 for message in messages:
                     self._pipe_signaler.signal((message.id, e, None))
@@ -312,22 +304,6 @@ class BaseProcessRollingLogger(
         process_logger_status = ProcessLoggerStatus(statuses=statuses)
         for message in messages:
             self._pipe_signaler.signal((message.id, None, process_logger_status))
-
-    def status(self, timeout: Optional[float] = 1.0) -> ProcessLoggerStatus:
-        """
-        Get the internal status of the logger. Used for diangostics and debugging.
-        This is always synchronous and requires the logger to be created with sync_enabled=True.
-        """
-        if self._pipe_signaler is None:
-            raise Exception(
-                "Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True."
-            )
-
-        message = ProcessLoggerStatusMessage()
-        future: "Future[ProcessLoggerStatus]" = Future()
-        self._pipe_signaler.register(future, message.id)
-        self.send(message)
-        return wait_result_while(future, self.is_alive)
 
     def process_pubsub_embedding(self, messages: List[RawPubSubEmbeddingMessage]) -> None:
         self._logger.info("Processing pubsub embedding message")
@@ -344,28 +320,20 @@ class BaseProcessRollingLogger(
             log_dicts = [m.log for m in messages]
             self.process_log_dicts(log_dicts)
 
-            for message in messages:
-                self._signal(message.id, None)
+            self._signal(messages, None)
         except Exception as e:
             self._logger.exception("Error processing log message")
-            for message in messages:
-                self._signal(message.id, e)
-
-    def _signal(self, message_id: str, error: Optional[Exception] = None) -> None:
-        if self._pipe_signaler is not None:
-            self._pipe_signaler.signal((message_id, error, None))
+            self._signal(messages, e)
 
     def process_raw_log_dicts(self, messages: List[RawLogMessage]) -> None:
         try:
             self._logger.info("Processing raw log request message")
             log_dicts = [msg for msg in [m.to_log_request_dict() for m in messages] if msg is not None]
             self.process_log_dicts(log_dicts)
-            for message in messages:
-                self._signal(message.id, None)
+            self._signal(messages, None)
         except Exception as e:
             self._logger.exception("Error processing log message")
-            for message in messages:
-                self._signal(message.id, e)
+            self._signal(messages, e)
 
     def process_log_embeddings_messages(self, messages: List[RawLogEmbeddingsMessage]) -> None:
         self._logger.info("Processing log embeddings messages")
@@ -387,7 +355,8 @@ class BaseProcessRollingLogger(
     ) -> None:
         for dataset_id, group in groupby(dicts, lambda it: it["datasetId"]):
             for dataset_timestamp, ts_grouped in groupby(
-                group, lambda it: determine_dataset_timestamp(self._logger_options.aggregate_by, it)
+                group,
+                lambda it: determine_dataset_timestamp(self._logger_options.aggregate_by, it),
             ):
                 for n, sub_group in groupby(ts_grouped, lambda it: encode_strings(get_columns(it))):
                     self._logger.info(
@@ -452,8 +421,15 @@ class BaseProcessRollingLogger(
             multiple=self._create_multiple(data),
         )
 
-        message = RawLogMessage(request=orjson.dumps(log_request), request_time=self.current_time_ms())
-        result: Optional["Future[None]"] = cast("Future[None]", Future()) if sync else None
+        message = RawLogMessage(
+            request=orjson.dumps(log_request),
+            request_time=self.current_time_ms(),
+            sync=sync,
+        )
+
+        result: Optional["Future[Union[ProcessLoggerStatus, LoggerStatus, None]]"] = (
+            cast("Future[Union[ProcessLoggerStatus, LoggerStatus, None]]", Future()) if sync else None
+        )
         if result is not None:
             self._logger.debug(f"Registering result id {message.id} for synchronous logging")
             if self._pipe_signaler is None:
@@ -494,106 +470,6 @@ class BaseProcessRollingLogger(
         super().close()
         if self._pipe_signaler is not None:
             self._pipe_signaler.close()
-
-
-class PipeSignaler(th.Thread):
-    """
-    A thread that listens on a pipe for messages and signals the corresponding futures.
-
-    This class is used in the process logger to enable synchronous logging requests across processes.
-    It's essentially a dictionary of futures that are registered by the main process and signaled by the
-    child process. A lot of the behavior is implicit because it involves properties of processes, so it's
-    worth documenting here.
-
-    - This thread has to be started from the main process, which means it has to be started right before the
-        process logger is started (before the os.fork under the hood). It has to be started from the main process
-        because the main process will be registering futures on it, and those can't cross the process boundary.
-    - The parent and child process each have references to the pipes and they each need to close their references,
-        which means close_child has to be called from the child process and close has to be called from the parent.
-        Calling close_child in the main processing code will have right effect.
-    - The process actor does message batching so multiple ids may be signaled even though a single batch was processed
-        because that batch could have contained multiple messages.
-    - The signaler uses Events under the hood to know when to stop working. They can be th.Events even though this
-        is being used in a multiprocessing environment because nothing the child does can affect them. Keep in mind
-        that introducing any behavior on the child side that depends on knowing whether those events are set won't work
-        though, they would have to be switched to mp.Events for that.
-
-    This class should really never be used by anyone in most cases. It will just slow down the main process by making
-    it wait for logging to complete, but it enables a lot of testing and debugging.
-    """
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.daemon = True
-        self._logger = logging.getLogger(__name__)
-        self._parent_conn, self._conn = mp.Pipe()
-        self.futures: Dict[str, "Future[Any]"] = {}
-        self._end_polling = th.Event()
-        self._done = th.Event()
-
-    def signal(self, result: Tuple[str, Optional[Exception], Any]) -> None:
-        """
-        Signal that a message was handled by sending a tuple of (message id, exception, data).
-        data and exception can be None.
-        This should be called from the child process.
-        """
-        self._parent_conn.send(result)
-
-    def register(self, future: "Future[Any]", message_id: str) -> None:
-        """
-        Register a future to be signaled when the message id is received.
-        This should be called from the parent process.
-        """
-        self._logger.debug(f"Received register request for id {message_id}")
-        self.futures[message_id] = future
-
-    def _start_poll_conn(self) -> None:
-        while not self._end_polling.is_set():
-            try:
-                if self._conn.poll(timeout=0.1):
-                    message_id, exception, data = self._conn.recv()
-                    self._logger.debug(f"Received message id {message_id}")
-                    future: Optional["Future[Any]"] = self.futures.pop(message_id, None)
-                    if future is not None:
-                        self._logger.debug(f"Setting result for message id {message_id} {exception}")
-                        if exception is None:
-                            print(f"Setting result for message id {message_id} {data}")
-                            future.set_result(data)
-                        else:
-                            future.set_exception(exception)
-
-            except EOFError:
-                self._logger.exception("Broken pipe")
-                break
-            except OSError as e:
-                self._logger.exception(f"OS Error in ipc pipe. Was the logger closed? {e}")
-            except Exception as e:
-                self._logger.exception(f"Error in ipc pipe {e}")
-
-        self._done.set()
-
-    def run(self) -> None:
-        self._start_poll_conn()
-
-    def close_child(self) -> None:
-        """
-        Closes the file descriptors from the child process side.
-        """
-        self._conn.close()
-        self._parent_conn.close()
-
-    def close(self) -> None:
-        """
-        Closes the thread and all resources. This should be
-        called from the parent side.
-        """
-        self._end_polling.set()
-        self._done.wait()
-
-        self._conn.close()
-        self._parent_conn.close()
-
-        self.join()
 
 
 class ProcessRollingLogger(BaseProcessRollingLogger[NoReturn]):
