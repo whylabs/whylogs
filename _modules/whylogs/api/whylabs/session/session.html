@@ -755,14 +755,20 @@
 
         <span class="n">org_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">require_org_id</span><span class="p">()</span>
         <span class="n">dataset_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">require_default_dataset_id</span><span class="p">()</span>
-        <span class="n">response</span><span class="p">:</span> <span class="n">GetProfileObservatoryLinkResponse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_whylabs_log_api</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_profile_observatory_link</span><span class="p">(</span>
-            <span class="n">dataset_id</span><span class="p">,</span> <span class="n">org_id</span><span class="p">,</span> <span class="n">request</span>
-        <span class="p">)</span>
 
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span><span class="p">:</span> <span class="n">GetProfileObservatoryLinkResponse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_whylabs_log_api</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_profile_observatory_link</span><span class="p">(</span>
+                <span class="n">dataset_id</span><span class="p">,</span> <span class="n">org_id</span><span class="p">,</span> <span class="n">request</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Convenience profile links could not be generated for the sucessfully uploading profiles: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">profile_url</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">observatory_url</span> <span class="k">if</span> <span class="n">response</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">individual_urls</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">individual_observatory_urls</span> <span class="k">if</span> <span class="n">response</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">UploadResult</span><span class="p">(</span>
-            <span class="n">viewing_url</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">observatory_url</span><span class="p">,</span>
+            <span class="n">viewing_url</span><span class="o">=</span><span class="n">profile_url</span><span class="p">,</span>
             <span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span>
-            <span class="n">individual_viewing_urls</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">individual_observatory_urls</span><span class="p">,</span>
+            <span class="n">individual_viewing_urls</span><span class="o">=</span><span class="n">individual_urls</span><span class="p">,</span>
         <span class="p">)</span></div></div>
 </pre></div>
         </article>
