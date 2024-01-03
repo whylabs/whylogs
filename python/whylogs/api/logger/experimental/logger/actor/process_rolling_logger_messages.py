@@ -14,9 +14,9 @@ some issue deserializing or validating.
 import sys
 
 if sys.version_info >= (3, 8):
-    from typing import TypedDict  # pylint: disable=no-name-in-module
+    from typing import Protocol, TypedDict  # pylint: disable=no-name-in-module
 else:
-    from typing_extensions import TypedDict
+    from typing_extensions import TypedDict, Protocol
 
 import base64
 from dataclasses import dataclass, field
@@ -99,9 +99,10 @@ class ProcessLoggerStatus:
 
 
 @dataclass
-class ProcessLoggerStatusMessage:
+class ProcessStatusMessage:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    timeout: Optional[float] = None
+    timeout: float = 1.0
+    sync: bool = True
 
 
 @dataclass
@@ -109,6 +110,18 @@ class LogMessage:
     request_time: int
     log: LogRequestDict
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    sync: bool = False
+
+
+class SyncMessage(Protocol):
+    """
+    A message can be sent synchronously if it has an id and it has a sync flag set to True.
+    It doesnt magically make the message synchronous, but allows us to create a synchronous
+    convenience method for that message type. See log and status on the ProcessRollingLogger.
+    """
+
+    id: str
+    sync: bool
 
 
 @dataclass
@@ -119,6 +132,7 @@ class RawLogMessage:
     """
     request_time: int
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    sync: bool = False
 
     def __post_init__(self) -> None:
         if self.id == "None":
