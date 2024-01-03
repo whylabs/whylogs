@@ -326,9 +326,7 @@ class ApiKeySession(Session):
                 dataset_id, org_id, request
             )
         except Exception as e:
-            logger.warning(
-                f"Convenience profile links could not be generated for the sucessfully uploading profiles: {e}"
-            )
+            logger.info(f"Convenience profile links could not be generated for the sucessfully uploading profiles: {e}")
 
         profile_url = response.observatory_url if response else ""
         individual_urls = response.individual_observatory_urls if response else None
