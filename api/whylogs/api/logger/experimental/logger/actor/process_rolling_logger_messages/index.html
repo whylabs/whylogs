@@ -488,25 +488,28 @@ some issue deserializing or validating.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessLoggerStatus</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessLoggerStatusMessage</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessStatusMessage</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogMessage" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LogMessage</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RawLogMessage</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.SyncMessage" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.SyncMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SyncMessage</span></code></a></p></td>
+<td><p>A message can be sent synchronously if it has an id and it has a sync flag set to True.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RawLogMessage</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubMessage" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RawPubSubMessage</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubMessage" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RawPubSubMessage</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.PubSubEmbeddingDict" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.PubSubEmbeddingDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PubSubEmbeddingDict</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.PubSubEmbeddingDict" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.PubSubEmbeddingDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PubSubEmbeddingDict</span></code></a></p></td>
 <td><p>dict() -&gt; new empty dictionary</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubEmbeddingMessage" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubEmbeddingMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RawPubSubEmbeddingMessage</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubEmbeddingMessage" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubEmbeddingMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RawPubSubEmbeddingMessage</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogEmbeddingsMessage" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogEmbeddingsMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RawLogEmbeddingsMessage</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogEmbeddingsMessage" title="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogEmbeddingsMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RawLogEmbeddingsMessage</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -1116,16 +1119,21 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.</span></span><span class="sig-name descname"><span class="pre">ProcessLoggerStatusMessage</span></span><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.</span></span><span class="sig-name descname"><span class="pre">ProcessStatusMessage</span></span><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage.id">
-<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage.id" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage.id" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage.timeout">
-<span class="sig-name descname"><span class="pre">timeout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage.timeout" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage.timeout">
+<span class="sig-name descname"><span class="pre">timeout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage.timeout" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage.sync">
+<span class="sig-name descname"><span class="pre">sync</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage.sync" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1148,6 +1156,30 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 <span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogMessage.id" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogMessage.sync">
+<span class="sig-name descname"><span class="pre">sync</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogMessage.sync" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.SyncMessage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.</span></span><span class="sig-name descname"><span class="pre">SyncMessage</span></span><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.SyncMessage" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>A message can be sent synchronously if it has an id and it has a sync flag set to True.
+It doesnt magically make the message synchronous, but allows us to create a synchronous
+convenience method for that message type. See log and status on the ProcessRollingLogger.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.SyncMessage.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.SyncMessage.id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.SyncMessage.sync">
+<span class="sig-name descname"><span class="pre">sync</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.SyncMessage.sync" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1167,6 +1199,11 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage.id">
 <span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage.id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage.sync">
+<span class="sig-name descname"><span class="pre">sync</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage.sync" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1609,21 +1646,29 @@ That assumption should be enforced before this is used by grouping by set of col
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus.statuses">statuses</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage">ProcessLoggerStatusMessage</a><ul>
-<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage.id">id</a></li>
-<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage.timeout">timeout</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage">ProcessStatusMessage</a><ul>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage.id">id</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage.timeout">timeout</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage.sync">sync</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogMessage">LogMessage</a><ul>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogMessage.request_time">request_time</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogMessage.log">log</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogMessage.id">id</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogMessage.sync">sync</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.SyncMessage">SyncMessage</a><ul>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.SyncMessage.id">id</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.SyncMessage.sync">sync</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage">RawLogMessage</a><ul>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage.request">request</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage.request_time">request_time</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage.id">id</a></li>
+<li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage.sync">sync</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage.to_log_request_dict">to_log_request_dict</a></li>
 </ul>
 </li>

@@ -35,8 +35,9 @@ Classes
    whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.DebugMessage
    whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.FlushMessage
    whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus
-   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatusMessage
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage
    whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.LogMessage
+   whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.SyncMessage
    whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawLogMessage
    whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.RawPubSubMessage
    whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.PubSubEmbeddingDict
@@ -539,7 +540,7 @@ Attributes
       
 
 
-.. py:class:: ProcessLoggerStatusMessage
+.. py:class:: ProcessStatusMessage
 
    .. py:attribute:: id
       :type: str
@@ -547,7 +548,14 @@ Attributes
       
 
    .. py:attribute:: timeout
-      :type: Optional[float]
+      :type: float
+      :value: 1.0
+
+      
+
+   .. py:attribute:: sync
+      :type: bool
+      :value: True
 
       
 
@@ -569,6 +577,31 @@ Attributes
 
       
 
+   .. py:attribute:: sync
+      :type: bool
+      :value: False
+
+      
+
+
+.. py:class:: SyncMessage
+
+   Bases: :py:obj:`Protocol`
+
+   A message can be sent synchronously if it has an id and it has a sync flag set to True.
+   It doesnt magically make the message synchronous, but allows us to create a synchronous
+   convenience method for that message type. See log and status on the ProcessRollingLogger.
+
+   .. py:attribute:: id
+      :type: str
+
+      
+
+   .. py:attribute:: sync
+      :type: bool
+
+      
+
 
 .. py:class:: RawLogMessage
 
@@ -584,6 +617,12 @@ Attributes
 
    .. py:attribute:: id
       :type: str
+
+      
+
+   .. py:attribute:: sync
+      :type: bool
+      :value: False
 
       
 

@@ -23,8 +23,17 @@ Attributes
 
 .. autoapisummary::
 
+   whylogs.api.logger.experimental.logger.actor.process_actor.StatusType
    whylogs.api.logger.experimental.logger.actor.process_actor.ProcessMessageType
 
+
+.. py:data:: StatusType
+
+   
+
+.. py:data:: ProcessMessageType
+
+   
 
 .. py:class:: QueueType
 
@@ -55,13 +64,9 @@ Attributes
 
 
 
-.. py:data:: ProcessMessageType
+.. py:class:: ProcessActor(queue_config: whylogs.api.logger.experimental.logger.actor.actor.QueueConfig = QueueConfig(), queue_type: QueueType = QueueType.FASTER_FIFO, sync_enabled: bool = False)
 
-   
-
-.. py:class:: ProcessActor(queue_config: whylogs.api.logger.experimental.logger.actor.actor.QueueConfig = QueueConfig(), queue_type: QueueType = QueueType.FASTER_FIFO)
-
-   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.Actor`\ [\ :py:obj:`ProcessMessageType`\ ], :py:obj:`multiprocessing.Process`, :py:obj:`Generic`\ [\ :py:obj:`ProcessMessageType`\ ]
+   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.actor.Actor`\ [\ :py:obj:`Union`\ [\ :py:obj:`ProcessMessageType`\ , :py:obj:`whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessStatusMessage`\ ]\ ], :py:obj:`multiprocessing.Process`, :py:obj:`Generic`\ [\ :py:obj:`ProcessMessageType`\ , :py:obj:`StatusType`\ ]
 
    Subclass of Actor that uses a process to process messages.
 
@@ -126,6 +131,12 @@ Attributes
 
       This method releases resources held by the Process object.  It is
       an error to call this method if the child process is still running.
+
+
+   .. py:method:: status(timeout: Optional[float] = 1.0) -> StatusType
+
+      Get the internal status of the Process Actor. Used for diagnostics and debugging.
+      This is always synchronous and requires the ProcessActor to be created with sync_enabled=True.
 
 
    .. py:method:: run() -> None
