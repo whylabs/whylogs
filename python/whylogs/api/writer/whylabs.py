@@ -11,7 +11,8 @@ from urllib3 import PoolManager, ProxyManager
 from whylabs_client import ApiClient, Configuration  # type: ignore
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi  # type: ignore
 from whylabs_client.api.feature_weights_api import FeatureWeightsApi  # type: ignore
-from whylabs_client.api.log_api import AsyncLogResponse  # type: ignore
+
+# from whylabs_client.api.log_api import AsyncLogResponse  # type: ignore
 from whylabs_client.api.log_api import (
     LogApi,
     LogAsyncRequest,
@@ -19,13 +20,20 @@ from whylabs_client.api.log_api import (
     LogReferenceResponse,
 )
 from whylabs_client.api.models_api import ModelsApi  # type: ignore
+from whylabs_client.api.transactions_api import TransactionsApi
+from whylabs_client.model.async_log_response import AsyncLogResponse
 from whylabs_client.model.column_schema import ColumnSchema  # type: ignore
 from whylabs_client.model.create_reference_profile_request import (  # type: ignore
     CreateReferenceProfileRequest,
 )
+from whylabs_client.model.log_transaction_metadata import LogTransactionMetadata
 from whylabs_client.model.metric_schema import MetricSchema  # type: ignore
+from whylabs_client.model.response import Response
 from whylabs_client.model.segment import Segment  # type: ignore
 from whylabs_client.model.segment_tag import SegmentTag  # type: ignore
+from whylabs_client.model.transaction_commit_request import TransactionCommitRequest
+from whylabs_client.model.transaction_log_request import TransactionLogRequest
+from whylabs_client.model.transaction_start_request import TransactionStartRequest
 from whylabs_client.rest import ForbiddenException  # type: ignore
 
 from whylogs.api.logger import log
@@ -181,6 +189,7 @@ class WhyLabsWriter(Writer):
         self._reference_profile_name = config.get_whylabs_refernce_profile_name()
         self._api_config: Optional[Configuration] = None
         self._prefer_sync = read_bool_env_var(WHYLOGS_PREFER_SYNC_KEY, False)
+        self._transaction_id = None
 
         _http_proxy = os.environ.get("HTTP_PROXY")
         _https_proxy = os.environ.get("HTTPS_PROXY")
@@ -606,6 +615,35 @@ class WhyLabsWriter(Writer):
                         self.tag_custom_performance_column(column_name, default_metric=metric)
         return
 
+    def _get_or_create_transaction_client(self) -> TransactionsApi:
+        self._refresh_client()
+        return TransactionsApi(self._api_client)
+
+    def start_transaction(self, **kwargs) -> None:
+        if self._transaction_id is not None:
+            logger.error("Must end current transaction with commit_transaction() before starting another")
+            return
+
+        if kwargs.get("dataset_id") is not None:
+            self._dataset_id = kwargs.get("dataset_id")
+
+        client: TransactionsApi = self._get_or_create_transaction_client()
+        request = TransactionStartRequest(dataset_id=self._dataset_id)
+        result: LogTransactionMetadata = client.start_transaction(request, **kwargs)
+        self._transaction_id = result["transaction_id"]
+
+    def commit_transaction(self, **kwargs) -> None:
+        if self._transaction_id is None:
+            logger.error("Must call start_transaction() before commit_transaction()")
+            return
+
+        client = self._get_or_create_transaction_client()
+        request = TransactionCommitRequest(verbose=True)
+        print(f"comminting {self._transaction_id}")
+        result: Response = client.commit_transaction(self._transaction_id, request, **kwargs)
+        print(result)
+        self._transaction_id = None
+
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
         if isinstance(file, FeatureWeights):
@@ -679,10 +717,26 @@ class WhyLabsWriter(Writer):
                 )
 
             dataset_timestamp_epoch = int(stamp * 1000)
-            response = self._do_upload(
-                dataset_timestamp=dataset_timestamp_epoch,
-                profile_file=tmp_file,
-            )
+            if self._transaction_id is not None:
+                # TODO: maybe check it's not a reference profile?
+                region = os.getenv("WHYLABS_UPLOAD_REGION", None)
+                client: TransactionsApi = self._get_or_create_transaction_client()
+                request = TransactionLogRequest(
+                    dataset_timestamp=dataset_timestamp_epoch, segment_tags=[], region=region
+                )
+                result: AsyncLogResponse = client.log_transaction(self._transaction_id, request, **kwargs)
+                response = self._do_upload(
+                    dataset_timestamp=dataset_timestamp_epoch,
+                    upload_url=result.upload_url,
+                    profile_id=result.id,
+                    profile_file=tmp_file,
+                )
+            else:
+                response = self._do_upload(
+                    dataset_timestamp=dataset_timestamp_epoch,
+                    profile_file=tmp_file,
+                )
+
         # TODO: retry
         return response
 
