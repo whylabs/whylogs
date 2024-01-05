@@ -184,8 +184,11 @@ class Actor(ABC, Generic[MessageType]):
 
         while self._polling_condition(len(batch), max, last_message_time, self._queue.size()):
             try:
-                batch += self._queue.get_many(timeout=self._queue_config.message_poll_wait, max=max)
-                self._logger.info(f"Got {len(batch)} messages. {self._queue.size()} remaining")
+                next_batch = self._queue.get_many(timeout=self._queue_config.message_poll_wait, max=max)
+                batch += next_batch
+                self._logger.debug(
+                    f"Adding {len(next_batch)} to poll batch of length {len(batch)}. {self._queue.size()} remaining"
+                )
             except queue.Empty:
                 if self.is_closed() and self.close_message_handled():
                     self._logger.info("Queue closed and no more messages to process.")

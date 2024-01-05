@@ -1,15 +1,25 @@
 import multiprocessing as mp
 import signal
 import sys
+from concurrent.futures import Future
 from enum import Enum
-from typing import Generic, TypeVar
+from typing import Generic, Optional, Sequence, TypeVar, Union
 
 from whylogs.api.logger.experimental.logger.actor.actor import (
     Actor,
     QueueConfig,
     QueueWrapper,
 )
+from whylogs.api.logger.experimental.logger.actor.future_util import wait_result_while
+from whylogs.api.logger.experimental.logger.actor.pipe_signaler import PipeSignaler
+from whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages import (
+    ProcessStatusMessage,
+    SyncMessage,
+)
 from whylogs.api.logger.experimental.logger.actor.signal_util import suspended_signals
+
+StatusType = TypeVar("StatusType")
+ProcessMessageType = TypeVar("ProcessMessageType")
 
 
 class QueueType(Enum):
@@ -17,10 +27,9 @@ class QueueType(Enum):
     FASTER_FIFO = "FASTER_FIFO"
 
 
-ProcessMessageType = TypeVar("ProcessMessageType")
-
-
-class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessageType]):
+class ProcessActor(
+    Actor[Union[ProcessMessageType, ProcessStatusMessage]], mp.Process, Generic[ProcessMessageType, StatusType]
+):
     """
     Subclass of Actor that uses a process to process messages.
     """
@@ -28,7 +37,10 @@ class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessage
     _wrapper: QueueWrapper[ProcessMessageType]
 
     def __init__(
-        self, queue_config: QueueConfig = QueueConfig(), queue_type: QueueType = QueueType.FASTER_FIFO
+        self,
+        queue_config: QueueConfig = QueueConfig(),
+        queue_type: QueueType = QueueType.FASTER_FIFO,
+        sync_enabled: bool = False,
     ) -> None:
         if queue_type == QueueType.MP:
             from whylogs.api.logger.experimental.logger.actor.mp_queue_wrapper import (
@@ -45,6 +57,8 @@ class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessage
         else:
             raise ValueError(f"Unknown queue type: {queue_type}")
 
+        self._sync_enabled = sync_enabled
+        self._pipe_signaler: Optional[PipeSignaler[StatusType]] = PipeSignaler() if self._sync_enabled is True else None
         self._event = mp.Event()
         self._is_closed = mp.Event()
         self._close_handled = mp.Event()
@@ -86,6 +100,31 @@ class ProcessActor(Actor[ProcessMessageType], mp.Process, Generic[ProcessMessage
 
         super().close()
         self._wrapper.close()
+
+    def _signal(self, messages: Sequence[SyncMessage] = [], error: Optional[Exception] = None) -> None:
+        if self._pipe_signaler is None:
+            return
+
+        for message in messages:
+            if message.sync:
+                self._pipe_signaler.signal((message.id, error, None))
+
+    def status(self, timeout: Optional[float] = 1.0) -> StatusType:
+        """
+        Get the internal status of the Process Actor. Used for diagnostics and debugging.
+        This is always synchronous and requires the ProcessActor to be created with sync_enabled=True.
+        """
+        if self._pipe_signaler is None:
+            raise Exception(
+                "Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True."
+            )
+
+        # add a sync flag to Message
+        message = ProcessStatusMessage()
+        future: "Future[StatusType]" = Future()
+        self._pipe_signaler.register(future, message.id)
+        self.send(message)
+        return wait_result_while(future, self.is_alive)
 
     def run(self) -> None:
         try:
