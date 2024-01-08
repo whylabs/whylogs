@@ -402,7 +402,7 @@ def test_process_throws_after_killed(actor: Tuple[DataLogger, FakeWriter]) -> No
     won't have time to start returning false. This tests the case where something kills the process
     while something else is trying to use it.
     """
-    logger, writer = actor
+    logger, _ = actor
     if isinstance(logger, ProcessRollingLogger):
         logger = cast(ProcessRollingLogger, logger)  # type: ignore
         ms = 1689881671000
@@ -423,7 +423,7 @@ def test_process_throws_after_killed_delay(actor: Tuple[DataLogger, FakeWriter])
     Very similar to test_process_throws_after_killed but there is a delay after the process is killed
     before logging so the log() call will throw before doing any actual work with a clear error message.
     """
-    logger, writer = actor
+    logger, _ = actor
     if isinstance(logger, ProcessRollingLogger):
         logger = cast(ProcessRollingLogger, logger)  # type: ignore
         ms = 1689881671000
