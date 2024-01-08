@@ -12,7 +12,6 @@ from whylabs_client import ApiClient, Configuration  # type: ignore
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi  # type: ignore
 from whylabs_client.api.feature_weights_api import FeatureWeightsApi  # type: ignore
 
-# from whylabs_client.api.log_api import AsyncLogResponse  # type: ignore
 from whylabs_client.api.log_api import (
     LogApi,
     LogAsyncRequest,
