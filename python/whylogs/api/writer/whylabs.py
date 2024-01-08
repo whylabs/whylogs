@@ -639,7 +639,6 @@ class WhyLabsWriter(Writer):
         client = self._get_or_create_transaction_client()
         request = TransactionCommitRequest(verbose=True)
         result: Response = client.commit_transaction(self._transaction_id, request, **kwargs)
-        print(result)
         self._transaction_id = None
 
     @deprecated_alias(profile="file")
