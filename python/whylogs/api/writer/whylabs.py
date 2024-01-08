@@ -11,7 +11,6 @@ from urllib3 import PoolManager, ProxyManager
 from whylabs_client import ApiClient, Configuration  # type: ignore
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi  # type: ignore
 from whylabs_client.api.feature_weights_api import FeatureWeightsApi  # type: ignore
-
 from whylabs_client.api.log_api import (
     LogApi,
     LogAsyncRequest,
@@ -27,7 +26,6 @@ from whylabs_client.model.create_reference_profile_request import (  # type: ign
 )
 from whylabs_client.model.log_transaction_metadata import LogTransactionMetadata
 from whylabs_client.model.metric_schema import MetricSchema  # type: ignore
-from whylabs_client.model.response import Response
 from whylabs_client.model.segment import Segment  # type: ignore
 from whylabs_client.model.segment_tag import SegmentTag  # type: ignore
 from whylabs_client.model.transaction_commit_request import TransactionCommitRequest
@@ -638,7 +636,7 @@ class WhyLabsWriter(Writer):
 
         client = self._get_or_create_transaction_client()
         request = TransactionCommitRequest(verbose=True)
-        result: Response = client.commit_transaction(self._transaction_id, request, **kwargs)
+        client.commit_transaction(self._transaction_id, request, **kwargs)
         self._transaction_id = None
 
     @deprecated_alias(profile="file")
