@@ -617,6 +617,11 @@ class WhyLabsWriter(Writer):
         return TransactionsApi(self._api_client)
 
     def start_transaction(self, **kwargs) -> None:
+        """
+        Initiates a transaction -- any profiles subsequently written by calling write()
+        will be uploaded to WhyLabs atomically when commit_transaction() is called. Throws
+        on failure.
+        """
         if self._transaction_id is not None:
             logger.error("Must end current transaction with commit_transaction() before starting another")
             return
@@ -628,12 +633,18 @@ class WhyLabsWriter(Writer):
         request = TransactionStartRequest(dataset_id=self._dataset_id)
         result: LogTransactionMetadata = client.start_transaction(request, **kwargs)
         self._transaction_id = result["transaction_id"]
+        logger.info(f"Starting transaction {self._transaction_id}, expires {result['expiration_time']}")
 
     def commit_transaction(self, **kwargs) -> None:
+        """
+        Atomically upload any profiles written since the previous start_transaction().
+        Throws on failure.
+        """
         if self._transaction_id is None:
             logger.error("Must call start_transaction() before commit_transaction()")
             return
 
+        logger.info(f"Committing transaction {self._transaction_id}")
         client = self._get_or_create_transaction_client()
         request = TransactionCommitRequest(verbose=True)
         client.commit_transaction(self._transaction_id, request, **kwargs)
@@ -720,6 +731,7 @@ class WhyLabsWriter(Writer):
                     dataset_timestamp=dataset_timestamp_epoch, segment_tags=[], region=region
                 )
                 result: AsyncLogResponse = client.log_transaction(self._transaction_id, request, **kwargs)
+                logger.info(f"Added profile {result.id} to transaction {self._transaction_id}")
                 response = self._do_upload(
                     dataset_timestamp=dataset_timestamp_epoch,
                     upload_url=result.upload_url,
