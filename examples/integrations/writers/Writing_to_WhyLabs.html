@@ -738,15 +738,27 @@ div.rendered_html tbody tr:hover {
 <p>Go to <a class="reference external" href="https://whylabs.ai/free">https://whylabs.ai/free</a> and grab a free account. You can follow along with the examples if you wish, but if you’re interested in only following this demonstration, you can go ahead and skip the quick start instructions.</p>
 <p>After that, you’ll be prompted to create an API token. Once you create it, copy and store it locally. The second important information here is your org ID. Take note of it as well. After you get your API Token and Org ID, you can go to <a class="reference external" href="https://hub.whylabsapp.com/models">https://hub.whylabsapp.com/models</a> to see your projects dashboard. You can create a new project and take note of it’s ID (if it’s a model project it will look like <code class="docutils literal notranslate"><span class="pre">model-xxxx</span></code>).</p>
 <p>We’ll now set the credentials as environment variables. The WhyLabs Writer will check for the existence of these variables in order to send the profiles to your dashboard.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
+<span class="c1"># Optionally you can override the AWS region that profiles get uploaded to when uploading to WhyLabs</span>
+<span class="c1"># os.environ[&quot;WHYLABS_UPLOAD_REGION&quot;] = &#39;ap-southeast-2&#39;</span>
 <span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;whylogs.api.whylabs.session.session.LocalSession at 0x7fe3f463edf0&gt;
+</pre></div></div>
 </div>
 <p>Normally, uploads are done automatically after logging when you use why.init, but this notebook demonstrates manual WhyLabs uploads using the WhyLabs writer API, which you might need if you’re doing something custom with the profiles before they get uploaded. Doing this will disable automatic uploads.</p>
 <div class="nbinput nblast docutils container">
@@ -762,7 +774,7 @@ div.rendered_html tbody tr:hover {
 <h2>Fetching the Data<a class="headerlink" href="#Fetching-the-Data" title="Permalink to this headline">#</a></h2>
 <p>For demonstration, let’s use data for transactions from a small retail business:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -775,7 +787,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -896,7 +908,7 @@ div.rendered_html tbody tr:hover {
 <h2>📊 Profiling the Data<a class="headerlink" href="#📊-Profiling-the-Data" title="Permalink to this headline">#</a></h2>
 <p>Let’s profile the data with whylogs:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
@@ -912,24 +924,24 @@ div.rendered_html tbody tr:hover {
 <h2>✍️ The WhyLabs Writer<a class="headerlink" href="#✍️-The-WhyLabs-Writer" title="Permalink to this headline">#</a></h2>
 <p>Now, you can simply create a WhyLabsWriter object and use it to send your profiles, like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span>
 
 <span class="c1"># The writer uses the same credentials that you set up in why.init</span>
 <span class="n">writer</span> <span class="o">=</span> <span class="n">WhyLabsWriter</span><span class="p">()</span>
-<span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">())</span>
+<span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-(True, &#39;log-f8V2ZqQLLXXlBIwi&#39;)
+(True, &#39;log-SluRuCMaglUHtWln&#39;)
 </pre></div></div>
 </div>
 <p>A <code class="docutils literal notranslate"><span class="pre">200</span></code> response should mean that it went through successfully, and your status returned will be a tuple contained if the write was successful and the profile reference on WhyLabs if successful, otherwise an error string.</p>
@@ -938,7 +950,7 @@ div.rendered_html tbody tr:hover {
 <h3>Option #2: Profile Result writer<a class="headerlink" href="#Option-#2:-Profile-Result-writer" title="Permalink to this headline">#</a></h3>
 <p>A second way to write to WhyLabs is by directly using the <code class="docutils literal notranslate"><span class="pre">writer</span></code> method of a <strong>Profile Result</strong> set, like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -947,12 +959,12 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[(True, &#39;log-F8p8MMkxQ7U6PxjG&#39;)]
+[(True, &#39;log-iPA3fD7K3IAXqwZk&#39;)]
 </pre></div></div>
 </div>
 </section>
@@ -967,8 +979,8 @@ div.rendered_html tbody tr:hover {
 <p>This was a simple example on how you can send a single profile to WhyLabs.</p>
 <p>To better experience WhyLab’s features, try sending multiple profiles for a number of days to visualize how the feature’s metrics change over time! To do that, follow the same steps shown here, but setting the dataset timestamp to past days for backfill.</p>
 <p>The following code snippet is a very simple way to do that. We’re just tweaking the code in the previous sessions in order to split the dataframe into seven chunks, and logging each chunk for a given day:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -988,27 +1000,13 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Logged profile for 2023-09-08 20:45:08.661221+00:00
-Logged profile for 2023-09-07 20:45:09.714203+00:00
-Logged profile for 2023-09-06 20:45:10.755056+00:00
-Logged profile for 2023-09-05 20:45:11.696173+00:00
-Logged profile for 2023-09-04 20:45:12.807533+00:00
-Logged profile for 2023-09-03 20:45:13.793383+00:00
-Logged profile for 2023-09-02 20:45:14.460016+00:00
-</pre></div></div>
-</div>
 <p>This should give you a quick way to look at how your features can be monitored over time!</p>
 <section id="Logging-in-a-production-service-a-rolling-logger">
 <h3>Logging in a production service a rolling logger<a class="headerlink" href="#Logging-in-a-production-service-a-rolling-logger" title="Permalink to this headline">#</a></h3>
 <p>In a production service you can profile in line using a rolling logger as your telemetry gathering agent, which will aggregate the statistics over many messages or batches of your data, and the agen can be configured to write profiles with a configured interval to one or more destinations such as Whylabs, local disk, s3 etc.</p>
 <p>Below we will use this same dataframe and split it into 100 pieces to mimic small batches of inputs in a service, and log these with a rolling logger configured to write to WhyLabs every 5 minutes. To make it easier to see what’s going on we also provide a callback on serialization, which gives access to the writer, the profile written, and a status.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -1042,116 +1040,23 @@ Logged profile for 2023-09-02 20:45:14.460016+00:00
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-profiling batch: 0 out of 10 batches of data
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-trace_id was specified as None but there is already a trace_id defined in metadata[whylabs.traceId]: 717a6394-cef6-46f7-8f0f-38d8cbdfee0b
-trace_id was specified as None but there is already a trace_id defined in metadata[whylabs.traceId]: 717a6394-cef6-46f7-8f0f-38d8cbdfee0b
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-profiling batch: 1 out of 10 batches of data
-profiling batch: 2 out of 10 batches of data
-profiling batch: 3 out of 10 batches of data
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-trace_id was specified as None but there is already a trace_id defined in metadata[whylabs.traceId]: 717a6394-cef6-46f7-8f0f-38d8cbdfee0b
-trace_id was specified as None but there is already a trace_id defined in metadata[whylabs.traceId]: 717a6394-cef6-46f7-8f0f-38d8cbdfee0b
-trace_id was specified as None but there is already a trace_id defined in metadata[whylabs.traceId]: 717a6394-cef6-46f7-8f0f-38d8cbdfee0b
-trace_id was specified as None but there is already a trace_id defined in metadata[whylabs.traceId]: 717a6394-cef6-46f7-8f0f-38d8cbdfee0b
-trace_id was specified as None but there is already a trace_id defined in metadata[whylabs.traceId]: 717a6394-cef6-46f7-8f0f-38d8cbdfee0b
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-profiling batch: 4 out of 10 batches of data
-profiling batch: 5 out of 10 batches of data
-profiling batch: 6 out of 10 batches of data
-profiling batch: 7 out of 10 batches of data
-profiling batch: 8 out of 10 batches of data
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-trace_id was specified as None but there is already a trace_id defined in metadata[whylabs.traceId]: 717a6394-cef6-46f7-8f0f-38d8cbdfee0b
-trace_id was specified as None but there is already a trace_id defined in metadata[whylabs.traceId]: 717a6394-cef6-46f7-8f0f-38d8cbdfee0b
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-profiling batch: 9 out of 10 batches of data
-</pre></div></div>
-</div>
 <p>At this point there should be several batches of data profiled, but there is stil a single compact dataset profile describing all this data. If we waited for the interval to expire (5 minutes after instantiating the telemetry agent), we should see an upload get triggered, and our <code class="docutils literal notranslate"><span class="pre">upload_callback</span></code> triggered, but the rolling logger also has a <code class="docutils literal notranslate"><span class="pre">close()</span></code> method so you can flush any profile data during an application shutdown ahead of the interval’s deadline. This will flush the profile.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">telemetry_agent</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-WARNING:whylogs.api.writer.whylabs:About to upload a profile with a dataset_timestamp that is in the future: -283.243124961853s old.
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Uploaded with &lt;whylogs.api.writer.whylabs.WhyLabsWriter object at 0x7f001c0a2d60&gt;, profile with timestamp: 2023-09-08 20:50:00+00:00 and filename profile.2023-09-08_13-50.bin
-Uploaded with &lt;whylogs.api.writer.local.LocalWriter object at 0x7f001c0d2280&gt;, profile with timestamp: 2023-09-08 20:50:00+00:00 and filename profile.2023-09-08_13-50.bin
-</pre></div></div>
-</div>
 <p>You now have a local copy of the profile, you can check it out, and it is also uploaded to your WhyLabs account where it will be merged with other profiles in the same monitoring time window (e.g. daily or hourly) based on the profiles timestamp.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls<span class="w"> </span>*.bin
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-profile.2023-09-08_13-45.bin  profile.2023-09-08_13-50.bin
-</pre></div></div>
 </div>
 </section>
 </section>
