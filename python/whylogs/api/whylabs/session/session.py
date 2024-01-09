@@ -320,12 +320,18 @@ class ApiKeySession(Session):
 
         org_id = self.config.require_org_id()
         dataset_id = self.config.require_default_dataset_id()
-        response: GetProfileObservatoryLinkResponse = self._whylabs_log_api.value.get_profile_observatory_link(
-            dataset_id, org_id, request
-        )
 
+        try:
+            response: GetProfileObservatoryLinkResponse = self._whylabs_log_api.value.get_profile_observatory_link(
+                dataset_id, org_id, request
+            )
+        except Exception as e:
+            logger.info(f"Convenience profile links could not be generated for the sucessfully uploading profiles: {e}")
+
+        profile_url = response.observatory_url if response else ""
+        individual_urls = response.individual_observatory_urls if response else None
         return UploadResult(
-            viewing_url=response.observatory_url,
+            viewing_url=profile_url,
             result=result,
-            individual_viewing_urls=response.individual_observatory_urls,
+            individual_viewing_urls=individual_urls,
         )
