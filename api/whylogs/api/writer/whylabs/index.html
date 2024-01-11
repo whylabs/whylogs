@@ -708,6 +708,31 @@ If none is passed, defaults to “mean”.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="whylogs.api.writer.whylabs.WhyLabsWriter.start_transaction">
+<span class="sig-name descname"><span class="pre">start_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/whylabs.html#WhyLabsWriter.start_transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.whylabs.WhyLabsWriter.start_transaction" title="Permalink to this definition">#</a></dt>
+<dd><p>Initiates a transaction – any profiles subsequently written by calling write()
+will be uploaded to WhyLabs atomically when commit_transaction() is called. Throws
+on failure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.api.writer.whylabs.WhyLabsWriter.commit_transaction">
+<span class="sig-name descname"><span class="pre">commit_transaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/whylabs.html#WhyLabsWriter.commit_transaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.whylabs.WhyLabsWriter.commit_transaction" title="Permalink to this definition">#</a></dt>
+<dd><p>Atomically upload any profiles written since the previous start_transaction().
+Throws on failure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.writer.whylabs.WhyLabsWriter.write">
 <span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../writer/index.html#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable"><span class="pre">whylogs.api.writer.writer.Writable</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/whylabs.html#WhyLabsWriter.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.whylabs.WhyLabsWriter.write" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -831,6 +856,8 @@ If none is passed, defaults to “mean”.</p></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter.write_estimation_result">write_estimation_result</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter.write_feature_weights">write_feature_weights</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter.get_feature_weights">get_feature_weights</a></li>
+<li><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter.start_transaction">start_transaction</a></li>
+<li><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter.commit_transaction">commit_transaction</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter.write">write</a></li>
 </ul>
 </li>

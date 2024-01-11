@@ -148,6 +148,19 @@ Attributes
       :rtype: FeatureWeightResponse
 
 
+   .. py:method:: start_transaction(**kwargs) -> None
+
+      Initiates a transaction -- any profiles subsequently written by calling write()
+      will be uploaded to WhyLabs atomically when commit_transaction() is called. Throws
+      on failure.
+
+
+   .. py:method:: commit_transaction(**kwargs) -> None
+
+      Atomically upload any profiles written since the previous start_transaction().
+      Throws on failure.
+
+
    .. py:method:: write(file: whylogs.api.writer.writer.Writable, **kwargs: Any) -> Tuple[bool, str]
 
 

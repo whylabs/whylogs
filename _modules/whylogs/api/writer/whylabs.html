@@ -446,7 +446,6 @@
 <span class="kn">from</span> <span class="nn">whylabs_client</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">Configuration</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.dataset_profile_api</span> <span class="kn">import</span> <span class="n">DatasetProfileApi</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.feature_weights_api</span> <span class="kn">import</span> <span class="n">FeatureWeightsApi</span>  <span class="c1"># type: ignore</span>
-<span class="kn">from</span> <span class="nn">whylabs_client.api.log_api</span> <span class="kn">import</span> <span class="n">AsyncLogResponse</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.log_api</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">LogApi</span><span class="p">,</span>
     <span class="n">LogAsyncRequest</span><span class="p">,</span>
@@ -454,13 +453,19 @@
     <span class="n">LogReferenceResponse</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.api.models_api</span> <span class="kn">import</span> <span class="n">ModelsApi</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.api.transactions_api</span> <span class="kn">import</span> <span class="n">TransactionsApi</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.async_log_response</span> <span class="kn">import</span> <span class="n">AsyncLogResponse</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.model.column_schema</span> <span class="kn">import</span> <span class="n">ColumnSchema</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.model.create_reference_profile_request</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># type: ignore</span>
     <span class="n">CreateReferenceProfileRequest</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.log_transaction_metadata</span> <span class="kn">import</span> <span class="n">LogTransactionMetadata</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.model.metric_schema</span> <span class="kn">import</span> <span class="n">MetricSchema</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.model.segment</span> <span class="kn">import</span> <span class="n">Segment</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.model.segment_tag</span> <span class="kn">import</span> <span class="n">SegmentTag</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.transaction_commit_request</span> <span class="kn">import</span> <span class="n">TransactionCommitRequest</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.transaction_log_request</span> <span class="kn">import</span> <span class="n">TransactionLogRequest</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.model.transaction_start_request</span> <span class="kn">import</span> <span class="n">TransactionStartRequest</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.rest</span> <span class="kn">import</span> <span class="n">ForbiddenException</span>  <span class="c1"># type: ignore</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger</span> <span class="kn">import</span> <span class="n">log</span>
@@ -616,6 +621,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_whylabs_refernce_profile_name</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_api_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Configuration</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefer_sync</span> <span class="o">=</span> <span class="n">read_bool_env_var</span><span class="p">(</span><span class="n">WHYLOGS_PREFER_SYNC_KEY</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">_http_proxy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HTTP_PROXY&quot;</span><span class="p">)</span>
         <span class="n">_https_proxy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HTTPS_PROXY&quot;</span><span class="p">)</span>
@@ -1041,6 +1047,44 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">tag_custom_performance_column</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">default_metric</span><span class="o">=</span><span class="n">metric</span><span class="p">)</span>
         <span class="k">return</span>
 
+    <span class="k">def</span> <span class="nf">_get_or_create_transaction_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TransactionsApi</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_client</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">TransactionsApi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">)</span>
+
+<div class="viewcode-block" id="WhyLabsWriter.start_transaction"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WhyLabsWriter.start_transaction">[docs]</a>    <span class="k">def</span> <span class="nf">start_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initiates a transaction -- any profiles subsequently written by calling write()</span>
+<span class="sd">        will be uploaded to WhyLabs atomically when commit_transaction() is called. Throws</span>
+<span class="sd">        on failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Must end current transaction with commit_transaction() before starting another&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_id&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_id&quot;</span><span class="p">)</span>
+
+        <span class="n">client</span><span class="p">:</span> <span class="n">TransactionsApi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_transaction_client</span><span class="p">()</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">TransactionStartRequest</span><span class="p">(</span><span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">:</span> <span class="n">LogTransactionMetadata</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">start_transaction</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;transaction_id&quot;</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting transaction </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span><span class="si">}</span><span class="s2">, expires </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;expiration_time&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WhyLabsWriter.commit_transaction"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WhyLabsWriter.commit_transaction">[docs]</a>    <span class="k">def</span> <span class="nf">commit_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Atomically upload any profiles written since the previous start_transaction().</span>
+<span class="sd">        Throws on failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Must call start_transaction() before commit_transaction()&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Committing transaction </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_transaction_client</span><span class="p">()</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">TransactionCommitRequest</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">commit_transaction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span> <span class="o">=</span> <span class="kc">None</span></div>
+
 <div class="viewcode-block" id="WhyLabsWriter.write"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WhyLabsWriter.write">[docs]</a>    <span class="nd">@deprecated_alias</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="s2">&quot;file&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Writable</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">FeatureWeights</span><span class="p">):</span>
@@ -1114,10 +1158,27 @@
                 <span class="p">)</span>
 
             <span class="n">dataset_timestamp_epoch</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stamp</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_upload</span><span class="p">(</span>
-                <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp_epoch</span><span class="p">,</span>
-                <span class="n">profile_file</span><span class="o">=</span><span class="n">tmp_file</span><span class="p">,</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># TODO: maybe check it&#39;s not a reference profile?</span>
+                <span class="n">region</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;WHYLABS_UPLOAD_REGION&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">client</span><span class="p">:</span> <span class="n">TransactionsApi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_transaction_client</span><span class="p">()</span>
+                <span class="n">request</span> <span class="o">=</span> <span class="n">TransactionLogRequest</span><span class="p">(</span>
+                    <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp_epoch</span><span class="p">,</span> <span class="n">segment_tags</span><span class="o">=</span><span class="p">[],</span> <span class="n">region</span><span class="o">=</span><span class="n">region</span>
+                <span class="p">)</span>
+                <span class="n">result</span><span class="p">:</span> <span class="n">AsyncLogResponse</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">log_transaction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added profile </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> to transaction </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_upload</span><span class="p">(</span>
+                    <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp_epoch</span><span class="p">,</span>
+                    <span class="n">upload_url</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">upload_url</span><span class="p">,</span>
+                    <span class="n">profile_id</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                    <span class="n">profile_file</span><span class="o">=</span><span class="n">tmp_file</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_upload</span><span class="p">(</span>
+                    <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp_epoch</span><span class="p">,</span>
+                    <span class="n">profile_file</span><span class="o">=</span><span class="n">tmp_file</span><span class="p">,</span>
+                <span class="p">)</span>
+
         <span class="c1"># TODO: retry</span>
         <span class="k">return</span> <span class="n">response</span></div>
 
