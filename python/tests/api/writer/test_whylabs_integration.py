@@ -182,3 +182,33 @@ def test_performance_column():
 def test_estimation_result():
     # TODO: WhyLabsWriter::write_estimation_result() needs a trace id
     pass
+
+
+@pytest.mark.load
+def test_transactions():
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+    why.init(force_local=True)
+    schema = DatasetSchema()
+    data = {"col1": 1, "col2": "foo"}
+    trace_id = str(uuid4())
+    result = why.log(data, schema=schema, trace_id=trace_id)
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    assert writer._transaction_id is None
+    writer.start_transaction()
+    assert writer._transaction_id is not None
+    status, id = writer.write(result)
+    writer.commit_transaction()
+    assert writer._transaction_id is None
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
+    dataset_api = DatasetProfileApi(writer._api_client)
+    response: ProfileTracesResponse = dataset_api.get_profile_traces(
+        org_id=ORG_ID,
+        dataset_id=MODEL_ID,
+        trace_id=trace_id,
+    )
+    download_url = response.get("traces")[0]["download_url"]
+    headers = {"Content-Type": "application/octet-stream"}
+    downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
+    deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+    assert deserialized_view.get_columns().keys() == data.keys()
