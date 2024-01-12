@@ -84,6 +84,7 @@ def test_uncompounded_image_profile() -> None:
     uncompM = _uncompound_dataset_profile(merged_prof)
     assert set(uncomp1.get_columns()) == set(uncomp2.get_columns())
     assert set(uncomp1.get_columns()) == set(uncompM.get_columns())
+    assert prof1.to_pandas().shape == uncomp1.to_pandas().shape
 
 
 def test_uncompounded_profile_metadata() -> None:
@@ -130,6 +131,7 @@ def test_uncompounded_condition_count() -> None:
 
     uncompounded = _uncompound_dataset_profile(profile)
     assert len(uncompounded.get_columns().keys()) == 1 + 3 * len(metric.matches.keys())
+    assert profile.to_pandas().shape == uncompounded.to_pandas().shape
     for cond_name in ["alpha", "digit"]:
         for component_name in ["total", "matches", "non_matches"]:
             column_name = f"{_condition_count_magic_string()}col1.{cond_name}.{component_name}"
