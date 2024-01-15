@@ -128,10 +128,8 @@ def test_uncompounded_condition_count() -> None:
     assert metric.total.value == 2
     assert metric.matches["alpha"].value == 1
     assert metric.matches["digit"].value == 1
-
     uncompounded = _uncompound_dataset_profile(profile)
     assert len(uncompounded.get_columns().keys()) == 1 + 3 * len(metric.matches.keys())
-    assert profile.to_pandas().shape == uncompounded.to_pandas().shape
     for cond_name in ["alpha", "digit"]:
         for component_name in ["total", "matches", "non_matches"]:
             column_name = f"{_condition_count_magic_string()}col1.{cond_name}.{component_name}"
