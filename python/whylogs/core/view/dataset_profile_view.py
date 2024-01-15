@@ -433,15 +433,14 @@ class DatasetProfileView(Writable):
 
     def _is_uncompounded(self, col_name):
         groups = col_name.split(".")
+        metric = groups[0]
         if not len(groups) > 1:
             return False
-        if groups[0] in self._columns.keys():
-            for metric_name in self._columns[groups[0]].get_metric_component_paths():
+        if metric in self._columns.keys():
+            for metric_name in self._columns[metric].get_metric_component_paths():
                 new_metric_name = metric_name.split(":")[0].replace("/", ".")
                 if col_name == new_metric_name:
                     return True
-                # if all([x in metric_name for x in groups[1:]]):
-                #     return True
         return False
 
     def to_pandas(self, column_metric: Optional[str] = None, cfg: Optional[SummaryConfig] = None) -> pd.DataFrame:
