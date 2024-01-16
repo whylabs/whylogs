@@ -79,7 +79,6 @@ class Actor(ABC, Generic[MessageType]):
     ) -> None:
         self._queue: QueueWrapper[Union[MessageType, CloseMessage]] = queue_wrapper
         self._logger = logging.getLogger(f"ai.whylabs.actor.{type(self).__name__}")
-        self._logger.setLevel(logging.DEBUG)
         self._queue_config = queue_config
         super().__init__()
 
