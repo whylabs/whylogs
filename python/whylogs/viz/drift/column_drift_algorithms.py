@@ -361,6 +361,8 @@ class KS(ColumnDriftAlgorithm):
         m, n = sorted([target_distribution.get_n(), reference_distribution.get_n()], reverse=True)
         en = m * n / (m + n)
         p_value = stats.distributions.kstwo.sf(D_max, np.round(en))
+        if np.isnan(p_value) or p_value is None:
+            return None
         if with_thresholds:
             drift_category = self._get_drift_category(measure=p_value)
             drift_score = DriftAlgorithmScore(
