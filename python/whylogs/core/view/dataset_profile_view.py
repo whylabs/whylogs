@@ -431,14 +431,27 @@ class DatasetProfileView(Writable):
         self._metrics = copy._metrics
         self._metadata = copy._metadata
 
+    def _is_uncompounded(self, col_name):
+        groups = col_name.split(".")
+        metric = groups[0]
+        if not len(groups) > 1:
+            return False
+        if metric in self._columns.keys():
+            for metric_name in self._columns[metric].get_metric_component_paths():
+                new_metric_name = metric_name.split(":")[0].replace("/", ".")
+                if col_name == new_metric_name:
+                    return True
+        return False
+
     def to_pandas(self, column_metric: Optional[str] = None, cfg: Optional[SummaryConfig] = None) -> pd.DataFrame:
         all_dicts = []
         if self._columns:
             for col_name, col in sorted(self._columns.items()):
-                sum_dict = col.to_summary_dict(column_metric=column_metric, cfg=cfg)
-                sum_dict["column"] = col_name
-                sum_dict["type"] = SummaryType.COLUMN
-                all_dicts.append(dict(sorted(sum_dict.items())))
+                if not self._is_uncompounded(col_name):
+                    sum_dict = col.to_summary_dict(column_metric=column_metric, cfg=cfg)
+                    sum_dict["column"] = col_name
+                    sum_dict["type"] = SummaryType.COLUMN
+                    all_dicts.append(dict(sorted(sum_dict.items())))
             if is_not_stub(pd.DataFrame):
                 df = pd.DataFrame(all_dicts)
                 return df.set_index("column")
