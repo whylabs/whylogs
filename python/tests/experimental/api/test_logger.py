@@ -90,17 +90,17 @@ def test_log_batch_ranking_metrics_multiple_simple():
             ],
         }
     )
+    k = 4
 
     result = log_batch_ranking_metrics(
         data=multiple_df,
         prediction_column="raw_predictions",
         target_column="raw_targets",
-        k=3,
+        k=k,
         convert_non_numeric=True,
     )
     pandas_summary = result.view().to_pandas()
 
-    k = 3
     column_names = [
         "mean_average_precision_k_" + str(k),
         "accuracy_k_" + str(k),
@@ -122,7 +122,7 @@ def test_log_batch_ranking_metrics_multiple_simple():
     assert pandas_summary.loc["average_precision_k_" + str(k), "counts/n"] == 4
     assert pandas_summary.loc["norm_dis_cumul_gain_k_" + str(k), "counts/n"] == 1
 
-    assert isclose(pandas_summary.loc["norm_dis_cumul_gain_k_3", "distribution/median"], 0.35202, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc[f"norm_dis_cumul_gain_k_{k}", "distribution/median"], 0.76244, abs_tol=0.00001)
 
 
 def test_log_batch_ranking_metrics_default_target():
