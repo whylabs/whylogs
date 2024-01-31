@@ -15,6 +15,7 @@ import whylogs as why
 from whylogs.api.logger.rolling import Scheduler
 from whylogs.api.store.local_store import LocalStore
 from whylogs.api.store.query import DatasetIdQuery
+from whylogs.api.whylabs.session.config import EnvVariableName
 from whylogs.api.writer.local import LocalWriter
 from whylogs.api.writer.writer import Writable
 from whylogs.core.errors import BadConfigError
@@ -49,6 +50,8 @@ class TestWriter(LocalWriter):
     prevent collisions.
     """
 
+    __test__ = False  # stop pytest from collecting this class because it starts with Test
+
     def __init__(self, base_dir: Optional[str] = None, base_name: Optional[str] = None) -> None:
         super().__init__(base_dir, base_name)
         self._counter = 1
@@ -79,6 +82,26 @@ def test_closing(tmp_path: Any, lending_club_df: pd.DataFrame) -> None:
     assert len(only_files) == 1
     assert f.endswith(".bin")
     assert f.startswith("test_base_name")
+
+
+@pytest.fixture(scope="module", autouse=True)
+def set_required_config(request):
+    """
+    This sets the env that the whylabs writer requries to be set. Typically it would get a hold of it through
+    the Session but we haven't made that a mandatory feature.
+    """
+    os.environ[EnvVariableName.WHYLABS_ORG_ID.value] = "test_org_id"
+    os.environ[EnvVariableName.WHYLABS_DEFAULT_DATASET_ID.value] = "dataset-id"
+    os.environ[
+        EnvVariableName.WHYLABS_API_KEY.value
+    ] = "nG6xkOOENZ.Qwx4k4PSsrMgYEV9vZ2BW3ayDE97UiMb94x0YJ5RWVXzowxdPAoS4"  # fake
+
+    def clear_env():
+        del os.environ[EnvVariableName.WHYLABS_ORG_ID.value]
+        del os.environ[EnvVariableName.WHYLABS_DEFAULT_DATASET_ID.value]
+        del os.environ[EnvVariableName.WHYLABS_API_KEY.value]
+
+    request.addfinalizer(clear_env)
 
 
 @use_fake_time
@@ -246,11 +269,19 @@ def test_rolling_row_messages_with_segments(tmp_path: Any) -> None:
 def test_rolling_do_rollover():
     import pandas as pd
 
+    custom_key = "my_version"
+    custom_value = "2.1.0"
+
+    colliding_key = "whylogs.version"
+    bad_version = "bad_version"
+    schema = DatasetSchema(metadata={custom_key: custom_value, colliding_key: bad_version})
+
     df = pd.DataFrame(data={"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]})
-    rolling_logger = why.logger(mode="rolling", interval=5, when="M", base_name="profile_")
+    rolling_logger = why.logger(mode="rolling", interval=5, when="M", base_name="profile_", schema=schema)
     rolling_logger.append_writer("local")
     rolling_logger.log(df)
     now = datetime.now(timezone.utc)
+    initial_profile = rolling_logger._current_profile
     initial_profile_id = id(rolling_logger._current_profile)
     profile_timestamp = rolling_logger._current_profile.dataset_timestamp
     rolling_logger._do_rollover()
@@ -258,6 +289,9 @@ def test_rolling_do_rollover():
     rolling_logger.close()
     assert initial_profile_id != post_rollover_profile_id
     assert now.timestamp() == pytest.approx(profile_timestamp.timestamp())
-    # these lines below fail as a comparison
-    # now_plus_1h = now + datetime.timedelta(hours=1)
-    # assert now.timestamp() == pytest.approx(now_plus_1h.timestamp())
+    assert initial_profile.metadata
+    assert custom_key in initial_profile.metadata
+    assert initial_profile.metadata[custom_key] == custom_value
+
+    assert colliding_key in initial_profile.metadata
+    assert initial_profile.metadata[colliding_key] != bad_version

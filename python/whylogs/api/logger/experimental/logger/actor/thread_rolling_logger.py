@@ -1,31 +1,41 @@
+import os
 from concurrent.futures import Future
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Type, Union, cast
 
-import pandas as pd
 from dateutil import tz
 
-from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
-from whylogs.api.logger.segment_cache import SegmentCache
-from whylogs.api.logger.segment_processing import segment_processing
-from whylogs.api.store import ProfileStore
-from whylogs.api.writer import Writer
-from whylogs.api.writer.writer import Writable
-from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
-
-from .future_util import wait_result
-from .message_processor import CloseMessage, MessageProcessor
-from .time_util import (
+from whylogs.api.logger.experimental.logger.actor.actor import CloseMessage, QueueConfig
+from whylogs.api.logger.experimental.logger.actor.data_logger import (
+    DataLogger,
+    TrackData,
+)
+from whylogs.api.logger.experimental.logger.actor.future_util import wait_result
+from whylogs.api.logger.experimental.logger.actor.thread_actor import ThreadActor
+from whylogs.api.logger.experimental.logger.actor.time_util import (
     FunctionTimer,
     Schedule,
     TimeGranularity,
     current_time_ms,
     truncate_time_ms,
 )
+from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
+from whylogs.api.logger.segment_cache import SegmentCache
+from whylogs.api.logger.segment_processing import segment_processing  # type: ignore
+from whylogs.api.store import ProfileStore
+from whylogs.api.writer import Writer
+from whylogs.api.writer.writer import Writable
+from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
+from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
+
+try:
+    import pandas as pd  # type: ignore
+except ImportError:
+    pd: Any = None  # type: ignore
+
 
 Row = Dict[str, Any]
-TrackData = Union[pd.DataFrame, Row, List[Row]]
 
 
 class DatasetProfileContainer:
@@ -43,12 +53,12 @@ class DatasetProfileContainer:
         self._schema: Optional[DatasetSchema] = schema
         self._active = True
         self._dataset_timestamp = datetime.fromtimestamp(dataset_timestamp / 1000.0, tz=tz.tzutc())
-        if self._has_segments() and schema is not None:  # Need the duplicate None check for type safety
+        if self.has_segments() and schema is not None:  # Need the duplicate None check for type safety
             self._target = SegmentCache(schema=schema)
         else:
             self._target = DatasetProfile(dataset_timestamp=self._dataset_timestamp, schema=schema)
 
-    def _has_segments(self) -> bool:
+    def has_segments(self) -> bool:
         return self._schema is not None and bool(self._schema.segments)
 
     def _track_segments(self, data: TrackData) -> None:
@@ -70,9 +80,9 @@ class DatasetProfileContainer:
 
         if isinstance(data, List):
             for row in data:
-                self._target.track(row=row)
+                self._target.track(row=row)  # type: ignore
         else:
-            self._target.track(data)
+            self._target.track(data)  # type: ignore
 
     def track(self, data: TrackData) -> None:
         """
@@ -82,7 +92,7 @@ class DatasetProfileContainer:
             # Should never happen
             raise Exception("Profile container no longer active.")
 
-        if self._has_segments():
+        if self.has_segments():
             self._track_segments(data)
         else:
             self._track_profile(data)
@@ -97,7 +107,7 @@ class DatasetProfileContainer:
         try:
             if isinstance(self._target, SegmentCache):
                 return self._target.flush(dataset_timestamp=self._dataset_timestamp)
-            elif isinstance(self._target, DatasetProfile):
+            else:
                 return ProfileResultSet(self._target)
         finally:
             self._active = False
@@ -107,10 +117,14 @@ class DatasetProfileContainer:
             result_set = self._target.get_result_set(dataset_timestamp=self._dataset_timestamp)
             segments = result_set.segments() or []
             return [it for it in [result_set.view(segment) for segment in segments] if it is not None]
-        elif isinstance(self._target, DatasetProfile):
+        else:
             return [self._target.view()]
 
-        raise Exception("Unknown profile type")
+    def to_serialized_views(self) -> List[bytes]:
+        views: List[bytes] = []
+        for view in self.to_views():
+            views.append(view.serialize())
+        return views
 
 
 @dataclass
@@ -127,7 +141,7 @@ class TrackMessage:
 
     data: TrackData
     timestamp_ms: int
-    result: Optional[Future[None]]
+    result: Optional["Future[None]"]
 
 
 @dataclass
@@ -136,12 +150,10 @@ class FlushMessage:
     Trigger a flush, converting all managed profiles to result sets and attempt to write them if there are writers.
     """
 
-    pass
-
 
 @dataclass
 class GetResultsMessage:
-    result: Future[Dict[int, List[DatasetProfileView]]]
+    result: "Future[Dict[int, List[DatasetProfileView]]]"
 
 
 @dataclass
@@ -167,6 +179,8 @@ class LoggerStatus:
     segment_caches: int
     writers: int
     pending_writables: int
+    pending_views: List[bytes]
+    views: List[bytes]
 
 
 @dataclass
@@ -175,7 +189,7 @@ class StatusMessage:
     Get various status metrics.
     """
 
-    result: Future[LoggerStatus]
+    result: "Future[LoggerStatus]"
 
 
 @dataclass
@@ -184,10 +198,21 @@ class PendingWritable:
     writable: Writable
 
 
-LoggerMessage = Union[TrackMessage, FlushMessage, StatusMessage, GetResultsMessage]
+def _extract_profile_view_bytes(pending: PendingWritable) -> Optional[bytes]:
+    if isinstance(pending.writable, DatasetProfile):
+        return pending.writable.view().serialize()
+    elif isinstance(pending.writable, DatasetProfileView):
+        return pending.writable.serialize()
+    elif isinstance(pending.writable, SegmentedDatasetProfileView):
+        return pending.writable.profile_view.serialize()
+    else:
+        return None
 
 
-class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
+LoggerMessage = Union[TrackMessage, FlushMessage, StatusMessage, GetResultsMessage, CloseMessage]
+
+
+class ThreadRollingLogger(ThreadActor[LoggerMessage], DataLogger[LoggerStatus]):
     """
     A logger that manages profiles and segments for various dataset timestamps.
 
@@ -213,19 +238,22 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
         write_schedule: Optional[Schedule] = Schedule(cadence=TimeGranularity.Minute, interval=10),
         schema: Optional[DatasetSchema] = None,
         writers: List[Writer] = [],
+        current_time_fn: Optional[Callable[[], int]] = None,
+        queue_config: QueueConfig = QueueConfig(),
     ) -> None:
+        super().__init__(queue_config=queue_config)
         self._aggregate_by = aggregate_by
+        self.current_time_ms = current_time_fn or current_time_ms
         self._cache: Dict[int, DatasetProfileContainer] = {}
+        self._timer: Optional[FunctionTimer] = None
         self._writers: Dict[Writer, List[PendingWritable]] = {}
-        # TODO support stores as well after its updated to be able to handle Writable. This tracks segments
-        # as well as profiles and I would have to manually convert the SegmentCache into a compatible type.
         for writer in writers:
             self._writers[writer] = []
         self._schema: Optional[DatasetSchema] = schema
         self._store_list: List[ProfileStore] = []
 
         if write_schedule is not None:
-            if write_schedule.cadence == TimeGranularity.Second:
+            if write_schedule.cadence == TimeGranularity.Second and write_schedule.interval <= 300:
                 raise Exception("Minimum write schedule is five minutes.")
 
             if write_schedule.cadence == TimeGranularity.Minute and write_schedule.interval < 5:
@@ -237,22 +265,26 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
                 "No write schedule defined for logger. Profiles will only be written after calls to flush()."
             )
 
-        super().__init__()
+        self._logger.debug(f"Created thread logger, pid {os.getpid()}")
 
-    def _process_message(self, message: Union[LoggerMessage, CloseMessage]) -> None:
-        if isinstance(message, TrackMessage):
-            self._process_track_message(message)
-        elif isinstance(message, FlushMessage):
-            self._process_flush_message(message)
-        elif isinstance(message, CloseMessage):
-            self._process_close_message(message)
-        elif isinstance(message, StatusMessage):
-            self._process_status_message(message)
-        elif isinstance(message, GetResultsMessage):
-            self._process_get_results_message(message)
+    def process_batch(self, batch: List[LoggerMessage], batch_type: Type[LoggerMessage]) -> None:
+        if batch_type == TrackMessage:
+            self._process_track_messages(cast(List[TrackMessage], batch))
+        elif batch_type == FlushMessage:
+            self._process_flush_messages(cast(List[FlushMessage], batch))
+        elif batch_type == CloseMessage:
+            self._process_close_messages(cast(List[CloseMessage], batch))
+        elif batch_type == StatusMessage:
+            self._process_status_messages(cast(List[StatusMessage], batch))
+        elif batch_type == GetResultsMessage:
+            self._process_get_results_messages(cast(List[GetResultsMessage], batch))
         else:
             # Safe guard for forgetting to handle a message in development
-            raise Exception(f"Don't know how to handle message {message}")
+            raise Exception(f"Don't know how to handle message {batch_type}")
+
+    def _process_get_results_messages(self, messages: List[GetResultsMessage]) -> None:
+        for message in messages:
+            self._process_get_results_message(message)
 
     def _process_get_results_message(self, message: GetResultsMessage) -> None:
         items: Dict[int, List[DatasetProfileView]] = {}
@@ -262,20 +294,32 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
 
         message.result.set_result(items)
 
+    def _process_status_messages(self, messages: List[StatusMessage]) -> None:
+        for message in messages:
+            self._process_status_message(message)
+
     def _process_status_message(self, message: StatusMessage) -> None:
         profiles = 0
         segment_caches = 0
-        for ts, container in self._cache.items():
-            if container._has_segments():
+        views: List[bytes] = []
+        for container in self._cache.values():
+            if container.has_segments():
                 segment_caches += 1
             else:
                 profiles += 1
 
+            views.extend(container.to_serialized_views())
+
         writers = 0
         writables = 0
-        for writer, stuff in self._writers.items():
+        pending_views: List[bytes] = []
+        for stuff in self._writers.values():
             writers += 1
             writables += len(stuff)
+            for pending in stuff:
+                view = _extract_profile_view_bytes(pending)
+                if view is not None:
+                    pending_views.append(view)
 
         status = LoggerStatus(
             dataset_timestamps=len(self._cache),
@@ -283,12 +327,16 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
             segment_caches=segment_caches,
             writers=writers,
             pending_writables=writables,
+            pending_views=pending_views,
+            views=views,
         )
         message.result.set_result(status)
 
+    def _process_close_messages(self, messages: List[CloseMessage]) -> None:
+        for message in messages:
+            self._process_close_message(message)
+
     def _process_close_message(self, message: CloseMessage) -> None:
-        if self._timer is not None:
-            self._timer.stop()
         # Force wait for all writers to handle their pending items
         self._process_flush_message(FlushMessage())
         while self._has_pending():
@@ -296,9 +344,17 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
 
     def _has_pending(self) -> bool:
         has_pending = False
-        for writer, pending in self._writers.items():
+        for pending in self._writers.values():
             has_pending = len(pending) > 0
         return has_pending
+
+    def _process_track_messages(self, messages: List[TrackMessage]) -> None:
+        for message in messages:
+            self._process_track_message(message)
+
+    def _process_flush_messages(self, messages: List[FlushMessage]) -> None:
+        for message in messages:
+            self._process_flush_message(message)
 
     def _process_flush_message(self, message: FlushMessage) -> None:
         for dataset_timestamp, container in self._cache.items():
@@ -350,9 +406,11 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
             timestamp_ms = message.timestamp_ms
             data = message.data
 
-            ts = timestamp_ms or current_time_ms()
+            ts = timestamp_ms or self.current_time_ms()
             dataset_timestamp = truncate_time_ms(ts, self._aggregate_by)
             profile_container = self._get_profile_container(dataset_timestamp)
+            # TODO consider porting out the aggregation logic that the process rolling logger uses to batch up
+            # data and minimize the amount of track calls. It makes a really big difference.
             profile_container.track(data)
             if message.result is not None:
                 message.result.set_result(None)
@@ -360,15 +418,23 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
             if message.result is not None:
                 message.result.set_exception(e)
 
-    def _status(self) -> LoggerStatus:
-        result: Future[LoggerStatus] = Future()
+    def status(self, timeout: Optional[float] = None) -> LoggerStatus:
+        """
+        Get the status of the logger.
+        This is always synchronous.
+        """
+        result: "Future[LoggerStatus]" = Future()
         self.send(StatusMessage(result))
-        return wait_result(result)
+        return wait_result(result, timeout=timeout)
+
+    def _validate_data(self, data: TrackData) -> None:
+        if not isinstance(data, pd.DataFrame) and not isinstance(data, list) and not isinstance(data, dict):
+            raise Exception(f"Unsupported data type {type(data)}")
 
     def log(
         self,
         data: TrackData,
-        timestamp_ms: Optional[int] = None,  # Not the dataset timestamp, but the timestamp of the data
+        timestamp_ms: Optional[int] = None,  # The timestamp that the data happened at
         sync: bool = False,
     ) -> None:
         """
@@ -382,10 +448,12 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
                 You can make this synchronous in order to react to errors. Mostly useful when initially setting up
                 logging since the only errors that can be responded to are data format related.
         """
+        self._validate_data(data)
 
-        result: Optional[Future[None]] = Future() if sync else None
-        self.send(TrackMessage(data=data, timestamp_ms=timestamp_ms or current_time_ms(), result=result))
+        result: Optional["Future[None]"] = Future() if sync else None
+        self.send(TrackMessage(data=data, timestamp_ms=timestamp_ms or self.current_time_ms(), result=result))
         if result is not None:
+            self._logger.debug("Waiting for track to complete")
             wait_result(result)
 
     def flush(self) -> None:
@@ -398,6 +466,11 @@ class MultiDatasetRollingLogger(MessageProcessor[LoggerMessage]):
         """
         Get all of the profile views for each dataset timestamp being maintained.
         """
-        result: Future[Dict[int, List[DatasetProfileView]]] = Future()
+        result: "Future[Dict[int, List[DatasetProfileView]]]" = Future()
         self.send(GetResultsMessage(result))
         return wait_result(result)
+
+    def close(self) -> None:
+        if self._timer is not None:
+            self._timer.stop()
+        super().close()

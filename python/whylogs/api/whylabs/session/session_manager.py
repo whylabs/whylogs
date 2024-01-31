@@ -1,283 +1,133 @@
 import logging
-import time
-import uuid
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Optional
 
-import requests as web_requests
-from whylabs_client import ApiException  # type: ignore
-from whylabs_client.api.sessions_api import (  # type: ignore
-    BatchLogReferenceRequest,
-    BatchLogSessionReferenceResponse,
-    CreateSessionRequest,
-    CreateSessionResponse,
-    LogReferenceRequest,
-    LogSessionReferenceResponse,
-    SessionsApi,
+from whylogs.api.whylabs.session.config import INIT_DOCS, InitConfig, SessionConfig
+from whylogs.api.whylabs.session.session import (
+    ApiKeySession,
+    GuestSession,
+    LocalSession,
+    Session,
 )
-from whylabs_client.api_client import ApiClient, Configuration  # type: ignore
-
-from whylogs.api.logger.result_set import ResultSet
-from whylogs.api.whylabs.session.config import SessionConfig
-from whylogs.api.whylabs.session.notebook_check import is_notebook
-from whylogs.api.whylabs.session.session_types import (
-    NotSupported,
-    init_notebook_logging,
-    log_if_notebook,
-)
-from whylogs.migration.uncompound import _uncompound_dataset_profile
+from whylogs.api.whylabs.session.session_types import InteractiveLogger as il
+from whylogs.api.whylabs.session.session_types import SessionType
 
 logger = logging.getLogger(__name__)
 
 
-class SessionType(Enum):
-    WHYLABS_ANONYMOUS = "whylabs_anonymous"
-    WHYLABS = "whylabs"
-    LOCAL = "local"
-
-
-@dataclass
-class UploadReferenceResult:
-    viewing_url: str
-    whylabs_response: BatchLogSessionReferenceResponse
-
-
-class Session(ABC):
-    @abstractmethod
-    def get_type(self) -> SessionType:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def upload_reference_profiles(
-        self, profile_aliases: Dict[str, ResultSet]
-    ) -> Union[UploadReferenceResult, NotSupported]:
-        raise NotImplementedError()
-
-
-class GuestSession(Session):
-    def __init__(self, config: SessionConfig, whylabs_client: ApiClient) -> None:
-        """
-        Get a guest session that uses the id that is in the env, or the config if there is no env.
-        If neither exist then this will attempt to create a new session and store the id in the config,
-        which does require a successful service call to whylabs.
-        """
-        from whylogs.api.usage_stats import emit_usage
-
-        self._config = config
-        self._whylabs_session_api = SessionsApi(whylabs_client)
-        self._user_guid = self._get_or_create_user_guid()
-        self._session_id = self._get_or_create_session_id()
-        config_path = config.get_config_file_path()
-        emit_usage("guest_session")
-        log_if_notebook(f"Initialized anonymous session with id {self._session_id} in config {config_path}")
-
-    def get_type(self) -> SessionType:
-        return SessionType.WHYLABS_ANONYMOUS
-
-    def _validate_config_session(self) -> Optional[str]:
-        """
-        Look up the current config value for the session and make sure it's still valid by
-        calling WhyLabs. If it's not valid, remove it from the config and return None.
-        """
-        session_id = self._config.get_session_id()
-
-        if session_id is None:
-            return None
-
-        if not self._validate_session_id(session_id):
-            self._config.remove_session_id()
-            log_if_notebook(
-                f"⚠️ Session {session_id} is no longer valid, generating a new one. If you want to upload to your WhyLabs "
-                "account then remove why.init() and use https://docs.whylabs.ai/docs/whylabs-onboarding/#getting-started-in-whylabs."
-            )
-            return None
-        else:
-            return session_id
-
-    def _get_or_create_session_id(self) -> str:
-        session_id = self._validate_config_session()
-
-        if session_id is None:
-            session_id = self._create_session_id()
-            self._config.set_session_id(session_id)
-
-        return session_id
-
-    def _get_or_create_user_guid(self) -> str:
-        user_guid = self._config.get_user_guid()
-
-        if user_guid is None:
-            user_guid = str(uuid.uuid4())
-            self._config.set_user_guid(user_guid)
-
-        return user_guid
-
-    def _validate_session_id(self, session_id: str) -> bool:
-        """
-        Check to see if the session id is valid by calling WhyLabs.
-        """
-        try:
-            request = BatchLogReferenceRequest(
-                session_id=session_id, references=[LogReferenceRequest(alias="test", datasetTimestamp=0)]
-            )
-            self._whylabs_session_api.batch_create_reference_profile_upload(
-                batch_log_reference_request=request, session_id=session_id
-            )
-            return True
-        except ApiException:
-            return False
-
-    def _create_session_id(self) -> str:
-        try:
-            user_guid = self._user_guid
-            response: CreateSessionResponse = self._whylabs_session_api.create_session(CreateSessionRequest(user_guid))
-            logger.debug(f"Created session {response.id}")
-            return response.id
-        except ApiException as e:
-            logger.error(e)
-            raise e
-
-    def upload_reference_profiles(
-        self, profile_aliases: Dict[str, ResultSet]
-    ) -> Union[UploadReferenceResult, NotSupported]:
-        requests: List[LogReferenceRequest] = []
-        for alias, _profile in profile_aliases.items():
-            requests.append(LogReferenceRequest(alias=alias, datasetTimestamp=0))
-
-        try:
-            request = BatchLogReferenceRequest(session_id=self._session_id, references=requests)
-            response: BatchLogSessionReferenceResponse = (
-                self._whylabs_session_api.batch_create_reference_profile_upload(
-                    batch_log_reference_request=request, session_id=self._session_id
-                )
-            )
-
-            viewing_url: str = response.observatory_url  # url where the profiles can be viewed
-            references: List[LogSessionReferenceResponse] = response.references
-
-            for ref in references:
-                if ref.alias not in profile_aliases:
-                    # Should not be possible. WhyLabs api should echo each of the supplied aliases back
-                    logger.warning(f"WhyLabs returned extra alias {ref.alias}. This is a WhyLabs bug.")
-                    continue
-
-                result_set = profile_aliases[ref.alias]
-                if hasattr(result_set, "segments"):
-                    logger.warning(f"Segments aren't supported in the log_reference api yet, skipping {ref.alias}")
-                    continue
-                view_v1 = result_set.view()
-                if view_v1 is None:
-                    logger.warning(f"skipping {ref.alias} because it didn't contain a profile view")
-                    continue
-                whylabs_compatible_view = _uncompound_dataset_profile(view_v1)
-                web_requests.put(ref.upload_url, data=whylabs_compatible_view.serialize())
-
-            time.sleep(2)
-            return UploadReferenceResult(viewing_url=viewing_url, whylabs_response=response)
-        except ApiException as e:
-            logger.error(e)
-            raise e
-
-
-class LocalSession(Session):
-    def get_type(self) -> SessionType:
-        return SessionType.LOCAL
-
-    def upload_reference_profiles(
-        self, profile_aliases: Dict[str, ResultSet]
-    ) -> Union[UploadReferenceResult, NotSupported]:
-        return NotSupported()
-
-
-class ApiKeySession(Session):
-    def __init__(self, config: SessionConfig) -> None:
-        from whylogs.api.usage_stats import emit_usage
-
-        self.api_key = config.get_api_key()
-        self.org_id = config.get_org_id()
-
-        if self.api_key is None and is_notebook():
-            self.api_key = config.get_or_prompt_api_key(persist=True)
-        else:
-            logger.warning("No api key found in session or configuration, will not be able to send data to whylabs.")
-
-        if self.org_id is None and is_notebook():
-            self.org_id = config.get_or_prompt_org_id(persist=True)
-        else:
-            logger.warning("No org id found in session or configuration, will not be able to send data to whylabs.")
-        emit_usage("api_key_session")
-        if is_notebook():
-            log_if_notebook(f"Initialized whylabs session with for org {self.org_id}")
-
-    def get_type(self) -> SessionType:
-        return SessionType.WHYLABS
-
-    def upload_reference_profiles(
-        self, profile_aliases: Dict[str, ResultSet]
-    ) -> Union[UploadReferenceResult, NotSupported]:
-        # TODO support soon
-        return NotSupported()
-
-
 class SessionManager:
-    __instance: Optional["SessionManager"] = None
+    _instance: Optional["SessionManager"] = None
+    session: Session
 
-    def __init__(self, type: SessionType = SessionType.LOCAL):
-        self._config = SessionConfig()
-        client_config = Configuration()
-        client_config.host = self._config.get_whylabs_endpoint()
-        self._whylabs_client = ApiClient(client_config)
-
-        self.session: Optional[Session] = None
-        if type == SessionType.LOCAL:
-            pass
-        elif type == SessionType.WHYLABS_ANONYMOUS:
-            self.session = GuestSession(self._config, self._whylabs_client)
-        elif type == SessionType.WHYLABS:
-            self.session = ApiKeySession(self._config)
+    def __init__(
+        self,
+        config: SessionConfig,
+    ):
+        session_type = config.get_session_type()
+        if session_type == SessionType.LOCAL:
+            self.session = LocalSession(config)
+        elif session_type == SessionType.WHYLABS_ANONYMOUS:
+            self.session = GuestSession(config)
+        elif session_type == SessionType.WHYLABS:
+            self.session = ApiKeySession(config)
+        else:
+            raise ValueError(f"Unknown session type: {session_type}")
 
     @staticmethod
-    def init(type: SessionType = SessionType.LOCAL) -> None:
-        if SessionManager.__instance is None:
-            init_notebook_logging()
-            SessionManager.__instance = SessionManager(type=type)
+    def init(session_config: SessionConfig) -> "SessionManager":
+        if SessionManager._instance is None:
+            SessionManager._instance = SessionManager(session_config)
         else:
-            logger.warning("SessionManager is already initialized. Ignoring call to init()")
+            logger.debug("SessionManager is already initialized. Ignoring call to init()")
+
+        return SessionManager._instance
 
     @staticmethod
     def reset() -> None:
-        SessionManager.__instance = None
+        SessionManager._instance = None
 
     @staticmethod
     def get_instance() -> Optional["SessionManager"]:
-        return SessionManager.__instance
+        return SessionManager._instance
 
     @staticmethod
     def is_active() -> bool:
         return SessionManager.get_instance() is not None
 
 
-def init(session_type: Union[SessionType, str] = SessionType.LOCAL, reinit: bool = False) -> None:
+def init(
+    reinit: bool = False,
+    allow_anonymous: bool = True,
+    allow_local: bool = False,
+    whylabs_api_key: Optional[str] = None,
+    default_dataset_id: Optional[str] = None,
+    config_path: Optional[str] = None,
+    **kwargs: bool,
+) -> Session:
+    """
+    Set up authentication for this whylogs logging session. There are three modes that you can authentiate in.
+
+    1. WHYLABS: Data is sent to WhyLabs and is associated with a specific WhyLabs account. You can get a WhyLabs api
+        key from the WhyLabs Settings page after logging in.
+    2. WHYLABS_ANONYMOUS: Data is sent to WhyLabs, but no authentication happens and no WhyLabs account is required.
+        Sessions can be claimed into an account later on the WhyLabs website.
+    3. LOCAL: No authentication. No data is automatically sent anywhere. Use this if you want to explore profiles
+        locally or manually upload them somewhere.
+
+    Typically, you should only have to put `why.init()` with no arguments at the start of your application/notebook/script.
+    The arguments allow for some customization of the logic that determines the session type. Here is the priority order:
+
+    - If there is an api key directly supplied to init, then use it and authenticate session as WHYLABS.
+    - If there is an api key in the environment variable WHYLABS_API_KEY, then use it and authenticate session as WHYLABS.
+    - If there is an api key in the whylogs config file, then use it and authenticate session as WHYLABS.
+    - If we're in an interractive environment (notebook, colab, etc.) then prompt the user to pick a method explicitly.
+        The options are determined by the allow* argument values to init().
+    - If allow_anonymous is True, then authenticate session as WHYLABS_ANONYMOUS.
+    - If allow_local is True, then authenticate session as LOCAL.
+
+    Args:
+        session_type: Deprecated, use allow_anonymous and allow_local instead
+        reinit: Normally, init() is idempotent, so you can run it over and over again in a notebook without any issues, for example.
+            If reinit=True then it will run the initialization logic again, so you can switch authentication methods without restarting.
+        allow_anonymous: If True, then the user will be able to choose WHYLABS_ANONYMOUS if no other authentication method is found.
+        allow_local: If True, then the user will be able to choose LOCAL if no other authentication method is found.
+        whylabs_api_key: A WhyLabs api key to use for uploading profiles. There are other ways that you can set an api key that don't
+            require direclty embedding it in code, like setting WHYLABS_API_KEY env variable or supplying the api key interractively
+            via the init() prompt in a notebook.
+        default_dataset_id: The default dataset id to use for uploading profiles. This is only used if the session is authenticated.
+            This is a convenience argument so that you don't have to supply the dataset id every time you upload a profile if
+            you're only using a single dataset id.
+
+    """
     if reinit:
         SessionManager.reset()
 
-    if isinstance(session_type, str):
-        try:
-            _session_type = SessionType[session_type.upper()]
-        except KeyError:
-            logger.error(f"Invalid session type {session_type}. Valid values are {SessionType.__members__.keys()}")
-            return
-    else:
-        _session_type = session_type
+    manager: Optional[SessionManager] = SessionManager._instance  # type: ignore
+    if manager is not None:
+        return manager.session
+
+    session_config = SessionConfig(
+        InitConfig(
+            allow_anonymous=allow_anonymous,
+            allow_local=allow_local,
+            whylabs_api_key=whylabs_api_key,
+            default_dataset_id=default_dataset_id,
+            config_path=config_path,
+            force_local=kwargs.get("force_local", False),
+        )
+    )
 
     try:
-        SessionManager.init(type=_session_type)
+        manager = SessionManager.init(session_config)
+        session_config.notify_session_type()
+        return manager.session
     except PermissionError as e:
+        # TODO PR this implies that we need disk access to work correctly, but isn't that already the case
+        # because we write profilfes to disk as tmp files?
         logger.warning("Could not create or read configuration file for session. Profiles won't be uploaded.", e)
+        raise e
     except Exception as e:
         logger.warning("Could not initialize session", e)
+        raise e
 
 
 def get_current_session() -> Optional[Session]:
@@ -285,5 +135,25 @@ def get_current_session() -> Optional[Session]:
     if manager is not None:
         return manager.session
 
-    logger.warning("No session is initialized. Call whylogs.init(anonymous=True) to create a guest session.")
+    il.warning_once(
+        f"No session found. Call whylogs.init() to initialize a session and authenticate. See {INIT_DOCS} for more information.",
+        logger.warning,
+    )
+
     return None
+
+
+def default_init() -> Session:
+    """
+    For internal use. This initializes a default session for the user if they don't call why.init() themselves.
+    This will behave as though they called why.init() with no arguments and print out a warning with a link to the docs.
+    """
+    manager = SessionManager.get_instance()
+    if manager is None:
+        il.warning_once("Initializing default session because no session was found.", logger.warning)
+
+        # To be safe, don't allow default session to be anonymous if this is happening as a side effect
+        # that users don't know about.
+        return init(allow_anonymous=False, allow_local=True, force_local=True)
+    else:
+        return manager.session

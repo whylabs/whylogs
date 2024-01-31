@@ -7,7 +7,10 @@ TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.join(TEST_DIR, os.pardir, os.pardir)
 OUTPUT_NOTEBOOK = "output.ipynb"
 skip_notebooks = [
+    "Guest Session.ipynb",
+    "Single_Image_Tracing_Profile_to_WhyLabs.ipynb",
     "Pyspark_Profiling.ipynb",
+    "WhyLabs_Sagemaker-PyTorch.ipynb",
     "Kafka_Example.ipynb",
     "Writing_to_WhyLabs.ipynb",
     "Writing_Reference_Profiles_to_WhyLabs.ipynb",
@@ -17,6 +20,7 @@ skip_notebooks = [
     "Writing_Regression_Performance_Metrics_to_WhyLabs.ipynb",
     "Writing_Classification_Performance_Metrics_to_WhyLabs.ipynb",
     "Getting_Started_with_WhyLabsV1.ipynb",
+    "Getting_Started_with_UDFs.ipynb",
     "Writing_Feature_Weights_to_WhyLabs.ipynb",
     "Image_Logging.ipynb",
     "Writing_Ranking_Performance_Metrics_to_WhyLabs.ipynb",
@@ -25,12 +29,14 @@ skip_notebooks = [
     "performance_estimation.ipynb",
     "Embeddings_Distance_Logging.ipynb",  # skipped due to data download
     "whylogs_Audio_examples.ipynb",  # skipped because of Kaggle data download and API key for whylabs upload
+    "Logging_with_Debug_Events.ipynb",  # skipped because of API key required with whylabs writing
     "NLP_Summarization.ipynb",
     "Multi dataset logger.ipynb",
     "Pyspark_and_Constraints.ipynb",
     "LocalStore_with_Constraints.ipynb",  # skipped because it has over 4 minutes of thread.sleep in it
     "KS_Profiling.ipynb",  # skipped because this takes a few minutes to run
     "Monitoring_Embeddings.ipynb",  # skipped because needs user input
+    "whylogs_UDF_examples.ipynb",  # skipped until multiple output column UDFs released
 ]
 
 

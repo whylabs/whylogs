@@ -29,10 +29,12 @@ from whylogs.core.schema import ColumnSchema, DatasetSchema
 logger = logging.getLogger(__name__)
 
 try:
-    from PIL.Image import Image as ImageType
-    from PIL.ImageStat import Stat
-    from PIL.TiffImagePlugin import IFDRational
-    from PIL.TiffTags import TAGS
+    import numpy as np  # type: ignore
+    from PIL import Image
+    from PIL.Image import Image as ImageType  # type: ignore
+    from PIL.ImageStat import Stat  # type: ignore
+    from PIL.TiffImagePlugin import IFDRational  # type: ignore
+    from PIL.TiffTags import TAGS  # type: ignore
 except ImportError as e:
     ImageType = None  # type: ignore
     logger.warning(str(e))
@@ -100,7 +102,7 @@ def get_pil_exif_metadata(img: ImageType) -> Dict:
     return metadata
 
 
-def image_based_metadata(img):
+def image_based_metadata(img: ImageType) -> Dict[str, int]:
     return {
         "ImagePixelWidth": img.width,
         "ImagePixelHeight": img.height,
@@ -211,6 +213,9 @@ class ImageMetric(MultiMetric):
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         count = 0
         for image in list(chain.from_iterable(view.raw_iterator())):
+            if isinstance(image, np.ndarray):
+                image = Image.fromarray(image.astype(np.uint8))
+
             if isinstance(image, ImageType):
                 metadata = get_pil_exif_metadata(image)
                 for name, value in metadata.items():
@@ -244,10 +249,29 @@ class ImageMetric(MultiMetric):
         )
 
 
+def init_image_schema(column_prefix: str = "image") -> DatasetSchema:
+    """
+    Initialize a DatasetSchema for logging images. This can be passed into a logger or why.log.
+
+    Args:
+        column_prefix (str): The prefix that appears in the dataset profiles along with all of the
+        image features. If the prefix is "image", then you'll log image with why.log({image: image_data}).
+    """
+
+    class ImageResolver(Resolver):
+        def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+            return {ImageMetric.get_namespace(): ImageMetric.zero(column_schema.cfg)}
+
+    return DatasetSchema(
+        types={column_prefix: Image.Image}, default_configs=ImageMetricConfig(), resolvers=ImageResolver()
+    )
+
+
 def log_image(
     images: Union[ImageType, List[ImageType], Dict[str, ImageType]],
     default_column_prefix: str = "image",
     schema: Optional[DatasetSchema] = None,
+    trace_id: Optional[str] = None,
 ) -> ResultSet:
     if isinstance(images, ImageType):
         images = {default_column_prefix: images}
@@ -275,7 +299,7 @@ def log_image(
     if not isinstance(schema.default_configs, ImageMetricConfig):
         raise ValueError("log_image requires DatasetSchema with an ImageMetricConfig as default_configs")
 
-    return why.log(row=images, schema=schema)
+    return why.log(row=images, schema=schema, trace_id=trace_id)
 
 
 # Register it so Multimetric and ProfileView can deserialize

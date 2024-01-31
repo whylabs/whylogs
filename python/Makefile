@@ -5,7 +5,7 @@ src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 src.proto.v0.dir := ../proto/v0
 src.proto.v0 := $(shell find $(src.proto.v0.dir) -type f -name "*.proto")
-version := 1.2.5
+version := 1.3.21
 
 dist.dir := dist
 egg.dir := .eggs
@@ -24,9 +24,11 @@ release: install pre-commit test dist ## Compile distribution files and run all 
 pre-commit: proto
 	@$(call i, Running pre-commit checks)
 	poetry run pre-commit run --all-files
+	@# There is no official hook for pyright and the community one requires duplicating config from pyproject.toml
+	poetry run pyright
 
 .PHONY: dist clean clean-test help format lint test install coverage docs livedocs default proto proto-v0 github release
-.PHONY: test-system-python format-fix blackd jupyter-kernel docs livedocs
+.PHONY: test-system-python format-fix blackd jupyter-kernel docs livedocs fix
 
 ifeq ($(shell which poetry), )
 	$(error "Can't find poetry on the path. Install it at https://python-poetry.org/docs.")
@@ -34,7 +36,7 @@ endif
 
 install-poetry:
 	@$(call i, Installing Poetry)
-	curl -sSL https://install.python-poetry.org | python3 - --version 1.2.1
+	curl -sSL https://install.python-poetry.org | python3 - --version 1.6.1
 	echo "Add ~/.local/bin to your PATH"
 
 help:
@@ -131,6 +133,8 @@ lint-fix: ## Automatically fix linting issues.
 	@$(call i, Running the linter)
 	poetry run autoflake --in-place --remove-all-unused-imports --remove-unused-variables $(src.python) $(tst.python)
 
+fix: lint-fix format-fix ## Automatically fix linting and formatting issues.
+
 format: ## Check style formatting.
 	@$(call w, format is deprecated running pre-commit instead)
 	poetry run pre-commit run --all-files
@@ -158,7 +162,7 @@ telemetry-opt-out: ## create opt out file
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
-	poetry install -E "viz s3 spark mlflow image fugue gcs embeddings"
+	poetry install -E "viz s3 spark mlflow image fugue gcs embeddings proc"
 
 coverage: ## Generate test coverage reports.
 	@$(call i, Generating test coverage)

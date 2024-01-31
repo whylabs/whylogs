@@ -198,8 +198,6 @@ class MissingMetric(Exception):
     The DatasetConstraint is responsible for handling this exception.
     """
 
-    pass
-
 
 @dataclass(frozen=True)
 class DatasetComparisonConstraint:

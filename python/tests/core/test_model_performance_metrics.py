@@ -1,6 +1,7 @@
 import base64
 from logging import getLogger
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -90,6 +91,19 @@ def test_binary_classification_compute_confusion_matrix():
 
     TEST_LOGGER.info(confusion_matrix.confusion_matrix)
     assert confusion_matrix.confusion_matrix is not None
+
+
+def test_confusion_matrix_with_nans():
+    df = pd.DataFrame({"label_output": [0, 1, 0, 1, None, 1, np.nan], "pred_output": [0, 0, 1, 1, 0, np.nan, None]})
+    predictions = df["pred_output"].to_list()
+    targets = df["label_output"].to_list()
+
+    labels = sorted(list(set(targets + predictions)))
+    print("labels fed to the matrix:", labels)
+    confusion_matrix = ConfusionMatrix(labels=labels)
+    confusion_matrix.add(predictions=predictions, targets=targets, scores=None)
+    assert len(confusion_matrix.confusion_matrix) == 7
+    assert confusion_matrix.labels == [0, 1, "None"]
 
 
 def test_model_performance_metrics_binary():
@@ -277,7 +291,21 @@ def test_profile_top_level_api_segmented_performance():
 
 
 def test_deserialize_confusion_matrix_with_kll_floats() -> None:
+    # this sketch generates ValueError when deserialized as kll_doubles_sketch.
     sample = "CgEwCgExEhxkZWxpdmVyeV9wcmVkaWN0aW9uIChvdXRwdXQpGhhkZWxpdmVyeV9zdGF0dXMgKG91dHB1dCkiHGRlbGl2ZXJ5X2NvbmZpZGVuY2UgKG91dHB1dClSFgoAIggCAQ8BAAEIADIIAQMDAAAezJNSFgoAIggCAQ8BAAEIADIIAQMDAAAezJNS0QEKFAgKEUcu/yH99rU/GeF6FK5H4eo/Eh0IChGuR+F6FK7nPxkAAAAAAADwPyHNzMzMzMwgQCJIBQEPAAABCAAKAAAAAAAAAAABAQD2AAAApHA9PwAAgD/Xo3A/uB5FP6RwPT/NzEw/PQpXP0jhej+kcD0/cT1KPwAAgD/NzEw/MlACAwMAABrMkwgAAAAAAAAA08wssPU9DQg/rZkmPpX4CJp1jlD5me4aoWIjAG6MNiCLJTyeLc5zUuyIHr4Td6ZphdLO5crXo3zWNEUNX4OGflIWCgAiCAIBDwEAAQgAMggBAwMAAB7Mkw=="  # noqa: E501
+    bytes = base64.b64decode(sample)
+    msg = ScoreMatrixMessage()
+    msg.ParseFromString(bytes)
+    confusion_matrix = ConfusionMatrix.from_protobuf(msg)
+    assert confusion_matrix is not None
+    merged = confusion_matrix.merge(confusion_matrix)
+    merged.to_protobuf()
+    # test passes if no crash
+
+
+def test_deserialize_confusion_matrix_with_kll_floats_IndexError() -> None:
+    # this sketch generates IndexError when deserialized as kll_doubles_sketch.
+    sample = "CgEwCgExEhxkZWxpdmVyeV9wcmVkaWN0aW9uIChvdXRwdXQpGhhkZWxpdmVyeV9zdGF0dXMgKG91dHB1dCkiHGRlbGl2ZXJ5X2NvbmZpZGVuY2UgKG91dHB1dClSFgoAIggCAQ8BAAEIADIIAQMDAAAezJNSFgoAIggCAQ8BAAEIADIIAQMDAAAezJNSTAoLCAEZhetRuB6F6z8SHQgBEYXrUbgehes/GYXrUbgehes/IYXrUbgehes/IgwCAg8EAAEIAPYoXD8yEAEDAwAAGsyTtq3UmCeZQWBSFgoAIggCAQ8BAAEIADIIAQMDAAAezJM="  # noqa: E501
     bytes = base64.b64decode(sample)
     msg = ScoreMatrixMessage()
     msg.ParseFromString(bytes)

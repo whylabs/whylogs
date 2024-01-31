@@ -68,6 +68,14 @@ class SegmentedDatasetProfileView(Writable):
     def creation_timestamp(self) -> Optional[datetime]:
         return self.profile_view.creation_timestamp
 
+    @property
+    def model_performance_metrics(self) -> Any:
+        return self.profile_view.model_performance_metrics
+
+    @property
+    def metadata(self) -> Dict[str, str]:
+        return self.profile_view.metadata
+
     def get_default_path(self) -> str:
         return f"profile_{self._profile_view.creation_timestamp}_{self.get_segment_string()}.bin"
 
@@ -164,6 +172,10 @@ class SegmentedDatasetProfileView(Writable):
             segment_message.tags.extend(segment_tags)
             segments_message_field = [segment_message]
 
+            # Make sure to promote the contained profile's metadata to the DatasetProperties
+            if self.metadata:
+                segment_metadata.update(self.metadata)
+
             properties = DatasetProperties(
                 dataset_timestamp=to_utc_milliseconds(self.profile_view._dataset_timestamp),
                 creation_timestamp=to_utc_milliseconds(self.profile_view._creation_timestamp),
@@ -207,7 +219,11 @@ class SegmentedDatasetProfileView(Writable):
         return True, path
 
     def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
-        if kwargs.get("use_v0"):
+        if kwargs.get("use_v0") or self.profile_view.model_performance_metrics:
+            if self.profile_view.model_performance_metrics:
+                logger.info("Converting segmented profile with performance metrics to v0 format before writing.")
+            else:
+                logger.info("writing segmented profile as v0 format.")
             return self._write_as_v0_message(path, **kwargs)
         else:
             return self._write_v1(path, **kwargs)

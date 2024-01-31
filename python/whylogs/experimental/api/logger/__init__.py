@@ -3,7 +3,7 @@ from math import math_log
 from typing import Optional, Union
 
 from whylogs.api.logger import log
-from whylogs.api.logger.result_set import ProfileResultSet
+from whylogs.api.logger.result_set import ViewResultSet
 from whylogs.core import DatasetSchema
 from whylogs.core.stubs import np, pd, is_not_stub
 
@@ -19,37 +19,7 @@ def log_batch_ranking_metrics(
     convert_non_numeric = False,
     schema: Union[DatasetSchema, None] = None,
     log_full_data: bool = False,
-) -> ProfileResultSet:
-    """
-    Function to track ranking-related metrics based on validation data.
-    User may also pass the associated attribute names associated with
-    target, prediction, and/or score. Ignores ties in prediction score.
-
-    Parameters
-    ----------
-    data : pandas.DataFrame
-        pandas dataframe holding relevant data for logging
-    prediction_column : str
-        column name of that holding prediction values
-    target_column : str
-        column name of that holding target values / actuals
-    score_column : str
-        ignored, kept for API similarity
-    k : int (defaults to None)
-        number of query results to account into metrics, will alter 
-        output feature names
-    convert_non_numeric : bool (defaults to False)
-        converts non-numeric data to based on target values, assuming data
-        is sorted from most to least relevant in each row
-    schema : DatasetSchema
-        dataset schema can be passed for logging
-    log_full_data : bool
-        if true, will log raw data in addition to ranking metrics
-    """
-
-    if not is_not_stub(np):
-        raise ValueError("This experimental ranking API requires numpy import.")
-    
+) -> ViewResultSet:
     formatted_data = data.copy(deep=True)  # TODO: does this have to be deep?
 
     relevant_cols = [prediction_column]

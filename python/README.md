@@ -26,7 +26,7 @@
     <img src="https://pepy.tech/badge/whylogs" alt="PyPi Downloads">
 </a>
 <a href="bit.ly/whylogs" target="_blank">
-    <img src="https://github.com/whylabs/whylogs-python/workflows/whylogs%20CI/badge.svg" alt="CI">
+    <img src="https://github.com/whylabs/whylogs/actions/workflows/whylogs-ci.yml/badge.svg" alt="CI">
 </a>
 <a href="https://codeclimate.com/github/whylabs/whylogs-python/maintainability" target="_blank">
     <img src="https://api.codeclimate.com/v1/badges/442f6ca3dca1e583a488/maintainability" alt="Maintainability">
@@ -73,7 +73,7 @@ df = pd.read_csv("path/to/file.csv")
 results = why.log(df)
 ```
 
-And voilà, you now have a whylogs profile. To learn more about what a whylogs profile is and what you can do with it, read on.
+And there you have it, you now have a whylogs profile. To learn more about what a whylogs profile is and what you can do with it, read on.
 
 ## Table of Contents
 

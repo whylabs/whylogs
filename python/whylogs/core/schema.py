@@ -14,7 +14,7 @@ from whylogs.core.resolvers import (
 )
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
-from whylogs.core.validators.validator import Validator
+from whylogs.core.validators.validator import Validator, deepcopy_validators
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +77,7 @@ class DatasetSchema:
         schema_based_automerge: bool = False,
         segments: Optional[Dict[str, SegmentationPartition]] = None,
         validators: Optional[Dict[str, List[Validator]]] = None,
+        metadata: Optional[Dict[str, str]] = None,
     ) -> None:
         self._columns = dict()
         self.types = types or dict()
@@ -87,6 +88,7 @@ class DatasetSchema:
         self.schema_based_automerge = schema_based_automerge
         self.segments = segments or dict()
         self.validators = validators or dict()
+        self.metadata = metadata or dict()
 
         if self.cache_size < 0:
             logger.warning("Negative cache size value. Disabling caching")
@@ -122,6 +124,7 @@ class DatasetSchema:
         copy = self.__class__(**args)
         copy._columns = deepcopy(self._columns)
         copy.segments = self.segments.copy()
+        copy.metadata = self.metadata.copy()
         return copy
 
     def resolve(
@@ -246,6 +249,7 @@ class DeclarativeSchema(DatasetSchema):
         schema_based_automerge: bool = False,
         segments: Optional[Dict[str, SegmentationPartition]] = None,
         validators: Optional[Dict[str, List[Validator]]] = None,
+        metadata: Optional[Dict[str, str]] = None,
     ) -> None:
         if resolvers is None:
             resolvers = res.DEFAULT_RESOLVER
@@ -260,6 +264,7 @@ class DeclarativeSchema(DatasetSchema):
             schema_based_automerge=schema_based_automerge,
             segments=segments,
             validators=validators,
+            metadata=metadata,
         )
 
     def copy(self) -> "DeclarativeSchema":
@@ -271,7 +276,8 @@ class DeclarativeSchema(DatasetSchema):
             self.cache_size,
             self.schema_based_automerge,
             self.segments.copy(),
-            deepcopy(self.validators),
+            deepcopy_validators(self.validators),
+            metadata=self.metadata.copy(),
         )
         copy.resolvers = deepcopy(self.resolvers)
         copy._columns = deepcopy(self._columns)

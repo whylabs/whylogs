@@ -60,7 +60,7 @@ class DatasetProfile(Writable):
         new_cols = schema.get_col_names()
         self._initialize_new_columns(new_cols)
         self._metrics: Dict[str, Union[Metric, Any]] = metrics or dict()
-        self._metadata = metadata
+        self._metadata: Dict[str, str] = metadata or dict()
 
     @property
     def creation_timestamp(self) -> datetime:
@@ -79,6 +79,10 @@ class DatasetProfile(Writable):
     def is_empty(self) -> bool:
         """Returns True if the profile tracking code is currently running."""
         return self._track_count == 0
+
+    @property
+    def metadata(self) -> Dict[str, str]:
+        return self._metadata
 
     def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
         if dataset_timestamp.tzinfo is None:
@@ -140,12 +144,11 @@ class DatasetProfile(Writable):
             self._initialize_new_columns(tuple(new_cols))
 
         if row is not None:
+            row_id = row.get(col_id) if col_id else None
             for k in row.keys():
-                if col_id:
-                    self._columns[k]._track_datum(row[k], row.get(col_id))
-                else:
-                    self._columns[k]._track_datum(row[k])
+                self._columns[k]._track_datum(row[k], row_id)
             return
+
         elif pandas is not None:
             # TODO: iterating over each column in order assumes single column metrics
             #   but if we instead iterate over a new artifact contained in dataset profile: "MetricProfiles", then
@@ -170,18 +173,16 @@ class DatasetProfile(Writable):
                     and isinstance(dtype[1], ColumnProperties)
                     and dtype[1] == ColumnProperties.homogeneous
                 )
+
+                id_values = pandas.get(col_id) if col_id else None
+                if col_id is not None and id_values is None:
+                    logger.warning(f"identity column was passed as {col_id} but column was not found in the dataframe.")
+
                 if homogeneous:
-                    self._columns[k]._track_homogeneous_column(column_values)
+                    self._columns[k]._track_homogeneous_column(column_values, id_values)
                 else:
-                    id_values = pandas.get(col_id)
-                    if col_id is not None and id_values is None:
-                        logger.warning(
-                            f"identity column was passed as {col_id} but column was not found in the dataframe."
-                        )
-                    if col_id is not None and id_values is not None:
-                        self._columns[k].track_column(column_values, id_values)
-                    else:
-                        self._columns[k].track_column(column_values)
+                    self._columns[k].track_column(column_values, id_values)
+
             return
 
         raise NotImplementedError
