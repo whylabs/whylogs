@@ -5,7 +5,7 @@ from typing import Optional, Union
 from whylogs.api.logger import log
 from whylogs.api.logger.result_set import ViewResultSet
 from whylogs.core import DatasetSchema
-from whylogs.core.stubs import np, pd, is_not_stub
+from whylogs.core.stubs import np, pd
 
 diagnostic_logger = logging.getLogger(__name__)
 
@@ -15,8 +15,8 @@ def log_batch_ranking_metrics(
     prediction_column: str,
     target_column: Optional[str] = None,
     score_column: Optional[str] = None,
-    k: int = None,
-    convert_non_numeric = False,
+    k: Optional[int] = None,
+    convert_non_numeric=False,
     schema: Union[DatasetSchema, None] = None,
     log_full_data: bool = False,
 ) -> ViewResultSet:
@@ -35,7 +35,7 @@ def log_batch_ranking_metrics(
             # wrapping in lists because at least one isn't a list
             # TODO: more error checking
             formatted_data[col] = formatted_data[col].apply(lambda x: [x])
-    
+
     _max_k = formatted_data[prediction_column].apply(len).max()
 
     formatted_data["count_at_k"] = formatted_data[relevant_cols].apply(
@@ -82,22 +82,29 @@ def log_batch_ranking_metrics(
     def _convert_non_numeric(row_dict):
         print("Converting non-numeric")
         return (
-            [row_dict[target_column].index(pred_val) if pred_val in row_dict[target_column] else -1 for pred_val in row_dict[prediction_column]],
-            list(range(len(row_dict[prediction_column])))[::-1]
+            [
+                row_dict[target_column].index(pred_val) if pred_val in row_dict[target_column] else -1
+                for pred_val in row_dict[prediction_column]
+            ],
+            list(range(len(row_dict[prediction_column])))[::-1],
         )
 
     if convert_non_numeric:
-        formatted_data[[prediction_column, target_column]] = formatted_data.apply(_convert_non_numeric,
-                                                                                                result_type='expand', 
-                                                                                                axis=1)
+        formatted_data[[prediction_column, target_column]] = formatted_data.apply(
+            _convert_non_numeric, result_type="expand", axis=1
+        )
 
     def _calculate_row_ndcg(row_dict, k):
         predicted_order = np.array(row_dict[prediction_column]).argsort()[::-1]
         target_order = np.array(row_dict[target_column]).argsort()[::-1]
-        dcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(np.array(row_dict[target_column])[predicted_order][:k])]
-        idcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(np.array(row_dict[target_column])[target_order][:k])]
-        return sum(dcg_vals)/sum(idcg_vals)
-    
+        dcg_vals = [
+            (rel / math.log(i + 2, 2)) for i, rel in enumerate(np.array(row_dict[target_column])[predicted_order][:k])
+        ]
+        idcg_vals = [
+            (rel / math.log(i + 2, 2)) for i, rel in enumerate(np.array(row_dict[target_column])[target_order][:k])
+        ]
+        return sum(dcg_vals) / sum(idcg_vals)
+
     formatted_data["norm_dis_cumul_gain_k_" + str(k)] = formatted_data.apply(_calculate_row_ndcg, args=(k,), axis=1)
 
     mAP_at_k = ki_dict.mean()
