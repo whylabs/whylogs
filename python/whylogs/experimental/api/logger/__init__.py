@@ -1,5 +1,5 @@
 import logging
-from math import math_log
+import math
 from typing import Optional, Union
 
 from whylogs.api.logger import log
@@ -94,8 +94,8 @@ def log_batch_ranking_metrics(
     def _calculate_row_ndcg(row_dict, k):
         predicted_order = np.array(row_dict[prediction_column]).argsort()[::-1]
         target_order = np.array(row_dict[target_column]).argsort()[::-1]
-        dcg_vals = [(rel / math_log(i + 2, 2)) for i, rel in enumerate(np.array(row_dict[target_column])[predicted_order][:k])]
-        idcg_vals = [(rel / math_log(i + 2, 2)) for i, rel in enumerate(np.array(row_dict[target_column])[target_order][:k])]
+        dcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(np.array(row_dict[target_column])[predicted_order][:k])]
+        idcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(np.array(row_dict[target_column])[target_order][:k])]
         return sum(dcg_vals)/sum(idcg_vals)
     
     formatted_data["norm_dis_cumul_gain_k_" + str(k)] = formatted_data.apply(_calculate_row_ndcg, args=(k,), axis=1)
