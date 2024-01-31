@@ -80,7 +80,6 @@ def log_batch_ranking_metrics(
     output_data["average_precision" + ("_k_" + str(k) if k else "")] = ki_dict.mean(axis=1)
 
     def _convert_non_numeric(row_dict):
-        print("Converting non-numeric")
         return (
             [
                 row_dict[target_column].index(pred_val) if pred_val in row_dict[target_column] else -1
