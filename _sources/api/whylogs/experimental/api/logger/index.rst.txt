@@ -166,6 +166,6 @@ Attributes
 
    
 
-.. py:function:: log_batch_ranking_metrics(k: int, data: whylogs.core.stubs.pd.core.frame.DataFrame, prediction_column: str, target_column: Optional[str] = None, score_column: Optional[str] = None, schema: Union[whylogs.core.DatasetSchema, None] = None, log_full_data: bool = False) -> whylogs.api.logger.result_set.ViewResultSet
+.. py:function:: log_batch_ranking_metrics(data: whylogs.core.stubs.pd.core.frame.DataFrame, prediction_column: str, target_column: Optional[str] = None, score_column: Optional[str] = None, k: Optional[int] = None, convert_non_numeric=False, schema: Union[whylogs.core.DatasetSchema, None] = None, log_full_data: bool = False) -> whylogs.api.logger.result_set.ViewResultSet
 
 
