@@ -122,7 +122,7 @@ def test_log_batch_ranking_metrics_multiple_simple():
     assert pandas_summary.loc["average_precision_k_" + str(k), "counts/n"] == 4
     assert pandas_summary.loc["norm_dis_cumul_gain_k_" + str(k), "counts/n"] == 1
 
-    assert isclose(pandas_summary.loc["norm_dis_cumul_gain_k_4", "distribution/median"], 0.35202, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["norm_dis_cumul_gain_k_3", "distribution/median"], 0.35202, abs_tol=0.00001)
 
 
 def test_log_batch_ranking_metrics_default_target():
