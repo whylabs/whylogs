@@ -2,6 +2,7 @@ import os
 import time
 from uuid import uuid4
 
+import numpy as np
 import pandas as pd
 import pytest
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi
@@ -13,7 +14,7 @@ from whylabs_client.model.reference_profile_item_response import (
 )
 
 import whylogs as why
-from whylogs.api.writer.whylabs import WhyLabsWriter
+from whylogs.api.writer.whylabs import WhyLabsTransaction, WhyLabsWriter
 from whylogs.core import DatasetProfileView
 from whylogs.core.feature_weights import FeatureWeights
 from whylogs.core.schema import DatasetSchema
@@ -26,7 +27,7 @@ os.environ["WHYLOGS_NO_ANALYTICS"] = "True"
 # WHYLABS_DEFAULT_DATASET_ID need to come from the environment
 
 
-SLEEP_TIME = 30
+SLEEP_TIME = 120
 
 
 @pytest.mark.load
@@ -212,3 +213,134 @@ def test_transactions():
     downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
     deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
     assert deserialized_view.get_columns().keys() == data.keys()
+
+
+@pytest.mark.load
+def test_transaction_context():
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+    why.init(force_local=True)
+    schema = DatasetSchema()
+    csv_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv"
+    df = pd.read_csv(csv_url)
+    pdfs = np.array_split(df, 7)
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    tids = list()
+    try:
+        with WhyLabsTransaction(writer):
+            for data in pdfs:
+                trace_id = str(uuid4())
+                tids.append(trace_id)
+                result = why.log(data, schema=schema, trace_id=trace_id)
+                status, id = writer.write(result.profile())
+                if not status:
+                    raise Exception()  # or retry the profile...
+
+    except Exception as ex:
+        # The start_transaction() or commit_transaction() in the
+        # WhyLabsTransaction context manager will throw on failure.
+        # Or retry the commit
+        print(ex)
+
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
+    dataset_api = DatasetProfileApi(writer._api_client)
+    for trace_id in tids:
+        response: ProfileTracesResponse = dataset_api.get_profile_traces(
+            org_id=ORG_ID,
+            dataset_id=MODEL_ID,
+            trace_id=trace_id,
+        )
+        download_url = response.get("traces")[0]["download_url"]
+        headers = {"Content-Type": "application/octet-stream"}
+        downloaded_profile = writer._s3_pool.request(
+            "GET", download_url, headers=headers, timeout=writer._timeout_seconds
+        )
+        deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+        assert deserialized_view is not None
+
+
+@pytest.mark.load
+def test_transaction_segmented():
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+    why.init(force_local=True)
+    schema = DatasetSchema(segments=segment_on_column("Gender"))
+    csv_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv"
+    data = pd.read_csv(csv_url)
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    trace_id = str(uuid4())
+    try:
+        with WhyLabsTransaction(writer):
+            result = why.log(data, schema=schema, trace_id=trace_id)
+            assert len(result._segments.keys()) == 2
+            status, id = writer.write(result)
+            if not status:
+                raise Exception()  # or retry the profile...
+
+    except Exception as ex:
+        # The start_transaction() or commit_transaction() in the
+        # WhyLabsTransaction context manager will throw on failure.
+        # Or retry the commit
+        print(ex)
+
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
+    dataset_api = DatasetProfileApi(writer._api_client)
+    response: ProfileTracesResponse = dataset_api.get_profile_traces(
+        org_id=ORG_ID,
+        dataset_id=MODEL_ID,
+        trace_id=trace_id,
+    )
+    assert len(response.get("traces")) == 2
+    for trace in response.get("traces"):
+        download_url = trace.get("download_url")
+        headers = {"Content-Type": "application/octet-stream"}
+        downloaded_profile = writer._s3_pool.request(
+            "GET", download_url, headers=headers, timeout=writer._timeout_seconds
+        )
+        assert downloaded_profile is not None
+
+
+@pytest.mark.load
+def test_transaction_distributed():
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+    why.init(force_local=True)
+    schema = DatasetSchema()
+    csv_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv"
+    df = pd.read_csv(csv_url)
+    pdfs = np.array_split(df, 7)
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    tids = list()
+    try:
+        transaction_id = writer.start_transaction()
+        for data in pdfs:  # pretend each iteration is run on a different machine
+            dist_writer = WhyLabsWriter(dataset_id=MODEL_ID)
+            dist_writer.start_transaction(transaction_id)
+            trace_id = str(uuid4())
+            tids.append(trace_id)
+            result = why.log(data, schema=schema, trace_id=trace_id)
+            status, id = dist_writer.write(result.profile())
+            if not status:
+                raise Exception()  # or retry the profile...
+        writer.commit_transaction()
+    except Exception as ex:
+        # The start_transaction() or commit_transaction() in the
+        # WhyLabsTransaction context manager will throw on failure.
+        # Or retry the commit
+        print(ex)
+
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
+    dataset_api = DatasetProfileApi(writer._api_client)
+    for trace_id in tids:
+        response: ProfileTracesResponse = dataset_api.get_profile_traces(
+            org_id=ORG_ID,
+            dataset_id=MODEL_ID,
+            trace_id=trace_id,
+        )
+        download_url = response.get("traces")[0]["download_url"]
+        headers = {"Content-Type": "application/octet-stream"}
+        downloaded_profile = writer._s3_pool.request(
+            "GET", download_url, headers=headers, timeout=writer._timeout_seconds
+        )
+        deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+        assert deserialized_view is not None

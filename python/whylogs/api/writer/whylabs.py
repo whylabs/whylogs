@@ -110,8 +110,9 @@ def _check_whylabs_condition_count_uncompound() -> bool:
             return False
         else:
             logger.info(f"Got response code {response.status_code} but expected 200, so running uncompound")
-    except Exception:
-        logger.warning("Error trying to read whylabs config, falling back to defaults for uncompounding")
+    finally:
+        pass
+
     _WHYLABS_SKIP_CONFIG_READ = True
     return True
 
@@ -616,39 +617,46 @@ class WhyLabsWriter(Writer):
         self._refresh_client()
         return TransactionsApi(self._api_client)
 
-    def start_transaction(self, **kwargs) -> None:
+    def start_transaction(self, transaction_id: Optional[str] = None, **kwargs) -> str:
         """
         Initiates a transaction -- any profiles subsequently written by calling write()
-        will be uploaded to WhyLabs atomically when commit_transaction() is called. Throws
+        will be uploaded to WhyLabs, but not ingested until commit_transaction() is called. Throws
         on failure.
         """
         if self._transaction_id is not None:
             logger.error("Must end current transaction with commit_transaction() before starting another")
-            return
+            return self._transaction_id
 
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
+
+        if transaction_id is not None:
+            self._transaction_id = transaction_id  # type: ignore
+            return transaction_id
 
         client: TransactionsApi = self._get_or_create_transaction_client()
         request = TransactionStartRequest(dataset_id=self._dataset_id)
         result: LogTransactionMetadata = client.start_transaction(request, **kwargs)
         self._transaction_id = result["transaction_id"]
         logger.info(f"Starting transaction {self._transaction_id}, expires {result['expiration_time']}")
+        return self._transaction_id  # type: ignore
 
     def commit_transaction(self, **kwargs) -> None:
         """
-        Atomically upload any profiles written since the previous start_transaction().
+        Ingest any profiles written since the previous start_transaction().
         Throws on failure.
         """
         if self._transaction_id is None:
             logger.error("Must call start_transaction() before commit_transaction()")
             return
 
-        logger.info(f"Committing transaction {self._transaction_id}")
+        id = self._transaction_id
+        self._transaction_id = None
+        logger.info(f"Committing transaction {id}")
         client = self._get_or_create_transaction_client()
         request = TransactionCommitRequest(verbose=True)
-        client.commit_transaction(self._transaction_id, request, **kwargs)
-        self._transaction_id = None
+        # We abandon the transaction if this throws
+        client.commit_transaction(id, request, **kwargs)
 
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
@@ -1073,3 +1081,14 @@ class WhyLabsWriter(Writer):
             logger.debug(f"Replaced URL with our private domain. New URL: {upload_url}")
 
         return upload_url, profile_id
+
+
+class WhyLabsTransaction:
+    def __init__(self, writer: WhyLabsWriter):
+        self._writer = writer
+
+    def __enter__(self) -> None:
+        self._writer.start_transaction()
+
+    def __exit__(self, exc_type, exc_value, exc_tb) -> None:
+        self._writer.commit_transaction()
