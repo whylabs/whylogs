@@ -121,7 +121,7 @@ Attributes
 
 
 
-.. py:function:: register_multioutput_udf(col_names: List[str], udf_name: Optional[str] = None, prefix: Optional[str] = None, namespace: Optional[str] = None, schema_name: str = '') -> Callable[[Any], Any]
+.. py:function:: register_multioutput_udf(col_names: List[str], udf_name: Optional[str] = None, prefix: Optional[str] = None, namespace: Optional[str] = None, schema_name: str = '', no_prefix: bool = False) -> Callable[[Any], Any]
 
    Decorator to easily configure UDFs for your data set. Decorate your UDF
    functions, then call generate_udf_dataset_schema() to create a UdfSchema
