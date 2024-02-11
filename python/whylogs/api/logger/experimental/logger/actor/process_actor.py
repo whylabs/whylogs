@@ -100,6 +100,8 @@ class ProcessActor(
 
         super().close()
         self._wrapper.close()
+        if self._pipe_signaler is not None:
+            self._pipe_signaler.close()
 
     def _signal(self, messages: Sequence[SyncMessage] = [], error: Optional[Exception] = None) -> None:
         if self._pipe_signaler is None:
