@@ -788,6 +788,9 @@ class WhyLabsWriter(Writer):
                 f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
                 f"{self.whylabs_api_endpoint} with API token ID: {self._key_refresher.key_id}"
             )
+        else:
+            logger.warning(f"response from file upload was not 200, instead got: {response}")
+
         return is_successful, response.reason
 
     def _do_upload(
