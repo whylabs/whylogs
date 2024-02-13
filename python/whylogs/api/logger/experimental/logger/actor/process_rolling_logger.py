@@ -455,14 +455,6 @@ class BaseProcessRollingLogger(
         self._logger.debug(f"Started process logger with pid {os.getpid()}")
         super().run()
 
-    def start(self) -> None:
-        self._logger.debug(f"Starting process logger from pid {os.getpid()}")
-        # This is started in the parent process, not in the child process. It must be started
-        # before the process itself start right below.
-        if self._pipe_signaler is not None:
-            self._pipe_signaler.start()
-        super().start()
-
     def close(self) -> None:
         super().close()
 
