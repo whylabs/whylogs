@@ -147,6 +147,9 @@ class ProcessActor(
         it's created, unlike the thread version which can just be automatically started
         from within its init. There must be some post-init setup that needs to be done.
         """
+        if self._pipe_signaler is not None:
+            self._pipe_signaler.start()
+
         self.daemon = True
         super().start()
         self.join(0.1)  # This does apparently need to happen after several manual tests.
