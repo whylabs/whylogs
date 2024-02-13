@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os
+import pprint
 import tempfile
 from typing import IO, Any, Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
@@ -788,6 +789,11 @@ class WhyLabsWriter(Writer):
                 f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
                 f"{self.whylabs_api_endpoint} with API token ID: {self._key_refresher.key_id}"
             )
+        else:
+            logger.warning(
+                f"response from file upload was not 200, instead got: {pprint.pformat(vars(response), indent=4)}"
+            )
+
         return is_successful, response.reason
 
     def _do_upload(
