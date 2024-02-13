@@ -436,6 +436,7 @@
 <span></span><span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">IO</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
@@ -1223,6 +1224,11 @@
                 <span class="sa">f</span><span class="s2">&quot;Done uploading </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">dataset_timestamp</span><span class="si">}</span><span class="s2"> to &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="si">}</span><span class="s2"> with API token ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_key_refresher</span><span class="o">.</span><span class="n">key_id</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;response from file upload was not 200, instead got: </span><span class="si">{</span><span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">response</span><span class="p">),</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
         <span class="k">return</span> <span class="n">is_successful</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">reason</span>
 
     <span class="k">def</span> <span class="nf">_do_upload</span><span class="p">(</span>
