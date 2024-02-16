@@ -76,7 +76,7 @@ _UPLOAD_POOLER_CACHE: Dict[str, Union[PoolManager, ProxyManager]] = dict()
 
 _US_WEST2_DOMAIN = "songbird-20201223060057342600000001.s3.us-west-2.amazonaws.com"
 _S3_PUBLIC_DOMAIN = os.environ.get("_WHYLABS_PRIVATE_S3_DOMAIN") or _US_WEST2_DOMAIN
-_WHYLABS_SKIP_CONFIG_READ = os.environ.get("_WHYLABS_SKIP_CONFIG_READ") or False
+_WHYLABS_SKIP_CONFIG_READ = os.environ.get("_WHYLABS_SKIP_CONFIG_READ")
 
 KNOWN_CUSTOM_PERFORMANCE_METRICS = {
     "mean_average_precision_k_": "mean",
@@ -91,7 +91,7 @@ KNOWN_CUSTOM_PERFORMANCE_METRICS = {
 
 def _check_whylabs_condition_count_uncompound() -> bool:
     global _WHYLABS_SKIP_CONFIG_READ
-    if _WHYLABS_SKIP_CONFIG_READ:
+    if _WHYLABS_SKIP_CONFIG_READ is not None:
         return True
     whylabs_config_url = (
         "https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_config/whylabs_condition_count_disabled"
@@ -113,7 +113,7 @@ def _check_whylabs_condition_count_uncompound() -> bool:
             logger.info(f"Got response code {response.status_code} but expected 200, so running uncompound")
     except Exception:
         logger.warning("Error trying to read whylabs config, falling back to defaults for uncompounding")
-    _WHYLABS_SKIP_CONFIG_READ = True
+    _WHYLABS_SKIP_CONFIG_READ = "True"
     return True
 
 
@@ -469,6 +469,9 @@ class WhyLabsWriter(Writer):
             Tuple with a boolean (1-success, 0-fail) and string with the request's status code.
         """
         self._feature_weights = file.to_dict()
+        # TODO if we want to use a WhyLabsWriter object, the first time I call write_feature_weights, should it really
+        # change the default dataset id? I think this could introduce unexpected behaviors, and should be treated as a
+        # stateless call
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
         return self._do_upload_feature_weights()
@@ -492,7 +495,9 @@ class WhyLabsWriter(Writer):
             return feature_weights
         return None
 
-    def _write_segmented_reference_result_set(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
+    def _write_segmented_reference_result_set(
+        self, file: SegmentedResultSet, zip_file: bool = False, **kwargs: Any
+    ) -> Tuple[bool, str]:
         """Put segmented reference result set for the specified dataset.
 
         Parameters
@@ -504,7 +509,6 @@ class WhyLabsWriter(Writer):
         -------
         Tuple[bool, str]
         """
-        zipit = kwargs.get("zip")
         utc_now = datetime.datetime.now(datetime.timezone.utc)
 
         files = file.get_writables()
@@ -529,19 +533,19 @@ class WhyLabsWriter(Writer):
         stamp = dataset_timestamp.timestamp()
         dataset_timestamp_epoch = int(stamp * 1000)
         upload_statuses = list()
-        use_v0 = kwargs.get("use_v0") is None or kwargs.get("use_v0")
-        if zipit:
+        use_v0 = kwargs.get("use_v0", False)
+        if zip_file is True:
             profile_id, upload_url = self._get_upload_urls_segmented_reference_zip(
                 whylabs_tags, dataset_timestamp_epoch
             )
-            with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp_file:
-                with ZipFile(tmp_file, "w", allowZip64=True) as zip_file:
+            with tempfile.NamedTemporaryFile(suffix=".zip") as tmp_file:
+                with ZipFile(tmp_file, "w", allowZip64=True) as z_file:
                     for view in files:
                         with tempfile.NamedTemporaryFile() as seg_file:
                             view.write(file=seg_file, use_v0=use_v0)
                             seg_file.flush()
                             seg_file.seek(0)
-                            zip_file.write(seg_file.name, seg_file.name.split("/")[-1])
+                            z_file.write(seg_file.name, seg_file.name.split("/")[-1])
 
                 tmp_file.flush()
                 tmp_file.seek(0)
@@ -550,6 +554,7 @@ class WhyLabsWriter(Writer):
                     upload_url=upload_url,
                     profile_id=profile_id,
                     profile_file=tmp_file,
+                    zip_file=zip_file,
                 )
                 upload_statuses.append(upload_res)
         else:
@@ -588,7 +593,7 @@ class WhyLabsWriter(Writer):
         # multi-profile writer
         files = file.get_writables()
         messages: List[str] = list()
-        and_status: bool = True
+        segments_status: bool = True
         if not files:
             logger.warning("Attempt to write a result set with no writables, nothing written!")
             return True, ""
@@ -596,12 +601,12 @@ class WhyLabsWriter(Writer):
         logger.debug(f"About to write {len(files)} files:")
         # TODO: special handling of large number of files, handle throttling
         for view in files:
-            bool_status, message = self.write(file=view, **kwargs)
-            and_status = and_status and bool_status
+            file_status, message = self.write(file=view, **kwargs)
+            segments_status = file_status and segments_status
             messages.append(message)
         logger.debug(f"Completed writing {len(files)} files!")
 
-        return and_status, "; ".join(messages)
+        return segments_status, "; ".join(messages)
 
     def _tag_custom_perf_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView]):
         if isinstance(view, DatasetProfileView):
@@ -651,25 +656,8 @@ class WhyLabsWriter(Writer):
         client.commit_transaction(self._transaction_id, request, **kwargs)
         self._transaction_id = None
 
-    @deprecated_alias(profile="file")
-    def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
-        if isinstance(file, FeatureWeights):
-            return self.write_feature_weights(file, **kwargs)
-        elif isinstance(file, EstimationResult):
-            return self.write_estimation_result(file, **kwargs)
-        elif isinstance(file, ResultSet):
-            if isinstance(file, SegmentedResultSet):
-                if self._reference_profile_name is not None:
-                    return self._write_segmented_reference_result_set(file, **kwargs)
-                else:
-                    return self._write_segmented_result_set(file, **kwargs)
-
-            file = file.profile()
-
-        view = file.view() if isinstance(file, DatasetProfile) else file
-
+    def _get_uncompounded_view(self, view: DatasetProfileView) -> DatasetProfileView:
         has_segments = isinstance(view, SegmentedDatasetProfileView)
-        has_performance_metrics = view.model_performance_metrics
         self._tag_custom_perf_metrics(view)
         if not has_segments and not isinstance(view, DatasetProfileView):
             raise ValueError(
@@ -688,6 +676,76 @@ class WhyLabsWriter(Writer):
             else:
                 view = _uncompound_dataset_profile(view, flags)
 
+        return view
+
+    def _upload_file(self, stamp, tmp_file, **kwargs) -> Tuple[bool, str]:
+        dataset_timestamp_epoch = int(stamp * 1000)
+        if self._transaction_id is not None:
+            # TODO: maybe check it's not a reference profile?
+            region = os.getenv("WHYLABS_UPLOAD_REGION", None)
+            client: TransactionsApi = self._get_or_create_transaction_client()
+            request = TransactionLogRequest(dataset_timestamp=dataset_timestamp_epoch, segment_tags=[], region=region)
+            result: AsyncLogResponse = client.log_transaction(self._transaction_id, request, **kwargs)
+            logger.info(f"Added profile {result.id} to transaction {self._transaction_id}")
+            response = self._do_upload(
+                dataset_timestamp=dataset_timestamp_epoch,
+                upload_url=result.upload_url,
+                profile_id=result.id,
+                profile_file=tmp_file,
+            )
+        else:
+            response = self._do_upload(
+                dataset_timestamp=dataset_timestamp_epoch,
+                profile_file=tmp_file,
+            )
+
+            return response
+
+    def _get_dataset_timestamp(self, view: DatasetProfileView) -> float:
+        utc_now = datetime.datetime.now(datetime.timezone.utc)
+        dataset_timestamp = view.dataset_timestamp or utc_now
+        stamp = dataset_timestamp.timestamp()
+        time_delta_seconds = utc_now.timestamp() - stamp
+
+        if time_delta_seconds < 0:
+            logger.warning(
+                f"About to upload a profile with a dataset_timestamp that is in the future: "
+                f"{time_delta_seconds}s old."
+            )
+        if time_delta_seconds > FIVE_YEARS_IN_SECONDS:
+            logger.error(
+                f"A profile being uploaded to WhyLabs has a dataset_timestamp of({dataset_timestamp}) "
+                f"compared to current datetime: {utc_now}. Uploads of profiles older than 5 years "
+                "might not be monitored in WhyLabs and may take up to 24 hours to show up."
+            )
+
+        if stamp <= 0:
+            logger.error(
+                f"Profiles should have timestamps greater than 0, but found a timestamp of {stamp}"
+                f" and current timestamp is {utc_now.timestamp()}, this is likely an error."
+            )
+
+        return stamp
+
+    @deprecated_alias(profile="file")
+    def write(self, file: Writable, zip_file: bool = False, **kwargs: Any) -> Tuple[bool, str]:
+        if isinstance(file, FeatureWeights):
+            return self.write_feature_weights(file, **kwargs)
+        elif isinstance(file, EstimationResult):
+            return self.write_estimation_result(file, **kwargs)
+        elif isinstance(file, ResultSet):
+            if isinstance(file, SegmentedResultSet):
+                if self._reference_profile_name is not None:
+                    return self._write_segmented_reference_result_set(file, zip_file=zip_file, **kwargs)
+                else:
+                    return self._write_segmented_result_set(file, **kwargs)
+
+            file = file.profile()
+
+        view = file.view() if isinstance(file, DatasetProfile) else file
+
+        view = self._get_uncompounded_view(view=view)
+
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
 
@@ -695,58 +753,18 @@ class WhyLabsWriter(Writer):
             # currently whylabs is not ingesting the v1 format of segmented profiles as segmented
             # so we default to sending them as v0 profiles if the override `use_v0` is not defined,
             # if `use_v0` is defined then pass that through to control the serialization format.
-            if has_performance_metrics or kwargs.get("use_v0"):
+            if view.model_performance_metrics or kwargs.get("use_v0"):
                 view.write(file=tmp_file, use_v0=True)
             else:
                 view.write(file=tmp_file)
             tmp_file.flush()
             tmp_file.seek(0)
-            utc_now = datetime.datetime.now(datetime.timezone.utc)
-            dataset_timestamp = view.dataset_timestamp or utc_now
-            stamp = dataset_timestamp.timestamp()
-            time_delta_seconds = utc_now.timestamp() - stamp
-            if time_delta_seconds < 0:
-                logger.warning(
-                    f"About to upload a profile with a dataset_timestamp that is in the future: "
-                    f"{time_delta_seconds}s old."
-                )
-            if time_delta_seconds > FIVE_YEARS_IN_SECONDS:
-                logger.error(
-                    f"A profile being uploaded to WhyLabs has a dataset_timestamp of({dataset_timestamp}) "
-                    f"compared to current datetime: {utc_now}. Uploads of profiles older than 5 years "
-                    "might not be monitored in WhyLabs and may take up to 24 hours to show up."
-                )
 
-            if stamp <= 0:
-                logger.error(
-                    f"Profiles should have timestamps greater than 0, but found a timestamp of {stamp}"
-                    f" and current timestamp is {utc_now.timestamp()}, this is likely an error."
-                )
+            file_timestamp = self._get_dataset_timestamp(view=view)
+            response = self._upload_file(file_timestamp, tmp_file, **kwargs)
 
-            dataset_timestamp_epoch = int(stamp * 1000)
-            if self._transaction_id is not None:
-                # TODO: maybe check it's not a reference profile?
-                region = os.getenv("WHYLABS_UPLOAD_REGION", None)
-                client: TransactionsApi = self._get_or_create_transaction_client()
-                request = TransactionLogRequest(
-                    dataset_timestamp=dataset_timestamp_epoch, segment_tags=[], region=region
-                )
-                result: AsyncLogResponse = client.log_transaction(self._transaction_id, request, **kwargs)
-                logger.info(f"Added profile {result.id} to transaction {self._transaction_id}")
-                response = self._do_upload(
-                    dataset_timestamp=dataset_timestamp_epoch,
-                    upload_url=result.upload_url,
-                    profile_id=result.id,
-                    profile_file=tmp_file,
-                )
-            else:
-                response = self._do_upload(
-                    dataset_timestamp=dataset_timestamp_epoch,
-                    profile_file=tmp_file,
-                )
-
-        # TODO: retry
-        return response
+            # TODO: retry
+            return response
 
     def _do_get_feature_weights(self):
         """Get latest version for the feature weights for the specified dataset
@@ -803,6 +821,7 @@ class WhyLabsWriter(Writer):
         profile_id: Optional[str] = None,
         profile_path: Optional[str] = None,
         profile_file: Optional[IO[bytes]] = None,
+        zip_file: bool = False,
     ) -> Tuple[bool, str]:
         assert profile_path or profile_file, "Either a file or file path must be specified when uploading profiles"
 
@@ -812,7 +831,7 @@ class WhyLabsWriter(Writer):
         elif profile_id and not upload_url:
             raise ValueError("If profile_id is specified, upload_url must also be specified")
         elif not upload_url and not profile_id:
-            upload_url, profile_id = self._get_upload_url(dataset_timestamp=dataset_timestamp)
+            upload_url, profile_id = self._get_upload_url(dataset_timestamp=dataset_timestamp, zip_file=zip_file)
         try:
             if profile_file:
                 status, reason = self._put_file(profile_file, upload_url, dataset_timestamp)  # type: ignore
@@ -861,16 +880,6 @@ class WhyLabsWriter(Writer):
     def _get_or_create_api_dataset_client(self) -> DatasetProfileApi:
         self._validate_client()
         return DatasetProfileApi(self._api_client)
-
-    @staticmethod
-    def _build_log_async_request(dataset_timestamp: int, region: Optional[str] = None) -> LogAsyncRequest:
-        return LogAsyncRequest(dataset_timestamp=dataset_timestamp, segment_tags=[], region=region)
-
-    @staticmethod
-    def _build_log_reference_request(
-        dataset_timestamp: int, alias: Optional[str] = None, region: Optional[str] = None
-    ) -> LogReferenceRequest:
-        return LogReferenceRequest(dataset_timestamp=dataset_timestamp, alias=alias, region=region)
 
     @staticmethod
     def _build_log_segmented_reference_request(
@@ -986,9 +995,13 @@ class WhyLabsWriter(Writer):
             logger.info(no_update_made_message)
             return (200, no_update_made_message)
 
-    def _post_log_async(self, request: LogAsyncRequest, dataset_timestamp: int) -> AsyncLogResponse:
+    def _post_log_async(
+        self, request: LogAsyncRequest, dataset_timestamp: int, zip_file: bool = False
+    ) -> AsyncLogResponse:
         log_api = self._get_or_create_api_log_client()
         try:
+            if zip_file is True:
+                log_api.api_client.set_default_header("X-WhyLabs-File-Extension", "ZIP")
             result = log_api.log_async(org_id=self._org_id, dataset_id=self._dataset_id, log_async_request=request)
             return result
         except ForbiddenException as e:
@@ -1056,16 +1069,19 @@ class WhyLabsWriter(Writer):
             )
             raise e
 
-    def _get_upload_url(self, dataset_timestamp: int) -> Tuple[str, str]:
+    def _get_upload_url(self, dataset_timestamp: int, zip_file: bool = False) -> Tuple[str, str]:
         region = os.getenv("WHYLABS_UPLOAD_REGION", None)
+
         if self._reference_profile_name is not None:
-            request = self._build_log_reference_request(
-                dataset_timestamp, alias=self._reference_profile_name, region=region
+            log_reference_request = LogReferenceRequest(
+                dataset_timestamp=dataset_timestamp, alias=self._reference_profile_name, region=region
             )
-            res = self._post_log_reference(request=request, dataset_timestamp=dataset_timestamp)
+            res = self._post_log_reference(request=log_reference_request, dataset_timestamp=dataset_timestamp)
         else:
-            request = self._build_log_async_request(dataset_timestamp, region=region)
-            res = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
+            log_async_request = LogAsyncRequest(dataset_timestamp=dataset_timestamp, segment_tags=[], region=region)
+            res = self._post_log_async(
+                request=log_async_request, dataset_timestamp=dataset_timestamp, zip_file=zip_file
+            )
 
         upload_url = res["upload_url"]
         profile_id = res["id"]
@@ -1073,7 +1089,7 @@ class WhyLabsWriter(Writer):
         if self._s3_private_domain:
             if _S3_PUBLIC_DOMAIN not in upload_url:
                 raise ValueError(
-                    "S3 private domain is enabled but your account is not using S3 upload endpoint. " "Aborting!"
+                    "S3 private domain is enabled but your account is not using S3 upload endpoint. Aborting!"
                 )
             upload_url = upload_url.replace(_S3_PUBLIC_DOMAIN, self._s3_private_domain)
             logger.debug(f"Replaced URL with our private domain. New URL: {upload_url}")

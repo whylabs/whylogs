@@ -212,3 +212,32 @@ def test_transactions():
     downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
     deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
     assert deserialized_view.get_columns().keys() == data.keys()
+
+
+@pytest.mark.load
+def test_segmented_reference_profiles_as_zip():
+    why.init(force_local=True)
+    schema = DatasetSchema(segments=segment_on_column("col1"))
+    data = {"col1": [1, 2, 1, 3, 2, 2], "col2": ["foo", "bar", "wat", "foo", "baz", "wat"]}
+    df = pd.DataFrame(data)
+    trace_id = str(uuid4())
+    result = why.log(df, schema=schema, trace_id=trace_id)
+    writer = WhyLabsWriter().option(reference_profile_name="monty")
+    success, ref_id = writer.write(result, use_v0=True, zip=True)
+    assert success
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
+
+    # TODO this needs the backend ready to test
+    # dataset_api = DatasetProfileApi(writer._api_client)
+    # ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    # MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+    # response: ReferenceProfileItemResponse = dataset_api.get_reference_profile(
+    #     ORG_ID,
+    #     MODEL_ID,
+    #     ref_id,
+    # )
+    # download_url = response.get("download_url") or response.get("download_urls")[0]
+    # headers = {"Content-Type": "application/octet-stream"}
+    # downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
+    # deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+    # assert deserialized_view.get_columns().keys() == data.keys()
