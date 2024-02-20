@@ -111,7 +111,7 @@ def _check_whylabs_condition_count_uncompound() -> bool:
             return False
         else:
             logger.info(f"Got response code {response.status_code} but expected 200, so running uncompound")
-    finally:
+    except Exception:
         pass
 
     _WHYLABS_SKIP_CONFIG_READ = True
