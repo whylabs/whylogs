@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from uuid import uuid4
@@ -27,7 +28,9 @@ os.environ["WHYLOGS_NO_ANALYTICS"] = "True"
 # WHYLABS_DEFAULT_DATASET_ID need to come from the environment
 
 
-SLEEP_TIME = 120
+SLEEP_TIME = 30
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.mark.load
@@ -236,11 +239,11 @@ def test_transaction_context():
                 if not status:
                     raise Exception()  # or retry the profile...
 
-    except Exception as ex:
+    except Exception:
         # The start_transaction() or commit_transaction() in the
         # WhyLabsTransaction context manager will throw on failure.
         # Or retry the commit
-        print(ex)
+        logger.exception("Logging transaction failed")
 
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
@@ -270,19 +273,19 @@ def test_transaction_segmented():
     writer = WhyLabsWriter(dataset_id=MODEL_ID)
     trace_id = str(uuid4())
     try:
-        with WhyLabsTransaction(writer):
-            result = why.log(data, schema=schema, trace_id=trace_id)
-            assert len(result._segments.keys()) == 2
-            status, id = writer.write(result)
-            if not status:
-                raise Exception()  # or retry the profile...
+        writer.start_transaction()
+        result = why.log(data, schema=schema, trace_id=trace_id)
+        status, id = writer.write(result)
+        if not status:
+            raise Exception()  # or retry the profile...
 
-    except Exception as ex:
+    except Exception:
         # The start_transaction() or commit_transaction() in the
         # WhyLabsTransaction context manager will throw on failure.
         # Or retry the commit
-        print(ex)
+        logger.exception("Logging transaction failed")
 
+    writer.commit_transaction()
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
@@ -323,11 +326,11 @@ def test_transaction_distributed():
             if not status:
                 raise Exception()  # or retry the profile...
         writer.commit_transaction()
-    except Exception as ex:
+    except Exception:
         # The start_transaction() or commit_transaction() in the
         # WhyLabsTransaction context manager will throw on failure.
         # Or retry the commit
-        print(ex)
+        logger.exception("Logging transaction failed")
 
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)

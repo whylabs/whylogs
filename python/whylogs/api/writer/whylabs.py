@@ -573,6 +573,67 @@ class WhyLabsWriter(Writer):
         else:
             return False, "Failed to upload all segments"
 
+    def _flatten_tags(self, tags: Union[List, Dict]) -> List[SegmentTag]:
+        # TODO: this isn't right; just to test datastructure
+        # tags [[{'key': 'Gender', 'value': 'F'}], [{'key': 'Gender', 'value': 'M'}]]
+        if type(tags[0]) == list:
+            result: List[SegmentTag] = []
+            for t in tags:
+                result.append(self._flatten_tags(t))
+            return result
+
+        return [SegmentTag(t["key"], t["value"]) for t in tags]
+
+    def _write_segmented_result_set_transaction(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
+        utc_now = datetime.datetime.now(datetime.timezone.utc)
+
+        files = file.get_writables()
+        partitions = file.partitions
+        if len(partitions) > 1:
+            logger.warning(
+                "SegmentedResultSet contains more than one partition. Only the first partition will be uploaded. "
+            )
+        partition = partitions[0]
+        whylabs_tags = list()
+        for view in files:
+            view_tags = list()
+            dataset_timestamp = view.dataset_timestamp or utc_now
+            if view.partition.id != partition.id:
+                continue
+            _, segment_tags, _ = _generate_segment_tags_metadata(view.segment, view.partition)
+            for segment_tag in segment_tags:
+                tag_key = segment_tag.key.replace("whylogs.tag.", "")
+                tag_value = segment_tag.value
+                view_tags.append({"key": tag_key, "value": tag_value})
+            whylabs_tags.append(view_tags)
+        stamp = dataset_timestamp.timestamp()
+        dataset_timestamp_epoch = int(stamp * 1000)
+
+        region = os.getenv("WHYLABS_UPLOAD_REGION", None)
+        client: TransactionsApi = self._get_or_create_transaction_client()
+        messages: List[str] = list()
+        and_status: bool = True
+        for view, tags in zip(files, self._flatten_tags(whylabs_tags)):
+            with tempfile.NamedTemporaryFile() as tmp_file:
+                view.write(file=tmp_file)
+                tmp_file.flush()
+                tmp_file.seek(0)
+                request = TransactionLogRequest(
+                    dataset_timestamp=dataset_timestamp_epoch, segment_tags=tags, region=region
+                )
+                result: AsyncLogResponse = client.log_transaction(self._transaction_id, request, **kwargs)
+                logger.info(f"Added profile {result.id} to transaction {self._transaction_id}")
+                bool_status, message = self._do_upload(
+                    dataset_timestamp=dataset_timestamp_epoch,
+                    upload_url=result.upload_url,
+                    profile_id=result.id,
+                    profile_file=tmp_file,
+                )
+                and_status = and_status and bool_status
+                messages.append(message)
+
+        return and_status, "; ".join(messages)
+
     def _write_segmented_result_set(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
         """Put segmented result set for the specified dataset.
 
@@ -585,6 +646,9 @@ class WhyLabsWriter(Writer):
         -------
         Tuple[bool, str]
         """
+        if self._transaction_id is not None:
+            return self._write_segmented_result_set_transaction(file, **kwargs)
+
         # multi-profile writer
         files = file.get_writables()
         messages: List[str] = list()
