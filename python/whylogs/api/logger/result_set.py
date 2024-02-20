@@ -330,6 +330,7 @@ class SegmentedResultSet(ResultSet):
         self._dataset_properties = properties or dict()
         self._metadata: Dict[str, str] = dict()
 
+    # TODO this should return a DatasetProfile and not a DatasetProfileView
     def profile(self, segment: Optional[Segment] = None) -> Optional[Union[DatasetProfile, DatasetProfileView]]:
         if not self._segments:
             return None

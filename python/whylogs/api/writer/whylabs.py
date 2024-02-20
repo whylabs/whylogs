@@ -117,6 +117,24 @@ def _check_whylabs_condition_count_uncompound() -> bool:
     return True
 
 
+def _build_log_segmented_reference_request(
+    dataset_timestamp: int,
+    # TODO this type conflicts with what is passed (normally List, or List of Lists, but here it's a list of dicts)
+    tags: Optional[List[dict]] = None,
+    alias: Optional[str] = None,
+    region: Optional[str] = None,
+) -> LogReferenceRequest:
+    segments = list()
+    if not alias:
+        alias = None
+    if tags is not None:
+        for segment_tags in tags:
+            segments.append(Segment(tags=[SegmentTag(key=tag["key"], value=tag["value"]) for tag in segment_tags]))
+    return CreateReferenceProfileRequest(
+        alias=alias, dataset_timestamp=dataset_timestamp, segments=segments, region=region
+    )
+
+
 class WhyLabsWriter(Writer):
     f"""
     A WhyLogs writer to upload DatasetProfileView's onto the WhyLabs platform.
@@ -447,6 +465,15 @@ class WhyLabsWriter(Writer):
             )
             return False, str(e)
 
+    def _tag_custom_perf_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView]) -> None:
+        if isinstance(view, DatasetProfileView):
+            column_names = view.get_columns().keys()
+            for column_name in column_names:
+                for perf_col in KNOWN_CUSTOM_PERFORMANCE_METRICS:
+                    if column_name.startswith(perf_col):
+                        metric = KNOWN_CUSTOM_PERFORMANCE_METRICS[perf_col]
+                        self.tag_custom_performance_column(column_name, default_metric=metric)
+
     def write_estimation_result(self, file: EstimationResult, **kwargs: Any) -> Tuple[bool, str]:
         if _uncompound_performance_estimation_feature_flag():
             estimation_magic_string = _uncompound_performance_estimation_magic_string()
@@ -454,46 +481,6 @@ class WhyLabsWriter(Writer):
             estimation_result_profile.set_dataset_timestamp(file.target_result_timestamp)
             return self.write(estimation_result_profile.view())
         return False, str("Performance estimation feature flag is not enabled")
-
-    def write_feature_weights(self, file: FeatureWeights, **kwargs: Any) -> Tuple[bool, str]:
-        """Put feature weights for the specified dataset.
-
-        Parameters
-        ----------
-        file : FeatureWeights
-            FeatureWeights object representing the Feature Weights for the specified dataset
-
-        Returns
-        -------
-        Tuple[bool, str]
-            Tuple with a boolean (1-success, 0-fail) and string with the request's status code.
-        """
-        self._feature_weights = file.to_dict()
-        # TODO if we want to use a WhyLabsWriter object, the first time I call write_feature_weights, should it really
-        # change the default dataset id? I think this could introduce unexpected behaviors, and should be treated as a
-        # stateless call
-        if kwargs.get("dataset_id") is not None:
-            self._dataset_id = kwargs.get("dataset_id")
-        return self._do_upload_feature_weights()
-
-    def get_feature_weights(self, **kwargs: Any) -> Optional[FeatureWeights]:
-        """Get latest version for the feature weights for the specified dataset
-
-        Returns
-        -------
-        FeatureWeightResponse
-            Response of the GET request, with segmentWeights and metadata.
-        """
-        if kwargs.get("dataset_id") is not None:
-            self._dataset_id = kwargs.get("dataset_id")
-
-        result = self._do_get_feature_weights()
-        feature_weights_set = result.get("segment_weights")
-        metadata = result.get("metadata")
-        if feature_weights_set and isinstance(feature_weights_set, list):
-            feature_weights = FeatureWeights(weights=feature_weights_set[0]["weights"], metadata=metadata)
-            return feature_weights
-        return None
 
     def _write_segmented_reference_result_set(
         self, file: SegmentedResultSet, zip_file: bool = False, **kwargs: Any
@@ -608,17 +595,7 @@ class WhyLabsWriter(Writer):
 
         return segments_status, "; ".join(messages)
 
-    def _tag_custom_perf_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView]):
-        if isinstance(view, DatasetProfileView):
-            column_names = view.get_columns().keys()
-            for column_name in column_names:
-                for perf_col in KNOWN_CUSTOM_PERFORMANCE_METRICS:
-                    if column_name.startswith(perf_col):
-                        metric = KNOWN_CUSTOM_PERFORMANCE_METRICS[perf_col]
-                        self.tag_custom_performance_column(column_name, default_metric=metric)
-        return
-
-    def _get_or_create_transaction_client(self) -> TransactionsApi:
+    def _get_or_create_transactions_api(self) -> TransactionsApi:
         self._refresh_client()
         return TransactionsApi(self._api_client)
 
@@ -635,9 +612,9 @@ class WhyLabsWriter(Writer):
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
 
-        client: TransactionsApi = self._get_or_create_transaction_client()
+        transactions_api = self._get_or_create_transactions_api()
         request = TransactionStartRequest(dataset_id=self._dataset_id)
-        result: LogTransactionMetadata = client.start_transaction(request, **kwargs)
+        result: LogTransactionMetadata = transactions_api.start_transaction(request, **kwargs)
         self._transaction_id = result["transaction_id"]
         logger.info(f"Starting transaction {self._transaction_id}, expires {result['expiration_time']}")
 
@@ -651,23 +628,18 @@ class WhyLabsWriter(Writer):
             return
 
         logger.info(f"Committing transaction {self._transaction_id}")
-        client = self._get_or_create_transaction_client()
+        client = self._get_or_create_transactions_api()
         request = TransactionCommitRequest(verbose=True)
         client.commit_transaction(self._transaction_id, request, **kwargs)
         self._transaction_id = None
 
     def _get_uncompounded_view(self, view: DatasetProfileView) -> DatasetProfileView:
-        has_segments = isinstance(view, SegmentedDatasetProfileView)
         self._tag_custom_perf_metrics(view)
-        if not has_segments and not isinstance(view, DatasetProfileView):
-            raise ValueError(
-                "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
-            )
 
         flags = FeatureFlags(_check_whylabs_condition_count_uncompound())
 
         if _uncompound_metric_feature_flag():
-            if has_segments:
+            if isinstance(view, SegmentedDatasetProfileView):
                 updated_profile_view = _uncompound_dataset_profile(view.profile_view, flags)
                 view = SegmentedDatasetProfileView(
                     profile_view=updated_profile_view, segment=view._segment, partition=view._partition
@@ -683,7 +655,7 @@ class WhyLabsWriter(Writer):
         if self._transaction_id is not None:
             # TODO: maybe check it's not a reference profile?
             region = os.getenv("WHYLABS_UPLOAD_REGION", None)
-            client: TransactionsApi = self._get_or_create_transaction_client()
+            client: TransactionsApi = self._get_or_create_transactions_api()
             request = TransactionLogRequest(dataset_timestamp=dataset_timestamp_epoch, segment_tags=[], region=region)
             result: AsyncLogResponse = client.log_transaction(self._transaction_id, request, **kwargs)
             logger.info(f"Added profile {result.id} to transaction {self._transaction_id}")
@@ -728,18 +700,22 @@ class WhyLabsWriter(Writer):
         return stamp
 
     @deprecated_alias(profile="file")
-    def write(self, file: Writable, zip_file: bool = False, **kwargs: Any) -> Tuple[bool, str]:
+    def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
         if isinstance(file, FeatureWeights):
             return self.write_feature_weights(file, **kwargs)
         elif isinstance(file, EstimationResult):
             return self.write_estimation_result(file, **kwargs)
+        # TODO ResultSet is not a Writable, it should become a Writable or a List[Writables].
+        # Maybe we need a new interface for this.
         elif isinstance(file, ResultSet):
             if isinstance(file, SegmentedResultSet):
                 if self._reference_profile_name is not None:
+                    zip_file = kwargs.get("zip_file", False)
                     return self._write_segmented_reference_result_set(file, zip_file=zip_file, **kwargs)
                 else:
                     return self._write_segmented_result_set(file, **kwargs)
 
+            # TODO cast ResultSet -> DatasetProfile shouldn't be necessary, it will be casted into a view afterwards
             file = file.profile()
 
         view = file.view() if isinstance(file, DatasetProfile) else file
@@ -749,11 +725,14 @@ class WhyLabsWriter(Writer):
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
 
+        return self._do_write(view=view, use_v0=kwargs.get("use_v0", False), **kwargs)
+
+    def _do_write(self, view: DatasetProfileView, use_v0: bool = False, **kwargs: Any) -> Tuple[bool, str]:
         with tempfile.NamedTemporaryFile() as tmp_file:
             # currently whylabs is not ingesting the v1 format of segmented profiles as segmented
             # so we default to sending them as v0 profiles if the override `use_v0` is not defined,
             # if `use_v0` is defined then pass that through to control the serialization format.
-            if view.model_performance_metrics or kwargs.get("use_v0"):
+            if view.model_performance_metrics or use_v0:
                 view.write(file=tmp_file, use_v0=True)
             else:
                 view.write(file=tmp_file)
@@ -765,16 +744,6 @@ class WhyLabsWriter(Writer):
 
             # TODO: retry
             return response
-
-    def _do_get_feature_weights(self):
-        """Get latest version for the feature weights for the specified dataset
-
-        Returns
-        -------
-            Response of the GET request, with segmentWeights and metadata.
-        """
-        result = self._get_column_weights()
-        return result
 
     def _do_upload_feature_weights(self) -> Tuple[bool, str]:
         """Put feature weights for the specified dataset.
@@ -865,38 +834,59 @@ class WhyLabsWriter(Writer):
         self._require("default dataset id", self._dataset_id)
         self._require("api key", self._cache_config.api_key)
 
-    def _get_or_create_feature_weights_client(self) -> FeatureWeightsApi:
-        self._validate_client()
-        return FeatureWeightsApi(self._api_client)
-
-    def _get_or_create_models_client(self) -> ModelsApi:
+    def _create_models_api(self) -> ModelsApi:
         self._validate_client()
         return ModelsApi(self._api_client)
 
-    def _get_or_create_api_log_client(self) -> LogApi:
+    def _create_log_api(self) -> LogApi:
         self._validate_client()
         return LogApi(self._api_client)
 
-    def _get_or_create_api_dataset_client(self) -> DatasetProfileApi:
+    def _create_dataset_profile_api(self) -> DatasetProfileApi:
         self._validate_client()
         return DatasetProfileApi(self._api_client)
 
-    @staticmethod
-    def _build_log_segmented_reference_request(
-        dataset_timestamp: int, tags: Optional[dict] = None, alias: Optional[str] = None, region: Optional[str] = None
-    ) -> LogReferenceRequest:
-        segments = list()
-        if not alias:
-            alias = None
-        if tags is not None:
-            for segment_tags in tags:
-                segments.append(Segment(tags=[SegmentTag(key=tag["key"], value=tag["value"]) for tag in segment_tags]))
-        if not segments:
-            return CreateReferenceProfileRequest(alias=alias, dataset_timestamp=dataset_timestamp, region=region)
-        else:
-            return CreateReferenceProfileRequest(
-                alias=alias, dataset_timestamp=dataset_timestamp, segments=segments, region=region
-            )
+    def write_feature_weights(self, file: FeatureWeights, **kwargs: Any) -> Tuple[bool, str]:
+        """Put feature weights for the specified dataset.
+
+        Parameters
+        ----------
+        file : FeatureWeights
+            FeatureWeights object representing the Feature Weights for the specified dataset
+
+        Returns
+        -------
+        Tuple[bool, str]
+            Tuple with a boolean (1-success, 0-fail) and string with the request's status code.
+        """
+        self._feature_weights = file.to_dict()
+        if kwargs.get("dataset_id") is not None:
+            self._dataset_id = kwargs.get("dataset_id")
+        return self._do_upload_feature_weights()
+
+    def get_feature_weights(self, **kwargs: Any) -> Optional[FeatureWeights]:
+        """Get latest version for the feature weights for the specified dataset
+
+        Returns
+        -------
+        FeatureWeightResponse
+            Response of the GET request, with segmentWeights and metadata.
+        """
+        if kwargs.get("dataset_id") is not None:
+            self._dataset_id = kwargs.get("dataset_id")
+
+        result = self._get_column_weights()
+
+        feature_weights_set = result.get("segment_weights")
+        metadata = result.get("metadata")
+        if feature_weights_set and isinstance(feature_weights_set, list):
+            feature_weights = FeatureWeights(weights=feature_weights_set[0]["weights"], metadata=metadata)
+            return feature_weights
+        return None
+
+    def _get_or_create_feature_weights_client(self) -> FeatureWeightsApi:
+        self._validate_client()
+        return FeatureWeightsApi(self._api_client)
 
     def _get_column_weights(self):
         feature_weight_api = self._get_or_create_feature_weights_client()
@@ -965,7 +955,7 @@ class WhyLabsWriter(Writer):
         return existing_classification != new_classification
 
     def _put_column_schema(self, column_name: str, value: str) -> Tuple[int, str]:
-        model_api_instance = self._get_or_create_models_client()
+        model_api_instance = self._create_models_api()
 
         # TODO: simplify after ColumnSchema updates support merge writes, can remove the read here.
         column_schema: ColumnSchema = self._get_existing_column_schema(model_api_instance, column_name)
@@ -998,7 +988,7 @@ class WhyLabsWriter(Writer):
     def _post_log_async(
         self, request: LogAsyncRequest, dataset_timestamp: int, zip_file: bool = False
     ) -> AsyncLogResponse:
-        log_api = self._get_or_create_api_log_client()
+        log_api = self._create_log_api()
         try:
             if zip_file is True:
                 log_api.api_client.set_default_header("X-WhyLabs-File-Extension", "ZIP")
@@ -1014,24 +1004,23 @@ class WhyLabsWriter(Writer):
 
     def _get_upload_urls_segmented_reference(self, whylabs_tags, dataset_timestamp: int) -> Tuple[str, List[str]]:
         region = os.getenv("WHYLABS_UPLOAD_REGION", None)
-        request = self._build_log_segmented_reference_request(
+        request = _build_log_segmented_reference_request(
             dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name, region=region
         )
         res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
         return res["id"], res["upload_urls"]
 
-    # TODO: add this to client API
     def _get_upload_urls_segmented_reference_zip(self, whylabs_tags, dataset_timestamp: int) -> Tuple[str, str]:
         region = os.getenv("WHYLABS_UPLOAD_REGION", None)
-        request = self._build_log_segmented_reference_request(
+        request = _build_log_segmented_reference_request(
             dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name, region=region
         )
         res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
         url = res["upload_urls"]
-        return res["id"], url[0]  # .replace(".bin?", ".zip?")
+        return res["id"], url[0]
 
     def _post_log_segmented_reference(self, request: LogAsyncRequest, dataset_timestamp: int) -> LogReferenceResponse:
-        dataset_api = self._get_or_create_api_dataset_client()
+        dataset_api = self._create_dataset_profile_api()
         try:
             async_result = dataset_api.create_reference_profile(
                 org_id=self._org_id,
@@ -1051,7 +1040,7 @@ class WhyLabsWriter(Writer):
             raise e
 
     def _post_log_reference(self, request: LogAsyncRequest, dataset_timestamp: int) -> LogReferenceResponse:
-        log_api = self._get_or_create_api_log_client()
+        log_api = self._create_log_api()
         try:
             async_result = log_api.log_reference(
                 org_id=self._org_id,

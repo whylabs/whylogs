@@ -269,17 +269,19 @@ class DatasetProfile(Writable):
         for col in self._columns.values():
             col.flush()
 
-    @staticmethod
-    def get_default_path(path) -> str:
+    def get_default_path(self) -> str:
+        return f"profile.{int(round(time.time() * 1000))}.bin"
+
+    def _join_default_path(self, path: str) -> str:
         if not path.endswith("bin"):
-            path = os.path.join(path, f"profile.{int(round(time.time() * 1000))}.bin")
+            path = os.path.join(path, self.get_default_path())
         return path
 
     @deprecated_alias(path_or_base_dir="path")
     def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
-        output_path = self.get_default_path(path=path)
+        output_path = self._join_default_path(path=path) if path else self.get_default_path()
         response = self.view().write(output_path)
-        logger.debug("Wrote profile to path: %s", output_path)
+        logger.debug(f"Wrote DatasetProfile to path: {output_path}")
         return response
 
     @classmethod

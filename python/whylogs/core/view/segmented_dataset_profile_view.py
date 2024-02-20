@@ -123,7 +123,7 @@ class SegmentedDatasetProfileView(Writable):
         path = file_to_write.name if file_to_write else path or self.get_default_path()
 
         # capture the list of all metric component paths
-        for col in self.profile_view._columns.values():
+        for col in self.profile_view.get_columns().values():
             all_metric_component_names.update(col.get_metric_component_paths())
         metric_name_list = list(all_metric_component_names)
         metric_name_list.sort()

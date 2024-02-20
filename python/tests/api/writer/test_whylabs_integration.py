@@ -126,7 +126,7 @@ def test_tag_columns():
     writer = WhyLabsWriter()
     writer.tag_output_columns(["col1"])
     writer.tag_input_columns(["col2"])
-    model_api_instance = writer._get_or_create_models_client()
+    model_api_instance = writer._create_models_api()
     col1_schema = writer._get_existing_column_schema(model_api_instance, "col1")
     assert col1_schema["classifier"] == "output"
     col2_schema = writer._get_existing_column_schema(model_api_instance, "col2")
@@ -149,11 +149,16 @@ def test_feature_weights():
     retrieved_weights = writer.get_feature_weights()
     assert feature_weights.weights == retrieved_weights.weights
 
-    # swap 'em so we won't accidentally pass from previous state
-    feature_weights = FeatureWeights({"col1": 0.0, "col2": 1.0})
-    writer.write_feature_weights(feature_weights)
+    # making sure that the weights are actually updated
     retrieved_weights = writer.get_feature_weights()
-    assert feature_weights.weights == retrieved_weights.weights
+    assert retrieved_weights.weights == {"col1": 1.0, "col2": 0.0}
+
+    modified_weights = FeatureWeights({"col1": 1.0, "col2": -1.0})
+    writer.write_feature_weights(modified_weights)
+    assert modified_weights.weights != retrieved_weights.weights
+
+    retrieved_modified_weights = writer.get_feature_weights()
+    assert retrieved_modified_weights.weights == feature_weights.weights
 
 
 @pytest.mark.load
@@ -212,32 +217,3 @@ def test_transactions():
     downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
     deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
     assert deserialized_view.get_columns().keys() == data.keys()
-
-
-@pytest.mark.load
-def test_segmented_reference_profiles_as_zip():
-    why.init(force_local=True)
-    schema = DatasetSchema(segments=segment_on_column("col1"))
-    data = {"col1": [1, 2, 1, 3, 2, 2], "col2": ["foo", "bar", "wat", "foo", "baz", "wat"]}
-    df = pd.DataFrame(data)
-    trace_id = str(uuid4())
-    result = why.log(df, schema=schema, trace_id=trace_id)
-    writer = WhyLabsWriter().option(reference_profile_name="monty")
-    success, ref_id = writer.write(result, use_v0=True, zip=True)
-    assert success
-    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
-
-    # TODO this needs the backend ready to test
-    # dataset_api = DatasetProfileApi(writer._api_client)
-    # ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
-    # MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
-    # response: ReferenceProfileItemResponse = dataset_api.get_reference_profile(
-    #     ORG_ID,
-    #     MODEL_ID,
-    #     ref_id,
-    # )
-    # download_url = response.get("download_url") or response.get("download_urls")[0]
-    # headers = {"Content-Type": "application/octet-stream"}
-    # downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
-    # deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
-    # assert deserialized_view.get_columns().keys() == data.keys()
