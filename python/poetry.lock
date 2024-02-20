@@ -550,6 +550,21 @@ files = [
 ]
 
 [[package]]
+name = "configparser"
+version = "5.3.0"
+description = "Updated configparser from stdlib for earlier Pythons."
+optional = true
+python-versions = ">=3.7"
+files = [
+    {file = "configparser-5.3.0-py3-none-any.whl", hash = "sha256:b065779fd93c6bf4cee42202fa4351b4bb842e96a3fb469440e484517a49b9fa"},
+    {file = "configparser-5.3.0.tar.gz", hash = "sha256:8be267824b541c09b08db124917f48ab525a6c3e837011f3130781a224c57090"},
+]
+
+[package.extras]
+docs = ["jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx"]
+testing = ["flake8 (<5)", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)", "types-backports"]
+
+[[package]]
 name = "coverage"
 version = "7.2.7"
 description = "Code coverage measurement for Python"
@@ -747,23 +762,21 @@ files = [
 
 [[package]]
 name = "databricks-cli"
-version = "0.18.0"
+version = "0.8.7"
 description = "A command line interface for Databricks"
 optional = true
-python-versions = ">=3.7"
+python-versions = "*"
 files = [
-    {file = "databricks-cli-0.18.0.tar.gz", hash = "sha256:87569709eda9af3e9db8047b691e420b5e980c62ef01675575c0d2b9b4211eb7"},
-    {file = "databricks_cli-0.18.0-py2.py3-none-any.whl", hash = "sha256:1176a5f42d3e8af4abfc915446fb23abc44513e325c436725f5898cbb9e3384b"},
+    {file = "databricks-cli-0.8.7.tar.gz", hash = "sha256:1935207354f548d0e28a1bde4998310b5606b75f23e114de37f40c97b98fac91"},
+    {file = "databricks_cli-0.8.7-py3-none-any.whl", hash = "sha256:8b3d75feb191f6aace610a5d0e43441ab19a4812a23fbdd367162cababa446b5"},
 ]
 
 [package.dependencies]
-click = ">=7.0"
-oauthlib = ">=3.1.0"
-pyjwt = ">=1.7.0"
+click = ">=6.7"
+configparser = ">=0.3.5"
 requests = ">=2.17.3"
 six = ">=1.10.0"
 tabulate = ">=0.7.7"
-urllib3 = ">=1.26.7,<3"
 
 [[package]]
 name = "debugpy"
@@ -2304,22 +2317,6 @@ files = [
 ]
 
 [[package]]
-name = "oauthlib"
-version = "3.2.2"
-description = "A generic, spec-compliant, thorough implementation of the OAuth request-signing logic"
-optional = true
-python-versions = ">=3.6"
-files = [
-    {file = "oauthlib-3.2.2-py3-none-any.whl", hash = "sha256:8139f29aac13e25d502680e9e19963e83f16838d48a0d71c287fe40e7067fbca"},
-    {file = "oauthlib-3.2.2.tar.gz", hash = "sha256:9859c40929662bec5d64f34d01c99e093149682a3f38915dc0655d5a633dd918"},
-]
-
-[package.extras]
-rsa = ["cryptography (>=3.0.0)"]
-signals = ["blinker (>=1.4.0)"]
-signedtoken = ["cryptography (>=3.0.0)", "pyjwt (>=2.0.0,<3)"]
-
-[[package]]
 name = "orjson"
 version = "3.9.7"
 description = "Fast, correct Python JSON library supporting dataclasses, datetimes, and numpy"
@@ -2923,26 +2920,6 @@ files = [
 [package.extras]
 plugins = ["importlib-metadata"]
 windows-terminal = ["colorama (>=0.4.6)"]
-
-[[package]]
-name = "pyjwt"
-version = "2.8.0"
-description = "JSON Web Token implementation in Python"
-optional = true
-python-versions = ">=3.7"
-files = [
-    {file = "PyJWT-2.8.0-py3-none-any.whl", hash = "sha256:59127c392cc44c2da5bb3192169a91f429924e17aff6534d70fdc02ab3e04320"},
-    {file = "PyJWT-2.8.0.tar.gz", hash = "sha256:57e28d156e3d5c10088e0c68abb90bfac3df82b40a71bd0daa20c65ccd5c23de"},
-]
-
-[package.dependencies]
-typing-extensions = {version = "*", markers = "python_version <= \"3.7\""}
-
-[package.extras]
-crypto = ["cryptography (>=3.4.0)"]
-dev = ["coverage[toml] (==5.0.4)", "cryptography (>=3.4.0)", "pre-commit", "pytest (>=6.0.0,<7.0.0)", "sphinx (>=4.5.0,<5.0.0)", "sphinx-rtd-theme", "zope.interface"]
-docs = ["sphinx (>=4.5.0,<5.0.0)", "sphinx-rtd-theme", "zope.interface"]
-tests = ["coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)"]
 
 [[package]]
 name = "pymeta3"
@@ -4620,7 +4597,7 @@ embeddings = ["numpy", "numpy", "scikit-learn", "scikit-learn"]
 fugue = ["fugue"]
 gcs = ["google-cloud-storage"]
 image = ["Pillow", "numpy", "numpy"]
-mlflow = ["mlflow-skinny", "mlflow-skinny"]
+mlflow = ["databricks-cli", "mlflow-skinny", "mlflow-skinny"]
 proc = ["faster-fifo", "orjson", "pandas"]
 proc-mp = ["orjson", "pandas"]
 s3 = ["boto3"]
@@ -4630,4 +4607,4 @@ viz = ["Pillow", "ipython", "numpy", "numpy", "pybars3", "scipy", "scipy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.1, <4"
-content-hash = "32ecba4ed3425e46d78b89d09bb89602dcaeee225fbd8f411f1067aaeae778f3"
+content-hash = "8bd20ae41cfdbd56b2d9d6117f22eea96b0c3c1fe47c56e003d641790264c3f2"
