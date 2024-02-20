@@ -575,8 +575,6 @@ class WhyLabsWriter(Writer):
             return False, "Failed to upload all segments"
 
     def _flatten_tags(self, tags: Union[List, Dict]) -> List[SegmentTag]:
-        # TODO: this isn't right; just to test datastructure
-        # tags [[{'key': 'Gender', 'value': 'F'}], [{'key': 'Gender', 'value': 'M'}]]
         if type(tags[0]) == list:
             result: List[SegmentTag] = []
             for t in tags:
