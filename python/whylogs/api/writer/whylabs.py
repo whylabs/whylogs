@@ -5,7 +5,6 @@ import pprint
 import tempfile
 from typing import IO, Any, Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
-from zipfile import ZipFile
 
 import requests  # type: ignore
 from urllib3 import PoolManager, ProxyManager
@@ -482,6 +481,16 @@ class WhyLabsWriter(Writer):
             return self.write(estimation_result_profile.view())
         return False, str("Performance estimation feature flag is not enabled")
 
+    @staticmethod
+    def _get_segment_view_tags(view: DatasetProfileView) -> List[Dict[str, str]]:
+        view_tags = list()
+        _, segment_tags, _ = _generate_segment_tags_metadata(view.segment, view.partition)
+        for segment_tag in segment_tags:
+            tag_key = segment_tag.key.replace("whylogs.tag.", "")
+            tag_value = segment_tag.value
+            view_tags.append({"key": tag_key, "value": tag_value})
+        return view_tags
+
     def _write_segmented_reference_result_set(
         self, file: SegmentedResultSet, zip_file: bool = False, **kwargs: Any
     ) -> Tuple[bool, str]:
@@ -496,44 +505,32 @@ class WhyLabsWriter(Writer):
         -------
         Tuple[bool, str]
         """
-        utc_now = datetime.datetime.now(datetime.timezone.utc)
-
         files = file.get_writables()
+
         partitions = file.partitions
         if len(partitions) > 1:
             logger.warning(
                 "SegmentedResultSet contains more than one partition. Only the first partition will be uploaded. "
             )
         partition = partitions[0]
+
         whylabs_tags = list()
         for view in files:
-            view_tags = list()
-            dataset_timestamp = view.dataset_timestamp or utc_now
             if view.partition.id != partition.id:
                 continue
-            _, segment_tags, _ = _generate_segment_tags_metadata(view.segment, view.partition)
-            for segment_tag in segment_tags:
-                tag_key = segment_tag.key.replace("whylogs.tag.", "")
-                tag_value = segment_tag.value
-                view_tags.append({"key": tag_key, "value": tag_value})
-            whylabs_tags.append(view_tags)
-        stamp = dataset_timestamp.timestamp()
-        dataset_timestamp_epoch = int(stamp * 1000)
+            whylabs_tags.append(self._get_segment_view_tags(view=view))
+            dataset_timestamp_epoch = self._get_dataset_timestamp(view=files[0])
+
         upload_statuses = list()
         use_v0 = kwargs.get("use_v0", False)
-        if zip_file is True:
-            profile_id, upload_url = self._get_upload_urls_segmented_reference_zip(
-                whylabs_tags, dataset_timestamp_epoch
-            )
-            with tempfile.NamedTemporaryFile(suffix=".zip") as tmp_file:
-                with ZipFile(tmp_file, "w", allowZip64=True) as z_file:
-                    for view in files:
-                        with tempfile.NamedTemporaryFile() as seg_file:
-                            view.write(file=seg_file, use_v0=use_v0)
-                            seg_file.flush()
-                            seg_file.seek(0)
-                            z_file.write(seg_file.name, seg_file.name.split("/")[-1])
 
+        profile_id, upload_url = self._get_upload_url_segmented_reference(
+            whylabs_tags, dataset_timestamp_epoch, zip_file=zip_file
+        )
+
+        if zip_file is True:
+            with tempfile.NamedTemporaryFile(suffix=".zip") as tmp_file:
+                tmp_file.write(file.in_memory_zip())
                 tmp_file.flush()
                 tmp_file.seek(0)
                 upload_res = self._do_upload(
@@ -545,8 +542,8 @@ class WhyLabsWriter(Writer):
                 )
                 upload_statuses.append(upload_res)
         else:
-            profile_id, upload_urls = self._get_upload_urls_segmented_reference(whylabs_tags, dataset_timestamp_epoch)
-            for view, url in zip(files, upload_urls):
+            # TODO test this, as LogReference is not supposed to return `upload_urls`
+            for view in files:
                 with tempfile.NamedTemporaryFile() as tmp_file:
                     view.write(file=tmp_file, use_v0=use_v0)
                     tmp_file.flush()
@@ -554,7 +551,7 @@ class WhyLabsWriter(Writer):
 
                     upload_res = self._do_upload(
                         dataset_timestamp=dataset_timestamp_epoch,
-                        upload_url=url,
+                        upload_url=upload_url,
                         profile_id=profile_id,
                         profile_file=tmp_file,
                     )
@@ -651,29 +648,28 @@ class WhyLabsWriter(Writer):
         return view
 
     def _upload_file(self, stamp, tmp_file, **kwargs) -> Tuple[bool, str]:
-        dataset_timestamp_epoch = int(stamp * 1000)
         if self._transaction_id is not None:
             # TODO: maybe check it's not a reference profile?
             region = os.getenv("WHYLABS_UPLOAD_REGION", None)
             client: TransactionsApi = self._get_or_create_transactions_api()
-            request = TransactionLogRequest(dataset_timestamp=dataset_timestamp_epoch, segment_tags=[], region=region)
+            request = TransactionLogRequest(dataset_timestamp=stamp, segment_tags=[], region=region)
             result: AsyncLogResponse = client.log_transaction(self._transaction_id, request, **kwargs)
             logger.info(f"Added profile {result.id} to transaction {self._transaction_id}")
             response = self._do_upload(
-                dataset_timestamp=dataset_timestamp_epoch,
+                dataset_timestamp=stamp,
                 upload_url=result.upload_url,
                 profile_id=result.id,
                 profile_file=tmp_file,
             )
         else:
             response = self._do_upload(
-                dataset_timestamp=dataset_timestamp_epoch,
+                dataset_timestamp=stamp,
                 profile_file=tmp_file,
             )
 
             return response
 
-    def _get_dataset_timestamp(self, view: DatasetProfileView) -> float:
+    def _get_dataset_timestamp(self, view: DatasetProfileView) -> int:
         utc_now = datetime.datetime.now(datetime.timezone.utc)
         dataset_timestamp = view.dataset_timestamp or utc_now
         stamp = dataset_timestamp.timestamp()
@@ -697,7 +693,7 @@ class WhyLabsWriter(Writer):
                 f" and current timestamp is {utc_now.timestamp()}, this is likely an error."
             )
 
-        return stamp
+        return int(stamp * 1000)
 
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
@@ -1002,25 +998,24 @@ class WhyLabsWriter(Writer):
             )
             raise e
 
-    def _get_upload_urls_segmented_reference(self, whylabs_tags, dataset_timestamp: int) -> Tuple[str, List[str]]:
+    def _get_upload_url_segmented_reference(
+        self, whylabs_tags, dataset_timestamp: int, zip_file: bool = False
+    ) -> Tuple[str, str]:
         region = os.getenv("WHYLABS_UPLOAD_REGION", None)
         request = _build_log_segmented_reference_request(
             dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name, region=region
         )
-        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
-        return res["id"], res["upload_urls"]
-
-    def _get_upload_urls_segmented_reference_zip(self, whylabs_tags, dataset_timestamp: int) -> Tuple[str, str]:
-        region = os.getenv("WHYLABS_UPLOAD_REGION", None)
-        request = _build_log_segmented_reference_request(
-            dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name, region=region
+        res = self._post_log_segmented_reference(
+            request=request, dataset_timestamp=dataset_timestamp, zip_file=zip_file
         )
-        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
-        url = res["upload_urls"]
-        return res["id"], url[0]
+        return res["id"], res["upload_url"]
 
-    def _post_log_segmented_reference(self, request: LogAsyncRequest, dataset_timestamp: int) -> LogReferenceResponse:
+    def _post_log_segmented_reference(
+        self, request: LogAsyncRequest, dataset_timestamp: int, zip_file: bool = False
+    ) -> LogReferenceResponse:
         dataset_api = self._create_dataset_profile_api()
+        if zip_file is True:
+            dataset_api.api_client.set_default_header("X-WhyLabs-File-Extension", "ZIP")
         try:
             async_result = dataset_api.create_reference_profile(
                 org_id=self._org_id,

@@ -1,7 +1,9 @@
+import io
 from abc import ABC, abstractmethod
 from datetime import datetime
 from logging import getLogger
 from typing import Any, Dict, List, Optional, Tuple, Union
+from zipfile import ZipFile
 
 from whylogs.api.reader import Reader, Readers
 from whylogs.api.writer import Writer, Writers
@@ -475,6 +477,27 @@ class SegmentedResultSet(ResultSet):
                 f"Attempt to build segmented results for writing but there are no segments in this result set: {self._segments}. returning None."
             )
         return results
+
+    def in_memory_zip(self) -> Optional[bytes]:
+        """
+        If this method is called, it should create a binary
+        object that can be written to a specified directory,
+        in order to be uploaded to a storage system afterwards.
+        It uses ZipFile to write the SegmentedResultSet into a single .zip file
+        """
+        writables = self.get_writables()
+        if writables is not None:
+            with io.BytesIO() as in_memory_zip:
+                with ZipFile(in_memory_zip, "w", allowZip64=True) as z_file:
+                    for view in writables:
+                        file_bytes = io.BytesIO()
+                        view.write(file=file_bytes)
+                        file_bytes.seek(0)
+                        z_file.writestr(view.get_default_path(), file_bytes.read())
+                in_memory_zip.seek(0)
+                return in_memory_zip.read()
+        else:
+            return None
 
     def add_metrics_for_segment(self, metrics: ModelPerformanceMetrics, segment: Segment) -> None:
         if segment.parent_id in self._segments:
