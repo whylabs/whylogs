@@ -4,7 +4,7 @@ import os
 import random
 import string
 import tempfile
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 import responses
@@ -395,3 +395,35 @@ class TestWhylabsWriter(object):
             writer.key_id
 
         assert len(WhylabsClientCache.instance()._api_client_cache) == 0
+
+    @patch(
+        "whylogs.api.writer.whylabs.WhyLabsWriter._get_upload_url_segmented_reference",
+        return_value=("profile1", "http://upload.url"),
+    )
+    @patch("whylogs.api.writer.whylabs.WhyLabsWriter._do_upload", return_value=(True, "Success"))
+    @patch("whylogs.api.writer.whylabs.WhyLabsWriter._get_dataset_timestamp", return_value=1234567890)
+    @patch("whylogs.api.writer.whylabs.WhyLabsWriter._upload_zipped_files", return_value=(True, "Success"))
+    def test_write_segmented_reference_result_set(
+        self, mock_do_upload, mock_get_url, mock_get_dataset_timestamp, mock_upload_zipped_files
+    ):
+        mock_file = MagicMock()
+        # Mock view.write() method
+        writable_mock = MagicMock()
+        mock_file.get_writables.return_value = [writable_mock]
+
+        writer = WhyLabsWriter()
+        result = writer._write_segmented_reference_result_set(file=mock_file, zip_file=True)
+        assert result == (True, "Success")
+
+        writer._get_dataset_timestamp.assert_called_once()
+        writer._get_upload_url_segmented_reference.assert_called_once_with([], 1234567890, zip_file=True)
+        writer._upload_zipped_files.assert_called_once_with(
+            files=[writable_mock],
+            dataset_timestamp_epoch=1234567890,
+            upload_url="http://upload.url",
+            profile_id="profile1",
+        )
+        writer._do_upload.assert_not_called()
+
+        result_not_zipped = WhyLabsWriter()._write_segmented_reference_result_set(file=mock_file, zip_file=False)
+        assert result_not_zipped == (True, "Success")

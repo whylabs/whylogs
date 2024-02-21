@@ -500,8 +500,7 @@ class WhyLabsWriter(Writer):
         dataset_timestamp_epoch: int,
         upload_url: str,
         profile_id: str,
-    ) -> List[Tuple[bool, str]]:
-        upload_status = list()
+    ) -> Tuple[bool, str]:
         with tempfile.NamedTemporaryFile(suffix=".zip") as tmp_file:
             tmp_file.write(self.in_memory_zip(writables=files))
             tmp_file.flush()
@@ -513,9 +512,7 @@ class WhyLabsWriter(Writer):
                 profile_file=tmp_file,
                 zip_file=True,
             )
-            upload_status.append(upload_res)
-
-        return upload_status
+            return upload_res
 
     def _write_segmented_reference_result_set(
         self, file: SegmentedResultSet, zip_file: bool = False, **kwargs: Any
@@ -545,9 +542,9 @@ class WhyLabsWriter(Writer):
             if view.partition.id != partition.id:
                 continue
             whylabs_tags.append(self._get_segment_view_tags(view=view))
-            dataset_timestamp_epoch = self._get_dataset_timestamp(view=files[0])
 
-        upload_statuses = list()
+        dataset_timestamp_epoch = self._get_dataset_timestamp(view=files[0])
+        upload_statuses: List[Tuple[bool, str]] = []
         use_v0 = kwargs.get("use_v0", False)
 
         profile_id, upload_url = self._get_upload_url_segmented_reference(
@@ -555,12 +552,13 @@ class WhyLabsWriter(Writer):
         )
 
         if zip_file is True:
-            upload_statuses = self._upload_zipped_files(
+            zip_upload_result = self._upload_zipped_files(
                 files=files,
                 dataset_timestamp_epoch=dataset_timestamp_epoch,
                 upload_url=upload_url,
                 profile_id=profile_id,
             )
+            upload_statuses.append(zip_upload_result)
         else:
             # TODO test this, as LogReference is not supposed to return `upload_urls`
             for view in files:
