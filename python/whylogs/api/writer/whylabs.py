@@ -1,10 +1,12 @@
 import datetime
+import io
 import logging
 import os
 import pprint
 import tempfile
 from typing import IO, Any, Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
+from zipfile import ZipFile
 
 import requests  # type: ignore
 from urllib3 import PoolManager, ProxyManager
@@ -491,6 +493,29 @@ class WhyLabsWriter(Writer):
             view_tags.append({"key": tag_key, "value": tag_value})
         return view_tags
 
+    def _upload_zipped_files(
+        self,
+        files: List[Writable],
+        dataset_timestamp_epoch: int,
+        upload_url: str,
+        profile_id: str,
+    ) -> List[Tuple[bool, str]]:
+        upload_status = list()
+        with tempfile.NamedTemporaryFile(suffix=".zip") as tmp_file:
+            tmp_file.write(self.in_memory_zip(writables=files))
+            tmp_file.flush()
+            tmp_file.seek(0)
+            upload_res = self._do_upload(
+                dataset_timestamp=dataset_timestamp_epoch,
+                upload_url=upload_url,
+                profile_id=profile_id,
+                profile_file=tmp_file,
+                zip_file=True,
+            )
+            upload_status.append(upload_res)
+
+        return upload_status
+
     def _write_segmented_reference_result_set(
         self, file: SegmentedResultSet, zip_file: bool = False, **kwargs: Any
     ) -> Tuple[bool, str]:
@@ -529,18 +554,12 @@ class WhyLabsWriter(Writer):
         )
 
         if zip_file is True:
-            with tempfile.NamedTemporaryFile(suffix=".zip") as tmp_file:
-                tmp_file.write(file.in_memory_zip())
-                tmp_file.flush()
-                tmp_file.seek(0)
-                upload_res = self._do_upload(
-                    dataset_timestamp=dataset_timestamp_epoch,
-                    upload_url=upload_url,
-                    profile_id=profile_id,
-                    profile_file=tmp_file,
-                    zip_file=zip_file,
-                )
-                upload_statuses.append(upload_res)
+            upload_statuses = self._upload_zipped_files(
+                files=files,
+                dataset_timestamp_epoch=dataset_timestamp_epoch,
+                upload_url=upload_url,
+                profile_id=profile_id,
+            )
         else:
             # TODO test this, as LogReference is not supposed to return `upload_urls`
             for view in files:
@@ -669,6 +688,25 @@ class WhyLabsWriter(Writer):
 
             return response
 
+    @staticmethod
+    def in_memory_zip(writables: List[Writable]) -> bytes:
+        """
+        If this method is called, it should create a binary
+        object that can be written to a specified directory,
+        in order to be uploaded to a storage system afterwards.
+        It uses ZipFile to yield the serialized SegmentedResultSet
+        """
+
+        with io.BytesIO() as in_memory_zip:
+            with ZipFile(in_memory_zip, "w", allowZip64=True) as z_file:
+                for view in writables:
+                    file_bytes = io.BytesIO()
+                    view.write(file=file_bytes)
+                    file_bytes.seek(0)
+                    z_file.writestr(view.get_default_path(), file_bytes.read())
+            in_memory_zip.seek(0)
+            return in_memory_zip.read()
+
     def _get_dataset_timestamp(self, view: DatasetProfileView) -> int:
         utc_now = datetime.datetime.now(datetime.timezone.utc)
         dataset_timestamp = view.dataset_timestamp or utc_now
@@ -728,10 +766,7 @@ class WhyLabsWriter(Writer):
             # currently whylabs is not ingesting the v1 format of segmented profiles as segmented
             # so we default to sending them as v0 profiles if the override `use_v0` is not defined,
             # if `use_v0` is defined then pass that through to control the serialization format.
-            if view.model_performance_metrics or use_v0:
-                view.write(file=tmp_file, use_v0=True)
-            else:
-                view.write(file=tmp_file)
+            view.write(file=tmp_file, use_v0=view.model_performance_metrics or use_v0)
             tmp_file.flush()
             tmp_file.seek(0)
 
