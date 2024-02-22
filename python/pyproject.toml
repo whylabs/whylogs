@@ -183,7 +183,7 @@ types-python-dateutil = "^2.8.12"
 moto = "^4.1.6"
 twine = "^4.0.1"
 gcp-storage-emulator = "^2022.6.11"
-types-urllib3 = "^1.26.25.5"
+types-urllib3 = ">=1.26.25.5"
 pyright = "^1.1.338"
 
 [build-system]
