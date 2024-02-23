@@ -182,7 +182,7 @@ class SessionConfig:
     def set_whylabs_private_s3_endpoint(self, endpoint: str) -> None:
         self._set_value(ConfigVariableName.WHYLABS_PRIVATE_S3_ENDPOINT, endpoint)
 
-    def get_whylabs_refernce_profile_name(self) -> Optional[str]:
+    def get_whylabs_reference_profile_name(self) -> Optional[str]:
         return self._load_value(
             env_name=EnvVariableName.WHYLABS_REFERENCE_PROFILE_NAME,
             config_name=ConfigVariableName.WHYLABS_REFERENCE_PROFILE_NAME,
