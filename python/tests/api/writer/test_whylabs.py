@@ -10,6 +10,9 @@ import pytest
 import responses
 from platformdirs import PlatformDirs
 from responses import PUT
+from whylabs_client.model.create_reference_profile_response import (
+    CreateReferenceProfileResponse,
+)
 
 import whylogs as why
 from whylogs.api.logger.result_set import SegmentedResultSet
@@ -398,7 +401,7 @@ class TestWhylabsWriter(object):
 
     @patch(
         "whylogs.api.writer.whylabs.WhyLabsWriter._get_upload_url_segmented_reference",
-        return_value=("profile1", "http://upload.url"),
+        return_value=CreateReferenceProfileResponse(id="profile1", upload_urls=["http://upload.url"]),
     )
     @patch("whylogs.api.writer.whylabs.WhyLabsWriter._do_upload", return_value=(True, "Success"))
     @patch("whylogs.api.writer.whylabs.WhyLabsWriter._get_dataset_timestamp", return_value=1234567890)
