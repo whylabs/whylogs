@@ -1,5 +1,4 @@
 import datetime
-import io
 import logging
 import os
 import pprint
@@ -516,7 +515,7 @@ class WhyLabsWriter(Writer):
         profile_id: str,
     ) -> Tuple[bool, str]:
         with tempfile.NamedTemporaryFile(suffix=".zip") as tmp_file:
-            tmp_file.write(self.in_memory_zip(writables=files))
+            self._create_zip_files(writables=files, path=tmp_file.name)
             tmp_file.flush()
             tmp_file.seek(0)
             upload_res = self._do_upload(
@@ -771,26 +770,14 @@ class WhyLabsWriter(Writer):
             return response
 
     @staticmethod
-    def in_memory_zip(writables: List[Writable]) -> bytes:
-        """
-        If this method is called, it should create a binary
-        object that can be written to a specified directory,
-        in order to be uploaded to a storage system afterwards.
-        It uses ZipFile to return the serialized zip file
-        """
-
-        with io.BytesIO() as in_memory_zip:
-            with ZipFile(in_memory_zip, "w", allowZip64=True) as z_file:
-                for view in writables:
-                    with tempfile.NamedTemporaryFile() as tmp_file:
-                        view.write(file=tmp_file)
-                        tmp_file.flush()
-                        tmp_file.seek(0)
-                        with open(tmp_file.name, "rb") as f:
-                            z_file.writestr(view.get_default_path(), f.read())
-
-            in_memory_zip.seek(0)
-            return in_memory_zip.read()
+    def _create_zip_files(writables: List[Writable], path: Union[str, IO], **kwargs: Any) -> None:
+        with ZipFile(path, "w", allowZip64=True) as z_file:
+            for view in writables:
+                with tempfile.NamedTemporaryFile() as tmp_file:
+                    view.write(file=tmp_file, **kwargs)
+                    tmp_file.flush()
+                    tmp_file.seek(0)
+                    z_file.writestr(tmp_file.name, tmp_file.name.split("/")[-1])
 
     def _get_dataset_timestamp(self, view: DatasetProfileView) -> int:
         utc_now = datetime.datetime.now(datetime.timezone.utc)
@@ -843,14 +830,14 @@ class WhyLabsWriter(Writer):
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
 
-        return self._do_write(view=view, use_v0=kwargs.get("use_v0", False), **kwargs)
+        return self._do_write(view=view, **kwargs)
 
-    def _do_write(self, view: DatasetProfileView, use_v0: bool = False, **kwargs: Any) -> Tuple[bool, str]:
+    def _do_write(self, view: DatasetProfileView, **kwargs: Any) -> Tuple[bool, str]:
         with tempfile.NamedTemporaryFile() as tmp_file:
             # currently whylabs is not ingesting the v1 format of segmented profiles as segmented
             # so we default to sending them as v0 profiles if the override `use_v0` is not defined,
             # if `use_v0` is defined then pass that through to control the serialization format.
-            view.write(file=tmp_file, use_v0=view.model_performance_metrics or use_v0)
+            view.write(file=tmp_file, use_v0=view.model_performance_metrics or kwargs.get("use_v0", False))
             tmp_file.flush()
             tmp_file.seek(0)
 
