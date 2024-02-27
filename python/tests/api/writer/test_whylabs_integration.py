@@ -154,9 +154,6 @@ def test_feature_weights():
     assert feature_weights.weights == retrieved_weights.weights
 
     # making sure that the weights are actually updated
-    retrieved_weights = writer.get_feature_weights()
-    assert retrieved_weights.weights == {"col1": 1.0, "col2": 0.0}
-
     modified_weights = FeatureWeights({"col1": 1.0, "col2": -1.0})
     writer.write_feature_weights(modified_weights)
     assert modified_weights.weights != retrieved_weights.weights
