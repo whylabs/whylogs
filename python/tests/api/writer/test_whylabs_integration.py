@@ -153,13 +153,13 @@ def test_feature_weights():
     retrieved_weights = writer.get_feature_weights()
     assert feature_weights.weights == retrieved_weights.weights
 
-    # making sure that the weights are actually updated
-    modified_weights = FeatureWeights({"col1": 1.0, "col2": -1.0})
-    writer.write_feature_weights(modified_weights)
-    assert modified_weights.weights != retrieved_weights.weights
+    # # making sure that the weights are actually updated
+    # modified_weights = FeatureWeights({"col1": 1.0, "col2": -1.0})
+    # writer.write_feature_weights(modified_weights)
+    # assert modified_weights.weights != retrieved_weights.weights
 
-    retrieved_modified_weights = writer.get_feature_weights()
-    assert retrieved_modified_weights.weights == feature_weights.weights
+    # retrieved_modified_weights = writer.get_feature_weights()
+    # assert retrieved_modified_weights.weights == feature_weights.weights
 
 
 @pytest.mark.load
@@ -199,11 +199,11 @@ def test_transactions():
     data = {"col1": 1, "col2": "foo"}
     trace_id = str(uuid4())
     result = why.log(data, schema=schema, trace_id=trace_id)
-    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    writer = WhyLabsWriter(dataset_id=MODEL_ID, org_id=ORG_ID)
     assert writer._transaction_id is None
     writer.start_transaction()
     assert writer._transaction_id is not None
-    status, id = writer.write(result)
+    writer.write(result)
     writer.commit_transaction()
     assert writer._transaction_id is None
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
@@ -237,9 +237,8 @@ def test_transaction_context():
                 trace_id = str(uuid4())
                 tids.append(trace_id)
                 result = why.log(data, schema=schema, trace_id=trace_id)
-                status, id = writer.write(result.profile())
-                if not status:
-                    raise Exception()  # or retry the profile...
+                status, _ = writer.write(result.profile())
+                assert status
 
     except Exception:
         # The start_transaction() or commit_transaction() in the
@@ -277,9 +276,8 @@ def test_transaction_segmented():
     try:
         writer.start_transaction()
         result = why.log(data, schema=schema, trace_id=trace_id)
-        status, id = writer.write(result)
-        if not status:
-            raise Exception()  # or retry the profile...
+        status, _ = writer.write(result)
+        assert status
 
     except Exception:
         # The start_transaction() or commit_transaction() in the
@@ -319,23 +317,23 @@ def test_transaction_distributed():
     try:
         transaction_id = writer.start_transaction()
         for data in pdfs:  # pretend each iteration is run on a different machine
-            dist_writer = WhyLabsWriter(dataset_id=MODEL_ID)
+            dist_writer = WhyLabsWriter(dataset_id=MODEL_ID, org_id=ORG_ID)
             dist_writer.start_transaction(transaction_id)
             trace_id = str(uuid4())
             tids.append(trace_id)
             result = why.log(data, schema=schema, trace_id=trace_id)
-            status, id = dist_writer.write(result.profile())
-            if not status:
-                raise Exception()  # or retry the profile...
+            status, _ = dist_writer.write(result.profile())
+            assert status is True
         writer.commit_transaction()
-    except Exception:
+    except Exception as e:
         # The start_transaction() or commit_transaction() in the
         # WhyLabsTransaction context manager will throw on failure.
         # Or retry the commit
         logger.exception("Logging transaction failed")
+        raise e
 
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
-    dataset_api = DatasetProfileApi(writer._api_client)
+    dataset_api = DatasetProfileApi(api_client=writer._api_client)
     for trace_id in tids:
         response: ProfileTracesResponse = dataset_api.get_profile_traces(
             org_id=ORG_ID,

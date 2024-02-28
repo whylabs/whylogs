@@ -78,8 +78,8 @@ _API_CLIENT_CACHE: Dict[str, ApiClient] = dict()
 _UPLOAD_POOLER_CACHE: Dict[str, Union[PoolManager, ProxyManager]] = dict()
 
 _US_WEST2_DOMAIN = "songbird-20201223060057342600000001.s3.us-west-2.amazonaws.com"
-_S3_PUBLIC_DOMAIN = os.environ.get("_WHYLABS_PRIVATE_S3_DOMAIN") or _US_WEST2_DOMAIN
-_WHYLABS_SKIP_CONFIG_READ = os.environ.get("_WHYLABS_SKIP_CONFIG_READ")
+_S3_PUBLIC_DOMAIN = os.environ.get("_WHYLABS_PRIVATE_S3_DOMAIN", _US_WEST2_DOMAIN)
+_WHYLABS_SKIP_CONFIG_READ = os.environ.get("_WHYLABS_SKIP_CONFIG_READ", "False")
 
 KNOWN_CUSTOM_PERFORMANCE_METRICS = {
     "mean_average_precision_k_": "mean",
@@ -209,7 +209,7 @@ class WhyLabsWriter(Writer):
         self._reference_profile_name = config.get_whylabs_reference_profile_name()
         self._api_config: Optional[Configuration] = None
         self._prefer_sync = read_bool_env_var(WHYLOGS_PREFER_SYNC_KEY, False)
-        self._transaction_id = None
+        self._transaction_id: Optional[str] = None
 
         _http_proxy = os.environ.get("HTTP_PROXY")
         _https_proxy = os.environ.get("HTTPS_PROXY")
@@ -552,12 +552,14 @@ class WhyLabsWriter(Writer):
 
         if transaction_id is not None:
             self._transaction_id = transaction_id  # type: ignore
+            # TODO This could potentially not start the transaction and still return as it did
             return transaction_id
 
-        client: TransactionsApi = self._get_or_create_transaction_client()
+        transactions_api: TransactionsApi = self._create_transactions_api()
         request = TransactionStartRequest(dataset_id=self._dataset_id)
-        result: LogTransactionMetadata = client.start_transaction(request, **kwargs)
+        result: LogTransactionMetadata = transactions_api.start_transaction(request, **kwargs)
         self._transaction_id = result["transaction_id"]
+        # TODO add actual expiration_time behavior to this
         logger.info(f"Starting transaction {self._transaction_id}, expires {result['expiration_time']}")
         return self._transaction_id  # type: ignore
 
@@ -570,13 +572,14 @@ class WhyLabsWriter(Writer):
             logger.error("Must call start_transaction() before commit_transaction()")
             return
 
-        id = self._transaction_id
-        self._transaction_id = None
-        logger.info(f"Committing transaction {id}")
-        client = self._get_or_create_transaction_client()
+        logger.info(f"Committing transaction {self._transaction_id}")
+        transactions_api: TransactionsApi = self._create_transactions_api()
         request = TransactionCommitRequest(verbose=True)
         # We abandon the transaction if this throws
-        client.commit_transaction(id, request, **kwargs)
+        transactions_api.commit_transaction(
+            transaction_id=self._transaction_id, transaction_commit_request=request, **kwargs
+        )
+        self._transaction_id = None
 
     def _write_segmented_result_set_transaction(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
         utc_now = datetime.datetime.now(datetime.timezone.utc)
@@ -604,7 +607,7 @@ class WhyLabsWriter(Writer):
         dataset_timestamp_epoch = int(stamp * 1000)
 
         region = os.getenv("WHYLABS_UPLOAD_REGION", None)
-        client: TransactionsApi = self._get_or_create_transaction_client()
+        transactions_api: TransactionsApi = self._create_transactions_api()
         messages: List[str] = list()
         and_status: bool = True
         for view, tags in zip(files, self._flatten_tags(whylabs_tags)):
@@ -615,8 +618,9 @@ class WhyLabsWriter(Writer):
                 request = TransactionLogRequest(
                     dataset_timestamp=dataset_timestamp_epoch, segment_tags=tags, region=region
                 )
-                result: AsyncLogResponse = client.log_transaction(self._transaction_id, request, **kwargs)
+                result: AsyncLogResponse = transactions_api.log_transaction(self._transaction_id, request)
                 logger.info(f"Added profile {result.id} to transaction {self._transaction_id}")
+
                 bool_status, message = self._do_upload(
                     dataset_timestamp=dataset_timestamp_epoch,
                     upload_url=result.upload_url,
@@ -747,27 +751,27 @@ class WhyLabsWriter(Writer):
 
         return view
 
-    def _upload_file(self, stamp, tmp_file, **kwargs) -> Tuple[bool, str]:
+    def _upload_file(self, stamp: int, tmp_file: IO[bytes], **kwargs) -> Tuple[bool, str]:
         if self._transaction_id is not None:
             # TODO: maybe check it's not a reference profile?
             region = os.getenv("WHYLABS_UPLOAD_REGION", None)
-            client: TransactionsApi = self._get_or_create_transactions_api()
+            transactions_api: TransactionsApi = self._create_transactions_api()
             request = TransactionLogRequest(dataset_timestamp=stamp, segment_tags=[], region=region)
-            result: AsyncLogResponse = client.log_transaction(self._transaction_id, request, **kwargs)
+            result: AsyncLogResponse = transactions_api.log_transaction(self._transaction_id, request)
             logger.info(f"Added profile {result.id} to transaction {self._transaction_id}")
-            response = self._do_upload(
+            status, message = self._do_upload(
                 dataset_timestamp=stamp,
                 upload_url=result.upload_url,
                 profile_id=result.id,
                 profile_file=tmp_file,
             )
         else:
-            response = self._do_upload(
+            status, message = self._do_upload(
                 dataset_timestamp=stamp,
                 profile_file=tmp_file,
             )
 
-            return response
+        return status, message
 
     @staticmethod
     def _create_zip_files(writables: List[Writable], path: Union[str, IO], **kwargs: Any) -> None:
@@ -925,8 +929,8 @@ class WhyLabsWriter(Writer):
         self._validate_client()
         return DatasetProfileApi(self._api_client)
 
-    def _get_or_create_transactions_api(self) -> TransactionsApi:
-        self._refresh_client()
+    def _create_transactions_api(self) -> TransactionsApi:
+        self._validate_client()
         return TransactionsApi(self._api_client)
 
     # FEATURE WEIGHTS
