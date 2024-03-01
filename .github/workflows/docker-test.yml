@@ -1,8 +1,13 @@
 name: Nightly Docker test
 
 on:
-  schedule:
-    - cron "0 0 * * *"
+  pull_request:
+  push:
+    branches: [mainline, 1.0.x]
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+#  schedule:
+#    - cron "0 0 * * *"
 
 jobs:
   test:
@@ -12,4 +17,4 @@ jobs:
       - name: Test Dockerfile.dev
         run: |
           docker build -t whylogs -f Dockerfile.dev .
-          docker run --rm -it -v $(pwd):/workspace whylogs docker_test.sh
+          docker run --rm -it -v $(pwd):/workspace whylogs ./docker_test.sh
