@@ -8,6 +8,6 @@ id
 mount
 df .
 ls -alh
-touch foo
-make install
-make test
+sudo touch foo
+sudo make install
+sudo make test
