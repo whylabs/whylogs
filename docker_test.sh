@@ -8,6 +8,8 @@ id
 mount
 df .
 ls -alh
+echo $PATH
+which poetry
 sudo touch foo
 sudo make install
 sudo make test
