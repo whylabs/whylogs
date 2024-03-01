@@ -37,6 +37,7 @@ skip_notebooks = [
     "KS_Profiling.ipynb",  # skipped because this takes a few minutes to run
     "Monitoring_Embeddings.ipynb",  # skipped because needs user input
     "whylogs_UDF_examples.ipynb",  # skipped until multiple output column UDFs released
+    "Transaction_Examples.ipynb",  # skipped because API key required for whylabs writing
 ]
 
 

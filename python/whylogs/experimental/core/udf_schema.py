@@ -135,10 +135,13 @@ def _apply_udf_on_dataframe(
     udf(Union[Dict[str, List], pd.DataFrame]) -> Union[Dict[str, List], pd.DataFrame]
     """
 
+    def add_prefix(col):
+        return prefix + "." + col if prefix else col
+
     try:
         # TODO: I think it's OKAY if udf returns a dictionary
         udf_output = pd.DataFrame(udf(pandas))
-        udf_output = udf_output.rename(columns={old: prefix + "." + old for old in udf_output.keys()})  # type: ignore
+        udf_output = udf_output.rename(columns={old: add_prefix(old) for old in udf_output.keys()})
         for new_col in udf_output.keys():
             new_df[new_col] = udf_output[new_col]
     except Exception as e:  # noqa
@@ -271,6 +274,7 @@ def register_multioutput_udf(
     prefix: Optional[str] = None,
     namespace: Optional[str] = None,
     schema_name: str = "",
+    no_prefix: bool = False,
 ) -> Callable[[Any], Any]:
     """
     Decorator to easily configure UDFs for your data set. Decorate your UDF
@@ -294,7 +298,10 @@ def register_multioutput_udf(
         global _multicolumn_udfs
         name = udf_name or func.__name__
         name = f"{namespace}.{name}" if namespace else name
-        output_prefix = prefix if prefix else name
+        if no_prefix:
+            output_prefix = None
+        else:
+            output_prefix = prefix if prefix else name
         _multicolumn_udfs[schema_name].append(UdfSpec(col_names, prefix=output_prefix, udf=func, name=name))
         return func
 
