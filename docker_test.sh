@@ -10,6 +10,6 @@ df .
 ls -alh
 echo $PATH
 which poetry
-sudo touch foo
-sudo make install
-sudo make test
+touch foo
+make install
+make test
