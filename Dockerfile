@@ -1,20 +1,26 @@
 FROM python:3.8
 
-RUN mkdir /workspace && \
-    apt-get update
+ENV PROTOBUF_VERSION=3.19.4
+# cd whylogs
+# docker build -t whylogs -f Dockerfile.dev .
+# docker run --rm -it -p 8080:8888 -v /working/directory:/workspace whylogs
+
+RUN mkdir /workspace
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-RUN apt-get install apt-utils -y -q
-RUN apt-get install git -y && \
+RUN apt-get update && apt-get install apt-utils -y -q
+RUN apt-get update && \
+    apt-get install git -y && \
     apt-get install awscli -y && \
     apt-get install sudo -y && \
     adduser --quiet --disabled-password --gecos "" whyuser && \
     adduser whyuser sudo && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
-RUN curl -sLJO https://github.com/protocolbuffers/protobuf/releases/download/v3.19.2/protoc-3.19.2-linux-x86_64.zip && \
+RUN curl -sLJO https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protoc-${PROTOBUF_VERSION}-linux-x86_64.zip && \
     unzip protoc-*-linux-x86_64.zip -d /usr && \
     chmod -R a+rx /usr/bin/ /usr/include/google
-RUN apt-get install cmake -y && \
+RUN apt-get update && \
+    apt-get install -y cmake openjdk-17-jre-headless graphviz && \
     pip install --root-user-action ignore --upgrade pip && \
     pip install --root-user-action ignore pytest && \
     pip install --root-user-action ignore pytest-cov && \
@@ -22,17 +28,13 @@ RUN apt-get install cmake -y && \
     pip install --root-user-action ignore numpy && \
     pip install --root-user-action ignore pandas && \
     pip install --root-user-action ignore sphinx
-RUN apt-get install openjdk-17-jre-headless -y
-RUN apt-get install graphviz -y && \
-    curl -fsSL https://deb.nodesource.com/setup_14.x | bash - && \
-    apt-get install nodejs npm -y
+RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash - && \
+    apt-get update && apt-get install nodejs npm -y
 RUN npm install --global yarn
 RUN curl -sLJO "https://gitlab-runner-downloads.s3.amazonaws.com/latest/deb/gitlab-runner_amd64.deb" && \
     dpkg -i gitlab-runner_amd64.deb
 
-RUN apt-get install less -y && \
-    apt-get install emacs -y && \
-    apt-get install vim -y
+RUN apt-get update && apt-get install -y less emacs vim
 
 USER whyuser
 

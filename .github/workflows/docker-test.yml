@@ -1,0 +1,16 @@
+name: Nightly Docker test
+
+on:
+  schedule:
+    - cron "0 0 * * *"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Test Dockerfile
+        run: |
+          docker build -t whylogs -f Dockerfile .
+          docker run --rm --user 0:0 -v $(pwd):/workspace whylogs ./docker_test.sh
