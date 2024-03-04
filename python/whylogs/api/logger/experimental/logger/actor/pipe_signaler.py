@@ -97,11 +97,6 @@ class PipeSignaler(th.Thread, Generic[T]):
     def run(self) -> None:
         self._start_poll_conn()
 
-    def close_child(self) -> None:
-        """
-        This method is no longer needed as queues do not require manual closing of file descriptors.
-        """
-
     def close(self) -> None:
         """
         Closes the thread and all resources. This should be

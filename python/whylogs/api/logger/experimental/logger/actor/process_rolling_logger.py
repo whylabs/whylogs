@@ -151,8 +151,8 @@ AdditionalMessages = TypeVar("AdditionalMessages")
 
 
 class BaseProcessRollingLogger(
-    ProcessActor[Union[AdditionalMessages, BuiltinMessageTypes], Union[ProcessLoggerStatus, LoggerStatus, None]],
-    DataLogger[Union[ProcessLoggerStatus, LoggerStatus, None]],
+    ProcessActor[Union[AdditionalMessages, BuiltinMessageTypes], ProcessLoggerStatus],
+    DataLogger[ProcessLoggerStatus],
     Generic[AdditionalMessages],
 ):
     """
@@ -267,9 +267,6 @@ class BaseProcessRollingLogger(
         for datasetId, logger in self.loggers.items():
             self._logger.info(f"Closing whylogs logger for {datasetId}")
             logger.close()
-
-        if self._pipe_signaler is not None:
-            self._pipe_signaler.close_child()
 
     def process_pubsub(self, messages: List[RawPubSubMessage]) -> None:
         self._logger.info("Processing pubsub message")
@@ -427,8 +424,8 @@ class BaseProcessRollingLogger(
             sync=sync,
         )
 
-        result: Optional["Future[Union[ProcessLoggerStatus, LoggerStatus, None]]"] = (
-            cast("Future[Union[ProcessLoggerStatus, LoggerStatus, None]]", Future()) if sync else None
+        result: Optional["Future[ProcessLoggerStatus]"] = (
+            cast("Future[ProcessLoggerStatus]", Future()) if sync else None
         )
         if result is not None:
             self._logger.debug(f"Registering result id {message.id} for synchronous logging")
@@ -458,18 +455,8 @@ class BaseProcessRollingLogger(
         self._logger.debug(f"Started process logger with pid {os.getpid()}")
         super().run()
 
-    def start(self) -> None:
-        self._logger.debug(f"Starting process logger from pid {os.getpid()}")
-        # This is started in the parent process, not in the child process. It must be started
-        # before the process itself start right below.
-        if self._pipe_signaler is not None:
-            self._pipe_signaler.start()
-        super().start()
-
     def close(self) -> None:
         super().close()
-        if self._pipe_signaler is not None:
-            self._pipe_signaler.close()
 
 
 class ProcessRollingLogger(BaseProcessRollingLogger[NoReturn]):
