@@ -131,7 +131,7 @@ Attributes
 
 .. py:class:: BaseProcessRollingLogger(aggregate_by: whylogs.api.logger.experimental.logger.actor.time_util.TimeGranularity = TimeGranularity.Day, write_schedule: Optional[whylogs.api.logger.experimental.logger.actor.time_util.Schedule] = Schedule(cadence=TimeGranularity.Minute, interval=5), schema: Optional[whylogs.core.schema.DatasetSchema] = None, sync_enabled: bool = False, current_time_fn: Optional[Callable[[], int]] = None, queue_config: whylogs.api.logger.experimental.logger.actor.actor.QueueConfig = QueueConfig(), thread_queue_config: whylogs.api.logger.experimental.logger.actor.actor.QueueConfig = QueueConfig(), writer_factory: WriterFactory = WhyLabsWriterFactory(), queue_type: whylogs.api.logger.experimental.logger.actor.process_actor.QueueType = QueueType.FASTER_FIFO, logger_factory: LoggerFactory = ThreadLoggerFactory())
 
-   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.process_actor.ProcessActor`\ [\ :py:obj:`Union`\ [\ :py:obj:`AdditionalMessages`\ , :py:obj:`BuiltinMessageTypes`\ ]\ , :py:obj:`Union`\ [\ :py:obj:`whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus`\ , :py:obj:`whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus`\ , :py:obj:`None`\ ]\ ], :py:obj:`whylogs.api.logger.experimental.logger.actor.data_logger.DataLogger`\ [\ :py:obj:`Union`\ [\ :py:obj:`whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus`\ , :py:obj:`whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.LoggerStatus`\ , :py:obj:`None`\ ]\ ], :py:obj:`Generic`\ [\ :py:obj:`AdditionalMessages`\ ]
+   Bases: :py:obj:`whylogs.api.logger.experimental.logger.actor.process_actor.ProcessActor`\ [\ :py:obj:`Union`\ [\ :py:obj:`AdditionalMessages`\ , :py:obj:`BuiltinMessageTypes`\ ]\ , :py:obj:`whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus`\ ], :py:obj:`whylogs.api.logger.experimental.logger.actor.data_logger.DataLogger`\ [\ :py:obj:`whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.ProcessLoggerStatus`\ ], :py:obj:`Generic`\ [\ :py:obj:`AdditionalMessages`\ ]
 
    Log data asynchronously using a separate process.
 
@@ -251,13 +251,6 @@ Attributes
       Method to be run in sub-process; can be overridden in sub-class
 
 
-   .. py:method:: start() -> None
-
-      The process version of the actor apparently has to be manually started after
-      it's created, unlike the thread version which can just be automatically started
-      from within its init. There must be some post-init setup that needs to be done.
-
-
    .. py:method:: close() -> None
 
       Close the Process object.
@@ -298,6 +291,13 @@ Attributes
 
       Get the internal status of the Process Actor. Used for diagnostics and debugging.
       This is always synchronous and requires the ProcessActor to be created with sync_enabled=True.
+
+
+   .. py:method:: start() -> None
+
+      The process version of the actor apparently has to be manually started after
+      it's created, unlike the thread version which can just be automatically started
+      from within its init. There must be some post-init setup that needs to be done.
 
 
    .. py:method:: send(message: Union[MessageType, CloseMessage]) -> None
@@ -452,13 +452,6 @@ Attributes
       Method to be run in sub-process; can be overridden in sub-class
 
 
-   .. py:method:: start() -> None
-
-      The process version of the actor apparently has to be manually started after
-      it's created, unlike the thread version which can just be automatically started
-      from within its init. There must be some post-init setup that needs to be done.
-
-
    .. py:method:: close() -> None
 
       Close the Process object.
@@ -499,6 +492,13 @@ Attributes
 
       Get the internal status of the Process Actor. Used for diagnostics and debugging.
       This is always synchronous and requires the ProcessActor to be created with sync_enabled=True.
+
+
+   .. py:method:: start() -> None
+
+      The process version of the actor apparently has to be manually started after
+      it's created, unlike the thread version which can just be automatically started
+      from within its init. There must be some post-init setup that needs to be done.
 
 
    .. py:method:: send(message: Union[MessageType, CloseMessage]) -> None

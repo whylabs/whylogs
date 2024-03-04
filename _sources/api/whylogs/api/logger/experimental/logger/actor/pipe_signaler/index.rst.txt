@@ -106,11 +106,6 @@ Attributes
 
 
 
-   .. py:method:: close_child() -> None
-
-      This method is no longer needed as queues do not require manual closing of file descriptors.
-
-
    .. py:method:: close() -> None
 
       Closes the thread and all resources. This should be
