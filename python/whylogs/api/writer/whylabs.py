@@ -1077,18 +1077,23 @@ class WhyLabsWriter(Writer):
         res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
         return res["id"], res["upload_urls"]
 
-    # TODO: add this to client API
     def _get_upload_urls_segmented_reference_zip(self, whylabs_tags, dataset_timestamp: int) -> Tuple[str, str]:
         region = os.getenv("WHYLABS_UPLOAD_REGION", None)
         request = self._build_log_segmented_reference_request(
             dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name, region=region
         )
-        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
+        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp, zip_file=True)
         url = res["upload_urls"]
-        return res["id"], url[0]  # .replace(".bin?", ".zip?")
+        return res["id"], url[0]
 
-    def _post_log_segmented_reference(self, request: LogAsyncRequest, dataset_timestamp: int) -> LogReferenceResponse:
+    def _post_log_segmented_reference(
+        self, request: LogAsyncRequest, dataset_timestamp: int, zip_file: bool = False
+    ) -> LogReferenceResponse:
         dataset_api = self._get_or_create_api_dataset_client()
+        if zip_file:
+            dataset_api.api_client.set_default_header("X-WhyLabs-File-Extension", "ZIP")
+        else:
+            dataset_api.api_client.set_default_header("X-WhyLabs-File-Extension", "BIN")
         try:
             async_result = dataset_api.create_reference_profile(
                 org_id=self._org_id,
