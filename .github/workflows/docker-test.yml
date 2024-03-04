@@ -18,4 +18,4 @@ jobs:
       - name: Test Dockerfile
         run: |
           docker build -t whylogs -f Dockerfile .
-          docker run --rm --user 1000:127 -v $(pwd):/workspace whylogs ./docker_test.sh
+          docker run --rm --user 1001:127 -v $(pwd):/workspace whylogs ./docker_test.sh
