@@ -2,7 +2,7 @@ name: Nightly Docker test
 
 on:
   schedule:
-    - cron "0 0 * * *"
+    - cron: "0 0 * * *"
 
 jobs:
   test:
