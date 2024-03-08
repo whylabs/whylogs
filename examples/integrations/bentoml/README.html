@@ -449,10 +449,11 @@
 <section id="example-overview">
 <h2>📙 Example Overview:<a class="headerlink" href="#example-overview" title="Permalink to this headline">#</a></h2>
 <p>This example shows how to write whylogs data profiles to the <a class="reference external" href="https://whylabs.ai/">WhyLabs</a> platform for monitoring a machine learning model with BentoML and scikit-learn.</p>
-<p>There are two notable files in this example:</p>
+<p>There are three notable files in this example:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">train.py</span></code> - Trains and saves a versioned kNN model with scikit-learn, BentoML, and the iris dataset.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">service.py</span></code> - Creates a model prediction API endpoint with BentoML and writes whylogs data profiles to WhyLabs for ML monitoring.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">service_thread_logger.py</span></code> - Creates a BentoML service that uses our thread based rolling logger</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">service_process_logger.py</span></code> - Creates a BentoML service that uses our process based rolling logger</p></li>
 </ul>
 </section>
 <section id="how-to-implement-ml-monitoring-for-bentoml-with-whylogs-and-whylabs">
@@ -463,93 +464,109 @@
 </div></blockquote>
 <p>Next, In <code class="docutils literal notranslate"><span class="pre">service.py</span></code>, we’ll get ready to serve and monitor our latest saved model.</p>
 <p>To get the WhyLabs API key and org-id, go to the <a class="reference external" href="https://hub.whylabsapp.com/">WhyLabs dashboard</a> and click on the “Access Tokens” section in the settings menu. Model-ids are found under the “Project Management” tab in the same section.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">atexit</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">import</span> <span class="nn">bentoml</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">bentoml.io</span> <span class="kn">import</span> <span class="n">NumpyNdarray</span><span class="p">,</span> <span class="n">Text</span>
-
-<span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
-
-<span class="c1"># Set WhyLabs environment variables</span>
+<span class="c1"># Set this in the server file or directly in your env (for testing). In production it should be set</span>
+<span class="c1"># in your environment without including the key in your python code.</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;APIKEY&quot;</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_ORG_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ORGID&quot;</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_DATASET_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;PROJECTID&quot;</span>
-
-<span class="c1"># Model Prediction Class Names</span>
-<span class="n">CLASS_NAMES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;setosa&quot;</span><span class="p">,</span> <span class="s2">&quot;versicolor&quot;</span><span class="p">,</span> <span class="s2">&quot;virginica&quot;</span><span class="p">]</span>
-
-<span class="c1"># Load model from BentoML local model store &amp; create a BentoML runner</span>
-<span class="n">iris_clf_runner</span> <span class="o">=</span> <span class="n">bentoml</span><span class="o">.</span><span class="n">sklearn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iris_knn:latest&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_runner</span><span class="p">()</span>
-<span class="n">svc</span> <span class="o">=</span> <span class="n">bentoml</span><span class="o">.</span><span class="n">Service</span><span class="p">(</span><span class="s2">&quot;iris_classifier&quot;</span><span class="p">,</span> <span class="n">runners</span><span class="o">=</span><span class="p">[</span><span class="n">iris_clf_runner</span><span class="p">])</span>
-
 </pre></div>
 </div>
 <blockquote>
 <div><p>Note: A best practice for software deployment is to have these environment variables always set on the machine/environment level (such as per the CI/QA machine, a Kubernetes Pod, etc.) so it is possible to leave code untouched and persist it correctly according to the environment you execute it.</p>
 </div></blockquote>
-<p>Now that our bentoML runner and environment variables are set, we can create an API endpoint with BentoML and set up model and data monitoring with whylogs and WhyLabs. We’ll Log the data, predicted class, and model probability score.</p>
-<p>Create a class in <code class="docutils literal notranslate"><span class="pre">service.py</span></code> to handle startup, shutdown, logging, and prediction logic with Bentoml. This example uses the <a class="reference external" href="https://whylogs.readthedocs.io/en/latest/examples/advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.html">rolling log</a> functionality of whylogs to write profiles to WhyLabs at set intervals. The <code class="docutils literal notranslate"><span class="pre">atexit</span></code> module registers a callback function to close the whylogs rolling logger when the service is shut down.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># create a class to handle startup, shutdown, and prediction logic with Bentoml</span>
-<span class="k">class</span> <span class="nc">MyService</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Initialize the whylogs rolling logger with a 5 minute interval</span>
-        <span class="k">global</span> <span class="n">logger</span>
-        <span class="n">logger</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span>
-            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rolling&quot;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">when</span><span class="o">=</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="n">base_name</span><span class="o">=</span><span class="s2">&quot;bentoml_predictions&quot;</span>
-        <span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">append_writer</span><span class="p">(</span><span class="s2">&quot;whylabs&quot;</span><span class="p">)</span>
+<p>Now that our bentoML runner and environment variables are set, we can create an API endpoint with BentoML and set up model and data monitoring with whylogs and WhyLabs. We’ll Log the data, predicted class, and model probability score. Create a Service instance and an endpoint to recieve inference requests.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span>
 
-    <span class="k">def</span> <span class="nf">on_exit_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Close the whylogs rolling logger when the service is shut down</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">iris_clf_runner</span> <span class="o">=</span> <span class="n">bentoml</span><span class="o">.</span><span class="n">sklearn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iris_knn:latest&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_runner</span><span class="p">()</span>
+<span class="n">svc</span> <span class="o">=</span> <span class="n">bentoml</span><span class="o">.</span><span class="n">Service</span><span class="p">(</span><span class="s2">&quot;iris_classifier&quot;</span><span class="p">,</span> <span class="n">runners</span><span class="o">=</span><span class="p">[</span><span class="n">iris_clf_runner</span><span class="p">])</span>
+<span class="n">ROLLING_LOGGER_KEY_MODEL_1</span> <span class="o">=</span> <span class="s2">&quot;model-1&quot;</span>
 
-    <span class="c1"># Create a BentoML API endpoint for model predictions &amp; logging</span>
-    <span class="nd">@svc</span><span class="o">.</span><span class="n">api</span><span class="p">(</span>
-        <span class="nb">input</span><span class="o">=</span><span class="n">NumpyNdarray</span><span class="o">.</span><span class="n">from_sample</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">4.9</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)),</span>
-        <span class="n">output</span><span class="o">=</span><span class="n">Text</span><span class="p">(),</span>
+<span class="c1"># Make sure to set WHYLABS_API_KEY in the environment before this is called</span>
+<span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="nd">@svc</span><span class="o">.</span><span class="n">on_startup</span>
+<span class="k">def</span> <span class="nf">startup</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">bentoml</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># One instance can log to any number of dataset</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">ProcessRollingLogger</span><span class="p">(</span>
+        <span class="n">aggregate_by</span><span class="o">=</span><span class="n">TimeGranularity</span><span class="o">.</span><span class="n">Hour</span><span class="p">,</span>
+        <span class="n">write_schedule</span><span class="o">=</span><span class="n">Schedule</span><span class="p">(</span><span class="n">cadence</span><span class="o">=</span><span class="n">TimeGranularity</span><span class="o">.</span><span class="n">Minute</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
     <span class="p">)</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="n">features</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">iris_clf_runner</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">async_run</span><span class="p">([</span><span class="n">features</span><span class="p">])</span>
-        <span class="n">probs</span> <span class="o">=</span> <span class="n">iris_clf_runner</span><span class="o">.</span><span class="n">predict_proba</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">features</span><span class="p">])</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">category</span> <span class="o">=</span> <span class="n">CLASS_NAMES</span><span class="p">[</span><span class="n">result</span><span class="p">]</span>
-        <span class="n">prob</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">probs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nd">@svc</span><span class="o">.</span><span class="n">api</span><span class="p">(</span>
+    <span class="nb">input</span><span class="o">=</span><span class="n">NumpyNdarray</span><span class="o">.</span><span class="n">from_sample</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">4.9</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)),</span>  <span class="c1"># type: ignore</span>
+    <span class="n">output</span><span class="o">=</span><span class="n">Text</span><span class="p">(),</span>
+    <span class="n">route</span><span class="o">=</span><span class="s2">&quot;v1/models/iris/predict&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="n">features</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">context</span><span class="p">:</span> <span class="n">bentoml</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">iris_clf_runner</span><span class="o">.</span><span class="n">predict</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">features</span><span class="p">])</span>
+    <span class="n">probs</span> <span class="o">=</span> <span class="n">iris_clf_runner</span><span class="o">.</span><span class="n">predict_proba</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">features</span><span class="p">])</span>
+    <span class="n">result</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="c1"># create a dict of data &amp; prediction results w/ feature names</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;sepal length&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-            <span class="s2">&quot;sepal width&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-            <span class="s2">&quot;petal length&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-            <span class="s2">&quot;petal width&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
-            <span class="s2">&quot;class_output&quot;</span><span class="p">:</span> <span class="n">category</span><span class="p">,</span>
-            <span class="s2">&quot;proba_output&quot;</span><span class="p">:</span> <span class="n">prob</span><span class="p">,</span>
-        <span class="p">}</span>
+    <span class="n">category</span> <span class="o">=</span> <span class="n">CLASS_NAMES</span><span class="p">[</span><span class="n">result</span><span class="p">]</span>
+    <span class="n">prob</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">probs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-        <span class="c1"># Log data + model outputs to WhyLabs.ai</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="c1"># numpy values have to be converted to python types  because the process logger</span>
+    <span class="c1"># requires serializable inputs</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;sepal length&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+        <span class="s2">&quot;sepal width&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+        <span class="s2">&quot;petal length&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+        <span class="s2">&quot;petal width&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+        <span class="s2">&quot;class_output&quot;</span><span class="p">:</span> <span class="n">category</span><span class="p">,</span>
+        <span class="s2">&quot;proba_output&quot;</span><span class="p">:</span> <span class="n">prob</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+    <span class="p">}</span>
 
-        <span class="k">return</span> <span class="n">category</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">ProcessRollingLogger</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">ROLLING_LOGGER_KEY</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dataset_id</span><span class="o">=</span><span class="s2">&quot;model-1&quot;</span><span class="p">)</span>
 
-
-<span class="n">my_service</span> <span class="o">=</span> <span class="n">MyService</span><span class="p">()</span>
-<span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">my_service</span><span class="o">.</span><span class="n">on_exit_callback</span><span class="p">)</span>
-
+    <span class="k">return</span> <span class="n">category</span>
 </pre></div>
 </div>
-<p>Running <code class="docutils literal notranslate"><span class="pre">bentoml</span> <span class="pre">serve</span> <span class="pre">service:svc</span> <span class="pre">--reload</span></code> will start the BentoML API server locally and log the model predictions and data profiles to WhyLabs.</p>
+<p>Running <code class="docutils literal notranslate"><span class="pre">bentoml</span> <span class="pre">serve</span> <span class="pre">service_process_logger:svc</span></code> will start the BentoML API server locally and log the model predictions and data profiles
+to WhyLabs every 10 minutes, or when the server is shutdown.</p>
 <ul class="simple">
 <li><p>To learn how to deploy your BentoML model to production, check out the <a class="reference external" href="https://docs.bentoml.org/en/latest/">BentoML documentation</a>.</p></li>
 <li><p>To learn more about monitoring models in production, check out the <a class="reference external" href="https://docs.whylabs.ai/docs/">WhyLabs documentation</a>.</p></li>
 </ul>
+</section>
+<section id="thread-logger-vs-process-logger">
+<h2>Thread Logger vs Process Logger<a class="headerlink" href="#thread-logger-vs-process-logger" title="Permalink to this headline">#</a></h2>
+<p>There are two version of the server in this example: <code class="docutils literal notranslate"><span class="pre">server_thread_logger.py</span></code> and <code class="docutils literal notranslate"><span class="pre">server_process_logger.py</span></code>. In general, the process based
+logger is better but it requires extra dependencies that only work on Mac/Linux that make the performance much better than the standard
+multiprocessing options in Python. The thread based version has a few disadvantages worth mentioning here:</p>
+<ul class="simple">
+<li><p>It requires manually creating a logging instance for every dataset id you log to while the process based version handles that for you when
+you call with <code class="docutils literal notranslate"><span class="pre">logger.log(data,</span> <span class="pre">dataset_id=&quot;..&quot;)</span></code>.</p></li>
+<li><p>Python’s GIL means that logging could contend with inference compute.</p></li>
+<li><p>It lacks optimizations that the process based logger has, like bulk data processing.</p></li>
+</ul>
+<p>The process logger has some requirements to enable that boosted performance:</p>
+<ul class="simple">
+<li><p>Make sure to start the process logger early in the on_startup hook because it does use fork.</p></li>
+<li><p>If process forking isn’t ok for some reason then you’ll have to use the thread version.</p></li>
+<li><p>It requires extra dependencies installed through <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">whylogs[proc]</span></code>.</p></li>
+<li><p>It requires manually calling the <code class="docutils literal notranslate"><span class="pre">.start()</span></code> method to start it after creation.</p></li>
+<li><p>It requires the things that you log are serializable, which means converting numpy types into python types by calling <code class="docutils literal notranslate"><span class="pre">.item()</span></code> on them.</p></li>
+<li><p>Requires Mac/Linux (or WSL). Won’t work natively on Windows.</p></li>
+<li><p>Has native code and requires the ability to build it. For example, you would need to run <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">build-essential</span></code> on Ubuntu).</p></li>
+<li><p>It can actually run in parallel with your inference code when hosts have multiple cores.</p></li>
+<li><p>Is asynchronous by default, so make sure you leave logging enabled when you’re setting things up so you can see errors in logs.</p></li>
+</ul>
+<p>If you can use the process based logger then you should. If the thread based version appears to perform good enough and you want to make
+sure you can run it in your local Windows development flow then the thread version is fine as well. Just make sure you look at each example
+because there are some slight diffrences in their apis.</p>
+<p>In both cases you should make sure to create the logger in the <code class="docutils literal notranslate"><span class="pre">on_startup</span></code> hook, as opposed to at the top level of your service because
+BentoML is going to create several instances of server workers, potentially on separate machines, and prefers you respect its lifecycle
+semantics.</p>
 </section>
 <section id="how-to-run-the-example">
 <h2>🚀 How to run the example:<a class="headerlink" href="#how-to-run-the-example" title="Permalink to this headline">#</a></h2>
 <section id="install-dependencies">
 <h3>1. Install dependencies<a class="headerlink" href="#install-dependencies" title="Permalink to this headline">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+
+<span class="c1"># Install the proc extra as well if you&#39;re going to use the process based logger. This only suports Mac/Linux at the moment.</span>
+pip<span class="w"> </span>install<span class="w"> </span>whylogs<span class="o">[</span>proc<span class="o">]</span>
 </pre></div>
 </div>
 </section>
@@ -564,7 +581,7 @@
 <h3>3. Update WhyLabs environment variables<a class="headerlink" href="#update-whylabs-environment-variables" title="Permalink to this headline">#</a></h3>
 <p>In <code class="docutils literal notranslate"><span class="pre">service.py</span></code> update the <a class="reference external" href="https://whylabs.ai/">WhyLabs</a> environment variables with your API key, org-id and project-id.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;WHYLABS_API_KEY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;APIKEY&#39;</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_ORG_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ORGID&#39;</span>
+<span class="c1"># Optional, dataset id can also go directly in source code. If you have multiple datasets then you&#39;ll need to include them in source.</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_DATASET_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;PROJECTID&#39;</span>
 </pre></div>
 </div>
@@ -572,7 +589,7 @@
 <section id="serve-the-model-with-bentoml-locally">
 <h3>4. Serve the model with BentoML locally<a class="headerlink" href="#serve-the-model-with-bentoml-locally" title="Permalink to this headline">#</a></h3>
 <p>Run the API server with BentoML to test the API locally.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bentoml<span class="w"> </span>serve<span class="w"> </span>service:svc<span class="w"> </span>--reload
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bentoml<span class="w"> </span>serve<span class="w"> </span>server_thread_logger:svc
 </pre></div>
 </div>
 </section>
@@ -581,13 +598,13 @@
 <p>With the server running, you can test the API with the Swagger UI, curl, or any HTTP client:</p>
 <p>To test with Swagger UI, go to http://localhost:3000 and click on the <code class="docutils literal notranslate"><span class="pre">classify</span></code> endpoint.</p>
 <p>To test the API with curl, run the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-i<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--header<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>--header<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--request<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--data<span class="w"> </span><span class="s1">&#39;[[4.9, 3.0, 1.4, 0.2]]&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>http://localhost:3000/classify
+<span class="w">    </span>http://localhost:3000/v1/models/iris/predict
 </pre></div>
 </div>
+<p>Kill the server with ctrl-c to force the whylogs profiles to upload to WhyLabs.</p>
 </section>
 <section id="view-the-logged-data-in-whylabs-setup-monitoring">
 <h3>6. View the logged data in WhyLabs &amp; Setup Monitoring<a class="headerlink" href="#view-the-logged-data-in-whylabs-setup-monitoring" title="Permalink to this headline">#</a></h3>
@@ -600,7 +617,8 @@
 <section id="deployment-with-bentoml">
 <h2>Deployment with BentoML<a class="headerlink" href="#deployment-with-bentoml" title="Permalink to this headline">#</a></h2>
 <p>To get your BentoML project ready for deployment, check out the <a class="reference external" href="https://docs.bentoml.org/en/latest/">BentoML documentation</a>.</p>
-<p>Add <code class="docutils literal notranslate"><span class="pre">whylogs[whylabs]</span></code> under python packages in the <code class="docutils literal notranslate"><span class="pre">bentofile.yaml</span></code> file to use whylogs and WhyLabs in a production BentoML project.</p>
+<p>Add <code class="docutils literal notranslate"><span class="pre">whylogs[proc]</span></code> under python packages in the <code class="docutils literal notranslate"><span class="pre">bentofile.yaml</span></code> file to use whylogs and WhyLabs in a production BentoML project. If you’re
+deploying on windows then just use <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> without the proc extra (Thread Logger vs Process Logger section).</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">python</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="c1"># Additional pip packages required by the service</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">whylogs[whylabs]</span>
@@ -686,6 +704,7 @@
 <li><a class="reference internal" href="#">🍱 Monitor ML Models Managed and Served with BentoML</a><ul>
 <li><a class="reference internal" href="#example-overview">📙 Example Overview:</a></li>
 <li><a class="reference internal" href="#how-to-implement-ml-monitoring-for-bentoml-with-whylogs-and-whylabs">🛠️ How to implement ML monitoring for BentoML with whylogs and WhyLabs:</a></li>
+<li><a class="reference internal" href="#thread-logger-vs-process-logger">Thread Logger vs Process Logger</a></li>
 <li><a class="reference internal" href="#how-to-run-the-example">🚀 How to run the example:</a><ul>
 <li><a class="reference internal" href="#install-dependencies">1. Install dependencies</a></li>
 <li><a class="reference internal" href="#train-and-save-model">2. Train and save model</a></li>

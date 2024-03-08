@@ -1,4 +1,5 @@
 scikit-learn
 bentoml>=1.0.0
-whylogs[whylabs]
+whylogs[proc]
 numpy
+pandas
