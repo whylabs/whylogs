@@ -9,11 +9,13 @@ from whylogs.core.stubs import np, pd
 
 diagnostic_logger = logging.getLogger(__name__)
 
+
 def _convert_to_int_if_bool(data: pd.core.frame.DataFrame, *columns: str) -> pd.core.frame.DataFrame:
     for col in columns:
         if all(isinstance(x, bool) for x in data[col]):
             data[col] = data[col].apply(lambda x: 1 if x else 0)
     return data
+
 
 def log_batch_ranking_metrics(
     data: pd.core.frame.DataFrame,
@@ -30,16 +32,17 @@ def log_batch_ranking_metrics(
     if prediction_column is None:
         if score_column is not None and target_column is not None:
             prediction_column = "__predictions"
+
             # sort data[prediction_column] by score_column
             def _sort_by_score(row):
                 return [x for _, x in sorted(zip(row[score_column], row[target_column]), reverse=True)]
+
             # Ties are not being handled here
             formatted_data[prediction_column] = formatted_data.apply(_sort_by_score, axis=1)
         else:
             raise ValueError("Either prediction_column or score+target columns must be specified")
 
     relevant_cols = [prediction_column]
-
 
     if target_column is None:
         formatted_data = _convert_to_int_if_bool(formatted_data, prediction_column)
@@ -104,16 +107,14 @@ def log_batch_ranking_metrics(
             if target_val not in row_dict[prediction_column]:
                 ideal_relevance.append(1)
         return (prediction_relevance, ideal_relevance)
-    
-
 
     if convert_non_numeric:
         formatted_data[["predicted_relevance", "ideal_relevance"]] = formatted_data.apply(
             _calc_non_numeric_relevance, result_type="expand", axis=1
         )
     else:
-        formatted_data['predicted_relevance'] = formatted_data[prediction_column]
-        formatted_data['ideal_relevance'] = formatted_data[target_column]
+        formatted_data["predicted_relevance"] = formatted_data[prediction_column]
+        formatted_data["ideal_relevance"] = formatted_data[target_column]
 
     def _calculate_row_ndcg(row_dict, k):
         predicted_relevances = row_dict["predicted_relevance"]
@@ -121,10 +122,12 @@ def log_batch_ranking_metrics(
         dcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(predicted_relevances[:k])]
         idcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(ideal_relevances[:k])]
         if sum(idcg_vals) == 0:
-            return 1 # if there is no relevant data, not much the recommender can do
+            return 1  # if there is no relevant data, not much the recommender can do
         return sum(dcg_vals) / sum(idcg_vals)
 
-    formatted_data["norm_dis_cumul_gain" + ("_k_" + str(k) if k else "")] = formatted_data.apply(_calculate_row_ndcg, args=(k,), axis=1)
+    formatted_data["norm_dis_cumul_gain" + ("_k_" + str(k) if k else "")] = formatted_data.apply(
+        _calculate_row_ndcg, args=(k,), axis=1
+    )
     mAP_at_k = ki_dict.mean()
     hit_ratio = formatted_data["count_at_k"].apply(lambda x: bool(x)).sum() / len(formatted_data)
     mrr = (1 / formatted_data["top_rank"]).replace([np.inf], np.nan).mean()

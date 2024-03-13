@@ -44,7 +44,7 @@ def test_log_batch_ranking_metrics_single_simple():
     assert pandas_summary.loc["average_precision", "counts/n"] == 4
     assert pandas_summary.loc["norm_dis_cumul_gain", "counts/n"] == 1
     # ndcg = [1, 0, 0.63, 0.5]
-    assert isclose(pandas_summary.loc[f"norm_dis_cumul_gain", "distribution/mean"], 0.53273, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["norm_dis_cumul_gain", "distribution/mean"], 0.53273, abs_tol=0.00001)
 
 
 def test_log_batch_ranking_metrics_binary_simple():
@@ -52,9 +52,7 @@ def test_log_batch_ranking_metrics_binary_simple():
         {"raw_predictions": [[True, False, True], [False, False, False], [True, True, False], [False, True, False]]}
     )
 
-    result = log_batch_ranking_metrics(
-        data=binary_df, prediction_column="raw_predictions", k=2
-    )
+    result = log_batch_ranking_metrics(data=binary_df, prediction_column="raw_predictions", k=2)
     pandas_summary = result.view().to_pandas()
 
     k = 2
@@ -132,9 +130,7 @@ def test_log_batch_ranking_metrics_multiple_simple():
 def test_log_batch_ranking_metrics_default_target():
     multiple_df = pd.DataFrame({"raw_predictions": [[3, 2, 3, 0, 1, 2, 3, 2]]})
 
-    result = log_batch_ranking_metrics(
-        data=multiple_df, prediction_column="raw_predictions", k=3
-    )
+    result = log_batch_ranking_metrics(data=multiple_df, prediction_column="raw_predictions", k=3)
     pandas_summary = result.view().to_pandas()
 
     k = 3
