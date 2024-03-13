@@ -1,14 +1,23 @@
 import logging
 import math
 from typing import Optional, Union
+
 from whylogs.api.logger import log
 from whylogs.api.logger.result_set import ViewResultSet
 from whylogs.core import DatasetSchema
 from whylogs.core.stubs import np, pd
+
 diagnostic_logger = logging.getLogger(__name__)
+
+def _convert_to_int_if_bool(data: pd.core.frame.DataFrame, *columns: str) -> pd.core.frame.DataFrame:
+    for col in columns:
+        if all(isinstance(x, bool) for x in data[col]):
+            data[col] = data[col].apply(lambda x: 1 if x else 0)
+    return data
+
 def log_batch_ranking_metrics(
     data: pd.core.frame.DataFrame,
-    prediction_column: str,
+    prediction_column: Optional[str] = None,
     target_column: Optional[str] = None,
     score_column: Optional[str] = None,
     k: Optional[int] = None,
@@ -17,10 +26,28 @@ def log_batch_ranking_metrics(
     log_full_data: bool = False,
 ) -> ViewResultSet:
     formatted_data = data.copy(deep=True)  # TODO: does this have to be deep?
+
+    if prediction_column is None:
+        if score_column is not None and target_column is not None:
+            prediction_column = "__predictions"
+            # sort data[prediction_column] by score_column
+            def _sort_by_score(row):
+                return [x for _, x in sorted(zip(row[score_column], row[target_column]), reverse=True)]
+            # Ties are not being handled here
+            formatted_data[prediction_column] = formatted_data.apply(_sort_by_score, axis=1)
+        else:
+            raise ValueError("Either prediction_column or score+target columns must be specified")
+
     relevant_cols = [prediction_column]
+
+
     if target_column is None:
+        formatted_data = _convert_to_int_if_bool(formatted_data, prediction_column)
         target_column = "__targets"
-        formatted_data[target_column] = formatted_data[prediction_column].apply(lambda x: list(range(len(x)))[::-1])
+        # formatted_data[target_column] = formatted_data[prediction_column].apply(lambda x: list(range(len(x)))[::-1])
+        # formatted_data[target_column] = [[] for _ in range(len(formatted_data[prediction_column]))]
+        formatted_data[target_column] = formatted_data[prediction_column]
+
     relevant_cols.append(target_column)
     if score_column is not None:
         relevant_cols.append(score_column)
@@ -36,12 +63,14 @@ def log_batch_ranking_metrics(
     formatted_data["count_all"] = formatted_data[relevant_cols].apply(
         lambda row: sum([1 if pred_val in row[target_column] else 0 for pred_val in row[prediction_column]]), axis=1
     )
+
     def get_top_rank(row):
         matches = [i + 1 for i, pred_val in enumerate(row[prediction_column]) if pred_val in row[target_column]]
         if not matches:
             return 0
         else:
             return matches[0]
+
     formatted_data["top_rank"] = formatted_data[relevant_cols].apply(get_top_rank, axis=1)
     output_data = (formatted_data["count_at_k"] / (k if k else 1)).to_frame()
     output_data.columns = ["precision" + ("_k_" + str(k) if k else "")]
@@ -64,24 +93,38 @@ def log_batch_ranking_metrics(
         else:
             ki_dict["p@" + str(ki)] = ki_result
     output_data["average_precision" + ("_k_" + str(k) if k else "")] = ki_dict.mean(axis=1)
+
     def _calc_non_numeric_relevance(row_dict):
-        return ([1 if pred_val in row_dict[target_column] else 0 for pred_val in row_dict[prediction_column]],
-                [1 for target_val in row_dict[target_column] if target_val not in row_dict[prediction_column]])
+        prediction_relevance = []
+        ideal_relevance = []
+        for target_val in row_dict[prediction_column]:
+            ideal_relevance.append(1 if target_val in row_dict[target_column] else 0)
+            prediction_relevance.append(1 if target_val in row_dict[target_column] else 0)
+        for target_val in row_dict[target_column]:
+            if target_val not in row_dict[prediction_column]:
+                ideal_relevance.append(1)
+        return (prediction_relevance, ideal_relevance)
+    
+
+
     if convert_non_numeric:
-        formatted_data[["predicted_relevance","ideal_relevance"]] = formatted_data.apply(
+        formatted_data[["predicted_relevance", "ideal_relevance"]] = formatted_data.apply(
             _calc_non_numeric_relevance, result_type="expand", axis=1
         )
+    else:
+        formatted_data['predicted_relevance'] = formatted_data[prediction_column]
+        formatted_data['ideal_relevance'] = formatted_data[target_column]
+
     def _calculate_row_ndcg(row_dict, k):
-        predicted_relevances = row_dict["predicted_relevance"] # [1,0,0], [3,1,0,3]
-        ideal_relevances = sorted(row_dict["predicted_relevance"] + row_dict["ideal_relevance"], reverse=True) #[1,0,0], [3,3,1,0]
-        dcg_vals = [
-            (rel / math.log(i + 2, 2)) for i, rel in enumerate(predicted_relevances[:k])
-        ]
-        idcg_vals = [
-            (rel / math.log(i + 2, 2)) for i, rel in enumerate(ideal_relevances[:k])
-        ]
+        predicted_relevances = row_dict["predicted_relevance"]
+        ideal_relevances = sorted(row_dict["ideal_relevance"], reverse=True)
+        dcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(predicted_relevances[:k])]
+        idcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(ideal_relevances[:k])]
+        if sum(idcg_vals) == 0:
+            return 1 # if there is no relevant data, not much the recommender can do
         return sum(dcg_vals) / sum(idcg_vals)
-    formatted_data["norm_dis_cumul_gain_k_" + str(k)] = formatted_data.apply(_calculate_row_ndcg, args=(k,), axis=1)
+
+    formatted_data["norm_dis_cumul_gain" + ("_k_" + str(k) if k else "")] = formatted_data.apply(_calculate_row_ndcg, args=(k,), axis=1)
     mAP_at_k = ki_dict.mean()
     hit_ratio = formatted_data["count_at_k"].apply(lambda x: bool(x)).sum() / len(formatted_data)
     mrr = (1 / formatted_data["top_rank"]).replace([np.inf], np.nan).mean()
