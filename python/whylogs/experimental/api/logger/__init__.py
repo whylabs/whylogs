@@ -33,7 +33,6 @@ def log_batch_ranking_metrics(
         if score_column is not None and target_column is not None:
             prediction_column = "__predictions"
 
-            # sort data[prediction_column] by score_column
             def _sort_by_score(row):
                 return [x for _, x in sorted(zip(row[score_column], row[target_column]), reverse=True)]
 
@@ -47,8 +46,6 @@ def log_batch_ranking_metrics(
     if target_column is None:
         formatted_data = _convert_to_int_if_bool(formatted_data, prediction_column)
         target_column = "__targets"
-        # formatted_data[target_column] = formatted_data[prediction_column].apply(lambda x: list(range(len(x)))[::-1])
-        # formatted_data[target_column] = [[] for _ in range(len(formatted_data[prediction_column]))]
         formatted_data[target_column] = formatted_data[prediction_column]
 
     relevant_cols.append(target_column)
