@@ -22,29 +22,29 @@ def test_log_batch_ranking_metrics_single_simple():
     pandas_summary = result.view().to_pandas()
 
     column_names = [
-        "mean_average_precision",
-        "accuracy",
+        "mean_average_precision_k_3",
+        "accuracy_k_3",
         "mean_reciprocal_rank",
-        "precision",
-        "recall",
+        "precision_k_3",
+        "recall_k_3",
         "top_rank",
-        "average_precision",
-        "norm_dis_cumul_gain",
+        "average_precision_k_3",
+        "norm_dis_cumul_gain_k_3",
     ]
     for col in column_names:
         assert col in pandas_summary.index
-    assert pandas_summary.loc["mean_average_precision", "counts/n"] == 1
-    assert pandas_summary.loc["accuracy", "counts/n"] == 1
+    assert pandas_summary.loc["mean_average_precision_k_3", "counts/n"] == 1
+    assert pandas_summary.loc["accuracy_k_3", "counts/n"] == 1
     assert pandas_summary.loc["mean_reciprocal_rank", "counts/n"] == 1
-    assert pandas_summary.loc["precision", "counts/n"] == 4
-    assert pandas_summary.loc["recall", "counts/n"] == 4
+    assert pandas_summary.loc["precision_k_3", "counts/n"] == 4
+    assert pandas_summary.loc["recall_k_3", "counts/n"] == 4
     assert pandas_summary.loc["top_rank", "counts/n"] == 4
-    assert pandas_summary.loc["average_precision", "counts/n"] == 4
-    assert pandas_summary.loc["norm_dis_cumul_gain", "counts/n"] == 1
-    assert pandas_summary.loc["average_precision", "counts/n"] == 4
-    assert pandas_summary.loc["norm_dis_cumul_gain", "counts/n"] == 1
+    assert pandas_summary.loc["average_precision_k_3", "counts/n"] == 4
+    assert pandas_summary.loc["norm_dis_cumul_gain_k_3", "counts/n"] == 1
+    assert pandas_summary.loc["average_precision_k_3", "counts/n"] == 4
+    assert pandas_summary.loc["norm_dis_cumul_gain_k_3", "counts/n"] == 1
     # ndcg = [1, 0, 0.63, 0.5]
-    assert isclose(pandas_summary.loc["norm_dis_cumul_gain", "distribution/mean"], 0.53273, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["norm_dis_cumul_gain_k_3", "distribution/mean"], 0.53273, abs_tol=0.00001)
 
 
 def test_log_batch_ranking_metrics_binary_simple():
@@ -160,7 +160,7 @@ def test_log_batch_ranking_metrics_default_target():
 
 def test_log_batch_ranking_metrics_ranking_ndcg_wikipedia():
     # From https://en.wikipedia.org/wiki/Discounted_cumulative_gain#Example
-    ranking_df = pd.DataFrame({"targets": [[3, 2, 3, 0, 1, 2, 3, 2]], "predictions": [[0, 1, 2, 3, 4, 5]]})
+    ranking_df = pd.DataFrame({"targets": [[1, 0, 2, 3, 3, 2, 2, 3]], "predictions": [[5, 4, 2, 1, 7, 8, 6, 3]]})
 
     result = log_batch_ranking_metrics(data=ranking_df, prediction_column="predictions", target_column="targets", k=6)
     pandas_summary = result.view().to_pandas()
@@ -175,7 +175,7 @@ def test_log_batch_ranking_metrics_ranking_ndcg_sklearn():
     result = log_batch_ranking_metrics(data=ranking_df, score_column="scores", target_column="true_relevance")
     pandas_summary = result.view().to_pandas()
 
-    assert isclose(pandas_summary.loc["norm_dis_cumul_gain", "distribution/median"], 0.69569, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["norm_dis_cumul_gain_k_5", "distribution/median"], 0.69569, abs_tol=0.00001)
 
 
 def test_log_batch_ranking_metrics_ranking_ndcg_withk_sklearn():

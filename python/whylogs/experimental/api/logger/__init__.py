@@ -35,7 +35,7 @@ def log_batch_ranking_metrics(
 
             # Ties are not being handled here
             formatted_data[prediction_column] = formatted_data[score_column].apply(
-                lambda row: list(np.argsort(-np.array(row)))
+                lambda row: list(np.argsort(np.argsort(-np.array(row))) + 1)
             )
         else:
             raise ValueError("Either prediction_column or score+target columns must be specified")
@@ -47,7 +47,9 @@ def log_batch_ranking_metrics(
         target_column = "__targets"
         # the relevances in predicitons are moved to targets, and predicitons contains the indices to the target list
         formatted_data[target_column] = formatted_data[prediction_column]
-        formatted_data[prediction_column] = formatted_data[target_column].apply(lambda row: list(range(len(row))))
+        formatted_data[prediction_column] = formatted_data[target_column].apply(
+            lambda row: list(range(1, len(row) + 1))
+        )
 
     relevant_cols.append(target_column)
     if score_column is not None:
@@ -58,6 +60,8 @@ def log_batch_ranking_metrics(
             # TODO: more error checking
             formatted_data[col] = formatted_data[col].apply(lambda x: [x])
     _max_k = formatted_data[prediction_column].apply(len).max()
+    if not k:
+        k = _max_k
     formatted_data["count_at_k"] = formatted_data[relevant_cols].apply(
         lambda row: sum([1 if pred_val in row[target_column] else 0 for pred_val in row[prediction_column][:k]]), axis=1
     )
@@ -104,24 +108,22 @@ def log_batch_ranking_metrics(
         for target_val in row_dict[target_column]:
             if target_val not in row_dict[prediction_column]:
                 ideal_relevance.append(1)
-        return (prediction_relevance, ideal_relevance)
-
-    if convert_non_numeric:
-        formatted_data[["predicted_relevance", "ideal_relevance"]] = formatted_data.apply(
-            _calc_non_numeric_relevance, result_type="expand", axis=1
-        )
-    else:
-        # predicted relevances are the relevances of the respective items in the target columns, as indexed in the prediction column
-        formatted_data["predicted_relevance"] = formatted_data.apply(
-            lambda row: [row[target_column][x] for x in row[prediction_column]], axis=1
-        )
-        formatted_data["ideal_relevance"] = formatted_data[target_column]
+        return (prediction_relevance, sorted(ideal_relevance, reverse=True))
 
     def _calculate_row_ndcg(row_dict, k):
-        predicted_relevances = row_dict["predicted_relevance"]
-        ideal_relevances = sorted(row_dict["ideal_relevance"], reverse=True)
-        dcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(predicted_relevances[:k])]
-        idcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(ideal_relevances[:k])]
+        if not convert_non_numeric:
+            dcg_vals = [
+                rel / math.log2(pos + 1)
+                for rel, pos in zip(row_dict[target_column], row_dict[prediction_column])
+                if pos <= k
+            ]
+            idcg_vals = [
+                rel / math.log2(pos + 2) for pos, rel in enumerate(sorted(row_dict[target_column], reverse=True)[:k])
+            ]
+        else:
+            predicted_relevances, ideal_relevances = _calc_non_numeric_relevance(row_dict)
+            dcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(predicted_relevances[:k])]
+            idcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(ideal_relevances[:k])]
         if sum(idcg_vals) == 0:
             return 1  # if there is no relevant data, not much the recommender can do
         return sum(dcg_vals) / sum(idcg_vals)
