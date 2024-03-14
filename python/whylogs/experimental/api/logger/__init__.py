@@ -33,11 +33,10 @@ def log_batch_ranking_metrics(
         if score_column is not None and target_column is not None:
             prediction_column = "__predictions"
 
-            def _sort_by_score(row):
-                return [x for _, x in sorted(zip(row[score_column], row[target_column]), reverse=True)]
-
             # Ties are not being handled here
-            formatted_data[prediction_column] = formatted_data.apply(_sort_by_score, axis=1)
+            formatted_data[prediction_column] = formatted_data.apply(
+                lambda row: [x for _, x in sorted(zip(row[score_column], row[target_column]), reverse=True)], axis=1
+            )
         else:
             raise ValueError("Either prediction_column or score+target columns must be specified")
 
