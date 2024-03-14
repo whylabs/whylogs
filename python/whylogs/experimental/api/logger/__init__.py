@@ -34,8 +34,8 @@ def log_batch_ranking_metrics(
             prediction_column = "__predictions"
 
             # Ties are not being handled here
-            formatted_data[prediction_column] = formatted_data.apply(
-                lambda row: [x for _, x in sorted(zip(row[score_column], row[target_column]), reverse=True)], axis=1
+            formatted_data[prediction_column] = formatted_data[score_column].apply(
+                lambda row: list(np.argsort(-np.array(row)))
             )
         else:
             raise ValueError("Either prediction_column or score+target columns must be specified")
@@ -45,7 +45,9 @@ def log_batch_ranking_metrics(
     if target_column is None:
         formatted_data = _convert_to_int_if_bool(formatted_data, prediction_column)
         target_column = "__targets"
+        # the relevances in predicitons are moved to targets, and predicitons contains the indices to the target list
         formatted_data[target_column] = formatted_data[prediction_column]
+        formatted_data[prediction_column] = formatted_data[target_column].apply(lambda row: list(range(len(row))))
 
     relevant_cols.append(target_column)
     if score_column is not None:
@@ -109,7 +111,10 @@ def log_batch_ranking_metrics(
             _calc_non_numeric_relevance, result_type="expand", axis=1
         )
     else:
-        formatted_data["predicted_relevance"] = formatted_data[prediction_column]
+        # predicted relevances are the relevances of the respective items in the target columns, as indexed in the prediction column
+        formatted_data["predicted_relevance"] = formatted_data.apply(
+            lambda row: [row[target_column][x] for x in row[prediction_column]], axis=1
+        )
         formatted_data["ideal_relevance"] = formatted_data[target_column]
 
     def _calculate_row_ndcg(row_dict, k):
