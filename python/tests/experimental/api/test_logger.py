@@ -160,7 +160,7 @@ def test_log_batch_ranking_metrics_default_target():
 
 def test_log_batch_ranking_metrics_ranking_ndcg_wikipedia():
     # From https://en.wikipedia.org/wiki/Discounted_cumulative_gain#Example
-    ranking_df = pd.DataFrame({"targets": [[3, 2, 3, 0, 1, 2, 3, 2]], "predictions": [[3, 2, 3, 0, 1, 2]]})
+    ranking_df = pd.DataFrame({"targets": [[3, 2, 3, 0, 1, 2, 3, 2]], "predictions": [[0, 1, 2, 3, 4, 5]]})
 
     result = log_batch_ranking_metrics(data=ranking_df, prediction_column="predictions", target_column="targets", k=6)
     pandas_summary = result.view().to_pandas()
