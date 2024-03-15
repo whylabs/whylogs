@@ -1,10 +1,8 @@
 import os
 import shutil
-from unittest.mock import MagicMock
 
 import pytest
 
-from whylogs import DatasetProfileView
 from whylogs.api.writer.local import LocalWriter
 
 
