@@ -2,33 +2,24 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import IO, Any, Dict, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
+import requests  # type: ignore
 from whylabs_client import ApiClient
 from whylabs_client.model.segment_tag import SegmentTag
 
-from whylogs.api.logger.result_set import ProfileResultSet, ResultSet, SegmentedResultSet, ViewResultSet
-from whylogs.api.whylabs.session.session_manager import INIT_DOCS, default_init
+from whylogs.api.logger.result_set import ProfileResultSet, ViewResultSet
+from whylogs.api.whylabs.session.session_manager import default_init
 from whylogs.api.writer.whylabs_client import WhyLabsClient
 from whylogs.api.writer.writer import Writable, Writer
-from whylogs.context.environ import read_bool_env_var
 from whylogs.core import DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
-
-from whylogs.core.feature_weights import FeatureWeights
-from whylogs.core.utils import deprecated_alias
-from whylogs.core.utils.utils import get_auth_headers
+from whylogs.core.errors import BadConfigError
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
-from whylogs.experimental.performance_estimation.estimation_results import (
-    EstimationResult,
-)
-from whylogs.migration.converters import _generate_segment_tags_metadata
 from whylogs.migration.uncompound import (
     FeatureFlags,
     _uncompound_dataset_profile,
     _uncompound_metric_feature_flag,
-    _uncompound_performance_estimation_feature_flag,
-    _uncompound_performance_estimation_magic_string,
 )
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
@@ -105,10 +96,7 @@ class WhyLabsWriterBase(Writer):
         if interval_seconds < FIVE_MINUTES_IN_SECONDS:
             raise BadConfigError("Bad WhyLabsWriter config: interval must be greater or equal to five minutes")
 
-    def option(  # type: ignore
-        self,
-        **kwargs
-    ) -> Writer:
+    def option(self, **kwargs) -> Writer:  # type: ignore
         """
 
         Parameters
@@ -143,9 +131,7 @@ class WhyLabsWriterBase(Writer):
         return self
 
     def _get_dataset_epoch(
-        self,
-        view: Union[DatasetProfileView, SegmentedDatasetProfileView],
-        utc_now: Optional[datetime.datetime]=None
+        self, view: Union[DatasetProfileView, SegmentedDatasetProfileView], utc_now: Optional[datetime.datetime] = None
     ) -> int:
         utc_now = utc_now or datetime.datetime.now(datetime.timezone.utc)
         dataset_timestamp = view.dataset_timestamp or utc_now
@@ -221,7 +207,7 @@ class WhyLabsWriterBase(Writer):
                 dataset_timestamp_epoch,
                 upload_url,
                 profile_id,
-                profile_file = tmp_file,
+                profile_file=tmp_file,
             )
 
     def _upload_view(
@@ -235,12 +221,7 @@ class WhyLabsWriterBase(Writer):
     ) -> Tuple[bool, str]:
         view = self._prepare_view_for_upload(view)
         return self._send_writable_to_whylabs(
-            view,
-            profile_id,
-            upload_url,
-            dataset_timestamp_epoch,
-            whylabs_tags,
-            **kwargs
+            view, profile_id, upload_url, dataset_timestamp_epoch, whylabs_tags, **kwargs
         )
 
     def _get_view_of_writable(self, file: Writable) -> Union[DatasetProfileView, SegmentedDatasetProfileView]:
@@ -253,7 +234,7 @@ class WhyLabsWriterBase(Writer):
         if isinstance(file, DatasetProfile):
             return file.view()
 
-        if isinstance(file, SegmentedDatatsetProfileView):
+        if isinstance(file, SegmentedDatasetProfileView):
             return file
 
         if not isinstance(file, DatasetProfileView):

@@ -1,22 +1,19 @@
 import datetime
 import logging
+import tempfile
 from typing import Any, List, Optional, Tuple, Union
 from zipfile import ZipFile
 
 from whylabs_client import ApiClient
 
-from whylogs.api.logger import log
-from whylogs.api.writer.whylabs_client import WhyLabsClient
-from whylogs.api.writer.whylabs_base import WhyLabsWriterBase
-from whylogs.api.writer.writer import Writable
-from whylogs.core.utils import deprecated_alias
-
-from whylogs.api.logger.result_set import ProfileResultSet, ResultSet, SegmentedResultSet, ViewResultSet
+from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.api.whylabs.session.session_manager import INIT_DOCS
+from whylogs.api.writer.whylabs_base import WhyLabsWriterBase
+from whylogs.api.writer.whylabs_client import WhyLabsClient
+from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
-from whylogs.core.dataset_profile import DatasetProfile
+from whylogs.core.utils import deprecated_alias
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
-
 
 logger = logging.getLogger(__name__)
 
@@ -85,9 +82,7 @@ class WhyLabsBatchWriter(WhyLabsWriterBase):
         # TODO: special handling of large number of files, handle throttling
         for view in views:
             dataset_timestamp_epoch = self._get_dataset_epoch(view, utc_now)
-            profile_id, upload_url = self._whylabs_client.get_upload_url_batch(
-                dataset_timestamp_epoch
-            )            
+            profile_id, upload_url = self._whylabs_client.get_upload_url_batch(dataset_timestamp_epoch)
             bool_status, _ = self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, use_v0=use_v0)
             and_status = and_status and bool_status
 
@@ -134,13 +129,10 @@ class WhyLabsBatchWriter(WhyLabsWriterBase):
         dataset_timestamp_epoch = self._get_dataset_epoch(view)
         profile_id, upload_url = self._whylabs_client.get_upload_url_batch(dataset_timestamp_epoch)
         return self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, **kwargs)
-                                
+
     @deprecated_alias(profile="file")
     def write(
-        self,
-        file: Writable,
-        dest: Optional[str] = None,
-        **kwargs: Any
+        self, file: Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
         self._whylabs_client.option(**kwargs)
 

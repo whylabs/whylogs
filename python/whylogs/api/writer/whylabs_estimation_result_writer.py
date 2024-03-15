@@ -4,10 +4,10 @@ from typing import Any, List, Optional, Tuple, Union
 from whylabs_client import ApiClient
 
 from whylogs.api.logger import log
-from whylogs.api.writer.whylabs_client import WhyLabsClient
-from whylogs.api.writer.whylabs_base import WhyLabsWriterBase
-from whylogs.api.writer.writer import Writable
 from whylogs.api.whylabs.session.session_manager import INIT_DOCS
+from whylogs.api.writer.whylabs_base import WhyLabsWriterBase
+from whylogs.api.writer.whylabs_client import WhyLabsClient
+from whylogs.api.writer.writer import Writable
 from whylogs.core.utils import deprecated_alias
 from whylogs.experimental.performance_estimation.estimation_results import (
     EstimationResult,
@@ -73,10 +73,7 @@ class WhyLabsEstimationResultWriter(WhyLabsWriterBase):
 
     @deprecated_alias(profile="file")
     def write(
-        self,
-        file: Writable,
-        dest: Optional[str] = None,
-        **kwargs: Any
+        self, file: Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
         if not isinstance(file, EstimationResult):
             raise ValueError("I can only write EstimationResult")
@@ -88,12 +85,12 @@ class WhyLabsEstimationResultWriter(WhyLabsWriterBase):
             view = estimation_result_profile.view()
             return view.writer(
                 "whylabs",
-                org_id = self._org_id,
-                api_key = self._api_key,
-                dataset_id = self._dataset_id,
-                api_client = self._api_client,
-                ssl_ca_cert = self._ssl_ca_cert,
-                _timeout_seconds = self._timeout_seconds,                
+                org_id=self._org_id,
+                api_key=self._api_key,
+                dataset_id=self._dataset_id,
+                api_client=self._api_client,
+                ssl_ca_cert=self._ssl_ca_cert,
+                _timeout_seconds=self._timeout_seconds,
             ).write(dest, **kwargs)
 
         return False, str("Performance estimation feature flag is not enabled")

@@ -68,7 +68,7 @@ class MlflowWriter(Writer):
         os.makedirs(output_dir, exist_ok=True)
         if dest:
             output = os.path.join(output_dir, dest)
-            #elif self._file_name:
+            # elif self._file_name:
             #    output = os.path.join(output_dir, self._file_name)
         else:
             output = output_dir

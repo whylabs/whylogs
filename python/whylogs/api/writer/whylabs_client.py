@@ -1,11 +1,8 @@
-import datetime
 import logging
 import os
 import pprint
-import tempfile
 from typing import IO, Any, Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
-from zipfile import ZipFile
 
 import requests  # type: ignore
 from urllib3 import PoolManager, ProxyManager
@@ -34,8 +31,6 @@ from whylabs_client.model.transaction_log_request import TransactionLogRequest
 from whylabs_client.model.transaction_start_request import TransactionStartRequest
 from whylabs_client.rest import ForbiddenException  # type: ignore
 
-from whylogs.api.logger import log
-from whylogs.api.logger.result_set import ResultSet, SegmentedResultSet
 from whylogs.api.whylabs.session.session_manager import INIT_DOCS, default_init
 from whylogs.api.whylabs.session.whylabs_client_cache import (
     ClientCacheConfig,
@@ -43,27 +38,11 @@ from whylogs.api.whylabs.session.whylabs_client_cache import (
     KeyRefresher,
     WhylabsClientCache,
 )
-from whylogs.api.writer import Writer
-from whylogs.api.writer.writer import Writable
 from whylogs.context.environ import read_bool_env_var
 from whylogs.core import DatasetProfileView
-from whylogs.core.dataset_profile import DatasetProfile
-from whylogs.core.errors import BadConfigError
 from whylogs.core.feature_weights import FeatureWeights
-from whylogs.core.utils import deprecated_alias
 from whylogs.core.utils.utils import get_auth_headers
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
-from whylogs.experimental.performance_estimation.estimation_results import (
-    EstimationResult,
-)
-from whylogs.migration.converters import _generate_segment_tags_metadata
-from whylogs.migration.uncompound import (
-    FeatureFlags,
-    _uncompound_dataset_profile,
-    _uncompound_metric_feature_flag,
-    _uncompound_performance_estimation_feature_flag,
-    _uncompound_performance_estimation_magic_string,
-)
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 DAY_IN_SECONDS = 60 * 60 * 24
@@ -133,7 +112,7 @@ class WhyLabsClient:
 
     Examples
     --------
- 
+
     ```python
     ```
 
@@ -269,10 +248,7 @@ class WhyLabsClient:
 
         self._api_client.rest_client.pool_manager.connection_from_host = new_conn_factory
 
-    def option(  # type: ignore
-        self,
-        **kwargs
-    ) -> "WhyLabsClient":
+    def option(self, **kwargs) -> "WhyLabsClient":  # type: ignore
         """
 
         Parameters
@@ -290,7 +266,7 @@ class WhyLabsClient:
         api_client: Optional[ApiClient] = None,
         timeout_seconds: Optional[float] = None,
         transaction_id: Optional[str] = None,
-        prefer_sync: 
+        prefer_sync:
 
         Returns a "WhyLabsClient" with these options configured
         -------
@@ -584,6 +560,7 @@ class WhyLabsClient:
                 + f"{self.whylabs_api_endpoint} with API token ID: {self.key_id}. Error occurred: {e}"
             )
             return False, str(e)
+        return False, "Imposible control flow"
 
     def _require(self, name: str, value: Optional[str]) -> None:
         if value is None:
@@ -618,12 +595,12 @@ class WhyLabsClient:
         # We abandon the transaction if this throws
         client.commit_transaction(id, request)
 
-    def get_upload_url_transaction(self, dataset_timestamp: int, whylabs_tags: List[SegmentTag]=[]) -> Tuple[str, str]:
+    def get_upload_url_transaction(
+        self, dataset_timestamp: int, whylabs_tags: List[SegmentTag] = []
+    ) -> Tuple[str, str]:
         region = os.getenv("WHYLABS_UPLOAD_REGION", None)
         client: TransactionsApi = self._get_or_create_transaction_client()
-        request = TransactionLogRequest(
-            dataset_timestamp=dataset_timestamp, segment_tags=whylabs_tags, region=region
-        )
+        request = TransactionLogRequest(dataset_timestamp=dataset_timestamp, segment_tags=whylabs_tags, region=region)
         result: AsyncLogResponse = client.log_transaction(self._transaction_id, request)
         return result.id, result.upload_url
 
@@ -767,7 +744,9 @@ class WhyLabsClient:
             logger.info(no_update_made_message)
             return (200, no_update_made_message)
 
-    def _post_log_async(self, request: LogAsyncRequest, dataset_timestamp: int, zip_file: bool=False) -> AsyncLogResponse:
+    def _post_log_async(
+        self, request: LogAsyncRequest, dataset_timestamp: int, zip_file: bool = False
+    ) -> AsyncLogResponse:
         log_api = self._get_or_create_api_log_client()
         if zip_file:
             log_api.api_client.set_default_header("X-WhyLabs-File-Extension", "ZIP")
@@ -784,7 +763,9 @@ class WhyLabsClient:
             )
             raise e
 
-    def _get_upload_urls_segmented_reference(self, whylabs_tags, dataset_timestamp: int, reference_profile_name: str) -> Tuple[str, List[str]]:
+    def _get_upload_urls_segmented_reference(
+        self, whylabs_tags, dataset_timestamp: int, reference_profile_name: str
+    ) -> Tuple[str, List[str]]:
         region = os.getenv("WHYLABS_UPLOAD_REGION", None)
         request = self._build_log_segmented_reference_request(
             dataset_timestamp, tags=whylabs_tags, alias=reference_profile_name, region=region
@@ -792,10 +773,12 @@ class WhyLabsClient:
         res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
         return res["id"], res["upload_urls"]
 
-    def _get_upload_url_segmented_reference_zip(self, whylabs_tags, dataset_timestamp: int, reference_profile_name: str) -> Tuple[str, str]:
+    def _get_upload_url_segmented_reference_zip(
+        self, whylabs_tags, dataset_timestamp: int, reference_profile_name: str
+    ) -> Tuple[str, str]:
         id, urls = self._get_upload_urls_segmented_reference(whylabs_tags, dataset_timestamp, reference_profile_name)
         return id, urls[0]
-    
+
     def _post_log_segmented_reference(
         self, request: LogAsyncRequest, dataset_timestamp: int, zip_file: bool = False
     ) -> LogReferenceResponse:
@@ -859,11 +842,11 @@ class WhyLabsClient:
             logger.debug(f"Replaced URL with our private domain. New URL: {upload_url}")
         return upload_url
 
-    def get_upload_url_unsegmented_reference(self, dataset_timestamp: int, reference_profile_name: str) -> Tuple[str, str]:
+    def get_upload_url_unsegmented_reference(
+        self, dataset_timestamp: int, reference_profile_name: str
+    ) -> Tuple[str, str]:
         region = os.getenv("WHYLABS_UPLOAD_REGION", None)
-        request = self._build_log_reference_request(
-            dataset_timestamp, alias=reference_profile_name, region=region
-        )
+        request = self._build_log_reference_request(dataset_timestamp, alias=reference_profile_name, region=region)
         res = self._post_log_reference(request=request, dataset_timestamp=dataset_timestamp)
         upload_url = self._update_domain(res["upload_url"])
         profile_id = res["id"]

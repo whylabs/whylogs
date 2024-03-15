@@ -191,9 +191,7 @@ class DatasetProfileView(Writable):
 
     def _write(self, out_f: BinaryIO) -> Tuple[bool, str]:
         if self._metrics and _MODEL_PERFORMANCE in self._metrics:
-            from whylogs.migration.converters import (
-                v1_to_dataset_profile_message_v0,
-            )
+            from whylogs.migration.converters import v1_to_dataset_profile_message_v0
 
             message_v0 = v1_to_dataset_profile_message_v0(self, None, None)
             write_delimited_protobuf(out_f, message_v0)
@@ -202,7 +200,9 @@ class DatasetProfileView(Writable):
         self._do_write(out_f)
         return True, out_f.name
 
-    def write(self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]:
+    def write(
+        self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any
+    ) -> Tuple[bool, Union[str, List[str]]]:
         file_to_write = kwargs.get("file")
         if file_to_write is None:
             path = path or self._get_default_path()
