@@ -22,7 +22,6 @@ def test_log_batch_ranking_metrics_single_simple():
     pandas_summary = result.view().to_pandas()
 
     column_names = [
-        "mean_average_precision_k_3",
         "accuracy_k_3",
         "mean_reciprocal_rank",
         "precision_k_3",
@@ -33,7 +32,6 @@ def test_log_batch_ranking_metrics_single_simple():
     ]
     for col in column_names:
         assert col in pandas_summary.index
-    assert pandas_summary.loc["mean_average_precision_k_3", "counts/n"] == 1
     assert pandas_summary.loc["accuracy_k_3", "counts/n"] == 1
     assert pandas_summary.loc["mean_reciprocal_rank", "counts/n"] == 1
     assert pandas_summary.loc["precision_k_3", "counts/n"] == 4
@@ -45,6 +43,7 @@ def test_log_batch_ranking_metrics_single_simple():
     assert pandas_summary.loc["norm_dis_cumul_gain_k_3", "counts/n"] == 1
     # ndcg = [1, 0, 0.63, 0.5]
     assert isclose(pandas_summary.loc["norm_dis_cumul_gain_k_3", "distribution/mean"], 0.53273, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["average_precision_k_3", "distribution/mean"], 0.45833, abs_tol=0.00001)
 
 
 def test_log_batch_ranking_metrics_binary_simple():
