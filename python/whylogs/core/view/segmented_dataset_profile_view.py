@@ -1,7 +1,8 @@
+import os
 import tempfile
 from datetime import datetime
 from logging import getLogger
-from typing import IO, Any, Dict, Optional, Tuple
+from typing import IO, Any, BinaryIO, Dict, List, Optional, Tuple, Union
 
 from whylogs.api.writer.writer import Writable
 from whylogs.core.proto import (
@@ -76,22 +77,16 @@ class SegmentedDatasetProfileView(Writable):
     def metadata(self) -> Dict[str, str]:
         return self.profile_view.metadata
 
-    def get_default_path(self) -> str:
+    def _get_default_filename(self) -> str:
         return f"profile_{self._profile_view.creation_timestamp}_{self.get_segment_string()}.bin"
 
     def get_segment_string(self) -> str:
         return f"{self._segment.parent_id}_{'_'.join(self._segment.key)}"
 
-    def _write_as_v0_message(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+    def _write_as_v0_message(self, out_f: BinaryIO) -> Tuple[bool, str]:
         message_v0 = v1_to_dataset_profile_message_v0(self.profile_view, self.segment, self.partition)
-        file_to_write = kwargs.get("file")
-        path = file_to_write.name if file_to_write else path or self.get_default_path()
-        if file_to_write:
-            write_delimited_protobuf(file_to_write, message_v0)
-        else:
-            with open(path, "w+b") as out_f:
-                write_delimited_protobuf(out_f, message_v0)
-        return True, path
+        write_delimited_protobuf(out_f, message_v0)
+        return True, out_f.name
 
     def _copy_write(
         self,
@@ -117,10 +112,10 @@ class SegmentedDatasetProfileView(Writable):
             output_file.write(buffer)
         logger.debug(f"Writing segmented profile file: complete! total of {output_file.tell()} bytes written.")
 
-    def _write_v1(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+    def _write_v1(self, out_f: BinaryIO) -> Tuple[bool, str]:
         all_metric_component_names = set()
-        file_to_write = kwargs.get("file")
-        path = file_to_write.name if file_to_write else path or self.get_default_path()
+        file_to_write = out_f
+        path = file_to_write.name
 
         # capture the list of all metric component paths
         for col in self.profile_view._columns.values():
@@ -211,19 +206,29 @@ class SegmentedDatasetProfileView(Writable):
             # only single segment files at first.
             dataset_segment_header.segments.extend(segments_message_field)
 
-            if file_to_write:
-                self._copy_write(f, file_to_write, total_len, dataset_segment_header, dataset_header)
-            else:
-                with open(path, "w+b") as out_f:
-                    self._copy_write(f, out_f, total_len, dataset_segment_header, dataset_header)
+            self._copy_write(f, file_to_write, total_len, dataset_segment_header, dataset_header)
+
         return True, path
 
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+    def _write(self, out_f: BinaryIO, **kwargs: Any) -> Tuple[bool, str]:
         if kwargs.get("use_v0") or self.profile_view.model_performance_metrics:
             if self.profile_view.model_performance_metrics:
                 logger.info("Converting segmented profile with performance metrics to v0 format before writing.")
             else:
                 logger.info("writing segmented profile as v0 format.")
-            return self._write_as_v0_message(path, **kwargs)
+            return self._write_as_v0_message(out_f)
         else:
-            return self._write_v1(path, **kwargs)
+            return self._write_v1(out_f)
+
+    def write(
+        self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any
+    ) -> Tuple[bool, Union[str, List[str]]]:
+        out_f = kwargs.get("file")
+        if out_f is not None:
+            return self._write(out_f, **kwargs)
+
+        path = path or self._get_default_path()
+        filename = filename or self._get_default_filename()
+        path = os.path.join(path, filename) if path else filename
+        with Writable._safe_open_write(path, "+b") as out_f:
+            return self._write(out_f, **kwargs)

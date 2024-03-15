@@ -104,8 +104,8 @@ class TestWhylabsWriterWithSession(object):
 
         writer = WhyLabsWriter()
         assert writer.key_id == key_id
-        assert writer._org_id == org_id
-        assert writer._dataset_id == dataset_id
+        assert writer._whylabs_client._org_id == org_id
+        assert writer._whylabs_client._dataset_id == dataset_id
 
     def test_writer_uses_session_for_creds_implicitly(self) -> None:
         key_id = "MPq7Hg002z"
@@ -116,9 +116,9 @@ class TestWhylabsWriterWithSession(object):
         os.environ["WHYLABS_DEFAULT_DATASET_ID"] = dataset_id
 
         writer = WhyLabsWriter()
-        assert writer.key_id == key_id
-        assert writer._org_id == org_id
-        assert writer._dataset_id == dataset_id
+        assert writer._whylabs_client.key_id == key_id
+        assert writer._whylabs_client._org_id == org_id
+        assert writer._whylabs_client._dataset_id == dataset_id
 
         session = get_current_session()
         assert session is not None
@@ -154,8 +154,8 @@ class TestWhylabsWriterWithSession(object):
         #
         writer = WhyLabsWriter()
         assert writer.key_id == key_id
-        assert writer._org_id == org_id
-        assert writer._dataset_id == dataset_id
+        assert writer._whylabs_client._org_id == org_id
+        assert writer._whylabs_client._dataset_id == dataset_id
 
         session = get_current_session()
         assert session is not None
@@ -336,8 +336,8 @@ class TestWhylabsWriter(object):
             dataset_id="new_dataset_id",
             api_key="newkeynewk.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         )
-        assert writer._org_id == "new_org_id"
-        assert writer._dataset_id == "new_dataset_id"
+        assert writer._whylabs_client._org_id == "new_org_id"
+        assert writer._whylabs_client._dataset_id == "new_dataset_id"
         assert writer.key_id == "newkeynewk"
 
     def test_api_key_prefers_parameter_over_env_var(self, results, caplog):

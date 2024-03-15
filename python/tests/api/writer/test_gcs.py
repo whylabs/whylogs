@@ -68,9 +68,8 @@ class TestGCSWriter(object):
     def test_gcs_writer(self, bucket, profile_view):
         writer = GCSWriter()
         result = writer.option(bucket_name=GCS_BUCKET, object_name="my_object.bin").write(file=profile_view)
-
         assert result[0] is True
-        assert f"{GCS_BUCKET}/my_object.bin" in result[1]
+        assert f"{GCS_BUCKET}/my_object.bin" in result[1][0][1]
 
         blob_names = []
         for blob in bucket.list_blobs():

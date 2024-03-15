@@ -1,13 +1,13 @@
 from datetime import datetime
 from logging import getLogger
-from typing import Any, Optional
+from typing import Any, List, Optional, Tuple, Union
 
-from whylogs.api.writer import Writer, Writers
+from whylogs.api.writer import Writable
 
 logger = getLogger(__name__)
 
 
-class EstimationResult:
+class EstimationResult(Writable):
     """
     The result of a performance estimation.
     accuracy: The estimated accuracy.
@@ -27,18 +27,11 @@ class EstimationResult:
         self.reference_result_timestamp = reference_result_timestamp
         self.target_result_timestamp = target_result_timestamp
 
-    def writer(self, name: str = "whylabs") -> "EstimationResultWriter":
-        if name != "whylabs":
-            raise ValueError("Only whylabs writer is currently supported")
-        writer = Writers.get(name)
-        return EstimationResultWriter(results=self, writer=writer)
+    def _get_default_filename(self) -> str:
+        raise ValueError("I'm not a real Writable")
 
+    def _get_default_path(self) -> str:
+        raise ValueError("I'm not a real Writable")
 
-class EstimationResultWriter:
-    def __init__(self, results: EstimationResult, writer: Writer):
-        self._estimation_result = results
-        self._writer = writer
-
-    def write(self, **kwargs: Any) -> None:
-        self._writer.write(file=self._estimation_result, **kwargs)
-        logger.debug("Completed writing estimation result!")
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]:
+        raise ValueError("I'm not a real Writable")

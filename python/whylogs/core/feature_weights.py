@@ -1,11 +1,11 @@
 import json
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from whylogs.api.writer import Writers
-from whylogs.api.writer.writer import Optional, Writable, Writer
+from whylogs.api.writer.writer import Writable
 from whylogs.core import Segment
 
 
+# TODO: In whlogs 2.X this should not be a Wriable, it should be sent via WhyLabsClient
 class FeatureWeights(Writable):
     def __init__(self, weights: Dict[str, float], segment: Optional[Segment] = None, metadata: Optional[Dict] = None):
         """Feature Weights
@@ -23,48 +23,17 @@ class FeatureWeights(Writable):
         self.segment = segment
         self.metadata = metadata
 
-    def writer(self, name: str = "local") -> "FeatureWeightWriter":
-        writer = Writers.get(name)
-        return FeatureWeightWriter(feature_weight=self, writer=writer)
+    def _get_default_filename(self) -> str:
+        raise ValueError("I'm not a real Writable")
 
-    def get_default_path(self) -> str:
-        return f"feature_weights_{self.segment}.json"
+    def _get_default_path(self) -> str:
+        raise ValueError("I'm not a real Writable")
 
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
-        return (False, "write() not implemented on feature weights, use with WhyLabsWriter.")
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]:
+        raise ValueError("I'm not a real Writable")
 
     def to_json(self) -> str:
         return json.dumps({"segment": self.segment, "weights": self.weights})
 
     def to_dict(self) -> Dict[str, Union[Optional[Segment], Optional[float]]]:
         return {"segment": self.segment, "weights": self.weights}
-
-
-class FeatureWeightWriter(Writer):
-    def __init__(self, feature_weight, writer: Writer) -> None:
-        self._feature_weight = feature_weight
-        self._writer = writer
-
-    def option(self, **kwargs) -> "FeatureWeightWriter":
-        self._writer.option(**kwargs)
-        return self
-
-    def write(self, **kwargs: Any) -> Tuple[bool, str]:
-        """Put feature weights for the specified dataset.
-
-        Returns
-        -------
-        Tuple[bool, str]
-            Tuple with a boolean (1-success, 0-fail) and string with the PUT request's status code.
-        """
-        return self._writer.write(file=self._feature_weight, **kwargs)
-
-    def get_feature_weights(self, **kwargs: Any) -> Optional[FeatureWeights]:
-        """Get latest version for the feature weights for the specified dataset
-
-        Returns
-        -------
-        FeatureWeightResponse
-            Response of the GET request, with segmentWeights and metadata.
-        """
-        return self._writer.get_feature_weights(**kwargs)
