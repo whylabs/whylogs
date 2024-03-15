@@ -12,6 +12,7 @@ from whylogs.api.writer.mlflow import MlflowWriter
 class TestMlflowWriter(object):
     @classmethod
     def teardown_class(cls):
+        return
         shutil.rmtree("mlruns", ignore_errors=True)
         shutil.rmtree("artifact_downloads", ignore_errors=True)
 
@@ -21,15 +22,12 @@ class TestMlflowWriter(object):
         return writer
 
     def test_writes_profile_to_mlflow_experiment(self, profile_view, mlflow_writer):
-        mlflow_writer.write(profile_view)
+        success, statuses = mlflow_writer.write(profile_view)
+        assert success
         run_id = mlflow_writer._run_id
         file_dir = f"artifacts/{mlflow_writer._file_dir}"
-        file_path = os.path.join(file_dir, f"{profile_view.get_default_path()}")
-        assert os.path.isfile(f"mlruns/0/{run_id}/{file_path}")
-
-    def test_writes_response(self, profile_view, mlflow_writer):
-        response = mlflow_writer.write(profile_view)
-        assert response[0] is True
+        file_name = os.path.join(file_dir, f"{profile_view._get_default_filename()}")
+        assert os.path.isfile(f"mlruns/0/{run_id}/{file_name}")
 
     def test_get_temp_directory(self, mlflow_writer):
         default_dest = "whylogs/whylogs_profile.bin"
@@ -39,7 +37,7 @@ class TestMlflowWriter(object):
         # modified with option
         mlflow_writer.option(file_dir="other", file_name="profile_name")
         actual_modified_url = mlflow_writer._get_temp_directory(dest=None)
-        expected_modified_url = "other/profile_name"
+        expected_modified_url = "other"
         assert expected_modified_url in actual_modified_url
 
     def test_writer_api_creates_writables_in_mlflow(self, result_set, html_report):

@@ -46,7 +46,7 @@ def test_whylabs_writer():
     success, _ = writer.write(result.profile())
     assert success
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
-    dataset_api = DatasetProfileApi(writer._api_client)
+    dataset_api = DatasetProfileApi(writer._whylabs_client._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
         org_id=ORG_ID,
         dataset_id=MODEL_ID,
@@ -72,7 +72,7 @@ def test_whylabs_writer_segmented():
     writer = WhyLabsWriter()
     writer.write(result)
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
-    dataset_api = DatasetProfileApi(writer._api_client)
+    dataset_api = DatasetProfileApi(writer._whylabs_client._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
         org_id=ORG_ID,
         dataset_id=MODEL_ID,
@@ -109,7 +109,7 @@ def test_whylabs_writer_reference(segmented: bool, zipped: bool):
     success, ref_id = writer.write(result, use_v0=not segmented, zip=zipped)
     assert success
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
-    dataset_api = DatasetProfileApi(writer._api_client)
+    dataset_api = DatasetProfileApi(writer._whylabs_client._api_client)
     response: ReferenceProfileItemResponse = dataset_api.get_reference_profile(
         ORG_ID,
         MODEL_ID,
@@ -130,18 +130,18 @@ def test_tag_columns():
     writer = WhyLabsWriter()
     writer.tag_output_columns(["col1"])
     writer.tag_input_columns(["col2"])
-    model_api_instance = writer._get_or_create_models_client()
-    col1_schema = writer._get_existing_column_schema(model_api_instance, "col1")
+    model_api_instance = writer._whylabs_client._get_or_create_models_client()
+    col1_schema = writer._whylabs_client._get_existing_column_schema(model_api_instance, "col1")
     assert col1_schema["classifier"] == "output"
-    col2_schema = writer._get_existing_column_schema(model_api_instance, "col2")
+    col2_schema = writer._whylabs_client._get_existing_column_schema(model_api_instance, "col2")
     assert col2_schema["classifier"] == "input"
 
     # swap 'em so we won't accidentally pass from previous state
     writer.tag_output_columns(["col2"])
     writer.tag_input_columns(["col1"])
-    col1_schema = writer._get_existing_column_schema(model_api_instance, "col1")
+    col1_schema = writer._whylabs_client._get_existing_column_schema(model_api_instance, "col1")
     assert col1_schema["classifier"] == "input"
-    col2_schema = writer._get_existing_column_schema(model_api_instance, "col2")
+    col2_schema = writer._whylabs_client._get_existing_column_schema(model_api_instance, "col2")
     assert col2_schema["classifier"] == "output"
 
 
@@ -167,7 +167,7 @@ def test_performance_column():
     writer = WhyLabsWriter()
     status, _ = writer.tag_custom_performance_column("col1", "perf column", "mean")
     assert status
-    model_api = ModelsApi(writer._api_client)
+    model_api = ModelsApi(writer._whylabs_client._api_client)
     response: EntitySchema = model_api.get_entity_schema(ORG_ID, MODEL_ID)
     assert (
         response["metrics"]["perf_column"]["column"] == "col1"
@@ -205,7 +205,7 @@ def test_transactions():
     writer.commit_transaction()
     assert writer._transaction_id is None
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
-    dataset_api = DatasetProfileApi(writer._api_client)
+    dataset_api = DatasetProfileApi(writer._whylabs_client._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
         org_id=ORG_ID,
         dataset_id=MODEL_ID,
@@ -246,7 +246,7 @@ def test_transaction_context():
         logger.exception("Logging transaction failed")
 
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
-    dataset_api = DatasetProfileApi(writer._api_client)
+    dataset_api = DatasetProfileApi(writer._whylabs_client._api_client)
     for trace_id in tids:
         response: ProfileTracesResponse = dataset_api.get_profile_traces(
             org_id=ORG_ID,
@@ -287,7 +287,7 @@ def test_transaction_segmented():
 
     writer.commit_transaction()
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
-    dataset_api = DatasetProfileApi(writer._api_client)
+    dataset_api = DatasetProfileApi(writer._whylabs_client._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
         org_id=ORG_ID,
         dataset_id=MODEL_ID,
@@ -333,7 +333,7 @@ def test_transaction_distributed():
         logger.exception("Logging transaction failed")
 
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
-    dataset_api = DatasetProfileApi(writer._api_client)
+    dataset_api = DatasetProfileApi(writer._whylabs_client._api_client)
     for trace_id in tids:
         response: ProfileTracesResponse = dataset_api.get_profile_traces(
             org_id=ORG_ID,

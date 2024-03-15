@@ -1,6 +1,6 @@
 import logging
-import tempfile
-from typing import Any, Optional, Tuple
+import os
+from typing import Any, List, Optional, Tuple, Union
 
 import boto3
 from botocore.client import BaseClient
@@ -71,26 +71,40 @@ class S3Writer(Writer):
         file: Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
-    ) -> Tuple[bool, str]:
-        dest = dest or file.get_default_path()  # type: ignore
-        if self.object_name is None:
-            self.object_name = dest
-        try:
-            with tempfile.NamedTemporaryFile() as tmp_file:
-                file.write(path=tmp_file.name)  # type: ignore
-                tmp_file.flush()
-                self.s3_client.upload_file(tmp_file.name, self.bucket_name, self.object_name)
-        except ClientError as e:
-            logging.error(e)
-            return False, str(e)
-        return True, f"Uploaded {tmp_file.name} to {self.bucket_name}/{self.object_name}"
+    ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
+        success, files = file.write(**kwargs)
+        files = [files] if isinstance(files, str) else files
+        if not success:
+            return False, "Writable failed to create temporary file(s)"
 
-    def option(
-        self,
-        bucket_name: Optional[str] = None,
-        object_name: Optional[str] = None,
-        s3_client: Optional[BaseClient] = None,
-    ) -> "S3Writer":  # type: ignore
+        # TODO: support ZipFile ?
+
+        if len(files) > 1 and ((dest or self.object_name) is not None):
+            raise ValueError("Cannot specify dest or object_name for multiple files")
+
+        all_success = True
+        statuses = []
+        for file in files:
+            object_name = dest or self.object_name or file.split(os.sep)[-1]
+            try:
+                self.s3_client.upload_file(file, self.bucket_name, object_name)
+                statuses.append((True, f"Uploaded {file} to {self.bucket_name}/{object_name}"))
+            except ClientError as e:
+                logging.error(e)
+                all_success = False
+                statuses.append((False, f"{str(e)} for uploading {file} to {self.bucket_name}/{object_name}"))
+
+        return all_success, statuses
+
+    def option(self, **kwargs: Any) -> Writer:
+        """
+        bucket_name: str        S3 bucket to write to
+        object_name: str        Object name to create
+        s3_client: BaseClient   S3 client
+        """
+        bucket_name = kwargs.get("bucket_name")
+        object_name = kwargs.get("object_name")
+        s3_client = kwargs.get("s3_client")
         if bucket_name:
             self.bucket_name = bucket_name
         if object_name:

@@ -1,9 +1,10 @@
 import io
 import logging
+import os
 import tempfile
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, BinaryIO, Dict, List, Optional, Tuple
+from typing import Any, BinaryIO, Dict, List, Optional, Tuple, Union
 
 from google.protobuf.message import DecodeError
 
@@ -185,29 +186,32 @@ class DatasetProfileView(Writable):
         else:
             return {k: self._columns.get(k) for k in self._columns}
 
-    def get_default_path(self) -> str:
+    def _get_default_filename(self) -> str:
         return f"profile_{self.creation_timestamp}.bin"
 
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
-        file_to_write = kwargs.get("file")
-        path = file_to_write.name if file_to_write else path or self.get_default_path()
+    def _write(self, out_f: BinaryIO) -> Tuple[bool, str]:
         if self._metrics and _MODEL_PERFORMANCE in self._metrics:
-            from whylogs.migration.converters import v1_to_dataset_profile_message_v0
+            from whylogs.migration.converters import (
+                v1_to_dataset_profile_message_v0,
+            )
 
             message_v0 = v1_to_dataset_profile_message_v0(self, None, None)
-            if file_to_write:
-                write_delimited_protobuf(file_to_write, message_v0)
-            else:
-                with open(path, "w+b") as out_f:
-                    write_delimited_protobuf(out_f, message_v0)
+            write_delimited_protobuf(out_f, message_v0)
+            return True, out_f.name
 
-            return True, path
-        if file_to_write:
-            self._do_write(file_to_write)
-        else:
-            with open(path, "w+b") as out_f:
-                self._do_write(out_f)
-        return True, path
+        self._do_write(out_f)
+        return True, out_f.name
+
+    def write(self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]:
+        file_to_write = kwargs.get("file")
+        if file_to_write is None:
+            path = path or self._get_default_path()
+            filename = filename or self._get_default_filename()
+            path = os.path.join(path, filename) if path else filename
+            with Writable._safe_open_write(path, "+b") as out_f:
+                return self._write(out_f)
+
+        return self._write(file_to_write)
 
     @staticmethod
     def _split_tags_and_metadata(
