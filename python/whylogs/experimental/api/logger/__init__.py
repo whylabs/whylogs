@@ -16,18 +16,25 @@ def _convert_to_int_if_bool(data: pd.core.frame.DataFrame, *columns: str) -> pd.
             data[col] = data[col].apply(lambda x: 1 if x else 0)
     return data
 
-def calculate_average_precisions(formatted_data, target_column, prediction_column, convert_non_numeric:bool, k:int):
+
+def calculate_average_precisions(formatted_data, target_column, prediction_column, convert_non_numeric: bool, k: int):
     ki_dict: pd.DataFrame = None
     last_item_relevant_dict: pd.DataFrame = None
-    if convert_non_numeric:
-        relevant_counter = lambda row: sum([1 if pred_val in row[target_column] else 0 for pred_val in row[prediction_column][:ki]])
-        is_last_item_relevant = lambda row: 1 if row[prediction_column][ki - 1] in row[target_column] else 0
-    else:
-        relevant_counter = lambda row: sum([1 if row[target_column][pred_val-1] else 0 for pred_val in row[prediction_column][:ki]])
-        last_pred_value =  lambda row: row[prediction_column[ki-1]]
-        is_last_item_relevant = lambda row: 1 if row[target_column][last_pred_value(row)-1] else 0
 
-    for ki in range(1, (k if k else _max_k) + 1):
+    def relevant_counter(row):
+        if convert_non_numeric:
+            return sum([1 if pred_val in row[target_column] else 0 for pred_val in row[prediction_column][:ki]])
+        else:
+            return sum([1 if row[target_column][pred_val - 1] else 0 for pred_val in row[prediction_column][:ki]])
+
+    def is_last_item_relevant(row):
+        if convert_non_numeric:
+            return 1 if row[prediction_column][ki - 1] in row[target_column] else 0
+        else:
+            last_pred_value = row[prediction_column][ki - 1]
+            return 1 if row[target_column][last_pred_value - 1] else 0
+
+    for ki in range(1, k + 1):
         ki_result = (
             formatted_data.apply(
                 relevant_counter,
@@ -35,9 +42,7 @@ def calculate_average_precisions(formatted_data, target_column, prediction_colum
             )
             / ki
         )
-        last_item_result = formatted_data.apply(
-            is_last_item_relevant, axis=1
-        )
+        last_item_result = formatted_data.apply(is_last_item_relevant, axis=1)
         if ki == 1:
             ki_dict = ki_result.to_frame()
             ki_dict.columns = ["p@" + str(ki)]
@@ -46,12 +51,12 @@ def calculate_average_precisions(formatted_data, target_column, prediction_colum
         else:
             ki_dict["p@" + str(ki)] = ki_result
             last_item_relevant_dict["last_item_relevant@" + str(ki)] = last_item_result
-        aps = np.multiply(ki_dict.values, last_item_relevant_dict.values)
-        nonzero_counts = np.count_nonzero(aps,axis=1)
-        nonzero_counts[nonzero_counts==0]=1
-        row_sums = aps.sum(axis=1)
-        averages = row_sums/nonzero_counts
-        return averages
+    aps = np.multiply(ki_dict.values, last_item_relevant_dict.values)
+    nonzero_counts = np.count_nonzero(aps, axis=1)
+    nonzero_counts[nonzero_counts == 0] = 1
+    row_sums = aps.sum(axis=1)
+    averages = row_sums / nonzero_counts
+    return averages
 
 
 def log_batch_ranking_metrics(
@@ -99,6 +104,11 @@ def log_batch_ranking_metrics(
     _max_k = formatted_data[prediction_column].apply(len).max()
     if not k:
         k = _max_k
+    if k > _max_k:
+        diagnostic_logger.warning(
+            f"Max value of k in the dataset is {_max_k}, but k was set to {k}. Setting k to {_max_k}"
+        )
+        k = _max_k
     formatted_data["count_at_k"] = formatted_data[relevant_cols].apply(
         lambda row: sum([1 if pred_val in row[target_column] else 0 for pred_val in row[prediction_column][:k]]), axis=1
     )
@@ -119,7 +129,9 @@ def log_batch_ranking_metrics(
     output_data["recall" + ("_k_" + str(k) if k else "")] = formatted_data["count_at_k"] / formatted_data["count_all"]
     output_data["top_rank"] = formatted_data["top_rank"]
 
-    output_data["average_precision" + ("_k_" + str(k) if k else "")] = calculate_average_precisions(formatted_data, target_column, prediction_column, convert_non_numeric=convert_non_numeric, k=k)
+    output_data["average_precision" + ("_k_" + str(k) if k else "")] = calculate_average_precisions(
+        formatted_data, target_column, prediction_column, convert_non_numeric=convert_non_numeric, k=k  # type: ignore
+    )
 
     def _calc_non_numeric_relevance(row_dict):
         prediction_relevance = []
