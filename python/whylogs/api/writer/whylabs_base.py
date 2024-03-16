@@ -89,6 +89,20 @@ class WhyLabsWriterBase(Writer):
         self._transaction_id = None
 
     @property
+    def _api_client(self) -> ApiClient:
+        if self._whylabs_client._api_client is None:
+            self._whylabs_client._refresh_client()
+        return self._whylabs_client._api_client
+
+    @property
+    def _s3_pool(self):
+        return self._whylabs_client._s3_pool
+
+    @property
+    def _timeout_seconds(self) -> float:
+        return self._whylabs_client._timeout_seconds
+
+    @property
     def key_id(self) -> str:
         return self._whylabs_client.key_id
 
