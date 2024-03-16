@@ -55,6 +55,8 @@ class TestWhylabsWriterWithSession(object):
     def results(self, pandas_dataframe):
         return why.log(pandas=pandas_dataframe)
 
+    # TODO: This test fails if you run `poetry run pytest tests/api/writer`
+    # It passes if you run `make test`.
     def test_writer_throws_for_anon_sessions(self, results) -> None:
         old_key = os.environ.get(EnvVariableName.WHYLABS_API_KEY.value, None)
         if EnvVariableName.WHYLABS_API_KEY.value in os.environ:
