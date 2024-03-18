@@ -17,7 +17,7 @@ def _convert_to_int_if_bool(data: pd.core.frame.DataFrame, *columns: str) -> pd.
     return data
 
 
-def calculate_average_precisions(formatted_data, target_column, prediction_column, convert_non_numeric: bool, k: int):
+def _calculate_average_precisions(formatted_data, target_column, prediction_column, convert_non_numeric: bool, k: int):
     ki_dict: pd.DataFrame = None
     last_item_relevant_dict: pd.DataFrame = None
 
@@ -129,7 +129,7 @@ def log_batch_ranking_metrics(
     output_data["recall" + ("_k_" + str(k) if k else "")] = formatted_data["count_at_k"] / formatted_data["count_all"]
     output_data["top_rank"] = formatted_data["top_rank"]
 
-    output_data["average_precision" + ("_k_" + str(k) if k else "")] = calculate_average_precisions(
+    output_data["average_precision" + ("_k_" + str(k) if k else "")] = _calculate_average_precisions(
         formatted_data, target_column, prediction_column, convert_non_numeric=convert_non_numeric, k=k  # type: ignore
     )
 
