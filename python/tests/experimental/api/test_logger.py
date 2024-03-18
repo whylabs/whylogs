@@ -185,3 +185,33 @@ def test_log_batch_ranking_metrics_ranking_ndcg_withk_sklearn():
     pandas_summary = result.view().to_pandas()
 
     assert isclose(pandas_summary.loc["norm_dis_cumul_gain_k_4", "distribution/median"], 0.35202, abs_tol=0.00001)
+
+
+def test_log_batch_ranking_metrics_average_precision_sklearn_example():
+    # from https://scikit-learn.org/stable/modules/generated/sklearn.metrics.average_precision_score.html
+    k = 4
+    ranking_df = pd.DataFrame({"scores": [[0.1, 0.4, 0.35, 0.8]], "true_relevance": [[0, 0, 1, 1]]})
+    result = log_batch_ranking_metrics(data=ranking_df, score_column="scores", target_column="true_relevance", k=k)
+    pandas_summary = result.view().to_pandas()
+
+    assert isclose(pandas_summary.loc["average_precision_k_" + str(k), "distribution/mean"], 0.83333, abs_tol=0.00001)
+
+
+def test_log_batch_ranking_metrics_average_precision():
+    expected_results = [(1, 0.25), (2, 0.375), (3, 0.45833)]
+    for res in expected_results:
+        k = res[0]
+        ranking_df = pd.DataFrame(
+            {
+                "targets": [[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, 0]],
+                "predictions": [[1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3]],
+            }
+        )
+        result = log_batch_ranking_metrics(
+            data=ranking_df, target_column="targets", prediction_column="predictions", k=k
+        )
+        pandas_summary = result.view().to_pandas()
+
+        assert isclose(
+            pandas_summary.loc["average_precision_k_" + str(k), "distribution/mean"], res[1], abs_tol=0.00001
+        )
