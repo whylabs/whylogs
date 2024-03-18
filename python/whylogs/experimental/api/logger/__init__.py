@@ -17,7 +17,13 @@ def _convert_to_int_if_bool(data: pd.core.frame.DataFrame, *columns: str) -> pd.
     return data
 
 
-def _calculate_average_precisions(formatted_data, target_column, prediction_column, convert_non_numeric: bool, k: int):
+def _calculate_average_precisions(
+    formatted_data: pd.core.frame.DataFrame,
+    target_column: str,
+    prediction_column: str,
+    convert_non_numeric: bool,
+    k: int,
+) -> np.ndarray:
     ki_dict: pd.DataFrame = None
     last_item_relevant_dict: pd.DataFrame = None
 
@@ -109,6 +115,9 @@ def log_batch_ranking_metrics(
             f"Max value of k in the dataset is {_max_k}, but k was set to {k}. Setting k to {_max_k}"
         )
         k = _max_k
+    if k and k < 1:
+        raise ValueError("k must be a positive integer")
+
     formatted_data["count_at_k"] = formatted_data[relevant_cols].apply(
         lambda row: sum([1 if pred_val in row[target_column] else 0 for pred_val in row[prediction_column][:k]]), axis=1
     )
