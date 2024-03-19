@@ -31,14 +31,17 @@ def _calculate_average_precisions(
         if convert_non_numeric:
             return sum([1 if pred_val in row[target_column] else 0 for pred_val in row[prediction_column][:ki]])
         else:
-            return sum([1 if row[target_column][pred_val - 1] else 0 for pred_val in row[prediction_column][:ki]])
+            paired_sorted = sorted(zip(row[prediction_column], row[target_column]))
+            sorted_predictions, sorted_targets = zip(*paired_sorted)
+            sorted_predictions, sorted_targets = list(sorted_predictions), list(sorted_targets)
+            return sum([1 if target_val else 0 for target_val in sorted_targets[:ki]])
 
     def is_last_item_relevant(row):
         if convert_non_numeric:
             return 1 if row[prediction_column][ki - 1] in row[target_column] else 0
         else:
-            last_pred_value = row[prediction_column][ki - 1]
-            return 1 if row[target_column][last_pred_value - 1] else 0
+            index_ki = row[prediction_column].index(ki)
+            return 1 if row[target_column][index_ki] else 0
 
     for ki in range(1, k + 1):
         ki_result = (

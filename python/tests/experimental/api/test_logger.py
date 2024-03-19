@@ -203,8 +203,8 @@ def test_log_batch_ranking_metrics_average_precision():
         k = res[0]
         ranking_df = pd.DataFrame(
             {
-                "targets": [[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, 0]],
-                "predictions": [[1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3]],
+                "targets": [[1, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 0]],
+                "predictions": [[2, 3, 1], [1, 3, 2], [1, 2, 3], [3, 1, 2]],
             }
         )
         result = log_batch_ranking_metrics(
