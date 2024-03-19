@@ -16,6 +16,22 @@ def _convert_to_int_if_bool(data: pd.core.frame.DataFrame, *columns: str) -> pd.
             data[col] = data[col].apply(lambda x: 1 if x else 0)
     return data
 
+class RowwiseMetrics:
+    def __init__(self, target_column: str, prediction_column: str, convert_non_numeric: bool = False, k: Optional[int] = None):
+        self.target_column = target_column
+        self.prediction_column = prediction_column
+        self.convert_non_numeric = convert_non_numeric
+        self.k = k
+
+    def relevant_counter(row):
+        if self.convert_non_numeric:
+            return sum([1 if pred_val in row[self.target_column] else 0 for pred_val in row[prediction_column][:ki]])
+        else:
+            paired_sorted = sorted(zip(row[prediction_column], row[target_column]))
+            sorted_predictions, sorted_targets = zip(*paired_sorted)
+            sorted_predictions, sorted_targets = list(sorted_predictions), list(sorted_targets)
+            return sum([1 if target_val else 0 for target_val in sorted_targets[:ki]])
+
 
 def _calculate_average_precisions(
     formatted_data: pd.core.frame.DataFrame,
