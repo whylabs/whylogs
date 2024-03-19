@@ -707,7 +707,7 @@ whylogs and WhyLabs together!</em></p>
 <section id="Monitoring-Ranking-Model-Performance-Metrics">
 <h1>Monitoring Ranking Model Performance Metrics<a class="headerlink" href="#Monitoring-Ranking-Model-Performance-Metrics" title="Permalink to this headline">#</a></h1>
 <p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/experimental/Writing_Ranking_Performance_Metrics_to_WhyLabs.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
-<p>In this tutorial, we’ll show how you can log ranking metrics of your ML Model with whylogs, and how to send it to your dashboard at Whylabs Platform. whylogs tracks the following <a class="reference external" href="https://towardsdatascience.com/comprehensive-guide-to-ranking-evaluation-metrics-7d10382c1025">ranking metrics</a>: * precision&#64;k * recall&#64;k * average precision&#64;k (AP&#64;k) * mean average prcision&#64;k (MAP&#64;k) * mean reciprocal rank (MRR)</p>
+<p>In this tutorial, we’ll show how you can log ranking metrics of your ML Model with whylogs, and how to send it to your dashboard at Whylabs Platform. whylogs tracks the following <a class="reference external" href="https://towardsdatascience.com/comprehensive-guide-to-ranking-evaluation-metrics-7d10382c1025">ranking metrics</a>: * precision&#64;k * recall&#64;k * average precision&#64;k (AP&#64;k) * mean reciprocal rank (MRR)</p>
 <section id="Installing-whylogs">
 <h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
 <p>First, let’s install whylogs.</p>
@@ -715,7 +715,7 @@ whylogs and WhyLabs together!</em></p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install whylogs==1.3.21
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install whylogs
 </pre></div>
 </div>
 </div>
@@ -772,7 +772,8 @@ whylogs and WhyLabs together!</em></p>
     <span class="n">data</span><span class="o">=</span><span class="n">single_df</span><span class="p">,</span>
     <span class="n">prediction_column</span><span class="o">=</span><span class="s2">&quot;raw_predictions&quot;</span><span class="p">,</span>
     <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;raw_targets&quot;</span><span class="p">,</span>
-    <span class="n">log_full_data</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">log_full_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">convert_non_numeric</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
 
 <span class="c1"># NOTE: If you&#39;ve already ran why.log() on your input data, change log_full_data to False.</span>
@@ -821,8 +822,8 @@ whylogs and WhyLabs together!</em></p>
       <th>column</th>
       <th>accuracy_k_2</th>
       <th>average_precision_k_2</th>
-      <th>mean_average_precision_k_2</th>
       <th>mean_reciprocal_rank</th>
+      <th>norm_dis_cumul_gain_k_2</th>
       <th>precision_k_2</th>
       <th>raw_predictions</th>
       <th>raw_targets</th>
@@ -918,9 +919,9 @@ whylogs and WhyLabs together!</em></p>
     <tr>
       <th>distribution/max</th>
       <td>0.5</td>
-      <td>0.75</td>
-      <td>0.25</td>
+      <td>1.0</td>
       <td>0.611111</td>
+      <td>0.407732</td>
       <td>0.5</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -930,9 +931,9 @@ whylogs and WhyLabs together!</em></p>
     <tr>
       <th>distribution/mean</th>
       <td>0.5</td>
-      <td>0.25</td>
-      <td>0.25</td>
+      <td>0.375</td>
       <td>0.611111</td>
+      <td>0.407732</td>
       <td>0.25</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -942,9 +943,9 @@ whylogs and WhyLabs together!</em></p>
     <tr>
       <th>distribution/median</th>
       <td>0.5</td>
-      <td>0.25</td>
-      <td>0.25</td>
+      <td>0.5</td>
       <td>0.611111</td>
+      <td>0.407732</td>
       <td>0.5</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -955,8 +956,8 @@ whylogs and WhyLabs together!</em></p>
       <th>distribution/min</th>
       <td>0.5</td>
       <td>0.0</td>
-      <td>0.25</td>
       <td>0.611111</td>
+      <td>0.407732</td>
       <td>0.0</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -979,8 +980,8 @@ whylogs and WhyLabs together!</em></p>
       <th>distribution/q_01</th>
       <td>0.5</td>
       <td>0.0</td>
-      <td>0.25</td>
       <td>0.611111</td>
+      <td>0.407732</td>
       <td>0.0</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -991,8 +992,8 @@ whylogs and WhyLabs together!</em></p>
       <th>distribution/q_05</th>
       <td>0.5</td>
       <td>0.0</td>
-      <td>0.25</td>
       <td>0.611111</td>
+      <td>0.407732</td>
       <td>0.0</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1003,8 +1004,8 @@ whylogs and WhyLabs together!</em></p>
       <th>distribution/q_10</th>
       <td>0.5</td>
       <td>0.0</td>
-      <td>0.25</td>
       <td>0.611111</td>
+      <td>0.407732</td>
       <td>0.0</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1015,8 +1016,8 @@ whylogs and WhyLabs together!</em></p>
       <th>distribution/q_25</th>
       <td>0.5</td>
       <td>0.0</td>
-      <td>0.25</td>
       <td>0.611111</td>
+      <td>0.407732</td>
       <td>0.0</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1026,9 +1027,9 @@ whylogs and WhyLabs together!</em></p>
     <tr>
       <th>distribution/q_75</th>
       <td>0.5</td>
-      <td>0.75</td>
-      <td>0.25</td>
+      <td>1.0</td>
       <td>0.611111</td>
+      <td>0.407732</td>
       <td>0.5</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1038,9 +1039,9 @@ whylogs and WhyLabs together!</em></p>
     <tr>
       <th>distribution/q_90</th>
       <td>0.5</td>
-      <td>0.75</td>
-      <td>0.25</td>
+      <td>1.0</td>
       <td>0.611111</td>
+      <td>0.407732</td>
       <td>0.5</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1050,9 +1051,9 @@ whylogs and WhyLabs together!</em></p>
     <tr>
       <th>distribution/q_95</th>
       <td>0.5</td>
-      <td>0.75</td>
-      <td>0.25</td>
+      <td>1.0</td>
       <td>0.611111</td>
+      <td>0.407732</td>
       <td>0.5</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1062,9 +1063,9 @@ whylogs and WhyLabs together!</em></p>
     <tr>
       <th>distribution/q_99</th>
       <td>0.5</td>
-      <td>0.75</td>
-      <td>0.25</td>
+      <td>1.0</td>
       <td>0.611111</td>
+      <td>0.407732</td>
       <td>0.5</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1074,7 +1075,7 @@ whylogs and WhyLabs together!</em></p>
     <tr>
       <th>distribution/stddev</th>
       <td>0.0</td>
-      <td>0.353553</td>
+      <td>0.478714</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.288675</td>
