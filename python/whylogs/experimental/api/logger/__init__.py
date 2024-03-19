@@ -17,6 +17,54 @@ def _convert_to_int_if_bool(data: pd.core.frame.DataFrame, *columns: str) -> pd.
     return data
 
 
+def _calculate_average_precisions(
+    formatted_data: pd.core.frame.DataFrame,
+    target_column: str,
+    prediction_column: str,
+    convert_non_numeric: bool,
+    k: int,
+) -> np.ndarray:
+    ki_dict: pd.DataFrame = None
+    last_item_relevant_dict: pd.DataFrame = None
+
+    def relevant_counter(row):
+        if convert_non_numeric:
+            return sum([1 if pred_val in row[target_column] else 0 for pred_val in row[prediction_column][:ki]])
+        else:
+            return sum([1 if row[target_column][pred_val - 1] else 0 for pred_val in row[prediction_column][:ki]])
+
+    def is_last_item_relevant(row):
+        if convert_non_numeric:
+            return 1 if row[prediction_column][ki - 1] in row[target_column] else 0
+        else:
+            last_pred_value = row[prediction_column][ki - 1]
+            return 1 if row[target_column][last_pred_value - 1] else 0
+
+    for ki in range(1, k + 1):
+        ki_result = (
+            formatted_data.apply(
+                relevant_counter,
+                axis=1,
+            )
+            / ki
+        )
+        last_item_result = formatted_data.apply(is_last_item_relevant, axis=1)
+        if ki == 1:
+            ki_dict = ki_result.to_frame()
+            ki_dict.columns = ["p@" + str(ki)]
+            last_item_relevant_dict = last_item_result.to_frame()
+            last_item_relevant_dict.columns = ["last_item_relevant@" + str(ki)]
+        else:
+            ki_dict["p@" + str(ki)] = ki_result
+            last_item_relevant_dict["last_item_relevant@" + str(ki)] = last_item_result
+    aps = np.multiply(ki_dict.values, last_item_relevant_dict.values)
+    nonzero_counts = np.count_nonzero(aps, axis=1)
+    nonzero_counts[nonzero_counts == 0] = 1
+    row_sums = aps.sum(axis=1)
+    averages = row_sums / nonzero_counts
+    return averages
+
+
 def log_batch_ranking_metrics(
     data: pd.core.frame.DataFrame,
     prediction_column: Optional[str] = None,
@@ -62,6 +110,14 @@ def log_batch_ranking_metrics(
     _max_k = formatted_data[prediction_column].apply(len).max()
     if not k:
         k = _max_k
+    if k > _max_k:
+        diagnostic_logger.warning(
+            f"Max value of k in the dataset is {_max_k}, but k was set to {k}. Setting k to {_max_k}"
+        )
+        k = _max_k
+    if k and k < 1:
+        raise ValueError("k must be a positive integer")
+
     formatted_data["count_at_k"] = formatted_data[relevant_cols].apply(
         lambda row: sum([1 if pred_val in row[target_column] else 0 for pred_val in row[prediction_column][:k]]), axis=1
     )
@@ -81,23 +137,10 @@ def log_batch_ranking_metrics(
     output_data.columns = ["precision" + ("_k_" + str(k) if k else "")]
     output_data["recall" + ("_k_" + str(k) if k else "")] = formatted_data["count_at_k"] / formatted_data["count_all"]
     output_data["top_rank"] = formatted_data["top_rank"]
-    ki_dict: pd.DataFrame = None
-    for ki in range(1, (k if k else _max_k) + 1):
-        ki_result = (
-            formatted_data[relevant_cols].apply(
-                lambda row: sum(
-                    [1 if pred_val in row[target_column] else 0 for pred_val in row[prediction_column][:ki]]
-                ),
-                axis=1,
-            )
-            / ki
-        )
-        if ki == 1:
-            ki_dict = ki_result.to_frame()
-            ki_dict.columns = ["p@" + str(ki)]
-        else:
-            ki_dict["p@" + str(ki)] = ki_result
-    output_data["average_precision" + ("_k_" + str(k) if k else "")] = ki_dict.mean(axis=1)
+
+    output_data["average_precision" + ("_k_" + str(k) if k else "")] = _calculate_average_precisions(
+        formatted_data, target_column, prediction_column, convert_non_numeric=convert_non_numeric, k=k  # type: ignore
+    )
 
     def _calc_non_numeric_relevance(row_dict):
         prediction_relevance = []
@@ -131,7 +174,6 @@ def log_batch_ranking_metrics(
     formatted_data["norm_dis_cumul_gain" + ("_k_" + str(k) if k else "")] = formatted_data.apply(
         _calculate_row_ndcg, args=(k,), axis=1
     )
-    mAP_at_k = ki_dict.mean()
     hit_ratio = formatted_data["count_at_k"].apply(lambda x: bool(x)).sum() / len(formatted_data)
     mrr = (1 / formatted_data["top_rank"]).replace([np.inf], np.nan).mean()
     ndcg = formatted_data["norm_dis_cumul_gain" + ("_k_" + str(k) if k else "")].mean()
@@ -139,7 +181,6 @@ def log_batch_ranking_metrics(
     result = result.merge(
         log(
             row={
-                "mean_average_precision" + ("_k_" + str(k) if k else ""): mAP_at_k,
                 "accuracy" + ("_k_" + str(k) if k else ""): hit_ratio,
                 "mean_reciprocal_rank": mrr,
                 "norm_dis_cumul_gain" + ("_k_" + str(k) if k else ""): ndcg,
