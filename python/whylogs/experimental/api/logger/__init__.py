@@ -16,21 +16,74 @@ def _convert_to_int_if_bool(data: pd.core.frame.DataFrame, *columns: str) -> pd.
             data[col] = data[col].apply(lambda x: 1 if x else 0)
     return data
 
-class RowwiseMetrics:
-    def __init__(self, target_column: str, prediction_column: str, convert_non_numeric: bool = False, k: Optional[int] = None):
+class RowWiseMetrics:
+    def __init__(self, target_column: str, prediction_column: str, convert_non_numeric: bool = False, k: Optional[int] = None, max_k: Optional[int] = None):
         self.target_column = target_column
         self.prediction_column = prediction_column
         self.convert_non_numeric = convert_non_numeric
         self.k = k
+        self.max_k = max_k
 
-    def relevant_counter(row):
+    def relevant_counter(self, row, k):
         if self.convert_non_numeric:
-            return sum([1 if pred_val in row[self.target_column] else 0 for pred_val in row[prediction_column][:ki]])
+            return sum([1 if pred_val in row[self.target_column] else 0 for pred_val in row[self.prediction_column][:k]])
         else:
-            paired_sorted = sorted(zip(row[prediction_column], row[target_column]))
+            paired_sorted = sorted(zip(row[self.prediction_column], row[self.target_column]))
             sorted_predictions, sorted_targets = zip(*paired_sorted)
             sorted_predictions, sorted_targets = list(sorted_predictions), list(sorted_targets)
-            return sum([1 if target_val else 0 for target_val in sorted_targets[:ki]])
+            return sum([1 if target_val else 0 for target_val in sorted_targets[:k]])
+    
+    def relevant_counter_at_k(self, row):
+        return self.relevant_counter(row, self.k)
+    
+    def all_relevant_counter(self, row):
+        return self.relevant_counter(row, self.max_k)
+
+    def is_last_item_relevant(self, row):
+        return self.is_k_item_relevant(row, self.k)
+
+    def is_k_item_relevant(self, row, k):
+        if self.convert_non_numeric:
+            return 1 if row[self.prediction_column][k - 1] in row[self.target_column] else 0
+        else:
+            index_ki = row[self.prediction_column].index(k)
+            return 1 if row[self.target_column][index_ki] else 0
+
+
+    def get_top_rank(self, row):
+        for ki in range(1, self.max_k):
+            if self.is_k_item_relevant(row, ki):
+                return ki
+        return 0
+    
+    def calc_non_numeric_relevance(self, row_dict):
+        prediction_relevance = []
+        ideal_relevance = []
+        for target_val in row_dict[self.prediction_column]:
+            ideal_relevance.append(1 if target_val in row_dict[self.target_column] else 0)
+            prediction_relevance.append(1 if target_val in row_dict[self.target_column] else 0)
+        for target_val in row_dict[self.target_column]:
+            if target_val not in row_dict[self.prediction_column]:
+                ideal_relevance.append(1)
+        return (prediction_relevance, sorted(ideal_relevance, reverse=True))
+
+    def calculate_row_ndcg(self, row_dict):
+        if not self.convert_non_numeric:
+            dcg_vals = [
+                rel / math.log2(pos + 1)
+                for rel, pos in zip(row_dict[self.target_column], row_dict[self.prediction_column])
+                if pos <= self.k
+            ]
+            idcg_vals = [
+                rel / math.log2(pos + 2) for pos, rel in enumerate(sorted(row_dict[self.target_column], reverse=True)[:k])
+            ]
+        else:
+            predicted_relevances, ideal_relevances = self.calc_non_numeric_relevance(row_dict)
+            dcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(predicted_relevances[:k])]
+            idcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(ideal_relevances[:k])]
+        if sum(idcg_vals) == 0:
+            return 1  # if there is no relevant data, not much the recommender can do
+        return sum(dcg_vals) / sum(idcg_vals)
 
 
 def _calculate_average_precisions(
@@ -43,31 +96,17 @@ def _calculate_average_precisions(
     ki_dict: pd.DataFrame = None
     last_item_relevant_dict: pd.DataFrame = None
 
-    def relevant_counter(row):
-        if convert_non_numeric:
-            return sum([1 if pred_val in row[target_column] else 0 for pred_val in row[prediction_column][:ki]])
-        else:
-            paired_sorted = sorted(zip(row[prediction_column], row[target_column]))
-            sorted_predictions, sorted_targets = zip(*paired_sorted)
-            sorted_predictions, sorted_targets = list(sorted_predictions), list(sorted_targets)
-            return sum([1 if target_val else 0 for target_val in sorted_targets[:ki]])
-
-    def is_last_item_relevant(row):
-        if convert_non_numeric:
-            return 1 if row[prediction_column][ki - 1] in row[target_column] else 0
-        else:
-            index_ki = row[prediction_column].index(ki)
-            return 1 if row[target_column][index_ki] else 0
-
     for ki in range(1, k + 1):
+        row_metrics_functions = RowWiseMetrics(target_column, prediction_column, convert_non_numeric, ki)
+
         ki_result = (
             formatted_data.apply(
-                relevant_counter,
+                row_metrics_functions.relevant_counter_at_k,
                 axis=1,
             )
             / ki
         )
-        last_item_result = formatted_data.apply(is_last_item_relevant, axis=1)
+        last_item_result = formatted_data.apply(row_metrics_functions.is_last_item_relevant, axis=1)
         if ki == 1:
             ki_dict = ki_result.to_frame()
             ki_dict.columns = ["p@" + str(ki)]
@@ -137,21 +176,14 @@ def log_batch_ranking_metrics(
     if k and k < 1:
         raise ValueError("k must be a positive integer")
 
-    formatted_data["count_at_k"] = formatted_data[relevant_cols].apply(
-        lambda row: sum([1 if pred_val in row[target_column] else 0 for pred_val in row[prediction_column][:k]]), axis=1
-    )
-    formatted_data["count_all"] = formatted_data[relevant_cols].apply(
-        lambda row: sum([1 if pred_val in row[target_column] else 0 for pred_val in row[prediction_column]]), axis=1
-    )
+    row_wise_functions = RowWiseMetrics(target_column, prediction_column, convert_non_numeric, k, _max_k)
+    formatted_data["count_at_k"] = formatted_data.apply(row_wise_functions.relevant_counter_at_k, axis=1)
+    formatted_data["count_all"] = formatted_data.apply(row_wise_functions.all_relevant_counter, axis=1)
 
-    def get_top_rank(row):
-        matches = [i + 1 for i, pred_val in enumerate(row[prediction_column]) if pred_val in row[target_column]]
-        if not matches:
-            return 0
-        else:
-            return matches[0]
+    formatted_data[f"recall_k_{k}"] = formatted_data["count_at_k"] / formatted_data["count_all"]
+    formatted_data[f"precision_k_{k}"] = formatted_data["count_at_k"] / (k if k else 1)
 
-    formatted_data["top_rank"] = formatted_data[relevant_cols].apply(get_top_rank, axis=1)
+    formatted_data["top_rank"] = formatted_data[relevant_cols].apply(row_wise_functions.get_top_rank, axis=1)
     output_data = (formatted_data["count_at_k"] / (k if k else 1)).to_frame()
     output_data.columns = ["precision" + ("_k_" + str(k) if k else "")]
     output_data["recall" + ("_k_" + str(k) if k else "")] = formatted_data["count_at_k"] / formatted_data["count_all"]
@@ -161,37 +193,9 @@ def log_batch_ranking_metrics(
         formatted_data, target_column, prediction_column, convert_non_numeric=convert_non_numeric, k=k  # type: ignore
     )
 
-    def _calc_non_numeric_relevance(row_dict):
-        prediction_relevance = []
-        ideal_relevance = []
-        for target_val in row_dict[prediction_column]:
-            ideal_relevance.append(1 if target_val in row_dict[target_column] else 0)
-            prediction_relevance.append(1 if target_val in row_dict[target_column] else 0)
-        for target_val in row_dict[target_column]:
-            if target_val not in row_dict[prediction_column]:
-                ideal_relevance.append(1)
-        return (prediction_relevance, sorted(ideal_relevance, reverse=True))
-
-    def _calculate_row_ndcg(row_dict, k):
-        if not convert_non_numeric:
-            dcg_vals = [
-                rel / math.log2(pos + 1)
-                for rel, pos in zip(row_dict[target_column], row_dict[prediction_column])
-                if pos <= k
-            ]
-            idcg_vals = [
-                rel / math.log2(pos + 2) for pos, rel in enumerate(sorted(row_dict[target_column], reverse=True)[:k])
-            ]
-        else:
-            predicted_relevances, ideal_relevances = _calc_non_numeric_relevance(row_dict)
-            dcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(predicted_relevances[:k])]
-            idcg_vals = [(rel / math.log(i + 2, 2)) for i, rel in enumerate(ideal_relevances[:k])]
-        if sum(idcg_vals) == 0:
-            return 1  # if there is no relevant data, not much the recommender can do
-        return sum(dcg_vals) / sum(idcg_vals)
 
     formatted_data["norm_dis_cumul_gain" + ("_k_" + str(k) if k else "")] = formatted_data.apply(
-        _calculate_row_ndcg, args=(k,), axis=1
+        row_wise_functions.calculate_row_ndcg, axis=1
     )
     hit_ratio = formatted_data["count_at_k"].apply(lambda x: bool(x)).sum() / len(formatted_data)
     mrr = (1 / formatted_data["top_rank"]).replace([np.inf], np.nan).mean()
