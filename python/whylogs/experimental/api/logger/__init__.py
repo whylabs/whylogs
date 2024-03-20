@@ -16,31 +16,30 @@ def _convert_to_int_if_bool(data: pd.core.frame.DataFrame, *columns: str) -> pd.
             data[col] = data[col].apply(lambda x: 1 if x else 0)
     return data
 
+
 class RowWiseMetrics:
-    def __init__(self, target_column: str, prediction_column: str, convert_non_numeric: bool = False, k: Optional[int] = None, max_k: Optional[int] = None):
+    def __init__(
+        self,
+        target_column: str,
+        prediction_column: str,
+        convert_non_numeric: bool = False,
+        k: Optional[int] = None,
+        max_k: Optional[int] = None,
+    ):
         self.target_column = target_column
         self.prediction_column = prediction_column
         self.convert_non_numeric = convert_non_numeric
-        self.k = k
-        self.max_k = max_k
 
     def relevant_counter(self, row, k):
         if self.convert_non_numeric:
-            return sum([1 if pred_val in row[self.target_column] else 0 for pred_val in row[self.prediction_column][:k]])
+            return sum(
+                [1 if pred_val in row[self.target_column] else 0 for pred_val in row[self.prediction_column][:k]]
+            )
         else:
             paired_sorted = sorted(zip(row[self.prediction_column], row[self.target_column]))
             sorted_predictions, sorted_targets = zip(*paired_sorted)
             sorted_predictions, sorted_targets = list(sorted_predictions), list(sorted_targets)
             return sum([1 if target_val else 0 for target_val in sorted_targets[:k]])
-    
-    def relevant_counter_at_k(self, row):
-        return self.relevant_counter(row, self.k)
-    
-    def all_relevant_counter(self, row):
-        return self.relevant_counter(row, self.max_k)
-
-    def is_last_item_relevant(self, row):
-        return self.is_k_item_relevant(row, self.k)
 
     def is_k_item_relevant(self, row, k):
         if self.convert_non_numeric:
@@ -49,13 +48,12 @@ class RowWiseMetrics:
             index_ki = row[self.prediction_column].index(k)
             return 1 if row[self.target_column][index_ki] else 0
 
-
-    def get_top_rank(self, row):
-        for ki in range(1, self.max_k):
+    def get_top_rank(self, row, k):
+        for ki in range(1, k + 1):
             if self.is_k_item_relevant(row, ki):
                 return ki
         return 0
-    
+
     def calc_non_numeric_relevance(self, row_dict):
         prediction_relevance = []
         ideal_relevance = []
@@ -67,15 +65,16 @@ class RowWiseMetrics:
                 ideal_relevance.append(1)
         return (prediction_relevance, sorted(ideal_relevance, reverse=True))
 
-    def calculate_row_ndcg(self, row_dict):
+    def calculate_row_ndcg(self, row_dict, k):
         if not self.convert_non_numeric:
             dcg_vals = [
                 rel / math.log2(pos + 1)
                 for rel, pos in zip(row_dict[self.target_column], row_dict[self.prediction_column])
-                if pos <= self.k
+                if pos <= k
             ]
             idcg_vals = [
-                rel / math.log2(pos + 2) for pos, rel in enumerate(sorted(row_dict[self.target_column], reverse=True)[:k])
+                rel / math.log2(pos + 2)
+                for pos, rel in enumerate(sorted(row_dict[self.target_column], reverse=True)[:k])
             ]
         else:
             predicted_relevances, ideal_relevances = self.calc_non_numeric_relevance(row_dict)
@@ -95,18 +94,18 @@ def _calculate_average_precisions(
 ) -> np.ndarray:
     ki_dict: pd.DataFrame = None
     last_item_relevant_dict: pd.DataFrame = None
+    row_metrics_functions = RowWiseMetrics(target_column, prediction_column, convert_non_numeric)
 
     for ki in range(1, k + 1):
-        row_metrics_functions = RowWiseMetrics(target_column, prediction_column, convert_non_numeric, ki)
-
         ki_result = (
             formatted_data.apply(
-                row_metrics_functions.relevant_counter_at_k,
+                row_metrics_functions.relevant_counter,
+                args=(ki,),
                 axis=1,
             )
             / ki
         )
-        last_item_result = formatted_data.apply(row_metrics_functions.is_last_item_relevant, axis=1)
+        last_item_result = formatted_data.apply(row_metrics_functions.is_k_item_relevant, args=(ki,), axis=1)
         if ki == 1:
             ki_dict = ki_result.to_frame()
             ki_dict.columns = ["p@" + str(ki)]
@@ -176,26 +175,21 @@ def log_batch_ranking_metrics(
     if k and k < 1:
         raise ValueError("k must be a positive integer")
 
-    row_wise_functions = RowWiseMetrics(target_column, prediction_column, convert_non_numeric, k, _max_k)
-    formatted_data["count_at_k"] = formatted_data.apply(row_wise_functions.relevant_counter_at_k, axis=1)
-    formatted_data["count_all"] = formatted_data.apply(row_wise_functions.all_relevant_counter, axis=1)
+    row_wise_functions = RowWiseMetrics(target_column, prediction_column, convert_non_numeric)
+    formatted_data["count_at_k"] = formatted_data.apply(row_wise_functions.relevant_counter, args=(k,), axis=1)
+    formatted_data["count_all"] = formatted_data.apply(row_wise_functions.relevant_counter, args=(_max_k,), axis=1)
+    formatted_data["top_rank"] = formatted_data[relevant_cols].apply(row_wise_functions.get_top_rank, args=(k,), axis=1)
 
-    formatted_data[f"recall_k_{k}"] = formatted_data["count_at_k"] / formatted_data["count_all"]
-    formatted_data[f"precision_k_{k}"] = formatted_data["count_at_k"] / (k if k else 1)
-
-    formatted_data["top_rank"] = formatted_data[relevant_cols].apply(row_wise_functions.get_top_rank, axis=1)
-    output_data = (formatted_data["count_at_k"] / (k if k else 1)).to_frame()
-    output_data.columns = ["precision" + ("_k_" + str(k) if k else "")]
-    output_data["recall" + ("_k_" + str(k) if k else "")] = formatted_data["count_at_k"] / formatted_data["count_all"]
+    output_data = pd.DataFrame()
+    output_data[f"recall_k_{k}"] = formatted_data["count_at_k"] / formatted_data["count_all"]
+    output_data[f"precision_k_{k}"] = formatted_data["count_at_k"] / (k if k else 1)
     output_data["top_rank"] = formatted_data["top_rank"]
-
     output_data["average_precision" + ("_k_" + str(k) if k else "")] = _calculate_average_precisions(
         formatted_data, target_column, prediction_column, convert_non_numeric=convert_non_numeric, k=k  # type: ignore
     )
 
-
     formatted_data["norm_dis_cumul_gain" + ("_k_" + str(k) if k else "")] = formatted_data.apply(
-        row_wise_functions.calculate_row_ndcg, axis=1
+        row_wise_functions.calculate_row_ndcg, args=(k,), axis=1
     )
     hit_ratio = formatted_data["count_at_k"].apply(lambda x: bool(x)).sum() / len(formatted_data)
     mrr = (1 / formatted_data["top_rank"]).replace([np.inf], np.nan).mean()
