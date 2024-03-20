@@ -52,7 +52,7 @@ class RowWiseMetrics:
         for ki in range(1, k + 1):
             if self.is_k_item_relevant(row, ki):
                 return ki
-        return 0
+        return None
 
     def calc_non_numeric_relevance(self, row_dict):
         prediction_relevance = []
@@ -178,7 +178,9 @@ def log_batch_ranking_metrics(
     row_wise_functions = RowWiseMetrics(target_column, prediction_column, convert_non_numeric)
     formatted_data["count_at_k"] = formatted_data.apply(row_wise_functions.relevant_counter, args=(k,), axis=1)
     formatted_data["count_all"] = formatted_data.apply(row_wise_functions.relevant_counter, args=(_max_k,), axis=1)
-    formatted_data["top_rank"] = formatted_data[relevant_cols].apply(row_wise_functions.get_top_rank, args=(k,), axis=1)
+    formatted_data["top_rank"] = formatted_data[relevant_cols].apply(
+        row_wise_functions.get_top_rank, args=(_max_k,), axis=1
+    )
 
     output_data = pd.DataFrame()
     output_data[f"recall_k_{k}"] = formatted_data["count_at_k"] / formatted_data["count_all"]
@@ -188,19 +190,17 @@ def log_batch_ranking_metrics(
         formatted_data, target_column, prediction_column, convert_non_numeric=convert_non_numeric, k=k  # type: ignore
     )
 
-    formatted_data["norm_dis_cumul_gain" + ("_k_" + str(k) if k else "")] = formatted_data.apply(
+    output_data["norm_dis_cumul_gain" + ("_k_" + str(k) if k else "")] = formatted_data.apply(
         row_wise_functions.calculate_row_ndcg, args=(k,), axis=1
     )
     hit_ratio = formatted_data["count_at_k"].apply(lambda x: bool(x)).sum() / len(formatted_data)
-    mrr = (1 / formatted_data["top_rank"]).replace([np.inf], np.nan).mean()
-    ndcg = formatted_data["norm_dis_cumul_gain" + ("_k_" + str(k) if k else "")].mean()
+    mrr = (1 / formatted_data["top_rank"]).replace([np.inf, np.nan], 0)
+    output_data["reciprocal_rank"] = mrr
     result = log(pandas=output_data, schema=schema)
     result = result.merge(
         log(
             row={
                 "accuracy" + ("_k_" + str(k) if k else ""): hit_ratio,
-                "mean_reciprocal_rank": mrr,
-                "norm_dis_cumul_gain" + ("_k_" + str(k) if k else ""): ndcg,
             },
             schema=schema,
         )

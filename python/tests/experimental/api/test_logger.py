@@ -23,7 +23,7 @@ def test_log_batch_ranking_metrics_single_simple():
 
     column_names = [
         "accuracy_k_3",
-        "mean_reciprocal_rank",
+        "reciprocal_rank",
         "precision_k_3",
         "recall_k_3",
         "top_rank",
@@ -33,19 +33,21 @@ def test_log_batch_ranking_metrics_single_simple():
     for col in column_names:
         assert col in pandas_summary.index
     assert pandas_summary.loc["accuracy_k_3", "counts/n"] == 1
-    assert pandas_summary.loc["mean_reciprocal_rank", "counts/n"] == 1
+    assert pandas_summary.loc["reciprocal_rank", "counts/n"] == 4
     assert pandas_summary.loc["precision_k_3", "counts/n"] == 4
     assert pandas_summary.loc["recall_k_3", "counts/n"] == 4
     assert pandas_summary.loc["top_rank", "counts/n"] == 4
     assert pandas_summary.loc["average_precision_k_3", "counts/n"] == 4
-    assert pandas_summary.loc["norm_dis_cumul_gain_k_3", "counts/n"] == 1
     assert pandas_summary.loc["average_precision_k_3", "counts/n"] == 4
-    assert pandas_summary.loc["norm_dis_cumul_gain_k_3", "counts/n"] == 1
+    assert pandas_summary.loc["norm_dis_cumul_gain_k_3", "counts/n"] == 4
     # ndcg = [1, 0, 0.63, 0.5]
     assert isclose(pandas_summary.loc["norm_dis_cumul_gain_k_3", "distribution/mean"], 0.53273, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["average_precision_k_3", "distribution/mean"], 0.45833, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["precision_k_3", "distribution/mean"], 0.25, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["recall_k_3", "distribution/mean"], 1.0, abs_tol=0.00001)
+    # rr = [1, 0, 0.5, 0.33333]
+    assert isclose(pandas_summary.loc["reciprocal_rank", "distribution/mean"], 0.45833, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["accuracy_k_3", "distribution/mean"], 0.75, abs_tol=0.00001)
 
 
 def test_log_batch_ranking_metrics_binary_simple():
@@ -59,7 +61,7 @@ def test_log_batch_ranking_metrics_binary_simple():
     k = 2
     column_names = [
         "accuracy_k_" + str(k),
-        "mean_reciprocal_rank",
+        "reciprocal_rank",
         "precision_k_" + str(k),
         "recall_k_" + str(k),
         "top_rank",
@@ -69,18 +71,21 @@ def test_log_batch_ranking_metrics_binary_simple():
     for col in column_names:
         assert col in pandas_summary.index
     assert pandas_summary.loc["accuracy_k_" + str(k), "counts/n"] == 1
-    assert pandas_summary.loc["mean_reciprocal_rank", "counts/n"] == 1
+    assert pandas_summary.loc["reciprocal_rank", "counts/n"] == 4
     assert pandas_summary.loc["precision_k_" + str(k), "counts/n"] == 4
     assert pandas_summary.loc["recall_k_" + str(k), "counts/n"] == 4
     assert pandas_summary.loc["top_rank", "counts/n"] == 4
     assert pandas_summary.loc["average_precision_k_" + str(k), "counts/n"] == 4
-    assert pandas_summary.loc["norm_dis_cumul_gain_k_" + str(k), "counts/n"] == 1
+    assert pandas_summary.loc["norm_dis_cumul_gain_k_" + str(k), "counts/n"] == 4
     # ndcg@2 = [0.613147, 1.0, 1.0, 0.63093]
     # average_precision_k_2 = [1.0, 0.0, 1.0, 0.5]
     assert isclose(pandas_summary.loc["norm_dis_cumul_gain_k_" + str(k), "distribution/mean"], 0.81101, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["average_precision_k_" + str(k), "distribution/mean"], 0.62500, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["precision_k_" + str(k), "distribution/mean"], 0.5, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["recall_k_" + str(k), "distribution/mean"], 0.83333, abs_tol=0.00001)
+    # rr = [1, 0, 1, 0.5]
+    assert isclose(pandas_summary.loc["reciprocal_rank", "distribution/mean"], 0.625, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["accuracy_k_2", "distribution/mean"], 0.75, abs_tol=0.00001)
 
 
 def test_log_batch_ranking_metrics_multiple_simple():
@@ -108,7 +113,7 @@ def test_log_batch_ranking_metrics_multiple_simple():
 
     column_names = [
         "accuracy_k_" + str(k),
-        "mean_reciprocal_rank",
+        "reciprocal_rank",
         "precision_k_" + str(k),
         "recall_k_" + str(k),
         "top_rank",
@@ -118,15 +123,15 @@ def test_log_batch_ranking_metrics_multiple_simple():
     for col in column_names:
         assert col in pandas_summary.index
     assert pandas_summary.loc["accuracy_k_" + str(k), "counts/n"] == 1
-    assert pandas_summary.loc["mean_reciprocal_rank", "counts/n"] == 1
+    assert pandas_summary.loc["reciprocal_rank", "counts/n"] == 4
     assert pandas_summary.loc["precision_k_" + str(k), "counts/n"] == 4
     assert pandas_summary.loc["recall_k_" + str(k), "counts/n"] == 4
     assert pandas_summary.loc["top_rank", "counts/n"] == 4
     assert pandas_summary.loc["average_precision_k_" + str(k), "counts/n"] == 4
-    assert pandas_summary.loc["norm_dis_cumul_gain_k_" + str(k), "counts/n"] == 1
+    assert pandas_summary.loc["norm_dis_cumul_gain_k_" + str(k), "counts/n"] == 4
     # ndcg@3 = [0.9197, 0.0, 1.0, 0.386853]
     # average_precision_k_3 = [0.83, 0.0, 1.0, 0.5]
-    assert isclose(pandas_summary.loc[f"norm_dis_cumul_gain_k_{k}", "distribution/median"], 0.57664, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc[f"norm_dis_cumul_gain_k_{k}", "distribution/mean"], 0.57664, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["average_precision_k_" + str(k), "distribution/mean"], 0.58333, abs_tol=0.00001)
 
 
@@ -139,7 +144,7 @@ def test_log_batch_ranking_metrics_default_target():
     k = 3
     column_names = [
         "accuracy_k_" + str(k),
-        "mean_reciprocal_rank",
+        "reciprocal_rank",
         "precision_k_" + str(k),
         "recall_k_" + str(k),
         "top_rank",
@@ -149,7 +154,7 @@ def test_log_batch_ranking_metrics_default_target():
     for col in column_names:
         assert col in pandas_summary.index
     assert pandas_summary.loc["accuracy_k_" + str(k), "counts/n"] == 1
-    assert pandas_summary.loc["mean_reciprocal_rank", "counts/n"] == 1
+    assert pandas_summary.loc["reciprocal_rank", "counts/n"] == 1
     assert pandas_summary.loc["precision_k_" + str(k), "counts/n"] == 1
     assert pandas_summary.loc["recall_k_" + str(k), "counts/n"] == 1
     assert pandas_summary.loc["top_rank", "counts/n"] == 1
@@ -159,6 +164,7 @@ def test_log_batch_ranking_metrics_default_target():
     assert isclose(pandas_summary.loc[f"norm_dis_cumul_gain_k_{k}", "distribution/median"], 0.90130, abs_tol=0.00001)
     # AP assumes binary relevance - this case doesn't raise an error, just a warning, but the result is not meaningful
     assert isclose(pandas_summary.loc["average_precision_k_" + str(k), "distribution/mean"], 1.00000, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["accuracy_k_3", "distribution/mean"], 1.0, abs_tol=0.00001)
 
 
 def test_log_batch_ranking_metrics_ranking_ndcg_wikipedia():
@@ -201,6 +207,7 @@ def test_log_batch_ranking_metrics_average_precision_sklearn_example():
     assert isclose(pandas_summary.loc["average_precision_k_" + str(k), "distribution/mean"], 0.83333, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["precision_k_" + str(k), "distribution/mean"], 0.5, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["recall_k_" + str(k), "distribution/mean"], 1.0, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["reciprocal_rank", "distribution/mean"], 1.0, abs_tol=0.00001)
 
 
 def test_log_batch_ranking_metrics_average_precision():
@@ -221,3 +228,4 @@ def test_log_batch_ranking_metrics_average_precision():
         assert isclose(
             pandas_summary.loc["average_precision_k_" + str(k), "distribution/mean"], res[1], abs_tol=0.00001
         )
+        assert isclose(pandas_summary.loc["reciprocal_rank", "distribution/mean"], 0.45833, abs_tol=0.00001)
