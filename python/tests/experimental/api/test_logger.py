@@ -44,6 +44,8 @@ def test_log_batch_ranking_metrics_single_simple():
     # ndcg = [1, 0, 0.63, 0.5]
     assert isclose(pandas_summary.loc["norm_dis_cumul_gain_k_3", "distribution/mean"], 0.53273, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["average_precision_k_3", "distribution/mean"], 0.45833, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["precision_k_3", "distribution/mean"], 0.25, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["recall_k_3", "distribution/mean"], 1.0, abs_tol=0.00001)
 
 
 def test_log_batch_ranking_metrics_binary_simple():
@@ -77,6 +79,8 @@ def test_log_batch_ranking_metrics_binary_simple():
     # average_precision_k_2 = [1.0, 0.0, 1.0, 0.5]
     assert isclose(pandas_summary.loc["norm_dis_cumul_gain_k_" + str(k), "distribution/mean"], 0.81101, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["average_precision_k_" + str(k), "distribution/mean"], 0.62500, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["precision_k_" + str(k), "distribution/mean"], 0.5, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["recall_k_" + str(k), "distribution/mean"], 0.83333, abs_tol=0.00001)
 
 
 def test_log_batch_ranking_metrics_multiple_simple():
@@ -195,6 +199,8 @@ def test_log_batch_ranking_metrics_average_precision_sklearn_example():
     pandas_summary = result.view().to_pandas()
 
     assert isclose(pandas_summary.loc["average_precision_k_" + str(k), "distribution/mean"], 0.83333, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["precision_k_" + str(k), "distribution/mean"], 0.5, abs_tol=0.00001)
+    assert isclose(pandas_summary.loc["recall_k_" + str(k), "distribution/mean"], 1.0, abs_tol=0.00001)
 
 
 def test_log_batch_ranking_metrics_average_precision():
