@@ -105,7 +105,7 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         if transaction_id is None:
             raise ValueError("Missing transaction id")
         self._transaction_id = transaction_id
-        self._whylabs_client.option(**kwargs)
+        self._whylabs_client = self._whylabs_client.option(**kwargs)
 
         if isinstance(file, SegmentedResultSet):
             return self._write_segmented_result_set(file, **kwargs)

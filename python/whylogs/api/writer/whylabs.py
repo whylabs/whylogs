@@ -212,7 +212,7 @@ class WhyLabsWriter(WhyLabsWriterBase):
             self._whylabs_client._org_id,
             self._whylabs_client._api_key,
             self._whylabs_client._dataset_id,
-            self._whylabs_client._api_client,
+            None, #self._whylabs_client._api_client,  # TODO: handle custom client
             self._whylabs_client._ssl_ca_cert,
             self._whylabs_client._timeout_seconds,
         )
@@ -221,6 +221,7 @@ class WhyLabsWriter(WhyLabsWriterBase):
     def write(
         self, file: Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
+        self._whylabs_client = self._whylabs_client.option(**kwargs)
         if isinstance(file, FeatureWeights):
             # TODO: FeatureWeights should not be a Writable, just use the WL client directly
             return self._whylabs_client.write_feature_weights(file, **kwargs)

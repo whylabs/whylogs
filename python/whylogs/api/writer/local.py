@@ -31,10 +31,14 @@ class LocalWriter(Writer):
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
         """
         kwargs:
+           base_dir: str    Directory to write to
+           base_name: str   File name to write to
            zip: bool       Create a ZipFile containing the Writable's file(s) if the Writer supports it
            zip_name: str   Name of the ZipFile, will be auto-generated if None
         """
-        success, files = file.write(dest or self._base_dir, self._base_name, **kwargs)
+        self.option(**kwargs)
+        filename = dest or self._base_name
+        success, files = file.write(self._base_dir, filename, **kwargs)
         if not success:
             return False, "Writable failed to create temporary file(s)"
 
@@ -43,8 +47,8 @@ class LocalWriter(Writer):
             zip_name = self._create_zip(files, dest or self._base_dir, kwargs.get("zip_name"))
             return True, [(True, f"Wrote {zip_name}")]
 
-        files = [files] if isinstance(files, str) else files
-        return success, f"Wrote {', '.join(files)}"
+        print(f"LocalWriter::write() -> {files}  base_dir {self._base_dir}  base_name {self._base_name}")
+        return success, files if isinstance(files, str) else zip([success] * len(files), files)
 
     def option(self, **kwargs: Any) -> Writer:
         """

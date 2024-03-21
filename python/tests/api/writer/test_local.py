@@ -27,7 +27,7 @@ class TestLocalWriter(object):
             pass
 
     def test_should_write_to_defined_destination(self, local_writer, profile_view):
-        success, files = local_writer.write(file=profile_view, dest="test_dir/some_dir")
+        success, files = local_writer.write(file=profile_view, base_dir="test_dir/some_dir")
         assert success
         assert os.path.isfile("test_dir/some_dir/test_name.bin")
         try:

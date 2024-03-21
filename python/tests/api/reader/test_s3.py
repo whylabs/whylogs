@@ -24,9 +24,10 @@ class TestS3Reader(object):
     @pytest.fixture
     def object_path(self, profile_view):
         s3_client = boto3.client("s3")
-        tmp_file = NamedTemporaryFile()
-        with open(tmp_file.name, "rb") as f:
-            profile_view.write(path=tmp_file.name)
+        with NamedTemporaryFile() as f:
+            profile_view.write(file=f)
+            f.flush()
+            f.seek(0)
             s3_client.upload_fileobj(f, BUCKET_NAME, OBJECT_NAME)
         return OBJECT_NAME
 

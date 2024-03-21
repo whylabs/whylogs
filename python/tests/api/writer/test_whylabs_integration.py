@@ -60,7 +60,8 @@ def test_whylabs_writer():
 
 
 @pytest.mark.load
-def test_whylabs_writer_segmented():
+@pytest.mark.parametrize("zipped", [(True), (False)])
+def test_whylabs_writer_segmented(zipped: bool):
     ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
@@ -68,9 +69,10 @@ def test_whylabs_writer_segmented():
     data = {"col1": [1, 2, 1, 3, 2, 2], "col2": ["foo", "bar", "wat", "foo", "baz", "wat"]}
     df = pd.DataFrame(data)
     trace_id = str(uuid4())
-    result = why.log(df, schema=schema, trace_id=trace_id)
+    profile = why.log(df, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter()
-    writer.write(result)
+    success, status = writer.write(profile, zip=zipped)
+    assert success
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
@@ -199,8 +201,10 @@ def test_transactions():
     result = why.log(data, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter(dataset_id=MODEL_ID)
     assert writer._transaction_id is None
-    writer.start_transaction()
+    transaction_id = writer.start_transaction()
     assert writer._transaction_id is not None
+    assert writer._transaction_id == writer._whylabs_client._transaction_id == transaction_id
+    writer.start_transaction(transaction_id)
     status, id = writer.write(result)
     writer.commit_transaction()
     assert writer._transaction_id is None
@@ -231,6 +235,8 @@ def test_transaction_context():
     tids = list()
     try:
         with WhyLabsTransaction(writer):
+            assert writer._transaction_id is not None
+            assert writer._whylabs_client._transaction_id == writer._transaction_id
             for data in pdfs:
                 trace_id = str(uuid4())
                 tids.append(trace_id)
@@ -327,13 +333,11 @@ def test_transaction_distributed():
                 raise Exception()  # or retry the profile...
         writer.commit_transaction()
     except Exception:
-        # The start_transaction() or commit_transaction() in the
-        # WhyLabsTransaction context manager will throw on failure.
-        # Or retry the commit
         logger.exception("Logging transaction failed")
 
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
+    assert len(tids) == 7
     for trace_id in tids:
         response: ProfileTracesResponse = dataset_api.get_profile_traces(
             org_id=ORG_ID,

@@ -57,13 +57,13 @@ class FakeWriter(Writer):
         file: Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
-    ) -> Tuple[bool, str]:
+    ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
         with self._write_calls.get_lock():
             self._write_calls.value += 1  # type: ignore
             num = self._write_calls.value  # type: ignore
 
         file_path = f"/tmp/profile_{num}.bin"
-        file.write(file_path)
+        file.write(path="/tmp", filename=f"profile_{num}.bin")
         self._writable_files.put(file_path)
 
         return True, ""
