@@ -126,6 +126,16 @@ class ResultSetReader:
         return self._reader.read(**kwargs)
 
 
+def _flatten_tags(tags: Union[List, Dict]) -> List[SegmentTag]:
+    if type(tags[0]) == list:
+        result: List[SegmentTag] = []
+        for t in tags:
+            result.append(_flatten_tags(t))
+        return result
+
+    return [SegmentTag(t["key"], t["value"]) for t in tags]
+
+
 class ResultSet(Writable, ABC):
     """
     A holder object for profiling results.
@@ -181,6 +191,9 @@ class ResultSet(Writable, ABC):
         if hasattr(self, "_metadata"):
             return self._metadata
         return None
+
+    def get_writables(self) -> Optional[List[Writable]]:
+        return [self.view()]
 
     def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
         ensure_timezone(dataset_timestamp)
@@ -374,15 +387,6 @@ class SegmentedResultSet(ResultSet):
             )
         return results
 
-    def _flatten_tags(self, tags: Union[List, Dict]) -> List[SegmentTag]:
-        if type(tags[0]) == list:
-            result: List[SegmentTag] = []
-            for t in tags:
-                result.append(self._flatten_tags(t))
-            return result
-
-        return [SegmentTag(t["key"], t["value"]) for t in tags]
-
     def get_whylabs_tags(self) -> List[SegmentTag]:
         views = self.get_writables()
         if views is None:
@@ -411,7 +415,7 @@ class SegmentedResultSet(ResultSet):
                 view_tags.append({"key": tag_key, "value": tag_value})
             whylabs_tags.append(view_tags)
 
-        return self._flatten_tags(whylabs_tags)
+        return _flatten_tags(whylabs_tags)
 
     def get_timestamps(self) -> List[Optional[datetime]]:
         views = self.get_writables()

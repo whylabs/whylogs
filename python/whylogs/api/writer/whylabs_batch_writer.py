@@ -77,17 +77,19 @@ class WhyLabsBatchWriter(WhyLabsWriterBase):
 
         utc_now = datetime.datetime.now(datetime.timezone.utc)
         use_v0 = kwargs.get("use_v0") is None or kwargs.get("use_v0")
+        messages: List[str] = list()
         and_status: bool = True
         logger.debug(f"About to write {len(views)} files:")
         # TODO: special handling of large number of files, handle throttling
         for view in views:
             dataset_timestamp_epoch = self._get_dataset_epoch(view, utc_now)
             profile_id, upload_url = self._whylabs_client.get_upload_url_batch(dataset_timestamp_epoch)
-            bool_status, _ = self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, use_v0=use_v0)
+            bool_status, message = self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, use_v0=use_v0)
+            messages.append(message)
             and_status = and_status and bool_status
 
         logger.debug(f"Completed writing {len(views)} files!")
-        return and_status, profile_id if and_status else "Failed to upload all segments"
+        return and_status, ("; ".join(messages) if and_status else "Failed to upload all segments")
 
     # TODO: Sadly, we can't use Writer::_create_zip() because we have to fiddle with the
     # views before serializing them. We could add a Writable fiddling call-back argument
@@ -134,7 +136,7 @@ class WhyLabsBatchWriter(WhyLabsWriterBase):
     def write(
         self, file: Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
-        self._whylabs_client.option(**kwargs)
+        self._whylabs_client = self._whylabs_client.option(**kwargs)
 
         if isinstance(file, SegmentedResultSet):
             if kwargs.get("zip"):

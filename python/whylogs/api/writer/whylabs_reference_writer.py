@@ -82,10 +82,10 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
             whylabs_tags, dataset_timestamp_epoch, self._reference_profile_name
         )
         for view, url in zip(views, upload_urls):
-            bool_status, _ = self._upload_view(view, profile_id, url, dataset_timestamp_epoch, use_v0=use_v0)
+            bool_status, message = self._upload_view(view, profile_id, url, dataset_timestamp_epoch, use_v0=use_v0)
             and_status = and_status and bool_status
 
-        return and_status, profile_id if and_status else "Failed to upload all segments"
+        return and_status, (message if and_status else "Failed to upload all segments")
 
     # TODO: Sadly, we can't use Writer::_create_zip() because we have to fiddle with the
     # views before serializing them. We could add a Writable fiddling call-back argument
@@ -108,7 +108,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
                 for view in views:
                     view = self._prepare_view_for_upload(view)
                     with tempfile.NamedTemporaryFile() as view_file:
-                        view.write(file=view_file, use_v0=use_v0)
+                        view.write(file=view_file, use_v0=use_v0)  # TODO: error checking
                         view_file.flush()
                         view_file.seek(0)
                         zip_file.write(view_file.name, view_file.name.split("/")[-1])
@@ -137,7 +137,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
     def write(
         self, file: Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
-        self._whylabs_client.option(**kwargs)
+        self._whylabs_client = self._whylabs_client.option(**kwargs)
 
         if isinstance(file, SegmentedResultSet):
             if kwargs.get("zip"):

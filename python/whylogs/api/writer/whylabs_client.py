@@ -578,7 +578,8 @@ class WhyLabsClient:
         self._require("api key", self._cache_config.api_key)
 
     def _get_or_create_transaction_client(self) -> TransactionsApi:
-        self._validate_client()
+        self._refresh_client()
+        assert self._api_client is not None
         return TransactionsApi(self._api_client)
 
     def get_transaction_id(self) -> str:
@@ -770,14 +771,18 @@ class WhyLabsClient:
         request = self._build_log_segmented_reference_request(
             dataset_timestamp, tags=whylabs_tags, alias=reference_profile_name, region=region
         )
-        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
+        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp, )
         return res["id"], res["upload_urls"]
 
     def _get_upload_url_segmented_reference_zip(
         self, whylabs_tags, dataset_timestamp: int, reference_profile_name: str
     ) -> Tuple[str, str]:
-        id, urls = self._get_upload_urls_segmented_reference(whylabs_tags, dataset_timestamp, reference_profile_name)
-        return id, urls[0]
+        region = os.getenv("WHYLABS_UPLOAD_REGION", None)
+        request = self._build_log_segmented_reference_request(
+            dataset_timestamp, tags=whylabs_tags, alias=reference_profile_name, region=region
+        )
+        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp, zip_file=True)
+        return res["id"], res["upload_urls"][0]
 
     def _post_log_segmented_reference(
         self, request: LogAsyncRequest, dataset_timestamp: int, zip_file: bool = False
