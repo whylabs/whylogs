@@ -50,7 +50,7 @@ class Writable(ABC):
 
     def writer(self, name: str = "local", **kwargs: Any) -> "WriterWrapper":
         "Utility method to create a Writer of the specified type"
-        return Writers.get(name, self, **kwargs)
+        return Writers.get(name, self, **kwargs)  # type: ignore
 
 
 class Writer(ABC):
@@ -121,7 +121,7 @@ class WriterWrapper:
 
 class Writers:
     @staticmethod
-    def get(name: str, writable: Optional[Writable]=None, **kwargs) -> Union[Writer, WriterWrapper]:
+    def get(name: str, writable: Optional[Writable] = None, **kwargs) -> Union[Writer, WriterWrapper]:
         if name == "local":
             from whylogs.api.writer.local import LocalWriter
 

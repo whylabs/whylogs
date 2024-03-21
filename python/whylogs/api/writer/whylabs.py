@@ -96,7 +96,7 @@ class WhyLabsWriter(WhyLabsWriterBase):
             output") and string with status message.
         """
 
-        return self._whylabs_client.tag_output_columns(columns)
+        return self._whylabs_client.tag_output_columns(columns)  # type: ignore
 
     @deprecated(message="please use WhyLabsClient instead")
     def tag_input_columns(self, columns: List[str]) -> Tuple[bool, str]:
@@ -114,7 +114,7 @@ class WhyLabsWriter(WhyLabsWriterBase):
             input") and string with status message.
         """
 
-        return self._whylabs_client.tag_input_columns(columns)
+        return self._whylabs_client.tag_input_columns(columns)  # type: ignore
 
     @deprecated(message="please use WhyLabsClient instead")
     def tag_custom_performance_column(
@@ -137,7 +137,7 @@ class WhyLabsWriter(WhyLabsWriterBase):
         Note: the resulting custom performance metric is considered an unmergeable metric.
 
         """
-        return self._whylabs_client.tag_custom_performance_column(column, label, default_metric)
+        return self._whylabs_client.tag_custom_performance_column(column, label, default_metric)  # type: ignore
 
     @deprecated(message="please use WhyLabsWriter::write() instead")
     def write_estimation_result(self, file: EstimationResult, **kwargs: Any) -> Tuple[bool, str]:
@@ -185,12 +185,12 @@ class WhyLabsWriter(WhyLabsWriterBase):
 
         if transaction_id is not None:
             self._transaction_id = transaction_id  # type: ignore
-            self._whylabs_client._transaction_id = transaction_id
+            self._whylabs_client._transaction_id = transaction_id  # type: ignore
             return transaction_id
 
-        transaction_id = self._whylabs_client.get_transaction_id()
+        transaction_id = self._whylabs_client.get_transaction_id()  # type: ignore
         self._transaction_id = transaction_id
-        self._whylabs_client._transaction_id = transaction_id
+        self._whylabs_client._transaction_id = transaction_id  # type: ignore
         return self._transaction_id  # type: ignore
 
     def commit_transaction(self) -> None:
@@ -204,24 +204,24 @@ class WhyLabsWriter(WhyLabsWriterBase):
 
         id = self._transaction_id
         self._transaction_id = None
-        self._whylabs_client.commit_transaction(id)
-        self._whylabs_client._transaction_id = None
+        self._whylabs_client.commit_transaction(id)  # type: ignore
+        self._whylabs_client._transaction_id = None  # type: ignore
 
     def _get_writer(self, writer_type) -> WhyLabsWriterBase:
         return writer_type(
-            self._whylabs_client._org_id,
-            self._whylabs_client._api_key,
-            self._whylabs_client._dataset_id,
-            None, #self._whylabs_client._api_client,  # TODO: handle custom client
-            self._whylabs_client._ssl_ca_cert,
-            self._whylabs_client._timeout_seconds,
+            self._whylabs_client._org_id,  # type: ignore
+            self._whylabs_client._api_key,  # type: ignore
+            self._whylabs_client._dataset_id,  # type: ignore
+            None,  # self._whylabs_client._api_client,  # TODO: handle custom client
+            self._whylabs_client._ssl_ca_cert,  # type: ignore
+            self._whylabs_client._timeout_seconds,  # type: ignore
         )
 
     @deprecated_alias(profile="file")
     def write(
         self, file: Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
-        self._whylabs_client = self._whylabs_client.option(**kwargs)
+        self._whylabs_client = self._whylabs_client.option(**kwargs)  # type: ignore
         if isinstance(file, FeatureWeights):
             # TODO: FeatureWeights should not be a Writable, just use the WL client directly
             return self._whylabs_client.write_feature_weights(file, **kwargs)

@@ -79,7 +79,7 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         logger.debug(f"About to write {len(views)} files:")
         for view, tags in zip(views, whylabs_tags):
             dataset_timestamp_epoch = self._get_dataset_epoch(view, utc_now)
-            profile_id, upload_url = self._whylabs_client.get_upload_url_transaction(dataset_timestamp_epoch, tags)
+            profile_id, upload_url = self._whylabs_client.get_upload_url_transaction(dataset_timestamp_epoch, tags)  # type: ignore
             bool_status, _ = self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, tags, **kwargs)
             logger.info(f"Added profile {profile_id} to transaction {self._transaction_id}")
             and_status = and_status and bool_status
@@ -93,7 +93,7 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         **kwargs: Any,
     ) -> Tuple[bool, str]:
         dataset_timestamp_epoch = self._get_dataset_epoch(view)
-        profile_id, upload_url = self._whylabs_client.get_upload_url_transaction(dataset_timestamp_epoch)
+        profile_id, upload_url = self._whylabs_client.get_upload_url_transaction(dataset_timestamp_epoch)  # type: ignore
         logger.info(f"Added profile {profile_id} to transaction {self._transaction_id}")
         return self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, **kwargs)
 
@@ -105,7 +105,7 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         if transaction_id is None:
             raise ValueError("Missing transaction id")
         self._transaction_id = transaction_id
-        self._whylabs_client = self._whylabs_client.option(**kwargs)
+        self._whylabs_client = self._whylabs_client.option(**kwargs)  # type: ignore
 
         if isinstance(file, SegmentedResultSet):
             return self._write_segmented_result_set(file, **kwargs)

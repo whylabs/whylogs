@@ -771,7 +771,10 @@ class WhyLabsClient:
         request = self._build_log_segmented_reference_request(
             dataset_timestamp, tags=whylabs_tags, alias=reference_profile_name, region=region
         )
-        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp, )
+        res = self._post_log_segmented_reference(
+            request=request,
+            dataset_timestamp=dataset_timestamp,
+        )
         return res["id"], res["upload_urls"]
 
     def _get_upload_url_segmented_reference_zip(

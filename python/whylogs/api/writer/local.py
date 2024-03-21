@@ -47,8 +47,7 @@ class LocalWriter(Writer):
             zip_name = self._create_zip(files, dest or self._base_dir, kwargs.get("zip_name"))
             return True, [(True, f"Wrote {zip_name}")]
 
-        print(f"LocalWriter::write() -> {files}  base_dir {self._base_dir}  base_name {self._base_name}")
-        return success, files if isinstance(files, str) else zip([success] * len(files), files)
+        return success, (files if isinstance(files, str) else zip([success] * len(files), files))  # type: ignore
 
     def option(self, **kwargs: Any) -> Writer:
         """
