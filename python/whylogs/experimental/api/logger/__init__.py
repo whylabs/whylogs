@@ -1,6 +1,6 @@
 import logging
 import math
-from typing import Optional, Union
+from typing import List, Optional, Tuple, Union
 
 from whylogs.api.logger import log
 from whylogs.api.logger.result_set import ViewResultSet
@@ -23,14 +23,12 @@ class RowWiseMetrics:
         target_column: str,
         prediction_column: str,
         convert_non_numeric: bool = False,
-        k: Optional[int] = None,
-        max_k: Optional[int] = None,
     ):
         self.target_column = target_column
         self.prediction_column = prediction_column
         self.convert_non_numeric = convert_non_numeric
 
-    def relevant_counter(self, row, k):
+    def relevant_counter(self, row: pd.core.series.Series, k: int) -> int:
         if self.convert_non_numeric:
             return sum(
                 [1 if pred_val in row[self.target_column] else 0 for pred_val in row[self.prediction_column][:k]]
@@ -41,20 +39,31 @@ class RowWiseMetrics:
             sorted_predictions, sorted_targets = list(sorted_predictions), list(sorted_targets)
             return sum([1 if target_val else 0 for target_val in sorted_targets[:k]])
 
-    def is_k_item_relevant(self, row, k):
+    def sum_gains(self, row: pd.core.series.Series, k: int) -> int:
+        if self.convert_non_numeric:
+            return sum(
+                [1 if pred_val in row[self.target_column] else 0 for pred_val in row[self.prediction_column][:k]]
+            )
+        else:
+            paired_sorted = sorted(zip(row[self.prediction_column], row[self.target_column]))
+            sorted_predictions, sorted_targets = zip(*paired_sorted)
+            sorted_predictions, sorted_targets = list(sorted_predictions), list(sorted_targets)
+            return sum([target_val if target_val else 0 for target_val in sorted_targets[:k]])
+
+    def is_k_item_relevant(self, row: pd.core.series.Series, k: int) -> int:
         if self.convert_non_numeric:
             return 1 if row[self.prediction_column][k - 1] in row[self.target_column] else 0
         else:
             index_ki = row[self.prediction_column].index(k)
             return 1 if row[self.target_column][index_ki] else 0
 
-    def get_top_rank(self, row, k):
+    def get_top_rank(self, row: pd.core.series.Series, k: int) -> Optional[int]:
         for ki in range(1, k + 1):
             if self.is_k_item_relevant(row, ki):
                 return ki
         return None
 
-    def calc_non_numeric_relevance(self, row_dict):
+    def calc_non_numeric_relevance(self, row_dict: pd.core.series.Series) -> Tuple[List[int], List[int]]:
         prediction_relevance = []
         ideal_relevance = []
         for target_val in row_dict[self.prediction_column]:
@@ -65,7 +74,7 @@ class RowWiseMetrics:
                 ideal_relevance.append(1)
         return (prediction_relevance, sorted(ideal_relevance, reverse=True))
 
-    def calculate_row_ndcg(self, row_dict, k):
+    def calculate_row_ndcg(self, row_dict: pd.core.series.Series, k: int) -> float:
         if not self.convert_non_numeric:
             dcg_vals = [
                 rel / math.log2(pos + 1)
@@ -193,6 +202,7 @@ def log_batch_ranking_metrics(
     output_data["norm_dis_cumul_gain" + ("_k_" + str(k) if k else "")] = formatted_data.apply(
         row_wise_functions.calculate_row_ndcg, args=(k,), axis=1
     )
+    output_data[f"sum_gain_k_{k}"] = formatted_data.apply(row_wise_functions.sum_gains, args=(k,), axis=1)
     hit_ratio = formatted_data["count_at_k"].apply(lambda x: bool(x)).sum() / len(formatted_data)
     mrr = (1 / formatted_data["top_rank"]).replace([np.inf, np.nan], 0)
     output_data["reciprocal_rank"] = mrr
