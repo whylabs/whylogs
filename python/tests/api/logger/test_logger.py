@@ -1,4 +1,3 @@
-import os.path
 import tempfile
 from typing import Any
 
@@ -116,7 +115,7 @@ def test_roundtrip_resultset(tmp_path: Any) -> None:
     df = pd.DataFrame(data=d)
 
     results = why.log(df)
-    status, path = results.writer("local", base_name = "profile.bin").option(base_dir=tmp_path).write()
+    status, path = results.writer("local", base_name="profile.bin").option(base_dir=tmp_path).write()
     assert status
     roundtrip_result_set = why.read(path)
     assert len(results.view().to_pandas()) == len(roundtrip_result_set.view().to_pandas())

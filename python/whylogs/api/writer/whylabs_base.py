@@ -74,7 +74,7 @@ class WhyLabsWriterBase(Writer):
         _timeout_seconds: Optional[float] = None,
         whylabs_client: Optional[WhyLabsClient] = None,
     ):
-        self._whylabs_client = whylabs_client or WhyLabsClient(
+        self._whylabs_client: WhyLabsClient = whylabs_client or WhyLabsClient(
             org_id,
             api_key,
             dataset_id,

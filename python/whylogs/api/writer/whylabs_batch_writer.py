@@ -83,8 +83,10 @@ class WhyLabsBatchWriter(WhyLabsWriterBase):
         # TODO: special handling of large number of files, handle throttling
         for view in views:
             dataset_timestamp_epoch = self._get_dataset_epoch(view, utc_now)
-            profile_id, upload_url = self._whylabs_client.get_upload_url_batch(dataset_timestamp_epoch)
-            bool_status, message = self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, use_v0=use_v0)
+            profile_id, upload_url = self._whylabs_client.get_upload_url_batch(dataset_timestamp_epoch)  # type: ignore
+            bool_status, message = self._upload_view(
+                view, profile_id, upload_url, dataset_timestamp_epoch, use_v0=use_v0
+            )
             messages.append(message)
             and_status = and_status and bool_status
 
@@ -102,7 +104,7 @@ class WhyLabsBatchWriter(WhyLabsWriterBase):
 
         utc_now = datetime.datetime.now(datetime.timezone.utc)
         dataset_timestamp_epoch = self._get_dataset_epoch(views[0], utc_now)
-        profile_id, upload_url = self._whylabs_client.get_upload_url_batch_zip(dataset_timestamp_epoch)
+        profile_id, upload_url = self._whylabs_client.get_upload_url_batch_zip(dataset_timestamp_epoch)  # type: ignore
         use_v0 = kwargs.get("use_v0") is None or kwargs.get("use_v0")
         with tempfile.NamedTemporaryFile(suffix=".zip") as tmp_file:
             with ZipFile(tmp_file, "w", allowZip64=True) as zip_file:
@@ -116,7 +118,7 @@ class WhyLabsBatchWriter(WhyLabsWriterBase):
 
             tmp_file.flush()
             tmp_file.seek(0)
-            return self._whylabs_client.do_upload(
+            return self._whylabs_client.do_upload(  # type: ignore
                 dataset_timestamp=dataset_timestamp_epoch,
                 upload_url=upload_url,
                 profile_id=profile_id,
@@ -129,14 +131,14 @@ class WhyLabsBatchWriter(WhyLabsWriterBase):
         **kwargs: Any,
     ) -> Tuple[bool, str]:
         dataset_timestamp_epoch = self._get_dataset_epoch(view)
-        profile_id, upload_url = self._whylabs_client.get_upload_url_batch(dataset_timestamp_epoch)
+        profile_id, upload_url = self._whylabs_client.get_upload_url_batch(dataset_timestamp_epoch)  # type: ignore
         return self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, **kwargs)
 
     @deprecated_alias(profile="file")
     def write(
         self, file: Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
-        self._whylabs_client = self._whylabs_client.option(**kwargs)
+        self._whylabs_client = self._whylabs_client.option(**kwargs)  # type: ignore
 
         if isinstance(file, SegmentedResultSet):
             if kwargs.get("zip"):

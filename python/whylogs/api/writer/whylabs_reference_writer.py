@@ -78,7 +78,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
         dataset_timestamp_epoch = self._get_dataset_epoch(views[-1])  # original writer used timestamp of last segment
         use_v0 = kwargs.get("use_v0") is None or kwargs.get("use_v0")
         and_status: bool = True
-        profile_id, upload_urls = self._whylabs_client._get_upload_urls_segmented_reference(
+        profile_id, upload_urls = self._whylabs_client._get_upload_urls_segmented_reference(  # type: ignore
             whylabs_tags, dataset_timestamp_epoch, self._reference_profile_name
         )
         for view, url in zip(views, upload_urls):
@@ -100,7 +100,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
         dataset_timestamp_epoch = self._get_dataset_epoch(views[-1])  # original writer used timestamp of last segment
 
         use_v0 = kwargs.get("use_v0") is None or kwargs.get("use_v0")
-        profile_id, upload_url = self._whylabs_client._get_upload_url_segmented_reference_zip(
+        profile_id, upload_url = self._whylabs_client._get_upload_url_segmented_reference_zip(  # type: ignore
             whylabs_tags, dataset_timestamp_epoch, self._reference_profile_name
         )
         with tempfile.NamedTemporaryFile(suffix=".zip") as tmp_file:
@@ -115,7 +115,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
 
             tmp_file.flush()
             tmp_file.seek(0)
-            return self._whylabs_client.do_upload(
+            return self._whylabs_client.do_upload(  # type: ignore
                 dataset_timestamp=dataset_timestamp_epoch,
                 upload_url=upload_url,
                 profile_id=profile_id,
@@ -128,7 +128,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
         **kwargs: Any,
     ) -> Tuple[bool, str]:
         dataset_timestamp_epoch = self._get_dataset_epoch(view)
-        profile_id, upload_url = self._whylabs_client.get_upload_url_unsegmented_reference(
+        profile_id, upload_url = self._whylabs_client.get_upload_url_unsegmented_reference(  # type: ignore
             dataset_timestamp_epoch, self._reference_profile_name
         )
         return self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, **kwargs)
@@ -137,7 +137,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
     def write(
         self, file: Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
-        self._whylabs_client = self._whylabs_client.option(**kwargs)
+        self._whylabs_client = self._whylabs_client.option(**kwargs)  # type: ignore
 
         if isinstance(file, SegmentedResultSet):
             if kwargs.get("zip"):
