@@ -4504,4 +4504,4 @@ viz = ["Pillow", "ipython", "numpy", "numpy", "pybars3", "scipy", "scipy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.1, <4"
-content-hash = "ba198fb660c789fc82470c0086399f21246b433527087a42520ee21cfa69f18e"
+content-hash = "9feef1f3799568ca7dd861d5b176c15ea970036031f8e1695e50469ebf4c7222"
