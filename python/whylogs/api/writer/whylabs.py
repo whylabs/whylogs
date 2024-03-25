@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os
+import pprint
 import tempfile
 from typing import IO, Any, Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
@@ -111,7 +112,8 @@ def _check_whylabs_condition_count_uncompound() -> bool:
         else:
             logger.info(f"Got response code {response.status_code} but expected 200, so running uncompound")
     except Exception:
-        logger.warning("Error trying to read whylabs config, falling back to defaults for uncompounding")
+        pass
+
     _WHYLABS_SKIP_CONFIG_READ = True
     return True
 
@@ -572,6 +574,65 @@ class WhyLabsWriter(Writer):
         else:
             return False, "Failed to upload all segments"
 
+    def _flatten_tags(self, tags: Union[List, Dict]) -> List[SegmentTag]:
+        if type(tags[0]) == list:
+            result: List[SegmentTag] = []
+            for t in tags:
+                result.append(self._flatten_tags(t))
+            return result
+
+        return [SegmentTag(t["key"], t["value"]) for t in tags]
+
+    def _write_segmented_result_set_transaction(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
+        utc_now = datetime.datetime.now(datetime.timezone.utc)
+
+        files = file.get_writables()
+        partitions = file.partitions
+        if len(partitions) > 1:
+            logger.warning(
+                "SegmentedResultSet contains more than one partition. Only the first partition will be uploaded. "
+            )
+        partition = partitions[0]
+        whylabs_tags = list()
+        for view in files:
+            view_tags = list()
+            dataset_timestamp = view.dataset_timestamp or utc_now
+            if view.partition.id != partition.id:
+                continue
+            _, segment_tags, _ = _generate_segment_tags_metadata(view.segment, view.partition)
+            for segment_tag in segment_tags:
+                tag_key = segment_tag.key.replace("whylogs.tag.", "")
+                tag_value = segment_tag.value
+                view_tags.append({"key": tag_key, "value": tag_value})
+            whylabs_tags.append(view_tags)
+        stamp = dataset_timestamp.timestamp()
+        dataset_timestamp_epoch = int(stamp * 1000)
+
+        region = os.getenv("WHYLABS_UPLOAD_REGION", None)
+        client: TransactionsApi = self._get_or_create_transaction_client()
+        messages: List[str] = list()
+        and_status: bool = True
+        for view, tags in zip(files, self._flatten_tags(whylabs_tags)):
+            with tempfile.NamedTemporaryFile() as tmp_file:
+                view.write(file=tmp_file)
+                tmp_file.flush()
+                tmp_file.seek(0)
+                request = TransactionLogRequest(
+                    dataset_timestamp=dataset_timestamp_epoch, segment_tags=tags, region=region
+                )
+                result: AsyncLogResponse = client.log_transaction(self._transaction_id, request, **kwargs)
+                logger.info(f"Added profile {result.id} to transaction {self._transaction_id}")
+                bool_status, message = self._do_upload(
+                    dataset_timestamp=dataset_timestamp_epoch,
+                    upload_url=result.upload_url,
+                    profile_id=result.id,
+                    profile_file=tmp_file,
+                )
+                and_status = and_status and bool_status
+                messages.append(message)
+
+        return and_status, "; ".join(messages)
+
     def _write_segmented_result_set(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
         """Put segmented result set for the specified dataset.
 
@@ -584,6 +645,9 @@ class WhyLabsWriter(Writer):
         -------
         Tuple[bool, str]
         """
+        if self._transaction_id is not None:
+            return self._write_segmented_result_set_transaction(file, **kwargs)
+
         # multi-profile writer
         files = file.get_writables()
         messages: List[str] = list()
@@ -616,39 +680,46 @@ class WhyLabsWriter(Writer):
         self._refresh_client()
         return TransactionsApi(self._api_client)
 
-    def start_transaction(self, **kwargs) -> None:
+    def start_transaction(self, transaction_id: Optional[str] = None, **kwargs) -> str:
         """
         Initiates a transaction -- any profiles subsequently written by calling write()
-        will be uploaded to WhyLabs atomically when commit_transaction() is called. Throws
+        will be uploaded to WhyLabs, but not ingested until commit_transaction() is called. Throws
         on failure.
         """
         if self._transaction_id is not None:
             logger.error("Must end current transaction with commit_transaction() before starting another")
-            return
+            return self._transaction_id
 
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
+
+        if transaction_id is not None:
+            self._transaction_id = transaction_id  # type: ignore
+            return transaction_id
 
         client: TransactionsApi = self._get_or_create_transaction_client()
         request = TransactionStartRequest(dataset_id=self._dataset_id)
         result: LogTransactionMetadata = client.start_transaction(request, **kwargs)
         self._transaction_id = result["transaction_id"]
         logger.info(f"Starting transaction {self._transaction_id}, expires {result['expiration_time']}")
+        return self._transaction_id  # type: ignore
 
     def commit_transaction(self, **kwargs) -> None:
         """
-        Atomically upload any profiles written since the previous start_transaction().
+        Ingest any profiles written since the previous start_transaction().
         Throws on failure.
         """
         if self._transaction_id is None:
             logger.error("Must call start_transaction() before commit_transaction()")
             return
 
-        logger.info(f"Committing transaction {self._transaction_id}")
+        id = self._transaction_id
+        self._transaction_id = None
+        logger.info(f"Committing transaction {id}")
         client = self._get_or_create_transaction_client()
         request = TransactionCommitRequest(verbose=True)
-        client.commit_transaction(self._transaction_id, request, **kwargs)
-        self._transaction_id = None
+        # We abandon the transaction if this throws
+        client.commit_transaction(id, request, **kwargs)
 
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
@@ -788,6 +859,11 @@ class WhyLabsWriter(Writer):
                 f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
                 f"{self.whylabs_api_endpoint} with API token ID: {self._key_refresher.key_id}"
             )
+        else:
+            logger.warning(
+                f"response from file upload was not 200, instead got: {pprint.pformat(vars(response), indent=4)}"
+            )
+
         return is_successful, response.reason
 
     def _do_upload(
@@ -1001,18 +1077,23 @@ class WhyLabsWriter(Writer):
         res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
         return res["id"], res["upload_urls"]
 
-    # TODO: add this to client API
     def _get_upload_urls_segmented_reference_zip(self, whylabs_tags, dataset_timestamp: int) -> Tuple[str, str]:
         region = os.getenv("WHYLABS_UPLOAD_REGION", None)
         request = self._build_log_segmented_reference_request(
             dataset_timestamp, tags=whylabs_tags, alias=self._reference_profile_name, region=region
         )
-        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp)
+        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp, zip_file=True)
         url = res["upload_urls"]
-        return res["id"], url[0]  # .replace(".bin?", ".zip?")
+        return res["id"], url[0]
 
-    def _post_log_segmented_reference(self, request: LogAsyncRequest, dataset_timestamp: int) -> LogReferenceResponse:
+    def _post_log_segmented_reference(
+        self, request: LogAsyncRequest, dataset_timestamp: int, zip_file: bool = False
+    ) -> LogReferenceResponse:
         dataset_api = self._get_or_create_api_dataset_client()
+        if zip_file:
+            dataset_api.api_client.set_default_header("X-WhyLabs-File-Extension", "ZIP")
+        else:
+            dataset_api.api_client.set_default_header("X-WhyLabs-File-Extension", "BIN")
         try:
             async_result = dataset_api.create_reference_profile(
                 org_id=self._org_id,
@@ -1073,3 +1154,14 @@ class WhyLabsWriter(Writer):
             logger.debug(f"Replaced URL with our private domain. New URL: {upload_url}")
 
         return upload_url, profile_id
+
+
+class WhyLabsTransaction:
+    def __init__(self, writer: WhyLabsWriter):
+        self._writer = writer
+
+    def __enter__(self) -> None:
+        self._writer.start_transaction()
+
+    def __exit__(self, exc_type, exc_value, exc_tb) -> None:
+        self._writer.commit_transaction()

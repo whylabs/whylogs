@@ -76,6 +76,7 @@ class SessionConfig:
     def __init__(self, init_config: Optional[InitConfig] = None) -> None:
         self._init_config = init_config or InitConfig()
         self.logger = logging.getLogger("config")
+        self._ensure_config_exists = False if self._init_config.force_local is True else True
         self.auth_path = (
             Path(self._init_config.config_path) if self._init_config.config_path else self.get_config_file_path()
         )
@@ -114,7 +115,11 @@ class SessionConfig:
         return ConfigFile.get_variable_from_config_file(self._config_parser, config_name)
 
     def _load_or_prompt(
-        self, env_name: EnvVariableName, config_name: ConfigVariableName, persist: bool = False, password: bool = True
+        self,
+        env_name: EnvVariableName,
+        config_name: ConfigVariableName,
+        persist: bool = False,
+        password: bool = True,
     ) -> Optional[str]:
         """
         Loads a configuration value like _load_value does, but it will also prompt the user for the value if
@@ -194,7 +199,8 @@ class SessionConfig:
     def get_whylabs_endpoint(self) -> str:
         return (
             self._load_value(
-                env_name=EnvVariableName.WHYLABS_API_ENDPOINT, config_name=ConfigVariableName.WHYLABS_API_ENDPOINT
+                env_name=EnvVariableName.WHYLABS_API_ENDPOINT,
+                config_name=ConfigVariableName.WHYLABS_API_ENDPOINT,
             )
             or _DEFAULT_WHYLABS_HOST
         )
@@ -207,16 +213,18 @@ class SessionConfig:
         if config_dir_path is not None:
             Path(config_dir_path).mkdir(parents=True, exist_ok=True)
         else:
-            config_dir_path = user_config_dir(_CONFIG_APP_NAME, ensure_exists=True)
+            config_dir_path = user_config_dir(_CONFIG_APP_NAME, ensure_exists=self._ensure_config_exists)
 
         config_file_path = os.path.join(config_dir_path, "config.ini")
         path = Path(config_file_path)
-        path.touch(exist_ok=True)
+        if self._ensure_config_exists:
+            path.touch(exist_ok=True)
         return path
 
     def get_default_dataset_id(self) -> Optional[str]:
         return self.tmp_default_dataset_id or self._load_value(
-            env_name=EnvVariableName.WHYLABS_DEFAULT_DATASET_ID, config_name=ConfigVariableName.DEFAULT_DATASET_ID
+            env_name=EnvVariableName.WHYLABS_DEFAULT_DATASET_ID,
+            config_name=ConfigVariableName.DEFAULT_DATASET_ID,
         )
 
     def require_default_dataset_id(self) -> str:
@@ -234,7 +242,10 @@ class SessionConfig:
         except Exception:
             pass
 
-        org_id = self._load_value(env_name=EnvVariableName.WHYLABS_ORG_ID, config_name=ConfigVariableName.ORG_ID)
+        org_id = self._load_value(
+            env_name=EnvVariableName.WHYLABS_ORG_ID,
+            config_name=ConfigVariableName.ORG_ID,
+        )
 
         if org_id is not None:
             return org_id
@@ -259,7 +270,8 @@ class SessionConfig:
 
     def get_api_key(self) -> Optional[str]:
         return self.tmp_api_key or self._load_value(
-            env_name=EnvVariableName.WHYLABS_API_KEY, config_name=ConfigVariableName.API_KEY
+            env_name=EnvVariableName.WHYLABS_API_KEY,
+            config_name=ConfigVariableName.API_KEY,
         )
 
     def get_env_api_key(self) -> Optional[str]:
@@ -278,7 +290,10 @@ class SessionConfig:
         self._set_value(ConfigVariableName.USER_GUID, user_guid)
 
     def get_session_id(self) -> Optional[str]:
-        return self._load_value(env_name=EnvVariableName.WHYLABS_SESSION_ID, config_name=ConfigVariableName.SESSION_ID)
+        return self._load_value(
+            env_name=EnvVariableName.WHYLABS_SESSION_ID,
+            config_name=ConfigVariableName.SESSION_ID,
+        )
 
     def set_session_id(self, sessionId: str) -> None:
         self._set_value(ConfigVariableName.SESSION_ID, sessionId)
@@ -324,7 +339,10 @@ class SessionConfig:
 
     def _notify_type_anon(self) -> None:
         anonymous_session_id = self.get_session_id()
-        il.success(f"Using session type: {SessionType.WHYLABS_ANONYMOUS.name}", ignore_suppress=True)
+        il.success(
+            f"Using session type: {SessionType.WHYLABS_ANONYMOUS.name}",
+            ignore_suppress=True,
+        )
         id_text = "<will be generated before upload>" if not anonymous_session_id else anonymous_session_id
         il.option(f"session id: {id_text}", ignore_suppress=True)
 
