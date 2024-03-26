@@ -14,6 +14,7 @@ Classes
 
    whylogs.experimental.api.logger.ViewResultSet
    whylogs.experimental.api.logger.DatasetSchema
+   whylogs.experimental.api.logger.RowWiseMetrics
 
 
 
@@ -165,6 +166,27 @@ Attributes
 .. py:data:: diagnostic_logger
 
    
+
+.. py:class:: RowWiseMetrics(target_column: str, prediction_column: str, convert_non_numeric: bool = False)
+
+   .. py:method:: relevant_counter(row: whylogs.core.stubs.pd.core.series.Series, k: int) -> int
+
+
+   .. py:method:: sum_gains(row: whylogs.core.stubs.pd.core.series.Series, k: int) -> int
+
+
+   .. py:method:: is_k_item_relevant(row: whylogs.core.stubs.pd.core.series.Series, k: int) -> int
+
+
+   .. py:method:: get_top_rank(row: whylogs.core.stubs.pd.core.series.Series, k: int) -> Optional[int]
+
+
+   .. py:method:: calc_non_numeric_relevance(row_dict: whylogs.core.stubs.pd.core.series.Series) -> Tuple[List[int], List[int]]
+
+
+   .. py:method:: calculate_row_ndcg(row_dict: whylogs.core.stubs.pd.core.series.Series, k: int) -> float
+
+
 
 .. py:function:: log_batch_ranking_metrics(data: whylogs.core.stubs.pd.core.frame.DataFrame, prediction_column: Optional[str] = None, target_column: Optional[str] = None, score_column: Optional[str] = None, k: Optional[int] = None, convert_non_numeric=False, schema: Union[whylogs.core.DatasetSchema, None] = None, log_full_data: bool = False) -> whylogs.api.logger.result_set.ViewResultSet
 
