@@ -76,13 +76,12 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
 
         whylabs_tags = file.get_whylabs_tags()
         dataset_timestamp_epoch = self._get_dataset_epoch(views[-1])  # original writer used timestamp of last segment
-        use_v0 = kwargs.get("use_v0") is None or kwargs.get("use_v0")
         and_status: bool = True
         profile_id, upload_urls = self._whylabs_client._get_upload_urls_segmented_reference(  # type: ignore
             whylabs_tags, dataset_timestamp_epoch, self._reference_profile_name
         )
         for view, url in zip(views, upload_urls):
-            bool_status, message = self._upload_view(view, profile_id, url, dataset_timestamp_epoch, use_v0=use_v0)
+            bool_status, message = self._upload_view(view, profile_id, url, dataset_timestamp_epoch)
             and_status = and_status and bool_status
 
         return and_status, (message if and_status else "Failed to upload all segments")
@@ -98,8 +97,6 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
 
         whylabs_tags = file.get_whylabs_tags()
         dataset_timestamp_epoch = self._get_dataset_epoch(views[-1])  # original writer used timestamp of last segment
-
-        use_v0 = kwargs.get("use_v0") is None or kwargs.get("use_v0")
         profile_id, upload_url = self._whylabs_client._get_upload_url_segmented_reference_zip(  # type: ignore
             whylabs_tags, dataset_timestamp_epoch, self._reference_profile_name
         )
@@ -108,7 +105,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
                 for view in views:
                     view = self._prepare_view_for_upload(view)
                     with tempfile.NamedTemporaryFile() as view_file:
-                        view.write(file=view_file, use_v0=use_v0)  # TODO: error checking
+                        view.write(file=view_file)  # TODO: error checking
                         view_file.flush()
                         view_file.seek(0)
                         zip_file.write(view_file.name, view_file.name.split("/")[-1])
@@ -137,6 +134,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
     def write(
         self, file: Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
+        self.option(**kwargs)
         self._whylabs_client = self._whylabs_client.option(**kwargs)  # type: ignore
 
         if isinstance(file, SegmentedResultSet):

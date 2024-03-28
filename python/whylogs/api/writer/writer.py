@@ -34,7 +34,7 @@ class Writable(ABC):
         """
         Returns the default path to write to, excluding filename(s). None = use CWD
         """
-        return None
+        return os.getcwd()
 
     @abstractmethod
     def write(

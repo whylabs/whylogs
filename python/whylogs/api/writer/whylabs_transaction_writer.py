@@ -80,7 +80,10 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         for view, tags in zip(views, whylabs_tags):
             dataset_timestamp_epoch = self._get_dataset_epoch(view, utc_now)
             profile_id, upload_url = self._whylabs_client.get_upload_url_transaction(dataset_timestamp_epoch, tags)  # type: ignore
-            bool_status, _ = self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, tags, **kwargs)
+            bool_status, message = self._upload_view(
+                view, profile_id, upload_url, dataset_timestamp_epoch, tags, **kwargs
+            )
+            # TODO: if not bool_status: self._whylabs_client.abort_transaction(self._transaction_id)
             logger.info(f"Added profile {profile_id} to transaction {self._transaction_id}")
             and_status = and_status and bool_status
 
@@ -95,7 +98,9 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         dataset_timestamp_epoch = self._get_dataset_epoch(view)
         profile_id, upload_url = self._whylabs_client.get_upload_url_transaction(dataset_timestamp_epoch)  # type: ignore
         logger.info(f"Added profile {profile_id} to transaction {self._transaction_id}")
-        return self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, **kwargs)
+        success, message = self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, **kwargs)
+        # TODO: if not success: self._whylabs_client.abort_transaction(self._transaction_id)
+        return success, message
 
     @deprecated_alias(profile="file")
     def write(

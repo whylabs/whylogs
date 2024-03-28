@@ -76,7 +76,6 @@ class WhyLabsBatchWriter(WhyLabsWriterBase):
             return True, ""
 
         utc_now = datetime.datetime.now(datetime.timezone.utc)
-        use_v0 = kwargs.get("use_v0") is None or kwargs.get("use_v0")
         messages: List[str] = list()
         and_status: bool = True
         logger.debug(f"About to write {len(views)} files:")
@@ -84,9 +83,7 @@ class WhyLabsBatchWriter(WhyLabsWriterBase):
         for view in views:
             dataset_timestamp_epoch = self._get_dataset_epoch(view, utc_now)
             profile_id, upload_url = self._whylabs_client.get_upload_url_batch(dataset_timestamp_epoch)  # type: ignore
-            bool_status, message = self._upload_view(
-                view, profile_id, upload_url, dataset_timestamp_epoch, use_v0=use_v0
-            )
+            bool_status, message = self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch)
             messages.append(message)
             and_status = and_status and bool_status
 
@@ -105,13 +102,12 @@ class WhyLabsBatchWriter(WhyLabsWriterBase):
         utc_now = datetime.datetime.now(datetime.timezone.utc)
         dataset_timestamp_epoch = self._get_dataset_epoch(views[0], utc_now)
         profile_id, upload_url = self._whylabs_client.get_upload_url_batch_zip(dataset_timestamp_epoch)  # type: ignore
-        use_v0 = kwargs.get("use_v0") is None or kwargs.get("use_v0")
         with tempfile.NamedTemporaryFile(suffix=".zip") as tmp_file:
             with ZipFile(tmp_file, "w", allowZip64=True) as zip_file:
                 for view in views:
                     view = self._prepare_view_for_upload(view)
                     with tempfile.NamedTemporaryFile() as view_file:
-                        view.write(file=view_file, use_v0=use_v0)
+                        view.write(file=view_file)
                         view_file.flush()
                         view_file.seek(0)
                         zip_file.write(view_file.name, view_file.name.split("/")[-1])
