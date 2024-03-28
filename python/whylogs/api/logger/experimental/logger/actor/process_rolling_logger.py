@@ -93,7 +93,7 @@ class WriterFactory:
 class WhyLabsWriterFactory(WriterFactory):
     def create_writers(self, dataset_id: str) -> List[Writer]:
         return [
-            Writers.get(
+            Writers.get(  # type: ignore
                 "whylabs",
                 dataset_id=dataset_id,
             )

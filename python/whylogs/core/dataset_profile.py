@@ -1,8 +1,7 @@
 import logging
-import os.path
 import time
 from datetime import datetime, timezone
-from typing import Any, Dict, Mapping, Optional, Tuple, Union
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 from whylogs.api.writer.writer import Writable
 from whylogs.core.metrics import Metric
@@ -269,18 +268,17 @@ class DatasetProfile(Writable):
         for col in self._columns.values():
             col.flush()
 
-    @staticmethod
-    def get_default_path(path) -> str:
-        if not path.endswith("bin"):
-            path = os.path.join(path, f"profile.{int(round(time.time() * 1000))}.bin")
-        return path
+    def _get_default_filename(self) -> str:
+        return f"profile.{int(round(time.time() * 1000))}.bin"
 
     @deprecated_alias(path_or_base_dir="path")
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
-        output_path = self.get_default_path(path=path)
-        response = self.view().write(output_path)
-        logger.debug("Wrote profile to path: %s", output_path)
-        return response
+    def write(
+        self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any
+    ) -> Tuple[bool, Union[str, List[str]]]:
+        filename = filename or self._get_default_filename()
+        success, files = self.view().write(path, filename, **kwargs)
+        logger.debug(f"Wrote profile to path: {files}")
+        return success, files
 
     @classmethod
     def read(cls, input_path: str) -> DatasetProfileView:

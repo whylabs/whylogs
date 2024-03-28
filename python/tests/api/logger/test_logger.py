@@ -1,4 +1,3 @@
-import os.path
 import tempfile
 from typing import Any
 
@@ -116,8 +115,8 @@ def test_roundtrip_resultset(tmp_path: Any) -> None:
     df = pd.DataFrame(data=d)
 
     results = why.log(df)
-    results.writer("local").option(base_dir=tmp_path).write(dest="profile.bin")
-    path = os.path.join(tmp_path, "profile.bin")
+    status, path = results.writer("local", base_name="profile.bin").option(base_dir=tmp_path).write()
+    assert status
     roundtrip_result_set = why.read(path)
     assert len(results.view().to_pandas()) == len(roundtrip_result_set.view().to_pandas())
 
@@ -373,9 +372,11 @@ def test_custom_resolver() -> None:
 
 def test_result_set_reader(profile_view):
     with tempfile.NamedTemporaryFile() as tmp_file:
-        profile_view.write(path=tmp_file.name)
-
+        success, path = profile_view.write(file=tmp_file)
+        assert success
+        tmp_file.flush()
+        tmp_file.seek(0)
         reader = why.reader(name="local")
-        results = reader.read(path=tmp_file.name)
+        results = reader.read(path=path)
         assert isinstance(reader, ResultSetReader)
         assert isinstance(results, ResultSet)

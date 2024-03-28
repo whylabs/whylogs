@@ -56,6 +56,6 @@ class TestS3Writer(object):
 
         writer = S3Writer()
         objects = writer.s3_client.list_objects(Bucket=BUCKET_NAME)
-        expected_path = result_set.view().get_default_path()
+        expected_path = result_set.view()._get_default_filename()
 
         assert expected_path in [obj["Key"] for obj in objects.get("Contents", [])]
