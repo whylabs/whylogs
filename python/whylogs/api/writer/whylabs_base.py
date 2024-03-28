@@ -211,7 +211,6 @@ class WhyLabsWriterBase(Writer):
 
             # TODO: the use_v0 logic looks backwards
             if has_performance_metrics or kwargs.get("use_v0"):
-                print(f"using V0 {has_performance_metrics}  {kwargs.get('use_v0')}")
                 view.write(file=tmp_file, use_v0=True)
             else:
                 view.write(file=tmp_file)
