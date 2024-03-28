@@ -596,6 +596,14 @@ class WhyLabsClient:
         # We abandon the transaction if this throws
         client.commit_transaction(id, request)
 
+    """
+    def abort_transaction(self, id: str) -> None:
+        logger.info(f"Aborting transaciton {id}")
+        client = self._get_or_create_transaction_client()
+        request = TransactionAbortRequest()
+        client.abort_transaction(id, request)
+    """
+
     def get_upload_url_transaction(
         self, dataset_timestamp: int, whylabs_tags: List[SegmentTag] = []
     ) -> Tuple[str, str]:

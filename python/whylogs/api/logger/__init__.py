@@ -320,8 +320,8 @@ def reader(name: str) -> ResultSetReader:
     return ResultSet.reader(name=name)
 
 
-def write(profile: DatasetProfile, base_dir: str) -> None:
-    return profile.write(base_dir)
+def write(profile: DatasetProfile, base_dir: Optional[str] = None, filename: Optional[str] = None) -> None:
+    return profile.write(base_dir, filename)
 
 
 def logger(
