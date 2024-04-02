@@ -3,6 +3,7 @@ import logging
 from typing import Any, List, Optional, Tuple, Union
 
 from whylabs_client import ApiClient
+from whylabs_client.exceptions import NotFoundException
 
 from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.api.whylabs.session.session_manager import INIT_DOCS
@@ -64,8 +65,15 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         ssl_ca_cert: Optional[str] = None,
         _timeout_seconds: Optional[float] = None,
         whylabs_client: Optional[WhyLabsClient] = None,
+        transaction_id: Optional[str] = None,
     ):
         super().__init__(org_id, api_key, dataset_id, api_client, ssl_ca_cert, _timeout_seconds, whylabs_client)
+        self._whylabs_client._transaction_id = transaction_id or self._whylabs_client.get_transaction_id()  # type: ignore
+        self._aborted: bool = False
+
+    @property
+    def transaction_id(self) -> Optional[str]:
+        return self._whylabs_client._transaction_id  # type: ignore
 
     def _write_segmented_result_set(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
         views = file.get_writables()
@@ -83,8 +91,12 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
             bool_status, message = self._upload_view(
                 view, profile_id, upload_url, dataset_timestamp_epoch, tags, **kwargs
             )
-            # TODO: if not bool_status: self._whylabs_client.abort_transaction(self._transaction_id)
-            logger.info(f"Added profile {profile_id} to transaction {self._transaction_id}")
+            if not bool_status:
+                self._whylabs_client.abort_transaction(self.transaction_id)  # type: ignore
+                self._aborted = True
+                logger.info(f"Uploading {profile_id} failed; aborting transaction {self.transaction_id}")
+            else:
+                logger.info(f"Added profile {profile_id} to transaction {self.transaction_id}")
             and_status = and_status and bool_status
 
         logger.debug(f"Completed writing {len(views)} files!")
@@ -97,19 +109,25 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
     ) -> Tuple[bool, str]:
         dataset_timestamp_epoch = self._get_dataset_epoch(view)
         profile_id, upload_url = self._whylabs_client.get_upload_url_transaction(dataset_timestamp_epoch)  # type: ignore
-        logger.info(f"Added profile {profile_id} to transaction {self._transaction_id}")
+        logger.info(f"Added profile {profile_id} to transaction {self.transaction_id}")
         success, message = self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, **kwargs)
-        # TODO: if not success: self._whylabs_client.abort_transaction(self._transaction_id)
+        if not success:
+            self._whylabs_client.abort_transaction(self.transaction_id)  # type: ignore
+            self._aborted = True
+            logger.info(f"Uploading {profile_id} failed; aborting transaction {self.transaction_id}")
         return success, message
 
     @deprecated_alias(profile="file")
     def write(
         self, file: Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
-        transaction_id = kwargs.get("transaction_id")
-        if transaction_id is None:
+        if self._aborted:
+            return False, f"Transaction {self.transaction_id} was aborted"
+
+        transaction_id = self.transaction_id or kwargs.get("transaction_id")
+        if not transaction_id:
             raise ValueError("Missing transaction id")
-        self._transaction_id = transaction_id
+
         self._whylabs_client = self._whylabs_client.option(**kwargs)  # type: ignore
 
         if isinstance(file, SegmentedResultSet):
@@ -118,3 +136,17 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         # file represents a single profile/segment, extract a view of it
         view = self._get_view_of_writable(file)
         return self._write_view(view, **kwargs)
+
+    def __enter__(self) -> "WhyLabsTransactionWriter":
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb) -> None:
+        id = self.transaction_id
+        self._whylabs_client._transaction_id = None  # type: ignore
+        try:
+            self._whylabs_client.commit_transaction(id)  # type: ignore
+        except NotFoundException as e:
+            if "Transaction has been aborted" in str(e):  # TODO: perhaps not the most robust test?
+                logger.error(f"Transaction {id} was aborted; not committing")
+            else:
+                raise e

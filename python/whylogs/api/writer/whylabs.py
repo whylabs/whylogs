@@ -2,6 +2,7 @@ import logging
 from typing import Any, List, Optional, Tuple, Union
 
 from whylabs_client import ApiClient
+from whylabs_client.exceptions import NotFoundException
 
 from whylogs.api.whylabs.session.session_manager import INIT_DOCS
 from whylogs.api.writer.whylabs_base import WhyLabsWriterBase
@@ -207,6 +208,14 @@ class WhyLabsWriter(WhyLabsWriterBase):
         self._whylabs_client.commit_transaction(id)  # type: ignore
         self._whylabs_client._transaction_id = None  # type: ignore
 
+    def abort_transaction(self) -> None:
+        """
+        Prevent the profiles uploaded in the current transaction from being
+        ingested. You still need to call commit_transaction(), but it will
+        throw a NotFoundException to indicate the transaction was unsuccessful.
+        """
+        self._whylabs_client.abort_transaction(self._transaction_id)  # type: ignore
+
     def _get_writer(self, writer_type) -> WhyLabsWriterBase:
         return writer_type(
             self._whylabs_client._org_id,  # type: ignore
@@ -250,8 +259,16 @@ class WhyLabsTransaction:
     def __init__(self, writer: WhyLabsWriter):
         self._writer = writer
 
-    def __enter__(self) -> None:
+    def __enter__(self) -> str:
         self._writer.start_transaction()
+        return self._writer._transaction_id  # type: ignore
 
     def __exit__(self, exc_type, exc_value, exc_tb) -> None:
-        self._writer.commit_transaction()
+        id = self._writer._transaction_id
+        try:
+            self._writer.commit_transaction()
+        except NotFoundException as e:
+            if "Transaction has been aborted" in str(e):  # TODO: perhaps not the most robust test?
+                logger.error(f"Transaction {id} was aborted; not committing")
+            else:
+                raise e

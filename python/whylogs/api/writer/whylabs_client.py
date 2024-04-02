@@ -144,7 +144,7 @@ class WhyLabsClient:
         self._reference_profile_name = config.get_whylabs_refernce_profile_name()
         self._api_config: Optional[Configuration] = None
         self._prefer_sync = read_bool_env_var(WHYLOGS_PREFER_SYNC_KEY, False)
-        self._transaction_id = None
+        self._transaction_id: Optional[str] = None
 
         _http_proxy = os.environ.get("HTTP_PROXY")
         _https_proxy = os.environ.get("HTTPS_PROXY")
@@ -596,13 +596,10 @@ class WhyLabsClient:
         # We abandon the transaction if this throws
         client.commit_transaction(id, request)
 
-    """
     def abort_transaction(self, id: str) -> None:
         logger.info(f"Aborting transaciton {id}")
         client = self._get_or_create_transaction_client()
-        request = TransactionAbortRequest()
-        client.abort_transaction(id, request)
-    """
+        client.abort_transaction(id)
 
     def get_upload_url_transaction(
         self, dataset_timestamp: int, whylabs_tags: List[SegmentTag] = []

@@ -8,6 +8,7 @@ import pandas as pd
 import pytest
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi
 from whylabs_client.api.models_api import ModelsApi
+from whylabs_client.exceptions import NotFoundException
 from whylabs_client.model.entity_schema import EntitySchema
 from whylabs_client.model.profile_traces_response import ProfileTracesResponse
 from whylabs_client.model.reference_profile_item_response import (
@@ -15,7 +16,8 @@ from whylabs_client.model.reference_profile_item_response import (
 )
 
 import whylogs as why
-from whylogs.api.writer.whylabs import WhyLabsTransaction, WhyLabsWriter
+from whylogs.api.writer.whylabs import WhyLabsWriter
+from whylogs.api.writer.whylabs_transaction_writer import WhyLabsTransactionWriter
 from whylogs.core import DatasetProfileView
 from whylogs.core.feature_weights import FeatureWeights
 from whylogs.core.schema import DatasetSchema
@@ -223,6 +225,35 @@ def test_transactions():
 
 
 @pytest.mark.load
+def test_transaction_aborted():
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+    why.init(force_local=True)
+    data = {"col1": 1, "col2": "foo"}
+    trace_id = str(uuid4())
+    result = why.log(data, trace_id=trace_id)
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    transaction_id = writer.start_transaction()
+    status, id = writer.write(result)
+    assert status
+    writer._whylabs_client.abort_transaction(transaction_id)
+    status, id = writer.write(result)
+    with pytest.raises(NotFoundException) as e:
+        writer.commit_transaction()
+        assert str(e) == "Transaction has been aborted"
+
+    assert writer._transaction_id is None
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
+    dataset_api = DatasetProfileApi(writer._api_client)
+    response: ProfileTracesResponse = dataset_api.get_profile_traces(
+        org_id=ORG_ID,
+        dataset_id=MODEL_ID,
+        trace_id=trace_id,
+    )
+    assert len(response.get("traces")) == 0
+
+
+@pytest.mark.load
 def test_transaction_context():
     ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
@@ -231,12 +262,11 @@ def test_transaction_context():
     csv_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv"
     df = pd.read_csv(csv_url)
     pdfs = np.array_split(df, 7)
-    writer = WhyLabsWriter(dataset_id=MODEL_ID)
     tids = list()
     try:
-        with WhyLabsTransaction(writer):
-            assert writer._transaction_id is not None
-            assert writer._whylabs_client._transaction_id == writer._transaction_id
+        with WhyLabsTransactionWriter() as writer:
+            assert writer.transaction_id is not None
+            assert writer._whylabs_client._transaction_id == writer.transaction_id
             for data in pdfs:
                 trace_id = str(uuid4())
                 tids.append(trace_id)
@@ -266,6 +296,23 @@ def test_transaction_context():
         )
         deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
         assert deserialized_view is not None
+
+
+@pytest.mark.load
+def test_transaction_context_aborted():
+    why.init(force_local=True)
+    csv_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv"
+    df = pd.read_csv(csv_url)
+    pdfs = np.array_split(df, 7)
+    with WhyLabsTransactionWriter() as writer:
+        transaction_id = writer.transaction_id
+        for data, i in zip(pdfs, range(len(pdfs))):
+            result = why.log(data)
+            if i == 3:
+                writer._whylabs_client.abort_transaction(transaction_id)
+            writer.write(result)
+    # the context manager should swallow the abort exception from the abort
+    assert writer.transaction_id is None
 
 
 @pytest.mark.load
