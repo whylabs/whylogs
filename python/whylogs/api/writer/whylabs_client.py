@@ -606,6 +606,7 @@ class WhyLabsClient:
     ) -> Tuple[str, str]:
         region = os.getenv("WHYLABS_UPLOAD_REGION", None)
         client: TransactionsApi = self._get_or_create_transaction_client()
+        client.api_client.set_default_header("X-WhyLabs-File-Extension", "BIN")
         request = TransactionLogRequest(dataset_timestamp=dataset_timestamp, segment_tags=whylabs_tags, region=region)
         result: AsyncLogResponse = client.log_transaction(self._transaction_id, request)
         return result.id, result.upload_url

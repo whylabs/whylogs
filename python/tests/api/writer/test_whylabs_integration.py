@@ -207,6 +207,7 @@ def test_transactions():
     assert writer._transaction_id is not None
     assert writer._transaction_id == writer._whylabs_client._transaction_id == transaction_id
     writer.start_transaction(transaction_id)
+    assert writer._transaction_id == writer._whylabs_client._transaction_id == transaction_id
     status, id = writer.write(result)
     writer.commit_transaction()
     assert writer._transaction_id is None

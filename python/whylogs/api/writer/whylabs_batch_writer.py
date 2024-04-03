@@ -70,8 +70,6 @@ class WhyLabsBatchWriter(WhyLabsWriterBase):
         super().__init__(org_id, api_key, dataset_id, api_client, ssl_ca_cert, _timeout_seconds, whylabs_client)
 
     def _write_segmented_result_set(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
-        transaction_id = self._whylabs_client.get_transaction_id()  # type: ignore
-        self._whylabs_client._transaction_id = transaction_id  # type: ignore
         views = file.get_writables()
         if not views:
             logger.warning("Attempt to write a result set with no writables, nothing written!")
@@ -80,54 +78,25 @@ class WhyLabsBatchWriter(WhyLabsWriterBase):
         whylabs_tags = file.get_whylabs_tags()
         utc_now = datetime.datetime.now(datetime.timezone.utc)
         and_status: bool = True
-        logger.debug(f"About to write {len(views)} files:")
-        for view, tags in zip(views, whylabs_tags):
-            dataset_timestamp_epoch = self._get_dataset_epoch(view, utc_now)
-            profile_id, upload_url = self._whylabs_client.get_upload_url_transaction(dataset_timestamp_epoch, tags)  # type: ignore
-            bool_status, message = self._upload_view(
-                view, profile_id, upload_url, dataset_timestamp_epoch, tags, **kwargs
-            )
-            if not bool_status:
-                self._whylabs_client.abort_transaction(self._transaction_id)  # type: ignore
-                self._aborted = True
-                logger.info(f"Uploading {profile_id} failed; aborting transaction {self._transaction_id}")
-            else:
-                logger.info(f"Added profile {profile_id} to transaction {self._transaction_id}")
-            and_status = and_status and bool_status
-
-        logger.debug(f"Completed writing {len(views)} files!")
-        if and_status:
-            self._whylabs_client.commit_transaction(transaction_id)  # type: ignore
-        return and_status, profile_id if and_status else "Failed to upload all segments"
-
-    """
-    def _write_segmented_result_set(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
-        views = file.get_writables()
-        if not views:
-            logger.warning("Attempt to write a result set with no writables, nothing written!")
-            return True, ""
-
-        whylabs_tags = file.get_whylabs_tags()
-        utc_now = datetime.datetime.now(datetime.timezone.utc)
-        and_status: bool = True
+        messages: List[str] = list()
         logger.debug(f"About to write {len(views)} files:")
         transaction_id = self._whylabs_client.get_transaction_id()  # type: ignore
         self._whylabs_client._transaction_id = transaction_id  # type: ignore
-
+        self._transaction_id = transaction_id
         for view, tags in zip(views, whylabs_tags):
             dataset_timestamp_epoch = self._get_dataset_epoch(view, utc_now)
             profile_id, upload_url = self._whylabs_client.get_upload_url_transaction(dataset_timestamp_epoch, tags)  # type: ignore
             bool_status, message = self._upload_view(
                 view, profile_id, upload_url, dataset_timestamp_epoch, tags, **kwargs
             )
+            messages.append(message)
             and_status = and_status and bool_status
 
         if and_status:
             self._whylabs_client.commit_transaction(transaction_id)  # type: ignore
 
         logger.debug(f"Completed writing {len(views)} files!")
-        return and_status, profile_id if and_status else "Failed to upload all segments"
-    """
+        return and_status, "; ".join(messages) if and_status else "Failed to upload all segments"
 
     """
     def _write_segmented_result_set(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:

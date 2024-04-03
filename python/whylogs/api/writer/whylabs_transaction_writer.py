@@ -124,7 +124,7 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         if self._aborted:
             return False, f"Transaction {self.transaction_id} was aborted"
 
-        transaction_id = self.transaction_id or kwargs.get("transaction_id")
+        transaction_id = kwargs.get("transaction_id") or self.transaction_id
         if not transaction_id:
             raise ValueError("Missing transaction id")
 
