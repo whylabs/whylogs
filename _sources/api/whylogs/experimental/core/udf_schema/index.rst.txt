@@ -108,7 +108,7 @@ Attributes
    .. py:method:: add_resolver(resolver_spec: whylogs.core.resolvers.ResolverSpec)
 
 
-   .. py:method:: add_resolver_spec(column_name: Optional[str] = None, column_type: Optional[Any] = None, metrics: Optional[List[whylogs.core.resolvers.MetricSpec]] = None)
+   .. py:method:: add_resolver_spec(column_name: Optional[Union[str, Set[str]]] = None, column_type: Optional[Any] = None, metrics: Optional[List[whylogs.core.resolvers.MetricSpec]] = None)
 
 
    .. py:method:: resolve(*, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool
