@@ -1,7 +1,7 @@
 import logging
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Mapping, Optional, Tuple, TypeVar
+from typing import Any, Dict, List, Mapping, Optional, Set, Tuple, TypeVar, Union
 
 import whylogs.core.resolvers as res
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
@@ -232,10 +232,19 @@ class DeclarativeSchema(DatasetSchema):
 
     def add_resolver_spec(
         self,
-        column_name: Optional[str] = None,
+        column_name: Optional[Union[str, Set[str]]] = None,
         column_type: Optional[Any] = None,
         metrics: Optional[List[MetricSpec]] = None,
     ):
+        if column_name is not None and not isinstance(column_name, (str, set)):
+            raise ValueError("column_name must be a stirng or set of strings")
+
+        if isinstance(column_name, set):
+            for name in column_name:
+                spec = ResolverSpec(column_name=name, column_type=column_type, metrics=metrics or [])
+                self.add_resolver(spec)
+            return
+
         spec = ResolverSpec(column_name=column_name, column_type=column_type, metrics=metrics or [])
         self.add_resolver(spec)
 

@@ -208,6 +208,25 @@ def test_declarative_schema_with_additional_resolvers(pandas_dataframe):
     }.issubset(colset)
 
 
+def test_declarative_schema_add_multiple_resolvers(pandas_dataframe):
+    schema = DeclarativeSchema([])
+    schema.add_resolver_spec("animal", None, [MetricSpec(StandardMetric.cardinality.value)])
+    schema.add_resolver_spec({"legs", "weight"}, None, [MetricSpec(StandardMetric.distribution.value)])
+    results = why.log(pandas_dataframe, schema=schema).view()
+    metrics = set(results.get_column("animal").get_metric_names())
+    assert metrics == {"cardinality"}
+    metrics = set(results.get_column("legs").get_metric_names())
+    assert metrics == {"distribution"}
+    metrics = set(results.get_column("weight").get_metric_names())
+    assert metrics == {"distribution"}
+
+
+def test_invalid_column_name():
+    schema = DeclarativeSchema([])
+    with pytest.raises(ValueError):
+        schema.add_resolver_spec(42)
+
+
 def test_additional_metrics_nonexistent(pandas_dataframe):
     count_spec = ResolverSpec(
         column_name="nonexistent_columns",

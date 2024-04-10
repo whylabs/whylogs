@@ -141,3 +141,10 @@ def test_uncompounded_condition_count() -> None:
             assert metric.null.value == 0
             assert metric.nan.value == 0
             assert metric.inf.value == 0
+            metric = uncompounded._columns[column_name]._metrics["types"]
+            assert metric.integral.value == 2
+            assert metric.fractional.value == 0
+            assert metric.boolean.value == 0
+            assert metric.string.value == 0
+            assert metric.object.value == 0
+            assert metric.tensor.value == 0
