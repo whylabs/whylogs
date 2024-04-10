@@ -236,7 +236,7 @@ class DeclarativeSchema(DatasetSchema):
         column_type: Optional[Any] = None,
         metrics: Optional[List[MetricSpec]] = None,
     ):
-        if not isinstance(column_name, (str, set)):
+        if column_name is not None and not isinstance(column_name, (str, set)):
             raise ValueError("column_name must be a stirng or set of strings")
 
         if isinstance(column_name, set):
