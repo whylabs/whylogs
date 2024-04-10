@@ -4,7 +4,7 @@ from typing import Dict, Optional
 
 from whylogs.core import ColumnProfileView, DatasetProfileView
 from whylogs.core.metrics import Metric
-from whylogs.core.metrics.column_metrics import ColumnCountsMetric
+from whylogs.core.metrics.column_metrics import ColumnCountsMetric, TypeCountersMetric
 from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.metrics.condition_count_metric import ConditionCountMetric
 from whylogs.core.metrics.metric_components import IntegralComponent
@@ -118,6 +118,14 @@ def _uncompound_condition_count(
         return dict()
 
     result: Dict[str, ColumnProfileView] = dict()
+    type_metric = TypeCountersMetric(
+        integral=metric.total,  # total condition evaluations
+        fractional=IntegralComponent(0),
+        boolean=IntegralComponent(0),
+        string=IntegralComponent(0),
+        object=IntegralComponent(0),
+        tensor=IntegralComponent(0),
+    )
     for condition_name, count_component in metric.matches.items():
         new_col_name = f"{_condition_count_magic_string()}{col_name}.{condition_name}.total"
         new_metric = ColumnCountsMetric(
@@ -126,7 +134,12 @@ def _uncompound_condition_count(
             nan=IntegralComponent(0),  # unused
             inf=IntegralComponent(0),  # unused
         )
-        result[new_col_name] = ColumnProfileView({ColumnCountsMetric.get_namespace(): new_metric})
+        result[new_col_name] = ColumnProfileView(
+            {
+                ColumnCountsMetric.get_namespace(): new_metric,
+                TypeCountersMetric.get_namespace(): type_metric,
+            }
+        )
         new_col_name = f"{_condition_count_magic_string()}{col_name}.{condition_name}.matches"
         new_metric = ColumnCountsMetric(
             n=count_component,  # count of evaluations that matched condition
@@ -134,7 +147,12 @@ def _uncompound_condition_count(
             nan=IntegralComponent(0),  # unused
             inf=IntegralComponent(0),  # unused
         )
-        result[new_col_name] = ColumnProfileView({ColumnCountsMetric.get_namespace(): new_metric})
+        result[new_col_name] = ColumnProfileView(
+            {
+                ColumnCountsMetric.get_namespace(): new_metric,
+                TypeCountersMetric.get_namespace(): type_metric,
+            }
+        )
         new_col_name = f"{_condition_count_magic_string()}{col_name}.{condition_name}.non_matches"
         new_metric = ColumnCountsMetric(
             n=IntegralComponent(metric.total.value - count_component.value),  # evaluations that didn't match
@@ -142,7 +160,12 @@ def _uncompound_condition_count(
             nan=IntegralComponent(0),  # unused
             inf=IntegralComponent(0),  # unused
         )
-        result[new_col_name] = ColumnProfileView({ColumnCountsMetric.get_namespace(): new_metric})
+        result[new_col_name] = ColumnProfileView(
+            {
+                ColumnCountsMetric.get_namespace(): new_metric,
+                TypeCountersMetric.get_namespace(): type_metric,
+            }
+        )
 
     return result
 
