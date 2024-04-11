@@ -86,6 +86,8 @@ KNOWN_CUSTOM_PERFORMANCE_METRICS = {
     "recall_k_": "mean",
     "top_rank": "mean",
     "average_precision_k_": "mean",
+    "norm_dis_cumul_gain_k_": "mean",
+    "sum_gain_k_": "mean", 
 }
 
 
