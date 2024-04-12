@@ -1,3 +1,4 @@
+import datetime
 import logging
 from typing import Any, List, Optional, Tuple, Union
 
@@ -79,18 +80,22 @@ class WhyLabsEstimationResultWriter(WhyLabsWriterBase):
             raise ValueError("I can only write EstimationResult")
 
         if _uncompound_performance_estimation_feature_flag():
+            trace_id = kwargs.get("trace_id")
             estimation_magic_string = _uncompound_performance_estimation_magic_string()
-            estimation_result_profile = log({f"{estimation_magic_string}accuracy": file.accuracy}).profile()
-            estimation_result_profile.set_dataset_timestamp(file.target_result_timestamp)
+            estimation_result_profile = log(
+                {f"{estimation_magic_string}accuracy": file.accuracy}, trace_id=trace_id
+            ).profile()
+            timestamp = file.target_result_timestamp or datetime.datetime.now(datetime.timezone.utc)
+            estimation_result_profile.set_dataset_timestamp(timestamp)
             view = estimation_result_profile.view()
             return view.writer(
                 "whylabs",
-                org_id=self._org_id,
-                api_key=self._api_key,
-                dataset_id=self._dataset_id,
-                api_client=self._api_client,
-                ssl_ca_cert=self._ssl_ca_cert,
-                _timeout_seconds=self._timeout_seconds,
+                org_id=self._whylabs_client._org_id,
+                api_key=self._whylabs_client._api_key,
+                dataset_id=self._whylabs_client._dataset_id,
+                api_client=None,  # TODO: support custom clients
+                ssl_ca_cert=self._whylabs_client._ssl_ca_cert,
+                _timeout_seconds=self._whylabs_client._timeout_seconds,
             ).write(dest, **kwargs)
 
         return False, str("Performance estimation feature flag is not enabled")

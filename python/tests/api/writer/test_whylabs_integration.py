@@ -22,6 +22,10 @@ from whylogs.core import DatasetProfileView
 from whylogs.core.feature_weights import FeatureWeights
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.segmentation_partition import segment_on_column
+from whylogs.experimental.performance_estimation.estimation_results import (
+    EstimationResult,
+)
+from whylogs.migration.uncompound import _uncompound_performance_estimation_magic_string
 
 # TODO: These won't work well if multiple tests run concurrently
 
@@ -188,8 +192,26 @@ def test_performance_column():
 
 @pytest.mark.load
 def test_estimation_result():
-    # TODO: WhyLabsWriter::write_estimation_result() needs a trace id
-    pass
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+    result = EstimationResult(0.5)
+    writer = WhyLabsWriter()
+    trace_id = str(uuid4())
+    status, _ = writer.write(result, trace_id=trace_id)
+    assert status
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
+    dataset_api = DatasetProfileApi(writer._api_client)
+    response: ProfileTracesResponse = dataset_api.get_profile_traces(
+        org_id=ORG_ID,
+        dataset_id=MODEL_ID,
+        trace_id=trace_id,
+    )
+    download_url = response.get("traces")[0]["download_url"]
+    headers = {"Content-Type": "application/octet-stream"}
+    downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
+    deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+    estimation_magic_string = _uncompound_performance_estimation_magic_string()
+    assert set(deserialized_view.get_columns().keys()) == {f"{estimation_magic_string}accuracy"}
 
 
 @pytest.mark.load

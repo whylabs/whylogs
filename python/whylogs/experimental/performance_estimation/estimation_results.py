@@ -17,7 +17,7 @@ class EstimationResult(Writable):
 
     def __init__(
         self,
-        accuracy: Optional[float] = None,
+        accuracy: float,
         reference_partition_id: Optional[str] = None,
         reference_result_timestamp: Optional[datetime] = None,
         target_result_timestamp: Optional[datetime] = None,
