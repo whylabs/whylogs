@@ -17,6 +17,7 @@ from whylabs_client.model.reference_profile_item_response import (
 
 import whylogs as why
 from whylogs.api.writer.whylabs import WhyLabsWriter
+from whylogs.api.writer.whylabs_client import WhyLabsClient
 from whylogs.api.writer.whylabs_transaction_writer import WhyLabsTransactionWriter
 from whylogs.core import DatasetProfileView
 from whylogs.core.feature_weights import FeatureWeights
@@ -154,7 +155,7 @@ def test_tag_columns():
 
 
 @pytest.mark.load
-def test_feature_weights():
+def test_feature_weights_writer():
     writer = WhyLabsWriter()
     feature_weights = FeatureWeights({"col1": 1.0, "col2": 0.0})
     writer.write_feature_weights(feature_weights)
@@ -165,6 +166,21 @@ def test_feature_weights():
     feature_weights = FeatureWeights({"col1": 0.0, "col2": 1.0})
     writer.write_feature_weights(feature_weights)
     retrieved_weights = writer.get_feature_weights()
+    assert feature_weights.weights == retrieved_weights.weights
+
+
+@pytest.mark.load
+def test_feature_weights_client():
+    client = WhyLabsClient()
+    feature_weights = FeatureWeights({"col1": 1.0, "col2": 0.0})
+    client.write_feature_weights(feature_weights)
+    retrieved_weights = client.get_feature_weights()
+    assert feature_weights.weights == retrieved_weights.weights
+
+    # swap 'em so we won't accidentally pass from previous state
+    feature_weights = FeatureWeights({"col1": 0.0, "col2": 1.0})
+    client.write_feature_weights(feature_weights)
+    retrieved_weights = client.get_feature_weights()
     assert feature_weights.weights == retrieved_weights.weights
 
 
