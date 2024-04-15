@@ -689,7 +689,7 @@ class WhyLabsWriter(Writer):
                         data_type = KNOWN_CUSTOM_OUTPUT_METRICS[perf_col][0]
                         discreteness = KNOWN_CUSTOM_OUTPUT_METRICS[perf_col][1]
                         column_schema: ColumnSchema = ColumnSchema(
-                            classifier="output", data_type=data_type, discreteness=discreteness # type: ignore
+                            classifier="output", data_type=data_type, discreteness=discreteness  # type: ignore
                         )
                         self._set_column_schema(column_name, column_schema=column_schema)
         return
@@ -1058,7 +1058,7 @@ class WhyLabsWriter(Writer):
         model_api_instance = self._get_or_create_models_client()
         try:
             # TODO: remove when whylabs supports merge writes.
-            model_api_instance.put_entity_schema_column( # type: ignore
+            model_api_instance.put_entity_schema_column(  # type: ignore
                 self._org_id, self._dataset_id, column_name, column_schema=column_schema
             )
             return (
