@@ -91,15 +91,15 @@ KNOWN_CUSTOM_PERFORMANCE_METRICS = {
 }
 
 KNOWN_CUSTOM_OUTPUT_METRICS = {
-    "mean_average_precision_k_": ("fractional","continuous"),
-    "accuracy_k_": ("fractional","continuous"),
-    "reciprocal_rank": ("fractional","continuous"),
-    "precision_k_": ("fractional","continuous"),
-    "recall_k_": ("fractional","continuous"),
-    "top_rank": ("integral","continuous"),
-    "average_precision_k_": ("fractional","continuous"),
-    "norm_dis_cumul_gain_k_": ("fractional","continuous"),
-    "sum_gain_k_": ("fractional","continuous"), 
+    "mean_average_precision_k_": ("fractional", "continuous"),
+    "accuracy_k_": ("fractional", "continuous"),
+    "reciprocal_rank": ("fractional", "continuous"),
+    "precision_k_": ("fractional", "continuous"),
+    "recall_k_": ("fractional", "continuous"),
+    "top_rank": ("integral", "continuous"),
+    "average_precision_k_": ("fractional", "continuous"),
+    "norm_dis_cumul_gain_k_": ("fractional", "continuous"),
+    "sum_gain_k_": ("fractional", "continuous"),
 }
 
 
@@ -688,10 +688,11 @@ class WhyLabsWriter(Writer):
                     if column_name.startswith(perf_col):
                         data_type = KNOWN_CUSTOM_OUTPUT_METRICS[perf_col][0]
                         discreteness = KNOWN_CUSTOM_OUTPUT_METRICS[perf_col][1]
-                        column_schema: ColumnSchema = ColumnSchema(classifier='output',data_type = data_type, discreteness = discreteness)
+                        column_schema: ColumnSchema = ColumnSchema(
+                            classifier="output", data_type=data_type, discreteness=discreteness # type: ignore
+                        )
                         self._set_column_schema(column_name, column_schema=column_schema)
         return
-
 
     def _tag_custom_perf_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView]):
         if isinstance(view, DatasetProfileView):
@@ -1053,12 +1054,11 @@ class WhyLabsWriter(Writer):
             return True
         return existing_classification != new_classification
 
-
-    def _set_column_schema(self, column_name:str, column_schema: ColumnSchema):
+    def _set_column_schema(self, column_name: str, column_schema: ColumnSchema):
         model_api_instance = self._get_or_create_models_client()
         try:
             # TODO: remove when whylabs supports merge writes.
-            model_api_instance.put_entity_schema_column(
+            model_api_instance.put_entity_schema_column( # type: ignore
                 self._org_id, self._dataset_id, column_name, column_schema=column_schema
             )
             return (
@@ -1073,8 +1073,6 @@ class WhyLabsWriter(Writer):
                 f" with API token ID: {self.key_id}"
             )
             raise e
-
-
 
     def _put_column_schema(self, column_name: str, value: str) -> Tuple[int, str]:
         model_api_instance = self._get_or_create_models_client()
