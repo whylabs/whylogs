@@ -81,13 +81,25 @@ _WHYLABS_SKIP_CONFIG_READ = os.environ.get("_WHYLABS_SKIP_CONFIG_READ") or False
 KNOWN_CUSTOM_PERFORMANCE_METRICS = {
     "mean_average_precision_k_": "mean",
     "accuracy_k_": "mean",
-    "mean_reciprocal_rank": "mean",
+    "reciprocal_rank": "mean",
     "precision_k_": "mean",
     "recall_k_": "mean",
     "top_rank": "mean",
     "average_precision_k_": "mean",
     "norm_dis_cumul_gain_k_": "mean",
     "sum_gain_k_": "mean",
+}
+
+KNOWN_CUSTOM_OUTPUT_METRICS = {
+    "mean_average_precision_k_": ("fractional","continuous"),
+    "accuracy_k_": ("fractional","continuous"),
+    "reciprocal_rank": ("fractional","continuous"),
+    "precision_k_": ("fractional","continuous"),
+    "recall_k_": ("fractional","continuous"),
+    "top_rank": ("integral","continuous"),
+    "average_precision_k_": ("fractional","continuous"),
+    "norm_dis_cumul_gain_k_": ("fractional","continuous"),
+    "sum_gain_k_": ("fractional","continuous"), 
 }
 
 
@@ -668,6 +680,19 @@ class WhyLabsWriter(Writer):
 
         return and_status, "; ".join(messages)
 
+    def _tag_custom_output_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView]):
+        if isinstance(view, DatasetProfileView):
+            column_names = view.get_columns().keys()
+            for column_name in column_names:
+                for perf_col in KNOWN_CUSTOM_OUTPUT_METRICS:
+                    if column_name.startswith(perf_col):
+                        data_type = KNOWN_CUSTOM_OUTPUT_METRICS[perf_col][0]
+                        discreteness = KNOWN_CUSTOM_OUTPUT_METRICS[perf_col][1]
+                        column_schema: ColumnSchema = ColumnSchema(classifier='output',data_type = data_type, discreteness = discreteness)
+                        self._set_column_schema(column_name, column_schema=column_schema)
+        return
+
+
     def _tag_custom_perf_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView]):
         if isinstance(view, DatasetProfileView):
             column_names = view.get_columns().keys()
@@ -743,6 +768,7 @@ class WhyLabsWriter(Writer):
         has_segments = isinstance(view, SegmentedDatasetProfileView)
         has_performance_metrics = view.model_performance_metrics
         self._tag_custom_perf_metrics(view)
+        self._tag_custom_output_metrics(view)
         if not has_segments and not isinstance(view, DatasetProfileView):
             raise ValueError(
                 "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
@@ -1026,6 +1052,29 @@ class WhyLabsWriter(Writer):
         if not existing_classification:
             return True
         return existing_classification != new_classification
+
+
+    def _set_column_schema(self, column_name:str, column_schema: ColumnSchema):
+        model_api_instance = self._get_or_create_models_client()
+        try:
+            # TODO: remove when whylabs supports merge writes.
+            model_api_instance.put_entity_schema_column(
+                self._org_id, self._dataset_id, column_name, column_schema=column_schema
+            )
+            return (
+                200,
+                f"{column_name} schema set to {column_schema.classifier} {column_schema.data_type} {column_schema.discreteness}",
+            )
+        except ForbiddenException as e:
+            logger.exception(
+                f"Failed to set column outputs {self._org_id}/{self._dataset_id} for column name: ("
+                f"{column_name}) "
+                f"{self.whylabs_api_endpoint}"
+                f" with API token ID: {self.key_id}"
+            )
+            raise e
+
+
 
     def _put_column_schema(self, column_name: str, value: str) -> Tuple[int, str]:
         model_api_instance = self._get_or_create_models_client()
