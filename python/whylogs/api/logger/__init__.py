@@ -170,15 +170,46 @@ def log_classification_metrics(
     Function to track metrics based on validation data.
     user may also pass the associated attribute names associated with
     target, prediction, and/or score.
+
     Parameters
     ----------
-    targets : List[Union[str, bool, float, int]]
-        actual validated values
-    predictions : List[Union[str, bool, float, int]]
-        inferred/predicted values
-    scores : List[float], optional
-        assocaited scores for each inferred, all values set to 1 if not
-        passed
+    data : pd.DataFrame
+        Dataframe with the data to log.
+    target_column : str
+        Column name for the actual validated values.
+    prediction_column : str
+        Column name for the predicted values.
+    score_column : Optional[str], optional
+        Associated scores for each inferred, all values set to 1 if None, by default None
+    schema : Optional[DatasetSchema], optional
+        Defines the schema for tracking metrics in whylogs, by default None
+    log_full_data : bool, optional
+        Whether to log the complete dataframe or not.
+        If True, the complete DF will be logged in addition to the regression metrics.
+        If False, only the calculated regression metrics will be logged, by default False
+    dataset_timestamp : Optional[datetime], optional
+        dataset's timestamp, by default None
+
+    Examples
+    --------
+    ::
+
+        data = {
+            "product": ["milk", "carrot", "cheese", "broccoli"],
+            "category": ["dairies", "vegetables", "dairies", "vegetables"],
+            "output_discount": [0, 0, 1, 1],
+            "output_prediction": [0, 0, 0, 1],
+        }
+        df = pd.DataFrame(data)
+
+        results = why.log_classification_metrics(
+                df,
+                target_column="output_discount",
+                prediction_column="output_prediction",
+                log_full_data=True,
+            )
+
+
     """
 
     perf_column_mapping = {"predictions": prediction_column, "targets": target_column, "scores": score_column}
@@ -214,19 +245,41 @@ def log_regression_metrics(
     log_full_data: bool = False,
     dataset_timestamp: Optional[datetime] = None,
 ) -> ResultSet:
-    """
-    Function to track regression metrics based on validation data.
-    user may also pass the associated attribute names associated with
-    target, prediction, and/or score.
+    """Function to track regression metrics based on validation data.
+    User may also pass the associated attribute names associated with target, prediction, and/or score.
+
     Parameters
     ----------
-    targets : List[Union[str, bool, float, int]]
-        actual validated values
-    predictions : List[Union[str, bool, float, int]]
-        inferred/predicted values
-    scores : List[float], optional
-        assocaited scores for each inferred, all values set to 1 if not
-        passed
+    data : pd.DataFrame
+        Dataframe with the data to log.
+    target_column : str
+        Column name for the target values.
+    prediction_column : str
+        Column name for the predicted values.
+    schema : Optional[DatasetSchema], optional
+        Defines the schema for tracking metrics in whylogs, by default None
+    log_full_data : bool, optional
+        Whether to log the complete dataframe or not.
+        If True, the complete DF will be logged in addition to the regression metrics.
+        If False, only the calculated regression metrics will be logged, by default False
+    dataset_timestamp : Optional[datetime], optional
+        dataset's timestamp, by default None
+
+    Returns
+    -------
+    ResultSet
+
+    Examples
+    --------
+    ::
+
+        import pandas as pd
+        import whylogs as why
+
+        df = pd.DataFrame({"target_temperature": [[10.5, 24.3, 15.6]], "predicted_temperature": [[9.12,26.42,13.12]]})
+        results = why.log_regression_metrics(df, target_column = "temperature", prediction_column = "prediction_temperature")
+
+    
     """
     perf_column_mapping: Dict[str, Optional[str]] = {"predictions": prediction_column, "targets": target_column}
 

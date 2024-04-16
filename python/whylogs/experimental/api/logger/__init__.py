@@ -141,6 +141,99 @@ def log_batch_ranking_metrics(
     schema: Union[DatasetSchema, None] = None,
     log_full_data: bool = False,
 ) -> ViewResultSet:
+    """Log ranking metrics for a batch of data.
+
+    Parameters
+    ----------
+    data : pd.core.frame.DataFrame
+        Dataframe with the data to log.
+    prediction_column : Optional[str], optional
+        Column name for the predicted values. If not provided, the score_column and target_column must be provided, by default None
+    target_column : Optional[str], optional
+        Column name for the relevance scores. If not provided, relevance must be encoded within prediction column, by default None
+    score_column : Optional[str], optional
+        Column name for the scores. Can either be probabilities, confidence values, or other continuous measures.
+        If not passed, prediction_column must be passed,by default None
+    k : Optional[int], optional
+        Consider the top k ranks for metrics calculation.
+        If `None`, use all outputs, by default None
+    convert_non_numeric : bool, optional
+        Indicates whether prediction/target columns are non-numeric.
+        If True, prediction/target should be strings, by default False
+    schema : Union[DatasetSchema, None], optional
+        Defines the schema for tracking metrics in whylogs, by default None
+    log_full_data : bool, optional
+        Whether to log the complete dataframe or not.
+        If True, the complete DF will be logged in addition to the ranking metrics.
+        If False, only the calculated ranking metrics will be logged, by default False
+
+    Returns
+    -------
+    ViewResultSet
+
+    Examples
+    --------
+    ::
+
+        import pandas as pd
+        from whylogs.experimental.api.logger import log_batch_ranking_metrics
+
+        # 1st and 2nd recommended items are relevant - 3rd is not
+        df = pd.DataFrame({"targets": [[1, 0, 1]], "predictions": [[2,3,1]]})
+        results = log_batch_ranking_metrics(
+            data=df,
+            prediction_column="predictions",
+            target_column="targets",
+            k=3,
+        )
+    
+    ::
+
+        non_numerical_df = pd.DataFrame(
+            {
+                "raw_predictions": [
+                    ["cat", "pig", "elephant"],
+                    ["horse", "donkey", "robin"],
+                ],
+                "raw_targets": [
+                    ["cat", "elephant"],
+                    ["dog"],
+                ],
+            }
+        )
+
+        # 1st query: 
+        # Recommended items: [cat, pig, elephant]
+        # Relevant items: [cat, elephant]
+
+
+        # 2nd query:
+        # Recommended items: [horse, donkey, robin]
+        # Relevant items: [dog]
+
+        results = log_batch_ranking_metrics(
+            k=2,
+            data=non_numerical_df,
+            prediction_column="raw_predictions",
+            target_column="raw_targets",
+            convert_non_numeric=True
+        )
+    
+    ::
+
+    binary_single_df = pd.DataFrame(
+        {
+            "raw_predictions": [
+                [True, False, True], # First recommended item: Relevant, Second: Not relevant, Third: Relevant
+                [False, False, False], # None of the recommended items are relevant
+                [True, True, False], # First and second recommended items are relevant
+            ]
+        }
+    )
+
+    result = log_batch_ranking_metrics(data=binary_single_df, prediction_column="raw_predictions", k=3)
+
+    """
     formatted_data = data.copy(deep=True)  # TODO: does this have to be deep?
 
     if prediction_column is None:
