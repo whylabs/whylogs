@@ -279,7 +279,7 @@ def log_regression_metrics(
         df = pd.DataFrame({"target_temperature": [[10.5, 24.3, 15.6]], "predicted_temperature": [[9.12,26.42,13.12]]})
         results = why.log_regression_metrics(df, target_column = "temperature", prediction_column = "prediction_temperature")
 
-    
+
     """
     perf_column_mapping: Dict[str, Optional[str]] = {"predictions": prediction_column, "targets": target_column}
 

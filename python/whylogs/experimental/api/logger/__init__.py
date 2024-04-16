@@ -186,7 +186,7 @@ def log_batch_ranking_metrics(
             target_column="targets",
             k=3,
         )
-    
+
     ::
 
         non_numerical_df = pd.DataFrame(
@@ -202,7 +202,7 @@ def log_batch_ranking_metrics(
             }
         )
 
-        # 1st query: 
+        # 1st query:
         # Recommended items: [cat, pig, elephant]
         # Relevant items: [cat, elephant]
 
@@ -218,7 +218,7 @@ def log_batch_ranking_metrics(
             target_column="raw_targets",
             convert_non_numeric=True
         )
-    
+
     ::
 
     binary_single_df = pd.DataFrame(
