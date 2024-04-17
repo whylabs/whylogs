@@ -607,27 +607,82 @@ Attributes
    Function to track metrics based on validation data.
    user may also pass the associated attribute names associated with
    target, prediction, and/or score.
-   :param targets: actual validated values
-   :type targets: List[Union[str, bool, float, int]]
-   :param predictions: inferred/predicted values
-   :type predictions: List[Union[str, bool, float, int]]
-   :param scores: assocaited scores for each inferred, all values set to 1 if not
-                  passed
-   :type scores: List[float], optional
+
+   :param data: Dataframe with the data to log.
+   :type data: pd.DataFrame
+   :param target_column: Column name for the actual validated values.
+   :type target_column: str
+   :param prediction_column: Column name for the predicted values.
+   :type prediction_column: str
+   :param score_column: Associated scores for each inferred, all values set to 1 if None, by default None
+   :type score_column: Optional[str], optional
+   :param schema: Defines the schema for tracking metrics in whylogs, by default None
+   :type schema: Optional[DatasetSchema], optional
+   :param log_full_data: Whether to log the complete dataframe or not.
+                         If True, the complete DF will be logged in addition to the regression metrics.
+                         If False, only the calculated regression metrics will be logged.
+                         In a typical production use case, the ground truth might not be available
+                         at the time the remaining data is generated. In order to prevent double profiling the
+                         input features, consider leaving this as False. by default False.
+   :type log_full_data: bool, optional
+   :param dataset_timestamp: dataset's timestamp, by default None
+   :type dataset_timestamp: Optional[datetime], optional
+
+   .. rubric:: Examples
+
+   ::
+
+       data = {
+           "product": ["milk", "carrot", "cheese", "broccoli"],
+           "category": ["dairies", "vegetables", "dairies", "vegetables"],
+           "output_discount": [0, 0, 1, 1],
+           "output_prediction": [0, 0, 0, 1],
+       }
+       df = pd.DataFrame(data)
+
+       results = why.log_classification_metrics(
+               df,
+               target_column="output_discount",
+               prediction_column="output_prediction",
+               log_full_data=True,
+           )
 
 
 .. py:function:: log_regression_metrics(data: whylogs.core.stubs.pd.DataFrame, target_column: str, prediction_column: str, schema: Optional[whylogs.core.DatasetSchema] = None, log_full_data: bool = False, dataset_timestamp: Optional[datetime.datetime] = None) -> result_set.ResultSet
 
    Function to track regression metrics based on validation data.
-   user may also pass the associated attribute names associated with
-   target, prediction, and/or score.
-   :param targets: actual validated values
-   :type targets: List[Union[str, bool, float, int]]
-   :param predictions: inferred/predicted values
-   :type predictions: List[Union[str, bool, float, int]]
-   :param scores: assocaited scores for each inferred, all values set to 1 if not
-                  passed
-   :type scores: List[float], optional
+   User may also pass the associated attribute names associated with target, prediction, and/or score.
+
+   :param data: Dataframe with the data to log.
+   :type data: pd.DataFrame
+   :param target_column: Column name for the target values.
+   :type target_column: str
+   :param prediction_column: Column name for the predicted values.
+   :type prediction_column: str
+   :param schema: Defines the schema for tracking metrics in whylogs, by default None
+   :type schema: Optional[DatasetSchema], optional
+   :param log_full_data: Whether to log the complete dataframe or not.
+                         If True, the complete DF will be logged in addition to the regression metrics.
+                         If False, only the calculated regression metrics will be logged.
+                         In a typical production use case, the ground truth might not be available
+                         at the time the remaining data is generated. In order to prevent double profiling the
+                         input features, consider leaving this as False. by default False.
+   :type log_full_data: bool, optional
+   :param dataset_timestamp: dataset's timestamp, by default None
+   :type dataset_timestamp: Optional[datetime], optional
+
+   :returns:
+   :rtype: ResultSet
+
+   .. rubric:: Examples
+
+   ::
+
+       import pandas as pd
+       import whylogs as why
+
+       df = pd.DataFrame({"target_temperature": [[10.5, 24.3, 15.6]], "predicted_temperature": [[9.12,26.42,13.12]]})
+       results = why.log_regression_metrics(df, target_column = "temperature", prediction_column = "prediction_temperature")
 
 
 .. py:function:: read(path: str) -> result_set.ResultSet
