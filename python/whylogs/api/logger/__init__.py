@@ -186,7 +186,10 @@ def log_classification_metrics(
     log_full_data : bool, optional
         Whether to log the complete dataframe or not.
         If True, the complete DF will be logged in addition to the regression metrics.
-        If False, only the calculated regression metrics will be logged, by default False
+        If False, only the calculated regression metrics will be logged.
+        In a typical production use case, the ground truth might not be available
+        at the time the remaining data is generated. In order to prevent double profiling the
+        input features, consider leaving this as False. by default False.
     dataset_timestamp : Optional[datetime], optional
         dataset's timestamp, by default None
 
@@ -261,7 +264,10 @@ def log_regression_metrics(
     log_full_data : bool, optional
         Whether to log the complete dataframe or not.
         If True, the complete DF will be logged in addition to the regression metrics.
-        If False, only the calculated regression metrics will be logged, by default False
+        If False, only the calculated regression metrics will be logged.
+        In a typical production use case, the ground truth might not be available
+        at the time the remaining data is generated. In order to prevent double profiling the
+        input features, consider leaving this as False. by default False.
     dataset_timestamp : Optional[datetime], optional
         dataset's timestamp, by default None
 

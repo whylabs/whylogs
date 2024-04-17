@@ -165,7 +165,10 @@ def log_batch_ranking_metrics(
     log_full_data : bool, optional
         Whether to log the complete dataframe or not.
         If True, the complete DF will be logged in addition to the ranking metrics.
-        If False, only the calculated ranking metrics will be logged, by default False
+        If False, only the calculated ranking metrics will be logged.
+        In a typical production use case, the ground truth might not be available
+        at the time the remaining data is generated. In order to prevent double profiling the
+        input features, consider leaving this as False. by default False
 
     Returns
     -------
@@ -221,17 +224,17 @@ def log_batch_ranking_metrics(
 
     ::
 
-    binary_single_df = pd.DataFrame(
-        {
-            "raw_predictions": [
-                [True, False, True], # First recommended item: Relevant, Second: Not relevant, Third: Relevant
-                [False, False, False], # None of the recommended items are relevant
-                [True, True, False], # First and second recommended items are relevant
-            ]
-        }
-    )
+        binary_single_df = pd.DataFrame(
+            {
+                "raw_predictions": [
+                    [True, False, True], # First recommended item: Relevant, Second: Not relevant, Third: Relevant
+                    [False, False, False], # None of the recommended items are relevant
+                    [True, True, False], # First and second recommended items are relevant
+                ]
+            }
+        )
 
-    result = log_batch_ranking_metrics(data=binary_single_df, prediction_column="raw_predictions", k=3)
+        result = log_batch_ranking_metrics(data=binary_single_df, prediction_column="raw_predictions", k=3)
 
     """
     formatted_data = data.copy(deep=True)  # TODO: does this have to be deep?
