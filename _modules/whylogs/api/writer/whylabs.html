@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
-        <title>whylogs.api.writer.whylabs - whylogs v1.3.28</title>
+        <title>whylogs.api.writer.whylabs - whylogs v1.3.29</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
@@ -132,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand"><div class='hidden'>whylogs</div>  <div class='version'> v1.3.28</div></div></a>
+      <a href="../../../../index.html"><div class="brand"><div class='hidden'>whylogs</div>  <div class='version'> v1.3.29</div></div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -159,7 +159,7 @@
     <img class="sidebar-logo only-dark" src="../../../../_static/images/logo.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text"><div class='hidden'>whylogs</div>  <div class='version'> v1.3.28</div></span>
+  <span class="sidebar-brand-text"><div class='hidden'>whylogs</div>  <div class='version'> v1.3.29</div></span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -516,13 +516,25 @@
 <span class="n">KNOWN_CUSTOM_PERFORMANCE_METRICS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;mean_average_precision_k_&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
     <span class="s2">&quot;accuracy_k_&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;mean_reciprocal_rank&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reciprocal_rank&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
     <span class="s2">&quot;precision_k_&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
     <span class="s2">&quot;recall_k_&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
     <span class="s2">&quot;top_rank&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
     <span class="s2">&quot;average_precision_k_&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
     <span class="s2">&quot;norm_dis_cumul_gain_k_&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
     <span class="s2">&quot;sum_gain_k_&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">KNOWN_CUSTOM_OUTPUT_METRICS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;mean_average_precision_k_&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;fractional&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;accuracy_k_&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;fractional&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;reciprocal_rank&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;fractional&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;precision_k_&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;fractional&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;recall_k_&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;fractional&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;top_rank&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;integral&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;average_precision_k_&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;fractional&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;norm_dis_cumul_gain_k_&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;fractional&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;sum_gain_k_&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;fractional&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">),</span>
 <span class="p">}</span>
 
 
@@ -1103,6 +1115,20 @@
 
         <span class="k">return</span> <span class="n">and_status</span><span class="p">,</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_tag_custom_output_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">):</span>
+            <span class="n">column_names</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">column_names</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">perf_col</span> <span class="ow">in</span> <span class="n">KNOWN_CUSTOM_OUTPUT_METRICS</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">column_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">perf_col</span><span class="p">):</span>
+                        <span class="n">data_type</span> <span class="o">=</span> <span class="n">KNOWN_CUSTOM_OUTPUT_METRICS</span><span class="p">[</span><span class="n">perf_col</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">discreteness</span> <span class="o">=</span> <span class="n">KNOWN_CUSTOM_OUTPUT_METRICS</span><span class="p">[</span><span class="n">perf_col</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span> <span class="o">=</span> <span class="n">ColumnSchema</span><span class="p">(</span>
+                            <span class="n">classifier</span><span class="o">=</span><span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="n">data_type</span><span class="p">,</span> <span class="n">discreteness</span><span class="o">=</span><span class="n">discreteness</span>  <span class="c1"># type: ignore</span>
+                        <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_set_column_schema</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">column_schema</span><span class="o">=</span><span class="n">column_schema</span><span class="p">)</span>
+        <span class="k">return</span>
+
     <span class="k">def</span> <span class="nf">_tag_custom_perf_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">]):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">):</span>
             <span class="n">column_names</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -1178,6 +1204,7 @@
         <span class="n">has_segments</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">)</span>
         <span class="n">has_performance_metrics</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">model_performance_metrics</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tag_custom_perf_metrics</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tag_custom_output_metrics</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">has_segments</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!&quot;</span>
@@ -1461,6 +1488,26 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">existing_classification</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="n">existing_classification</span> <span class="o">!=</span> <span class="n">new_classification</span>
+
+    <span class="k">def</span> <span class="nf">_set_column_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">):</span>
+        <span class="n">model_api_instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_models_client</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># TODO: remove when whylabs supports merge writes.</span>
+            <span class="n">model_api_instance</span><span class="o">.</span><span class="n">put_entity_schema_column</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column_schema</span><span class="o">=</span><span class="n">column_schema</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="mi">200</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> schema set to </span><span class="si">{</span><span class="n">column_schema</span><span class="o">.</span><span class="n">classifier</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">column_schema</span><span class="o">.</span><span class="n">data_type</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">column_schema</span><span class="o">.</span><span class="n">discreteness</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">ForbiddenException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to set column outputs </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="si">}</span><span class="s2"> for column name: (&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">) &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">whylabs_api_endpoint</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; with API token ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span>
 
     <span class="k">def</span> <span class="nf">_put_column_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="n">model_api_instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_models_client</span><span class="p">()</span>
