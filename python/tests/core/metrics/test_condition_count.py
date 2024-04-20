@@ -50,6 +50,7 @@ def test_throw_on_failure() -> None:
     conditions = {
         "alpha": Condition(X.matches("[a-zA-Z]+"), throw_on_failure=True),
         "beta": Condition(X.less_than("blah"), throw_on_failure=True),
+        "gamma": Condition(X.matches("[a-zA-Z]+")),
     }
     metric = ConditionCountMetric(conditions, IntegralComponent(0))
     strings = ["abc", "123", "kwatz", "314159", "abc123"]

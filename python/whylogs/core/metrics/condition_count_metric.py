@@ -58,6 +58,27 @@ def not_relation(relation: Callable[[Any], bool]) -> Callable[[Any], bool]:
 
 @dataclass(frozen=True)
 class Condition:
+    """
+    Condition to be evaluated by the ConditionCountMetric.
+
+    Parameters
+    ----------
+    relation: Callable[[Any], bool]
+        The predicate to evaluate. The callable is passed a value from the column the
+        ConditionCountMetric is attached to, and returns True if the value satisfies
+        the condition.
+    throw_on_failure: bool
+        If throw_on_failure is true, whylogs will immediately raise a ValueError if
+        data that does not satisfy the condition is logged.
+    log_on_failure: bool
+        If log_on_failure is true, whylogs will log a warning message if data that does not
+        satisfy the conditon is logged.
+    actions: List[Callable[[str, str, Any], None]]
+        A list of callables that will be invoked if data that does not satisfy the conditon
+        is logged. The arguments passed to the callable are the metric's name ("condition_count"),
+        the name of the failed condition, and the value that caused the failure.
+    """
+
     relation: Callable[[Any], bool]
     throw_on_failure: bool = False
     log_on_failure: bool = False
@@ -72,6 +93,49 @@ class ConditionCountConfig(MetricConfig):
 
 @dataclass(frozen=True)
 class ConditionCountMetric(Metric):
+    """
+    A whylogs metric that counts how many column entries satisfy a condition.
+
+    Parameters
+    ----------
+    conditions: Dict[str, Condition]
+        The conditions evaluated by the metric. The key is the condition name, and the
+        Condition value specifies the Callable condition predicate to evaluate & count.
+
+    Examples
+    --------
+    This example counts the occurrances of email addresses in the `some_text` column and
+    credit card numbers in the `more_text` column.
+
+    ```
+    import pandas as pd
+    import whylogs as why
+    from whylogs.core.resolvers import STANDARD_RESOLVER
+    from whylogs.core.specialized_resolvers import ConditionCountMetricSpec
+    from whylogs.core.metrics.condition_count_metric import Condition
+    from whylogs.core.relations import Predicate
+    from whylogs.core.schema import DeclarativeSchema
+
+    email_condition = {"contiansEmail": Condition(Predicate().fullmatch("[\\w.]+[\\._]?[a-z0-9]+[@]\\w+[.]\\w{2,3}"))}
+    cc_condition = {"containsCreditCard": Condition(Predicate().matches(".*4[0-9]{12}(?:[0-9]{3})?"))}
+
+    schema = DeclarativeSchema(STANDARD_RESOLVER)
+    schema.add_resolver_spec(column_name="some_text", metrics=[ConditionCountMetricSpec(email_condition)])
+    schema.add_resolver_spec(column_name="more_text", metrics=[ConditionCountMetricspec(cc_condition)])
+
+    df = pd.DataFrame({"some_text": ["not an email", "bob@spam.com"], "more_text": ["frogs", "4000000000000"]})
+    view = why.log(df).view()
+    view.to_pandas()[['condition_count/containsEmail', 'condition_count/containsCreditCard', 'condition_count/total']]
+    ```
+    results in
+    ```
+               condition_count/containsEmail   condition_count/containsCreditCard      condition_count/total
+    column
+    some_text                            1.0                                  NaN                          2
+    more_text                            NaN                                  1.0                          2
+    ```
+    """
+
     conditions: Dict[str, Condition]
     total: IntegralComponent
     matches: Dict[str, IntegralComponent] = field(default_factory=dict)
@@ -147,12 +211,15 @@ class ConditionCountMetric(Metric):
                     failed_conditions.add(cond_name)
 
         self.total.set(self.total.value + count)
-        if failed_conditions:
+        for failed in failed_conditions:
+            condition = self.conditions[failed]
             if condition.log_on_failure:
-                logger.warning(f"Condition(s) {', '.join(failed_conditions)} failed")
+                logger.warning(f"Condition {failed} failed")
 
+        for failed in failed_conditions:
+            condition = self.conditions[failed]
             if condition.throw_on_failure:
-                raise ValueError(f"Condition(s) {', '.join(failed_conditions)} failed")
+                raise ValueError(f"Condition {failed} failed")
 
         return OperationResult.ok(count)
 
