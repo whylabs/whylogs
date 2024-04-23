@@ -244,7 +244,7 @@ def log_batch_ranking_metrics(
 
         binary_single_df = pd.DataFrame(
             {
-                "raw_target": [
+                "raw_targets": [
                     [True, False, True], # First recommended item: Relevant, Second: Not relevant, Third: Relevant
                     [False, False, False], # None of the recommended items are relevant
                     [True, True, False], # First and second recommended items are relevant
