@@ -272,7 +272,7 @@ def log_batch_ranking_metrics(
                 lambda row: list(np.argsort(np.argsort(-np.array(row))) + 1)
             )
         else:
-            raise ValueError("Either prediction_column or score+target columns must be specified")
+            raise ValueError("Either target_column or score+target columns must be specified")
 
     relevant_cols = [prediction_column]
 
