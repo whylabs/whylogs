@@ -257,6 +257,9 @@ def log_batch_ranking_metrics(
     """
     formatted_data = data.copy(deep=True)  # TODO: does this have to be deep?
 
+    if score_column is not None and prediction_column is not None:
+        raise ValueError("Cannot specify both score_column and prediction_column")
+
     if prediction_column is None and score_column is None and target_column is not None:
         # https://github.com/whylabs/whylogs/issues/1505
         # The column use logic is complex, so just swapping them here for this case
