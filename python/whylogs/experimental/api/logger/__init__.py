@@ -158,8 +158,8 @@ def log_batch_ranking_metrics(
             i-th element of the domain. The score can be numeric or boolean. Higher scores indicate higher relevance.
 
       - Pass both target_column and score_column. The value at the i-th position in the target list is the true relevance
-        score of the i-th element of the domain. The value at the i-th position in the score list is the predicted
-        relevance of the i-th element of the domain.
+        of the i-th element of the domain (represented as a number, higher being more relevant; or boolean). The value at
+        the i-th position in the score list is the model output for the i-th element of the domain.
 
       - Pass only target_column. The target column contians lists of numbers or booleans. The list entries are the true
         relevance of the items predicted by the model in prediction order.
