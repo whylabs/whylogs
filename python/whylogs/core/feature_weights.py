@@ -5,7 +5,6 @@ from whylogs.api.writer.writer import Writable
 from whylogs.core import Segment
 
 
-# TODO: In whlogs 2.X this should not be a Wriable, it should be sent via WhyLabsClient
 class FeatureWeights(Writable):
     def __init__(self, weights: Dict[str, float], segment: Optional[Segment] = None, metadata: Optional[Dict] = None):
         """Feature Weights
