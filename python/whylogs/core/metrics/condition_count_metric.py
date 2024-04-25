@@ -126,9 +126,9 @@ class ConditionCountMetric(Metric):
     df = pd.DataFrame({"some_text": ["not an email", "bob@spam.com"], "more_text": ["frogs", "4000000000000"]})
     view = why.log(df).view()
     view.to_pandas()[['condition_count/containsEmail', 'condition_count/containsCreditCard', 'condition_count/total']]
-    ```
-    results in
-    ```
+
+    # results in
+
                condition_count/containsEmail   condition_count/containsCreditCard      condition_count/total
     column
     some_text                            1.0                                  NaN                          2
