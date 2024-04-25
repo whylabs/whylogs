@@ -570,17 +570,38 @@
     <span class="k">return</span> <span class="n">averages</span>
 
 
+<span class="k">def</span> <span class="nf">_all_strings</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">all</span><span class="p">([</span><span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+
+
 <div class="viewcode-block" id="log_batch_ranking_metrics"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.experimental.api.logger.log_batch_ranking_metrics">[docs]</a><span class="k">def</span> <span class="nf">log_batch_ranking_metrics</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">prediction_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">target_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">score_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">k</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">convert_non_numeric</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">log_full_data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ViewResultSet</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Log ranking metrics for a batch of data.</span>
+
+<span class="sd">    You can call the function several ways:</span>
+<span class="sd">      - Pass both prediction_column and target_column.</span>
+<span class="sd">          - The named columns contain lists of strings. In this case, the prediction column contains the</span>
+<span class="sd">            items the model has predicted are relevant, and the target column contains the items that</span>
+<span class="sd">            are actually relevant. In this case, relevance is boolean.</span>
+
+<span class="sd">          - The prediction column contains lists of integers and the target column contains lists of numbers</span>
+<span class="sd">            or booleans. The value at the i-th position in the predicted list is the predicted rank of the i-th</span>
+<span class="sd">            element of the domain. The value at the i-th position in the target list is the true relevance score of the</span>
+<span class="sd">            i-th element of the domain. The score can be numeric or boolean. Higher scores indicate higher relevance.</span>
+
+<span class="sd">      - Pass both target_column and score_column. The value at the i-th position in the target list is the true relevance</span>
+<span class="sd">        of the i-th element of the domain (represented as a number, higher being more relevant; or boolean). The value at</span>
+<span class="sd">        the i-th position in the score list is the model output for the i-th element of the domain.</span>
+
+<span class="sd">      - Pass only target_column. The target column contians lists of numbers or booleans. The list entries are the true</span>
+<span class="sd">        relevance of the items predicted by the model in prediction order.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -596,9 +617,6 @@
 <span class="sd">    k : Optional[int], optional</span>
 <span class="sd">        Consider the top k ranks for metrics calculation.</span>
 <span class="sd">        If `None`, use all outputs, by default None</span>
-<span class="sd">    convert_non_numeric : bool, optional</span>
-<span class="sd">        Indicates whether prediction/target columns are non-numeric.</span>
-<span class="sd">        If True, prediction/target should be strings, by default False</span>
 <span class="sd">    schema : Union[DatasetSchema, None], optional</span>
 <span class="sd">        Defines the schema for tracking metrics in whylogs, by default None</span>
 <span class="sd">    log_full_data : bool, optional</span>
@@ -665,7 +683,7 @@
 
 <span class="sd">        binary_single_df = pd.DataFrame(</span>
 <span class="sd">            {</span>
-<span class="sd">                &quot;raw_predictions&quot;: [</span>
+<span class="sd">                &quot;raw_targets&quot;: [</span>
 <span class="sd">                    [True, False, True], # First recommended item: Relevant, Second: Not relevant, Third: Relevant</span>
 <span class="sd">                    [False, False, False], # None of the recommended items are relevant</span>
 <span class="sd">                    [True, True, False], # First and second recommended items are relevant</span>
@@ -673,10 +691,19 @@
 <span class="sd">            }</span>
 <span class="sd">        )</span>
 
-<span class="sd">        result = log_batch_ranking_metrics(data=binary_single_df, prediction_column=&quot;raw_predictions&quot;, k=3)</span>
+<span class="sd">        result = log_batch_ranking_metrics(data=binary_single_df, target_column=&quot;raw_targets&quot;, k=3)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">formatted_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># TODO: does this have to be deep?</span>
+
+    <span class="k">if</span> <span class="n">score_column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">prediction_column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot specify both score_column and prediction_column&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">prediction_column</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">score_column</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">target_column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># https://github.com/whylabs/whylogs/issues/1505</span>
+        <span class="c1"># The column use logic is complex, so just swapping them here for this case</span>
+        <span class="c1"># rather than unraveling all the use cases.</span>
+        <span class="n">prediction_column</span><span class="p">,</span> <span class="n">target_column</span> <span class="o">=</span> <span class="n">target_column</span><span class="p">,</span> <span class="n">prediction_column</span>
 
     <span class="k">if</span> <span class="n">prediction_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">score_column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">target_column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -687,7 +714,7 @@
                 <span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">row</span><span class="p">)))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either prediction_column or score+target columns must be specified&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either target_column or score+target columns must be specified&quot;</span><span class="p">)</span>
 
     <span class="n">relevant_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">prediction_column</span><span class="p">]</span>
 
@@ -718,6 +745,10 @@
         <span class="n">k</span> <span class="o">=</span> <span class="n">_max_k</span>
     <span class="k">if</span> <span class="n">k</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;k must be a positive integer&quot;</span><span class="p">)</span>
+
+    <span class="n">convert_non_numeric</span> <span class="o">=</span> <span class="n">_all_strings</span><span class="p">(</span><span class="n">formatted_data</span><span class="p">[</span><span class="n">prediction_column</span><span class="p">])</span> <span class="ow">and</span> <span class="n">_all_strings</span><span class="p">(</span>
+        <span class="n">formatted_data</span><span class="p">[</span><span class="n">target_column</span><span class="p">]</span>
+    <span class="p">)</span>
 
     <span class="n">row_wise_functions</span> <span class="o">=</span> <span class="n">RowWiseMetrics</span><span class="p">(</span><span class="n">target_column</span><span class="p">,</span> <span class="n">prediction_column</span><span class="p">,</span> <span class="n">convert_non_numeric</span><span class="p">)</span>
     <span class="n">formatted_data</span><span class="p">[</span><span class="s2">&quot;count_at_k&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">formatted_data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">row_wise_functions</span><span class="o">.</span><span class="n">relevant_counter</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">k</span><span class="p">,),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
