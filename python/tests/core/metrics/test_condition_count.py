@@ -48,14 +48,17 @@ def test_condition_count_metric() -> None:
 
 def test_throw_on_failure() -> None:
     conditions = {
-        "alpha": Condition(X.matches("[a-zA-Z]+"), throw_on_failure=True),
+        "alpha": Condition(X.matches("[a-zA-Z]+"), throw_on_failure=True, log_on_failure=True),
         "beta": Condition(X.less_than("blah"), throw_on_failure=True),
         "gamma": Condition(X.matches("[a-zA-Z]+")),
     }
     metric = ConditionCountMetric(conditions, IntegralComponent(0))
     strings = ["abc", "123", "kwatz", "314159", "abc123"]
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as e:
         metric.columnar_update(PreprocessedColumn.apply(strings))
+        assert "alpha" in str(e)
+        assert "beta" in str(e)
+
     strings = ["b", "bl", "bla"]
     assert metric.columnar_update(PreprocessedColumn.apply(strings)) == OperationResult(0, len(strings))
 

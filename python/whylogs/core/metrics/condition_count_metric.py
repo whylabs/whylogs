@@ -194,7 +194,8 @@ class ConditionCountMetric(Metric):
             return OperationResult.ok(0)
 
         count = 0
-        failed_conditions: Set[str] = set()
+        log_conditions: Set[str] = set()
+        throw_conditions: Set[str] = set()
         for datum in list(chain.from_iterable(data.raw_iterator())):
             count += 1
             for cond_name, condition in self.conditions.items():
@@ -202,24 +203,22 @@ class ConditionCountMetric(Metric):
                     if condition.relation(datum):
                         self.matches[cond_name].set(self.matches[cond_name].value + 1)
                     else:
-                        failed_conditions.add(cond_name)
+                        if condition.log_on_failure:
+                            log_conditions.dd(cond_name)
+                        if condition.throw_on_failure:
+                            throw_conditions.add(cond_name)
                         for action in condition.actions:
                             action(self.namespace, cond_name, datum)
 
                 except Exception as e:  # noqa
                     logger.debug(e)
-                    failed_conditions.add(cond_name)
 
         self.total.set(self.total.value + count)
-        for failed in failed_conditions:
-            condition = self.conditions[failed]
-            if condition.log_on_failure:
-                logger.warning(f"Condition {failed} failed")
+        if log_conditions:
+            logger.warning(f"Conditions {', '.join(list(log_conditions))} failed")
 
-        for failed in failed_conditions:
-            condition = self.conditions[failed]
-            if condition.throw_on_failure:
-                raise ValueError(f"Condition {failed} failed")
+        if throw_conditions:
+            raise ValueError(f"Condition {', '.join(list(throw_conditions))} failed")
 
         return OperationResult.ok(count)
 
