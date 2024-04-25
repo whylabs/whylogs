@@ -204,7 +204,7 @@ class ConditionCountMetric(Metric):
                         self.matches[cond_name].set(self.matches[cond_name].value + 1)
                     else:
                         if condition.log_on_failure:
-                            log_conditions.dd(cond_name)
+                            log_conditions.add(cond_name)
                         if condition.throw_on_failure:
                             throw_conditions.add(cond_name)
                         for action in condition.actions:
