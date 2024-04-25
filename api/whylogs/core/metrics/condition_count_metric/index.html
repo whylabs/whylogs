@@ -460,13 +460,13 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Condition" title="whylogs.core.metrics.condition_count_metric.Condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Condition</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Condition to be evaluated by the ConditionCountMetric.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountConfig" title="whylogs.core.metrics.condition_count_metric.ConditionCountConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConditionCountConfig</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric" title="whylogs.core.metrics.condition_count_metric.ConditionCountMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConditionCountMetric</span></code></a></p></td>
-<td><p>Helper class that provides a standard way to create an ABC using</p></td>
+<td><p>A whylogs metric that counts how many column entries satisfy a condition.</p></td>
 </tr>
 </tbody>
 </table>
@@ -589,7 +589,24 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.Condition">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.condition_count_metric.</span></span><span class="sig-name descname"><span class="pre">Condition</span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/condition_count_metric.html#Condition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Condition" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py attribute">
+<dd><p>Condition to be evaluated by the ConditionCountMetric.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>relation</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em>) – The predicate to evaluate. The callable is passed a value from the column the
+ConditionCountMetric is attached to, and returns True if the value satisfies
+the condition.</p></li>
+<li><p><strong>throw_on_failure</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If throw_on_failure is true, whylogs will immediately raise a ValueError if
+data that does not satisfy the condition is logged.</p></li>
+<li><p><strong>log_on_failure</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If log_on_failure is true, whylogs will log a warning message if data that does not
+satisfy the conditon is logged.</p></li>
+<li><p><strong>actions</strong> (<em>List</em><em>[</em><em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>Any</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em>]</em><em>]</em>) – A list of callables that will be invoked if data that does not satisfy the conditon
+is logged. The arguments passed to the callable are the metric’s name (“condition_count”),
+the name of the failed condition, and the value that caused the failure.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.Condition.relation">
 <span class="sig-name descname"><span class="pre">relation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.Condition.relation" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
@@ -691,8 +708,40 @@
 <dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.ConditionCountMetric">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.condition_count_metric.</span></span><span class="sig-name descname"><span class="pre">ConditionCountMetric</span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/condition_count_metric.html#ConditionCountMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics.Metric</span></code></a></p>
-<p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
+<p>A whylogs metric that counts how many column entries satisfy a condition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>conditions</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference internal" href="#whylogs.core.metrics.condition_count_metric.Condition" title="whylogs.core.metrics.condition_count_metric.Condition"><em>Condition</em></a><em>]</em>) – The conditions evaluated by the metric. The key is the condition name, and the
+Condition value specifies the Callable condition predicate to evaluate &amp; count.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>This example counts the occurrances of email addresses in the <cite>some_text</cite> column and
+credit card numbers in the <cite>more_text</cite> column.</p>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a>`
+import pandas as pd
+import whylogs as why
+from whylogs.core.resolvers import STANDARD_RESOLVER
+from whylogs.core.specialized_resolvers import ConditionCountMetricSpec
+from whylogs.core.metrics.condition_count_metric import Condition
+from whylogs.core.relations import Predicate
+from whylogs.core.schema import DeclarativeSchema</p>
+<p>email_condition = {“contiansEmail”: Condition(Predicate().fullmatch(“[w.]+[._]?[a-z0-9]+[&#64;]w+[.]w{2,3}”))}
+cc_condition = {“containsCreditCard”: Condition(Predicate().matches(“.*4[0-9]{12}(?:[0-9]{3})?”))}</p>
+<p>schema = DeclarativeSchema(STANDARD_RESOLVER)
+schema.add_resolver_spec(column_name=”some_text”, metrics=[ConditionCountMetricSpec(email_condition)])
+schema.add_resolver_spec(column_name=”more_text”, metrics=[ConditionCountMetricspec(cc_condition)])</p>
+<p>df = pd.DataFrame({“some_text”: [“not an email”, “<a class="reference external" href="mailto:bob&#37;&#52;&#48;spam&#46;com">bob<span>&#64;</span>spam<span>&#46;</span>com</a>”], “more_text”: [“frogs”, “4000000000000”]})
+view = why.log(df).view()
+view.to_pandas()[[‘condition_count/containsEmail’, ‘condition_count/containsCreditCard’, ‘condition_count/total’]]</p>
+<p># results in</p>
+<blockquote>
+<div><p>condition_count/containsEmail   condition_count/containsCreditCard      condition_count/total</p>
+</div></blockquote>
+<p>column
+some_text                            1.0                                  NaN                          2
+more_text                            NaN                                  1.0                          2
+<a href="#id3"><span class="problematic" id="id4">``</span></a><a href="#id5"><span class="problematic" id="id6">`</span></a></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="whylogs.core.metrics.condition_count_metric.ConditionCountMetric.exclude_from_serialization">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exclude_from_serialization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.exclude_from_serialization" title="Permalink to this definition">#</a></dt>
