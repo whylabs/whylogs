@@ -30,8 +30,7 @@ class MlflowWriter(Writer):
         preexisting_run = mlflow.active_run()
         run = preexisting_run or mlflow.start_run()
         self._run_id = run.info.run_id
-        # TODO: I think below should be self._file_dir
-        dest = dest or self._file_name or file._get_default_path()  # dest has a higher priority than file_name
+        dest = dest or self._file_name  # dest has a higher priority than file_name
         output = self._get_temp_directory(dest=dest)
         success, files = file.write(path=output, filename=self._file_name)
         if not success:

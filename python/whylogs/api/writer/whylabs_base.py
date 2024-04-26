@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import requests  # type: ignore
 from whylabs_client import ApiClient
@@ -93,6 +93,12 @@ class WhyLabsWriterBase(Writer):
         if self._whylabs_client._api_client is None:
             self._whylabs_client._refresh_client()
         return self._whylabs_client._api_client
+
+    def transaction_status(self) -> Dict[str, Any]:
+        id = self._whylabs_client._transaction_id  # type: ignore
+        if id is None:
+            raise ValueError("No transaction is active")
+        return self._whylabs_client.transaction_status(id)
 
     @property
     def _s3_pool(self):

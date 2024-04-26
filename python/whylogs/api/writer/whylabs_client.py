@@ -17,6 +17,7 @@ from whylabs_client.api.log_api import (
 )
 from whylabs_client.api.models_api import ModelsApi  # type: ignore
 from whylabs_client.api.transactions_api import TransactionsApi
+from whylabs_client.exceptions import NotFoundException
 from whylabs_client.model.async_log_response import AsyncLogResponse
 from whylabs_client.model.column_schema import ColumnSchema  # type: ignore
 from whylabs_client.model.create_reference_profile_request import (  # type: ignore
@@ -79,6 +80,10 @@ KNOWN_CUSTOM_OUTPUT_METRICS = {
     "norm_dis_cumul_gain_k_": ("fractional", "continuous"),
     "sum_gain_k_": ("fractional", "continuous"),
 }
+
+
+class TransactionAbortedException(Exception):
+    pass
 
 
 class WhyLabsClient:
@@ -475,7 +480,6 @@ class WhyLabsClient:
                             classifier="output", data_type=data_type, discreteness=discreteness  # type: ignore
                         )
                         self._set_column_schema(column_name, column_schema=column_schema)
-        return
 
     def _tag_custom_perf_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView]):
         if isinstance(view, DatasetProfileView):
@@ -485,7 +489,6 @@ class WhyLabsClient:
                     if column_name.startswith(perf_col):
                         metric = KNOWN_CUSTOM_PERFORMANCE_METRICS[perf_col]
                         self.tag_custom_performance_column(column_name, default_metric=metric)
-        return
 
     def _do_get_feature_weights(self):
         """Get latest version for the feature weights for the specified dataset
@@ -594,12 +597,23 @@ class WhyLabsClient:
         client = self._get_or_create_transaction_client()
         request = TransactionCommitRequest(verbose=True)
         # We abandon the transaction if this throws
-        client.commit_transaction(id, request)
+        try:
+            client.commit_transaction(id, request)
+        except NotFoundException as e:
+            if "Transaction has been aborted" in str(e):  # TODO: perhaps not the most robust test?
+                logger.error(f"Transaction {id} was aborted; not committing")
+                raise TransactionAbortedException(f"Transaction {id} has been aborted")
+            else:
+                raise e
 
     def abort_transaction(self, id: str) -> None:
         logger.info(f"Aborting transaciton {id}")
         client = self._get_or_create_transaction_client()
         client.abort_transaction(id)
+
+    def transaction_status(self, id: str) -> Dict[str, Any]:
+        client = self._get_or_create_transaction_client()
+        return client.transaction_status(id)
 
     def get_upload_url_transaction(
         self, dataset_timestamp: int, whylabs_tags: List[SegmentTag] = []

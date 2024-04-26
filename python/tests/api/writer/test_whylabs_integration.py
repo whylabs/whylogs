@@ -8,7 +8,6 @@ import pandas as pd
 import pytest
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi
 from whylabs_client.api.models_api import ModelsApi
-from whylabs_client.exceptions import NotFoundException
 from whylabs_client.model.entity_schema import EntitySchema
 from whylabs_client.model.profile_traces_response import ProfileTracesResponse
 from whylabs_client.model.reference_profile_item_response import (
@@ -17,7 +16,7 @@ from whylabs_client.model.reference_profile_item_response import (
 
 import whylogs as why
 from whylogs.api.writer.whylabs import WhyLabsWriter
-from whylogs.api.writer.whylabs_client import WhyLabsClient
+from whylogs.api.writer.whylabs_client import TransactionAbortedException, WhyLabsClient
 from whylogs.api.writer.whylabs_transaction_writer import WhyLabsTransactionWriter
 from whylogs.core import DatasetProfileView
 from whylogs.core.feature_weights import FeatureWeights
@@ -202,7 +201,7 @@ def test_performance_column():
     ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     writer = WhyLabsWriter()
-    status, _ = writer.tag_custom_performance_column("col1", "perf column", "mean")
+    status, _ = writer.tag_custom_performance_column("col1", "perf_column", "mean")
     assert status
     model_api = ModelsApi(writer._api_client)
     response: EntitySchema = model_api.get_entity_schema(ORG_ID, MODEL_ID)
@@ -213,7 +212,7 @@ def test_performance_column():
     )
 
     # change it so we won't accidentally pass from previous state
-    status, _ = writer.tag_custom_performance_column("col1", "perf column", "median")
+    status, _ = writer.tag_custom_performance_column("col1", "perf_column", "median")
     assert status
     response = model_api.get_entity_schema(ORG_ID, MODEL_ID)
     assert response["metrics"]["perf_column"]["default_metric"] == "median"
@@ -290,7 +289,7 @@ def test_transaction_aborted():
     assert status
     writer._whylabs_client.abort_transaction(transaction_id)
     status, id = writer.write(result)
-    with pytest.raises(NotFoundException) as e:
+    with pytest.raises(TransactionAbortedException) as e:
         writer.commit_transaction()
         assert str(e) == "Transaction has been aborted"
 
@@ -315,23 +314,18 @@ def test_transaction_context():
     df = pd.read_csv(csv_url)
     pdfs = np.array_split(df, 7)
     tids = list()
-    try:
-        with WhyLabsTransactionWriter() as writer:
-            assert writer.transaction_id is not None
-            assert writer._whylabs_client._transaction_id == writer.transaction_id
-            for data in pdfs:
-                trace_id = str(uuid4())
-                tids.append(trace_id)
-                result = why.log(data, schema=schema, trace_id=trace_id)
-                status, id = writer.write(result.profile())
-                if not status:
-                    raise Exception()  # or retry the profile...
-
-    except Exception:
-        # The start_transaction() or commit_transaction() in the
-        # WhyLabsTransaction context manager will throw on failure.
-        # Or retry the commit
-        logger.exception("Logging transaction failed")
+    with WhyLabsTransactionWriter() as writer:
+        assert writer.transaction_id is not None
+        assert writer._whylabs_client._transaction_id == writer.transaction_id
+        for data in pdfs:
+            trace_id = str(uuid4())
+            tids.append(trace_id)
+            result = why.log(data, schema=schema, trace_id=trace_id)
+            status, id = writer.write(result.profile())
+            if not status:
+                raise Exception()  # or retry the profile...
+        status = writer.transaction_status()
+        assert len(status["files"]) == len(pdfs)
 
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
@@ -356,15 +350,17 @@ def test_transaction_context_aborted():
     csv_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv"
     df = pd.read_csv(csv_url)
     pdfs = np.array_split(df, 7)
-    with WhyLabsTransactionWriter() as writer:
-        transaction_id = writer.transaction_id
-        for data, i in zip(pdfs, range(len(pdfs))):
-            result = why.log(data)
-            if i == 3:
-                writer._whylabs_client.abort_transaction(transaction_id)
-            writer.write(result)
-    # the context manager should swallow the abort exception from the abort
+    with pytest.raises(TransactionAbortedException):
+        with WhyLabsTransactionWriter() as writer:
+            transaction_id = writer.transaction_id
+            for data, i in zip(pdfs, range(len(pdfs))):
+                result = why.log(data)
+                if i == 3:
+                    writer._whylabs_client.abort_transaction(transaction_id)
+                writer.write(result)
+
     assert writer.transaction_id is None
+    assert writer._whylabs_client._transaction_id is None
 
 
 @pytest.mark.load

@@ -3,7 +3,6 @@ import logging
 from typing import Any, List, Optional, Tuple, Union
 
 from whylabs_client import ApiClient
-from whylabs_client.exceptions import NotFoundException
 
 from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.api.whylabs.session.session_manager import INIT_DOCS
@@ -68,7 +67,9 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         transaction_id: Optional[str] = None,
     ):
         super().__init__(org_id, api_key, dataset_id, api_client, ssl_ca_cert, _timeout_seconds, whylabs_client)
-        self._whylabs_client._transaction_id = transaction_id or self._whylabs_client.get_transaction_id()  # type: ignore
+        transaction_id = transaction_id or self._whylabs_client.get_transaction_id()  # type: ignore
+        self._transaction_id = transaction_id
+        self._whylabs_client._transaction_id = transaction_id  # type: ignore
         self._aborted: bool = False
 
     @property
@@ -143,10 +144,4 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
     def __exit__(self, exc_type, exc_value, exc_tb) -> None:
         id = self.transaction_id
         self._whylabs_client._transaction_id = None  # type: ignore
-        try:
-            self._whylabs_client.commit_transaction(id)  # type: ignore
-        except NotFoundException as e:
-            if "Transaction has been aborted" in str(e):  # TODO: perhaps not the most robust test?
-                logger.error(f"Transaction {id} was aborted; not committing")
-            else:
-                raise e
+        self._whylabs_client.commit_transaction(id)  # type: ignore

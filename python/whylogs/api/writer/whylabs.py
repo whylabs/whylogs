@@ -205,8 +205,8 @@ class WhyLabsWriter(WhyLabsWriterBase):
 
         id = self._transaction_id
         self._transaction_id = None
-        self._whylabs_client.commit_transaction(id)  # type: ignore
         self._whylabs_client._transaction_id = None  # type: ignore
+        self._whylabs_client.commit_transaction(id)  # type: ignore
 
     def abort_transaction(self) -> None:
         """
