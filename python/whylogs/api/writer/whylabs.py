@@ -2,7 +2,6 @@ import logging
 from typing import Any, List, Optional, Tuple, Union
 
 from whylabs_client import ApiClient
-from whylabs_client.exceptions import NotFoundException
 
 from whylogs.api.whylabs.session.session_manager import INIT_DOCS
 from whylogs.api.writer.whylabs_base import WhyLabsWriterBase
@@ -260,15 +259,9 @@ class WhyLabsTransaction:
         self._writer = writer
 
     def __enter__(self) -> str:
-        self._writer.start_transaction()
+        if self._writer._transaction_id is None:
+            self._writer.start_transaction()
         return self._writer._transaction_id  # type: ignore
 
     def __exit__(self, exc_type, exc_value, exc_tb) -> None:
-        id = self._writer._transaction_id
-        try:
-            self._writer.commit_transaction()
-        except NotFoundException as e:
-            if "Transaction has been aborted" in str(e):  # TODO: perhaps not the most robust test?
-                logger.error(f"Transaction {id} was aborted; not committing")
-            else:
-                raise e
+        self._writer.commit_transaction()

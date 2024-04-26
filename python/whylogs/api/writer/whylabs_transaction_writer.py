@@ -139,9 +139,14 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         return self._write_view(view, **kwargs)
 
     def __enter__(self) -> "WhyLabsTransactionWriter":
+        if self.transaction_id is None:
+            self._transaction_id = self._whylabs_client.get_transaction_id()
+            self._whylabs_client._transaction_id = self._transaction_id
+
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb) -> None:
         id = self.transaction_id
+        self._transaction_id = None
         self._whylabs_client._transaction_id = None  # type: ignore
         self._whylabs_client.commit_transaction(id)  # type: ignore
