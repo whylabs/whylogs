@@ -138,7 +138,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
         self._whylabs_client = self._whylabs_client.option(**kwargs)  # type: ignore
 
         if isinstance(file, SegmentedResultSet):
-            if kwargs.get("zip"):
+            if kwargs.get("zip"):  # TODO: force zip if the number of segemtns is large
                 return self._write_segmented_result_set_zip(file, **kwargs)
             else:
                 return self._write_segmented_result_set(file, **kwargs)

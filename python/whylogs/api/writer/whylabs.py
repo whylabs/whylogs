@@ -240,7 +240,7 @@ class WhyLabsWriter(WhyLabsWriterBase):
 
         # Writable is some flavor of profile -- DatasetProfile, [Segmented]DatasetProfileView, or ResultSet
 
-        if self._transaction_id is not None:
+        if (self._transaction_id is not None) or kwargs.get("transaction"):
             if self._reference_profile_name is not None:
                 return False, "Cannot send reference profiles in a transaction"
             return self._get_writer(WhyLabsTransactionWriter).write(
