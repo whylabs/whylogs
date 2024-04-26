@@ -17,7 +17,9 @@ def test_log_batch_ranking_metrics_single_simple():
         }
     )
     result = log_batch_ranking_metrics(
-        data=single_df, prediction_column="raw_predictions", target_column="raw_targets", convert_non_numeric=True
+        data=single_df,
+        prediction_column="raw_predictions",
+        target_column="raw_targets",
     )
     pandas_summary = result.view().to_pandas()
 
@@ -53,10 +55,10 @@ def test_log_batch_ranking_metrics_single_simple():
 
 def test_log_batch_ranking_metrics_binary_simple():
     binary_df = pd.DataFrame(
-        {"raw_predictions": [[True, False, True], [False, False, False], [True, True, False], [False, True, False]]}
+        {"raw_targets": [[True, False, True], [False, False, False], [True, True, False], [False, True, False]]}
     )
 
-    result = log_batch_ranking_metrics(data=binary_df, prediction_column="raw_predictions", k=2)
+    result = log_batch_ranking_metrics(data=binary_df, target_column="raw_targets", k=2)
     pandas_summary = result.view().to_pandas()
 
     k = 2
@@ -109,7 +111,6 @@ def test_log_batch_ranking_metrics_multiple_simple():
         prediction_column="raw_predictions",
         target_column="raw_targets",
         k=k,
-        convert_non_numeric=True,
     )
     pandas_summary = result.view().to_pandas()
 
@@ -139,9 +140,9 @@ def test_log_batch_ranking_metrics_multiple_simple():
 
 
 def test_log_batch_ranking_metrics_default_target():
-    multiple_df = pd.DataFrame({"raw_predictions": [[3, 2, 3, 0, 1, 2, 3, 2]]})
+    multiple_df = pd.DataFrame({"raw_targets": [[3, 2, 3, 0, 1, 2, 3, 2]]})
 
-    result = log_batch_ranking_metrics(data=multiple_df, prediction_column="raw_predictions", k=3)
+    result = log_batch_ranking_metrics(data=multiple_df, target_column="raw_targets", k=3)
     pandas_summary = result.view().to_pandas()
 
     k = 3

@@ -131,17 +131,38 @@ def _calculate_average_precisions(
     return averages
 
 
+def _all_strings(data: pd.Series) -> bool:
+    return all([all([isinstance(y, str) for y in x]) for x in data])
+
+
 def log_batch_ranking_metrics(
     data: pd.core.frame.DataFrame,
     prediction_column: Optional[str] = None,
     target_column: Optional[str] = None,
     score_column: Optional[str] = None,
     k: Optional[int] = None,
-    convert_non_numeric=False,
     schema: Union[DatasetSchema, None] = None,
     log_full_data: bool = False,
 ) -> ViewResultSet:
     """Log ranking metrics for a batch of data.
+
+    You can call the function several ways:
+      - Pass both prediction_column and target_column.
+          - The named columns contain lists of strings. In this case, the prediction column contains the
+            items the model has predicted are relevant, and the target column contains the items that
+            are actually relevant. In this case, relevance is boolean.
+
+          - The prediction column contains lists of integers and the target column contains lists of numbers
+            or booleans. The value at the i-th position in the predicted list is the predicted rank of the i-th
+            element of the domain. The value at the i-th position in the target list is the true relevance score of the
+            i-th element of the domain. The score can be numeric or boolean. Higher scores indicate higher relevance.
+
+      - Pass both target_column and score_column. The value at the i-th position in the target list is the true relevance
+        of the i-th element of the domain (represented as a number, higher being more relevant; or boolean). The value at
+        the i-th position in the score list is the model output for the i-th element of the domain.
+
+      - Pass only target_column. The target column contians lists of numbers or booleans. The list entries are the true
+        relevance of the items predicted by the model in prediction order.
 
     Parameters
     ----------
@@ -157,9 +178,6 @@ def log_batch_ranking_metrics(
     k : Optional[int], optional
         Consider the top k ranks for metrics calculation.
         If `None`, use all outputs, by default None
-    convert_non_numeric : bool, optional
-        Indicates whether prediction/target columns are non-numeric.
-        If True, prediction/target should be strings, by default False
     schema : Union[DatasetSchema, None], optional
         Defines the schema for tracking metrics in whylogs, by default None
     log_full_data : bool, optional
@@ -226,7 +244,7 @@ def log_batch_ranking_metrics(
 
         binary_single_df = pd.DataFrame(
             {
-                "raw_predictions": [
+                "raw_targets": [
                     [True, False, True], # First recommended item: Relevant, Second: Not relevant, Third: Relevant
                     [False, False, False], # None of the recommended items are relevant
                     [True, True, False], # First and second recommended items are relevant
@@ -234,10 +252,19 @@ def log_batch_ranking_metrics(
             }
         )
 
-        result = log_batch_ranking_metrics(data=binary_single_df, prediction_column="raw_predictions", k=3)
+        result = log_batch_ranking_metrics(data=binary_single_df, target_column="raw_targets", k=3)
 
     """
     formatted_data = data.copy(deep=True)  # TODO: does this have to be deep?
+
+    if score_column is not None and prediction_column is not None:
+        raise ValueError("Cannot specify both score_column and prediction_column")
+
+    if prediction_column is None and score_column is None and target_column is not None:
+        # https://github.com/whylabs/whylogs/issues/1505
+        # The column use logic is complex, so just swapping them here for this case
+        # rather than unraveling all the use cases.
+        prediction_column, target_column = target_column, prediction_column
 
     if prediction_column is None:
         if score_column is not None and target_column is not None:
@@ -248,7 +275,7 @@ def log_batch_ranking_metrics(
                 lambda row: list(np.argsort(np.argsort(-np.array(row))) + 1)
             )
         else:
-            raise ValueError("Either prediction_column or score+target columns must be specified")
+            raise ValueError("Either target_column or score+target columns must be specified")
 
     relevant_cols = [prediction_column]
 
@@ -279,6 +306,10 @@ def log_batch_ranking_metrics(
         k = _max_k
     if k and k < 1:
         raise ValueError("k must be a positive integer")
+
+    convert_non_numeric = _all_strings(formatted_data[prediction_column]) and _all_strings(
+        formatted_data[target_column]
+    )
 
     row_wise_functions = RowWiseMetrics(target_column, prediction_column, convert_non_numeric)
     formatted_data["count_at_k"] = formatted_data.apply(row_wise_functions.relevant_counter, args=(k,), axis=1)
