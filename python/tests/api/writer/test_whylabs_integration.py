@@ -15,7 +15,7 @@ from whylabs_client.model.reference_profile_item_response import (
 )
 
 import whylogs as why
-from whylogs.api.writer.whylabs import WhyLabsWriter, WhyLabsTransaction
+from whylogs.api.writer.whylabs import WhyLabsTransaction, WhyLabsWriter
 from whylogs.api.writer.whylabs_client import TransactionAbortedException, WhyLabsClient
 from whylogs.api.writer.whylabs_transaction_writer import WhyLabsTransactionWriter
 from whylogs.core import DatasetProfileView
