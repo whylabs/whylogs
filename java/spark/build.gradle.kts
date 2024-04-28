@@ -76,6 +76,7 @@ artifacts {
 dependencies {
     api("org.slf4j:slf4j-api:1.7.27")
     implementation(scalaPackage("org.apache.spark", "spark-core", sparkVersion))
+    implementation(scalaPackage("org.apache.spark", "spark-mllib", sparkVersion))
     implementation(scalaPackage("org.apache.spark", "spark-sql", sparkVersion))
 
     // project dependencies
