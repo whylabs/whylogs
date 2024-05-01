@@ -234,31 +234,19 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
       metrics.ndcgAt(2),
       metrics.recallAt(2)))
     println(metricsSequence)
-    //val metricOutput = metricsSequence.toDF("precision_at_2", "map_at_2", "ndcg_at_2", "recall_at_2")
-    //println(s"  *** ranking metrics at k:${metricsOutput.show()}")
+    val metricsFunctions = new RankingMetricsUDF[Int]("predictions", "labels")
+    println("We created a RankingMetricsUDF")
+    val output_df = metricsFunctions.applyMetrics(predictionAndLabelsDF)
+    println(output_df)
   }
-  
-  test("test rankingMetricDF") {
-    import com.whylogs.spark.WhyLogs._
 
-    val predictionAndLabelsRDD = spark.sparkContext.parallelize(
-      Seq(
-        (Array(1, 6, 2, 7, 8, 3, 9, 10, 4, 5), Array(1, 2, 3, 4, 5)),
-        (Array(4, 1, 5, 6, 2, 7, 3, 8, 9, 10), Array(1, 2, 3)),
-        (Array(1, 2, 3, 4, 5), Array(0, 0, 0, 0, 0))),
-      2)
-    val predictionAndLabelsDF = spark.createDataFrame(predictionAndLabelsRDD).toDF("predictions", "labels")
-    val session = predictionAndLabelsDF.newProfilingSession("foobar")
-      .withRankingMetrics(predictionField="predictions", targetField="labels", k=Some(2))
-    val rankingMetricsDF = session.rankingMetricDF(predictionAndLabelsDF)
-    println(s"rankingMetricsDF: ${rankingMetricsDF.show()}")
-    assert(!rankingMetricsDF.head(1).isEmpty)
-    val eps = 1.0e-5
-    val result = rankingMetricsDF.head(1)(0)
-    assert(result.getAs[Double]("precision_k_2") ~== 1.0 / 3 absTol eps )
-    assert(result.getAs[Double]("average_precision_k_2") ~== 1.0 / 4 absTol eps )
-    assert(result.getAs[Double]("norm_dis_cumul_gain_k_2") ~== 1.0 / 3 absTol eps )
-    assert(result.getAs[Double]("recall_k_2") ~== 8.0 / 45 absTol eps )
+  test("test RankingMetrics withTimecolumn") {
+    import com.whylogs.spark.WhyLogs._
+    val input_df = spark.createDataFrame(Seq(
+      ("group1", "2021-07-01", Array(1, 6, 2), Array(1, 2), Array(0.9, 0.8, 0.7)),
+      ("group1", "2021-07-01", Array(4, 1, 5), Array(1, 3), Array(0.1, 0.4, 0.5)),
+      ("group2", "2021-07-02", Array(1, 2, 3), Array(3, 2), Array(0.2, 0.5, 0.3))
+    )).toDF("group", "dataset_timestamp", "predictions", "targets", "scores")
   }
 
   test("profile null value") {

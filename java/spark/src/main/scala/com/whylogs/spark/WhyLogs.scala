@@ -5,7 +5,9 @@ import ai.whylabs.service.invoker.ApiClient
 import ai.whylabs.service.model.{LogAsyncRequest, SegmentTag}
 import com.whylogs.spark.WhyLogs.PROFILE_FIELD
 import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.types.{ArrayType, DataTypes, NumericType, StructField}
+import org.apache.spark.sql.functions.udf
+import org.apache.spark.sql.types.{ArrayType, DataType, DataTypes, IntegerType, NumericType, StringType, StructField}
+
 import org.apache.spark.sql.{DataFrame, Dataset, RelationalGroupedDataset, Row}
 import org.apache.spark.whylogs.{DatasetProfileAggregator, DatasetProfileMerger}
 import org.slf4j.LoggerFactory
@@ -20,15 +22,17 @@ import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.language.implicitConversions
-import org.apache.spark.mllib.evaluation.RankingMetrics
-import org.apache.spark.ml.evaluation.RankingEvaluator
+import scala.reflect.ClassTag
+import scala.reflect.runtime.universe.TypeTag
 
 case class ModelProfileSession(predictionField: String, targetField: String, scoreField: String = null) {
   def shouldExclude(field: String): Boolean = {
     predictionField == field || targetField == field || scoreField == field
   }
 }
-case class RankingMetricsSession(predictionField: String, targetField: String, scoreField: String = null, k: Option[Int] = None)
+case class RankingMetricsSession[T : TypeTag : ClassTag](predictionField: String, targetField: String, scoreField: String = null, k: Int = 10) {
+  val udfs = new RankingMetricsUDF[T](predictionField, targetField, scoreField, k)
+}
 
 /**
  * A class that enable easy access to the profiling API
@@ -44,7 +48,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
                              private val groupByColumns: Seq[String] = List(),
                              // model metrics
                              private val modelProfile: ModelProfileSession = null,
-                             private val rankingMetrics: RankingMetricsSession = null
+                             private val rankingMetrics: RankingMetricsSession[_] = null
                             ) {
   private val logger = LoggerFactory.getLogger(getClass)
   private val columnNames = dataFrame.schema.fieldNames.toSet
@@ -55,7 +59,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
    * Note that WhyLogs uses this column to group data together, so please make sure you truncate the
    * data to the appropriate level of precision (i.e. daily, hourly) before calling this.
    * We only accept a column name at the moment. You can alias raw Column into a column name with
-   * [[Dataset#withColumn(colucolName: String, col: Column)]]
+   * [[Dataset#withColumn(colName: String, col: Column)]]
    *
    * @param timeColumn the column that contains the timestamp.
    * @return
@@ -111,7 +115,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     this.copy(modelProfile = ModelProfileSession(predictionField, targetField))
   }
 
-  def withRankingMetrics(predictionField: String, targetField: String, scoreField: String = null, k: Option[Int] = None) : WhyProfileSession = {
+  def withRankingMetrics(predictionField: String, targetField: String, scoreField: String = null, k: Int = 10) : WhyProfileSession = {
     checkIfColumnExists(predictionField)
     checkIfColumnExists(targetField)
 
@@ -120,55 +124,43 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
       throw new IllegalStateException(s"Ranking Metrics prediction field MUST be of array of numeric type. Got: ${predFieldSchema.dataType}")
     }
     val targetFieldSchema: StructField = dataFrame.schema.apply(targetField)
-    if (!predFieldSchema.dataType.isInstanceOf[ArrayType]) {
+    if (!targetFieldSchema.dataType.isInstanceOf[ArrayType]) {
       throw new IllegalStateException(s"Ranking Metrics target field MUST be of array numeric type. Got: ${targetFieldSchema.dataType}")
     }
-    this.copy(rankingMetrics = RankingMetricsSession(predictionField, targetField, scoreField, k))
+
+    // check data type is supported for ranking metrics
+    def isValidMetricType(dataType: DataType): Boolean = dataType match {
+      case ArrayType(elementType, _) => elementType match {
+        case _: IntegerType | _: StringType => true
+        case _ => false
+      }
+      case _ => false
+    }
+
+    // Validate types of prediction and target field array elements
+    if (!isValidMetricType(predFieldSchema.dataType) || !isValidMetricType(targetFieldSchema.dataType) || predFieldSchema.dataType != targetFieldSchema.dataType) {
+      throw new IllegalStateException(s"Ranking Metrics fields MUST be arrays of either integer or string type. Found: ${predFieldSchema.dataType} and ${targetFieldSchema.dataType}")
+    }
+
+    (predFieldSchema.dataType, targetFieldSchema.dataType) match {
+      case (ArrayType(_: IntegerType, _), ArrayType(_: IntegerType, _)) =>
+        this.copy(rankingMetrics = RankingMetricsSession[Int](predictionField, targetField, scoreField, k))
+      case (ArrayType(_: StringType, _), ArrayType(_: StringType, _)) =>
+        this.copy(rankingMetrics = RankingMetricsSession[String](predictionField, targetField, scoreField, k))
+      case _ => throw new IllegalArgumentException(s"Unsupported combination of data types for RankingMetricsUDF: ( ${predFieldSchema.dataType} and ${targetFieldSchema.dataType})")
+    }
   }
 
-  def rankingMetricDF(df: DataFrame): DataFrame = {
-    val rankingMetricsFields = Option(rankingMetrics).toSeq.flatMap(m => {
-          Seq(m.targetField, m.predictionField, m.scoreField).filter(_ != null)
-    })
-
-    val rddOfTuples = df.select(rankingMetricsFields.map(col):_*).rdd
-      .map(row => (
-        row.getAs[Seq[Int]](rankingMetrics.predictionField).toArray,
-        row.getAs[Seq[Int]](rankingMetrics.targetField).toArray
-    ))
-    val k = rankingMetrics.k.getOrElse(10)
-
-    val metrics = new RankingMetrics(rddOfTuples)
-    val metricsSequence = dataFrame.sparkSession.sparkContext.parallelize(
-        Seq((
-        metrics.precisionAt(k),
-        metrics.meanAveragePrecisionAt(k),
-        metrics.ndcgAt(k),
-        metrics.recallAt(k))),
-        2
-      )
-
-    val metricOutput = dataFrame.sparkSession.createDataFrame(metricsSequence).toDF(s"precision_k_$k", s"average_precision_k_$k", s"norm_dis_cumul_gain_k_$k", s"recall_k_$k")
-    metricOutput
-  }
-
-
-  def aggRankingMetricsProfiles(timestamp: Instant): DataFrame = {
-    val timeInMillis = timestamp.toEpochMilli
+  def aggRankingMetricsProfiles(timestamp: Long): DataFrame = {
+    val debugGroupByStr = groupByColumns.mkString(",")
     logger.debug(s"Ranking metrics session name: $name")
     logger.debug(s"timestamp: $timestamp")
+    logger.debug(s"Time column: $timeColumn")
+    logger.debug(s"Group by columns: $debugGroupByStr")
     logger.debug(s"All columns: $columnNames")
 
-    val coalesced = dataFrame.coalesce(dataFrame.sparkSession.sparkContext.defaultParallelism)
-
-    val rankingMetricProfiles = rankingMetricDF(coalesced)
-      .groupBy()
-      .agg(DatasetProfileAggregator(name, timeInMillis, timeColumn, groupByColumns, modelProfile)
-        .toColumn
-        .alias(PROFILE_FIELD))
-      .groupBy()
-      .agg(new DatasetProfileMerger(name, timeInMillis).toColumn.alias(PROFILE_FIELD))
-    rankingMetricProfiles
+    val dataFrameWithRankingMetrics = rankingMetrics.udfs.applyMetrics(dataFrame)
+    this.aggProfiles(Instant.ofEpochMilli(timestamp), dataFrameWithRankingMetrics)
   }
 
   /**
@@ -178,7 +170,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
    * @return a DataFrame with aggregated profiles under 'why_profile' column
    */
   def aggProfiles(timestamp: Long): DataFrame = {
-    this.aggProfiles(Instant.ofEpochMilli(timestamp))
+    this.aggProfiles(Instant.ofEpochMilli(timestamp), this.dataFrame)
   }
 
   /**
@@ -194,14 +186,17 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     logger.debug(s"Time column: $timeColumn")
     logger.debug(s"Group by columns: $debugGroupByStr")
     logger.debug(s"All columns: $columnNames")
+    this.aggProfiles(timestamp, this.dataFrame)
+  }
 
+  def aggProfiles(timestamp: Instant, inputDataFrame: DataFrame): DataFrame = {
     val timeInMillis = timestamp.toEpochMilli
 
     // very important: we don't want the job to have a huge number of partitions
     // it's counter intuitive but the jobs are CPU bound and thus are better to be bounded
     // by the default parallelism value
-    val coalesced = dataFrame.coalesce(dataFrame.sparkSession.sparkContext.defaultParallelism)
-
+    val coalesced = inputDataFrame.coalesce(inputDataFrame.sparkSession.sparkContext.defaultParallelism)
+    val debugGroupByStr = groupByColumns.mkString(",")
     logger.info(s"Run profiling with: [$name, $timestamp] with time column [$timeColumn], group by: $debugGroupByStr")
     val groupByWithTime = groupByColumns ++ Option(timeColumn).toSeq
 
@@ -209,7 +204,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
       Seq(m.targetField, m.predictionField, m.scoreField).filter(_ != null)
     })
 
-    val fields = dataFrame.schema.fields.map(_.name)
+    val fields = inputDataFrame.schema.fields.map(_.name)
     val remainingFields = fields.filter(!groupByWithTime.contains(_)).filter(!profileMetricsFields.contains(_))
     val columnGroups = remainingFields.grouped(100).toSeq
 
@@ -256,18 +251,17 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     })
   }
 
-  def logRankingMetrics(timestamp: Instant = Instant.now(),
+  def logRankingMetrics(timestampInMs: Long = Instant.now().toEpochMilli,
           orgId: String,
           modelId: String,
           apiKey: String,
           endpoint: String = "https://api.whylabsapp.com",
           sslCaCertData: String = null,
          ): Unit = {
-    logger.info(s"Computing ranking metrics: [$name, $timestamp]")
-    val df = aggRankingMetricsProfiles(timestamp)
-    logger.info(s"Uploading ranking metrics: [$name, $timestamp]")
+
+    val df = aggRankingMetricsProfiles(timestampInMs)
     df.foreachPartition((rows: Iterator[Row]) => {
-      doUpload(orgId, modelId, apiKey, rows, endpoint, sslCaCertData, timestamp)
+      doUpload(orgId, modelId, apiKey, rows, endpoint, sslCaCertData, Instant.ofEpochMilli(timestampInMs))
     })
   }
 
