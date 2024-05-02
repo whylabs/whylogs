@@ -3,7 +3,7 @@ package com.whylogs.spark
 import java.io.ByteArrayInputStream
 import java.nio.file.{Files, StandardCopyOption}
 import java.sql.Timestamp
-import java.time.Instant
+import java.time.{Instant, ZonedDateTime}
 import java.time.temporal.ChronoUnit
 import com.whylogs.core.DatasetProfile
 import com.whylogs.core.message.InferredType
@@ -228,25 +228,60 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
     assert(metrics.recallAt(15) ~== 2.0 / 3 absTol eps)
     println(s"  *** recall@3=${metrics.recallAt(1)}")
 
+    val testK = 2
     val metricsSequence = Seq((
-      metrics.precisionAt(2),
-      metrics.meanAveragePrecisionAt(2),
-      metrics.ndcgAt(2),
-      metrics.recallAt(2)))
+      metrics.precisionAt(testK),
+      metrics.meanAveragePrecisionAt(testK),
+      metrics.ndcgAt(testK),
+      metrics.recallAt(testK)))
     println(metricsSequence)
-    val metricsFunctions = new RankingMetricsUDF[Int]("predictions", "labels")
-    println("We created a RankingMetricsUDF")
+
+    val metricsFunctions = new RankingMetricsUDF[Int]("predictions", "labels", k=testK)
+
     val output_df = metricsFunctions.applyMetrics(predictionAndLabelsDF)
-    println(output_df)
+    val precisionColumnName = s"precision_k_$testK"
+    val meanAveragePrecisionColumnName = s"average_precision_k_$testK"
+    val ndcgColumnName = s"norm_dis_cumul_gain_k_$testK"
+    val recallAtColumnName = s"recall_k_$testK"
+    assert(output_df.columns.contains(precisionColumnName))
+    assert(output_df.columns.contains(meanAveragePrecisionColumnName))
+    assert(output_df.columns.contains(ndcgColumnName))
+    assert(output_df.columns.contains(recallAtColumnName))
+
+    val computed_precision_k_2 = output_df.agg(mean(col(precisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_meanAveragePrecision_k_2 = output_df.agg(mean(col(meanAveragePrecisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_ndcg_k_2 = output_df.agg(mean(col(ndcgColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_recall_k_2 = output_df.agg(mean(col(recallAtColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+
+    assert(metrics.precisionAt(testK) ~== computed_precision_k_2 absTol eps)
+    assert(metrics.meanAveragePrecisionAt(testK) ~== computed_meanAveragePrecision_k_2 absTol eps)
+    assert(metrics.ndcgAt(testK) ~== computed_ndcg_k_2 absTol eps)
+    assert(metrics.recallAt(testK) ~== computed_recall_k_2 absTol eps)
+    println(output_df.show())
   }
 
   test("test RankingMetrics withTimecolumn") {
     import com.whylogs.spark.WhyLogs._
+    import java.time._
+
+    val today = Timestamp.valueOf(LocalDateTime.now())
+    val yesterday = Timestamp.valueOf(LocalDateTime.now().minusDays(1))
     val input_df = spark.createDataFrame(Seq(
-      ("group1", "2021-07-01", Array(1, 6, 2), Array(1, 2), Array(0.9, 0.8, 0.7)),
-      ("group1", "2021-07-01", Array(4, 1, 5), Array(1, 3), Array(0.1, 0.4, 0.5)),
-      ("group2", "2021-07-02", Array(1, 2, 3), Array(3, 2), Array(0.2, 0.5, 0.3))
+      ("group1", today, Array(1, 6, 2), Array(1, 2, 4), Array(0.9, 0.8, 0.7)),
+      ("group1", today, Array(4, 1, 5), Array(1, 3, 4), Array(0.1, 0.4, 0.5)),
+      ("group2", today, Array(4, 1, 5), Array(1, 3, 4), Array(0.1, 0.4, 0.5)),
+      ("group1", yesterday, Array(4, 1, 5), Array(1, 3, 4), Array(0.1, 0.4, 0.5)),
+      ("group1", yesterday, Array(4, 1, 5), Array(1, 3, 4), Array(0.1, 0.4, 0.5)),
+      ("group2", yesterday, Array(1, 2, 3), Array(3, 2, 4), Array(0.2, 0.5, 0.3))
     )).toDF("group", "dataset_timestamp", "predictions", "targets", "scores")
+
+     val res = input_df.newProfilingSession("ranking")
+      .withTimeColumn("dataset_timestamp")
+      .withRankingMetrics("predictions", "targets", "scores")
+      .groupBy("group")
+      .aggProfiles()
+    val profile_count = res.count()
+    assert(profile_count == 4, s"We expect profiles for 2 dates each with two segments, got a total profile count of $profile_count")
   }
 
   test("profile null value") {

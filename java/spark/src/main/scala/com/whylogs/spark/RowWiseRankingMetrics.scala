@@ -1,3 +1,26 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contents of this file were adapted from https://github.com/apache/spark/blob/master/mllib/src/main/scala/org/apache/spark/mllib/evaluation/RankingMetrics.scala
+ * Summary of changes:
+ *  - Changed RankingMetrics to object RowWiserRankingMetrics
+ *  - removed RDD and made functions row wise operations on tuples
+ */
+
+
 package com.whylogs.spark
 
 import scala.reflect.ClassTag
@@ -98,27 +121,45 @@ object RowWiseRankingMetrics extends Logging {
    */
   def ndcgAtK[T](predictions: Array[T], labels: Array[T], relevanceValues: Array[Double], k: Int): Double = {
     require(k > 0, "The ranking position k must be positive")
-    if (labels.isEmpty || predictions.isEmpty) {
-      logWarning("Empty ground truth or predictions set, check input data")
+    if (predictions.isEmpty) {
+      logWarning("Empty predictions set, check input data")
+      return 0.0
+    }
+    if (labels.isEmpty) {
+      logWarning("Empty ground truth, check input data")
       return 0.0
     }
 
     val labelSet = labels.toSet
+    val useBinary = relevanceValues.isEmpty
     val relevanceMap = labels.zip(relevanceValues).toMap
+
+
+    val labSetSize = labelSet.size
+    val n = math.min(math.max(predictions.length, labSetSize), k)
     var dcg = 0.0
     var maxDcg = 0.0
-
-    // Use the minimum of k, predictions.length, and labels.length to avoid out-of-bounds issues
-    val n = math.min(math.min(k, predictions.length), labels.length)
-    for (i <- 0 until n) {
-      // Only access predictions(i) and labels(i) within their valid indices
-      if (labelSet.contains(predictions(i))) {
-        val gain = relevanceMap.get(predictions(i)).map(rel => (math.pow(2.0, rel) - 1) / math.log(i + 2)).getOrElse(0.0)
-        dcg += gain
+    var i = 0
+    while (i < n) {
+      if (useBinary) {
+          // Base of the log doesn't matter for calculating NDCG,
+          // if the relevance value is binary.
+          val gain = 1.0 / math.log(i + 2)
+          if (i < predictions.length && labelSet.contains(predictions(i))) {
+            dcg += gain
+          }
+          if (i < labSetSize) {
+            maxDcg += gain
+          }
+      } else {
+        if (i < predictions.length) {
+          dcg += (math.pow(2.0, relevanceMap.getOrElse(predictions(i), 0.0)) - 1) / math.log(i + 2)
+        }
+        if (i < labSetSize) {
+          maxDcg += (math.pow(2.0, relevanceMap.getOrElse(labels(i), 0.0)) - 1) / math.log(i + 2)
+        }
       }
-      // Safe to access labels(i) because of the loop limit
-      val maxGain = relevanceMap.get(labels(i)).map(rel => (math.pow(2.0, rel) - 1) / math.log(i + 2)).getOrElse(0.0)
-      maxDcg += maxGain
+      i += 1
     }
 
     if (maxDcg == 0.0) {
@@ -128,6 +169,5 @@ object RowWiseRankingMetrics extends Logging {
       dcg / maxDcg
     }
   }
-
 
 }
