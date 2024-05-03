@@ -1,7 +1,59 @@
 from math import isclose
 
+import pytest
+
+from whylogs.api.logger import SegmentedResultSet
+from whylogs.core.schema import DatasetSchema
+from whylogs.core.segmentation_partition import segment_on_column
 from whylogs.core.stubs import pd
 from whylogs.experimental.api.logger import log_batch_ranking_metrics
+
+
+@pytest.mark.parametrize("log_full", [(True), (False)])
+def test_log_batch_ranking_metrics_single_simple_segmented(log_full: bool):
+    single_df = pd.DataFrame(
+        {
+            "foo": [1, 2, 3, 4],
+            "raw_predictions": [
+                ["cat", "pig", "elephant"],
+                ["horse", "donkey", "robin"],
+                ["cow", "pig", "giraffe"],
+                ["pig", "dolphin", "elephant"],
+            ],
+            "raw_targets": ["cat", "dog", "pig", "elephant"],
+        }
+    )
+    schema = DatasetSchema(segments=segment_on_column("foo"))
+    result = log_batch_ranking_metrics(
+        data=single_df,
+        prediction_column="raw_predictions",
+        target_column="raw_targets",
+        schema=schema,
+        log_full_data=log_full,
+    )
+    assert isinstance(result, SegmentedResultSet)
+
+    column_names = [
+        "reciprocal_rank",
+        "precision_k_3",
+        "recall_k_3",
+        "top_rank",
+        "average_precision_k_3",
+        "norm_dis_cumul_gain_k_3",
+        "sum_gain_k_3",
+    ]
+    for profile in result.get_writables():
+        pandas_summary = profile.profile_view.to_pandas()
+        for col in column_names:
+            assert col in pandas_summary.index
+        if log_full:
+            assert {"foo", "raw_predictions", "raw_targets"}.issubset(set(profile.profile_view.get_columns().keys()))
+            assert len(profile.profile_view.get_columns().keys()) == len(column_names) + 3
+        else:
+            assert not {"foo", "raw_predictions", "raw_targets"}.issubset(
+                set(profile.profile_view.get_columns().keys())
+            )
+            assert len(profile.profile_view.get_columns().keys()) == len(column_names)
 
 
 def test_log_batch_ranking_metrics_single_simple():
@@ -31,6 +83,7 @@ def test_log_batch_ranking_metrics_single_simple():
         "top_rank",
         "average_precision_k_3",
         "norm_dis_cumul_gain_k_3",
+        "sum_gain_k_3",
     ]
     for col in column_names:
         assert col in pandas_summary.index
@@ -70,6 +123,7 @@ def test_log_batch_ranking_metrics_binary_simple():
         "top_rank",
         "average_precision_k_" + str(k),
         "norm_dis_cumul_gain_k_" + str(k),
+        "sum_gain_k_" + str(k),
     ]
     for col in column_names:
         assert col in pandas_summary.index
@@ -122,6 +176,7 @@ def test_log_batch_ranking_metrics_multiple_simple():
         "top_rank",
         "average_precision_k_" + str(k),
         "norm_dis_cumul_gain_k_" + str(k),
+        "sum_gain_k_" + str(k),
     ]
     for col in column_names:
         assert col in pandas_summary.index
@@ -154,6 +209,7 @@ def test_log_batch_ranking_metrics_default_target():
         "top_rank",
         "average_precision_k_" + str(k),
         "norm_dis_cumul_gain_k_" + str(k),
+        "sum_gain_k_" + str(k),
     ]
     for col in column_names:
         assert col in pandas_summary.index
