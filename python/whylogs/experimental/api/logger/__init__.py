@@ -366,14 +366,6 @@ def log_batch_ranking_metrics(
             return result
 
     result = log(pandas=output_data, schema=schema)
-    result = result.merge(
-        log(
-            row={
-                "accuracy" + ("_k_" + str(k) if k else ""): hit_ratio,
-            },
-            schema=schema,
-        )
-    )
     if log_full_data:
         result = result.merge(log(pandas=data, schema=schema))
     return result

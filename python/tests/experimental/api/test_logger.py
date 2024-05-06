@@ -76,7 +76,6 @@ def test_log_batch_ranking_metrics_single_simple():
     pandas_summary = result.view().to_pandas()
 
     column_names = [
-        "accuracy_k_3",
         "reciprocal_rank",
         "precision_k_3",
         "recall_k_3",
@@ -87,7 +86,6 @@ def test_log_batch_ranking_metrics_single_simple():
     ]
     for col in column_names:
         assert col in pandas_summary.index
-    assert pandas_summary.loc["accuracy_k_3", "counts/n"] == 1
     assert pandas_summary.loc["reciprocal_rank", "counts/n"] == 4
     assert pandas_summary.loc["precision_k_3", "counts/n"] == 4
     assert pandas_summary.loc["recall_k_3", "counts/n"] == 4
@@ -102,7 +100,6 @@ def test_log_batch_ranking_metrics_single_simple():
     assert isclose(pandas_summary.loc["recall_k_3", "distribution/mean"], 1.0, abs_tol=0.00001)
     # rr = [1, 0, 0.5, 0.33333]
     assert isclose(pandas_summary.loc["reciprocal_rank", "distribution/mean"], 0.45833, abs_tol=0.00001)
-    assert isclose(pandas_summary.loc["accuracy_k_3", "distribution/mean"], 0.75, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["sum_gain_k_3", "distribution/mean"], 0.75, abs_tol=0.00001)
 
 
@@ -116,7 +113,6 @@ def test_log_batch_ranking_metrics_binary_simple():
 
     k = 2
     column_names = [
-        "accuracy_k_" + str(k),
         "reciprocal_rank",
         "precision_k_" + str(k),
         "recall_k_" + str(k),
@@ -127,7 +123,6 @@ def test_log_batch_ranking_metrics_binary_simple():
     ]
     for col in column_names:
         assert col in pandas_summary.index
-    assert pandas_summary.loc["accuracy_k_" + str(k), "counts/n"] == 1
     assert pandas_summary.loc["reciprocal_rank", "counts/n"] == 4
     assert pandas_summary.loc["precision_k_" + str(k), "counts/n"] == 4
     assert pandas_summary.loc["recall_k_" + str(k), "counts/n"] == 4
@@ -142,7 +137,6 @@ def test_log_batch_ranking_metrics_binary_simple():
     assert isclose(pandas_summary.loc["recall_k_" + str(k), "distribution/mean"], 0.83333, abs_tol=0.00001)
     # rr = [1, 0, 1, 0.5]
     assert isclose(pandas_summary.loc["reciprocal_rank", "distribution/mean"], 0.625, abs_tol=0.00001)
-    assert isclose(pandas_summary.loc["accuracy_k_2", "distribution/mean"], 0.75, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["sum_gain_k_2", "distribution/mean"], 1.0, abs_tol=0.00001)
 
 
@@ -169,7 +163,6 @@ def test_log_batch_ranking_metrics_multiple_simple():
     pandas_summary = result.view().to_pandas()
 
     column_names = [
-        "accuracy_k_" + str(k),
         "reciprocal_rank",
         "precision_k_" + str(k),
         "recall_k_" + str(k),
@@ -180,7 +173,6 @@ def test_log_batch_ranking_metrics_multiple_simple():
     ]
     for col in column_names:
         assert col in pandas_summary.index
-    assert pandas_summary.loc["accuracy_k_" + str(k), "counts/n"] == 1
     assert pandas_summary.loc["reciprocal_rank", "counts/n"] == 4
     assert pandas_summary.loc["precision_k_" + str(k), "counts/n"] == 4
     assert pandas_summary.loc["recall_k_" + str(k), "counts/n"] == 4
@@ -202,7 +194,6 @@ def test_log_batch_ranking_metrics_default_target():
 
     k = 3
     column_names = [
-        "accuracy_k_" + str(k),
         "reciprocal_rank",
         "precision_k_" + str(k),
         "recall_k_" + str(k),
@@ -213,7 +204,6 @@ def test_log_batch_ranking_metrics_default_target():
     ]
     for col in column_names:
         assert col in pandas_summary.index
-    assert pandas_summary.loc["accuracy_k_" + str(k), "counts/n"] == 1
     assert pandas_summary.loc["reciprocal_rank", "counts/n"] == 1
     assert pandas_summary.loc["precision_k_" + str(k), "counts/n"] == 1
     assert pandas_summary.loc["recall_k_" + str(k), "counts/n"] == 1
@@ -224,7 +214,6 @@ def test_log_batch_ranking_metrics_default_target():
     assert isclose(pandas_summary.loc[f"norm_dis_cumul_gain_k_{k}", "distribution/median"], 0.90130, abs_tol=0.00001)
     # AP assumes binary relevance - this case doesn't raise an error, just a warning, but the result is not meaningful
     assert isclose(pandas_summary.loc["average_precision_k_" + str(k), "distribution/mean"], 1.00000, abs_tol=0.00001)
-    assert isclose(pandas_summary.loc["accuracy_k_3", "distribution/mean"], 1.0, abs_tol=0.00001)
     assert isclose(pandas_summary.loc["sum_gain_k_3", "distribution/mean"], 8.0, abs_tol=0.00001)
 
 
