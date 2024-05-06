@@ -350,7 +350,6 @@ def log_batch_ranking_metrics(
         row_wise_functions.calculate_row_ndcg, args=(k,), axis=1
     )
     output_data[f"sum_gain_k_{k}"] = formatted_data.apply(row_wise_functions.sum_gains, args=(k,), axis=1)
-    hit_ratio = formatted_data["count_at_k"].apply(lambda x: bool(x)).sum() / len(formatted_data)
     mrr = (1 / formatted_data["top_rank"]).replace([np.inf, np.nan], 0)
     output_data["reciprocal_rank"] = mrr
 
