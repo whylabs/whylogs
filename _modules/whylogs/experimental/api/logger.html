@@ -439,10 +439,10 @@
           <h1>Source code for whylogs.experimental.api.logger</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger</span> <span class="kn">import</span> <span class="n">log</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ViewResultSet</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">SegmentedResultSet</span><span class="p">,</span> <span class="n">ViewResultSet</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">np</span><span class="p">,</span> <span class="n">pd</span>
 
@@ -572,6 +572,26 @@
 
 <span class="k">def</span> <span class="nf">_all_strings</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">return</span> <span class="nb">all</span><span class="p">([</span><span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">_get_segment_columns</span><span class="p">(</span><span class="n">schema</span><span class="p">:</span> <span class="n">DatasetSchema</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">columns</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">partition_name</span><span class="p">,</span> <span class="n">partition</span> <span class="ow">in</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">partition</span><span class="o">.</span><span class="n">filter</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Filters are not supported for segmented ranking metrics&quot;</span><span class="p">)</span>  <span class="c1"># Filters are deprecated</span>
+        <span class="k">if</span> <span class="n">partition</span><span class="o">.</span><span class="n">mapper</span><span class="p">:</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">partition</span><span class="o">.</span><span class="n">mapper</span><span class="o">.</span><span class="n">col_names</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_drop_non_output_columns</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="n">SegmentedResultSet</span><span class="p">,</span> <span class="n">keep_columns</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">SegmentedResultSet</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">partition</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">_segments</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">partition</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">{</span><span class="n">column</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">segment</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keep_columns</span><span class="p">}:</span>
+                <span class="n">segment</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
 
 
 <div class="viewcode-block" id="log_batch_ranking_metrics"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.experimental.api.logger.log_batch_ranking_metrics">[docs]</a><span class="k">def</span> <span class="nf">log_batch_ranking_metrics</span><span class="p">(</span>
@@ -769,18 +789,25 @@
         <span class="n">row_wise_functions</span><span class="o">.</span><span class="n">calculate_row_ndcg</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">k</span><span class="p">,),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
     <span class="p">)</span>
     <span class="n">output_data</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;sum_gain_k_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">formatted_data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">row_wise_functions</span><span class="o">.</span><span class="n">sum_gains</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">k</span><span class="p">,),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">hit_ratio</span> <span class="o">=</span> <span class="n">formatted_data</span><span class="p">[</span><span class="s2">&quot;count_at_k&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">formatted_data</span><span class="p">)</span>
     <span class="n">mrr</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">formatted_data</span><span class="p">[</span><span class="s2">&quot;top_rank&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">output_data</span><span class="p">[</span><span class="s2">&quot;reciprocal_rank&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mrr</span>
+
+    <span class="k">if</span> <span class="n">schema</span> <span class="ow">and</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
+        <span class="n">original_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">formatted_data</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">original_columns</span><span class="p">:</span>
+                <span class="n">formatted_data</span> <span class="o">=</span> <span class="n">formatted_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">log_full_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">log</span><span class="p">(</span><span class="n">pandas</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">formatted_data</span><span class="p">,</span> <span class="n">output_data</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">segment_columns</span> <span class="o">=</span> <span class="n">_get_segment_columns</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">formatted_data</span><span class="p">)</span>
+            <span class="n">segmentable_data</span> <span class="o">=</span> <span class="n">formatted_data</span><span class="p">[</span><span class="n">segment_columns</span><span class="p">]</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">log</span><span class="p">(</span><span class="n">pandas</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">segmentable_data</span><span class="p">,</span> <span class="n">output_data</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">_drop_non_output_columns</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">output_data</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">result</span>
+
     <span class="n">result</span> <span class="o">=</span> <span class="n">log</span><span class="p">(</span><span class="n">pandas</span><span class="o">=</span><span class="n">output_data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-        <span class="n">log</span><span class="p">(</span>
-            <span class="n">row</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;accuracy&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;_k_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">if</span> <span class="n">k</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">):</span> <span class="n">hit_ratio</span><span class="p">,</span>
-            <span class="p">},</span>
-            <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="p">)</span>
     <span class="k">if</span> <span class="n">log_full_data</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">pandas</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">result</span></div>

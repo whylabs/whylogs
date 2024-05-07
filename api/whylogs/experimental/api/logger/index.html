@@ -459,13 +459,16 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet" title="whylogs.experimental.api.logger.ViewResultSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ViewResultSet</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet" title="whylogs.experimental.api.logger.SegmentedResultSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SegmentedResultSet</span></code></a></p></td>
 <td><p>A holder object for profiling results.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.experimental.api.logger.DatasetSchema" title="whylogs.experimental.api.logger.DatasetSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetSchema</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet" title="whylogs.experimental.api.logger.ViewResultSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ViewResultSet</span></code></a></p></td>
+<td><p>A holder object for profiling results.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.experimental.api.logger.DatasetSchema" title="whylogs.experimental.api.logger.DatasetSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetSchema</span></code></a></p></td>
 <td><p>Defines the schema for tracking metrics in whylogs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.experimental.api.logger.RowWiseMetrics" title="whylogs.experimental.api.logger.RowWiseMetrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RowWiseMetrics</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.experimental.api.logger.RowWiseMetrics" title="whylogs.experimental.api.logger.RowWiseMetrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RowWiseMetrics</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -529,6 +532,292 @@
 <dd class="field-even"><p><a class="reference internal" href="../../../api/logger/result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet">result_set.ResultSet</a></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.experimental.api.logger.</span></span><span class="sig-name descname"><span class="pre">SegmentedResultSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment"><span class="pre">whylogs.core.Segment</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfile" title="whylogs.core.DatasetProfile"><span class="pre">whylogs.core.DatasetProfile</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><span class="pre">whylogs.core.DatasetProfileView</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partitions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/segmentation_partition/index.html#whylogs.core.segmentation_partition.SegmentationPartition" title="whylogs.core.segmentation_partition.SegmentationPartition"><span class="pre">whylogs.core.segmentation_partition.SegmentationPartition</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ResultSet</span></code></p>
+<p>A holder object for profiling results.</p>
+<p>A whylogs.log call can result in more than one profile. This wrapper class
+simplifies the navigation among these profiles.</p>
+<p>Note that currently we only hold one profile but we’re planning to add other
+kinds of profiles such as segmented profiles here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>segments</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>Dict</em><em>[</em><a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment"><em>whylogs.core.Segment</em></a><em>, </em><em>Union</em><em>[</em><a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfile" title="whylogs.core.DatasetProfile"><em>whylogs.core.DatasetProfile</em></a><em>, </em><a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><em>whylogs.core.DatasetProfileView</em></a><em>]</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>partitions</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="../../../core/segmentation_partition/index.html#whylogs.core.segmentation_partition.SegmentationPartition" title="whylogs.core.segmentation_partition.SegmentationPartition"><em>whylogs.core.segmentation_partition.SegmentationPartition</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>metrics</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>Any</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>properties</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>Any</em><em>]</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.dataset_properties">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dataset_properties</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.dataset_properties" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.dataset_metrics">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dataset_metrics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.dataset_metrics" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.partitions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">partitions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/segmentation_partition/index.html#whylogs.core.segmentation_partition.SegmentationPartition" title="whylogs.core.segmentation_partition.SegmentationPartition"><span class="pre">whylogs.core.segmentation_partition.SegmentationPartition</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.partitions" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[List[<a class="reference internal" href="../../../core/segmentation_partition/index.html#whylogs.core.segmentation_partition.SegmentationPartition" title="whylogs.core.segmentation_partition.SegmentationPartition">whylogs.core.segmentation_partition.SegmentationPartition</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.count" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.model_performance_metric">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_performance_metric</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics"><span class="pre">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.model_performance_metric" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.metadata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.metadata" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.performance_metrics">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">performance_metrics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics"><span class="pre">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.performance_metrics" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.profile">
+<span class="sig-name descname"><span class="pre">profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment"><span class="pre">whylogs.core.Segment</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfile" title="whylogs.core.DatasetProfile"><span class="pre">whylogs.core.DatasetProfile</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><span class="pre">whylogs.core.DatasetProfileView</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.profile" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>segment</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment"><em>whylogs.core.Segment</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Optional[Union[<a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfile" title="whylogs.core.DatasetProfile">whylogs.core.DatasetProfile</a>, <a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView">whylogs.core.DatasetProfileView</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.set_dataset_timestamp">
+<span class="sig-name descname"><span class="pre">set_dataset_timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><span class="pre">datetime.datetime</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.set_dataset_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.set_dataset_timestamp" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset_timestamp</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><em>datetime.datetime</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.segments">
+<span class="sig-name descname"><span class="pre">segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">restrict_to_parition_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment"><span class="pre">whylogs.core.Segment</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.segments" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>restrict_to_parition_id</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Optional[List[<a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment">whylogs.core.Segment</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.segments_in_partition">
+<span class="sig-name descname"><span class="pre">segments_in_partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../core/segmentation_partition/index.html#whylogs.core.segmentation_partition.SegmentationPartition" title="whylogs.core.segmentation_partition.SegmentationPartition"><span class="pre">whylogs.core.segmentation_partition.SegmentationPartition</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment"><span class="pre">whylogs.core.Segment</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfile" title="whylogs.core.DatasetProfile"><span class="pre">whylogs.core.DatasetProfile</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><span class="pre">whylogs.core.DatasetProfileView</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.segments_in_partition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.segments_in_partition" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>partition</strong> (<a class="reference internal" href="../../../core/segmentation_partition/index.html#whylogs.core.segmentation_partition.SegmentationPartition" title="whylogs.core.segmentation_partition.SegmentationPartition"><em>whylogs.core.segmentation_partition.SegmentationPartition</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Optional[Dict[<a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment">whylogs.core.Segment</a>, Union[<a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfile" title="whylogs.core.DatasetProfile">whylogs.core.DatasetProfile</a>, <a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView">whylogs.core.DatasetProfileView</a>]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.view">
+<span class="sig-name descname"><span class="pre">view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment"><span class="pre">whylogs.core.Segment</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><span class="pre">whylogs.core.DatasetProfileView</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.view" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>segment</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment"><em>whylogs.core.Segment</em></a><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Optional[<a class="reference internal" href="../../../core/index.html#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView">whylogs.core.DatasetProfileView</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.get_model_performance_metrics_for_segment">
+<span class="sig-name descname"><span class="pre">get_model_performance_metrics_for_segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment"><span class="pre">whylogs.core.Segment</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics"><span class="pre">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.get_model_performance_metrics_for_segment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_model_performance_metrics_for_segment" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>segment</strong> (<a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment"><em>whylogs.core.Segment</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Optional[<a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.get_writables">
+<span class="sig-name descname"><span class="pre">get_writables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../api/writer/writer/index.html#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable"><span class="pre">whylogs.api.writer.writer.Writable</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.get_writables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_writables" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[List[<a class="reference internal" href="../../../api/writer/writer/index.html#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable">whylogs.api.writer.writer.Writable</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.add_metrics_for_segment">
+<span class="sig-name descname"><span class="pre">add_metrics_for_segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics"><span class="pre">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment"><span class="pre">whylogs.core.Segment</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.add_metrics_for_segment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.add_metrics_for_segment" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics</strong> (<a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics"><em>whylogs.core.model_performance_metrics.ModelPerformanceMetrics</em></a>) – </p></li>
+<li><p><strong>segment</strong> (<a class="reference internal" href="../../../core/index.html#whylogs.core.Segment" title="whylogs.core.Segment"><em>whylogs.core.Segment</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.zero">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zero</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet" title="whylogs.experimental.api.logger.SegmentedResultSet"><span class="pre">SegmentedResultSet</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.zero"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.zero" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet" title="whylogs.experimental.api.logger.SegmentedResultSet">SegmentedResultSet</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.add_model_performance_metrics">
+<span class="sig-name descname"><span class="pre">add_model_performance_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics"><span class="pre">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.add_model_performance_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.add_model_performance_metrics" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>metrics</strong> (<a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics"><em>whylogs.core.model_performance_metrics.ModelPerformanceMetrics</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.add_metric">
+<span class="sig-name descname"><span class="pre">add_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><span class="pre">whylogs.core.metrics.metrics.Metric</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.add_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.add_metric" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>metric</strong> (<a class="reference internal" href="../../../core/metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><em>whylogs.core.metrics.metrics.Metric</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.merge">
+<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ResultSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet" title="whylogs.experimental.api.logger.SegmentedResultSet"><span class="pre">SegmentedResultSet</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.merge" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="../../../api/index.html#whylogs.api.ResultSet" title="whylogs.api.ResultSet"><em>ResultSet</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet" title="whylogs.experimental.api.logger.SegmentedResultSet">SegmentedResultSet</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.read">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multi_profile_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ResultSet</span></span></span><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.read" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>multi_profile_file</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../../../api/index.html#whylogs.api.ResultSet" title="whylogs.api.ResultSet">ResultSet</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.reader">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'local'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ResultSetReader</span></span></span><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.reader" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../../../api/logger/index.html#whylogs.api.logger.ResultSetReader" title="whylogs.api.logger.ResultSetReader">ResultSetReader</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.writer">
+<span class="sig-name descname"><span class="pre">writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'local'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ResultSetWriter</span></span></span><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.writer" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../../../api/logger/result_set/index.html#whylogs.api.logger.result_set.ResultSetWriter" title="whylogs.api.logger.result_set.ResultSetWriter">ResultSetWriter</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1148,6 +1437,31 @@ input features, consider leaving this as False. by default False</p></li>
 <li><a class="reference internal" href="#functions">Functions</a></li>
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.log">log</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet">SegmentedResultSet</a><ul>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.dataset_properties">dataset_properties</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.dataset_metrics">dataset_metrics</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.partitions">partitions</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.count">count</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.model_performance_metric">model_performance_metric</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.metadata">metadata</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.performance_metrics">performance_metrics</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.profile">profile</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.set_dataset_timestamp">set_dataset_timestamp</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.segments">segments</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.segments_in_partition">segments_in_partition</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.view">view</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_model_performance_metrics_for_segment">get_model_performance_metrics_for_segment</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_writables">get_writables</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.add_metrics_for_segment">add_metrics_for_segment</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.zero">zero</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.add_model_performance_metrics">add_model_performance_metrics</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.add_metric">add_metric</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.merge">merge</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.read">read</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.reader">reader</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.writer">writer</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet">ViewResultSet</a><ul>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.metadata">metadata</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.count">count</a></li>
