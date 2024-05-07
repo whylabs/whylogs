@@ -354,6 +354,7 @@ def log_batch_ranking_metrics(
     output_data["reciprocal_rank"] = mrr
 
     if schema and schema.segments:
+        original_columns = set(data.columns)
         for column in set(formatted_data.columns):
             if column not in original_columns:
                 formatted_data = formatted_data.drop(column, axis=1)
