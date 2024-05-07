@@ -139,7 +139,7 @@ def _get_segment_columns(schema: DatasetSchema, data: pd.DataFrame) -> List[str]
     columns: Set[str] = set()
     for partition_name, partition in schema.segments.items():
         if partition.filter:
-            return list(data.columns)  # I think filters can access any column?
+            raise ValueError("Filters are not supported for segmented ranking metrics")  # Filters are deprecated
         if partition.mapper:
             columns = columns.union(set(partition.mapper.col_names))
 
