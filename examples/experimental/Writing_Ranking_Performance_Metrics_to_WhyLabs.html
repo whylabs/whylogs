@@ -731,7 +731,7 @@ whylogs and WhyLabs together!</em></p>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -757,7 +757,7 @@ whylogs and WhyLabs together!</em></p>
 <p>Which means that <span class="math notranslate nohighlight">\(D_{3}\)</span> was recommended first, <span class="math notranslate nohighlight">\(D_{1}\)</span> was recommended second, and <span class="math notranslate nohighlight">\(D_{2}\)</span> was recommended third.</p>
 <p>We can translate this by using a <code class="docutils literal notranslate"><span class="pre">prediction_column</span></code> and a <code class="docutils literal notranslate"><span class="pre">target_column</span></code> in the following way:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;targets&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="s2">&quot;predictions&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">]]})</span>
@@ -766,8 +766,8 @@ whylogs and WhyLabs together!</em></p>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">predictions</span></code> contains the rank of each recommended document, while <code class="docutils literal notranslate"><span class="pre">targets</span></code> encodes the binary relevance of each document.</p>
 <p>We can proceed to log these metrics with whylogs:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Log ranking metrics</span>
@@ -784,14 +784,6 @@ whylogs and WhyLabs together!</em></p>
 <span class="c1"># NOTE: If you&#39;ve already ran why.log() on your input data, change log_full_data to False.</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-⚠️ No session found. Call whylogs.init() to initialize a session and authenticate. See https://docs.whylabs.ai/docs/whylabs-whylogs-init for more information.
-</pre></div></div>
 </div>
 <p>Let’s check the results. Let’s take a look at the mean and count for each ranking performance metric calculated:</p>
 <div class="nbinput docutils container">
@@ -1005,16 +997,16 @@ Using API Key ID:
 <h3>2. Numeric Data<a class="headerlink" href="#2.-Numeric-Data" title="Permalink to this headline">#</a></h3>
 <p>There are a number of possible ways to pass numeric data into ranking performance metrics.</p>
 <p>Let’s first talk about the binary relevance case: where documents’ relevances are encode to either relevant or non-relevant.</p>
-<section id="Binary-Relevance:-Single-prediction-column">
-<h4>Binary Relevance: Single prediction column<a class="headerlink" href="#Binary-Relevance:-Single-prediction-column" title="Permalink to this headline">#</a></h4>
-<p>One way is to pass a single column to <code class="docutils literal notranslate"><span class="pre">log_batch_ranking_metrics</span></code> as the prediction column, like this:</p>
+<section id="Binary-Relevance:-Single-target-column">
+<h4>Binary Relevance: Single target column<a class="headerlink" href="#Binary-Relevance:-Single-target-column" title="Permalink to this headline">#</a></h4>
+<p>One way is to pass a single column to <code class="docutils literal notranslate"><span class="pre">log_batch_ranking_metrics</span></code> as the target column, like this:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">binary_single_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
     <span class="p">{</span>
-        <span class="s2">&quot;raw_predictions&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;ranked_targets&quot;</span><span class="p">:</span> <span class="p">[</span>
             <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">],</span> <span class="c1"># First recommended item: Relevant, Second: Not relevant, Third: Relevant</span>
             <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span> <span class="c1"># None of the recommended items are relevant</span>
             <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span> <span class="c1"># First and second recommended items are relevant</span>
@@ -1023,11 +1015,11 @@ Using API Key ID:
     <span class="p">}</span>
 <span class="p">)</span>
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">log_batch_ranking_metrics</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">binary_single_df</span><span class="p">,</span> <span class="n">prediction_column</span><span class="o">=</span><span class="s2">&quot;raw_predictions&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">log_batch_ranking_metrics</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">binary_single_df</span><span class="p">,</span> <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;ranked_targets&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>In this case, we are passing the recommended items directly with their respective relevance in a single column, avoiding the need to pass a separate <code class="docutils literal notranslate"><span class="pre">target</span></code> column. We assume that the prediction column is sorted by rank, from most recommended to least recommended.</p>
+<p>In this case, we are passing the recommended items directly with their respective relevance in a single column, avoiding the need to pass two separate <code class="docutils literal notranslate"><span class="pre">prediction</span></code> and <code class="docutils literal notranslate"><span class="pre">target</span></code> columns. In this case, we assume that the target column is sorted by rank, from most recommended to least recommended.</p>
 </section>
 <section id="Binary-Relevance:-Separate-target-and-prediction-columns">
 <h4>Binary Relevance: Separate target and prediction columns<a class="headerlink" href="#Binary-Relevance:-Separate-target-and-prediction-columns" title="Permalink to this headline">#</a></h4>
@@ -1205,7 +1197,7 @@ Using API Key ID:
 <li><a class="reference internal" href="#Part-2---API-Usage">Part 2 - API Usage</a><ul>
 <li><a class="reference internal" href="#1.-Non-numeric-Data">1. Non-numeric Data</a></li>
 <li><a class="reference internal" href="#2.-Numeric-Data">2. Numeric Data</a><ul>
-<li><a class="reference internal" href="#Binary-Relevance:-Single-prediction-column">Binary Relevance: Single prediction column</a></li>
+<li><a class="reference internal" href="#Binary-Relevance:-Single-target-column">Binary Relevance: Single target column</a></li>
 <li><a class="reference internal" href="#Binary-Relevance:-Separate-target-and-prediction-columns">Binary Relevance: Separate target and prediction columns</a></li>
 <li><a class="reference internal" href="#Binary-Relevance:-Separate-target-and-score-columns">Binary Relevance: Separate target and score columns</a></li>
 </ul>
