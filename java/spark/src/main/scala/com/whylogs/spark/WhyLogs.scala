@@ -4,9 +4,8 @@ import ai.whylabs.service.api.LogApi
 import ai.whylabs.service.invoker.ApiClient
 import ai.whylabs.service.model.{LogAsyncRequest, SegmentTag}
 import com.whylogs.spark.WhyLogs.PROFILE_FIELD
-import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.functions.udf
-import org.apache.spark.sql.types.{ArrayType, DataType, DataTypes, IntegerType, NumericType, StringType, StructField}
+import org.apache.spark.sql.functions.{col, lit, transform, udf, when}
+import org.apache.spark.sql.types.{ArrayType, BooleanType, DataType, DataTypes, IntegerType, LongType, NumericType, StringType, StructField}
 
 import org.apache.spark.sql.{DataFrame, Dataset, RelationalGroupedDataset, Row}
 import org.apache.spark.whylogs.{DatasetProfileAggregator, DatasetProfileMerger}
@@ -131,20 +130,22 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     // check data type is supported for ranking metrics
     def isValidMetricType(dataType: DataType): Boolean = dataType match {
       case ArrayType(elementType, _) => elementType match {
-        case _: IntegerType | _: StringType => true
+        case _: IntegerType | _: LongType | _: StringType | _: BooleanType => true
         case _ => false
       }
       case _ => false
     }
 
     // Validate types of prediction and target field array elements
-    if (!isValidMetricType(predFieldSchema.dataType) || !isValidMetricType(targetFieldSchema.dataType) || predFieldSchema.dataType != targetFieldSchema.dataType) {
-      throw new IllegalStateException(s"Ranking Metrics fields MUST be arrays of either integer or string type. Found: ${predFieldSchema.dataType} and ${targetFieldSchema.dataType}")
+    if (!isValidMetricType(predFieldSchema.dataType) || !isValidMetricType(targetFieldSchema.dataType)) {
+      throw new IllegalStateException(s"Ranking Metrics prediction and target fields MUST be arrays of matching types (Interger or String type), or Integer ranks and Boolean targets. Found: ${predFieldSchema.dataType} and ${targetFieldSchema.dataType}")
     }
 
     (predFieldSchema.dataType, targetFieldSchema.dataType) match {
-      case (ArrayType(_: IntegerType, _), ArrayType(_: IntegerType, _)) =>
+      case (ArrayType(_: IntegerType, _), ArrayType(_: IntegerType | BooleanType, _)) =>
         this.copy(rankingMetrics = RankingMetricsSession[Int](predictionField, targetField, scoreField, k))
+      case (ArrayType(_: LongType, _), ArrayType(_: LongType|BooleanType, _)) =>
+        this.copy(rankingMetrics = RankingMetricsSession[Long](predictionField, targetField, scoreField, k))
       case (ArrayType(_: StringType, _), ArrayType(_: StringType, _)) =>
         this.copy(rankingMetrics = RankingMetricsSession[String](predictionField, targetField, scoreField, k))
       case _ => throw new IllegalArgumentException(s"Unsupported combination of data types for RankingMetricsUDF: ( ${predFieldSchema.dataType} and ${targetFieldSchema.dataType})")
@@ -160,6 +161,19 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     logger.debug(s"All columns: $columnNames")
 
     val dataFrameWithRankingMetrics = rankingMetrics.udfs.applyMetrics(dataFrame)
+    this.aggProfiles(Instant.ofEpochMilli(timestamp), dataFrameWithRankingMetrics)
+  }
+
+  def aggRankingMetricsProfilesBinary(timestamp: Long): DataFrame = {
+    val debugGroupByStr = groupByColumns.mkString(",")
+    logger.debug(s"Ranking metrics session name: $name")
+    logger.debug(s"timestamp: $timestamp")
+    logger.debug(s"Time column: $timeColumn")
+    logger.debug(s"Group by columns: $debugGroupByStr")
+    logger.debug(s"All columns: $columnNames")
+    val binaryIntToBoolean = transform(col(rankingMetrics.targetField), x => when(x === 1, lit(true)).otherwise(lit(false)))
+    val dfWithBooleanTargets = dataFrame.withColumn(rankingMetrics.targetField, binaryIntToBoolean)
+    val dataFrameWithRankingMetrics = rankingMetrics.udfs.applyMetrics(dfWithBooleanTargets)
     this.aggProfiles(Instant.ofEpochMilli(timestamp), dataFrameWithRankingMetrics)
   }
 
@@ -260,6 +274,20 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
          ): Unit = {
 
     val df = aggRankingMetricsProfiles(timestampInMs)
+    df.foreachPartition((rows: Iterator[Row]) => {
+      doUpload(orgId, modelId, apiKey, rows, endpoint, sslCaCertData, Instant.ofEpochMilli(timestampInMs))
+    })
+  }
+
+  def logRankingMetricsBinary(timestampInMs: Long = Instant.now().toEpochMilli,
+          orgId: String,
+          modelId: String,
+          apiKey: String,
+          endpoint: String = "https://api.whylabsapp.com",
+          sslCaCertData: String = null,
+         ): Unit = {
+
+    val df = aggRankingMetricsProfilesBinary(timestampInMs)
     df.foreachPartition((rows: Iterator[Row]) => {
       doUpload(orgId, modelId, apiKey, rows, endpoint, sslCaCertData, Instant.ofEpochMilli(timestampInMs))
     })

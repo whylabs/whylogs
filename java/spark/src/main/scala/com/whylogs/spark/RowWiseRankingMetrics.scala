@@ -38,15 +38,15 @@ object RowWiseRankingMetrics extends Logging {
     }
     builder.result()
   }
-    /**
-    * Computes the precision at first k ranking positions for a single query.
-    *
-    * @param predictions Array of predicted rankings
-    * @param labels Array of ground truth labels
-    * @param k Use the top k predicted rankings, must be positive
-    * @return Precision at first k ranking positions
-    */
-    def precisionAtK[T](predictions: Array[T], labels: Array[T], k: Int): Double = {
+  /**
+  * Computes the precision at first k ranking positions for a single query.
+  *
+  * @param predictions Array of predicted rankings
+  * @param labels Array of ground truth labels
+  * @param k Use the top k predicted rankings, must be positive
+  * @return Precision at first k ranking positions
+  */
+  def precisionAtK[T](predictions: Array[T], labels: Array[T], k: Int): Double = {
     require(k > 0, "The ranking position k must be positive")
     val labelSet = labels.toSet
     if (labelSet.isEmpty) {
@@ -55,9 +55,34 @@ object RowWiseRankingMetrics extends Logging {
     } else {
         val n = math.min(predictions.length, k)
         val relevantItemsRetrieved = predictions.slice(0, n).count(labelSet.contains)
-        relevantItemsRetrieved.toDouble / k
+        relevantItemsRetrieved.toDouble / k // should we use convention of n here
     }
+  }
+
+    /**
+  * Computes the precision at first k ranking positions for a single query.
+  *
+  * @param predictionRanks Array of predicted ranking positions
+  * @param binaryLabels Array of binary ground truth relevance labels
+  * @param k Use the top k predicted rankings, must be positive
+  * @return Precision at first k ranking positions
+  */
+  def precisionAtKBinary(predictionRanks: Array[Int], binaryLabels: Array[Boolean], k: Int): Double = {
+    require(k > 0, "The ranking position k must be positive")
+    // Check for empty arrays and return 0.0
+    if (predictionRanks.isEmpty || binaryLabels.isEmpty) {
+      logWarning("Empty ground truth set, check input data")
+      0.0
+    } else {
+
+      val pairedData = predictionRanks.zip(binaryLabels)
+
+      // Filter pairs where rank is less than or equal to k, then count relevant items
+      val predictionsUnderK = pairedData.filter { case (rank, _) => rank <= k }
+      val relevantCount = predictionsUnderK.count { case (_, binaryLabel) => binaryLabel }
+      relevantCount.toDouble / k
     }
+  }
 
   /**
    * Computes the average precision at first k ranking positions for a single query.
@@ -90,6 +115,46 @@ object RowWiseRankingMetrics extends Logging {
   }
 
   /**
+   * Computes the average precision at first k ranking positions for a single query.
+   *
+   * @param predictions Array of predicted rankings
+   * @param labels Array of ground truth labels
+   * @param k Use the top k predicted rankings, must be positive
+   * @return Average precision at first k ranking positions
+   */
+  def averagePrecisionAtKBinary(predictionRanks: Array[Int], binaryLabels: Array[Boolean], k: Int): Double = {
+    require(k > 0, "The ranking position k must be positive")
+
+    if (predictionRanks.isEmpty || binaryLabels.isEmpty) {
+      logWarning("Empty ground truth set, check input data")
+      0.0
+    } else {
+      val pairedData = predictionRanks.zip(binaryLabels)
+      val predictionsUnderK = pairedData.filter { case (rank, _) => rank <= k }
+
+      if (predictionsUnderK.isEmpty) {
+        logWarning("There are no labels for ranks under k, returning 0 as default")
+        0.0
+      } else {
+        var count = 0
+        var precisionSum = 0.0
+        val trueCount = binaryLabels.count(_ == true)
+        if (trueCount == 0) {
+          0.0
+        } else {
+          for ((rank, relevant) <- predictionsUnderK) {
+            if (relevant) {
+              count += 1
+              precisionSum += (count.toDouble / rank.toDouble) 
+            }
+          }
+          precisionSum / math.min(trueCount, k)
+        }
+      }
+    }
+  }
+
+  /**
    * Computes the recall at first k ranking positions for a single query.
    *
    * @param predictions Array of predicted rankings
@@ -109,6 +174,79 @@ object RowWiseRankingMetrics extends Logging {
       relevantItemsRetrieved.toDouble / labelSet.size
     }
   }
+
+  /**
+   * Computes the recall at first k ranking positions for a single query.
+   *
+   * @param predictionRanks Array of predicted rankings
+   * @param binaryLabels Array of ground truth labels, the length of the binary labels is the max relevant items
+   * @param k Use the top k predicted rankings, must be positive
+   * @return Recall at first k ranking positions
+   */
+  def recallAtKBinary(predictionRanks: Array[Int], binaryLabels: Array[Boolean], k: Int): Double = {
+    require(k > 0, "The ranking position k must be positive")
+
+    if (binaryLabels.isEmpty || binaryLabels.count(_ == true) == 0) {
+      logWarning("Empty ground truth set, check input data")
+      0.0
+    } else {
+      val trueCount = binaryLabels.count(_ == true)
+      if (trueCount == 0) {
+        0.0
+      } else {
+        val pairedData = predictionRanks.zip(binaryLabels)
+        val predictionsUnderK = pairedData.filter { case (rank, _) => rank <= k }
+        val relevantCount = predictionsUnderK.count { case (_, binaryLabel) => binaryLabel }
+        relevantCount.toDouble / trueCount
+      }
+    }
+  }
+
+  /**
+   * Computes the NDCG (Normalized Discounted Cumulative Gain) at first k ranking positions for a single query.
+   *
+   * @param predictionRanks Array of predicted rankings
+   * @param labels Array of ground truth relevance labels
+   * @param k Use the top k predicted rankings, must be positive
+   * @return NDCG at first k ranking positions
+   */
+  def ndcgAtKBinary(predictionRanks: Array[Int], binaryLabels: Array[Boolean], k: Int): Double = {
+    require(k > 0, "The ranking position k must be positive")
+
+    if (predictionRanks.isEmpty || binaryLabels.isEmpty) {
+      logWarning("Empty predictions or ground truth set, check input data")
+      0.0
+    } else {
+      // Using the length of the smaller of the two arrays or k to prevent index out of bounds
+      val trueCount = binaryLabels.count(_ == true)
+      if (trueCount == 0) {
+        0.0
+      } else {
+        val n = math.min(math.min(predictionRanks.length, trueCount), k)
+        var dcg = 0.0
+        var maxDcg = 0.0
+
+        for (i <- 0 until n) {
+          // Base of the log doesn't matter for calculating NDCG,
+          // if the relevance value is binary.
+          val relevant = binaryLabels(i)
+          val gain = if (relevant) 1.0 / math.log(i + 2) else 0.0
+
+          dcg += gain
+          // Every element is considered relevant for maxDcg until k
+          maxDcg += 1.0 / math.log(i + 2)
+        }
+
+        if (maxDcg == 0.0) {
+          logWarning("Maximum of relevance of ground truth set is zero, check input data")
+          0.0
+        } else {
+          dcg / maxDcg
+        }
+      }
+    }
+  }
+
 
   /**
    * Computes the NDCG (Normalized Discounted Cumulative Gain) at first k ranking positions for a single query.

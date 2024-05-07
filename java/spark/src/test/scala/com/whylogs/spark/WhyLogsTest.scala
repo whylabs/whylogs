@@ -9,6 +9,7 @@ import com.whylogs.core.DatasetProfile
 import com.whylogs.core.message.InferredType
 import com.whylogs.spark.WhyLogs.ProfiledDataFrame
 import org.apache.commons.lang3.RandomUtils
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.{Row, SaveMode, SparkSession}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
@@ -259,6 +260,228 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
     assert(metrics.recallAt(testK) ~== computed_recall_k_2 absTol eps)
     println(output_df.show())
   }
+
+  test("test WhyLogsSession with RankingMetricsUDF with Strings") {
+    import com.whylogs.spark.WhyLogs._
+
+    val file = Files.createTempFile("data", ".parquet")
+    Files.copy(WhyLogs.getClass.getResourceAsStream("/prediction_data.parquet"), file, StandardCopyOption.REPLACE_EXISTING)
+    val predictionAndLabelsAsStringsRDD = spark.sparkContext.parallelize(
+      Seq(
+        (Array("1", "6", "2", "7", "8", "3", "9", "10", "4", "5"), Array("1", "2", "3", "4", "5")),
+        (Array("4", "1", "5", "6", "2", "7", "3", "8", "9", "10"), Array("1", "2", "3")),
+        (Array("1", "2", "3", "4", "5"), Array("0", "0", "0", "0", "0"))),
+      2)
+
+
+    val metrics = new RankingMetrics(predictionAndLabelsAsStringsRDD)
+    val test_df = spark.createDataFrame(predictionAndLabelsAsStringsRDD).toDF("predictions", "labels")
+
+    val eps = 1.0e-5
+
+
+    val testK = 2
+    val metricsSequence = Seq((
+      metrics.precisionAt(testK),
+      metrics.meanAveragePrecisionAt(testK),
+      metrics.ndcgAt(testK),
+      metrics.recallAt(testK)))
+
+    val metricsFunctions = new RankingMetricsUDF[String]("predictions", "labels", k=testK)
+    val output_df = metricsFunctions.applyMetrics(test_df)
+    val precisionColumnName = s"precision_k_$testK"
+    val meanAveragePrecisionColumnName = s"average_precision_k_$testK"
+    val ndcgColumnName = s"norm_dis_cumul_gain_k_$testK"
+    val recallAtColumnName = s"recall_k_$testK"
+    assert(output_df.columns.contains(precisionColumnName))
+    assert(output_df.columns.contains(meanAveragePrecisionColumnName))
+    assert(output_df.columns.contains(ndcgColumnName))
+    assert(output_df.columns.contains(recallAtColumnName))
+
+    val computed_precision_k_2 = output_df.agg(mean(col(precisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_meanAveragePrecision_k_2 = output_df.agg(mean(col(meanAveragePrecisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_ndcg_k_2 = output_df.agg(mean(col(ndcgColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_recall_k_2 = output_df.agg(mean(col(recallAtColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+
+    assert(metrics.precisionAt(testK) ~== computed_precision_k_2 absTol eps)
+    assert(metrics.meanAveragePrecisionAt(testK) ~== computed_meanAveragePrecision_k_2 absTol eps)
+    assert(metrics.ndcgAt(testK) ~== computed_ndcg_k_2 absTol eps)
+    assert(metrics.recallAt(testK) ~== computed_recall_k_2 absTol eps)
+  }
+
+  test("test WhyLogsSession with RankingMetricsUDF with Long element types") {
+    val predictionAndLabelsAsStringsRDD = spark.sparkContext.parallelize(
+      Seq(
+        (Array("1", "6", "2", "7", "8", "3", "9", "10", "4", "5"), Array("1", "2", "3", "4", "5")),
+        (Array("4", "1", "5", "6", "2", "7", "3", "8", "9", "10"), Array("1", "2", "3")),
+        (Array("1", "2", "3", "4", "5"), Array("0", "0", "0", "0", "0"))),
+      2)
+
+    val predictionAndLabelsAsLongRDD = spark.sparkContext.parallelize(
+      Seq(
+        (Array(1L, 6L, 2L, 7L, 8L, 3L, 9L, 10L, 4L, 5L), Array(1L, 2L, 3L, 4L, 5L)),
+        (Array(4L, 1L, 5L, 6L, 2L, 7L, 3L, 8L, 9L, 10L), Array(1L, 2L, 3L)),
+        (Array(1L, 2L, 3L, 4L, 5L), Array(0L, 0L, 0L, 0L, 0L))),
+      2)
+
+    val metrics = new RankingMetrics(predictionAndLabelsAsStringsRDD)
+
+    val test_df = spark.createDataFrame(predictionAndLabelsAsLongRDD).toDF("predictions", "labels")
+
+    val eps = 1.0e-5
+
+
+    val testK = 2
+    val metricsSequence = Seq((
+      metrics.precisionAt(testK),
+      metrics.meanAveragePrecisionAt(testK),
+      metrics.ndcgAt(testK),
+      metrics.recallAt(testK)))
+    val metricsFunctions = new RankingMetricsUDF[Long]("predictions", "labels", k=testK)
+    
+    val output_df = metricsFunctions.applyMetrics(test_df)
+    val precisionColumnName = s"precision_k_$testK"
+    val meanAveragePrecisionColumnName = s"average_precision_k_$testK"
+    val ndcgColumnName = s"norm_dis_cumul_gain_k_$testK"
+    val recallAtColumnName = s"recall_k_$testK"
+    assert(output_df.columns.contains(precisionColumnName))
+    assert(output_df.columns.contains(meanAveragePrecisionColumnName))
+    assert(output_df.columns.contains(ndcgColumnName))
+    assert(output_df.columns.contains(recallAtColumnName))
+
+    val computed_precision_k_2 = output_df.agg(mean(col(precisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_meanAveragePrecision_k_2 = output_df.agg(mean(col(meanAveragePrecisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_ndcg_k_2 = output_df.agg(mean(col(ndcgColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_recall_k_2 = output_df.agg(mean(col(recallAtColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+
+    assert(metrics.precisionAt(testK) ~== computed_precision_k_2 absTol eps)
+    assert(metrics.meanAveragePrecisionAt(testK) ~== computed_meanAveragePrecision_k_2 absTol eps)
+    assert(metrics.ndcgAt(testK) ~== computed_ndcg_k_2 absTol eps)
+    assert(metrics.recallAt(testK) ~== computed_recall_k_2 absTol eps)
+  }
+
+  test("test WhyLogsSession with RankingMetricsUDF with Int and Binary") {
+    val predictionAndLabelsRDD = spark.sparkContext.parallelize(
+      Seq(
+        (Array(1,2,3,4,5,6,7,8,9,10), Array(true, false, true, false, false, true, false, false, true, true)),
+        (Array(1,2,3,4,5,6,7,8,9,10), Array(false, true, false, false, true, false, true, false, false, false)),
+        (Array(1, 2, 3, 4, 5), Array(false, false, false, false, false))),
+      2)
+
+    val predictionAndLabelsAsStringsRDD = spark.sparkContext.parallelize(
+      Seq(
+        (Array("1", "6", "2", "7", "8", "3", "9", "10", "4", "5"), Array("1", "2", "3", "4", "5")),
+        (Array("4", "1", "5", "6", "2", "7", "3", "8", "9", "10"), Array("1", "2", "3")),
+        (Array("1", "2", "3", "4", "5"), Array("0", "0", "0", "0", "0"))),
+      2)
+
+    val metrics = new RankingMetrics(predictionAndLabelsAsStringsRDD)
+    val test_df = spark.createDataFrame(predictionAndLabelsRDD).toDF("predictions", "labels")
+
+    val eps = 1.0e-5
+    var testK = 2
+    var metricsSequence = Seq((
+      metrics.precisionAt(testK),
+      metrics.meanAveragePrecisionAt(testK),
+      metrics.ndcgAt(testK),
+      metrics.recallAt(testK)))
+    val metricsFunctions2 = new RankingMetricsUDF[Int]("predictions", "labels", k=testK)
+    
+    var output_df = metricsFunctions2.applyMetrics(test_df)
+    var precisionColumnName = s"precision_k_$testK"
+    var meanAveragePrecisionColumnName = s"average_precision_k_$testK"
+    var ndcgColumnName = s"norm_dis_cumul_gain_k_$testK"
+    var recallAtColumnName = s"recall_k_$testK"
+    assert(output_df.columns.contains(precisionColumnName))
+    assert(output_df.columns.contains(meanAveragePrecisionColumnName))
+    assert(output_df.columns.contains(ndcgColumnName))
+    assert(output_df.columns.contains(recallAtColumnName))
+
+    val computed_precision_k_2 = output_df.agg(mean(col(precisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_meanAveragePrecision_k_2 = output_df.agg(mean(col(meanAveragePrecisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_ndcg_k_2 = output_df.agg(mean(col(ndcgColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_recall_k_2 = output_df.agg(mean(col(recallAtColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    println(s"binary output_df is ${output_df.show()}")
+    assert(metrics.precisionAt(testK) ~== computed_precision_k_2 absTol eps)
+    assert(metrics.meanAveragePrecisionAt(testK) ~== computed_meanAveragePrecision_k_2 absTol eps)
+    assert(metrics.ndcgAt(testK) ~== computed_ndcg_k_2 absTol eps)
+    assert(metrics.recallAt(testK) ~== computed_recall_k_2 absTol eps)
+
+    testK = 1
+    metricsSequence = Seq((
+      metrics.precisionAt(testK),
+      metrics.meanAveragePrecisionAt(testK),
+      metrics.ndcgAt(testK),
+      metrics.recallAt(testK)))
+
+    println(s"metrics at k: $testK -> $metricsSequence")
+    val metricsFunctions1 = new RankingMetricsUDF[Int]("predictions", "labels", k=testK)
+    output_df = metricsFunctions1.applyMetrics(test_df)
+    println(s"df at k: $testK -> ${output_df.show()}")
+    precisionColumnName = s"precision_k_$testK"
+    meanAveragePrecisionColumnName = s"average_precision_k_$testK"
+    ndcgColumnName = s"norm_dis_cumul_gain_k_$testK"
+    recallAtColumnName = s"recall_k_$testK"
+    val computed_precision_k_1 = output_df.agg(mean(col(precisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_meanAveragePrecision_k_1 = output_df.agg(mean(col(meanAveragePrecisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_ndcg_k_1 = output_df.agg(mean(col(ndcgColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_recall_k_1 = output_df.agg(mean(col(recallAtColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    assert(metrics.precisionAt(testK) ~== computed_precision_k_1 absTol eps)
+    assert(metrics.meanAveragePrecisionAt(testK) ~== computed_meanAveragePrecision_k_1 absTol eps)
+    assert(metrics.ndcgAt(testK) ~== computed_ndcg_k_1 absTol eps)
+    assert(metrics.recallAt(testK) ~== computed_recall_k_1 absTol eps)
+
+    testK = 3
+    metricsSequence = Seq((
+      metrics.precisionAt(testK),
+      metrics.meanAveragePrecisionAt(testK),
+      metrics.ndcgAt(testK),
+      metrics.recallAt(testK)))
+
+    println(s"metrics at k: $testK -> $metricsSequence")
+    val metricsFunctions3 = new RankingMetricsUDF[Int]("predictions", "labels", k=testK)
+
+    output_df = metricsFunctions3.applyMetrics(test_df)
+    println(s"df at k: $testK -> ${output_df.show()}")
+    precisionColumnName = s"precision_k_$testK"
+    meanAveragePrecisionColumnName = s"average_precision_k_$testK"
+    ndcgColumnName = s"norm_dis_cumul_gain_k_$testK"
+    recallAtColumnName = s"recall_k_$testK"
+    val computed_precision_k_3 = output_df.agg(mean(col(precisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_meanAveragePrecision_k_3 = output_df.agg(mean(col(meanAveragePrecisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_ndcg_k_3 = output_df.agg(mean(col(ndcgColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_recall_k_3 = output_df.agg(mean(col(recallAtColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    assert(metrics.precisionAt(testK) ~== computed_precision_k_3 absTol eps)
+    assert(metrics.meanAveragePrecisionAt(testK) ~== computed_meanAveragePrecision_k_3 absTol eps)
+    assert(metrics.ndcgAt(testK) ~== computed_ndcg_k_3 absTol eps)
+    assert(metrics.recallAt(testK) ~== computed_recall_k_3 absTol eps)
+
+    testK = 4
+    metricsSequence = Seq((
+      metrics.precisionAt(testK),
+      metrics.meanAveragePrecisionAt(testK),
+      metrics.ndcgAt(testK),
+      metrics.recallAt(testK)))
+
+    println(s"metrics at k: $testK -> $metricsSequence")
+    val metricsFunctions4 = new RankingMetricsUDF[Int]("predictions", "labels", k=testK)
+    output_df = metricsFunctions4.applyMetrics(test_df)
+    println(s"df at k: $testK -> ${output_df.show()}")
+    precisionColumnName = s"precision_k_$testK"
+    meanAveragePrecisionColumnName = s"average_precision_k_$testK"
+    ndcgColumnName = s"norm_dis_cumul_gain_k_$testK"
+    recallAtColumnName = s"recall_k_$testK"
+    val computed_precision_k_4 = output_df.agg(mean(col(precisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_meanAveragePrecision_k_4 = output_df.agg(mean(col(meanAveragePrecisionColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_ndcg_k_4 = output_df.agg(mean(col(ndcgColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    val computed_recall_k_4 = output_df.agg(mean(col(recallAtColumnName)).alias("ranking_metric_mean")).first().getAs[Double]("ranking_metric_mean")
+    assert(metrics.precisionAt(testK) ~== computed_precision_k_4 absTol eps)
+    assert(metrics.meanAveragePrecisionAt(testK) ~== computed_meanAveragePrecision_k_4 absTol eps)
+    assert(metrics.ndcgAt(testK) ~== computed_ndcg_k_4 absTol eps)
+    assert(metrics.recallAt(testK) ~== computed_recall_k_4 absTol eps)
+
+  }
+
 
   test("test RankingMetrics withTimecolumn") {
     import com.whylogs.spark.WhyLogs._
