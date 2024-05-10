@@ -3,7 +3,7 @@ import logging
 import os
 import pprint
 import tempfile
-from typing import IO, Any, Dict, List, Optional, Tuple, Union
+from typing import IO, Any, Dict, List, Optional, Set, Tuple, Union
 from urllib.parse import urlparse
 from zipfile import ZipFile
 
@@ -130,6 +130,26 @@ def _check_whylabs_condition_count_uncompound() -> bool:
 
     _WHYLABS_SKIP_CONFIG_READ = True
     return True
+
+
+def _get_column_names(x: Union[DatasetProfileView, SegmentedDatasetProfileView, ResultSet]) -> Set[str]:
+    if isinstance(x, DatasetProfileView):
+        return set(x.get_columns().keys())
+    elif isinstance(x, SegmentedDatasetProfileView):
+        return _get_column_names(x._profile_view)
+    elif isinstance(x, SegmentedResultSet):
+        maps = x._segments.values()
+        if not maps:
+            return set()
+        segments = list(maps)[0].values()
+        if not segments:
+            return set()
+        segment = list(segments)[0]
+        view = segment if isinstance(segment, DatasetProfileView) else segment.view()
+        return _get_column_names(view)
+
+    assert isinstance(x, ResultSet)
+    return _get_column_names(x.view())
 
 
 class WhyLabsWriter(Writer):
@@ -680,28 +700,26 @@ class WhyLabsWriter(Writer):
 
         return and_status, "; ".join(messages)
 
-    def _tag_custom_output_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView]):
-        if isinstance(view, DatasetProfileView):
-            column_names = view.get_columns().keys()
-            for column_name in column_names:
-                for perf_col in KNOWN_CUSTOM_OUTPUT_METRICS:
-                    if column_name.startswith(perf_col):
-                        data_type = KNOWN_CUSTOM_OUTPUT_METRICS[perf_col][0]
-                        discreteness = KNOWN_CUSTOM_OUTPUT_METRICS[perf_col][1]
-                        column_schema: ColumnSchema = ColumnSchema(
-                            classifier="output", data_type=data_type, discreteness=discreteness  # type: ignore
-                        )
-                        self._set_column_schema(column_name, column_schema=column_schema)
+    def _tag_custom_output_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView, ResultSet]):
+        column_names = _get_column_names(view)
+        for column_name in column_names:
+            for perf_col in KNOWN_CUSTOM_OUTPUT_METRICS:
+                if column_name.startswith(perf_col):
+                    data_type = KNOWN_CUSTOM_OUTPUT_METRICS[perf_col][0]
+                    discreteness = KNOWN_CUSTOM_OUTPUT_METRICS[perf_col][1]
+                    column_schema: ColumnSchema = ColumnSchema(
+                        classifier="output", data_type=data_type, discreteness=discreteness  # type: ignore
+                    )
+                    self._set_column_schema(column_name, column_schema=column_schema)
         return
 
-    def _tag_custom_perf_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView]):
-        if isinstance(view, DatasetProfileView):
-            column_names = view.get_columns().keys()
-            for column_name in column_names:
-                for perf_col in KNOWN_CUSTOM_PERFORMANCE_METRICS:
-                    if column_name.startswith(perf_col):
-                        metric = KNOWN_CUSTOM_PERFORMANCE_METRICS[perf_col]
-                        self.tag_custom_performance_column(column_name, default_metric=metric)
+    def _tag_custom_perf_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView, ResultSet]):
+        column_names = _get_column_names(view)
+        for column_name in column_names:
+            for perf_col in KNOWN_CUSTOM_PERFORMANCE_METRICS:
+                if column_name.startswith(perf_col):
+                    metric = KNOWN_CUSTOM_PERFORMANCE_METRICS[perf_col]
+                    self.tag_custom_performance_column(column_name, default_metric=metric)
         return
 
     def _get_or_create_transaction_client(self) -> TransactionsApi:
@@ -756,6 +774,8 @@ class WhyLabsWriter(Writer):
         elif isinstance(file, EstimationResult):
             return self.write_estimation_result(file, **kwargs)
         elif isinstance(file, ResultSet):
+            self._tag_custom_perf_metrics(file)
+            self._tag_custom_output_metrics(file)
             if isinstance(file, SegmentedResultSet):
                 if self._reference_profile_name is not None:
                     return self._write_segmented_reference_result_set(file, **kwargs)
