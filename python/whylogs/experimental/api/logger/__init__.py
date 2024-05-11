@@ -1,9 +1,9 @@
 import logging
 import math
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Set, Tuple, Union
 
 from whylogs.api.logger import log
-from whylogs.api.logger.result_set import ViewResultSet
+from whylogs.api.logger.result_set import SegmentedResultSet, ViewResultSet
 from whylogs.core import DatasetSchema
 from whylogs.core.stubs import np, pd
 
@@ -133,6 +133,26 @@ def _calculate_average_precisions(
 
 def _all_strings(data: pd.Series) -> bool:
     return all([all([isinstance(y, str) for y in x]) for x in data])
+
+
+def _get_segment_columns(schema: DatasetSchema, data: pd.DataFrame) -> List[str]:
+    columns: Set[str] = set()
+    for partition_name, partition in schema.segments.items():
+        if partition.filter:
+            raise ValueError("Filters are not supported for segmented ranking metrics")  # Filters are deprecated
+        if partition.mapper:
+            columns = columns.union(set(partition.mapper.col_names))
+
+    return list(columns)
+
+
+def _drop_non_output_columns(result: SegmentedResultSet, keep_columns: Set[str]) -> SegmentedResultSet:
+    for partition in result._segments.values():
+        for segment in partition.values():
+            for column in {column for column in segment._columns.keys() if column not in keep_columns}:
+                segment._columns.pop(column)
+
+    return result
 
 
 def log_batch_ranking_metrics(
@@ -330,18 +350,25 @@ def log_batch_ranking_metrics(
         row_wise_functions.calculate_row_ndcg, args=(k,), axis=1
     )
     output_data[f"sum_gain_k_{k}"] = formatted_data.apply(row_wise_functions.sum_gains, args=(k,), axis=1)
-    hit_ratio = formatted_data["count_at_k"].apply(lambda x: bool(x)).sum() / len(formatted_data)
     mrr = (1 / formatted_data["top_rank"]).replace([np.inf, np.nan], 0)
     output_data["reciprocal_rank"] = mrr
+
+    if schema and schema.segments:
+        original_columns = set(data.columns)
+        for column in set(formatted_data.columns):
+            if column not in original_columns:
+                formatted_data = formatted_data.drop(column, axis=1)
+
+        if log_full_data:
+            return log(pandas=pd.concat([formatted_data, output_data], axis=1), schema=schema)
+        else:
+            segment_columns = _get_segment_columns(schema, formatted_data)
+            segmentable_data = formatted_data[segment_columns]
+            result = log(pandas=pd.concat([segmentable_data, output_data], axis=1), schema=schema)
+            result = _drop_non_output_columns(result, set(output_data.columns))
+            return result
+
     result = log(pandas=output_data, schema=schema)
-    result = result.merge(
-        log(
-            row={
-                "accuracy" + ("_k_" + str(k) if k else ""): hit_ratio,
-            },
-            schema=schema,
-        )
-    )
     if log_full_data:
         result = result.merge(log(pandas=data, schema=schema))
     return result
