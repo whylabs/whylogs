@@ -136,6 +136,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
         self.option(**kwargs)
         self._whylabs_client = self._whylabs_client.option(**kwargs)  # type: ignore
+        self._custom_tagging(file)
 
         if isinstance(file, SegmentedResultSet):
             if kwargs.get("zip"):  # TODO: force zip if the number of segemtns is large

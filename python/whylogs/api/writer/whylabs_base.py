@@ -177,16 +177,19 @@ class WhyLabsWriterBase(Writer):
 
         return int(stamp * 1000)
 
+    def _custom_tagging(
+        self,
+        view: Union[DatasetProfileView, SegmentedDatasetProfileView, ResultSet],
+    ) -> None:
+        self._whylabs_client._tag_custom_perf_metrics(view)
+        self._whylabs_client._tag_custom_output_metrics(view)
+
     def _prepare_view_for_upload(
         self,
         view: Union[DatasetProfileView, SegmentedDatasetProfileView],
     ) -> Union[DatasetProfileView, SegmentedDatasetProfileView]:
         view_is_a_segment = isinstance(view, SegmentedDatasetProfileView)
-        self._whylabs_client._tag_custom_perf_metrics(view)
-        self._whylabs_client._tag_custom_output_metrics(view)
-
         flags = FeatureFlags(_check_whylabs_condition_count_uncompound())
-
         if _uncompound_metric_feature_flag():
             if view_is_a_segment:
                 updated_profile_view = _uncompound_dataset_profile(view.profile_view, flags)

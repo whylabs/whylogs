@@ -130,7 +130,7 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
             raise ValueError("Missing transaction id")
 
         self._whylabs_client = self._whylabs_client.option(**kwargs)  # type: ignore
-
+        self._custom_tagging(file)
         if isinstance(file, SegmentedResultSet):
             return self._write_segmented_result_set(file, **kwargs)
 
