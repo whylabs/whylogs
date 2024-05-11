@@ -1,7 +1,7 @@
 import logging
 import os
 import pprint
-from typing import IO, Any, Dict, List, Optional, Tuple, Union
+from typing import IO, Any, Dict, List, Optional, Set, Tuple, Union
 from urllib.parse import urlparse
 
 import requests  # type: ignore
@@ -32,6 +32,7 @@ from whylabs_client.model.transaction_log_request import TransactionLogRequest
 from whylabs_client.model.transaction_start_request import TransactionStartRequest
 from whylabs_client.rest import ForbiddenException  # type: ignore
 
+from whylogs.api.logger.result_set import ResultSet, SegmentedResultSet
 from whylogs.api.whylabs.session.session_manager import INIT_DOCS, default_init
 from whylogs.api.whylabs.session.whylabs_client_cache import (
     ClientCacheConfig,
@@ -488,7 +489,9 @@ class WhyLabsClient:
             )
             raise e
 
-    def _tag_custom_output_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView, ResultSet]) -> None:
+    def _tag_custom_output_metrics(
+        self, view: Union[DatasetProfileView, SegmentedDatasetProfileView, ResultSet]
+    ) -> None:
         column_names = _get_column_names(view)
         for column_name in column_names:
             for perf_col in KNOWN_CUSTOM_OUTPUT_METRICS:

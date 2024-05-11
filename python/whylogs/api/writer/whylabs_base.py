@@ -8,7 +8,7 @@ import requests  # type: ignore
 from whylabs_client import ApiClient
 from whylabs_client.model.segment_tag import SegmentTag
 
-from whylogs.api.logger.result_set import ProfileResultSet, ViewResultSet
+from whylogs.api.logger.result_set import ProfileResultSet, ResultSet, ViewResultSet
 from whylogs.api.whylabs.session.session_manager import default_init
 from whylogs.api.writer.whylabs_client import WhyLabsClient
 from whylogs.api.writer.writer import Writable, Writer
