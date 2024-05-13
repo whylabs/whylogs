@@ -41,7 +41,7 @@ from whylogs.api.whylabs.session.whylabs_client_cache import (
     WhylabsClientCache,
 )
 from whylogs.context.environ import read_bool_env_var
-from whylogs.core import DatasetProfileView
+from whylogs.core import DatasetProfile, DatasetProfileView
 from whylogs.core.feature_weights import FeatureWeights
 from whylogs.core.utils.utils import get_auth_headers
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
@@ -83,8 +83,10 @@ KNOWN_CUSTOM_OUTPUT_METRICS = {
 }
 
 
-def _get_column_names(x: Union[DatasetProfileView, SegmentedDatasetProfileView, ResultSet]) -> Set[str]:
-    if isinstance(x, DatasetProfileView):
+def _get_column_names(x: Union[DatasetProfile, DatasetProfileView, SegmentedDatasetProfileView, ResultSet]) -> Set[str]:
+    if isinstance(x, DatasetProfile):
+        return _get_column_names(x.view())
+    elif isinstance(x, DatasetProfileView):
         return set(x.get_columns().keys())
     elif isinstance(x, SegmentedDatasetProfileView):
         return _get_column_names(x._profile_view)
@@ -490,7 +492,7 @@ class WhyLabsClient:
             raise e
 
     def _tag_custom_output_metrics(
-        self, view: Union[DatasetProfileView, SegmentedDatasetProfileView, ResultSet]
+        self, view: Union[DatasetProfile, DatasetProfileView, SegmentedDatasetProfileView, ResultSet]
     ) -> None:
         column_names = _get_column_names(view)
         for column_name in column_names:
@@ -503,7 +505,7 @@ class WhyLabsClient:
                     )
                     self._set_column_schema(column_name, column_schema=column_schema)
 
-    def _tag_custom_perf_metrics(self, view: Union[DatasetProfileView, SegmentedDatasetProfileView, ResultSet]) -> None:
+    def _tag_custom_perf_metrics(self, view: Union[DatasetProfile, DatasetProfileView, SegmentedDatasetProfileView, ResultSet]) -> None:
         column_names = _get_column_names(view)
         for column_name in column_names:
             for perf_col in KNOWN_CUSTOM_PERFORMANCE_METRICS:

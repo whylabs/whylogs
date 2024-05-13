@@ -179,7 +179,7 @@ class WhyLabsWriterBase(Writer):
 
     def _custom_tagging(
         self,
-        view: Union[DatasetProfileView, SegmentedDatasetProfileView, ResultSet],
+        view: Union[DatasetProfile, DatasetProfileView, SegmentedDatasetProfileView, ResultSet],
     ) -> None:
         self._whylabs_client._tag_custom_perf_metrics(view)
         self._whylabs_client._tag_custom_output_metrics(view)
