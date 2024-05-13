@@ -62,17 +62,16 @@ class TestWriter(LocalWriter):
         dest: Optional[str] = None,
         **kwargs: Any,
     ) -> Tuple[bool, str]:
-        dest = dest or self._base_name or file.get_default_path()  # type: ignore
-        dest += str(self._counter)
+        filename = dest or self._base_name or file.get_default_filename()  # type: ignore
+        filename += str(self._counter)
         self._counter += 1
-        full_path = os.path.join(self._base_dir, dest)
-        file.write(full_path, **kwargs)
-        return True, full_path
+        success, full_path = file.write(self._base_dir, filename, **kwargs)
+        return success, full_path
 
 
 def test_closing(tmp_path: Any, lending_club_df: pd.DataFrame) -> None:
     with why.logger(mode="rolling", interval=1, when="H", base_name="test_base_name") as logger:
-        logger.append_writer("local", base_dir=tmp_path)
+        logger.append_writer("local", base_dir=tmp_path, base_name="test_base_name")
         logger.log(lending_club_df)
 
     only_files = [f for f in listdir(tmp_path) if isfile(os.path.join(tmp_path, f))]

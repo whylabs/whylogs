@@ -1,12 +1,12 @@
 import html
+import os
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, List, Optional, Tuple, Union
 
 from IPython.core.display import HTML  # type: ignore
 
 from whylogs import DatasetProfileView
-from whylogs.api.writer import Writers
-from whylogs.api.writer.writer import Writable, Writer
+from whylogs.api.writer.writer import Writable
 from whylogs.viz.enums.enums import PageSpec
 
 
@@ -21,10 +21,6 @@ class HTMLReport(Writable, ABC):
         self.target_view = target_view
         self.height = height or None
 
-    def writer(self, name: str = "local") -> "HTMLReportWriter":
-        writer = Writers.get(name)
-        return HTMLReportWriter(report=self, writer=writer)
-
     def display(self, template: str, page_spec: PageSpec) -> HTML:
         if not self.height:
             self.height = page_spec.height
@@ -37,7 +33,9 @@ class HTMLReport(Writable, ABC):
     def report(self) -> HTML:
         pass
 
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> None:
+    def write(
+        self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any
+    ) -> Tuple[bool, Union[str, List[str]]]:
         """Create HTML file for a given report.
 
         Parameters
@@ -56,28 +54,17 @@ class HTMLReport(Writable, ABC):
             viz_profile = VizProfile(report=report)
             viz_profile.write(path="path/to/report/Report.html")
         """
-        path = path or self.get_default_path()
+        path = path or self._get_default_path()
+        filename = filename or self._get_default_filename()
+        path = os.path.join(path, filename) if path else filename
         _html = self.report()
         _rendered_html = _html.data
         with self._safe_open_write(path) as file:
             file.write(_rendered_html)
+            return True, file.name
 
     def option(self):
         return self
 
-    def get_default_path(self) -> str:
-        path = "html_reports/ProfileReport.html"
-        return path
-
-
-class HTMLReportWriter(object):
-    def __init__(self, report: HTMLReport, writer: Writer) -> None:
-        self._report = report
-        self._writer = writer
-
-    def option(self, **kwargs) -> "HTMLReportWriter":
-        self._writer.option(**kwargs)
-        return self
-
-    def write(self, **kwargs: Any) -> None:
-        self._writer.write(file=self._report, **kwargs)
+    def _get_default_filename(self) -> str:
+        return "html_reports/ProfileReport.html"

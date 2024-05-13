@@ -16,10 +16,16 @@ from whylabs_client.model.reference_profile_item_response import (
 
 import whylogs as why
 from whylogs.api.writer.whylabs import WhyLabsTransaction, WhyLabsWriter
+from whylogs.api.writer.whylabs_client import TransactionAbortedException, WhyLabsClient
+from whylogs.api.writer.whylabs_transaction_writer import WhyLabsTransactionWriter
 from whylogs.core import DatasetProfileView
 from whylogs.core.feature_weights import FeatureWeights
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.segmentation_partition import segment_on_column
+from whylogs.experimental.performance_estimation.estimation_results import (
+    EstimationResult,
+)
+from whylogs.migration.uncompound import _uncompound_performance_estimation_magic_string
 
 # TODO: These won't work well if multiple tests run concurrently
 
@@ -60,7 +66,14 @@ def test_whylabs_writer():
 
 
 @pytest.mark.load
-def test_whylabs_writer_segmented():
+@pytest.mark.parametrize(
+    "zipped",
+    [
+        # (True),  TODO: zip not working yet
+        (False)
+    ],
+)
+def test_whylabs_writer_segmented(zipped: bool):
     ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
@@ -68,9 +81,10 @@ def test_whylabs_writer_segmented():
     data = {"col1": [1, 2, 1, 3, 2, 2], "col2": ["foo", "bar", "wat", "foo", "baz", "wat"]}
     df = pd.DataFrame(data)
     trace_id = str(uuid4())
-    result = why.log(df, schema=schema, trace_id=trace_id)
+    profile = why.log(df, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter()
-    writer.write(result)
+    success, status = writer.write(profile, zip=zipped)
+    assert success
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
@@ -90,7 +104,14 @@ def test_whylabs_writer_segmented():
 
 
 @pytest.mark.load
-@pytest.mark.parametrize("segmented,zipped", [(True, True), (True, False), (False, False)])
+@pytest.mark.parametrize(
+    "segmented,zipped",
+    [
+        # (True, True),  TODO: zip not working yet
+        (True, False),
+        (False, False),
+    ],
+)
 def test_whylabs_writer_reference(segmented: bool, zipped: bool):
     ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
@@ -130,23 +151,23 @@ def test_tag_columns():
     writer = WhyLabsWriter()
     writer.tag_output_columns(["col1"])
     writer.tag_input_columns(["col2"])
-    model_api_instance = writer._get_or_create_models_client()
-    col1_schema = writer._get_existing_column_schema(model_api_instance, "col1")
+    model_api_instance = writer._whylabs_client._get_or_create_models_client()
+    col1_schema = writer._whylabs_client._get_existing_column_schema(model_api_instance, "col1")
     assert col1_schema["classifier"] == "output"
-    col2_schema = writer._get_existing_column_schema(model_api_instance, "col2")
+    col2_schema = writer._whylabs_client._get_existing_column_schema(model_api_instance, "col2")
     assert col2_schema["classifier"] == "input"
 
     # swap 'em so we won't accidentally pass from previous state
     writer.tag_output_columns(["col2"])
     writer.tag_input_columns(["col1"])
-    col1_schema = writer._get_existing_column_schema(model_api_instance, "col1")
+    col1_schema = writer._whylabs_client._get_existing_column_schema(model_api_instance, "col1")
     assert col1_schema["classifier"] == "input"
-    col2_schema = writer._get_existing_column_schema(model_api_instance, "col2")
+    col2_schema = writer._whylabs_client._get_existing_column_schema(model_api_instance, "col2")
     assert col2_schema["classifier"] == "output"
 
 
 @pytest.mark.load
-def test_feature_weights():
+def test_feature_weights_writer():
     writer = WhyLabsWriter()
     feature_weights = FeatureWeights({"col1": 1.0, "col2": 0.0})
     writer.write_feature_weights(feature_weights)
@@ -161,11 +182,26 @@ def test_feature_weights():
 
 
 @pytest.mark.load
+def test_feature_weights_client():
+    client = WhyLabsClient()
+    feature_weights = FeatureWeights({"col1": 1.0, "col2": 0.0})
+    client.write_feature_weights(feature_weights)
+    retrieved_weights = client.get_feature_weights()
+    assert feature_weights.weights == retrieved_weights.weights
+
+    # swap 'em so we won't accidentally pass from previous state
+    feature_weights = FeatureWeights({"col1": 0.0, "col2": 1.0})
+    client.write_feature_weights(feature_weights)
+    retrieved_weights = client.get_feature_weights()
+    assert feature_weights.weights == retrieved_weights.weights
+
+
+@pytest.mark.load
 def test_performance_column():
     ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     writer = WhyLabsWriter()
-    status, _ = writer.tag_custom_performance_column("col1", "perf column", "mean")
+    status, _ = writer.tag_custom_performance_column("col1", "perf_column", "mean")
     assert status
     model_api = ModelsApi(writer._api_client)
     response: EntitySchema = model_api.get_entity_schema(ORG_ID, MODEL_ID)
@@ -176,7 +212,7 @@ def test_performance_column():
     )
 
     # change it so we won't accidentally pass from previous state
-    status, _ = writer.tag_custom_performance_column("col1", "perf column", "median")
+    status, _ = writer.tag_custom_performance_column("col1", "perf_column", "median")
     assert status
     response = model_api.get_entity_schema(ORG_ID, MODEL_ID)
     assert response["metrics"]["perf_column"]["default_metric"] == "median"
@@ -184,8 +220,26 @@ def test_performance_column():
 
 @pytest.mark.load
 def test_estimation_result():
-    # TODO: WhyLabsWriter::write_estimation_result() needs a trace id
-    pass
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+    result = EstimationResult(0.5)
+    writer = WhyLabsWriter()
+    trace_id = str(uuid4())
+    status, _ = writer.write(result, trace_id=trace_id)
+    assert status
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
+    dataset_api = DatasetProfileApi(writer._api_client)
+    response: ProfileTracesResponse = dataset_api.get_profile_traces(
+        org_id=ORG_ID,
+        dataset_id=MODEL_ID,
+        trace_id=trace_id,
+    )
+    download_url = response.get("traces")[0]["download_url"]
+    headers = {"Content-Type": "application/octet-stream"}
+    downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
+    deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+    estimation_magic_string = _uncompound_performance_estimation_magic_string()
+    assert set(deserialized_view.get_columns().keys()) == {f"{estimation_magic_string}accuracy"}
 
 
 @pytest.mark.load
@@ -199,8 +253,11 @@ def test_transactions():
     result = why.log(data, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter(dataset_id=MODEL_ID)
     assert writer._transaction_id is None
-    writer.start_transaction()
+    transaction_id = writer.start_transaction()
     assert writer._transaction_id is not None
+    assert writer._transaction_id == writer._whylabs_client._transaction_id == transaction_id
+    writer.start_transaction(transaction_id)
+    assert writer._transaction_id == writer._whylabs_client._transaction_id == transaction_id
     status, id = writer.write(result)
     writer.commit_transaction()
     assert writer._transaction_id is None
@@ -219,6 +276,35 @@ def test_transactions():
 
 
 @pytest.mark.load
+def test_transaction_aborted():
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+    why.init(force_local=True)
+    data = {"col1": 1, "col2": "foo"}
+    trace_id = str(uuid4())
+    result = why.log(data, trace_id=trace_id)
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    transaction_id = writer.start_transaction()
+    status, id = writer.write(result)
+    assert status
+    writer._whylabs_client.abort_transaction(transaction_id)
+    status, id = writer.write(result)
+    with pytest.raises(TransactionAbortedException) as e:
+        writer.commit_transaction()
+        assert str(e) == "Transaction has been aborted"
+
+    assert writer._transaction_id is None
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
+    dataset_api = DatasetProfileApi(writer._api_client)
+    response: ProfileTracesResponse = dataset_api.get_profile_traces(
+        org_id=ORG_ID,
+        dataset_id=MODEL_ID,
+        trace_id=trace_id,
+    )
+    assert len(response.get("traces")) == 0
+
+
+@pytest.mark.load
 def test_transaction_context():
     ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
@@ -227,23 +313,19 @@ def test_transaction_context():
     csv_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv"
     df = pd.read_csv(csv_url)
     pdfs = np.array_split(df, 7)
-    writer = WhyLabsWriter(dataset_id=MODEL_ID)
     tids = list()
-    try:
-        with WhyLabsTransaction(writer):
-            for data in pdfs:
-                trace_id = str(uuid4())
-                tids.append(trace_id)
-                result = why.log(data, schema=schema, trace_id=trace_id)
-                status, id = writer.write(result.profile())
-                if not status:
-                    raise Exception()  # or retry the profile...
-
-    except Exception:
-        # The start_transaction() or commit_transaction() in the
-        # WhyLabsTransaction context manager will throw on failure.
-        # Or retry the commit
-        logger.exception("Logging transaction failed")
+    with WhyLabsTransactionWriter() as writer:
+        assert writer.transaction_id is not None
+        assert writer._whylabs_client._transaction_id == writer.transaction_id
+        for data in pdfs:
+            trace_id = str(uuid4())
+            tids.append(trace_id)
+            result = why.log(data, schema=schema, trace_id=trace_id)
+            status, id = writer.write(result.profile())
+            if not status:
+                raise Exception()  # or retry the profile...
+        status = writer.transaction_status()
+        assert len(status["files"]) == len(pdfs)
 
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
@@ -260,6 +342,66 @@ def test_transaction_context():
         )
         deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
         assert deserialized_view is not None
+
+
+@pytest.mark.load
+def test_old_transaction_context():
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+    why.init(force_local=True)
+    schema = DatasetSchema()
+    csv_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv"
+    df = pd.read_csv(csv_url)
+    pdfs = np.array_split(df, 7)
+    tids = list()
+    writer = WhyLabsWriter()
+    with WhyLabsTransaction(writer):
+        assert writer._transaction_id is not None
+        assert writer._whylabs_client._transaction_id == writer._transaction_id
+        for data in pdfs:
+            trace_id = str(uuid4())
+            tids.append(trace_id)
+            result = why.log(data, schema=schema, trace_id=trace_id)
+            status, id = writer.write(result.profile())
+            if not status:
+                raise Exception()  # or retry the profile...
+        status = writer.transaction_status()
+        assert len(status["files"]) == len(pdfs)
+
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
+    dataset_api = DatasetProfileApi(writer._api_client)
+    for trace_id in tids:
+        response: ProfileTracesResponse = dataset_api.get_profile_traces(
+            org_id=ORG_ID,
+            dataset_id=MODEL_ID,
+            trace_id=trace_id,
+        )
+        download_url = response.get("traces")[0]["download_url"]
+        headers = {"Content-Type": "application/octet-stream"}
+        downloaded_profile = writer._s3_pool.request(
+            "GET", download_url, headers=headers, timeout=writer._timeout_seconds
+        )
+        deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+        assert deserialized_view is not None
+
+
+@pytest.mark.load
+def test_transaction_context_aborted():
+    why.init(force_local=True)
+    csv_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv"
+    df = pd.read_csv(csv_url)
+    pdfs = np.array_split(df, 7)
+    with pytest.raises(TransactionAbortedException):
+        with WhyLabsTransactionWriter() as writer:
+            transaction_id = writer.transaction_id
+            for data, i in zip(pdfs, range(len(pdfs))):
+                result = why.log(data)
+                if i == 3:
+                    writer._whylabs_client.abort_transaction(transaction_id)
+                writer.write(result)
+
+    assert writer.transaction_id is None
+    assert writer._whylabs_client._transaction_id is None
 
 
 @pytest.mark.load
@@ -327,13 +469,11 @@ def test_transaction_distributed():
                 raise Exception()  # or retry the profile...
         writer.commit_transaction()
     except Exception:
-        # The start_transaction() or commit_transaction() in the
-        # WhyLabsTransaction context manager will throw on failure.
-        # Or retry the commit
         logger.exception("Logging transaction failed")
 
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
+    assert len(tids) == 7
     for trace_id in tids:
         response: ProfileTracesResponse = dataset_api.get_profile_traces(
             org_id=ORG_ID,

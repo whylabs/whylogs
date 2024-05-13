@@ -1,6 +1,6 @@
 import logging
-import tempfile
-from typing import Any, Optional, Tuple
+import os
+from typing import Any, List, Optional, Tuple, Union
 
 from google.cloud import exceptions, storage  # type: ignore
 
@@ -44,7 +44,7 @@ class GCSWriter(Writer):
     def __init__(
         self,
         gcs_client: Optional[storage.Client] = None,
-        object_name: Optional[str] = None,
+        object_name: Optional[str] = None,  # TODO: drop this
         bucket_name: Optional[str] = None,
     ):
         self.gcs_client = gcs_client or storage.Client()
@@ -55,30 +55,45 @@ class GCSWriter(Writer):
     def write(
         self,
         file: Writable,
-        dest: Optional[str] = None,
+        dest: Optional[str] = None,  # TODO: this should be used as object_name
         **kwargs: Any,
-    ) -> Tuple[bool, str]:
-        dest = dest or file.get_default_path()  # type: ignore
-        if self.object_name is None:
-            self.object_name = dest
-        bucket = self.gcs_client.bucket(self.bucket_name)
-        blob = bucket.blob(self.object_name)
-        try:
-            with tempfile.NamedTemporaryFile() as tmp_file:
-                file.write(path=tmp_file.name)  # type: ignore
-                tmp_file.flush()
-                blob.upload_from_filename(tmp_file.name)
-        except exceptions.Forbidden as e:
-            logging.error(e)
-            return False, str(e)
-        return True, f"Uploaded {tmp_file.name} to {self.bucket_name}/{self.object_name}"
+    ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
+        success, files = file.write(**kwargs)
+        files = [files] if isinstance(files, str) else files
+        if not success:
+            return False, "Writable failed to create temporary file(s)"
 
-    def option(
-        self,
-        bucket_name: Optional[str] = None,
-        object_name: Optional[str] = None,
-        gcs_client: Optional[Any] = None,
-    ) -> "GCSWriter":  # type: ignore
+        # TODO: support ZipFile ?
+
+        if len(files) > 1 and ((dest or self.object_name) is not None):
+            raise ValueError("Cannot specify dest or object_name for multiple files")
+
+        bucket = self.gcs_client.bucket(self.bucket_name)
+        all_success = True
+        statuses = []
+        for file in files:
+            object_name = dest or self.object_name or file.split(os.sep)[-1]  # TODO: drop self.object_name
+            blob = bucket.blob(object_name)
+            try:
+                blob.upload_from_filename(file)
+                statuses.append((True, f"Uploaded {file} to {self.bucket_name}/{object_name}"))
+                os.remove(file)
+            except exceptions.Forbidden as e:
+                logging.error(e)
+                all_success = False
+                statuses.append((False, f"{str(e)} for uploading {file} to {self.bucket_name}/{object_name}"))
+
+        return all_success, statuses
+
+    def option(self, **kwargs: Any) -> Writer:
+        """
+        bucket_name: str   GCS bucket name to write to
+        object_name: str   GCS object name to create
+        gcs_client: ?      GCS client object
+        """
+        bucket_name = kwargs.get("bucket_name")
+        object_name = kwargs.get("object_name")  # TODO: drop this
+        gcs_client = kwargs.get("gcs_client")
         if bucket_name:
             self.bucket_name = bucket_name
         if object_name:
