@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
-        <title>whylogs.api.logger.result_set - whylogs v1.3.32</title>
+        <title>whylogs.api.logger.result_set - whylogs v1.4.0</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
@@ -132,7 +132,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../index.html"><div class="brand"><div class='hidden'>whylogs</div>  <div class='version'> v1.3.32</div></div></a>
+      <a href="../../../../index.html"><div class="brand"><div class='hidden'>whylogs</div>  <div class='version'> v1.4.0</div></div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -159,7 +159,7 @@
     <img class="sidebar-logo only-dark" src="../../../../_static/images/logo.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text"><div class='hidden'>whylogs</div>  <div class='version'> v1.3.32</div></span>
+  <span class="sidebar-brand-text"><div class='hidden'>whylogs</div>  <div class='version'> v1.4.0</div></span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -260,6 +260,12 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/writer/mlflow/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.mlflow</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/writer/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.s3</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/writer/whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/writer/whylabs_base/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_base</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/writer/whylabs_batch_writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_batch_writer</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/writer/whylabs_client/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_client</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/writer/whylabs_estimation_result_writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_estimation_result_writer</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/writer/whylabs_reference_writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_reference_writer</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/writer/whylabs_transaction_writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_transaction_writer</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/writer/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.writer</span></code></a></li>
 </ul>
 </li>
@@ -442,8 +448,9 @@
 <span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
+<span class="kn">from</span> <span class="nn">whylabs_client.model.segment_tag</span> <span class="kn">import</span> <span class="n">SegmentTag</span>
+
 <span class="kn">from</span> <span class="nn">whylogs.api.reader</span> <span class="kn">import</span> <span class="n">Reader</span><span class="p">,</span> <span class="n">Readers</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.writer</span> <span class="kn">import</span> <span class="n">Writer</span><span class="p">,</span> <span class="n">Writers</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer.writer</span> <span class="kn">import</span> <span class="n">Writable</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">Segment</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
@@ -452,6 +459,7 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.utils</span> <span class="kn">import</span> <span class="n">ensure_timezone</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.view.dataset_profile_view</span> <span class="kn">import</span> <span class="n">_MODEL_PERFORMANCE</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.view.segmented_dataset_profile_view</span> <span class="kn">import</span> <span class="n">SegmentedDatasetProfileView</span>
+<span class="kn">from</span> <span class="nn">whylogs.migration.converters</span> <span class="kn">import</span> <span class="n">_generate_segment_tags_metadata</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -551,43 +559,6 @@
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">lhs_partitions</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">rhs_partitions</span><span class="p">)))</span>
 
 
-<div class="viewcode-block" id="ResultSetWriter"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ResultSetWriter">[docs]</a><span class="k">class</span> <span class="nc">ResultSetWriter</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Result of a logging call.</span>
-<span class="sd">    A result set might contain one or multiple profiles or profile views.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="s2">&quot;ResultSet&quot;</span><span class="p">,</span> <span class="n">writer</span><span class="p">:</span> <span class="n">Writer</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_result_set</span> <span class="o">=</span> <span class="n">results</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span> <span class="o">=</span> <span class="n">writer</span>
-
-<div class="viewcode-block" id="ResultSetWriter.option"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ResultSetWriter.option">[docs]</a>    <span class="k">def</span> <span class="nf">option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ResultSetWriter&quot;</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
-
-<div class="viewcode-block" id="ResultSetWriter.write"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ResultSetWriter.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
-        <span class="c1"># multi-profile writer</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_set</span><span class="o">.</span><span class="n">get_writables</span><span class="p">()</span>
-        <span class="n">statuses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">files</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Attempt to write a result set with no writables returned, nothing written!&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">statuses</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="p">,</span> <span class="s2">&quot;_reference_profile_name&quot;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">_reference_profile_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result_set</span><span class="p">,</span> <span class="n">SegmentedResultSet</span><span class="p">):</span>
-                <span class="c1"># a segmented reference profile name needs to have access to the complete result set</span>
-                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_result_set</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-                <span class="n">statuses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">statuses</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;About to write </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files:&quot;</span><span class="p">)</span>
-        <span class="c1"># TODO: special handling of large number of files, handle throttling</span>
-        <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">view</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="n">statuses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Completed writing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files!&quot;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">statuses</span></div></div>
-
-
 <div class="viewcode-block" id="ResultSetReader"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ResultSetReader">[docs]</a><span class="k">class</span> <span class="nc">ResultSetReader</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reader</span><span class="p">:</span> <span class="n">Reader</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span> <span class="o">=</span> <span class="n">reader</span>
@@ -600,7 +571,17 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="ResultSet"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet">[docs]</a><span class="k">class</span> <span class="nc">ResultSet</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_flatten_tags</span><span class="p">(</span><span class="n">tags</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SegmentTag</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">tags</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">result</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SegmentTag</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_flatten_tags</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">SegmentTag</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ResultSet"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet">[docs]</a><span class="k">class</span> <span class="nc">ResultSet</span><span class="p">(</span><span class="n">Writable</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A holder object for profiling results.</span>
 
@@ -610,6 +591,26 @@
 <span class="sd">    Note that currently we only hold one profile but we&#39;re planning to add other</span>
 <span class="sd">    kinds of profiles such as segmented profiles here.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_get_default_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">view</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No ResultSet view available&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">view</span><span class="o">.</span><span class="n">_get_default_filename</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ResultSet.get_default_path"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet.get_default_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">view</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No ResultSet view available&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">view</span><span class="o">.</span><span class="n">get_default_path</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ResultSet.write"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">view</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No ResultSet view available&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ResultSet.read"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet.read">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">multi_profile_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ResultSet&quot;</span><span class="p">:</span>
@@ -621,10 +622,6 @@
     <span class="k">def</span> <span class="nf">reader</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ResultSetReader&quot;</span><span class="p">:</span>
         <span class="n">reader</span> <span class="o">=</span> <span class="n">Readers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ResultSetReader</span><span class="p">(</span><span class="n">reader</span><span class="o">=</span><span class="n">reader</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ResultSet.writer"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet.writer">[docs]</a>    <span class="k">def</span> <span class="nf">writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ResultSetWriter&quot;</span><span class="p">:</span>
-        <span class="n">writer</span> <span class="o">=</span> <span class="n">Writers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ResultSetWriter</span><span class="p">(</span><span class="n">results</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="o">=</span><span class="n">writer</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ResultSet.view"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet.view">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetProfileView</span><span class="p">]:</span>
@@ -791,6 +788,114 @@
             <span class="sa">f</span><span class="s2">&quot;A profile was requested from a segmented result set without specifying which segment to return: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_segments</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span></div>
 
+<div class="viewcode-block" id="SegmentedResultSet.get_writables"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.SegmentedResultSet.get_writables">[docs]</a>    <span class="k">def</span> <span class="nf">get_writables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Writable</span><span class="p">]]:</span>
+        <span class="n">results</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Writable</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segments</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Building list of: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> SegmentedDatasetProfileViews in SegmentedResultSet.&quot;</span><span class="p">)</span>
+            <span class="c1"># TODO: handle more than one partition</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Building list of: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> SegmentedDatasetProfileViews in SegmentedResultSet but no partitions found: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Building list of: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> SegmentedDatasetProfileViews in SegmentedResultSet but found more than one partition: &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="si">}</span><span class="s2">. Using first partition only!!&quot;</span>
+                <span class="p">)</span>
+            <span class="n">first_partition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">segments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">segments_in_partition</span><span class="p">(</span><span class="n">first_partition</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">segments</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">segment_key</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
+                    <span class="n">profile</span> <span class="o">=</span> <span class="n">segments</span><span class="p">[</span><span class="n">segment_key</span><span class="p">]</span>
+                    <span class="n">metric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_model_performance_metrics_for_segment</span><span class="p">(</span><span class="n">segment_key</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">metric</span><span class="p">:</span>
+                        <span class="n">profile</span><span class="o">.</span><span class="n">add_model_performance_metrics</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Found model performance metrics: </span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">, adding to segmented profile: </span><span class="si">{</span><span class="n">segment_key</span><span class="si">}</span><span class="s2">.&quot;</span>
+                        <span class="p">)</span>
+                    <span class="n">view</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">DatasetProfile</span><span class="p">)</span> <span class="k">else</span> <span class="n">profile</span>
+                    <span class="n">segmented_profile</span> <span class="o">=</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">(</span>
+                        <span class="n">profile_view</span><span class="o">=</span><span class="n">view</span><span class="p">,</span> <span class="n">segment</span><span class="o">=</span><span class="n">segment_key</span><span class="p">,</span> <span class="n">partition</span><span class="o">=</span><span class="n">first_partition</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
+                        <span class="n">segmented_profile</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">segmented_profile</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Found no segments in partition: </span><span class="si">{</span><span class="n">first_partition</span><span class="si">}</span><span class="s2"> even though we have: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> segments overall&quot;</span>
+                <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;From list of: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> SegmentedDatasetProfileViews using </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Attempt to build segmented results for writing but there are no segments in this result set: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_segments</span><span class="si">}</span><span class="s2">. returning None.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="SegmentedResultSet.get_whylabs_tags"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.SegmentedResultSet.get_whylabs_tags">[docs]</a>    <span class="k">def</span> <span class="nf">get_whylabs_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SegmentTag</span><span class="p">]:</span>
+        <span class="n">views</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_writables</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">views</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;SegmentedResultSet contains no segments&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partitions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;SegmentedResultSet contains no partitions.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">partitions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span>  <span class="c1"># type: ignore</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">partitions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;SegmentedResultSet contains more than one partition. Only the first partition will be uploaded. &quot;</span>
+            <span class="p">)</span>
+        <span class="n">partition</span> <span class="o">=</span> <span class="n">partitions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">whylabs_tags</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="n">views</span><span class="p">:</span>
+            <span class="n">view_tags</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">view</span><span class="o">.</span><span class="n">partition</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="n">partition</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">segment_tags</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_generate_segment_tags_metadata</span><span class="p">(</span><span class="n">view</span><span class="o">.</span><span class="n">segment</span><span class="p">,</span> <span class="n">view</span><span class="o">.</span><span class="n">partition</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">segment_tag</span> <span class="ow">in</span> <span class="n">segment_tags</span><span class="p">:</span>
+                <span class="n">tag_key</span> <span class="o">=</span> <span class="n">segment_tag</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;whylogs.tag.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">tag_value</span> <span class="o">=</span> <span class="n">segment_tag</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">view_tags</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="n">tag_key</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">tag_value</span><span class="p">})</span>
+            <span class="n">whylabs_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">view_tags</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">_flatten_tags</span><span class="p">(</span><span class="n">whylabs_tags</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SegmentedResultSet.get_timestamps"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.SegmentedResultSet.get_timestamps">[docs]</a>    <span class="k">def</span> <span class="nf">get_timestamps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]]:</span>
+        <span class="n">views</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_writables</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">views</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;SegmentedResultSet contains no segments&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">times</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="n">views</span><span class="p">:</span>
+            <span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">view</span><span class="o">.</span><span class="n">dataset_timestamp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">times</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_default_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># unused, the segment Wriables are called</span>
+
+<div class="viewcode-block" id="SegmentedResultSet.write"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.SegmentedResultSet.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+        <span class="n">all_success</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">writables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_writables</span><span class="p">()</span>  <span class="c1"># TODO: support mulit-segment files</span>
+        <span class="k">if</span> <span class="n">writables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No results to write&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">writables</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot specify filename for multiple files&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">writable</span> <span class="ow">in</span> <span class="n">writables</span><span class="p">:</span>
+            <span class="n">success</span><span class="p">,</span> <span class="n">written_files</span> <span class="o">=</span> <span class="n">writable</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">all_success</span> <span class="o">=</span> <span class="n">all_success</span> <span class="ow">and</span> <span class="n">success</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">written_files</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">files</span> <span class="o">+=</span> <span class="n">written_files</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">written_files</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">all_success</span><span class="p">,</span> <span class="n">files</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dataset_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_properties</span>
@@ -869,50 +974,6 @@
                     <span class="k">return</span> <span class="kc">None</span>
             <span class="k">return</span> <span class="n">view</span><span class="o">.</span><span class="n">model_performance_metrics</span>
         <span class="k">return</span> <span class="kc">None</span></div>
-
-<div class="viewcode-block" id="SegmentedResultSet.get_writables"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.SegmentedResultSet.get_writables">[docs]</a>    <span class="k">def</span> <span class="nf">get_writables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Writable</span><span class="p">]]:</span>
-        <span class="n">results</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Writable</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segments</span><span class="p">:</span>
-            <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Building list of: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> SegmentedDatasetProfileViews in SegmentedResultSet.&quot;</span><span class="p">)</span>
-            <span class="c1"># TODO: handle more than one partition</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Building list of: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> SegmentedDatasetProfileViews in SegmentedResultSet but no partitions found: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="si">}</span><span class="s2">.&quot;</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Building list of: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> SegmentedDatasetProfileViews in SegmentedResultSet but found more than one partition: &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="si">}</span><span class="s2">. Using first partition only!!&quot;</span>
-                <span class="p">)</span>
-            <span class="n">first_partition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">segments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">segments_in_partition</span><span class="p">(</span><span class="n">first_partition</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">segments</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">segment_key</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
-                    <span class="n">profile</span> <span class="o">=</span> <span class="n">segments</span><span class="p">[</span><span class="n">segment_key</span><span class="p">]</span>
-                    <span class="n">metric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_model_performance_metrics_for_segment</span><span class="p">(</span><span class="n">segment_key</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">metric</span><span class="p">:</span>
-                        <span class="n">profile</span><span class="o">.</span><span class="n">add_model_performance_metrics</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Found model performance metrics: </span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">, adding to segmented profile: </span><span class="si">{</span><span class="n">segment_key</span><span class="si">}</span><span class="s2">.&quot;</span>
-                        <span class="p">)</span>
-                    <span class="n">view</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">DatasetProfile</span><span class="p">)</span> <span class="k">else</span> <span class="n">profile</span>
-                    <span class="n">segmented_profile</span> <span class="o">=</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">(</span>
-                        <span class="n">profile_view</span><span class="o">=</span><span class="n">view</span><span class="p">,</span> <span class="n">segment</span><span class="o">=</span><span class="n">segment_key</span><span class="p">,</span> <span class="n">partition</span><span class="o">=</span><span class="n">first_partition</span>
-                    <span class="p">)</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
-                        <span class="n">segmented_profile</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
-                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">segmented_profile</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Found no segments in partition: </span><span class="si">{</span><span class="n">first_partition</span><span class="si">}</span><span class="s2"> even though we have: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> segments overall&quot;</span>
-                <span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;From list of: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> SegmentedDatasetProfileViews using </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Attempt to build segmented results for writing but there are no segments in this result set: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_segments</span><span class="si">}</span><span class="s2">. returning None.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">results</span></div>
 
 <div class="viewcode-block" id="SegmentedResultSet.add_metrics_for_segment"><a class="viewcode-back" href="../../../../api/whylogs/experimental/api/logger/index.html#whylogs.api.SegmentedResultSet.add_metrics_for_segment">[docs]</a>    <span class="k">def</span> <span class="nf">add_metrics_for_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span> <span class="n">ModelPerformanceMetrics</span><span class="p">,</span> <span class="n">segment</span><span class="p">:</span> <span class="n">Segment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">parent_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segments</span><span class="p">:</span>

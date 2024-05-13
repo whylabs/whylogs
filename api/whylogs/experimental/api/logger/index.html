@@ -14,7 +14,7 @@
   <link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" /><link rel="next" title="whylogs.experimental.constraints_generation" href="../../constraints_generation/index.html" /><link rel="prev" title="whylogs.experimental.api" href="../index.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
-        <title>whylogs.experimental.api.logger - whylogs v1.3.32</title>
+        <title>whylogs.experimental.api.logger - whylogs v1.4.0</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css" />
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../index.html"><div class="brand"><div class='hidden'>whylogs</div>  <div class='version'> v1.3.32</div></div></a>
+      <a href="../../../../../index.html"><div class="brand"><div class='hidden'>whylogs</div>  <div class='version'> v1.4.0</div></div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -168,7 +168,7 @@
     <img class="sidebar-logo only-dark" src="../../../../../_static/images/logo.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text"><div class='hidden'>whylogs</div>  <div class='version'> v1.3.32</div></span>
+  <span class="sidebar-brand-text"><div class='hidden'>whylogs</div>  <div class='version'> v1.4.0</div></span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -269,6 +269,12 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../api/writer/mlflow/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.mlflow</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/writer/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.s3</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/writer/whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/writer/whylabs_base/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_base</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/writer/whylabs_batch_writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_batch_writer</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/writer/whylabs_client/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_client</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/writer/whylabs_estimation_result_writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_estimation_result_writer</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/writer/whylabs_reference_writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_reference_writer</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/writer/whylabs_transaction_writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_transaction_writer</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/writer/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.writer</span></code></a></li>
 </ul>
 </li>
@@ -637,6 +643,57 @@ kinds of profiles such as segmented profiles here.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.get_writables">
+<span class="sig-name descname"><span class="pre">get_writables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../api/writer/writer/index.html#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable"><span class="pre">whylogs.api.writer.writer.Writable</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.get_writables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_writables" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[List[<a class="reference internal" href="../../../api/writer/writer/index.html#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable">whylogs.api.writer.writer.Writable</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.get_whylabs_tags">
+<span class="sig-name descname"><span class="pre">get_whylabs_tags</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">whylabs_client.model.segment_tag.SegmentTag</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.get_whylabs_tags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_whylabs_tags" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[whylabs_client.model.segment_tag.SegmentTag]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.get_timestamps">
+<span class="sig-name descname"><span class="pre">get_timestamps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><span class="pre">datetime.datetime</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.get_timestamps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_timestamps" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[Optional[<a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)">datetime.datetime</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.write" title="Permalink to this definition">#</a></dt>
+<dd><p>Writes the Writable’s data to file(s) under <cite>path</cite> (excluding filename(s)) if specified,
+else under <cite>_get_default_path()</cite>. <cite>filename</cite> specifies the file to write there. Writables
+can generate a default filename if None is specified. Returns a bool that’s True iff all
+files were written successfully and a list of the filenames (including path) written.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>filename</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Tuple[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)">bool</a>, Union[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, List[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.set_dataset_timestamp">
 <span class="sig-name descname"><span class="pre">set_dataset_timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><span class="pre">datetime.datetime</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.set_dataset_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.set_dataset_timestamp" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -697,16 +754,6 @@ kinds of profiles such as segmented profiles here.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>Optional[<a class="reference internal" href="../../../core/model_performance_metrics/index.html#whylogs.core.model_performance_metrics.ModelPerformanceMetrics" title="whylogs.core.model_performance_metrics.ModelPerformanceMetrics">whylogs.core.model_performance_metrics.ModelPerformanceMetrics</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.get_writables">
-<span class="sig-name descname"><span class="pre">get_writables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../../api/writer/writer/index.html#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable"><span class="pre">whylogs.api.writer.writer.Writable</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/logger/result_set.html#SegmentedResultSet.get_writables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_writables" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[List[<a class="reference internal" href="../../../api/writer/writer/index.html#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable">whylogs.api.writer.writer.Writable</a>]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -780,6 +827,16 @@ kinds of profiles such as segmented profiles here.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.get_default_path">
+<span class="sig-name descname"><span class="pre">get_default_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_default_path" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.read">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multi_profile_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ResultSet</span></span></span><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.read" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -807,13 +864,17 @@ kinds of profiles such as segmented profiles here.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.experimental.api.logger.SegmentedResultSet.writer">
-<span class="sig-name descname"><span class="pre">writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'local'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ResultSetWriter</span></span></span><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.writer" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<span class="sig-name descname"><span class="pre">writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'local'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">WriterWrapper</span></span></span><a class="headerlink" href="#whylogs.experimental.api.logger.SegmentedResultSet.writer" title="Permalink to this definition">#</a></dt>
+<dd><p>Utility method to create a Writer of the specified type</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="../../../api/logger/result_set/index.html#whylogs.api.logger.result_set.ResultSetWriter" title="whylogs.api.logger.result_set.ResultSetWriter">ResultSetWriter</a></p>
+<dd class="field-even"><p><a class="reference internal" href="../../../api/writer/index.html#whylogs.api.writer.WriterWrapper" title="whylogs.api.writer.WriterWrapper">WriterWrapper</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -921,6 +982,37 @@ kinds of profiles such as segmented profiles here.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.ViewResultSet.get_default_path">
+<span class="sig-name descname"><span class="pre">get_default_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.experimental.api.logger.ViewResultSet.get_default_path" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.ViewResultSet.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.experimental.api.logger.ViewResultSet.write" title="Permalink to this definition">#</a></dt>
+<dd><p>Writes the Writable’s data to file(s) under <cite>path</cite> (excluding filename(s)) if specified,
+else under <cite>_get_default_path()</cite>. <cite>filename</cite> specifies the file to write there. Writables
+can generate a default filename if None is specified. Returns a bool that’s True iff all
+files were written successfully and a list of the filenames (including path) written.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>filename</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Tuple[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)">bool</a>, Union[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, List[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="whylogs.experimental.api.logger.ViewResultSet.read">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multi_profile_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ResultSet</span></span></span><a class="headerlink" href="#whylogs.experimental.api.logger.ViewResultSet.read" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -942,19 +1034,6 @@ kinds of profiles such as segmented profiles here.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference internal" href="../../../api/logger/index.html#whylogs.api.logger.ResultSetReader" title="whylogs.api.logger.ResultSetReader">ResultSetReader</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.experimental.api.logger.ViewResultSet.writer">
-<span class="sig-name descname"><span class="pre">writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'local'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ResultSetWriter</span></span></span><a class="headerlink" href="#whylogs.experimental.api.logger.ViewResultSet.writer" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="../../../api/logger/result_set/index.html#whylogs.api.logger.result_set.ResultSetWriter" title="whylogs.api.logger.result_set.ResultSetWriter">ResultSetWriter</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -994,6 +1073,23 @@ kinds of profiles such as segmented profiles here.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.experimental.api.logger.ViewResultSet.writer">
+<span class="sig-name descname"><span class="pre">writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'local'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">WriterWrapper</span></span></span><a class="headerlink" href="#whylogs.experimental.api.logger.ViewResultSet.writer" title="Permalink to this definition">#</a></dt>
+<dd><p>Utility method to create a Writer of the specified type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../../../api/writer/index.html#whylogs.api.writer.WriterWrapper" title="whylogs.api.writer.WriterWrapper">WriterWrapper</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1446,17 +1542,21 @@ input features, consider leaving this as False. by default False</p></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.metadata">metadata</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.performance_metrics">performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.profile">profile</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_writables">get_writables</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_whylabs_tags">get_whylabs_tags</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_timestamps">get_timestamps</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.write">write</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.set_dataset_timestamp">set_dataset_timestamp</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.segments">segments</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.segments_in_partition">segments_in_partition</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.view">view</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_model_performance_metrics_for_segment">get_model_performance_metrics_for_segment</a></li>
-<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_writables">get_writables</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.add_metrics_for_segment">add_metrics_for_segment</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.zero">zero</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.add_model_performance_metrics">add_model_performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.add_metric">add_metric</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.merge">merge</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.get_default_path">get_default_path</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.read">read</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.reader">reader</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.SegmentedResultSet.writer">writer</a></li>
@@ -1471,12 +1571,14 @@ input features, consider leaving this as False. by default False</p></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.zero">zero</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.merge">merge</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.set_dataset_timestamp">set_dataset_timestamp</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.get_default_path">get_default_path</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.write">write</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.read">read</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.reader">reader</a></li>
-<li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.writer">writer</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.get_writables">get_writables</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.add_model_performance_metrics">add_model_performance_metrics</a></li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.add_metric">add_metric</a></li>
+<li><a class="reference internal" href="#whylogs.experimental.api.logger.ViewResultSet.writer">writer</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.experimental.api.logger.DatasetSchema">DatasetSchema</a><ul>

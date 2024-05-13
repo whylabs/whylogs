@@ -24,11 +24,9 @@ Classes
 
    Bases: :py:obj:`whylogs.viz.extensions.reports.html_report.HTMLReport`
 
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
-
-   .. py:method:: writer(name: str = 'local') -> HTMLReportWriter
-
+   A Writable is an object that contains data to write to a file or files.
+   These might be temporary files intended to be passed on to another
+   consumer (e.g., WhyLabs servers) via a Writer.
 
    .. py:method:: display(template: str, page_spec: whylogs.viz.enums.enums.PageSpec) -> IPython.core.display.HTML
 
@@ -37,7 +35,7 @@ Classes
       :abstractmethod:
 
 
-   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
 
       Create HTML file for a given report.
 
@@ -59,7 +57,9 @@ Classes
    .. py:method:: option()
 
 
-   .. py:method:: get_default_path() -> str
+   .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
+
+      Utility method to create a Writer of the specified type
 
 
 
@@ -67,11 +67,9 @@ Classes
 
    Bases: :py:obj:`whylogs.viz.extensions.reports.html_report.HTMLReport`
 
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
-
-   .. py:method:: writer(name: str = 'local') -> HTMLReportWriter
-
+   A Writable is an object that contains data to write to a file or files.
+   These might be temporary files intended to be passed on to another
+   consumer (e.g., WhyLabs servers) via a Writer.
 
    .. py:method:: display(template: str, page_spec: whylogs.viz.enums.enums.PageSpec) -> IPython.core.display.HTML
 
@@ -80,7 +78,7 @@ Classes
       :abstractmethod:
 
 
-   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
 
       Create HTML file for a given report.
 
@@ -102,7 +100,9 @@ Classes
    .. py:method:: option()
 
 
-   .. py:method:: get_default_path() -> str
+   .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
+
+      Utility method to create a Writer of the specified type
 
 
 
@@ -110,11 +110,9 @@ Classes
 
    Bases: :py:obj:`whylogs.viz.extensions.reports.html_report.HTMLReport`
 
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
-
-   .. py:method:: writer(name: str = 'local') -> HTMLReportWriter
-
+   A Writable is an object that contains data to write to a file or files.
+   These might be temporary files intended to be passed on to another
+   consumer (e.g., WhyLabs servers) via a Writer.
 
    .. py:method:: display(template: str, page_spec: whylogs.viz.enums.enums.PageSpec) -> IPython.core.display.HTML
 
@@ -123,7 +121,7 @@ Classes
       :abstractmethod:
 
 
-   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
 
       Create HTML file for a given report.
 
@@ -145,7 +143,9 @@ Classes
    .. py:method:: option()
 
 
-   .. py:method:: get_default_path() -> str
+   .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
+
+      Utility method to create a Writer of the specified type
 
 
 
@@ -153,11 +153,9 @@ Classes
 
    Bases: :py:obj:`whylogs.viz.extensions.reports.html_report.HTMLReport`
 
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
-
-   .. py:method:: writer(name: str = 'local') -> HTMLReportWriter
-
+   A Writable is an object that contains data to write to a file or files.
+   These might be temporary files intended to be passed on to another
+   consumer (e.g., WhyLabs servers) via a Writer.
 
    .. py:method:: display(template: str, page_spec: whylogs.viz.enums.enums.PageSpec) -> IPython.core.display.HTML
 
@@ -166,7 +164,7 @@ Classes
       :abstractmethod:
 
 
-   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
 
       Create HTML file for a given report.
 
@@ -188,7 +186,9 @@ Classes
    .. py:method:: option()
 
 
-   .. py:method:: get_default_path() -> str
+   .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
+
+      Utility method to create a Writer of the specified type
 
 
 

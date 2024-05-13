@@ -57,10 +57,22 @@ Attributes
    profile.writer("gcs").option(bucket_name="my_bucket").write()
    ```
 
-   .. py:method:: write(file: whylogs.api.writer.writer.Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
+   .. py:method:: write(file: whylogs.api.writer.writer.Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]
+
+      Calls Writable::write() to serialize the Wriable `file` to temporary file(s),
+      then "sends" the temporary file(s) to `dest` according to the type of Writer.
+      If `dest` is None, it uses the Writer's default destination.
+
+      kwargs:
+          zip: bool       Create a ZipFile containing the Writable's file(s) if the Writer supports it
+          zip_name: str   Name of the ZipFile, will be auto-generated if None
 
 
-   .. py:method:: option(bucket_name: Optional[str] = None, object_name: Optional[str] = None, gcs_client: Optional[Any] = None) -> GCSWriter
+   .. py:method:: option(**kwargs: Any) -> whylogs.api.writer.Writer
+
+      bucket_name: str   GCS bucket name to write to
+      object_name: str   GCS object name to create
+      gcs_client: ?      GCS client object
 
 
    .. py:method:: check_interval(interval_seconds: int) -> None

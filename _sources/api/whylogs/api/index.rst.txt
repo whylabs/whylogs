@@ -60,7 +60,7 @@ Functions
 
 .. py:class:: ResultSet
 
-   Bases: :py:obj:`abc.ABC`
+   Bases: :py:obj:`whylogs.api.writer.writer.Writable`, :py:obj:`abc.ABC`
 
    A holder object for profiling results.
 
@@ -82,15 +82,23 @@ Functions
       :type: Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
 
 
+   .. py:method:: get_default_path() -> Optional[str]
+
+
+   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
+
+      Writes the Writable's data to file(s) under `path` (excluding filename(s)) if specified,
+      else under `_get_default_path()`. `filename` specifies the file to write there. Writables
+      can generate a default filename if None is specified. Returns a bool that's True iff all
+      files were written successfully and a list of the filenames (including path) written.
+
+
    .. py:method:: read(multi_profile_file: str) -> ResultSet
       :staticmethod:
 
 
    .. py:method:: reader(name: str = 'local') -> ResultSetReader
       :staticmethod:
-
-
-   .. py:method:: writer(name: str = 'local') -> ResultSetWriter
 
 
    .. py:method:: view() -> Optional[whylogs.core.DatasetProfileView]
@@ -115,6 +123,11 @@ Functions
 
    .. py:method:: merge(other: ResultSet) -> ResultSet
       :abstractmethod:
+
+
+   .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
+
+      Utility method to create a Writer of the specified type
 
 
 
@@ -210,6 +223,6 @@ Functions
 .. py:function:: reader(name: str) -> result_set.ResultSetReader
 
 
-.. py:function:: write(profile: whylogs.core.DatasetProfile, base_dir: str) -> None
+.. py:function:: write(profile: whylogs.core.DatasetProfile, base_dir: Optional[str] = None, filename: Optional[str] = None) -> None
 
 

@@ -14,7 +14,7 @@
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
-        <title>Get example dataset - whylogs v1.3.32</title>
+        <title>Get example dataset - whylogs v1.4.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
@@ -141,7 +141,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand"><div class='hidden'>whylogs</div>  <div class='version'> v1.3.32</div></div></a>
+      <a href="../../index.html"><div class="brand"><div class='hidden'>whylogs</div>  <div class='version'> v1.4.0</div></div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -168,7 +168,7 @@
     <img class="sidebar-logo only-dark" src="../../_static/images/logo.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text"><div class='hidden'>whylogs</div>  <div class='version'> v1.3.32</div></span>
+  <span class="sidebar-brand-text"><div class='hidden'>whylogs</div>  <div class='version'> v1.4.0</div></span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -269,6 +269,12 @@
 <li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/mlflow/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.mlflow</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.s3</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/whylabs_base/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_base</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/whylabs_batch_writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_batch_writer</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/whylabs_client/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_client</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/whylabs_estimation_result_writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_estimation_result_writer</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/whylabs_reference_writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_reference_writer</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/whylabs_transaction_writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs_transaction_writer</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.writer</span></code></a></li>
 </ul>
 </li>
@@ -720,7 +726,8 @@ div.rendered_html tbody tr:hover {
 <span class="kn">from</span> <span class="nn">whylabs_client.api.transactions_api</span> <span class="kn">import</span> <span class="n">TransactionsApi</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DatasetSchema</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">segment_on_column</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span><span class="p">,</span> <span class="n">WhyLabsTransaction</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs_transaction_writer</span> <span class="kn">import</span> <span class="n">WhyLabsTransactionWrirter</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
 <span class="kn">from</span> <span class="nn">whylogs.datasets</span> <span class="kn">import</span> <span class="n">Ecommerce</span>
@@ -1165,7 +1172,7 @@ Commiting transaction
 </section>
 <section id="Uploading-multiple-profiles-with-the-same-batch-timestamp">
 <h1>Uploading multiple profiles with the same batch timestamp<a class="headerlink" href="#Uploading-multiple-profiles-with-the-same-batch-timestamp" title="Permalink to this headline">#</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">WhyLabsTransaction</span></code> context manager can simplify error handling.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">WhyLabsTransactionWriter</span></code> can be used as a context manager to simplify transaction error handling and ensure <code class="docutils literal notranslate"><span class="pre">commit_transaction()</span></code> is called.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -1188,7 +1195,7 @@ datetime.datetime(2024, 2, 20, 0, 14, 58, 753029, tzinfo=datetime.timezone.utc)
 </pre></div>
 </div>
 <div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
-  <span class="k">with</span> <span class="n">WhyLabsTransaction</span><span class="p">(</span><span class="n">writer</span><span class="p">):</span>
+  <span class="k">with</span> <span class="n">WhyLabsTransactionWriter</span><span class="p">()</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Started transaction&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
       <span class="n">batch_df</span> <span class="o">=</span> <span class="n">list_daily_batches</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span>
@@ -1217,7 +1224,7 @@ True log-v3G6VyLUn1x1crVy
 Committed transaction
 </pre></div></div>
 </div>
-<p>If a <code class="docutils literal notranslate"><span class="pre">write()</span></code> call returns a <code class="docutils literal notranslate"><span class="pre">False</span></code> status, the profile will not be included in the transaction. You might want to retry writing it. If not, that profile will be left out of the transaction, but those successfully written will still be included.</p>
+<p>If a <code class="docutils literal notranslate"><span class="pre">write()</span></code> call during the transaction fails (returns a <code class="docutils literal notranslate"><span class="pre">False</span></code> status), the transaction’s commit will fail raising an exception.</p>
 </section>
 <section id="Segmented-profiles">
 <h1>Segmented profiles<a class="headerlink" href="#Segmented-profiles" title="Permalink to this headline">#</a></h1>
@@ -1228,7 +1235,7 @@ Committed transaction
 </div>
 <div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">segments</span><span class="o">=</span><span class="n">segment_on_column</span><span class="p">(</span><span class="s2">&quot;output_discount&quot;</span><span class="p">))</span>
 <span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
-<span class="k">with</span> <span class="n">WhyLabsTransaction</span><span class="p">(</span><span class="n">writer</span><span class="p">):</span>
+<span class="k">with</span> <span class="n">WhyLabsTransactionWriter</span><span class="p">()</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
   <span class="n">status</span><span class="p">,</span> <span class="nb">id</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>

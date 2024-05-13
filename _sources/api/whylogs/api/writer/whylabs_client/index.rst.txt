@@ -1,0 +1,199 @@
+:py:mod:`whylogs.api.writer.whylabs_client`
+===========================================
+
+.. py:module:: whylogs.api.writer.whylabs_client
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.writer.whylabs_client.WhyLabsClient
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.writer.whylabs_client.FIVE_MINUTES_IN_SECONDS
+   whylogs.api.writer.whylabs_client.DAY_IN_SECONDS
+   whylogs.api.writer.whylabs_client.FIVE_YEARS_IN_SECONDS
+   whylogs.api.writer.whylabs_client.logger
+   whylogs.api.writer.whylabs_client.WHYLOGS_PREFER_SYNC_KEY
+   whylogs.api.writer.whylabs_client.KNOWN_CUSTOM_PERFORMANCE_METRICS
+   whylogs.api.writer.whylabs_client.KNOWN_CUSTOM_OUTPUT_METRICS
+
+
+.. py:data:: FIVE_MINUTES_IN_SECONDS
+
+   
+
+.. py:data:: DAY_IN_SECONDS
+
+   
+
+.. py:data:: FIVE_YEARS_IN_SECONDS
+
+   
+
+.. py:data:: logger
+
+   
+
+.. py:data:: WHYLOGS_PREFER_SYNC_KEY
+   :value: 'WHYLOGS_PREFER_SYNC'
+
+   
+
+.. py:data:: KNOWN_CUSTOM_PERFORMANCE_METRICS
+
+   
+
+.. py:data:: KNOWN_CUSTOM_OUTPUT_METRICS
+
+   
+
+.. py:exception:: TransactionAbortedException
+
+   Bases: :py:obj:`Exception`
+
+   Common base class for all non-exit exceptions.
+
+   .. py:class:: args
+
+
+   .. py:method:: with_traceback()
+
+      Exception.with_traceback(tb) --
+      set self.__traceback__ to tb and return self.
+
+
+
+.. py:class:: WhyLabsClient(org_id: Optional[str] = None, api_key: Optional[str] = None, dataset_id: Optional[str] = None, api_client: Optional[whylabs_client.ApiClient] = None, ssl_ca_cert: Optional[str] = None, _timeout_seconds: Optional[float] = None)
+
+   .. py:property:: key_id
+      :type: str
+
+
+   .. py:method:: option(**kwargs) -> WhyLabsClient
+
+      :param org_id the organization ID:
+      :param dataset_id the dataset Id:
+      :param api_key the API key:
+      :param configuration the additional configuration for the REST client:
+      :param org_id:
+      :type org_id: Optional[str] = None,
+      :param dataset_id:
+      :type dataset_id: Optional[str] = None,
+      :param api_key:
+      :type api_key: Optional[str] = None,
+      :param configuration:
+      :type configuration: Optional[Configuration] = None,
+      :param ssl_ca_cert:
+      :type ssl_ca_cert: Optional[str] = None,
+      :param api_client:
+      :type api_client: Optional[ApiClient] = None,
+      :param timeout_seconds:
+      :type timeout_seconds: Optional[float] = None,
+      :param transaction_id:
+      :type transaction_id: Optional[str] = None,
+      :param prefer_sync:
+      :param Returns a "WhyLabsClient" with these options configured:
+      :param -------:
+
+
+   .. py:method:: tag_output_columns(columns: List[str]) -> Tuple[bool, str]
+
+      Sets the list of columns as output columns for the specified dataset.
+
+      :param columns: The list of column names you want to tag as outputs.
+      :type columns: List[str]
+
+      :returns: Tuple with a boolean indicating success or failure: e.g. (True, "column prediction was updated to
+                output") and string with status message.
+      :rtype: Tuple[bool, str]
+
+
+   .. py:method:: tag_input_columns(columns: List[str]) -> Tuple[bool, str]
+
+      Sets the list of columns as input columns for the specified dataset.
+
+      :param columns: The list of column names you want to tag as inputs.
+      :type columns: List[str]
+
+      :returns: Tuple with a boolean indicating success or failure: e.g. (True, "column [output_voltage] updated to
+                input") and string with status message.
+      :rtype: Tuple[bool, str]
+
+
+   .. py:method:: tag_custom_performance_column(column: str, label: Optional[str] = None, default_metric: str = 'mean') -> Tuple[bool, str]
+
+      Sets the column as a custom performance metric for the specified dataset and org id.
+      The default metric will be displayed in the Performance tab in WhyLabs.
+
+      :param column: The column name in the whylogs profile you want to tag as a custom performance metric.
+      :type column: str
+      :param label: The label that will be displayed in WhyLabs UI. If none is passed, defaults to column name.
+      :type label: str
+      :param default_metric: The default metric that will be displayed in the Performance tab in WhyLabs.
+                             For example, "mean", "median", "max", or "min".
+                             If none is passed, defaults to "mean".
+      :type default_metric: str
+      :param Note:
+      :type Note: the resulting custom performance metric is considered an unmergeable metric.
+
+
+   .. py:method:: write_feature_weights(file: whylogs.core.feature_weights.FeatureWeights, **kwargs: Any) -> Tuple[bool, str]
+
+      Put feature weights for the specified dataset.
+
+      :param file: FeatureWeights object representing the Feature Weights for the specified dataset
+      :type file: FeatureWeights
+
+      :returns: Tuple with a boolean (1-success, 0-fail) and string with the request's status code.
+      :rtype: Tuple[bool, str]
+
+
+   .. py:method:: get_feature_weights(**kwargs: Any) -> Optional[whylogs.core.feature_weights.FeatureWeights]
+
+      Get latest version for the feature weights for the specified dataset
+
+      :returns: Response of the GET request, with segmentWeights and metadata.
+      :rtype: FeatureWeightResponse
+
+
+   .. py:method:: do_upload(dataset_timestamp: int, upload_url: str, profile_id: str, profile_path: Optional[str] = None, profile_file: Optional[IO[bytes]] = None) -> Tuple[bool, str]
+
+
+   .. py:method:: get_transaction_id() -> str
+
+
+   .. py:method:: commit_transaction(id: str) -> None
+
+
+   .. py:method:: abort_transaction(id: str) -> None
+
+
+   .. py:method:: transaction_status(id: str) -> Dict[str, Any]
+
+
+   .. py:method:: get_upload_url_transaction(dataset_timestamp: int, whylabs_tags: List[whylabs_client.model.segment_tag.SegmentTag] = []) -> Tuple[str, str]
+
+
+   .. py:method:: get_upload_url_batch_zip(dataset_timestamp: int) -> Tuple[str, str]
+
+
+   .. py:method:: get_upload_url_unsegmented_reference(dataset_timestamp: int, reference_profile_name: str) -> Tuple[str, str]
+
+
+   .. py:method:: get_upload_url_batch(dataset_timestamp: int) -> Tuple[str, str]
+
+
+

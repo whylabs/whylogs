@@ -1,0 +1,96 @@
+:py:mod:`whylogs.api.writer.whylabs_estimation_result_writer`
+=============================================================
+
+.. py:module:: whylogs.api.writer.whylabs_estimation_result_writer
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.writer.whylabs_estimation_result_writer.WhyLabsEstimationResultWriter
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.writer.whylabs_estimation_result_writer.logger
+
+
+.. py:data:: logger
+
+   
+
+.. py:class:: WhyLabsEstimationResultWriter(org_id: Optional[str] = None, api_key: Optional[str] = None, dataset_id: Optional[str] = None, api_client: Optional[whylabs_client.ApiClient] = None, ssl_ca_cert: Optional[str] = None, _timeout_seconds: Optional[float] = None, whylabs_client: Optional[whylogs.api.writer.whylabs_client.WhyLabsClient] = None)
+
+   Bases: :py:obj:`whylogs.api.writer.whylabs_base.WhyLabsWriterBase`
+
+   Base class for WhyLabs writers
+
+   .. py:property:: key_id
+      :type: str
+
+
+   .. py:method:: write(file: whylogs.api.writer.writer.Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]
+
+      Calls Writable::write() to serialize the Wriable `file` to temporary file(s),
+      then "sends" the temporary file(s) to `dest` according to the type of Writer.
+      If `dest` is None, it uses the Writer's default destination.
+
+      kwargs:
+          zip: bool       Create a ZipFile containing the Writable's file(s) if the Writer supports it
+          zip_name: str   Name of the ZipFile, will be auto-generated if None
+
+
+   .. py:method:: transaction_status() -> Dict[str, Any]
+
+
+   .. py:method:: check_interval(interval_seconds: int) -> None
+
+      Validate an interval configuration for a given writer.
+
+      Some writers only accepts certain interval configuration. Raise BadConfigError for
+      an unacceptable interval.
+
+
+   .. py:method:: option(**kwargs) -> whylogs.api.writer.writer.Writer
+
+      :param org_id the organization ID:
+      :param dataset_id the dataset Id:
+      :param api_key the API key:
+      :param reference_profile_name the name of the reference profile:
+      :param configuration the additional configuration for the REST client:
+      :param transaction_id to ID of currently active transaction:
+      :param org_id:
+      :type org_id: Optional[str] = None,
+      :param dataset_id:
+      :type dataset_id: Optional[str] = None,
+      :param api_key:
+      :type api_key: Optional[str] = None,
+      :param reference_profile_name:
+      :type reference_profile_name: Optional[str] = None,
+      :param configuration:
+      :type configuration: Optional[Configuration] = None,
+      :param transaction_id:
+      :type transaction_id: Optional[str] = None,
+      :param ssl_ca_cert:
+      :type ssl_ca_cert: Optional[str] = None,
+      :param api_client:
+      :type api_client: Optional[ApiClient] = None,
+      :param timeout_seconds:
+      :type timeout_seconds: Optional[float] = None,
+      :param prefer_sync:
+      :type prefer_sync: Optional[bool] = None,
+      :param Returns a "WhyLabsWriter" with these options configured:
+      :param -------:
+
+
+

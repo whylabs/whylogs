@@ -1,1142 +1,1202 @@
 {
- "cells": [
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    ">### 🚩 *Create a free WhyLabs account to get more value out of whylogs!*<br> \n",
-    ">*Did you know you can store, visualize, and monitor whylogs profiles with the [WhyLabs Observability Platform](https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&utm_medium=whylogs-example&utm_campaign=Writing_Profiles)? Sign up for a [free WhyLabs account](https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&utm_medium=whylogs-example&utm_campaign=Writing_Profiles) to leverage the power of whylogs and WhyLabs together!*"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "# Writing profiles - Local/S3\n",
-    "\n",
-    "[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Profiles.ipynb)\n",
-    "\n",
-    "Hello there! If you've come to this tutorial, perhaps you are wondering what can you do after you generated your first (or maybe not the first) profile. Well, a good practice is to store these profiles as *lightweight* files, which is one of the cool features `whylogs` brings to the table.\n",
-    "\n",
-    "Here we will check different flavors of writing, and you can check which one of these will meet your current needs. Shall we? "
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "## Installing whylogs\n",
-    "\n",
-    "Let's first install whylogs, if you don't have it installed already:"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 1,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
+  "cells": [
     {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Requirement already satisfied: whylogs in /Users/murilomendonca/Documents/repos/whylogs/python/.venv/lib/python3.9/site-packages (1.1.7)\r\n",
-      "Requirement already satisfied: protobuf>=3.19.4 in /Users/murilomendonca/Documents/repos/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (4.21.6)\r\n",
-      "Requirement already satisfied: typing-extensions>=3.10 in /Users/murilomendonca/Documents/repos/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (4.3.0)\r\n",
-      "Requirement already satisfied: whylogs-sketching>=3.4.1.dev3 in /Users/murilomendonca/Documents/repos/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (3.4.1.dev3)\r\n",
-      "Note: you may need to restart the kernel to use updated packages.\n"
-     ]
-    }
-   ],
-   "source": [
-    "# Note: you may need to restart the kernel to use updated packages.\n",
-    "import shutil\n",
-    "%pip install whylogs"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "## Creating simple profiles\n",
-    "\n",
-    "In order for us to get started, let's take a very simple example dataset and profile it."
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 2,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [],
-   "source": [
-    "import pandas as pd\n",
-    "\n",
-    "data = {\n",
-    "    \"col_1\": [1.0, 2.2, 0.1, 1.2],\n",
-    "    \"col_2\": [\"some\", \"text\", \"column\", \"example\"],\n",
-    "    \"col_3\": [4, 2, 3, 5]\n",
-    "}\n",
-    "\n",
-    "df = pd.DataFrame(data)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 3,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "BeXzH8r34sbM"
+      },
+      "source": [
+        ">### 🚩 *Create a free WhyLabs account to get more value out of whylogs!*<br>\n",
+        ">*Did you know you can store, visualize, and monitor whylogs profiles with the [WhyLabs Observability Platform](https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&utm_medium=whylogs-example&utm_campaign=Writing_Profiles)? Sign up for a [free WhyLabs account](https://whylabs.ai/whylogs-free-signup?utm_source=whylogs-Github&utm_medium=whylogs-example&utm_campaign=Writing_Profiles) to leverage the power of whylogs and WhyLabs together!*"
+      ]
+    },
     {
-     "data": {
-      "text/html": [
-       "<div>\n",
-       "<style scoped>\n",
-       "    .dataframe tbody tr th:only-of-type {\n",
-       "        vertical-align: middle;\n",
-       "    }\n",
-       "\n",
-       "    .dataframe tbody tr th {\n",
-       "        vertical-align: top;\n",
-       "    }\n",
-       "\n",
-       "    .dataframe thead th {\n",
-       "        text-align: right;\n",
-       "    }\n",
-       "</style>\n",
-       "<table border=\"1\" class=\"dataframe\">\n",
-       "  <thead>\n",
-       "    <tr style=\"text-align: right;\">\n",
-       "      <th></th>\n",
-       "      <th>col_1</th>\n",
-       "      <th>col_2</th>\n",
-       "      <th>col_3</th>\n",
-       "    </tr>\n",
-       "  </thead>\n",
-       "  <tbody>\n",
-       "    <tr>\n",
-       "      <th>0</th>\n",
-       "      <td>1.0</td>\n",
-       "      <td>some</td>\n",
-       "      <td>4</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>1</th>\n",
-       "      <td>2.2</td>\n",
-       "      <td>text</td>\n",
-       "      <td>2</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>2</th>\n",
-       "      <td>0.1</td>\n",
-       "      <td>column</td>\n",
-       "      <td>3</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>3</th>\n",
-       "      <td>1.2</td>\n",
-       "      <td>example</td>\n",
-       "      <td>5</td>\n",
-       "    </tr>\n",
-       "  </tbody>\n",
-       "</table>\n",
-       "</div>"
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "lOMfJZre4sbQ"
+      },
+      "source": [
+        "# Writing profiles - Local/S3\n",
+        "\n",
+        "[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Profiles.ipynb)\n",
+        "\n",
+        "Hello there! If you've come to this tutorial, perhaps you are wondering what can you do after you generated your first (or maybe not the first) profile. Well, a good practice is to store these profiles as *lightweight* files, which is one of the cool features `whylogs` brings to the table.\n",
+        "\n",
+        "Here we will check different flavors of writing, and you can check which one of these will meet your current needs. Shall we?"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "EHAazI3n4sbR"
+      },
+      "source": [
+        "## Installing whylogs\n",
+        "\n",
+        "Let's first install whylogs, if you don't have it installed already:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "J5VspSS14sbR",
+        "outputId": "3e544285-0d2b-4572-8e8d-f92015f5547a"
+      },
+      "outputs": [
+        {
+          "name": "stdout",
+          "output_type": "stream",
+          "text": [
+            "Requirement already satisfied: whylogs in /Users/murilomendonca/Documents/repos/whylogs/python/.venv/lib/python3.9/site-packages (1.1.7)\r\n",
+            "Requirement already satisfied: protobuf>=3.19.4 in /Users/murilomendonca/Documents/repos/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (4.21.6)\r\n",
+            "Requirement already satisfied: typing-extensions>=3.10 in /Users/murilomendonca/Documents/repos/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (4.3.0)\r\n",
+            "Requirement already satisfied: whylogs-sketching>=3.4.1.dev3 in /Users/murilomendonca/Documents/repos/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (3.4.1.dev3)\r\n",
+            "Note: you may need to restart the kernel to use updated packages.\n"
+          ]
+        }
       ],
-      "text/plain": [
-       "   col_1    col_2  col_3\n",
-       "0    1.0     some      4\n",
-       "1    2.2     text      2\n",
-       "2    0.1   column      3\n",
-       "3    1.2  example      5"
+      "source": [
+        "# Note: you may need to restart the kernel to use updated packages.\n",
+        "import shutil\n",
+        "%pip install whylogs"
       ]
-     },
-     "execution_count": 3,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "df.head()"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 4,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [],
-   "source": [
-    "import whylogs as why\n",
-    "\n",
-    "profile_results = why.log(df)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 5,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
+    },
     {
-     "data": {
-      "text/plain": [
-       "whylogs.api.logger.result_set.ProfileResultSet"
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "Hmn-M9nU4sbT"
+      },
+      "source": [
+        "## Creating simple profiles\n",
+        "\n",
+        "In order for us to get started, let's take a very simple example dataset and profile it."
       ]
-     },
-     "execution_count": 5,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "type(profile_results)"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "And now we can check its collected metrics by transforming it into a `DatasetProfileView`"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 6,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
+    },
     {
-     "data": {
-      "text/html": [
-       "<div>\n",
-       "<style scoped>\n",
-       "    .dataframe tbody tr th:only-of-type {\n",
-       "        vertical-align: middle;\n",
-       "    }\n",
-       "\n",
-       "    .dataframe tbody tr th {\n",
-       "        vertical-align: top;\n",
-       "    }\n",
-       "\n",
-       "    .dataframe thead th {\n",
-       "        text-align: right;\n",
-       "    }\n",
-       "</style>\n",
-       "<table border=\"1\" class=\"dataframe\">\n",
-       "  <thead>\n",
-       "    <tr style=\"text-align: right;\">\n",
-       "      <th></th>\n",
-       "      <th>cardinality/est</th>\n",
-       "      <th>cardinality/lower_1</th>\n",
-       "      <th>cardinality/upper_1</th>\n",
-       "      <th>counts/n</th>\n",
-       "      <th>counts/null</th>\n",
-       "      <th>distribution/max</th>\n",
-       "      <th>distribution/mean</th>\n",
-       "      <th>distribution/median</th>\n",
-       "      <th>distribution/min</th>\n",
-       "      <th>distribution/n</th>\n",
-       "      <th>...</th>\n",
-       "      <th>distribution/stddev</th>\n",
-       "      <th>type</th>\n",
-       "      <th>types/boolean</th>\n",
-       "      <th>types/fractional</th>\n",
-       "      <th>types/integral</th>\n",
-       "      <th>types/object</th>\n",
-       "      <th>types/string</th>\n",
-       "      <th>frequent_items/frequent_strings</th>\n",
-       "      <th>ints/max</th>\n",
-       "      <th>ints/min</th>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>column</th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "      <th></th>\n",
-       "    </tr>\n",
-       "  </thead>\n",
-       "  <tbody>\n",
-       "    <tr>\n",
-       "      <th>col_1</th>\n",
-       "      <td>4.0</td>\n",
-       "      <td>4.0</td>\n",
-       "      <td>4.0002</td>\n",
-       "      <td>4</td>\n",
-       "      <td>0</td>\n",
-       "      <td>2.2</td>\n",
-       "      <td>1.125</td>\n",
-       "      <td>1.2</td>\n",
-       "      <td>0.1</td>\n",
-       "      <td>4</td>\n",
-       "      <td>...</td>\n",
-       "      <td>0.861684</td>\n",
-       "      <td>SummaryType.COLUMN</td>\n",
-       "      <td>0</td>\n",
-       "      <td>4</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0</td>\n",
-       "      <td>NaN</td>\n",
-       "      <td>NaN</td>\n",
-       "      <td>NaN</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>col_2</th>\n",
-       "      <td>4.0</td>\n",
-       "      <td>4.0</td>\n",
-       "      <td>4.0002</td>\n",
-       "      <td>4</td>\n",
-       "      <td>0</td>\n",
-       "      <td>NaN</td>\n",
-       "      <td>0.000</td>\n",
-       "      <td>NaN</td>\n",
-       "      <td>NaN</td>\n",
-       "      <td>0</td>\n",
-       "      <td>...</td>\n",
-       "      <td>0.000000</td>\n",
-       "      <td>SummaryType.COLUMN</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0</td>\n",
-       "      <td>4</td>\n",
-       "      <td>[FrequentItem(value='some', est=1, upper=1, lo...</td>\n",
-       "      <td>NaN</td>\n",
-       "      <td>NaN</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>col_3</th>\n",
-       "      <td>4.0</td>\n",
-       "      <td>4.0</td>\n",
-       "      <td>4.0002</td>\n",
-       "      <td>4</td>\n",
-       "      <td>0</td>\n",
-       "      <td>5.0</td>\n",
-       "      <td>3.500</td>\n",
-       "      <td>4.0</td>\n",
-       "      <td>2.0</td>\n",
-       "      <td>4</td>\n",
-       "      <td>...</td>\n",
-       "      <td>1.290994</td>\n",
-       "      <td>SummaryType.COLUMN</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0</td>\n",
-       "      <td>4</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0</td>\n",
-       "      <td>[FrequentItem(value='2', est=1, upper=1, lower...</td>\n",
-       "      <td>5.0</td>\n",
-       "      <td>2.0</td>\n",
-       "    </tr>\n",
-       "  </tbody>\n",
-       "</table>\n",
-       "<p>3 rows × 28 columns</p>\n",
-       "</div>"
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "scsGpGsS4sbU"
+      },
+      "outputs": [],
+      "source": [
+        "import pandas as pd\n",
+        "\n",
+        "data = {\n",
+        "    \"col_1\": [1.0, 2.2, 0.1, 1.2],\n",
+        "    \"col_2\": [\"some\", \"text\", \"column\", \"example\"],\n",
+        "    \"col_3\": [4, 2, 3, 5]\n",
+        "}\n",
+        "\n",
+        "df = pd.DataFrame(data)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "LAINFxFe4sbU",
+        "outputId": "37399d7e-70d8-4849-b687-5bac3dea4dd3"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>col_1</th>\n",
+              "      <th>col_2</th>\n",
+              "      <th>col_3</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>1.0</td>\n",
+              "      <td>some</td>\n",
+              "      <td>4</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>2.2</td>\n",
+              "      <td>text</td>\n",
+              "      <td>2</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>0.1</td>\n",
+              "      <td>column</td>\n",
+              "      <td>3</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>1.2</td>\n",
+              "      <td>example</td>\n",
+              "      <td>5</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   col_1    col_2  col_3\n",
+              "0    1.0     some      4\n",
+              "1    2.2     text      2\n",
+              "2    0.1   column      3\n",
+              "3    1.2  example      5"
+            ]
+          },
+          "execution_count": 3,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
       ],
-      "text/plain": [
-       "        cardinality/est  cardinality/lower_1  cardinality/upper_1  counts/n  \\\n",
-       "column                                                                        \n",
-       "col_1               4.0                  4.0               4.0002         4   \n",
-       "col_2               4.0                  4.0               4.0002         4   \n",
-       "col_3               4.0                  4.0               4.0002         4   \n",
-       "\n",
-       "        counts/null  distribution/max  distribution/mean  distribution/median  \\\n",
-       "column                                                                          \n",
-       "col_1             0               2.2              1.125                  1.2   \n",
-       "col_2             0               NaN              0.000                  NaN   \n",
-       "col_3             0               5.0              3.500                  4.0   \n",
-       "\n",
-       "        distribution/min  distribution/n  ...  distribution/stddev  \\\n",
-       "column                                    ...                        \n",
-       "col_1                0.1               4  ...             0.861684   \n",
-       "col_2                NaN               0  ...             0.000000   \n",
-       "col_3                2.0               4  ...             1.290994   \n",
-       "\n",
-       "                      type  types/boolean  types/fractional  types/integral  \\\n",
-       "column                                                                        \n",
-       "col_1   SummaryType.COLUMN              0                 4               0   \n",
-       "col_2   SummaryType.COLUMN              0                 0               0   \n",
-       "col_3   SummaryType.COLUMN              0                 0               4   \n",
-       "\n",
-       "        types/object  types/string  \\\n",
-       "column                               \n",
-       "col_1              0             0   \n",
-       "col_2              0             4   \n",
-       "col_3              0             0   \n",
-       "\n",
-       "                          frequent_items/frequent_strings  ints/max ints/min  \n",
-       "column                                                                        \n",
-       "col_1                                                 NaN       NaN      NaN  \n",
-       "col_2   [FrequentItem(value='some', est=1, upper=1, lo...       NaN      NaN  \n",
-       "col_3   [FrequentItem(value='2', est=1, upper=1, lower...       5.0      2.0  \n",
-       "\n",
-       "[3 rows x 28 columns]"
+      "source": [
+        "df.head()"
       ]
-     },
-     "execution_count": 6,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "profile_view = profile_results.view()\n",
-    "profile_view.to_pandas()"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "Cool! So now that we have a proper profile created, let's see how we can persist is as a file."
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "## Local writer\n",
-    "\n",
-    "The first and most straight-forward way of persisting a `whylogs` profile as a file is to write it directly to your disk. Our API makes it possible with the following commands. You could either write it from the `ProfileResultSet`"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 7,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [],
-   "source": [
-    "profile_results.writer(\"local\").write(dest=\"my_profile.bin\")"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "If you want, you can also not specify a `dest`, but an optional `base_dir`, which will write your profile with its timestamp to this base directory you want. Let's see how:"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 8,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [],
-   "source": [
-    "import os\n",
-    "os.makedirs(\"my_directory\",exist_ok=True)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 9,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [],
-   "source": [
-    "profile_results.writer(\"local\").option(base_dir=\"my_directory\").write()"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "Or from the `DatasetProfileView` directly, with a `path`"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 10,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
+    },
     {
-     "data": {
-      "text/plain": [
-       "(True, 'my_profile.bin')"
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "8s-eZc8u4sbV"
+      },
+      "outputs": [],
+      "source": [
+        "import whylogs as why\n",
+        "\n",
+        "profile_results = why.log(df)"
       ]
-     },
-     "execution_count": 10,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "profile_view.write(path=\"my_profile.bin\")"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "And if it couldn't get any more convenient, you can also use the **same logic for logging** to also write your profile, like:"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 11,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
+    },
     {
-     "data": {
-      "text/plain": [
-       "(True, 'my_directory/my_profile.bin')"
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "rlN1dqik4sbV",
+        "outputId": "2942dcc0-f29a-4623-f68d-1bf487d8ab90"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/plain": [
+              "whylogs.api.logger.result_set.ProfileResultSet"
+            ]
+          },
+          "execution_count": 5,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "type(profile_results)"
       ]
-     },
-     "execution_count": 11,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "why.write(profile=profile_view, base_dir=\"my_directory/my_profile.bin\")"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 12,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
+    },
     {
-     "data": {
-      "text/plain": [
-       "['profile_2022-10-17 17:52:00.282271.bin',\n",
-       " 'profile_2022-10-17 17:52:49.522728.bin',\n",
-       " 'my_profile.bin']"
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "ZmVdbaCk4sbW"
+      },
+      "source": [
+        "And now we can check its collected metrics by transforming it into a `DatasetProfileView`"
       ]
-     },
-     "execution_count": 12,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "import os \n",
-    "os.listdir(\"./my_directory\")"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "And that's it! Now you can go ahead and decide where and how to store these profiles, for further inspection and guaranteeing your data and ML model pipelines are generating useful and quality data for your end users. Let's delete those files not to clutter our environment then :)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "is_executing": true,
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [],
-   "source": [
-    "os.remove(\"./my_profile.bin\")\n",
-    "shutil.rmtree(\"./my_directory\")"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "## s3 Writer\n",
-    "\n",
-    "From an enterprise perspective, it can be interesting to use `s3` buckets to store your profiles instead of manually deciding what to do with them from your local machine. And that is why we have created an integration to do just that! \n",
-    "\n",
-    "To try to maintain this example simple enough, we won't use an actual cloud-based storage, but we will mock one with the `moto` library. This way, you can test this anywhere without worrying about credentials too much :) In order to keep `whylogs` as light as possible, and allow users to extend as they need, we have made `s3` an extra dependency.\n",
-    "\n",
-    "So let's get started by creating this mocked `s3` bucket with the `moto` package.\n",
-    "\n",
-    "P.S.: if you haven't installed the `whylogs[s3]` extra dependency already, uncomment and run the cell below."
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 14,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
+    },
     {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Note: you may need to restart the kernel to use updated packages.\n"
-     ]
-    }
-   ],
-   "source": [
-    "%pip install -q 'whylogs[s3]' moto"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 15,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
-    {
-     "data": {
-      "text/plain": [
-       "s3.Bucket(name='my_great_bucket')"
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "ULvkGC8m4sbW",
+        "outputId": "c45763ad-0eb7-467f-9b0d-44fc3ea6c351"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>cardinality/est</th>\n",
+              "      <th>cardinality/lower_1</th>\n",
+              "      <th>cardinality/upper_1</th>\n",
+              "      <th>counts/n</th>\n",
+              "      <th>counts/null</th>\n",
+              "      <th>distribution/max</th>\n",
+              "      <th>distribution/mean</th>\n",
+              "      <th>distribution/median</th>\n",
+              "      <th>distribution/min</th>\n",
+              "      <th>distribution/n</th>\n",
+              "      <th>...</th>\n",
+              "      <th>distribution/stddev</th>\n",
+              "      <th>type</th>\n",
+              "      <th>types/boolean</th>\n",
+              "      <th>types/fractional</th>\n",
+              "      <th>types/integral</th>\n",
+              "      <th>types/object</th>\n",
+              "      <th>types/string</th>\n",
+              "      <th>frequent_items/frequent_strings</th>\n",
+              "      <th>ints/max</th>\n",
+              "      <th>ints/min</th>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>column</th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>col_1</th>\n",
+              "      <td>4.0</td>\n",
+              "      <td>4.0</td>\n",
+              "      <td>4.0002</td>\n",
+              "      <td>4</td>\n",
+              "      <td>0</td>\n",
+              "      <td>2.2</td>\n",
+              "      <td>1.125</td>\n",
+              "      <td>1.2</td>\n",
+              "      <td>0.1</td>\n",
+              "      <td>4</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.861684</td>\n",
+              "      <td>SummaryType.COLUMN</td>\n",
+              "      <td>0</td>\n",
+              "      <td>4</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>col_2</th>\n",
+              "      <td>4.0</td>\n",
+              "      <td>4.0</td>\n",
+              "      <td>4.0002</td>\n",
+              "      <td>4</td>\n",
+              "      <td>0</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>0.000</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>0</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>SummaryType.COLUMN</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>4</td>\n",
+              "      <td>[FrequentItem(value='some', est=1, upper=1, lo...</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>col_3</th>\n",
+              "      <td>4.0</td>\n",
+              "      <td>4.0</td>\n",
+              "      <td>4.0002</td>\n",
+              "      <td>4</td>\n",
+              "      <td>0</td>\n",
+              "      <td>5.0</td>\n",
+              "      <td>3.500</td>\n",
+              "      <td>4.0</td>\n",
+              "      <td>2.0</td>\n",
+              "      <td>4</td>\n",
+              "      <td>...</td>\n",
+              "      <td>1.290994</td>\n",
+              "      <td>SummaryType.COLUMN</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>4</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>[FrequentItem(value='2', est=1, upper=1, lower...</td>\n",
+              "      <td>5.0</td>\n",
+              "      <td>2.0</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "<p>3 rows × 28 columns</p>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "        cardinality/est  cardinality/lower_1  cardinality/upper_1  counts/n  \\\n",
+              "column                                                                        \n",
+              "col_1               4.0                  4.0               4.0002         4   \n",
+              "col_2               4.0                  4.0               4.0002         4   \n",
+              "col_3               4.0                  4.0               4.0002         4   \n",
+              "\n",
+              "        counts/null  distribution/max  distribution/mean  distribution/median  \\\n",
+              "column                                                                          \n",
+              "col_1             0               2.2              1.125                  1.2   \n",
+              "col_2             0               NaN              0.000                  NaN   \n",
+              "col_3             0               5.0              3.500                  4.0   \n",
+              "\n",
+              "        distribution/min  distribution/n  ...  distribution/stddev  \\\n",
+              "column                                    ...                        \n",
+              "col_1                0.1               4  ...             0.861684   \n",
+              "col_2                NaN               0  ...             0.000000   \n",
+              "col_3                2.0               4  ...             1.290994   \n",
+              "\n",
+              "                      type  types/boolean  types/fractional  types/integral  \\\n",
+              "column                                                                        \n",
+              "col_1   SummaryType.COLUMN              0                 4               0   \n",
+              "col_2   SummaryType.COLUMN              0                 0               0   \n",
+              "col_3   SummaryType.COLUMN              0                 0               4   \n",
+              "\n",
+              "        types/object  types/string  \\\n",
+              "column                               \n",
+              "col_1              0             0   \n",
+              "col_2              0             4   \n",
+              "col_3              0             0   \n",
+              "\n",
+              "                          frequent_items/frequent_strings  ints/max ints/min  \n",
+              "column                                                                        \n",
+              "col_1                                                 NaN       NaN      NaN  \n",
+              "col_2   [FrequentItem(value='some', est=1, upper=1, lo...       NaN      NaN  \n",
+              "col_3   [FrequentItem(value='2', est=1, upper=1, lower...       5.0      2.0  \n",
+              "\n",
+              "[3 rows x 28 columns]"
+            ]
+          },
+          "execution_count": 6,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "profile_view = profile_results.view()\n",
+        "profile_view.to_pandas()"
       ]
-     },
-     "execution_count": 15,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "import boto3\n",
-    "from moto import mock_s3\n",
-    "from moto.s3.responses import DEFAULT_REGION_NAME\n",
-    "\n",
-    "BUCKET_NAME = \"my_great_bucket\"\n",
-    "\n",
-    "\n",
-    "mocks3 = mock_s3()\n",
-    "mocks3.start()\n",
-    "resource = boto3.resource(\"s3\", region_name=DEFAULT_REGION_NAME)\n",
-    "resource.create_bucket(Bucket=BUCKET_NAME)"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "Now that we have created our `s3` bucket we will already be able to communicate with the mocked storage object. A good practice here is to declare your access credentials as environment variables. For a production setting, this won't be persisted into code, but this will give you a sense of how to safely use our `s3` writer."
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 16,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [],
-   "source": [
-    "import os \n",
-    "\n",
-    "os.environ[\"AWS_ACCESS_KEY_ID\"] = \"my_key_id\"\n",
-    "os.environ[\"AWS_SECRET_ACCESS_KEY\"] = \"my_access_key\""
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 17,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [],
-   "source": [
-    "profile_results.writer(\"s3\").option(bucket_name=BUCKET_NAME).write()"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "And you've done it! Seems too good to be true. How would I know if the profiles are there? 🤔  Well, let's investigate them."
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 18,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [],
-   "source": [
-    "s3_client = boto3.client(\"s3\")\n",
-    "objects = s3_client.list_objects(Bucket=BUCKET_NAME)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 19,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
+    },
     {
-     "data": {
-      "text/plain": [
-       "'my_great_bucket'"
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "HElOZqFJ4sbW"
+      },
+      "source": [
+        "Cool! So now that we have a proper profile created, let's see how we can persist is as a file."
       ]
-     },
-     "execution_count": 19,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "objects.get(\"Name\", [])"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 20,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
+    },
     {
-     "data": {
-      "text/plain": [
-       "[{'Key': 'profile_2022-10-17 17:52:49.522728.bin',\n",
-       "  'LastModified': datetime.datetime(2022, 10, 17, 17, 52, 50, tzinfo=tzutc()),\n",
-       "  'ETag': '\"2e463c85796b25f0f27b56965fa4211d\"',\n",
-       "  'Size': 1143,\n",
-       "  'StorageClass': 'STANDARD',\n",
-       "  'Owner': {'DisplayName': 'webfile',\n",
-       "   'ID': '75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a'}}]"
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "yItBYTfC4sbX"
+      },
+      "source": [
+        "## Local writer\n",
+        "\n",
+        "The first and most straight-forward way of persisting a `whylogs` profile as a file is to write it directly to your disk. Our API makes it possible with the following commands. You could either write it from the `ProfileResultSet`"
       ]
-     },
-     "execution_count": 20,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "objects.get(\"Contents\", [])"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "And there we have it, our local `s3` bucket has our profile written! \n",
-    "If we want to put our profile into a special \"directory\" - often referred to as prefix - we can do the following instead:"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 21,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [],
-   "source": [
-    "profile_results.writer(\"s3\").option(\n",
-    "    bucket_name=BUCKET_NAME, \n",
-    "    object_name=f\"my_prefix/somewhere/profile_{profile_view.creation_timestamp}.bin\"\n",
-    "    ).write()"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 22,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
+    },
     {
-     "data": {
-      "text/plain": [
-       "[{'Key': 'my_prefix/somewhere/profile_2022-10-17 17:52:49.522728.bin',\n",
-       "  'LastModified': datetime.datetime(2022, 10, 17, 17, 52, 51, tzinfo=tzutc()),\n",
-       "  'ETag': '\"2e463c85796b25f0f27b56965fa4211d\"',\n",
-       "  'Size': 1143,\n",
-       "  'StorageClass': 'STANDARD',\n",
-       "  'Owner': {'DisplayName': 'webfile',\n",
-       "   'ID': '75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a'}},\n",
-       " {'Key': 'profile_2022-10-17 17:52:49.522728.bin',\n",
-       "  'LastModified': datetime.datetime(2022, 10, 17, 17, 52, 50, tzinfo=tzutc()),\n",
-       "  'ETag': '\"2e463c85796b25f0f27b56965fa4211d\"',\n",
-       "  'Size': 1143,\n",
-       "  'StorageClass': 'STANDARD',\n",
-       "  'Owner': {'DisplayName': 'webfile',\n",
-       "   'ID': '75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a'}}]"
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "6clbLzPD4sbX"
+      },
+      "outputs": [],
+      "source": [
+        "profile_results.writer(\"local\").write(dest=\"my_profile.bin\")"
       ]
-     },
-     "execution_count": 22,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "objects = s3_client.list_objects(Bucket=BUCKET_NAME)\n",
-    "objects.get(\"Contents\", [])"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "### Wrapping up the s3 objects\n",
-    "\n",
-    "Now let's close our connection to our mocked `s3` object."
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 23,
-   "metadata": {
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [],
-   "source": [
-    "mocks3.stop()"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "And that's it, you have just written a profile to an s3 bucket!"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "## GCS Writer\n",
-    "\n",
-    "We will do the same exercise as before to demonstrate how we can upload profiles to a GCS bucket and then verify if they landed there. For that we will use the\n",
-    "[GCP storage emulator library](https://github.com/oittaa/gcp-storage-emulator) to create a local endpoint."
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 24,
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
+    },
     {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Note: you may need to restart the kernel to use updated packages.\n"
-     ]
-    }
-   ],
-   "source": [
-    "%pip install -q gcp-storage-emulator 'whylogs[gcs]'"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 25,
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [],
-   "source": [
-    "import os\n",
-    "\n",
-    "from google.cloud import storage  # type: ignore\n",
-    "from gcp_storage_emulator.server import create_server"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 26,
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [],
-   "source": [
-    "HOST = \"localhost\"\n",
-    "PORT = 9023\n",
-    "GCS_BUCKET = \"test-bucket\"\n",
-    "\n",
-    "server = create_server(HOST, PORT, in_memory=True, default_bucket=GCS_BUCKET)\n",
-    "server.start()\n",
-    "\n",
-    "os.environ[\"STORAGE_EMULATOR_HOST\"] = f\"http://{HOST}:{PORT}\"\n",
-    "client = storage.Client()\n",
-    "bucket = client.bucket(GCS_BUCKET)\n",
-    "\n",
-    "for blob in bucket.list_blobs():\n",
-    "    content = blob.download_as_bytes()\n",
-    "    print(f\"Blob [{blob.name}]: {content}\")"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "And this is empty, because we have just created our test bucket :)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 27,
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
-    {
-     "data": {
-      "text/plain": [
-       "(True,\n",
-       " 'Uploaded /var/folders/6x/tttdyqq91mx_wk9xrykz7x940000gn/T/tmp5clwcehb to test-bucket/my_object.bin')"
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "7zmmKnMH4sbX"
+      },
+      "source": [
+        "If you want, you can also not specify a `dest`, but an optional `base_dir`, which will write your profile with its timestamp to this base directory you want. Let's see how:"
       ]
-     },
-     "execution_count": 27,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "from whylogs.api.writer.gcs import GCSWriter\n",
-    "\n",
-    "os.environ[\"GOOGLE_APPLICATION_CREDENTIALS\"] = \"path/to/credentials.json\"\n",
-    "\n",
-    "writer = GCSWriter()\n",
-    "writer.option(bucket_name=GCS_BUCKET, object_name=\"my_object.bin\").write(file=profile_view)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 28,
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%%\n"
-    }
-   },
-   "outputs": [
+    },
     {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Blob [my_object.bin]\n"
-     ]
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "Uhw7s2Sp4sbX"
+      },
+      "outputs": [],
+      "source": [
+        "import os\n",
+        "os.makedirs(\"my_directory\",exist_ok=True)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "5qWWa_Kf4sbY"
+      },
+      "outputs": [],
+      "source": [
+        "profile_results.writer(\"local\").option(base_dir=\"my_directory\").write()"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "HlSGMcB24sbY"
+      },
+      "source": [
+        "Or from the `DatasetProfileView` directly, with a `path`"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "q-TXawKo4sbY",
+        "outputId": "52a19778-a55f-44fb-88bc-931706cd0f69"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/plain": [
+              "(True, 'my_profile.bin')"
+            ]
+          },
+          "execution_count": 10,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "profile_view.write(filename=\"my_profile.bin\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "CnNfBMZD4sbZ"
+      },
+      "source": [
+        "And if it couldn't get any more convenient, you can also use the **same logic for logging** to also write your profile, like:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "aym-fH4j4sbZ",
+        "outputId": "80ad54aa-2566-4369-a95c-2050ebee5df2"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/plain": [
+              "(True, 'my_directory/my_profile.bin')"
+            ]
+          },
+          "execution_count": 11,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "why.write(profile=profile_view, base_dir=\"my_directory\", filename=\"my_profile.bin\")"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "jk83kWwf4sbZ",
+        "outputId": "dab2bb66-f6bc-4c5f-a508-44d2d15af4f7"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/plain": [
+              "['profile_2022-10-17 17:52:00.282271.bin',\n",
+              " 'profile_2022-10-17 17:52:49.522728.bin',\n",
+              " 'my_profile.bin']"
+            ]
+          },
+          "execution_count": 12,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "import os\n",
+        "os.listdir(\"./my_directory\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "GBW27-wV4sbZ"
+      },
+      "source": [
+        "And that's it! Now you can go ahead and decide where and how to store these profiles, for further inspection and guaranteeing your data and ML model pipelines are generating useful and quality data for your end users. Let's delete those files not to clutter our environment then :)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "is_executing": true,
+          "name": "#%%\n"
+        },
+        "id": "kxSeg4WI4sba"
+      },
+      "outputs": [],
+      "source": [
+        "os.remove(\"./my_profile.bin\")\n",
+        "shutil.rmtree(\"./my_directory\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "EQBvZBPL4sba"
+      },
+      "source": [
+        "## s3 Writer\n",
+        "\n",
+        "From an enterprise perspective, it can be interesting to use `s3` buckets to store your profiles instead of manually deciding what to do with them from your local machine. And that is why we have created an integration to do just that!\n",
+        "\n",
+        "To try to maintain this example simple enough, we won't use an actual cloud-based storage, but we will mock one with the `moto` library. This way, you can test this anywhere without worrying about credentials too much :) In order to keep `whylogs` as light as possible, and allow users to extend as they need, we have made `s3` an extra dependency.\n",
+        "\n",
+        "So let's get started by creating this mocked `s3` bucket with the `moto` package.\n",
+        "\n",
+        "P.S.: if you haven't installed the `whylogs[s3]` extra dependency already, uncomment and run the cell below."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "4e4GWZJ94sba",
+        "outputId": "c2a5620c-5e0c-451a-ab88-d9907d153939"
+      },
+      "outputs": [
+        {
+          "name": "stdout",
+          "output_type": "stream",
+          "text": [
+            "Note: you may need to restart the kernel to use updated packages.\n"
+          ]
+        }
+      ],
+      "source": [
+        "%pip install -q 'whylogs[s3]' moto"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "mL1aCdsV4sbb",
+        "outputId": "2a87b852-7d07-4b03-8156-d26389dbc7b3"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/plain": [
+              "s3.Bucket(name='my_great_bucket')"
+            ]
+          },
+          "execution_count": 15,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "import boto3\n",
+        "from moto import mock_s3\n",
+        "from moto.s3.responses import DEFAULT_REGION_NAME\n",
+        "\n",
+        "BUCKET_NAME = \"my_great_bucket\"\n",
+        "\n",
+        "\n",
+        "mocks3 = mock_s3()\n",
+        "mocks3.start()\n",
+        "resource = boto3.resource(\"s3\", region_name=DEFAULT_REGION_NAME)\n",
+        "resource.create_bucket(Bucket=BUCKET_NAME)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "Dz5QACw64sbb"
+      },
+      "source": [
+        "Now that we have created our `s3` bucket we will already be able to communicate with the mocked storage object. A good practice here is to declare your access credentials as environment variables. For a production setting, this won't be persisted into code, but this will give you a sense of how to safely use our `s3` writer."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "lV3t5BqF4sbb"
+      },
+      "outputs": [],
+      "source": [
+        "import os\n",
+        "\n",
+        "os.environ[\"AWS_ACCESS_KEY_ID\"] = \"my_key_id\"\n",
+        "os.environ[\"AWS_SECRET_ACCESS_KEY\"] = \"my_access_key\""
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "ANEhfvpi4sbb"
+      },
+      "outputs": [],
+      "source": [
+        "profile_results.writer(\"s3\").option(bucket_name=BUCKET_NAME).write()"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "b0q8LlQX4sbc"
+      },
+      "source": [
+        "And you've done it! Seems too good to be true. How would I know if the profiles are there? 🤔  Well, let's investigate them."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "MS5d7ST04sbc"
+      },
+      "outputs": [],
+      "source": [
+        "s3_client = boto3.client(\"s3\")\n",
+        "objects = s3_client.list_objects(Bucket=BUCKET_NAME)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "tRekC5T94sbd",
+        "outputId": "e8182d9b-1305-4844-8f80-6b098a2450a8"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/plain": [
+              "'my_great_bucket'"
+            ]
+          },
+          "execution_count": 19,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "objects.get(\"Name\", [])"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "GNcRLp604sbd",
+        "outputId": "eb6537ad-b595-4846-bff2-44de1ec2263b"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/plain": [
+              "[{'Key': 'profile_2022-10-17 17:52:49.522728.bin',\n",
+              "  'LastModified': datetime.datetime(2022, 10, 17, 17, 52, 50, tzinfo=tzutc()),\n",
+              "  'ETag': '\"2e463c85796b25f0f27b56965fa4211d\"',\n",
+              "  'Size': 1143,\n",
+              "  'StorageClass': 'STANDARD',\n",
+              "  'Owner': {'DisplayName': 'webfile',\n",
+              "   'ID': '75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a'}}]"
+            ]
+          },
+          "execution_count": 20,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "objects.get(\"Contents\", [])"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "M8fJoSwJ4sbe"
+      },
+      "source": [
+        "And there we have it, our local `s3` bucket has our profile written!\n",
+        "If we want to put our profile into a special \"directory\" - often referred to as prefix - we can do the following instead:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "BAKFSaVB4sbf"
+      },
+      "outputs": [],
+      "source": [
+        "profile_results.writer(\"s3\").option(\n",
+        "    bucket_name=BUCKET_NAME,\n",
+        "    object_name=f\"my_prefix/somewhere/profile_{profile_view.creation_timestamp}.bin\"\n",
+        "    ).write()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "5aWIqw_64sbf",
+        "outputId": "4e36df8a-f1b3-4fdb-a0ea-2d7777f278ce"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/plain": [
+              "[{'Key': 'my_prefix/somewhere/profile_2022-10-17 17:52:49.522728.bin',\n",
+              "  'LastModified': datetime.datetime(2022, 10, 17, 17, 52, 51, tzinfo=tzutc()),\n",
+              "  'ETag': '\"2e463c85796b25f0f27b56965fa4211d\"',\n",
+              "  'Size': 1143,\n",
+              "  'StorageClass': 'STANDARD',\n",
+              "  'Owner': {'DisplayName': 'webfile',\n",
+              "   'ID': '75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a'}},\n",
+              " {'Key': 'profile_2022-10-17 17:52:49.522728.bin',\n",
+              "  'LastModified': datetime.datetime(2022, 10, 17, 17, 52, 50, tzinfo=tzutc()),\n",
+              "  'ETag': '\"2e463c85796b25f0f27b56965fa4211d\"',\n",
+              "  'Size': 1143,\n",
+              "  'StorageClass': 'STANDARD',\n",
+              "  'Owner': {'DisplayName': 'webfile',\n",
+              "   'ID': '75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a'}}]"
+            ]
+          },
+          "execution_count": 22,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "objects = s3_client.list_objects(Bucket=BUCKET_NAME)\n",
+        "objects.get(\"Contents\", [])"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "boMYi7vw4sbg"
+      },
+      "source": [
+        "### Wrapping up the s3 objects\n",
+        "\n",
+        "Now let's close our connection to our mocked `s3` object."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "pKcWqcPB4sbg"
+      },
+      "outputs": [],
+      "source": [
+        "mocks3.stop()"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "collapsed": false,
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "1okFXZ-C4sbh"
+      },
+      "source": [
+        "And that's it, you have just written a profile to an s3 bucket!"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "collapsed": false,
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "STVa3zI64sbh"
+      },
+      "source": [
+        "## GCS Writer\n",
+        "\n",
+        "We will do the same exercise as before to demonstrate how we can upload profiles to a GCS bucket and then verify if they landed there. For that we will use the\n",
+        "[GCP storage emulator library](https://github.com/oittaa/gcp-storage-emulator) to create a local endpoint."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "hDfHDaUc4sbi",
+        "outputId": "30072f06-1184-4dfe-807a-572cd6aed534"
+      },
+      "outputs": [
+        {
+          "name": "stdout",
+          "output_type": "stream",
+          "text": [
+            "Note: you may need to restart the kernel to use updated packages.\n"
+          ]
+        }
+      ],
+      "source": [
+        "%pip install -q gcp-storage-emulator 'whylogs[gcs]'"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "wS76ymSc4sbi"
+      },
+      "outputs": [],
+      "source": [
+        "import os\n",
+        "\n",
+        "from google.cloud import storage  # type: ignore\n",
+        "from gcp_storage_emulator.server import create_server"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "Dm3BpoIL4sbj"
+      },
+      "outputs": [],
+      "source": [
+        "HOST = \"localhost\"\n",
+        "PORT = 9023\n",
+        "GCS_BUCKET = \"test-bucket\"\n",
+        "\n",
+        "server = create_server(HOST, PORT, in_memory=True, default_bucket=GCS_BUCKET)\n",
+        "server.start()\n",
+        "\n",
+        "os.environ[\"STORAGE_EMULATOR_HOST\"] = f\"http://{HOST}:{PORT}\"\n",
+        "client = storage.Client()\n",
+        "bucket = client.bucket(GCS_BUCKET)\n",
+        "\n",
+        "for blob in bucket.list_blobs():\n",
+        "    content = blob.download_as_bytes()\n",
+        "    print(f\"Blob [{blob.name}]: {content}\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "collapsed": false,
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "Ml_uH8qA4sbj"
+      },
+      "source": [
+        "And this is empty, because we have just created our test bucket :)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "7t0OVLX-4sbj",
+        "outputId": "6ffbee0c-46c1-4e1e-8a0b-00fcb1e5875c"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/plain": [
+              "(True,\n",
+              " 'Uploaded /var/folders/6x/tttdyqq91mx_wk9xrykz7x940000gn/T/tmp5clwcehb to test-bucket/my_object.bin')"
+            ]
+          },
+          "execution_count": 27,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "from whylogs.api.writer.gcs import GCSWriter\n",
+        "\n",
+        "os.environ[\"GOOGLE_APPLICATION_CREDENTIALS\"] = \"path/to/credentials.json\"\n",
+        "\n",
+        "writer = GCSWriter()\n",
+        "writer.option(bucket_name=GCS_BUCKET, object_name=\"my_object.bin\").write(file=profile_view)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "Y4Ql49iN4sbj",
+        "outputId": "b2da43ae-2421-4e2d-d3be-c5dc113a90ac"
+      },
+      "outputs": [
+        {
+          "name": "stdout",
+          "output_type": "stream",
+          "text": [
+            "Blob [my_object.bin]\n"
+          ]
+        }
+      ],
+      "source": [
+        "for blob in bucket.list_blobs():\n",
+        "    content = blob.download_as_bytes()\n",
+        "    print(f\"Blob [{blob.name}]\")"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "pycharm": {
+          "name": "#%%\n"
+        },
+        "id": "K19Axj284sbk"
+      },
+      "outputs": [],
+      "source": [
+        "server.stop()"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "collapsed": false,
+        "pycharm": {
+          "name": "#%% md\n"
+        },
+        "id": "_qylOeJw4sbk"
+      },
+      "source": [
+        "If you want to check other integrations that we've made, please make sure to check out our [other examples](https://github.com/whylabs/whylogs/tree/mainline/python/examples) page.\n",
+        "\n",
+        "Hopefully this tutorial will help you get started to save your profiles and make sure to keep your Data and ML Pipelines always Robust and Responsible :)"
+      ]
     }
-   ],
-   "source": [
-    "for blob in bucket.list_blobs():\n",
-    "    content = blob.download_as_bytes()\n",
-    "    print(f\"Blob [{blob.name}]\")"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 29,
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%%\n"
+  ],
+  "metadata": {
+    "kernelspec": {
+      "display_name": "Python 3.9.5 ('base')",
+      "language": "python",
+      "name": "python3"
+    },
+    "language_info": {
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "file_extension": ".py",
+      "mimetype": "text/x-python",
+      "name": "python",
+      "nbconvert_exporter": "python",
+      "pygments_lexer": "ipython3",
+      "version": "3.9.5"
+    },
+    "orig_nbformat": 4,
+    "vscode": {
+      "interpreter": {
+        "hash": "8148c804a5838694570acf40aa3269caeebb6c584d51452dd558e946dfc16d39"
+      }
+    },
+    "colab": {
+      "provenance": []
     }
-   },
-   "outputs": [],
-   "source": [
-    "server.stop()"
-   ]
   },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "collapsed": false,
-    "pycharm": {
-     "name": "#%% md\n"
-    }
-   },
-   "source": [
-    "If you want to check other integrations that we've made, please make sure to check out our [other examples](https://github.com/whylabs/whylogs/tree/mainline/python/examples) page.\n",
-    "\n",
-    "Hopefully this tutorial will help you get started to save your profiles and make sure to keep your Data and ML Pipelines always Robust and Responsible :)"
-   ]
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python 3.9.5 ('base')",
-   "language": "python",
-   "name": "python3"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.9.5"
-  },
-  "orig_nbformat": 4,
-  "vscode": {
-   "interpreter": {
-    "hash": "8148c804a5838694570acf40aa3269caeebb6c584d51452dd558e946dfc16d39"
-   }
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 2
+  "nbformat": 4,
+  "nbformat_minor": 0
 }

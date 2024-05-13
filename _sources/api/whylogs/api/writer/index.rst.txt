@@ -15,6 +15,12 @@ Submodules
    mlflow/index.rst
    s3/index.rst
    whylabs/index.rst
+   whylabs_base/index.rst
+   whylabs_batch_writer/index.rst
+   whylabs_client/index.rst
+   whylabs_estimation_result_writer/index.rst
+   whylabs_reference_writer/index.rst
+   whylabs_transaction_writer/index.rst
    writer/index.rst
 
 
@@ -26,9 +32,34 @@ Classes
 
 .. autoapisummary::
 
+   whylogs.api.writer.Writable
    whylogs.api.writer.Writer
    whylogs.api.writer.Writers
+   whylogs.api.writer.WriterWrapper
 
+
+
+
+.. py:class:: Writable
+
+   Bases: :py:obj:`abc.ABC`
+
+   A Writable is an object that contains data to write to a file or files.
+   These might be temporary files intended to be passed on to another
+   consumer (e.g., WhyLabs servers) via a Writer.
+
+   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
+      :abstractmethod:
+
+      Writes the Writable's data to file(s) under `path` (excluding filename(s)) if specified,
+      else under `_get_default_path()`. `filename` specifies the file to write there. Writables
+      can generate a default filename if None is specified. Returns a bool that's True iff all
+      files were written successfully and a list of the filenames (including path) written.
+
+
+   .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
+
+      Utility method to create a Writer of the specified type
 
 
 
@@ -47,19 +78,41 @@ Classes
       an unacceptable interval.
 
 
-   .. py:method:: write(file: Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
+   .. py:method:: write(file: Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]
       :abstractmethod:
 
+      Calls Writable::write() to serialize the Wriable `file` to temporary file(s),
+      then "sends" the temporary file(s) to `dest` according to the type of Writer.
+      If `dest` is None, it uses the Writer's default destination.
 
-   .. py:method:: option(**kwargs: Any) -> T
+      kwargs:
+          zip: bool       Create a ZipFile containing the Writable's file(s) if the Writer supports it
+          zip_name: str   Name of the ZipFile, will be auto-generated if None
+
+
+   .. py:method:: option(**kwargs: Any) -> Writer
       :abstractmethod:
 
 
 
 .. py:class:: Writers
 
-   .. py:method:: get(name: str, **kwargs: Any) -> writer.Writer
+   .. py:method:: get(name: str, writable: Optional[Writable] = None, **kwargs) -> Union[Writer, WriterWrapper]
       :staticmethod:
+
+
+
+.. py:class:: WriterWrapper(writable: Writable, writer: Writer)
+
+   Elide the Writable argument
+
+   .. py:method:: check_interval(interval_seconds: int) -> None
+
+
+   .. py:method:: write(dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]
+
+
+   .. py:method:: option(**kwargs: Any) -> WriterWrapper
 
 
 

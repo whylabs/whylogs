@@ -13,66 +13,35 @@ Classes
 .. autoapisummary::
 
    whylogs.core.feature_weights.FeatureWeights
-   whylogs.core.feature_weights.FeatureWeightWriter
 
 
 
 
-.. py:class:: FeatureWeights(weights: Dict[str, float], segment: whylogs.api.writer.writer.Optional[whylogs.core.Segment] = None, metadata: whylogs.api.writer.writer.Optional[Dict] = None)
+.. py:class:: FeatureWeights(weights: Dict[str, float], segment: Optional[whylogs.core.Segment] = None, metadata: Optional[Dict] = None)
 
    Bases: :py:obj:`whylogs.api.writer.writer.Writable`
 
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
+   A Writable is an object that contains data to write to a file or files.
+   These might be temporary files intended to be passed on to another
+   consumer (e.g., WhyLabs servers) via a Writer.
 
-   .. py:method:: writer(name: str = 'local') -> FeatureWeightWriter
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
 
-
-   .. py:method:: get_default_path() -> str
-
-
-   .. py:method:: write(path: whylogs.api.writer.writer.Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
+      Writes the Writable's data to file(s) under `path` (excluding filename(s)) if specified,
+      else under `_get_default_path()`. `filename` specifies the file to write there. Writables
+      can generate a default filename if None is specified. Returns a bool that's True iff all
+      files were written successfully and a list of the filenames (including path) written.
 
 
    .. py:method:: to_json() -> str
 
 
-   .. py:method:: to_dict() -> Dict[str, Union[whylogs.api.writer.writer.Optional[whylogs.core.Segment], whylogs.api.writer.writer.Optional[float]]]
+   .. py:method:: to_dict() -> Dict[str, Union[Optional[whylogs.core.Segment], Optional[float]]]
 
 
+   .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
 
-.. py:class:: FeatureWeightWriter(feature_weight, writer: whylogs.api.writer.writer.Writer)
-
-   Bases: :py:obj:`whylogs.api.writer.writer.Writer`
-
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
-
-   .. py:method:: option(**kwargs) -> FeatureWeightWriter
-
-
-   .. py:method:: write(**kwargs: Any) -> Tuple[bool, str]
-
-      Put feature weights for the specified dataset.
-
-      :returns: Tuple with a boolean (1-success, 0-fail) and string with the PUT request's status code.
-      :rtype: Tuple[bool, str]
-
-
-   .. py:method:: get_feature_weights(**kwargs: Any) -> whylogs.api.writer.writer.Optional[FeatureWeights]
-
-      Get latest version for the feature weights for the specified dataset
-
-      :returns: Response of the GET request, with segmentWeights and metadata.
-      :rtype: FeatureWeightResponse
-
-
-   .. py:method:: check_interval(interval_seconds: int) -> None
-
-      Validate an interval configuration for a given writer.
-
-      Some writers only accepts certain interval configuration. Raise BadConfigError for
-      an unacceptable interval.
+      Utility method to create a Writer of the specified type
 
 
 
