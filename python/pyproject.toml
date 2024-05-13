@@ -65,7 +65,10 @@ faster-fifo = {version = "^1.4.5", optional = true}
 orjson = {version = "^3.8.10", optional = true}
 
 # Image support related dependencies
-Pillow = {version = "^9.2.0", optional = true}
+Pillow = [
+  { version = ">=10.1.0, <11", python = ">=3.8", optional = true },
+  { version = ">=9.2.0", python = "<3.8", optional = true }
+]
 
 # Embeddings support related dependencies
 scikit-learn = [
@@ -177,7 +180,7 @@ types-python-dateutil = "^2.8.12"
 moto = "^4.1.6"
 twine = "^4.0.1"
 gcp-storage-emulator = "^2022.6.11"
-types-urllib3 = "^1.26.25.5"
+types-urllib3 = ">=1.26.25.5"
 pyright = "^1.1.338"
 
 [build-system]
