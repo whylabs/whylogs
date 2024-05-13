@@ -505,7 +505,9 @@ class WhyLabsClient:
                     )
                     self._set_column_schema(column_name, column_schema=column_schema)
 
-    def _tag_custom_perf_metrics(self, view: Union[DatasetProfile, DatasetProfileView, SegmentedDatasetProfileView, ResultSet]) -> None:
+    def _tag_custom_perf_metrics(
+        self, view: Union[DatasetProfile, DatasetProfileView, SegmentedDatasetProfileView, ResultSet]
+    ) -> None:
         column_names = _get_column_names(view)
         for column_name in column_names:
             for perf_col in KNOWN_CUSTOM_PERFORMANCE_METRICS:
