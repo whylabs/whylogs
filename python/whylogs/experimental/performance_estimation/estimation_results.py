@@ -2,7 +2,7 @@ from datetime import datetime
 from logging import getLogger
 from typing import Any, List, Optional, Tuple, Union
 
-from whylogs.api.writer import Writable
+from whylogs.api.writer import Writable, WriterWrapper
 
 logger = getLogger(__name__)
 
@@ -35,3 +35,6 @@ class EstimationResult(Writable):
 
     def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]:
         raise ValueError("I'm not a real Writable")
+
+
+EstimationResultWriter = WriterWrapper  # only works with WhylabsWriter

@@ -6,7 +6,7 @@ from typing import Any, List, Optional, Tuple, Union
 from IPython.core.display import HTML  # type: ignore
 
 from whylogs import DatasetProfileView
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import Writable, WriterWrapper
 from whylogs.viz.enums.enums import PageSpec
 
 
@@ -68,3 +68,6 @@ class HTMLReport(Writable, ABC):
 
     def _get_default_filename(self) -> str:
         return "html_reports/ProfileReport.html"
+
+
+HTMLReportWriter = WriterWrapper

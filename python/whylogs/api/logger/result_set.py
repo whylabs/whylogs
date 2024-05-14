@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from whylabs_client.model.segment_tag import SegmentTag
 
 from whylogs.api.reader import Reader, Readers
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import Writable, WriterWrapper
 from whylogs.core import DatasetProfile, DatasetProfileView, Segment
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.model_performance_metrics import ModelPerformanceMetrics
@@ -575,3 +575,6 @@ class SegmentedResultSet(ResultSet):
             return SegmentedResultSet(merged_segments, merged_partitions, metrics=merged_metrics, properties=properties)
         else:
             raise ValueError(f"Cannot merge incompatible SegmentedResultSet and {type(other)}")
+
+
+ResultSetWriter = WriterWrapper

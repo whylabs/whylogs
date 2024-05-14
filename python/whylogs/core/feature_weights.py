@@ -1,7 +1,7 @@
 import json
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import Writable, WriterWrapper
 from whylogs.core import Segment
 
 
@@ -36,3 +36,6 @@ class FeatureWeights(Writable):
 
     def to_dict(self) -> Dict[str, Union[Optional[Segment], Optional[float]]]:
         return {"segment": self.segment, "weights": self.weights}
+
+
+FeatureWeightWriter = WriterWrapper
