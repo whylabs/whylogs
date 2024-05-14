@@ -208,7 +208,7 @@ def test_performance_column():
     assert (
         response["metrics"]["perf_column"]["column"] == "col1"
         and response["metrics"]["perf_column"]["default_metric"] == "mean"
-        and response["metrics"]["perf_column"]["label"] == "perf column"
+        and response["metrics"]["perf_column"]["label"] == "perf_column"
     )
 
     # change it so we won't accidentally pass from previous state
