@@ -1,10 +1,17 @@
+import os
 from datetime import datetime, timedelta, timezone
 from logging import getLogger
 
 import pandas as pd
 
 import whylogs as why
-from whylogs.api.logger.result_set import SegmentedResultSet, ViewResultSet
+from whylogs.api.logger.result_set import (
+    ResultSet,
+    ResultSetWriter,
+    SegmentedResultSet,
+    ViewResultSet,
+)
+from whylogs.api.writer.local import LocalWriter
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.segmentation_partition import segment_on_column
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
@@ -36,3 +43,13 @@ def test_view_result_set_timestamp():
     timestamp = datetime.now(tz=timezone.utc) - timedelta(days=1)
     results.set_dataset_timestamp(timestamp)
     assert results.view().dataset_timestamp == timestamp
+
+
+def test_result_set_writer(tmp_path: str):
+    df = pd.DataFrame(data={"col1": [1, 2]})
+    results: ResultSet = why.log(df)
+    local_writer = LocalWriter(base_dir=tmp_path, base_name="result_set.bin")
+    writer = ResultSetWriter(results, local_writer)
+    writer.write()
+    expected_path = os.path.join(tmp_path, "result_set.bin")
+    assert os.path.isfile(expected_path)
