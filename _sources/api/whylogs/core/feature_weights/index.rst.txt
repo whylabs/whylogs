@@ -17,6 +17,14 @@ Classes
 
 
 
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.feature_weights.FeatureWeightWriter
+
+
 .. py:class:: FeatureWeights(weights: Dict[str, float], segment: Optional[whylogs.core.Segment] = None, metadata: Optional[Dict] = None)
 
    Bases: :py:obj:`whylogs.api.writer.writer.Writable`
@@ -44,4 +52,8 @@ Classes
       Utility method to create a Writer of the specified type
 
 
+
+.. py:data:: FeatureWeightWriter
+
+   
 

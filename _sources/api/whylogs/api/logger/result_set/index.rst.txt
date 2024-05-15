@@ -27,6 +27,7 @@ Attributes
 .. autoapisummary::
 
    whylogs.api.logger.result_set.logger
+   whylogs.api.logger.result_set.ResultSetWriter
 
 
 .. py:data:: logger
@@ -370,4 +371,8 @@ Attributes
       Utility method to create a Writer of the specified type
 
 
+
+.. py:data:: ResultSetWriter
+
+   
 

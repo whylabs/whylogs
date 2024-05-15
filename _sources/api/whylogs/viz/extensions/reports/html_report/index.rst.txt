@@ -17,6 +17,14 @@ Classes
 
 
 
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.viz.extensions.reports.html_report.HTMLReportWriter
+
+
 .. py:class:: HTMLReport(ref_view: Optional[whylogs.DatasetProfileView] = None, target_view: Optional[whylogs.DatasetProfileView] = None, height: Optional[str] = None)
 
    Bases: :py:obj:`whylogs.api.writer.writer.Writable`, :py:obj:`abc.ABC`
@@ -59,4 +67,8 @@ Classes
       Utility method to create a Writer of the specified type
 
 
+
+.. py:data:: HTMLReportWriter
+
+   
 

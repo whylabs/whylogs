@@ -23,6 +23,7 @@ Attributes
 .. autoapisummary::
 
    whylogs.experimental.performance_estimation.estimation_results.logger
+   whylogs.experimental.performance_estimation.estimation_results.EstimationResultWriter
 
 
 .. py:data:: logger
@@ -51,4 +52,8 @@ Attributes
       Utility method to create a Writer of the specified type
 
 
+
+.. py:data:: EstimationResultWriter
+
+   
 

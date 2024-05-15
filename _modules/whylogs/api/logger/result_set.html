@@ -451,7 +451,7 @@
 <span class="kn">from</span> <span class="nn">whylabs_client.model.segment_tag</span> <span class="kn">import</span> <span class="n">SegmentTag</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.reader</span> <span class="kn">import</span> <span class="n">Reader</span><span class="p">,</span> <span class="n">Readers</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.writer.writer</span> <span class="kn">import</span> <span class="n">Writable</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.writer.writer</span> <span class="kn">import</span> <span class="n">Writable</span><span class="p">,</span> <span class="n">WriterWrapper</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">Segment</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.model_performance_metrics</span> <span class="kn">import</span> <span class="n">ModelPerformanceMetrics</span>
@@ -1020,6 +1020,9 @@
             <span class="k">return</span> <span class="n">SegmentedResultSet</span><span class="p">(</span><span class="n">merged_segments</span><span class="p">,</span> <span class="n">merged_partitions</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">merged_metrics</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot merge incompatible SegmentedResultSet and </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+
+
+<span class="n">ResultSetWriter</span> <span class="o">=</span> <span class="n">WriterWrapper</span>
 </pre></div>
         </article>
       </div>
