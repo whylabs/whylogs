@@ -68,11 +68,22 @@ class DatasetProfileContainer:
         if not isinstance(self._target, SegmentCache):
             raise Exception("Segment cache missing in logger while using segments")
 
-        if isinstance(data, List):
-            for row in data:
+        if self._schema:
+            if isinstance(data, List):
+                input_data = [self._schema._run_udfs(pandas=None, row=it)[1] for it in data]  # pyright: ignore[reportPrivateUsage, reportUnknownMemberType]
+            else:
+                df = data if isinstance(data, pd.DataFrame) else None
+                row = data if isinstance(data, dict) else None
+                df, row = self._schema._run_udfs(df, row)  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType, reportPrivateUsage]
+                input_data: TrackData = cast(TrackData, df if df is not None else row)
+        else:
+            input_data = data
+
+        if isinstance(input_data, List):
+            for row in input_data:
                 segment_processing(self._schema, row=row, segment_cache=self._target)
         else:
-            segment_processing(self._schema, data, segment_cache=self._target)
+            segment_processing(self._schema, input_data, segment_cache=self._target)
 
     def _track_profile(self, data: TrackData) -> None:
         if not isinstance(self._target, DatasetProfile):
@@ -261,9 +272,7 @@ class ThreadRollingLogger(ThreadActor[LoggerMessage], DataLogger[LoggerStatus]):
 
             self._timer = FunctionTimer(write_schedule, self.flush)
         else:
-            self._logger.warning(
-                "No write schedule defined for logger. Profiles will only be written after calls to flush()."
-            )
+            self._logger.warning("No write schedule defined for logger. Profiles will only be written after calls to flush().")
 
         self._logger.debug(f"Created thread logger, pid {os.getpid()}")
 
@@ -451,7 +460,13 @@ class ThreadRollingLogger(ThreadActor[LoggerMessage], DataLogger[LoggerStatus]):
         self._validate_data(data)
 
         result: Optional["Future[None]"] = Future() if sync else None
-        self.send(TrackMessage(data=data, timestamp_ms=timestamp_ms or self.current_time_ms(), result=result))
+        self.send(
+            TrackMessage(
+                data=data,
+                timestamp_ms=timestamp_ms or self.current_time_ms(),
+                result=result,
+            )
+        )
         if result is not None:
             self._logger.debug("Waiting for track to complete")
             wait_result(result)

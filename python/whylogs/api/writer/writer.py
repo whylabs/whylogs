@@ -28,7 +28,6 @@ class Writable(ABC):
     @abstractmethod
     def _get_default_filename(self) -> str:
         """Returns filename to write if None passed to Writable::write()"""
-        pass
 
     def _get_default_path(self) -> Optional[str]:
         """
