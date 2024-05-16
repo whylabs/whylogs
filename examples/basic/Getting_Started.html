@@ -741,7 +741,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
-<span class="o">%</span><span class="k">pip</span> install whylogs==1.3.29.dev0
+<span class="o">%</span><span class="k">pip</span> install whylogs
 </pre></div>
 </div>
 </div>
@@ -755,7 +755,7 @@ div.rendered_html tbody tr:hover {
 <h2>Loading a Pandas DataFrame<a class="headerlink" href="#Loading-a-Pandas-DataFrame" title="Permalink to this headline">#</a></h2>
 <p>Before showing how we can log data, we first need the data itself. Let’s create a simple Pandas DataFrame:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -789,7 +789,7 @@ div.rendered_html tbody tr:hover {
 <h2>Analyzing Profiles<a class="headerlink" href="#Analyzing-Profiles" title="Permalink to this headline">#</a></h2>
 <p>Once you’re done logging the data, you can generate a <code class="docutils literal notranslate"><span class="pre">Profile</span> <span class="pre">View</span></code> and inspect it in a Pandas Dataframe format:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prof_view</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
@@ -800,7 +800,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -822,25 +822,25 @@ div.rendered_html tbody tr:hover {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>counts/n</th>
-      <th>counts/null</th>
-      <th>types/integral</th>
-      <th>types/fractional</th>
-      <th>types/boolean</th>
-      <th>types/string</th>
-      <th>types/object</th>
       <th>cardinality/est</th>
-      <th>cardinality/upper_1</th>
       <th>cardinality/lower_1</th>
-      <th>...</th>
-      <th>distribution/n</th>
+      <th>cardinality/upper_1</th>
+      <th>counts/inf</th>
+      <th>counts/n</th>
+      <th>counts/nan</th>
+      <th>counts/null</th>
       <th>distribution/max</th>
-      <th>distribution/min</th>
-      <th>distribution/q_10</th>
-      <th>distribution/q_25</th>
+      <th>distribution/mean</th>
       <th>distribution/median</th>
-      <th>distribution/q_75</th>
-      <th>distribution/q_90</th>
+      <th>...</th>
+      <th>frequent_items/frequent_strings</th>
+      <th>type</th>
+      <th>types/boolean</th>
+      <th>types/fractional</th>
+      <th>types/integral</th>
+      <th>types/object</th>
+      <th>types/string</th>
+      <th>types/tensor</th>
       <th>ints/max</th>
       <th>ints/min</th>
     </tr>
@@ -872,79 +872,79 @@ div.rendered_html tbody tr:hover {
   <tbody>
     <tr>
       <th>animal</th>
-      <td>8</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.00015</td>
+      <td>0</td>
+      <td>4</td>
       <td>0</td>
       <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>8</td>
-      <td>0</td>
-      <td>6.0</td>
-      <td>6.00030</td>
-      <td>6.0</td>
+      <td>NaN</td>
+      <td>0.000</td>
+      <td>NaN</td>
       <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>weight</th>
-      <td>8</td>
-      <td>0</td>
-      <td>0</td>
-      <td>8</td>
+      <td>[FrequentItem(value='cat', est=2, upper=2, low...</td>
+      <td>SummaryType.COLUMN</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
-      <td>7.0</td>
-      <td>7.00035</td>
-      <td>7.0</td>
-      <td>...</td>
-      <td>8.0</td>
-      <td>30.1</td>
-      <td>1.3</td>
-      <td>1.3</td>
-      <td>4.1</td>
-      <td>4.3</td>
-      <td>14.3</td>
-      <td>30.1</td>
+      <td>0</td>
+      <td>4</td>
+      <td>0</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>legs</th>
-      <td>8</td>
-      <td>0</td>
-      <td>8</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
+      <td>3.0</td>
       <td>3.0</td>
       <td>3.00015</td>
-      <td>3.0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4.0</td>
+      <td>2.500</td>
+      <td>4.0</td>
       <td>...</td>
-      <td>8.0</td>
-      <td>4.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>2.0</td>
-      <td>4.0</td>
-      <td>4.0</td>
-      <td>4.0</td>
+      <td>[FrequentItem(value='4', est=2, upper=2, lower...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
       <td>4.0</td>
       <td>0.0</td>
     </tr>
+    <tr>
+      <th>weight</th>
+      <td>4.0</td>
+      <td>4.0</td>
+      <td>4.00020</td>
+      <td>0</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4.3</td>
+      <td>2.875</td>
+      <td>4.1</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
   </tbody>
 </table>
-<p>3 rows × 24 columns</p>
+<p>3 rows × 31 columns</p>
 </div></div>
 </div>
 <p>This will provide you with valuable statistics on a column (feature) basis, such as:</p>
