@@ -3,6 +3,7 @@ import os
 import time
 from uuid import uuid4
 
+import httpretty
 import numpy as np
 import pandas as pd
 import pytest
@@ -13,6 +14,7 @@ from whylabs_client.model.profile_traces_response import ProfileTracesResponse
 from whylabs_client.model.reference_profile_item_response import (
     ReferenceProfileItemResponse,
 )
+from whylabs_client.rest import ApiException
 
 import whylogs as why
 from whylogs.api.writer.whylabs import WhyLabsTransaction, WhyLabsWriter
@@ -37,6 +39,40 @@ os.environ["WHYLOGS_NO_ANALYTICS"] = "True"
 SLEEP_TIME = 30
 
 logger = logging.getLogger(__name__)
+
+
+# It _appears_ that HTTPretty tests have to execute before Non-HTTPretty
+# tests or else the fakes don't work.
+
+
+@pytest.mark.load  # slow test due to many retries & backoff, shouldn't hit servers
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_whylabs_writer_throttle_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = "XXX"
+    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/log/async/{MODEL_ID}"
+    httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
+    why.init(force_local=True)
+    data = {"col1": 1, "col2": "foo"}
+    result = why.log(data)
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    with pytest.raises(ApiException) as exec_info:
+        writer.write(result.profile())
+    assert exec_info.value.status == 429
+
+
+"""
+    # Not using pytest.raises()
+    try:
+        writer.write(result.profile())
+    except ApiException as e:
+        assert e.status == 429
+    except Exception as e:
+        assert False
+    else:
+        assert False
+"""
 
 
 @pytest.mark.load
