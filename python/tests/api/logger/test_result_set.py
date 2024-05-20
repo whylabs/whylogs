@@ -38,7 +38,7 @@ def test_result_set_metadata_on_writables():
         assert profile.metadata[custom_metadata_key] == custom_metadata_value
 
 
-def test_view_result_set_timestamp():
+def test_segmented_result_set_timestamp():
     segment_column = "col1"
     df = pd.DataFrame(data={segment_column: [1, 2]})
     results: SegmentedResultSet = why.log(df, schema=DatasetSchema(segments=segment_on_column(segment_column)))
