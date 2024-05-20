@@ -39,6 +39,29 @@ def test_result_set_metadata_on_writables():
 
 
 def test_view_result_set_timestamp():
+    segment_column = "col1"
+    df = pd.DataFrame(data={segment_column: [1, 2]})
+    results: SegmentedResultSet = why.log(df, schema=DatasetSchema(segments=segment_on_column(segment_column)))
+    timestamp = datetime.now(tz=timezone.utc) - timedelta(days=1)
+    results.set_dataset_timestamp(timestamp)
+    segments = results.segments()
+    for segment in segments:
+        assert results.view(segment).dataset_timestamp == timestamp
+
+    # convert segment DatasetProfile to DatasetProfileView to test that case
+    first_partition = results.partitions[0]
+    segments = results.segments_in_partition(first_partition)
+    for segment_key in segments:
+        profile = segments[segment_key]
+        segments[segment_key] = profile.view()
+
+    results.set_dataset_timestamp(timestamp)
+    segments = results.segments()
+    for segment in segments:
+        assert results.view(segment).dataset_timestamp == timestamp
+
+
+def test_segmented_result_set_timestamp():
     results = ViewResultSet(DatasetProfileView(columns=dict(), dataset_timestamp=None, creation_timestamp=None))
     timestamp = datetime.now(tz=timezone.utc) - timedelta(days=1)
     results.set_dataset_timestamp(timestamp)
