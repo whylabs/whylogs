@@ -61,7 +61,7 @@ def test_segmented_result_set_timestamp():
         assert results.view(segment).dataset_timestamp == timestamp
 
 
-def test_segmented_result_set_timestamp():
+def test_view_result_set_timestamp():
     results = ViewResultSet(DatasetProfileView(columns=dict(), dataset_timestamp=None, creation_timestamp=None))
     timestamp = datetime.now(tz=timezone.utc) - timedelta(days=1)
     results.set_dataset_timestamp(timestamp)
