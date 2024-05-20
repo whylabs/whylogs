@@ -55,6 +55,7 @@ def test_segmented_result_set_timestamp():
         profile = segments[segment_key]
         segments[segment_key] = profile.view()
 
+timestamp = datetime.now(tz=timezone.utc) - timedelta(days=2)
     results.set_dataset_timestamp(timestamp)
     segments = results.segments()
     for segment in segments:
