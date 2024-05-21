@@ -510,6 +510,9 @@ Attributes
       :type: Any
 
 
+   .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
+
+
    .. py:method:: add_model_performance_metrics(metric: Any) -> None
 
 

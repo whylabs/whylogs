@@ -522,6 +522,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="o">=</span> <span class="n">date</span>
         <span class="k">return</span> <span class="bp">self</span>
 
+<div class="viewcode-block" id="DatasetProfileView.set_dataset_timestamp"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.set_dataset_timestamp">[docs]</a>    <span class="k">def</span> <span class="nf">set_dataset_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ensure_timezone</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="o">=</span> <span class="n">dataset_timestamp</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">creation_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_creation_timestamp</span>

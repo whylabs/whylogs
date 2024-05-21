@@ -454,7 +454,7 @@
     <span class="n">ModelPerformanceMetrics</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">ColumnProperties</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.utils.utils</span> <span class="kn">import</span> <span class="n">deprecated_alias</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.utils.utils</span> <span class="kn">import</span> <span class="n">deprecated_alias</span><span class="p">,</span> <span class="n">ensure_timezone</span>
 
 <span class="kn">from</span> <span class="nn">.column_profile</span> <span class="kn">import</span> <span class="n">ColumnProfile</span>
 <span class="kn">from</span> <span class="nn">.input_resolver</span> <span class="kn">import</span> <span class="n">_pandas_or_dict</span>
@@ -529,9 +529,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span>
 
 <div class="viewcode-block" id="DatasetProfile.set_dataset_timestamp"><a class="viewcode-back" href="../../../api/whylogs/core/index.html#whylogs.api.logger.DatasetProfile.set_dataset_timestamp">[docs]</a>    <span class="k">def</span> <span class="nf">set_dataset_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">dataset_timestamp</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No timezone set in the datetime_timestamp object. Default to local timezone&quot;</span><span class="p">)</span>
-
+        <span class="n">ensure_timezone</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="o">=</span> <span class="n">dataset_timestamp</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DatasetProfile.add_metric"><a class="viewcode-back" href="../../../api/whylogs/core/index.html#whylogs.api.logger.DatasetProfile.add_metric">[docs]</a>    <span class="k">def</span> <span class="nf">add_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">Metric</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
