@@ -78,9 +78,7 @@ class DatasetProfileView(Writable):
         return self
 
     def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
-        if dataset_timestamp.tzinfo is None:
-            logger.warning("No timezone set in the datetime_timestamp object. Default to local timezone")
-
+        ensure_timezone(dataset_timestamp)
         self._dataset_timestamp = dataset_timestamp.astimezone(tz=timezone.utc)
 
     @property
