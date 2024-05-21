@@ -9,7 +9,7 @@ from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
 )
 from whylogs.core.preprocessing import ColumnProperties
-from whylogs.core.utils.utils import deprecated_alias
+from whylogs.core.utils.utils import deprecated_alias, ensure_timezone
 
 from .column_profile import ColumnProfile
 from .input_resolver import _pandas_or_dict
@@ -84,9 +84,7 @@ class DatasetProfile(Writable):
         return self._metadata
 
     def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
-        if dataset_timestamp.tzinfo is None:
-            logger.warning("No timezone set in the datetime_timestamp object. Default to local timezone")
-
+        ensure_timezone(dataset_timestamp)
         self._dataset_timestamp = dataset_timestamp.astimezone(tz=timezone.utc)
 
     def add_metric(self, col_name: str, metric: Metric) -> None:

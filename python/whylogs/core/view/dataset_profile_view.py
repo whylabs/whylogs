@@ -77,6 +77,10 @@ class DatasetProfileView(Writable):
         self._dataset_timestamp = date
         return self
 
+    def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
+        ensure_timezone(dataset_timestamp)
+        self._dataset_timestamp = dataset_timestamp.astimezone(tz=timezone.utc)
+
     @property
     def creation_timestamp(self) -> Optional[datetime]:
         return self._creation_timestamp
