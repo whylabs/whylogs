@@ -3,8 +3,10 @@ import logging
 import multiprocessing as mp
 import os
 import time
+from pprint import pformat
 from typing import Any, Dict, Generator, List, Optional, Tuple, Type, Union, cast
 
+import pandas as pd
 import pytest
 from dateutil import tz
 
@@ -22,10 +24,14 @@ from whylogs.api.logger.experimental.logger.actor.thread_rolling_logger import (
     ThreadRollingLogger,
 )
 from whylogs.api.logger.experimental.logger.actor.time_util import TimeGranularity
+from whylogs.api.logger.segment_processing import SegmentationPartition
 from whylogs.api.whylabs.session.session_manager import SessionManager, init
 from whylogs.api.writer.writer import Writable, Writer
 from whylogs.core.dataset_profile import DatasetProfile
+from whylogs.core.resolvers import STANDARD_RESOLVER
+from whylogs.core.segmentation_partition import ColumnMapperFunction
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.experimental.core.udf_schema import UdfSchema, UdfSpec
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -177,6 +183,176 @@ def test_actor_happy_path(actor: Tuple[DataLogger, FakeWriter]) -> None:
     assert_profile(profile, ["a", "b", "c"])
 
 
+def test_segment_computed_column() -> None:
+    # This test ensures that the thread rolling logger actually runs UDFs when working with segments.
+    # This has to be done manually in the logger layer.
+    ORIGINAL_COLUMN = "original_column"
+    GENERATED_SEGMENT_COLUMN = "generated_column"
+    segment_def = SegmentationPartition(
+        name=GENERATED_SEGMENT_COLUMN,
+        mapper=ColumnMapperFunction(col_names=[GENERATED_SEGMENT_COLUMN]),
+    )
+
+    def _convert_score_to_int(score: float) -> int:
+        """
+        round the score to 0 or 1
+        """
+        return int(round(score))
+
+    def converter_udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
+        # print(f">>> Refusal boolean UDF {text}")
+        if isinstance(text, pd.DataFrame):
+            return text[ORIGINAL_COLUMN].apply(_convert_score_to_int)  # type: ignore
+        else:
+            return [_convert_score_to_int(score) for score in text[ORIGINAL_COLUMN]]
+
+    segmented_schema = UdfSchema(
+        segments={segment_def.name: segment_def},
+        resolvers=STANDARD_RESOLVER,
+        udf_specs=[
+            UdfSpec(
+                column_names=[ORIGINAL_COLUMN],
+                udfs={GENERATED_SEGMENT_COLUMN: converter_udf},
+            )
+        ],
+    )
+    writer = FakeWriter()
+    logger = ThreadRollingLogger(
+        write_schedule=None,
+        writers=[writer],
+        aggregate_by=TimeGranularity.Day,
+        schema=segmented_schema,
+    )
+
+    ms = 1689881671000
+
+    logger.log(data={"a": 1, ORIGINAL_COLUMN: 0.1}, sync=True, timestamp_ms=ms)
+    logger.log(data={"b": 2, ORIGINAL_COLUMN: 0.2}, sync=True, timestamp_ms=ms)
+    logger.log(data={"c": 3, ORIGINAL_COLUMN: 0.3}, sync=True, timestamp_ms=ms)
+
+    logger.log(data={"a": 1, ORIGINAL_COLUMN: 0.6}, sync=True, timestamp_ms=ms)
+    logger.log(data={"b": 2, ORIGINAL_COLUMN: 0.7}, sync=True, timestamp_ms=ms)
+    logger.log(data={"c": 3, ORIGINAL_COLUMN: 0.9}, sync=True, timestamp_ms=ms)
+    status = logger.status()
+    logger.close()
+
+    dt = datetime.datetime.fromtimestamp(ms / 1000.0, tz=tz.tzutc())
+    profileA = DatasetProfile(dataset_timestamp=dt)
+    profileA.track({"a": 1, ORIGINAL_COLUMN: 0.1, GENERATED_SEGMENT_COLUMN: 0})  # type: ignore
+    profileA.track({"b": 2, ORIGINAL_COLUMN: 0.2, GENERATED_SEGMENT_COLUMN: 0})  # type: ignore
+    profileA.track({"c": 3, ORIGINAL_COLUMN: 0.3, GENERATED_SEGMENT_COLUMN: 0})  # type: ignore
+
+    profileB = DatasetProfile(dataset_timestamp=dt)
+    profileB.track({"a": 1, ORIGINAL_COLUMN: 0.6, GENERATED_SEGMENT_COLUMN: 1})  # type: ignore
+    profileB.track({"b": 2, ORIGINAL_COLUMN: 0.7, GENERATED_SEGMENT_COLUMN: 1})  # type: ignore
+    profileB.track({"c": 3, ORIGINAL_COLUMN: 0.9, GENERATED_SEGMENT_COLUMN: 1})  # type: ignore
+
+    expected = LoggerStatus(
+        dataset_profiles=0,
+        dataset_timestamps=1,
+        pending_writables=0,
+        segment_caches=1,
+        writers=1,
+        views=[profileA.view().serialize(), profileB.view().serialize()],
+        pending_views=[],
+    )
+
+    assert_status_single(status, expected, dataset_id)
+
+    # One call for each segment
+    assert writer.write_calls == 2
+
+    profile = cast(DatasetProfileView, writer.last_writables[0])
+    assert_profile(profile, ["a", "b", "c", GENERATED_SEGMENT_COLUMN, ORIGINAL_COLUMN])
+
+
+def test_segment_computed_column_list_input() -> None:
+    # This test ensures that the thread rolling logger actually runs UDFs when working with segments.
+    # This has to be done manually in the logger layer.
+    ORIGINAL_COLUMN = "original_column"
+    GENERATED_SEGMENT_COLUMN = "generated_column"
+    segment_def = SegmentationPartition(
+        name=GENERATED_SEGMENT_COLUMN,
+        mapper=ColumnMapperFunction(col_names=[GENERATED_SEGMENT_COLUMN]),
+    )
+
+    def _convert_score_to_int(score: float) -> int:
+        """
+        round the score to 0 or 1
+        """
+        return int(round(score))
+
+    def converter_udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
+        # print(f">>> Refusal boolean UDF {text}")
+        if isinstance(text, pd.DataFrame):
+            return text[ORIGINAL_COLUMN].apply(_convert_score_to_int)  # type: ignore
+        else:
+            return [_convert_score_to_int(score) for score in text[ORIGINAL_COLUMN]]
+
+    segmented_schema = UdfSchema(
+        segments={segment_def.name: segment_def},
+        resolvers=STANDARD_RESOLVER,
+        udf_specs=[
+            UdfSpec(
+                column_names=[ORIGINAL_COLUMN],
+                udfs={GENERATED_SEGMENT_COLUMN: converter_udf},
+            )
+        ],
+    )
+    writer = FakeWriter()
+    logger = ThreadRollingLogger(
+        write_schedule=None,
+        writers=[writer],
+        aggregate_by=TimeGranularity.Day,
+        schema=segmented_schema,
+    )
+
+    ms = 1689881671000
+
+    data = [
+        {"a": 1, ORIGINAL_COLUMN: 0.1},
+        {"b": 2, ORIGINAL_COLUMN: 0.2},
+        {"c": 3, ORIGINAL_COLUMN: 0.3},
+        {"a": 1, ORIGINAL_COLUMN: 0.6},
+        {"b": 2, ORIGINAL_COLUMN: 0.7},
+        {"c": 3, ORIGINAL_COLUMN: 0.9},
+    ]
+
+    logger.log(data=data, sync=True, timestamp_ms=ms)
+
+    status = logger.status()
+    logger.close()
+
+    dt = datetime.datetime.fromtimestamp(ms / 1000.0, tz=tz.tzutc())
+    profileA = DatasetProfile(dataset_timestamp=dt)
+    profileA.track({"a": 1, ORIGINAL_COLUMN: 0.1, GENERATED_SEGMENT_COLUMN: 0})  # type: ignore
+    profileA.track({"b": 2, ORIGINAL_COLUMN: 0.2, GENERATED_SEGMENT_COLUMN: 0})  # type: ignore
+    profileA.track({"c": 3, ORIGINAL_COLUMN: 0.3, GENERATED_SEGMENT_COLUMN: 0})  # type: ignore
+
+    profileB = DatasetProfile(dataset_timestamp=dt)
+    profileB.track({"a": 1, ORIGINAL_COLUMN: 0.6, GENERATED_SEGMENT_COLUMN: 1})  # type: ignore
+    profileB.track({"b": 2, ORIGINAL_COLUMN: 0.7, GENERATED_SEGMENT_COLUMN: 1})  # type: ignore
+    profileB.track({"c": 3, ORIGINAL_COLUMN: 0.9, GENERATED_SEGMENT_COLUMN: 1})  # type: ignore
+
+    expected = LoggerStatus(
+        dataset_profiles=0,
+        dataset_timestamps=1,
+        pending_writables=0,
+        segment_caches=1,
+        writers=1,
+        views=[profileA.view().serialize(), profileB.view().serialize()],
+        pending_views=[],
+    )
+
+    assert_status_single(status, expected, dataset_id)
+
+    # One call for each segment
+    assert writer.write_calls == 2
+
+    profile = cast(DatasetProfileView, writer.last_writables[0])
+    assert_profile(profile, ["a", "b", "c", GENERATED_SEGMENT_COLUMN, ORIGINAL_COLUMN])
+
+
 def test_actor_null_timestamp(actor: Tuple[DataLogger, FakeWriter]) -> None:
     logger, writer = actor
 
@@ -229,7 +405,9 @@ def test_flush(actor: Tuple[DataLogger, FakeWriter]) -> None:
 
 
 @pytest.mark.parametrize("Act", [ProcessRollingLogger, ThreadRollingLogger])
-def test_multiple_writers(Act: Union[Type[ProcessRollingLogger], Type[ThreadRollingLogger]]) -> None:
+def test_multiple_writers(
+    Act: Union[Type[ProcessRollingLogger], Type[ThreadRollingLogger]],
+) -> None:
     writer1 = FakeWriter()
     writer2 = FakeWriter()
 
@@ -246,7 +424,11 @@ def test_multiple_writers(Act: Union[Type[ProcessRollingLogger], Type[ThreadRoll
         )  # type: ignore
         actor.start()
     else:
-        actor = Act(write_schedule=None, writers=[writer1, writer2], aggregate_by=TimeGranularity.Day)  # type: ignore
+        actor = Act(
+            write_schedule=None,
+            writers=[writer1, writer2],
+            aggregate_by=TimeGranularity.Day,
+        )  # type: ignore
 
     ms = 1689881671000
 
@@ -283,7 +465,9 @@ def test_multiple_writers(Act: Union[Type[ProcessRollingLogger], Type[ThreadRoll
 
 
 @pytest.mark.parametrize("Act", [ProcessRollingLogger, ThreadRollingLogger])
-def test_track_errors_throw(Act: Union[Type[ProcessRollingLogger], Type[ThreadRollingLogger]]) -> None:
+def test_track_errors_throw(
+    Act: Union[Type[ProcessRollingLogger], Type[ThreadRollingLogger]],
+) -> None:
     i = mp.Value("i", 0)
 
     def throw_error() -> int:
@@ -312,7 +496,12 @@ def test_track_errors_throw(Act: Union[Type[ProcessRollingLogger], Type[ThreadRo
         )  # type: ignore
         actor.start()
     else:
-        actor = Act(write_schedule=None, writers=[writer1], aggregate_by=TimeGranularity.Day, current_time_fn=throw_error)  # type: ignore
+        actor = Act(
+            write_schedule=None,
+            writers=[writer1],
+            aggregate_by=TimeGranularity.Day,
+            current_time_fn=throw_error,
+        )  # type: ignore
         with i.get_lock():
             # bump this up to 1 so it throws right away since we're going direclty to
             # the thread logger in this case.
@@ -368,7 +557,11 @@ def test_closing_works(actor: Tuple[DataLogger, FakeWriter]) -> None:
             pending_writables=0,
             segment_caches=0,
             writers=1,
-            views=[profile.view().serialize(), profile1.view().serialize(), profile2.view().serialize()],
+            views=[
+                profile.view().serialize(),
+                profile1.view().serialize(),
+                profile2.view().serialize(),
+            ],
             pending_views=[],
         ),
         dataset_id,
@@ -418,7 +611,9 @@ def test_process_throws_after_killed(actor: Tuple[DataLogger, FakeWriter]) -> No
             logger.close()
 
 
-def test_process_throws_after_killed_delay(actor: Tuple[DataLogger, FakeWriter]) -> None:
+def test_process_throws_after_killed_delay(
+    actor: Tuple[DataLogger, FakeWriter],
+) -> None:
     """
     Very similar to test_process_throws_after_killed but there is a delay after the process is killed
     before logging so the log() call will throw before doing any actual work with a clear error message.
@@ -474,7 +669,11 @@ def test_actor_multiple_days(actor: Tuple[DataLogger, FakeWriter]) -> None:
             pending_writables=0,
             segment_caches=0,
             writers=1,
-            views=[profile.view().serialize(), profile1.view().serialize(), profile2.view().serialize()],
+            views=[
+                profile.view().serialize(),
+                profile1.view().serialize(),
+                profile2.view().serialize(),
+            ],
             pending_views=[],
         ),
         dataset_id,
@@ -578,7 +777,11 @@ def test_multiple_datasets() -> None:
             pending_writables=0,
             segment_caches=0,
             writers=1,
-            views=[profile.view().serialize(), profile1.view().serialize(), profile2.view().serialize()],
+            views=[
+                profile.view().serialize(),
+                profile1.view().serialize(),
+                profile2.view().serialize(),
+            ],
             pending_views=[],
         ),
         "dataset1",
@@ -592,7 +795,11 @@ def test_multiple_datasets() -> None:
             pending_writables=0,
             segment_caches=0,
             writers=1,
-            views=[profile_ms_2.view().serialize(), profile3.view().serialize(), profile4.view().serialize()],
+            views=[
+                profile_ms_2.view().serialize(),
+                profile3.view().serialize(),
+                profile4.view().serialize(),
+            ],
             pending_views=[],
         ),
         "dataset2",
@@ -622,7 +829,9 @@ def add_days(ms: int, days: int) -> int:
 
 
 def assert_status_single(
-    status: Union[ProcessLoggerStatus, LoggerStatus], expected: LoggerStatus, dataset_id: str = ""
+    status: Union[ProcessLoggerStatus, LoggerStatus],
+    expected: LoggerStatus,
+    dataset_id: str = "",
 ) -> None:
     def view_to_dict(view_bytes: bytes) -> Dict[Any, Any]:
         return DatasetProfileView.deserialize(view_bytes).to_pandas().to_dict()  # type: ignore
@@ -636,7 +845,7 @@ def assert_status_single(
         "pending_writables": expected.pending_writables,
         "segment_caches": expected.segment_caches,
         "writers": expected.writers,
-        "views": expected_views,
+        "views": pformat(expected_views, indent=2),
         "pending_views": expected_pending_views,
     }
 
@@ -650,7 +859,7 @@ def assert_status_single(
         "pending_writables": actual.pending_writables,
         "segment_caches": actual.segment_caches,
         "writers": actual.writers,
-        "views": actual_views,
+        "views": pformat(actual_views, indent=2),
         "pending_views": actual_pending_views,
     }
 

@@ -181,6 +181,7 @@ gcp-storage-emulator = "^2022.6.11"
 types-urllib3 = "^1.26.25.5"
 pyright = "^1.1.338"
 httpretty = "^1.1.4"
+ruff = "^0.4.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -264,6 +265,7 @@ exclude = '''
     | tests
     | whylogs/core/proto
     | docs
+    | whylogs/api/logger/experimental/logger
   )/
   | foo.py           # also separately exclude a file named foo.py in
                      # the root of the project
@@ -277,3 +279,22 @@ typeCheckingMode = "strict"
 reportMissingTypeStubs = false
 reportMissingParameterType = false
 reportMissingTypeArgumet = false
+
+[tool.ruff]
+line-length = 140
+indent-width = 4
+include = ["whylogs/api/logger/experimental/logger/**/*.py"]
+select = ["E", "F", "I", "W"]
+
+[tool.ruff.isort]
+known-first-party = ["whylogs"]
+
+[tool.ruff.lint]
+fixable = ["ALL"]
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

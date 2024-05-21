@@ -26,6 +26,8 @@ pre-commit: proto
 	poetry run pre-commit run --all-files
 	@# There is no official hook for pyright and the community one requires duplicating config from pyproject.toml
 	poetry run pyright
+	poetry run ruff check
+
 
 .PHONY: dist clean clean-test help format lint test install coverage docs livedocs default proto proto-v0 github release
 .PHONY: test-system-python format-fix blackd jupyter-kernel docs livedocs fix
@@ -142,6 +144,7 @@ format: ## Check style formatting.
 format-fix: ## Fix formatting with pre-commit (black, isort, flake, + configured hooks).
 	@$(call w, format-fix is deprecated running pre-commit instead)
 	poetry run pre-commit run --all-files
+	poetry run ruff check --fix
 
 test: dist ## Run unit tests.
 	@$(call i, Running tests)
