@@ -62,19 +62,6 @@ def test_whylabs_writer_throttle_retry():
     assert exec_info.value.status == 429
 
 
-"""
-    # Not using pytest.raises()
-    try:
-        writer.write(result.profile())
-    except ApiException as e:
-        assert e.status == 429
-    except Exception as e:
-        assert False
-    else:
-        assert False
-"""
-
-
 @pytest.mark.load
 def test_whylabs_writer():
     ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
