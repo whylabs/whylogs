@@ -49,7 +49,7 @@ nbsphinx = {version = "^0.8.9", optional = true}
 nbconvert = {version = "^7.0.0", optional = true}
 
 # Integrations dependencies
-boto3 = {version = "^1.22.13", python = ">=3.8", optional = true }
+boto3 = {version = "^1.22.13", optional = true }
 mlflow-skinny = [
   { version = "^2.5.0", python = ">=3.8", optional = true },
   { version = "<2.0.1", python = "<3.8", optional = true }
