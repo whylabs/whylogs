@@ -1,7 +1,11 @@
 import os
+import shutil
 import subprocess
+import venv
 
+import nbformat
 import papermill as pm
+import pytest
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.join(TEST_DIR, os.pardir, os.pardir)
@@ -40,41 +44,66 @@ skip_notebooks = [
     "Transaction_Examples.ipynb",  # skipped because API key required for whylabs writing
 ]
 
-
-# https://docs.pytest.org/en/6.2.x/example/parametrize.html#a-quick-port-of-testscenarios
-def pytest_generate_tests(metafunc):
-    idlist = []
-    argvalues = []
-    for scenario in metafunc.cls.scenarios:
-        idlist.append(scenario[0])
-        items = scenario[1].items()
-        argnames = [x[0] for x in items]
-        argvalues.append([x[1] for x in items])
-    metafunc.parametrize(argnames, argvalues, ids=idlist, scope="class")
+# Collect notebooks to test
+git_files = (
+    subprocess.check_output("git ls-tree --full-tree --name-only -r HEAD", shell=True).decode("utf-8").splitlines()
+)
+notebooks = [fn for fn in git_files if fn.endswith(".ipynb") and os.path.basename(fn) not in skip_notebooks]
+venv_dirs = [os.path.join(TEST_DIR, f"venv_{os.path.basename(nb)}") for nb in notebooks]
 
 
-def process_notebook(notebook_filename):
-    """
-    Checks if an IPython notebook runs without error from start to finish. If so, writes the
-    notebook to HTML (with outputs) and overwrites the .ipynb file (without outputs).
-    """
+def pre_install_packages(notebook_path, venv_dir):
+    # Read the notebook and extract the pip commands
+    with open(notebook_path, "r", encoding="utf-8") as f:
+        nb = nbformat.read(f, as_version=4)
+    pip_commands = []
+    for cell in nb["cells"]:
+        if cell["cell_type"] == "code":
+            lines = cell["source"].splitlines()
+            for line in lines:
+                if line.startswith("%pip install") or line.startswith("!pip install"):
+                    pip_commands.append(line[1:])
+
+    if pip_commands:
+        activate_script = os.path.join(venv_dir, "bin", "activate")
+        # Combine pip commands with `&&` after activating the venv
+        combined_commands = " && ".join(pip_commands)
+        command = f"source {activate_script} && {combined_commands}"
+        subprocess.check_call(command, shell=True, executable="/bin/bash")
+
+
+def run_notebook_test(notebook, venv_dir):
+    notebook_path = os.path.join(PARENT_DIR, notebook)
+    # Activate the virtual environment
+    activate_script = os.path.join(venv_dir, "bin", "activate")
+    command = f"source {activate_script} && python -m pip install --upgrade pip"
+    subprocess.check_call(command, shell=True, executable="/bin/bash")
+
+    # Execute the notebook
     try:
-        pm.execute_notebook(notebook_filename, OUTPUT_NOTEBOOK, timeout=180)
+        pm.execute_notebook(
+            notebook_path,
+            OUTPUT_NOTEBOOK,
+            kernel_name="python3",
+            parameters=dict(venv_path=venv_dir),
+        )
     except Exception as e:
-        print(f"Notebook: {notebook_filename} failed test with exception: {e}")
+        print(f"Notebook: {notebook} failed test with exception: {e}")
         raise
+    print(f"Successfully executed {notebook}")
 
-    print(f"Successfully executed {notebook_filename}")
 
+@pytest.mark.parametrize("notebook, venv_dir", zip(notebooks, venv_dirs))
+def test_all_notebooks(notebook, venv_dir):
+    # Setup: Create a virtual environment for the notebook since these install various packages
+    os.makedirs(venv_dir, exist_ok=True)
+    if not os.listdir(venv_dir):
+        venv.create(venv_dir, with_pip=True)
+    notebook_path = os.path.join(PARENT_DIR, notebook)
+    # Before the notebook runs, extract and run the install commands so we have updated packages
+    pre_install_packages(notebook_path, venv_dir)
 
-class TestNotebooks:
-    git_files = (
-        subprocess.check_output("git ls-tree --full-tree --name-only -r HEAD", shell=True).decode("utf-8").splitlines()
-    )
-
-    # Get just the notebooks from the git files
-    notebooks = [fn for fn in git_files if fn.endswith(".ipynb") and os.path.basename(fn) not in skip_notebooks]
-    scenarios = [(notebook, {"notebook": notebook}) for notebook in notebooks]
-
-    def test_all_notebooks(self, notebook):
-        process_notebook(os.path.join(PARENT_DIR, notebook))
+    try:
+        run_notebook_test(notebook, venv_dir)
+    finally:
+        shutil.rmtree(venv_dir, ignore_errors=True)

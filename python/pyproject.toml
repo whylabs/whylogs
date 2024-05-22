@@ -183,6 +183,7 @@ urllib3 = ">=1.25.4, <1.27"
 types-requests = "2.30.0.0"
 pyright = "^1.1.338"
 ruff = "^0.4.4"
+pytest-xdist = {version = "^3.6.1", python = ">=3.8,<4"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
