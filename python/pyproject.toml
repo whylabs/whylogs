@@ -180,7 +180,7 @@ twine = "^4.0.1"
 gcp-storage-emulator = "^2022.6.11"
 types-urllib3 = "^1.26.25.5"
 pyright = "^1.1.338"
-httpretty = "^1.1.4"
+httpretty = { version = "^1.1.4", python = ">=3.6,<3.10", optional = true }
 ruff = "^0.4.4"
 
 [build-system]

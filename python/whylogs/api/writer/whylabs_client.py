@@ -436,6 +436,7 @@ class WhyLabsClient:
         @backoff.on_exception(
             backoff.expo,
             ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,

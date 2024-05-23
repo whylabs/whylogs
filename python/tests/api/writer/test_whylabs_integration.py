@@ -1,9 +1,12 @@
 import logging
 import os
+import sys
 import time
 from uuid import uuid4
 
-import httpretty
+if sys.version_info <= (3, 9):
+    import httpretty
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -45,6 +48,7 @@ logger = logging.getLogger(__name__)
 # tests or else the fakes don't work.
 
 
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="python version")
 @pytest.mark.load  # slow test due to many retries & backoff, shouldn't hit servers
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_whylabs_writer_throttle_retry():
@@ -57,9 +61,24 @@ def test_whylabs_writer_throttle_retry():
     data = {"col1": 1, "col2": "foo"}
     result = why.log(data)
     writer = WhyLabsWriter(dataset_id=MODEL_ID)
-    with pytest.raises(ApiException) as exec_info:
+    with pytest.raises(ApiException) as exc_info:
         writer.write(result.profile())
-    assert exec_info.value.status == 429
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="python version")
+@pytest.mark.load  # slow test due to many retries & backoff, shouldn't hit servers
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_performance_column_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = "XXX"
+    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/models/{MODEL_ID}/schema/metric"
+    httpretty.register_uri(httpretty.PUT, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    status, _ = writer.tag_custom_performance_column("col1", "perf_column", "mean")
+    assert not status
 
 
 @pytest.mark.load
