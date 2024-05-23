@@ -66,19 +66,30 @@ def pre_install_packages(notebook_path, venv_dir):
 
     if pip_commands:
         activate_script = os.path.join(venv_dir, "bin", "activate")
+        if not os.path.exists(activate_script):
+            raise FileNotFoundError(f"Activation script not found: {activate_script}")
         # Combine pip commands with `&&` after activating the venv
         combined_commands = " && ".join(pip_commands)
         command = f"source {activate_script} && {combined_commands}"
-        subprocess.check_call(command, shell=True, executable="/bin/bash")
+        try:
+            print(f"Running command: {command}")
+            result = subprocess.run(command, shell=True, executable="/bin/bash", capture_output=True, text=True)
+            print(result.stdout)
+            print(result.stderr)
+            result.check_returncode()
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to install packages for {notebook_path} with exception: {e}")
+            raise
 
 
 def run_notebook_test(notebook, venv_dir):
     notebook_path = os.path.join(PARENT_DIR, notebook)
     # Activate the virtual environment
     activate_script = os.path.join(venv_dir, "bin", "activate")
+    if not os.path.exists(activate_script):
+        raise FileNotFoundError(f"Activation script not found: {activate_script}")
     command = f"source {activate_script} && python -m pip install --upgrade pip"
     subprocess.check_call(command, shell=True, executable="/bin/bash")
-
     # Execute the notebook
     try:
         pm.execute_notebook(
@@ -99,6 +110,14 @@ def test_all_notebooks(notebook, venv_dir):
     os.makedirs(venv_dir, exist_ok=True)
     if not os.listdir(venv_dir):
         venv.create(venv_dir, with_pip=True)
+    else:
+        print(f"Using existing virtual environment in {venv_dir}")
+    # Verify the virtual environment is created correctly
+    bin_dir = os.path.join(venv_dir, "bin")
+    if not os.path.exists(bin_dir):
+        raise RuntimeError(f"Failed to create virtual environment in {venv_dir}")
+    else:
+        print(f"Virtual environment checked successfully in {venv_dir}")
     notebook_path = os.path.join(PARENT_DIR, notebook)
     # Before the notebook runs, extract and run the install commands so we have updated packages
     pre_install_packages(notebook_path, venv_dir)
