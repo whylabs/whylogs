@@ -15,10 +15,10 @@ python = ">=3.7.1, <4"
 whylogs-sketching = ">=3.4.1.dev3"
 protobuf = ">=3.19.4"
 importlib-metadata = { version = "<4.3", python = "<3.8" }
-typing-extensions = {version = ">=3.10", markers = "python_version < \"4\""}
+typing-extensions = { version = ">=3.10", markers = "python_version < \"4\""}
 whylabs-client = "^0.6.2"
 requests = "^2.27"
-types-requests = "^2.30.0.0"
+platformdirs = "^3.5.0"
 
 # viz module. Everything after this should be optional
 pybars3 = { version = "^0.9", optional = true }
@@ -49,11 +49,12 @@ nbsphinx = {version = "^0.8.9", optional = true}
 nbconvert = {version = "^7.0.0", optional = true}
 
 # Integrations dependencies
-boto3 = {version = "^1.22.13", optional = true }
+boto3 = {version = "^1.22.13", python = ">=3.8", optional = true }
 mlflow-skinny = [
   { version = "^2.5.0", python = ">=3.8", optional = true },
   { version = "<2.0.1", python = "<3.8", optional = true }
 ]
+databricks-cli = {version = "^0.8.0", optional = true}
 google-cloud-storage = {version = "^2.5.0", optional = true}
 
 # Pyspark related dependencies
@@ -65,7 +66,10 @@ faster-fifo = {version = "^1.4.5", optional = true}
 orjson = {version = "^3.8.10", optional = true}
 
 # Image support related dependencies
-Pillow = {version = "^9.2.0", optional = true}
+Pillow = [
+  { version = ">=10.1.0, <11", python = ">=3.8", optional = true },
+  { version = ">=9.2.0", python = "<3.8", optional = true }
+]
 
 # Embeddings support related dependencies
 scikit-learn = [
@@ -75,7 +79,6 @@ scikit-learn = [
 
 # Fugue related dependencies
 fugue = {version = "^0.8.1", optional = true}
-platformdirs = "^3.5.0"
 
 
 [tool.poetry.extras]
@@ -113,7 +116,8 @@ s3 = [
   "boto3"
 ]
 mlflow = [
-  "mlflow-skinny"
+  "mlflow-skinny",
+  "databricks-cli"
 ]
 image = [
   "Pillow",
@@ -174,12 +178,14 @@ pandas = "*"
 pandas-stubs = "*"
 ipykernel = ">=6.11" # for developing in Jupyter notebook
 types-python-dateutil = "^2.8.12"
-moto = "^4.1.6"
+moto = ">4.2"
 twine = "^4.0.1"
 gcp-storage-emulator = "^2022.6.11"
-types-urllib3 = "^1.26.25.5"
+urllib3 = ">=1.25.4, <1.27"
+types-requests = "2.30.0.0"
 pyright = "^1.1.338"
 ruff = "^0.4.4"
+pytest-xdist = {version = "^3.6.1", python = ">=3.8,<4"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
