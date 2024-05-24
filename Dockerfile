@@ -2,7 +2,7 @@ FROM python:3.8
 
 ENV PROTOBUF_VERSION=3.19.4
 # cd whylogs
-# docker build -t whylogs -f Dockerfile.dev .
+# docker build -t whylogs -f Dockerfile .
 # docker run --rm -it -p 8080:8888 -v /working/directory:/workspace whylogs
 
 RUN mkdir /workspace
@@ -35,6 +35,8 @@ RUN curl -sLJO "https://gitlab-runner-downloads.s3.amazonaws.com/latest/deb/gitl
     dpkg -i gitlab-runner_amd64.deb
 
 RUN apt-get update && apt-get install -y less emacs vim
+
+RUN pip install --root-user-action ignore ruff
 
 USER whyuser
 
