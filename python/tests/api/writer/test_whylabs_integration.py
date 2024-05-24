@@ -4,8 +4,14 @@ import sys
 import time
 from uuid import uuid4
 
-if sys.version_info <= (3, 9, 9999999):
+if sys.version_info < (3, 10):
     import httpretty
+else:
+    class httpretty:
+        @staticmethod
+        def activate():
+            return lambda x: x
+
 
 import numpy as np
 import pandas as pd
