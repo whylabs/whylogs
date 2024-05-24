@@ -72,7 +72,7 @@
       },
       "outputs": [],
       "source": [
-        "%pip install -q 'whylogs[viz]'"
+        "%pip install -q whylogs[viz]"
       ]
     },
     {

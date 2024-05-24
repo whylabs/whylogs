@@ -727,7 +727,6 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
-
 <span class="o">%</span><span class="k">pip</span> install whylogs
 </pre></div>
 </div>
@@ -1312,29 +1311,8 @@ Note: you may need to restart the kernel to use updated packages.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">socket</span>
-
-
-<span class="k">def</span> <span class="nf">find_free_port</span><span class="p">(</span><span class="n">preferred_port</span><span class="p">,</span> <span class="n">min_port</span><span class="p">,</span> <span class="n">max_port</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">is_port_free</span><span class="p">(</span><span class="n">port</span><span class="p">):</span>
-        <span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span>
-                <span class="k">return</span> <span class="kc">True</span>
-            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">if</span> <span class="n">is_port_free</span><span class="p">(</span><span class="n">preferred_port</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">preferred_port</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">port</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">min_port</span><span class="p">,</span> <span class="n">max_port</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">is_port_free</span><span class="p">(</span><span class="n">port</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">port</span>
-
-<span class="n">HOST</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
-<span class="n">PORT</span> <span class="o">=</span> <span class="n">find_free_port</span><span class="p">(</span><span class="mi">9023</span><span class="p">,</span> <span class="mi">9000</span><span class="p">,</span> <span class="mi">9100</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">HOST</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
+<span class="n">PORT</span> <span class="o">=</span> <span class="mi">9023</span>
 <span class="n">GCS_BUCKET</span> <span class="o">=</span> <span class="s2">&quot;test-bucket&quot;</span>
 
 <span class="n">server</span> <span class="o">=</span> <span class="n">create_server</span><span class="p">(</span><span class="n">HOST</span><span class="p">,</span> <span class="n">PORT</span><span class="p">,</span> <span class="n">in_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default_bucket</span><span class="o">=</span><span class="n">GCS_BUCKET</span><span class="p">)</span>
