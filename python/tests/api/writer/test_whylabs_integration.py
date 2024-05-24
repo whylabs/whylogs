@@ -9,7 +9,7 @@ if sys.version_info < (3, 10):
 else:
     class httpretty:
         @staticmethod
-        def activate():
+        def activate(**kwargs):
             return lambda x: x
 
 
