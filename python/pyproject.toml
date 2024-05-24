@@ -18,7 +18,6 @@ importlib-metadata = { version = "<4.3", python = "<3.8" }
 typing-extensions = { version = ">=3.10", markers = "python_version < \"4\""}
 whylabs-client = "^0.6.2"
 requests = "^2.27"
-types-requests = "^2.30.0.0"
 backoff = "^2.2.1"
 platformdirs = "^3.5.0"
 
