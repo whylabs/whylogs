@@ -186,7 +186,7 @@ gcp-storage-emulator = "^2022.6.11"
 urllib3 = ">=1.25.4, <1.27"
 types-requests = "2.30.0.0"
 pyright = "^1.1.338"
-httpretty = { version = "^1.1.4", python = ">=3.6,<3.10", optional = true }
+httpretty = { version = "^1.1.4", python = ">=3.6,<3.10"}
 ruff = "^0.4.4"
 pytest-xdist = {version = "^3.6.1", python = ">=3.8,<4"}
 
