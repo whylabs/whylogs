@@ -4,7 +4,7 @@ import sys
 import time
 from uuid import uuid4
 
-if sys.version_info <= (3, 9):
+if sys.version_info <= (3, 9, 9999999):
     import httpretty
 
 import numpy as np
