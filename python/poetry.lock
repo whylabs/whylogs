@@ -1346,7 +1346,7 @@ grpc = ["grpcio (>=1.44.0,<2.0.0.dev0)"]
 name = "httpretty"
 version = "1.1.4"
 description = "HTTP client mock for Python"
-optional = true
+optional = false
 python-versions = ">=3"
 files = [
     {file = "httpretty-1.1.4.tar.gz", hash = "sha256:20de0e5dd5a18292d36d928cc3d6e52f8b2ac73daec40d41eb62dee154933b68"},
@@ -4824,4 +4824,4 @@ viz = ["Pillow", "Pillow", "ipython", "numpy", "numpy", "pybars3", "scipy", "sci
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.1, <4"
-content-hash = "8ce39a1f0c484cbca0277e8804aef17bb2ce24144688f6bb45a0fbec38906586"
+content-hash = "3439b72ccf9a2e79677a64e8bca02fe84a24fc272fbc1f370dcefd4d14676517"
