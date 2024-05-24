@@ -62,6 +62,7 @@ wlc.MAX_REQUEST_TRIES = 3
 
 
 @pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_whylabs_writer_throttle_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
@@ -79,6 +80,7 @@ def test_whylabs_writer_throttle_retry():
 
 
 @pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_performance_column_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
@@ -93,6 +95,7 @@ def test_performance_column_retry():
 
 
 @pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_get_transaction_id_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
@@ -106,6 +109,7 @@ def test_get_transaction_id_retry():
 
 
 @pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_set_column_schema_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
@@ -122,6 +126,7 @@ def test_set_column_schema_retry():
 
 
 @pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_commit_transaction_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
@@ -135,6 +140,7 @@ def test_commit_transaction_retry():
 
 
 @pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_abort_transaction_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
