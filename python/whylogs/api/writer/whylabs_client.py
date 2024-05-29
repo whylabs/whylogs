@@ -976,22 +976,10 @@ class WhyLabsClient:
         request = self._build_log_segmented_reference_request(
             dataset_timestamp, tags=whylabs_tags, alias=reference_profile_name, region=region
         )
-
-        @backoff.on_exception(
-            backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
-            max_time=MAX_REQUEST_TIME,
-            max_tries=MAX_REQUEST_TRIES,
-            jitter=backoff.full_jitter,
+        res = self._post_log_segmented_reference(
+            request=request,
+            dataset_timestamp=dataset_timestamp,
         )
-        def do_request():
-            return self._post_log_segmented_reference(
-                request=request,
-                dataset_timestamp=dataset_timestamp,
-            )
-
-        res = do_request()
         return res["id"], res["upload_urls"]
 
     def _get_upload_url_segmented_reference_zip(
@@ -1001,21 +989,7 @@ class WhyLabsClient:
         request = self._build_log_segmented_reference_request(
             dataset_timestamp, tags=whylabs_tags, alias=reference_profile_name, region=region
         )
-
-        @backoff.on_exception(
-            backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
-            max_time=MAX_REQUEST_TIME,
-            max_tries=MAX_REQUEST_TRIES,
-            jitter=backoff.full_jitter,
-        )
-        def do_request():
-            return self._post_log_segmented_reference(
-                request=request, dataset_timestamp=dataset_timestamp, zip_file=True
-            )
-
-        res = do_request()
+        res = self._post_log_segmented_reference(request=request, dataset_timestamp=dataset_timestamp, zip_file=True)
         return res["id"], res["upload_urls"][0]
 
     def _post_log_segmented_reference(
