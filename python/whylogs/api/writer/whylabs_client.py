@@ -4,6 +4,7 @@ import pprint
 from typing import IO, Any, Dict, List, Optional, Set, Tuple, Union
 from urllib.parse import urlparse
 
+import backoff
 import requests  # type: ignore
 from urllib3 import PoolManager, ProxyManager
 from whylabs_client import ApiClient, Configuration  # type: ignore
@@ -30,7 +31,7 @@ from whylabs_client.model.segment_tag import SegmentTag  # type: ignore
 from whylabs_client.model.transaction_commit_request import TransactionCommitRequest
 from whylabs_client.model.transaction_log_request import TransactionLogRequest
 from whylabs_client.model.transaction_start_request import TransactionStartRequest
-from whylabs_client.rest import ForbiddenException  # type: ignore
+from whylabs_client.rest import ApiException, ForbiddenException  # type: ignore
 
 from whylogs.api.logger.result_set import ResultSet, SegmentedResultSet
 from whylogs.api.whylabs.session.session_manager import INIT_DOCS, default_init
@@ -50,6 +51,8 @@ FIVE_MINUTES_IN_SECONDS = 60 * 5
 DAY_IN_SECONDS = 60 * 60 * 24
 FIVE_YEARS_IN_SECONDS = DAY_IN_SECONDS * 365 * 5
 logger = logging.getLogger(__name__)
+logging.getLogger("backoff").addHandler(logging.StreamHandler())
+
 WHYLOGS_PREFER_SYNC_KEY = "WHYLOGS_PREFER_SYNC"
 
 _API_CLIENT_CACHE: Dict[str, ApiClient] = dict()
@@ -57,6 +60,10 @@ _UPLOAD_POOLER_CACHE: Dict[str, Union[PoolManager, ProxyManager]] = dict()
 
 _US_WEST2_DOMAIN = "songbird-20201223060057342600000001.s3.us-west-2.amazonaws.com"
 _S3_PUBLIC_DOMAIN = os.environ.get("_WHYLABS_PRIVATE_S3_DOMAIN") or _US_WEST2_DOMAIN
+
+
+MAX_REQUEST_TIME = 60  # seconds
+MAX_REQUEST_TRIES = 10
 
 KNOWN_CUSTOM_PERFORMANCE_METRICS = {
     "mean_average_precision_k_": "mean",
@@ -425,8 +432,20 @@ class WhyLabsClient:
             column=column,
             default_metric=default_metric,
         )
+
+        @backoff.on_exception(
+            backoff.expo,
+            ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
+        )
+        def do_request():
+            return api_instance.put_entity_schema_metric(self._org_id, self._dataset_id, metric_schema)
+
         try:
-            res = api_instance.put_entity_schema_metric(self._org_id, self._dataset_id, metric_schema)
+            res = do_request()
             return True, str(res)
         except Exception as e:
             logger.warning(
@@ -473,11 +492,23 @@ class WhyLabsClient:
 
     def _set_column_schema(self, column_name: str, column_schema: ColumnSchema):
         model_api_instance = self._get_or_create_models_client()
-        try:
-            # TODO: remove when whylabs supports merge writes.
+
+        @backoff.on_exception(
+            backoff.expo,
+            ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
+        )
+        def do_request():
             model_api_instance.put_entity_schema_column(  # type: ignore
                 self._org_id, self._dataset_id, column_name, column_schema=column_schema
             )
+
+        try:
+            # TODO: remove when whylabs supports merge writes.
+            do_request()
             return (
                 200,
                 f"{column_name} schema set to {column_schema.classifier} {column_schema.data_type} {column_schema.discreteness}",
@@ -546,9 +577,20 @@ class WhyLabsClient:
         if self._s3_endpoint_subject:
             logger.info(f"Override Host parameter since we are using S3 private endpoint: {self._s3_private_domain}")
             headers["Host"] = self._s3_endpoint_subject
-        response = self._s3_pool.request(
-            "PUT", upload_url, headers=headers, timeout=self._timeout_seconds, body=profile_file.read()
+
+        data = profile_file.read()
+
+        @backoff.on_predicate(
+            backoff.expo,
+            lambda x: x.status != 200,  # maybe should be == 429
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
         )
+        def do_request():
+            return self._s3_pool.request("PUT", upload_url, headers=headers, timeout=self._timeout_seconds, body=data)
+
+        response = do_request()
         is_successful = False
         if response.status == 200:
             is_successful = True
@@ -613,7 +655,19 @@ class WhyLabsClient:
     def get_transaction_id(self) -> str:
         client: TransactionsApi = self._get_or_create_transaction_client()
         request = TransactionStartRequest(dataset_id=self._dataset_id)
-        result: LogTransactionMetadata = client.start_transaction(request)
+
+        @backoff.on_exception(
+            backoff.expo,
+            ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
+        )
+        def do_request():
+            return client.start_transaction(request)
+
+        result: LogTransactionMetadata = do_request()
         logger.info(f"Starting transaction {result['transaction_id']}, expires {result['expiration_time']}")
         return result["transaction_id"]
 
@@ -621,9 +675,21 @@ class WhyLabsClient:
         logger.info(f"Committing transaction {id}")
         client = self._get_or_create_transaction_client()
         request = TransactionCommitRequest(verbose=True)
+
+        @backoff.on_exception(
+            backoff.expo,
+            ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
+        )
+        def do_request():
+            client.commit_transaction(id, request)
+
         # We abandon the transaction if this throws
         try:
-            client.commit_transaction(id, request)
+            do_request()
         except NotFoundException as e:
             if "Transaction has been aborted" in str(e):  # TODO: perhaps not the most robust test?
                 logger.error(f"Transaction {id} was aborted; not committing")
@@ -634,11 +700,35 @@ class WhyLabsClient:
     def abort_transaction(self, id: str) -> None:
         logger.info(f"Aborting transaciton {id}")
         client = self._get_or_create_transaction_client()
-        client.abort_transaction(id)
+
+        @backoff.on_exception(
+            backoff.expo,
+            ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
+        )
+        def do_request():
+            client.abort_transaction(id)
+
+        do_request()
 
     def transaction_status(self, id: str) -> Dict[str, Any]:
         client = self._get_or_create_transaction_client()
-        return client.transaction_status(id)
+
+        @backoff.on_exception(
+            backoff.expo,
+            ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
+        )
+        def do_request():
+            return client.transaction_status(id)
+
+        return do_request()
 
     def get_upload_url_transaction(
         self, dataset_timestamp: int, whylabs_tags: List[SegmentTag] = []
@@ -647,7 +737,19 @@ class WhyLabsClient:
         client: TransactionsApi = self._get_or_create_transaction_client()
         client.api_client.set_default_header("X-WhyLabs-File-Extension", "BIN")
         request = TransactionLogRequest(dataset_timestamp=dataset_timestamp, segment_tags=whylabs_tags, region=region)
-        result: AsyncLogResponse = client.log_transaction(self._transaction_id, request)
+
+        @backoff.on_exception(
+            backoff.expo,
+            ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
+        )
+        def do_request():
+            return client.log_transaction(self._transaction_id, request)
+
+        result: AsyncLogResponse = do_request()
         return result.id, result.upload_url
 
     def _get_or_create_feature_weights_client(self) -> FeatureWeightsApi:
@@ -695,11 +797,23 @@ class WhyLabsClient:
 
     def _get_column_weights(self):
         feature_weight_api = self._get_or_create_feature_weights_client()
-        try:
-            result = feature_weight_api.get_column_weights(
+
+        @backoff.on_exception(
+            backoff.expo,
+            ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
+        )
+        def do_request():
+            return feature_weight_api.get_column_weights(
                 org_id=self._org_id,
                 dataset_id=self._dataset_id,
             )
+
+        try:
+            result = do_request()
             return result
         except ForbiddenException as e:
             logger.exception(
@@ -711,8 +825,17 @@ class WhyLabsClient:
 
     def _put_feature_weights(self, file: FeatureWeights):
         feature_weight_api = self._get_or_create_feature_weights_client()
-        try:
-            result = feature_weight_api.put_column_weights(
+
+        @backoff.on_exception(
+            backoff.expo,
+            ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
+        )
+        def do_request():
+            return feature_weight_api.put_column_weights(
                 org_id=self._org_id,
                 dataset_id=self._dataset_id,
                 body={
@@ -720,6 +843,9 @@ class WhyLabsClient:
                 },
                 _return_http_data_only=False,
             )
+
+        try:
+            result = do_request()
             return result[1]
         except ForbiddenException as e:
             logger.exception(
@@ -730,12 +856,22 @@ class WhyLabsClient:
             raise e
 
     def _get_existing_column_schema(self, model_api_instance, column_name) -> Optional[ColumnSchema]:
-        try:
-            # TODO: remove when whylabs supports merge writes.
-            existing_schema = model_api_instance.get_entity_schema_column(
+        @backoff.on_exception(
+            backoff.expo,
+            ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
+        )
+        def do_request():
+            return model_api_instance.get_entity_schema_column(
                 org_id=self._org_id, dataset_id=self._dataset_id, column_id=column_name
             )
 
+        try:
+            # TODO: remove when whylabs supports merge writes.
+            existing_schema = do_request()
             if existing_schema:
                 data_type = existing_schema.get("dataType")
                 discreteness = existing_schema.get("discreteness")
@@ -768,11 +904,23 @@ class WhyLabsClient:
             updated_column_schema = ColumnSchema(
                 classifier=value, data_type=column_schema.data_type, discreteness=column_schema.discreteness
             )
-            try:
+
+            @backoff.on_exception(
+                backoff.expo,
+                ApiException,
+                giveup=lambda e: e.status != 429,  # type: ignore
+                max_time=MAX_REQUEST_TIME,
+                max_tries=MAX_REQUEST_TRIES,
+                jitter=backoff.full_jitter,
+            )
+            def do_request():
                 # TODO: remove when whylabs supports merge writes.
                 model_api_instance.put_entity_schema_column(
                     self._org_id, self._dataset_id, column_name, updated_column_schema
                 )
+
+            try:
+                do_request()
                 return (
                     200,
                     f"{column_name} updated from {column_schema.classifier} to {updated_column_schema.classifier}",
@@ -798,8 +946,20 @@ class WhyLabsClient:
             log_api.api_client.set_default_header("X-WhyLabs-File-Extension", "ZIP")
         else:
             log_api.api_client.set_default_header("X-WhyLabs-File-Extension", "BIN")
+
+        @backoff.on_exception(
+            backoff.expo,
+            ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
+        )
+        def do_request():
+            return log_api.log_async(org_id=self._org_id, dataset_id=self._dataset_id, log_async_request=request)
+
         try:
-            result = log_api.log_async(org_id=self._org_id, dataset_id=self._dataset_id, log_async_request=request)
+            result = do_request()
             return result
         except ForbiddenException as e:
             logger.exception(
@@ -840,14 +1000,25 @@ class WhyLabsClient:
             dataset_api.api_client.set_default_header("X-WhyLabs-File-Extension", "ZIP")
         else:
             dataset_api.api_client.set_default_header("X-WhyLabs-File-Extension", "BIN")
-        try:
-            async_result = dataset_api.create_reference_profile(
+
+        @backoff.on_exception(
+            backoff.expo,
+            ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
+        )
+        def do_request():
+            return dataset_api.create_reference_profile(
                 org_id=self._org_id,
                 dataset_id=self._dataset_id,
                 create_reference_profile_request=request,
                 async_req=not self._prefer_sync,
             )
 
+        try:
+            async_result = do_request()
             result = async_result.get()
             return result
         except ForbiddenException as e:
@@ -860,13 +1031,25 @@ class WhyLabsClient:
 
     def _post_log_reference(self, request: LogAsyncRequest, dataset_timestamp: int) -> LogReferenceResponse:
         log_api = self._get_or_create_api_log_client()
-        try:
-            async_result = log_api.log_reference(
+
+        @backoff.on_exception(
+            backoff.expo,
+            ApiException,
+            giveup=lambda e: e.status != 429,  # type: ignore
+            max_time=MAX_REQUEST_TIME,
+            max_tries=MAX_REQUEST_TRIES,
+            jitter=backoff.full_jitter,
+        )
+        def do_request():
+            return log_api.log_reference(
                 org_id=self._org_id,
                 model_id=self._dataset_id,
                 log_reference_request=request,
                 async_req=not self._prefer_sync,
             )
+
+        try:
+            async_result = do_request()
             result = async_result if self._prefer_sync else async_result.get()
             return result
         except ForbiddenException as e:

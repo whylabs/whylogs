@@ -1,20 +1,34 @@
 import logging
 import os
+import sys
 import time
 from uuid import uuid4
+
+if sys.version_info < (3, 10):
+    import httpretty
+else:
+
+    class httpretty:
+        @staticmethod
+        def activate(**kwargs):
+            return lambda x: x
+
 
 import numpy as np
 import pandas as pd
 import pytest
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi
 from whylabs_client.api.models_api import ModelsApi
+from whylabs_client.model.column_schema import ColumnSchema
 from whylabs_client.model.entity_schema import EntitySchema
 from whylabs_client.model.profile_traces_response import ProfileTracesResponse
 from whylabs_client.model.reference_profile_item_response import (
     ReferenceProfileItemResponse,
 )
+from whylabs_client.rest import ApiException
 
 import whylogs as why
+import whylogs.api.writer.whylabs_client as wlc
 from whylogs.api.writer.whylabs import WhyLabsTransaction, WhyLabsWriter
 from whylogs.api.writer.whylabs_client import TransactionAbortedException, WhyLabsClient
 from whylogs.api.writer.whylabs_transaction_writer import WhyLabsTransactionWriter
@@ -37,6 +51,262 @@ os.environ["WHYLOGS_NO_ANALYTICS"] = "True"
 SLEEP_TIME = 30
 
 logger = logging.getLogger(__name__)
+
+
+# It _appears_ that HTTPretty tests have to execute before Non-HTTPretty
+# tests or else the fakes don't work.
+
+# speed up testing
+wlc.MAX_REQUEST_TIME = 2
+wlc.MAX_REQUEST_TRIES = 3
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_whylabs_writer_throttle_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = "XXX"
+    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/log/async/{MODEL_ID}"
+    httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
+    why.init(force_local=True)
+    data = {"col1": 1, "col2": "foo"}
+    result = why.log(data)
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    with pytest.raises(ApiException) as exc_info:
+        writer.write(result.profile())
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_performance_column_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = "XXX"
+    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/models/{MODEL_ID}/schema/metric"
+    httpretty.register_uri(httpretty.PUT, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    status, _ = writer.tag_custom_performance_column("col1", "perf_column", "mean")
+    assert not status
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_get_transaction_id_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    uri = f"{ENDPOINT}/v1/transaction"
+    httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter()
+    with pytest.raises(ApiException) as exc_info:
+        _ = writer._whylabs_client.get_transaction_id()
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_set_column_schema_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = "XXX"
+    COL_NAME = "foo"
+    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/models/{MODEL_ID}/schema/column/{COL_NAME}"
+    httpretty.register_uri(httpretty.PUT, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    with pytest.raises(ApiException) as exc_info:
+        _ = writer._whylabs_client._set_column_schema(COL_NAME, ColumnSchema("", "", ""))
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_commit_transaction_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    uri = f"{ENDPOINT}/v1/transaction/commit"
+    httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter()
+    with pytest.raises(ApiException) as exc_info:
+        _ = writer._whylabs_client.commit_transaction("xxx")
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_abort_transaction_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    uri = f"{ENDPOINT}/v1/transaction/abort"
+    httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter()
+    with pytest.raises(ApiException) as exc_info:
+        _ = writer._whylabs_client.abort_transaction("xxx")
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_transaction_status_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    uri = f"{ENDPOINT}/v1/transaction"
+    httpretty.register_uri(httpretty.GET, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter()
+    with pytest.raises(ApiException) as exc_info:
+        _ = writer._whylabs_client.transaction_status("xxx")
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_log_transaction_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    uri = f"{ENDPOINT}/v1/transaction/log"
+    httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter()
+    with pytest.raises(ApiException) as exc_info:
+        _ = writer._whylabs_client.get_upload_url_transaction(0)
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_get_feature_weights_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = "xxx"
+    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/dataset/{MODEL_ID}/weights"
+    httpretty.register_uri(httpretty.GET, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    with pytest.raises(ApiException) as exc_info:
+        _ = writer._whylabs_client.get_feature_weights()
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_write_feature_weights_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = "xxx"
+    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/dataset/{MODEL_ID}/weights"
+    httpretty.register_uri(httpretty.PUT, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    with pytest.raises(ApiException) as exc_info:
+        weights = FeatureWeights({"col1": 1.0, "col2": 0.0})
+        _ = writer._whylabs_client.write_feature_weights(weights)
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_get_column_schema_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = "xxx"
+    COLUMN_NAME = "foo"
+    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/models/{MODEL_ID}/schema/column/{COLUMN_NAME}"
+    httpretty.register_uri(httpretty.GET, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    with pytest.raises(ApiException) as exc_info:
+        _ = writer._whylabs_client.tag_output_columns([COLUMN_NAME])
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_put_column_schema_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = "xxx"
+    COLUMN_NAME = "foo"
+    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/models/{MODEL_ID}/schema/column/{COLUMN_NAME}"
+    httpretty.register_uri(httpretty.PUT, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+
+    # monkey patches
+    real_get_existing_schema = writer._whylabs_client._get_existing_column_schema
+    writer._whylabs_client._get_existing_column_schema = lambda x, y: ColumnSchema("", "", "")
+
+    real_needs_update = writer._whylabs_client._column_schema_needs_update
+    writer._whylabs_client._column_schema_needs_update = lambda x, y: True
+
+    with pytest.raises(ApiException) as exc_info:
+        _ = writer._whylabs_client._put_column_schema(COLUMN_NAME, "bar")
+
+    # unpatch
+    writer._whylabs_client._get_existing_column_schema = real_get_existing_schema
+    writer._whylabs_client._column_schema_needs_update = real_needs_update
+
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_log_async_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = "xxx"
+    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/log/async/{MODEL_ID}"
+    httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    with pytest.raises(ApiException) as exc_info:
+        _ = writer._whylabs_client.get_upload_url_batch(0)
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_post_log_segmented_reference_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = "xxx"
+    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/dataset-profiles/models/{MODEL_ID}/reference-profile"
+    httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    with pytest.raises(ApiException) as exc_info:
+        _ = writer._whylabs_client._get_upload_urls_segmented_reference([], 0, "foo")
+    assert exc_info.value.status == 429
+
+
+@pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
+@pytest.mark.load
+@httpretty.activate(allow_net_connect=False, verbose=True)
+def test_post_log_unsegmented_reference_retry():
+    ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
+    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    MODEL_ID = "xxx"
+    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/log/reference/{MODEL_ID}"
+    httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
+
+    writer = WhyLabsWriter(dataset_id=MODEL_ID)
+    with pytest.raises(ApiException) as exc_info:
+        _ = writer._whylabs_client.get_upload_url_unsegmented_reference(0, "foo")
+    assert exc_info.value.status == 429
 
 
 @pytest.mark.load
