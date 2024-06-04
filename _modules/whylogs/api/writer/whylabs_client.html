@@ -449,6 +449,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">IO</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
 
+<span class="kn">import</span> <span class="nn">backoff</span>
 <span class="kn">import</span> <span class="nn">requests</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">urllib3</span> <span class="kn">import</span> <span class="n">PoolManager</span><span class="p">,</span> <span class="n">ProxyManager</span>
 <span class="kn">from</span> <span class="nn">whylabs_client</span> <span class="kn">import</span> <span class="n">ApiClient</span><span class="p">,</span> <span class="n">Configuration</span>  <span class="c1"># type: ignore</span>
@@ -475,7 +476,7 @@
 <span class="kn">from</span> <span class="nn">whylabs_client.model.transaction_commit_request</span> <span class="kn">import</span> <span class="n">TransactionCommitRequest</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.model.transaction_log_request</span> <span class="kn">import</span> <span class="n">TransactionLogRequest</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.model.transaction_start_request</span> <span class="kn">import</span> <span class="n">TransactionStartRequest</span>
-<span class="kn">from</span> <span class="nn">whylabs_client.rest</span> <span class="kn">import</span> <span class="n">ForbiddenException</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.rest</span> <span class="kn">import</span> <span class="n">ApiException</span><span class="p">,</span> <span class="n">ForbiddenException</span>  <span class="c1"># type: ignore</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">SegmentedResultSet</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">INIT_DOCS</span><span class="p">,</span> <span class="n">default_init</span>
@@ -495,6 +496,8 @@
 <span class="n">DAY_IN_SECONDS</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">24</span>
 <span class="n">FIVE_YEARS_IN_SECONDS</span> <span class="o">=</span> <span class="n">DAY_IN_SECONDS</span> <span class="o">*</span> <span class="mi">365</span> <span class="o">*</span> <span class="mi">5</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;backoff&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">())</span>
+
 <span class="n">WHYLOGS_PREFER_SYNC_KEY</span> <span class="o">=</span> <span class="s2">&quot;WHYLOGS_PREFER_SYNC&quot;</span>
 
 <span class="n">_API_CLIENT_CACHE</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ApiClient</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -502,6 +505,10 @@
 
 <span class="n">_US_WEST2_DOMAIN</span> <span class="o">=</span> <span class="s2">&quot;songbird-20201223060057342600000001.s3.us-west-2.amazonaws.com&quot;</span>
 <span class="n">_S3_PUBLIC_DOMAIN</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_WHYLABS_PRIVATE_S3_DOMAIN&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_US_WEST2_DOMAIN</span>
+
+
+<span class="n">MAX_REQUEST_TIME</span> <span class="o">=</span> <span class="mi">60</span>  <span class="c1"># seconds</span>
+<span class="n">MAX_REQUEST_TRIES</span> <span class="o">=</span> <span class="mi">10</span>
 
 <span class="n">KNOWN_CUSTOM_PERFORMANCE_METRICS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;mean_average_precision_k_&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
@@ -870,8 +877,20 @@
             <span class="n">column</span><span class="o">=</span><span class="n">column</span><span class="p">,</span>
             <span class="n">default_metric</span><span class="o">=</span><span class="n">default_metric</span><span class="p">,</span>
         <span class="p">)</span>
+
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="n">ApiException</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">api_instance</span><span class="o">.</span><span class="n">put_entity_schema_metric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">metric_schema</span><span class="p">)</span>
+
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">api_instance</span><span class="o">.</span><span class="n">put_entity_schema_metric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">metric_schema</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">do_request</span><span class="p">()</span>
             <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
@@ -918,11 +937,23 @@
 
     <span class="k">def</span> <span class="nf">_set_column_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">):</span>
         <span class="n">model_api_instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_models_client</span><span class="p">()</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># TODO: remove when whylabs supports merge writes.</span>
+
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="n">ApiException</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
             <span class="n">model_api_instance</span><span class="o">.</span><span class="n">put_entity_schema_column</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column_schema</span><span class="o">=</span><span class="n">column_schema</span>
             <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># TODO: remove when whylabs supports merge writes.</span>
+            <span class="n">do_request</span><span class="p">()</span>
             <span class="k">return</span> <span class="p">(</span>
                 <span class="mi">200</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> schema set to </span><span class="si">{</span><span class="n">column_schema</span><span class="o">.</span><span class="n">classifier</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">column_schema</span><span class="o">.</span><span class="n">data_type</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">column_schema</span><span class="o">.</span><span class="n">discreteness</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -991,9 +1022,20 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s3_endpoint_subject</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Override Host parameter since we are using S3 private endpoint: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_s3_private_domain</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Host&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s3_endpoint_subject</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s3_pool</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
-            <span class="s2">&quot;PUT&quot;</span><span class="p">,</span> <span class="n">upload_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_timeout_seconds</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">profile_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">profile_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_predicate</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">,</span>  <span class="c1"># maybe should be == 429</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s3_pool</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s2">&quot;PUT&quot;</span><span class="p">,</span> <span class="n">upload_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_timeout_seconds</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">do_request</span><span class="p">()</span>
         <span class="n">is_successful</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
             <span class="n">is_successful</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1058,7 +1100,19 @@
 <div class="viewcode-block" id="WhyLabsClient.get_transaction_id"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs_client/index.html#whylogs.api.writer.whylabs_client.WhyLabsClient.get_transaction_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_transaction_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">TransactionsApi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_transaction_client</span><span class="p">()</span>
         <span class="n">request</span> <span class="o">=</span> <span class="n">TransactionStartRequest</span><span class="p">(</span><span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">)</span>
-        <span class="n">result</span><span class="p">:</span> <span class="n">LogTransactionMetadata</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">start_transaction</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="n">ApiException</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">start_transaction</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+        <span class="n">result</span><span class="p">:</span> <span class="n">LogTransactionMetadata</span> <span class="o">=</span> <span class="n">do_request</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting transaction </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;transaction_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, expires </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;expiration_time&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;transaction_id&quot;</span><span class="p">]</span></div>
 
@@ -1066,9 +1120,21 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Committing transaction </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_transaction_client</span><span class="p">()</span>
         <span class="n">request</span> <span class="o">=</span> <span class="n">TransactionCommitRequest</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="n">ApiException</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
+            <span class="n">client</span><span class="o">.</span><span class="n">commit_transaction</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+
         <span class="c1"># We abandon the transaction if this throws</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">client</span><span class="o">.</span><span class="n">commit_transaction</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+            <span class="n">do_request</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">NotFoundException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;Transaction has been aborted&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>  <span class="c1"># TODO: perhaps not the most robust test?</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transaction </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2"> was aborted; not committing&quot;</span><span class="p">)</span>
@@ -1079,11 +1145,35 @@
 <div class="viewcode-block" id="WhyLabsClient.abort_transaction"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs_client/index.html#whylogs.api.writer.whylabs_client.WhyLabsClient.abort_transaction">[docs]</a>    <span class="k">def</span> <span class="nf">abort_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Aborting transaciton </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_transaction_client</span><span class="p">()</span>
-        <span class="n">client</span><span class="o">.</span><span class="n">abort_transaction</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span></div>
+
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="n">ApiException</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
+            <span class="n">client</span><span class="o">.</span><span class="n">abort_transaction</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+
+        <span class="n">do_request</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="WhyLabsClient.transaction_status"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs_client/index.html#whylogs.api.writer.whylabs_client.WhyLabsClient.transaction_status">[docs]</a>    <span class="k">def</span> <span class="nf">transaction_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_transaction_client</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">transaction_status</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span></div>
+
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="n">ApiException</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">transaction_status</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">do_request</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="WhyLabsClient.get_upload_url_transaction"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/whylabs_client/index.html#whylogs.api.writer.whylabs_client.WhyLabsClient.get_upload_url_transaction">[docs]</a>    <span class="k">def</span> <span class="nf">get_upload_url_transaction</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">whylabs_tags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SegmentTag</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1092,7 +1182,19 @@
         <span class="n">client</span><span class="p">:</span> <span class="n">TransactionsApi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_transaction_client</span><span class="p">()</span>
         <span class="n">client</span><span class="o">.</span><span class="n">api_client</span><span class="o">.</span><span class="n">set_default_header</span><span class="p">(</span><span class="s2">&quot;X-WhyLabs-File-Extension&quot;</span><span class="p">,</span> <span class="s2">&quot;BIN&quot;</span><span class="p">)</span>
         <span class="n">request</span> <span class="o">=</span> <span class="n">TransactionLogRequest</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">,</span> <span class="n">segment_tags</span><span class="o">=</span><span class="n">whylabs_tags</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">)</span>
-        <span class="n">result</span><span class="p">:</span> <span class="n">AsyncLogResponse</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">log_transaction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="n">ApiException</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">log_transaction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span>
+
+        <span class="n">result</span><span class="p">:</span> <span class="n">AsyncLogResponse</span> <span class="o">=</span> <span class="n">do_request</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">upload_url</span></div>
 
     <span class="k">def</span> <span class="nf">_get_or_create_feature_weights_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeatureWeightsApi</span><span class="p">:</span>
@@ -1140,11 +1242,23 @@
 
     <span class="k">def</span> <span class="nf">_get_column_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">feature_weight_api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_feature_weights_client</span><span class="p">()</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">feature_weight_api</span><span class="o">.</span><span class="n">get_column_weights</span><span class="p">(</span>
+
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="n">ApiException</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">feature_weight_api</span><span class="o">.</span><span class="n">get_column_weights</span><span class="p">(</span>
                 <span class="n">org_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span>
                 <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span>
             <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">do_request</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">result</span>
         <span class="k">except</span> <span class="n">ForbiddenException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
@@ -1156,8 +1270,17 @@
 
     <span class="k">def</span> <span class="nf">_put_feature_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">FeatureWeights</span><span class="p">):</span>
         <span class="n">feature_weight_api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_feature_weights_client</span><span class="p">()</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">feature_weight_api</span><span class="o">.</span><span class="n">put_column_weights</span><span class="p">(</span>
+
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="n">ApiException</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">feature_weight_api</span><span class="o">.</span><span class="n">put_column_weights</span><span class="p">(</span>
                 <span class="n">org_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span>
                 <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span>
                 <span class="n">body</span><span class="o">=</span><span class="p">{</span>
@@ -1165,6 +1288,9 @@
                 <span class="p">},</span>
                 <span class="n">_return_http_data_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">do_request</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">except</span> <span class="n">ForbiddenException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
@@ -1175,12 +1301,22 @@
             <span class="k">raise</span> <span class="n">e</span>
 
     <span class="k">def</span> <span class="nf">_get_existing_column_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_api_instance</span><span class="p">,</span> <span class="n">column_name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ColumnSchema</span><span class="p">]:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># TODO: remove when whylabs supports merge writes.</span>
-            <span class="n">existing_schema</span> <span class="o">=</span> <span class="n">model_api_instance</span><span class="o">.</span><span class="n">get_entity_schema_column</span><span class="p">(</span>
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="n">ApiException</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">model_api_instance</span><span class="o">.</span><span class="n">get_entity_schema_column</span><span class="p">(</span>
                 <span class="n">org_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span> <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">column_id</span><span class="o">=</span><span class="n">column_name</span>
             <span class="p">)</span>
 
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># TODO: remove when whylabs supports merge writes.</span>
+            <span class="n">existing_schema</span> <span class="o">=</span> <span class="n">do_request</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">existing_schema</span><span class="p">:</span>
                 <span class="n">data_type</span> <span class="o">=</span> <span class="n">existing_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataType&quot;</span><span class="p">)</span>
                 <span class="n">discreteness</span> <span class="o">=</span> <span class="n">existing_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;discreteness&quot;</span><span class="p">)</span>
@@ -1213,11 +1349,23 @@
             <span class="n">updated_column_schema</span> <span class="o">=</span> <span class="n">ColumnSchema</span><span class="p">(</span>
                 <span class="n">classifier</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="n">column_schema</span><span class="o">.</span><span class="n">data_type</span><span class="p">,</span> <span class="n">discreteness</span><span class="o">=</span><span class="n">column_schema</span><span class="o">.</span><span class="n">discreteness</span>
             <span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
+
+            <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+                <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+                <span class="n">ApiException</span><span class="p">,</span>
+                <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+                <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+                <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
                 <span class="c1"># TODO: remove when whylabs supports merge writes.</span>
                 <span class="n">model_api_instance</span><span class="o">.</span><span class="n">put_entity_schema_column</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">updated_column_schema</span>
                 <span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">do_request</span><span class="p">()</span>
                 <span class="k">return</span> <span class="p">(</span>
                     <span class="mi">200</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> updated from </span><span class="si">{</span><span class="n">column_schema</span><span class="o">.</span><span class="n">classifier</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">updated_column_schema</span><span class="o">.</span><span class="n">classifier</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -1243,8 +1391,20 @@
             <span class="n">log_api</span><span class="o">.</span><span class="n">api_client</span><span class="o">.</span><span class="n">set_default_header</span><span class="p">(</span><span class="s2">&quot;X-WhyLabs-File-Extension&quot;</span><span class="p">,</span> <span class="s2">&quot;ZIP&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">log_api</span><span class="o">.</span><span class="n">api_client</span><span class="o">.</span><span class="n">set_default_header</span><span class="p">(</span><span class="s2">&quot;X-WhyLabs-File-Extension&quot;</span><span class="p">,</span> <span class="s2">&quot;BIN&quot;</span><span class="p">)</span>
+
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="n">ApiException</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">log_api</span><span class="o">.</span><span class="n">log_async</span><span class="p">(</span><span class="n">org_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span> <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">log_async_request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
+
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">log_api</span><span class="o">.</span><span class="n">log_async</span><span class="p">(</span><span class="n">org_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span> <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">log_async_request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">do_request</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">result</span>
         <span class="k">except</span> <span class="n">ForbiddenException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
@@ -1285,14 +1445,25 @@
             <span class="n">dataset_api</span><span class="o">.</span><span class="n">api_client</span><span class="o">.</span><span class="n">set_default_header</span><span class="p">(</span><span class="s2">&quot;X-WhyLabs-File-Extension&quot;</span><span class="p">,</span> <span class="s2">&quot;ZIP&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">dataset_api</span><span class="o">.</span><span class="n">api_client</span><span class="o">.</span><span class="n">set_default_header</span><span class="p">(</span><span class="s2">&quot;X-WhyLabs-File-Extension&quot;</span><span class="p">,</span> <span class="s2">&quot;BIN&quot;</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">async_result</span> <span class="o">=</span> <span class="n">dataset_api</span><span class="o">.</span><span class="n">create_reference_profile</span><span class="p">(</span>
+
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="n">ApiException</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">dataset_api</span><span class="o">.</span><span class="n">create_reference_profile</span><span class="p">(</span>
                 <span class="n">org_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span>
                 <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span>
                 <span class="n">create_reference_profile_request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
                 <span class="n">async_req</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefer_sync</span><span class="p">,</span>
             <span class="p">)</span>
 
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">async_result</span> <span class="o">=</span> <span class="n">do_request</span><span class="p">()</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">async_result</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">result</span>
         <span class="k">except</span> <span class="n">ForbiddenException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1305,13 +1476,25 @@
 
     <span class="k">def</span> <span class="nf">_post_log_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">LogAsyncRequest</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LogReferenceResponse</span><span class="p">:</span>
         <span class="n">log_api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_create_api_log_client</span><span class="p">()</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">async_result</span> <span class="o">=</span> <span class="n">log_api</span><span class="o">.</span><span class="n">log_reference</span><span class="p">(</span>
+
+        <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
+            <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
+            <span class="n">ApiException</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">log_api</span><span class="o">.</span><span class="n">log_reference</span><span class="p">(</span>
                 <span class="n">org_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span>
                 <span class="n">model_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span>
                 <span class="n">log_reference_request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
                 <span class="n">async_req</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefer_sync</span><span class="p">,</span>
             <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">async_result</span> <span class="o">=</span> <span class="n">do_request</span><span class="p">()</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">async_result</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefer_sync</span> <span class="k">else</span> <span class="n">async_result</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">result</span>
         <span class="k">except</span> <span class="n">ForbiddenException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>

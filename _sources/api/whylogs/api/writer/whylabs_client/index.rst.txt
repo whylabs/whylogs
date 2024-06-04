@@ -27,6 +27,8 @@ Attributes
    whylogs.api.writer.whylabs_client.FIVE_YEARS_IN_SECONDS
    whylogs.api.writer.whylabs_client.logger
    whylogs.api.writer.whylabs_client.WHYLOGS_PREFER_SYNC_KEY
+   whylogs.api.writer.whylabs_client.MAX_REQUEST_TIME
+   whylogs.api.writer.whylabs_client.MAX_REQUEST_TRIES
    whylogs.api.writer.whylabs_client.KNOWN_CUSTOM_PERFORMANCE_METRICS
    whylogs.api.writer.whylabs_client.KNOWN_CUSTOM_OUTPUT_METRICS
 
@@ -49,6 +51,16 @@ Attributes
 
 .. py:data:: WHYLOGS_PREFER_SYNC_KEY
    :value: 'WHYLOGS_PREFER_SYNC'
+
+   
+
+.. py:data:: MAX_REQUEST_TIME
+   :value: 60
+
+   
+
+.. py:data:: MAX_REQUEST_TRIES
+   :value: 10
 
    
 
