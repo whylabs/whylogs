@@ -8,7 +8,7 @@ from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.api.whylabs.session.session_manager import INIT_DOCS
 from whylogs.api.writer.whylabs_base import WhyLabsWriterBase
 from whylogs.api.writer.whylabs_client import WhyLabsClient
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import _Writable
 from whylogs.core import DatasetProfileView
 from whylogs.core.utils import deprecated_alias
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
@@ -120,7 +120,7 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
 
     @deprecated_alias(profile="file")
     def write(
-        self, file: Writable, dest: Optional[str] = None, **kwargs: Any
+        self, file: _Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
         if self._aborted:
             return False, f"Transaction {self.transaction_id} was aborted"

@@ -1,11 +1,12 @@
 import json
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from whylogs.api.writer.writer import Writable, WriterWrapper
+from whylogs.api.writer.writer import _Writable, WriterWrapper
 from whylogs.core import Segment
+from whylogs.core.utils import deprecated
 
 
-class FeatureWeights(Writable):
+class FeatureWeights(_Writable):
     def __init__(self, weights: Dict[str, float], segment: Optional[Segment] = None, metadata: Optional[Dict] = None):
         """Feature Weights
 
@@ -28,7 +29,11 @@ class FeatureWeights(Writable):
     def _get_default_path(self) -> str:
         raise ValueError("I'm not a real Writable")
 
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]:
+    @deprecated(message="please use a Writer")
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+        raise ValueError("I'm not a real Writable")
+
+    def _write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]:
         raise ValueError("I'm not a real Writable")
 
     def to_json(self) -> str:

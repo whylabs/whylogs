@@ -3,13 +3,13 @@ import time
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import _Writable
 from whylogs.core.metrics import Metric
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
 )
 from whylogs.core.preprocessing import ColumnProperties
-from whylogs.core.utils.utils import deprecated_alias, ensure_timezone
+from whylogs.core.utils.utils import deprecated, deprecated_alias, ensure_timezone
 
 from .column_profile import ColumnProfile
 from .input_resolver import _pandas_or_dict
@@ -23,7 +23,7 @@ _LARGE_CACHE_SIZE_LIMIT = 1024 * 100
 _MODEL_PERFORMANCE_KEY = "model_performance_metrics"
 
 
-class DatasetProfile(Writable):
+class DatasetProfile(_Writable):
     """
     Dataset profile represents a collection of in-memory profiling stats for a dataset.
 
@@ -269,8 +269,14 @@ class DatasetProfile(Writable):
     def _get_default_filename(self) -> str:
         return f"profile.{int(round(time.time() * 1000))}.bin"
 
+    @deprecated(message="please use a Writer")
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+        success, files = self._write("", path, **kwargs)
+        files = files[0] if isintsance(files, list) else files
+        return success, files
+
     @deprecated_alias(path_or_base_dir="path")
-    def write(
+    def _write(
         self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[str]]]:
         filename = filename or self._get_default_filename()
