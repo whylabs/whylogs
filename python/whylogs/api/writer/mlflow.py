@@ -38,7 +38,6 @@ class MlflowWriter(Writer):
 
         files = files if isinstance(files, list) else [files]
         for file in files:
-            print(f"flowing {file} to {self._file_dir}")
             mlflow.log_artifact(file, artifact_path=self._file_dir)
 
         if self._end_run is True and not preexisting_run:
