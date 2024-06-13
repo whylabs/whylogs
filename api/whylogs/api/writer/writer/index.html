@@ -10,7 +10,7 @@
   
 <meta property="og:url" content="https://whylogs.readthedocs.io/api/whylogs/api/writer/writer/index.html" />
   
-<meta property="og:description" content="Module Contents: Classes:" />
+<meta property="og:description" content="Module Contents: Classes: Attributes:" />
   <link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" /><link rel="next" title="whylogs.api.annotations" href="../../annotations/index.html" /><link rel="prev" title="whylogs.api.writer.whylabs_transaction_writer" href="../whylabs_transaction_writer/index.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.09.29"/>
@@ -465,67 +465,38 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Writable</span></code></a></p></td>
-<td><p>A Writable is an object that contains data to write to a file or files.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.writer.writer.Writer" title="whylogs.api.writer.writer.Writer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Writer</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.writer.writer.Writer" title="whylogs.api.writer.writer.Writer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Writer</span></code></a></p></td>
 <td><p>Helper class that provides a standard way to create an ABC using</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.writer.writer.WriterWrapper" title="whylogs.api.writer.writer.WriterWrapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WriterWrapper</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.writer.writer.WriterWrapper" title="whylogs.api.writer.writer.WriterWrapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WriterWrapper</span></code></a></p></td>
 <td><p>Elide the Writable argument</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.writer.writer.Writers" title="whylogs.api.writer.writer.Writers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Writers</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.writer.writer.Writers" title="whylogs.api.writer.writer.Writers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Writers</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<dl class="py class">
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">#</a></h3>
+<div class="table-wrapper longtable docutils container">
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Writable</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py data">
 <dt class="sig sig-object py" id="whylogs.api.writer.writer.Writable">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.writer.</span></span><span class="sig-name descname"><span class="pre">Writable</span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/writer.html#Writable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.writer.Writable" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/abc.html#abc.ABC" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
-<p>A Writable is an object that contains data to write to a file or files.
-These might be temporary files intended to be passed on to another
-consumer (e.g., WhyLabs servers) via a Writer.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.api.writer.writer.Writable.write">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/writer.html#Writable.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.writer.Writable.write" title="Permalink to this definition">#</a></dt>
-<dd><p>Writes the Writable’s data to file(s) under <cite>path</cite> (excluding filename(s)) if specified,
-else under <cite>_get_default_path()</cite>. <cite>filename</cite> specifies the file to write there. Writables
-can generate a default filename if None is specified. Returns a bool that’s True iff all
-files were written successfully and a list of the filenames (including path) written.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
-<li><p><strong>filename</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Tuple[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)">bool</a>, Union[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, List[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]]]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="whylogs.api.writer.writer.Writable.writer">
-<span class="sig-name descname"><span class="pre">writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'local'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.api.writer.writer.WriterWrapper" title="whylogs.api.writer.writer.WriterWrapper"><span class="pre">WriterWrapper</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/writer.html#Writable.writer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.writer.Writable.writer" title="Permalink to this definition">#</a></dt>
-<dd><p>Utility method to create a Writer of the specified type</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="#whylogs.api.writer.writer.WriterWrapper" title="whylogs.api.writer.writer.WriterWrapper">WriterWrapper</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
+<span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.writer.</span></span><span class="sig-name descname"><span class="pre">Writable</span></span><a class="headerlink" href="#whylogs.api.writer.writer.Writable" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.api.writer.writer.Writer">
@@ -551,7 +522,7 @@ an unacceptable interval.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.writer.writer.Writer.write">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable"><span class="pre">Writable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/writer.html#Writer.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.writer.Writer.write" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_Writable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/writer.html#Writer.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.writer.Writer.write" title="Permalink to this definition">#</a></dt>
 <dd><p>Calls Writable::write() to serialize the Wriable <cite>file</cite> to temporary file(s),
 then “sends” the temporary file(s) to <cite>dest</cite> according to the type of Writer.
 If <cite>dest</cite> is None, it uses the Writer’s default destination.</p>
@@ -563,7 +534,7 @@ zip_name: str   Name of the ZipFile, will be auto-generated if None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file</strong> (<a class="reference internal" href="#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable"><em>Writable</em></a>) – </p></li>
+<li><p><strong>file</strong> (<em>_Writable</em>) – </p></li>
 <li><p><strong>dest</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
@@ -591,12 +562,12 @@ zip_name: str   Name of the ZipFile, will be auto-generated if None</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.api.writer.writer.WriterWrapper">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.writer.</span></span><span class="sig-name descname"><span class="pre">WriterWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">writable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable"><span class="pre">Writable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">writer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.api.writer.writer.Writer" title="whylogs.api.writer.writer.Writer"><span class="pre">Writer</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/writer.html#WriterWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.writer.WriterWrapper" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.writer.</span></span><span class="sig-name descname"><span class="pre">WriterWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">writable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_Writable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">writer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#whylogs.api.writer.writer.Writer" title="whylogs.api.writer.writer.Writer"><span class="pre">Writer</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/writer.html#WriterWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.writer.WriterWrapper" title="Permalink to this definition">#</a></dt>
 <dd><p>Elide the Writable argument</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>writable</strong> (<a class="reference internal" href="#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable"><em>Writable</em></a>) – </p></li>
+<li><p><strong>writable</strong> (<em>_Writable</em>) – </p></li>
 <li><p><strong>writer</strong> (<a class="reference internal" href="#whylogs.api.writer.writer.Writer" title="whylogs.api.writer.writer.Writer"><em>Writer</em></a>) – </p></li>
 </ul>
 </dd>
@@ -650,12 +621,12 @@ zip_name: str   Name of the ZipFile, will be auto-generated if None</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.writer.</span></span><span class="sig-name descname"><span class="pre">Writers</span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/writer.html#Writers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.writer.Writers" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.writer.writer.Writers.get">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">writable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable"><span class="pre">Writable</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.api.writer.writer.Writer" title="whylogs.api.writer.writer.Writer"><span class="pre">Writer</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#whylogs.api.writer.writer.WriterWrapper" title="whylogs.api.writer.writer.WriterWrapper"><span class="pre">WriterWrapper</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/writer.html#Writers.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.writer.Writers.get" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">writable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">_Writable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#whylogs.api.writer.writer.Writer" title="whylogs.api.writer.writer.Writer"><span class="pre">Writer</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#whylogs.api.writer.writer.WriterWrapper" title="whylogs.api.writer.writer.WriterWrapper"><span class="pre">WriterWrapper</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/api/writer/writer.html#Writers.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.writer.writer.Writers.get" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
-<li><p><strong>writable</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#whylogs.api.writer.writer.Writable" title="whylogs.api.writer.writer.Writable"><em>Writable</em></a><em>]</em>) – </p></li>
+<li><p><strong>writable</strong> (<em>Optional</em><em>[</em><em>_Writable</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -754,12 +725,9 @@ zip_name: str   Name of the ZipFile, will be auto-generated if None</p>
             <ul>
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.writer</span></code></a><ul>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
-<li><a class="reference internal" href="#classes">Classes</a><ul>
-<li><a class="reference internal" href="#whylogs.api.writer.writer.Writable">Writable</a><ul>
-<li><a class="reference internal" href="#whylogs.api.writer.writer.Writable.write">write</a></li>
-<li><a class="reference internal" href="#whylogs.api.writer.writer.Writable.writer">writer</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#attributes">Attributes</a><ul>
+<li><a class="reference internal" href="#whylogs.api.writer.writer.Writable">Writable</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.writer.Writer">Writer</a><ul>
 <li><a class="reference internal" href="#whylogs.api.writer.writer.Writer.check_interval">check_interval</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.writer.Writer.write">write</a></li>

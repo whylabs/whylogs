@@ -149,14 +149,6 @@ Attributes
    .. py:method:: get_default_path() -> Optional[str]
 
 
-   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
-
-      Writes the Writable's data to file(s) under `path` (excluding filename(s)) if specified,
-      else under `_get_default_path()`. `filename` specifies the file to write there. Writables
-      can generate a default filename if None is specified. Returns a bool that's True iff all
-      files were written successfully and a list of the filenames (including path) written.
-
-
    .. py:method:: read(multi_profile_file: str) -> ResultSet
       :staticmethod:
 
@@ -165,7 +157,7 @@ Attributes
       :staticmethod:
 
 
-   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
+   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer._Writable]]
 
 
    .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
@@ -177,6 +169,9 @@ Attributes
    .. py:method:: add_metric(name: str, metric: whylogs.core.metrics.metrics.Metric) -> None
 
 
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
+
+
    .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
 
       Utility method to create a Writer of the specified type
@@ -185,7 +180,7 @@ Attributes
 
 .. py:class:: ResultSet
 
-   Bases: :py:obj:`whylogs.api.writer.writer.Writable`, :py:obj:`abc.ABC`
+   Bases: :py:obj:`whylogs.api.writer.writer._Writable`, :py:obj:`abc.ABC`
 
    A holder object for profiling results.
 
@@ -210,14 +205,6 @@ Attributes
    .. py:method:: get_default_path() -> Optional[str]
 
 
-   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
-
-      Writes the Writable's data to file(s) under `path` (excluding filename(s)) if specified,
-      else under `_get_default_path()`. `filename` specifies the file to write there. Writables
-      can generate a default filename if None is specified. Returns a bool that's True iff all
-      files were written successfully and a list of the filenames (including path) written.
-
-
    .. py:method:: read(multi_profile_file: str) -> ResultSet
       :staticmethod:
 
@@ -234,7 +221,7 @@ Attributes
       :abstractmethod:
 
 
-   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
+   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer._Writable]]
 
 
    .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
@@ -248,6 +235,9 @@ Attributes
 
    .. py:method:: merge(other: ResultSet) -> ResultSet
       :abstractmethod:
+
+
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
@@ -308,21 +298,13 @@ Attributes
    .. py:method:: profile(segment: Optional[whylogs.core.Segment] = None) -> Optional[Union[whylogs.core.DatasetProfile, whylogs.core.DatasetProfileView]]
 
 
-   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
+   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer._Writable]]
 
 
    .. py:method:: get_whylabs_tags() -> List[whylabs_client.model.segment_tag.SegmentTag]
 
 
    .. py:method:: get_timestamps() -> List[Optional[datetime.datetime]]
-
-
-   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
-
-      Writes the Writable's data to file(s) under `path` (excluding filename(s)) if specified,
-      else under `_get_default_path()`. `filename` specifies the file to write there. Writables
-      can generate a default filename if None is specified. Returns a bool that's True iff all
-      files were written successfully and a list of the filenames (including path) written.
 
 
    .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
@@ -365,6 +347,9 @@ Attributes
 
    .. py:method:: reader(name: str = 'local') -> ResultSetReader
       :staticmethod:
+
+
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
@@ -441,7 +426,7 @@ Attributes
 
 .. py:class:: DatasetProfile(schema: Optional[whylogs.core.schema.DatasetSchema] = None, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None, metrics: Optional[Dict[str, Union[whylogs.core.metrics.Metric, Any]]] = None, metadata: Optional[Dict[str, str]] = None)
 
-   Bases: :py:obj:`whylogs.api.writer.writer.Writable`
+   Bases: :py:obj:`whylogs.api.writer.writer._Writable`
 
    Dataset profile represents a collection of in-memory profiling stats for a dataset.
 
@@ -502,12 +487,7 @@ Attributes
    .. py:method:: flush() -> None
 
 
-   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
-
-      Writes the Writable's data to file(s) under `path` (excluding filename(s)) if specified,
-      else under `_get_default_path()`. `filename` specifies the file to write there. Writables
-      can generate a default filename if None is specified. Returns a bool that's True iff all
-      files were written successfully and a list of the filenames (including path) written.
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: read(input_path: str) -> whylogs.core.view.DatasetProfileView

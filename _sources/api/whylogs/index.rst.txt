@@ -70,7 +70,7 @@ Functions
 
 .. py:class:: ResultSet
 
-   Bases: :py:obj:`whylogs.api.writer.writer.Writable`, :py:obj:`abc.ABC`
+   Bases: :py:obj:`whylogs.api.writer.writer._Writable`, :py:obj:`abc.ABC`
 
    A holder object for profiling results.
 
@@ -95,14 +95,6 @@ Functions
    .. py:method:: get_default_path() -> Optional[str]
 
 
-   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
-
-      Writes the Writable's data to file(s) under `path` (excluding filename(s)) if specified,
-      else under `_get_default_path()`. `filename` specifies the file to write there. Writables
-      can generate a default filename if None is specified. Returns a bool that's True iff all
-      files were written successfully and a list of the filenames (including path) written.
-
-
    .. py:method:: read(multi_profile_file: str) -> ResultSet
       :staticmethod:
 
@@ -119,7 +111,7 @@ Functions
       :abstractmethod:
 
 
-   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
+   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer._Writable]]
 
 
    .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
@@ -133,6 +125,9 @@ Functions
 
    .. py:method:: merge(other: ResultSet) -> ResultSet
       :abstractmethod:
+
+
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
@@ -273,7 +268,7 @@ Functions
 
 .. py:class:: DatasetProfileView(*, columns: Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView], dataset_timestamp: Optional[datetime.datetime], creation_timestamp: Optional[datetime.datetime], metrics: Optional[Dict[str, Any]] = None, metadata: Optional[Dict[str, str]] = None)
 
-   Bases: :py:obj:`whylogs.api.writer.writer.Writable`
+   Bases: :py:obj:`whylogs.api.writer.writer._Writable`
 
    A Writable is an object that contains data to write to a file or files.
    These might be temporary files intended to be passed on to another
@@ -310,12 +305,7 @@ Functions
    .. py:method:: get_columns(col_names: Optional[List[str]] = None) -> Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView]
 
 
-   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
-
-      Writes the Writable's data to file(s) under `path` (excluding filename(s)) if specified,
-      else under `_get_default_path()`. `filename` specifies the file to write there. Writables
-      can generate a default filename if None is specified. Returns a bool that's True iff all
-      files were written successfully and a list of the filenames (including path) written.
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: serialize() -> bytes

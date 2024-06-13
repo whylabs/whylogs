@@ -35,26 +35,10 @@ Classes
       :abstractmethod:
 
 
-   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
-
-      Create HTML file for a given report.
-
-      :param path: The path where the HTML reports will be stored to.
-      :type path: str, optional
-
-      .. rubric:: Examples
-
-      .. code-block:: python
-
-          from whylogs.viz import VizProfile, SummaryDriftReport
-
-          report = SummaryDriftReport.report()
-
-          viz_profile = VizProfile(report=report)
-          viz_profile.write(path="path/to/report/Report.html")
-
-
    .. py:method:: option()
+
+
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
@@ -78,26 +62,10 @@ Classes
       :abstractmethod:
 
 
-   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
-
-      Create HTML file for a given report.
-
-      :param path: The path where the HTML reports will be stored to.
-      :type path: str, optional
-
-      .. rubric:: Examples
-
-      .. code-block:: python
-
-          from whylogs.viz import VizProfile, SummaryDriftReport
-
-          report = SummaryDriftReport.report()
-
-          viz_profile = VizProfile(report=report)
-          viz_profile.write(path="path/to/report/Report.html")
-
-
    .. py:method:: option()
+
+
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
@@ -121,26 +89,10 @@ Classes
       :abstractmethod:
 
 
-   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
-
-      Create HTML file for a given report.
-
-      :param path: The path where the HTML reports will be stored to.
-      :type path: str, optional
-
-      .. rubric:: Examples
-
-      .. code-block:: python
-
-          from whylogs.viz import VizProfile, SummaryDriftReport
-
-          report = SummaryDriftReport.report()
-
-          viz_profile = VizProfile(report=report)
-          viz_profile.write(path="path/to/report/Report.html")
-
-
    .. py:method:: option()
+
+
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
@@ -164,26 +116,10 @@ Classes
       :abstractmethod:
 
 
-   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
-
-      Create HTML file for a given report.
-
-      :param path: The path where the HTML reports will be stored to.
-      :type path: str, optional
-
-      .. rubric:: Examples
-
-      .. code-block:: python
-
-          from whylogs.viz import VizProfile, SummaryDriftReport
-
-          report = SummaryDriftReport.report()
-
-          viz_profile = VizProfile(report=report)
-          viz_profile.write(path="path/to/report/Report.html")
-
-
    .. py:method:: option()
+
+
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper

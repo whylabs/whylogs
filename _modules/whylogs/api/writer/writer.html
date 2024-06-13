@@ -449,8 +449,10 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">IO</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">zipfile</span> <span class="kn">import</span> <span class="n">ZipFile</span>
 
+<span class="c1"># from whylogs.core.utils.utils import deprecated</span>
 
-<div class="viewcode-block" id="Writable"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/writer/index.html#whylogs.api.writer.Writable">[docs]</a><span class="k">class</span> <span class="nc">Writable</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">_Writable</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Writable is an object that contains data to write to a file or files.</span>
 <span class="sd">    These might be temporary files intended to be passed on to another</span>
@@ -480,8 +482,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Writable.write"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/writer/index.html#whylogs.api.writer.Writable.write">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="n">success</span><span class="p">,</span> <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">files</span>
+        <span class="k">return</span> <span class="n">success</span><span class="p">,</span> <span class="n">files</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_write</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>  <span class="c1"># TODO: Union[str, List[Tupble[bool, str]]] ?</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -490,11 +497,14 @@
 <span class="sd">        can generate a default filename if None is specified. Returns a bool that&#39;s True iff all</span>
 <span class="sd">        files were written successfully and a list of the filenames (including path) written.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">list</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">list</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Writable.writer"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/writer/index.html#whylogs.api.writer.Writable.writer">[docs]</a>    <span class="k">def</span> <span class="nf">writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WriterWrapper&quot;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WriterWrapper&quot;</span><span class="p">:</span>
         <span class="s2">&quot;Utility method to create a Writer of the specified type&quot;</span>
-        <span class="k">return</span> <span class="n">Writers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># type: ignore</span></div></div>
+        <span class="k">return</span> <span class="n">Writers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+
+
+<span class="n">Writable</span> <span class="o">=</span> <span class="n">_Writable</span>
 
 
 <div class="viewcode-block" id="Writer"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/writer/index.html#whylogs.api.writer.Writer">[docs]</a><span class="k">class</span> <span class="nc">Writer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
@@ -521,7 +531,7 @@
 <div class="viewcode-block" id="Writer.write"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/writer/index.html#whylogs.api.writer.Writer.write">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">write</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">file</span><span class="p">:</span> <span class="n">Writable</span><span class="p">,</span>
+        <span class="n">file</span><span class="p">:</span> <span class="n">_Writable</span><span class="p">,</span>
         <span class="n">dest</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]]:</span>
@@ -544,7 +554,7 @@
 <div class="viewcode-block" id="WriterWrapper"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/writer/index.html#whylogs.api.writer.WriterWrapper">[docs]</a><span class="k">class</span> <span class="nc">WriterWrapper</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Elide the Writable argument&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writable</span><span class="p">:</span> <span class="n">Writable</span><span class="p">,</span> <span class="n">writer</span><span class="p">:</span> <span class="n">Writer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writable</span><span class="p">:</span> <span class="n">_Writable</span><span class="p">,</span> <span class="n">writer</span><span class="p">:</span> <span class="n">Writer</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_writable</span> <span class="o">=</span> <span class="n">writable</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span> <span class="o">=</span> <span class="n">writer</span>
 
@@ -565,7 +575,7 @@
 
 <div class="viewcode-block" id="Writers"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/writer/index.html#whylogs.api.writer.Writers">[docs]</a><span class="k">class</span> <span class="nc">Writers</span><span class="p">:</span>
 <div class="viewcode-block" id="Writers.get"><a class="viewcode-back" href="../../../../api/whylogs/api/writer/writer/index.html#whylogs.api.writer.Writers.get">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">writable</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Writable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Writer</span><span class="p">,</span> <span class="n">WriterWrapper</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">writable</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_Writable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Writer</span><span class="p">,</span> <span class="n">WriterWrapper</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;local&quot;</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">whylogs.api.writer.local</span> <span class="kn">import</span> <span class="n">LocalWriter</span>
 

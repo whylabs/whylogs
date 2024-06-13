@@ -97,7 +97,7 @@ Attributes
       :param -------:
 
 
-   .. py:method:: write(file: Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]
+   .. py:method:: write(file: _Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]
       :abstractmethod:
 
       Calls Writable::write() to serialize the Wriable `file` to temporary file(s),

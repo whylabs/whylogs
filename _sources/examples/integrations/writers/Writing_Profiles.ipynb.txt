@@ -571,7 +571,7 @@
         }
       ],
       "source": [
-        "profile_view.write(filename=\"my_profile.bin\")"
+        "profile_view.write(\"my_profile.bin\")"
       ]
     },
     {

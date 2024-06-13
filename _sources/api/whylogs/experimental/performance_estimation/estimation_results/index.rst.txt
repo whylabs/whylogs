@@ -32,19 +32,14 @@ Attributes
 
 .. py:class:: EstimationResult(accuracy: float, reference_partition_id: Optional[str] = None, reference_result_timestamp: Optional[datetime.datetime] = None, target_result_timestamp: Optional[datetime.datetime] = None)
 
-   Bases: :py:obj:`whylogs.api.writer.Writable`
+   Bases: :py:obj:`whylogs.api.writer._Writable`
 
    The result of a performance estimation.
    accuracy: The estimated accuracy.
    reference_partition_id: The partition id of the reference result set.
    reference_result_timestamp: The timestamp of the reference result set.
 
-   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
-
-      Writes the Writable's data to file(s) under `path` (excluding filename(s)) if specified,
-      else under `_get_default_path()`. `filename` specifies the file to write there. Writables
-      can generate a default filename if None is specified. Returns a bool that's True iff all
-      files were written successfully and a list of the filenames (including path) written.
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper

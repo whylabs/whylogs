@@ -31,7 +31,7 @@ Attributes
 
 .. py:class:: SegmentedDatasetProfileView(*, profile_view: whylogs.core.view.dataset_profile_view.DatasetProfileView, segment: whylogs.core.segment.Segment, partition: whylogs.core.segmentation_partition.SegmentationPartition)
 
-   Bases: :py:obj:`whylogs.api.writer.writer.Writable`
+   Bases: :py:obj:`whylogs.api.writer.writer._Writable`
 
    A Writable is an object that contains data to write to a file or files.
    These might be temporary files intended to be passed on to another
@@ -68,12 +68,7 @@ Attributes
    .. py:method:: get_segment_string() -> str
 
 
-   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
-
-      Writes the Writable's data to file(s) under `path` (excluding filename(s)) if specified,
-      else under `_get_default_path()`. `filename` specifies the file to write there. Writables
-      can generate a default filename if None is specified. Returns a bool that's True iff all
-      files were written successfully and a list of the filenames (including path) written.
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper

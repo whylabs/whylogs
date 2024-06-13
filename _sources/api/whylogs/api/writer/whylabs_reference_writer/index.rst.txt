@@ -39,7 +39,7 @@ Attributes
       :type: str
 
 
-   .. py:method:: write(file: whylogs.api.writer.writer.Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]
+   .. py:method:: write(file: whylogs.api.writer.writer._Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]
 
       Calls Writable::write() to serialize the Wriable `file` to temporary file(s),
       then "sends" the temporary file(s) to `dest` according to the type of Writer.

@@ -12,7 +12,6 @@ Classes
 
 .. autoapisummary::
 
-   whylogs.api.writer.writer.Writable
    whylogs.api.writer.writer.Writer
    whylogs.api.writer.writer.WriterWrapper
    whylogs.api.writer.writer.Writers
@@ -20,28 +19,17 @@ Classes
 
 
 
-.. py:class:: Writable
+Attributes
+~~~~~~~~~~
 
-   Bases: :py:obj:`abc.ABC`
+.. autoapisummary::
 
-   A Writable is an object that contains data to write to a file or files.
-   These might be temporary files intended to be passed on to another
-   consumer (e.g., WhyLabs servers) via a Writer.
-
-   .. py:method:: write(path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]
-      :abstractmethod:
-
-      Writes the Writable's data to file(s) under `path` (excluding filename(s)) if specified,
-      else under `_get_default_path()`. `filename` specifies the file to write there. Writables
-      can generate a default filename if None is specified. Returns a bool that's True iff all
-      files were written successfully and a list of the filenames (including path) written.
+   whylogs.api.writer.writer.Writable
 
 
-   .. py:method:: writer(name: str = 'local', **kwargs: Any) -> WriterWrapper
+.. py:data:: Writable
 
-      Utility method to create a Writer of the specified type
-
-
+   
 
 .. py:class:: Writer
 
@@ -58,7 +46,7 @@ Classes
       an unacceptable interval.
 
 
-   .. py:method:: write(file: Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]
+   .. py:method:: write(file: _Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]
       :abstractmethod:
 
       Calls Writable::write() to serialize the Wriable `file` to temporary file(s),
@@ -75,7 +63,7 @@ Classes
 
 
 
-.. py:class:: WriterWrapper(writable: Writable, writer: Writer)
+.. py:class:: WriterWrapper(writable: _Writable, writer: Writer)
 
    Elide the Writable argument
 
@@ -91,7 +79,7 @@ Classes
 
 .. py:class:: Writers
 
-   .. py:method:: get(name: str, writable: Optional[Writable] = None, **kwargs) -> Union[Writer, WriterWrapper]
+   .. py:method:: get(name: str, writable: Optional[_Writable] = None, **kwargs) -> Union[Writer, WriterWrapper]
       :staticmethod:
 
 
