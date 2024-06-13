@@ -37,7 +37,6 @@ class _Writable(ABC):
         """
         return os.getcwd()
 
-    #    @deprecated(message="please use a Writer")
     def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         success, files = self._write("", path, **kwargs)
         files = files[0] if isinstance(files, list) else files
