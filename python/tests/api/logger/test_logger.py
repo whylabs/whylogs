@@ -1,3 +1,4 @@
+import os
 import tempfile
 from typing import Any
 
@@ -6,6 +7,7 @@ import pandas as pd
 import pytest
 
 import whylogs as why
+from whylogs.api.logger import write
 from whylogs.api.logger.result_set import ResultSet, ResultSetReader
 from whylogs.core import ColumnProfileView, MetricConfig
 from whylogs.core.errors import LoggingError
@@ -119,6 +121,18 @@ def test_roundtrip_resultset(tmp_path: Any) -> None:
     assert status
     roundtrip_result_set = why.read(path)
     assert len(results.view().to_pandas()) == len(roundtrip_result_set.view().to_pandas())
+
+
+def test_profile_write(tmp_path: Any) -> None:
+    d = {"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]}
+    df = pd.DataFrame(data=d)
+    results = why.log(df)
+    profile = results.profile()
+    write(profile, tmp_path, "test1_profile.bin")
+    assert os.path.isfile(os.path.join(tmp_path, "test1_profile.bin"))
+    path = os.path.join(tmp_path, "test2_profile.bin")
+    write(profile, path)
+    assert os.path.isfile(path)
 
 
 @pytest.mark.parametrize("data_type", [*INTEGER_TYPES, *FLOAT_TYPES, *TIMEDELTA_TYPES])
