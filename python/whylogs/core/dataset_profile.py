@@ -272,7 +272,7 @@ class DatasetProfile(_Writable):
     @deprecated(message="please use a Writer")
     def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         success, files = self._write("", path, **kwargs)
-        files = files[0] if isintsance(files, list) else files
+        files = files[0] if isinstance(files, list) else files
         return success, files
 
     @deprecated_alias(path_or_base_dir="path")

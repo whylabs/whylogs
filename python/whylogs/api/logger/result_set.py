@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from whylabs_client.model.segment_tag import SegmentTag
 
 from whylogs.api.reader import Reader, Readers
-from whylogs.api.writer.writer import _Writable, WriterWrapper
+from whylogs.api.writer.writer import WriterWrapper, _Writable
 from whylogs.core import DatasetProfile, DatasetProfileView, Segment
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.model_performance_metrics import ModelPerformanceMetrics

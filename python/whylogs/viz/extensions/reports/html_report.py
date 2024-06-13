@@ -6,7 +6,7 @@ from typing import Any, List, Optional, Tuple, Union
 from IPython.core.display import HTML  # type: ignore
 
 from whylogs import DatasetProfileView
-from whylogs.api.writer.writer import _Writable, WriterWrapper
+from whylogs.api.writer.writer import WriterWrapper, _Writable
 from whylogs.viz.enums.enums import PageSpec
 
 

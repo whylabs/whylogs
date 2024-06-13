@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import IO, Any, List, Optional, Tuple, Union
 from zipfile import ZipFile
 
-#from whylogs.core.utils.utils import deprecated
+# from whylogs.core.utils.utils import deprecated
 
 
 class _Writable(ABC):
@@ -37,10 +37,10 @@ class _Writable(ABC):
         """
         return os.getcwd()
 
-#    @deprecated(message="please use a Writer")
+    #    @deprecated(message="please use a Writer")
     def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         success, files = self._write("", path, **kwargs)
-        files = files[0] if isintsance(files, list) else files
+        files = files[0] if isinstance(files, list) else files
         return success, files
 
     @abstractmethod
@@ -60,7 +60,7 @@ class _Writable(ABC):
         return Writers.get(name, self, **kwargs)  # type: ignore
 
 
-#Writable = _Writable
+Writable = _Writable
 
 
 class Writer(ABC):

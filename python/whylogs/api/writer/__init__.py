@@ -1,9 +1,15 @@
-from whylogs.api.writer.writer import _Writable, Writer, Writers, WriterWrapper
-#, Writable
+from whylogs.api.writer.writer import (
+    Writable,
+    Writer,
+    Writers,
+    WriterWrapper,
+    _Writable,
+)
+
 
 __ALL__ = [
     _Writable,
-#    Writable,
+    Writable,
     Writer,
     Writers,
     WriterWrapper,

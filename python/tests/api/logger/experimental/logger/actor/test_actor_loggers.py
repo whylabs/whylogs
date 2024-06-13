@@ -26,7 +26,7 @@ from whylogs.api.logger.experimental.logger.actor.thread_rolling_logger import (
 from whylogs.api.logger.experimental.logger.actor.time_util import TimeGranularity
 from whylogs.api.logger.segment_processing import SegmentationPartition
 from whylogs.api.whylabs.session.session_manager import SessionManager, init
-from whylogs.api.writer.writer import _Writable, Writer
+from whylogs.api.writer.writer import Writer, _Writable
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.resolvers import STANDARD_RESOLVER
 from whylogs.core.segmentation_partition import ColumnMapperFunction

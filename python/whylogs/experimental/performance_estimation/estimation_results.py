@@ -2,7 +2,7 @@ from datetime import datetime
 from logging import getLogger
 from typing import Any, List, Optional, Tuple, Union
 
-from whylogs.api.writer import _Writable, WriterWrapper
+from whylogs.api.writer import WriterWrapper, _Writable
 from whylogs.core.utils import deprecated
 
 logger = getLogger(__name__)

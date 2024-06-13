@@ -1,7 +1,7 @@
 import json
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from whylogs.api.writer.writer import _Writable, WriterWrapper
+from whylogs.api.writer.writer import WriterWrapper, _Writable
 from whylogs.core import Segment
 from whylogs.core.utils import deprecated
 
