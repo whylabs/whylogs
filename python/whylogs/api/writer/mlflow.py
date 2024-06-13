@@ -7,7 +7,7 @@ import mlflow
 
 from whylogs.api.usage_stats import emit_usage
 from whylogs.api.writer import Writer
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import _Writable
 from whylogs.core.utils import deprecated_alias
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class MlflowWriter(Writer):
     @deprecated_alias(profile="file")
     def write(
         self,
-        file: Writable,
+        file: _Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
@@ -32,7 +32,7 @@ class MlflowWriter(Writer):
         self._run_id = run.info.run_id
         dest = dest or self._file_name  # dest has a higher priority than file_name
         output = self._get_temp_directory(dest=dest)
-        success, files = file.write(path=output, filename=self._file_name)
+        success, files = file._write(path=output, filename=self._file_name)
         if not success:
             return False, "Failed to write temporary file(s)"
 

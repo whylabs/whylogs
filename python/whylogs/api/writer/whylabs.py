@@ -12,7 +12,7 @@ from whylogs.api.writer.whylabs_estimation_result_writer import (
 )
 from whylogs.api.writer.whylabs_reference_writer import WhyLabsReferenceWriter
 from whylogs.api.writer.whylabs_transaction_writer import WhyLabsTransactionWriter
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import _Writable
 from whylogs.core.feature_weights import FeatureWeights
 from whylogs.core.utils import deprecated, deprecated_alias
 from whylogs.experimental.performance_estimation.estimation_results import (
@@ -227,7 +227,7 @@ class WhyLabsWriter(WhyLabsWriterBase):
 
     @deprecated_alias(profile="file")
     def write(
-        self, file: Writable, dest: Optional[str] = None, **kwargs: Any
+        self, file: _Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
         self._whylabs_client = self._whylabs_client.option(**kwargs)  # type: ignore
         if isinstance(file, FeatureWeights):

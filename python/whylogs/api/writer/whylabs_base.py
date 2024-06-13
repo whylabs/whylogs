@@ -11,7 +11,7 @@ from whylabs_client.model.segment_tag import SegmentTag
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet, ViewResultSet
 from whylogs.api.whylabs.session.session_manager import default_init
 from whylogs.api.writer.whylabs_client import WhyLabsClient
-from whylogs.api.writer.writer import Writable, Writer
+from whylogs.api.writer.writer import Writer, _Writable
 from whylogs.core import DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.errors import BadConfigError
@@ -220,9 +220,9 @@ class WhyLabsWriterBase(Writer):
 
             # TODO: the use_v0 logic looks backwards
             if has_performance_metrics or kwargs.get("use_v0"):
-                view.write(file=tmp_file, use_v0=True)
+                view._write(file=tmp_file, use_v0=True)
             else:
-                view.write(file=tmp_file)
+                view._write(file=tmp_file)
             tmp_file.flush()
             tmp_file.seek(0)
             # TODO: retry
@@ -247,7 +247,7 @@ class WhyLabsWriterBase(Writer):
             view, profile_id, upload_url, dataset_timestamp_epoch, whylabs_tags, **kwargs
         )
 
-    def _get_view_of_writable(self, file: Writable) -> Union[DatasetProfileView, SegmentedDatasetProfileView]:
+    def _get_view_of_writable(self, file: _Writable) -> Union[DatasetProfileView, SegmentedDatasetProfileView]:
         if isinstance(file, ViewResultSet):
             return file.view()
 
@@ -261,6 +261,6 @@ class WhyLabsWriterBase(Writer):
             return file
 
         if not isinstance(file, DatasetProfileView):
-            raise ValueError(f"Incompatable Writable type {type(file)}")
+            raise ValueError(f"Incompatable _Writable type {type(file)}")
 
         return file

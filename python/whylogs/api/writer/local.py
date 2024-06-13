@@ -3,7 +3,7 @@ import os
 from typing import Any, List, Optional, Tuple, Union
 
 from whylogs.api.writer import Writer
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import _Writable
 from whylogs.core.utils import deprecated_alias
 
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ class LocalWriter(Writer):
     @deprecated_alias(profile="file")
     def write(
         self,
-        file: Writable,
+        file: _Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
@@ -38,9 +38,9 @@ class LocalWriter(Writer):
         """
         self.option(**kwargs)
         filename = dest or self._base_name
-        success, files = file.write(self._base_dir, filename, **kwargs)
+        success, files = file._write(self._base_dir, filename, **kwargs)
         if not success:
-            return False, "Writable failed to create temporary file(s)"
+            return False, "_Writable failed to create temporary file(s)"
 
         zipit = kwargs.get("zip")
         if zipit and success:

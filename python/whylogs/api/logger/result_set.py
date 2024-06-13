@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from whylabs_client.model.segment_tag import SegmentTag
 
 from whylogs.api.reader import Reader, Readers
-from whylogs.api.writer.writer import Writable, WriterWrapper
+from whylogs.api.writer.writer import WriterWrapper, _Writable
 from whylogs.core import DatasetProfile, DatasetProfileView, Segment
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.model_performance_metrics import ModelPerformanceMetrics
@@ -136,7 +136,7 @@ def _flatten_tags(tags: Union[List, Dict]) -> List[SegmentTag]:
     return [SegmentTag(t["key"], t["value"]) for t in tags]
 
 
-class ResultSet(Writable, ABC):
+class ResultSet(_Writable, ABC):
     """
     A holder object for profiling results.
 
@@ -159,13 +159,13 @@ class ResultSet(Writable, ABC):
             raise ValueError("No ResultSet view available")
         return view.get_default_path()
 
-    def write(
+    def _write(
         self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[str]]]:
         view = self.view()
         if view is None:
             raise ValueError("No ResultSet view available")
-        return view.write(path, filename, **kwargs)
+        return view._write(path, filename, **kwargs)
 
     @staticmethod
     def read(multi_profile_file: str) -> "ResultSet":
@@ -192,7 +192,7 @@ class ResultSet(Writable, ABC):
             return self._metadata
         return None
 
-    def get_writables(self) -> Optional[List[Writable]]:
+    def get_writables(self) -> Optional[List[_Writable]]:
         return [self.view()]
 
     def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
@@ -343,8 +343,8 @@ class SegmentedResultSet(ResultSet):
             f"A profile was requested from a segmented result set without specifying which segment to return: {self._segments}"
         )
 
-    def get_writables(self) -> Optional[List[Writable]]:
-        results: Optional[List[Writable]] = None
+    def get_writables(self) -> Optional[List[_Writable]]:
+        results: Optional[List[_Writable]] = None
         if self._segments:
             results = []
             logger.info(f"Building list of: {self.count} SegmentedDatasetProfileViews in SegmentedResultSet.")
@@ -431,7 +431,7 @@ class SegmentedResultSet(ResultSet):
     def _get_default_filename(self) -> str:
         return ""  # unused, the segment Wriables are called
 
-    def write(
+    def _write(
         self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[str]]]:
         all_success = True
@@ -443,7 +443,7 @@ class SegmentedResultSet(ResultSet):
             raise ValueError("Cannot specify filename for multiple files")
 
         for writable in writables:
-            success, written_files = writable.write(path, filename, **kwargs)
+            success, written_files = writable._write(path, filename, **kwargs)
             all_success = all_success and success
             if isinstance(written_files, list):
                 files += written_files

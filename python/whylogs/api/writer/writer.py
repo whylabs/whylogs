@@ -4,8 +4,10 @@ from abc import ABC, abstractmethod
 from typing import IO, Any, List, Optional, Tuple, Union
 from zipfile import ZipFile
 
+# from whylogs.core.utils.utils import deprecated
 
-class Writable(ABC):
+
+class _Writable(ABC):
     """
     A Writable is an object that contains data to write to a file or files.
     These might be temporary files intended to be passed on to another
@@ -35,8 +37,13 @@ class Writable(ABC):
         """
         return os.getcwd()
 
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+        success, files = self._write("", path, **kwargs)
+        files = files[0] if isinstance(files, list) else files
+        return success, files
+
     @abstractmethod
-    def write(
+    def _write(
         self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[str]]]:  # TODO: Union[str, List[Tupble[bool, str]]] ?
         """
@@ -50,6 +57,9 @@ class Writable(ABC):
     def writer(self, name: str = "local", **kwargs: Any) -> "WriterWrapper":
         "Utility method to create a Writer of the specified type"
         return Writers.get(name, self, **kwargs)  # type: ignore
+
+
+Writable = _Writable
 
 
 class Writer(ABC):
@@ -76,7 +86,7 @@ class Writer(ABC):
     @abstractmethod
     def write(
         self,
-        file: Writable,
+        file: _Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
@@ -99,7 +109,7 @@ class Writer(ABC):
 class WriterWrapper:
     """Elide the Writable argument"""
 
-    def __init__(self, writable: Writable, writer: Writer):
+    def __init__(self, writable: _Writable, writer: Writer):
         self._writable = writable
         self._writer = writer
 
@@ -120,7 +130,7 @@ class WriterWrapper:
 
 class Writers:
     @staticmethod
-    def get(name: str, writable: Optional[Writable] = None, **kwargs) -> Union[Writer, WriterWrapper]:
+    def get(name: str, writable: Optional[_Writable] = None, **kwargs) -> Union[Writer, WriterWrapper]:
         if name == "local":
             from whylogs.api.writer.local import LocalWriter
 

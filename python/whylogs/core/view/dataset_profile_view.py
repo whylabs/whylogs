@@ -8,7 +8,7 @@ from typing import Any, BinaryIO, Dict, List, Optional, Tuple, Union
 
 from google.protobuf.message import DecodeError
 
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import _Writable
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.errors import DeserializationError
 from whylogs.core.proto import (
@@ -28,6 +28,7 @@ from whylogs.core.utils import (
     write_delimited_protobuf,
 )
 from whylogs.core.utils.timestamp_calculations import to_utc_milliseconds
+from whylogs.core.utils.utils import deprecated
 from whylogs.core.view.column_profile_view import ColumnProfileView
 
 # Magic header for whylogs using the first 4 bytes
@@ -46,7 +47,7 @@ class SummaryType(str, Enum):
     DATASET = "DATASET"
 
 
-class DatasetProfileView(Writable):
+class DatasetProfileView(_Writable):
     _columns: Dict[str, ColumnProfileView]
 
     def __init__(
@@ -193,7 +194,7 @@ class DatasetProfileView(Writable):
     def _get_default_filename(self) -> str:
         return f"profile_{self.creation_timestamp}.bin"
 
-    def _write(self, out_f: BinaryIO) -> Tuple[bool, str]:
+    def _write_it(self, out_f: BinaryIO) -> Tuple[bool, str]:
         if self._metrics and _MODEL_PERFORMANCE in self._metrics:
             from whylogs.migration.converters import v1_to_dataset_profile_message_v0
 
@@ -204,7 +205,13 @@ class DatasetProfileView(Writable):
         self._do_write(out_f)
         return True, out_f.name
 
-    def write(
+    @deprecated(message="please use a Writer")
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+        success, files = self._write("", path, **kwargs)
+        files = files[0] if isinstance(files, list) else files
+        return success, files
+
+    def _write(
         self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[str]]]:
         file_to_write = kwargs.get("file")
@@ -212,10 +219,10 @@ class DatasetProfileView(Writable):
             path = path if path is not None else self._get_default_path()
             filename = filename if filename is not None else self._get_default_filename()
             path = os.path.join(path, filename) if path is not None else filename
-            with Writable._safe_open_write(path, "+b") as out_f:
-                return self._write(out_f)
+            with _Writable._safe_open_write(path, "+b") as out_f:
+                return self._write_it(out_f)
 
-        return self._write(file_to_write)
+        return self._write_it(file_to_write)
 
     @staticmethod
     def _split_tags_and_metadata(

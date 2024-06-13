@@ -46,7 +46,7 @@ def test_view_serde_roundtrip(tmp_path: str) -> None:
     profile.track(pandas=df)
     view = profile.view()
     output_file = os.path.join(tmp_path, "view.bin")
-    view.write(path=tmp_path, filename="view.bin")
+    view._write(path=tmp_path, filename="view.bin")
     res = DatasetProfileView.read(output_file)
 
     assert len(view.to_pandas()) == len(res.to_pandas())
