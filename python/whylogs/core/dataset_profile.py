@@ -280,7 +280,7 @@ class DatasetProfile(_Writable):
         self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[str]]]:
         filename = filename or self._get_default_filename()
-        success, files = self.view().write(path, filename, **kwargs)
+        success, files = self.view()._write(path, filename, **kwargs)
         logger.debug(f"Wrote profile to path: {files}")
         return success, files
 

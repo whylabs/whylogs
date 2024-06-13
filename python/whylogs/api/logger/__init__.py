@@ -322,9 +322,9 @@ def reader(name: str) -> ResultSetReader:
 
 def write(profile: DatasetProfile, base_dir: Optional[str] = None, filename: Optional[str] = None) -> None:
     if base_dir and filename:
-        return profile.write(base_dir, filename)
+        return profile._write(base_dir, filename)
     else:
-        return profile.write("", base_dir)  # backward compatibility: use base_dir as full filename
+        return profile._write("", base_dir)  # backward compatibility: use base_dir as full filename
 
 
 def logger(
