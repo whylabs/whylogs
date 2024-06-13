@@ -6,7 +6,6 @@ from whylogs.api.writer.writer import (
     _Writable,
 )
 
-
 __ALL__ = [
     _Writable,
     Writable,
