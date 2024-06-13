@@ -443,7 +443,7 @@ class SegmentedResultSet(ResultSet):
             raise ValueError("Cannot specify filename for multiple files")
 
         for writable in writables:
-            success, written_files = writable.write(path, filename, **kwargs)
+            success, written_files = writable._write(path, filename, **kwargs)
             all_success = all_success and success
             if isinstance(written_files, list):
                 files += written_files

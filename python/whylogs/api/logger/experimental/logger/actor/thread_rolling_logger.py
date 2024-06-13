@@ -25,7 +25,7 @@ from whylogs.api.logger.segment_cache import SegmentCache
 from whylogs.api.logger.segment_processing import segment_processing  # type: ignore
 from whylogs.api.store import ProfileStore
 from whylogs.api.writer import Writer
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import _Writable
 from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 
@@ -206,7 +206,7 @@ class StatusMessage:
 @dataclass
 class PendingWritable:
     attempts: int
-    writable: Writable
+    writable: _Writable
 
 
 def _extract_profile_view_bytes(pending: PendingWritable) -> Optional[bytes]:

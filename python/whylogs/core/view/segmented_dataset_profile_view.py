@@ -237,5 +237,5 @@ class SegmentedDatasetProfileView(_Writable):
         path = path if path is not None else self._get_default_path()
         filename = filename if filename is not None else self._get_default_filename()
         path = os.path.join(path, filename) if path is not None else filename
-        with Writable._safe_open_write(path, "+b") as out_f:
+        with _Writable._safe_open_write(path, "+b") as out_f:
             return self._do_write(out_f, **kwargs)
