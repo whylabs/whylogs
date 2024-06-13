@@ -33,7 +33,6 @@ class MlflowWriter(Writer):
         dest = dest or self._file_name  # dest has a higher priority than file_name
         output = self._get_temp_directory(dest=dest)
         success, files = file._write(path=output, filename=self._file_name)
-        print(f"files {files}")
         if not success:
             return False, "Failed to write temporary file(s)"
 
