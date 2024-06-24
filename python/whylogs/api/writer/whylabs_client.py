@@ -31,7 +31,11 @@ from whylabs_client.model.segment_tag import SegmentTag  # type: ignore
 from whylabs_client.model.transaction_commit_request import TransactionCommitRequest
 from whylabs_client.model.transaction_log_request import TransactionLogRequest
 from whylabs_client.model.transaction_start_request import TransactionStartRequest
-from whylabs_client.rest import ApiException, ForbiddenException  # type: ignore
+from whylabs_client.rest import (  # type: ignore
+    ApiException,
+    ForbiddenException,
+    ServiceException,
+)
 
 from whylogs.api.logger.result_set import ResultSet, SegmentedResultSet
 from whylogs.api.whylabs.session.session_manager import INIT_DOCS, default_init
@@ -88,6 +92,14 @@ KNOWN_CUSTOM_OUTPUT_METRICS = {
     "norm_dis_cumul_gain_k_": ("fractional", "continuous"),
     "sum_gain_k_": ("fractional", "continuous"),
 }
+
+
+_RETRY_EXCEPTIONS = (ApiException, ServiceException)
+_RETRY_CODES = {408, 429, 502, 503, 504}
+
+
+def _giveup(e) -> bool:
+    return (e.status not in _RETRY_CODES,)  # type: ignore
 
 
 def _get_column_names(x: Union[DatasetProfile, DatasetProfileView, SegmentedDatasetProfileView, ResultSet]) -> Set[str]:
@@ -435,8 +447,8 @@ class WhyLabsClient:
 
         @backoff.on_exception(
             backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
+            _RETRY_EXCEPTIONS,
+            giveup=_giveup,
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,
@@ -495,8 +507,8 @@ class WhyLabsClient:
 
         @backoff.on_exception(
             backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
+            _RETRY_EXCEPTIONS,
+            giveup=_giveup,
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,
@@ -658,8 +670,8 @@ class WhyLabsClient:
 
         @backoff.on_exception(
             backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
+            _RETRY_EXCEPTIONS,
+            giveup=_giveup,
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,
@@ -678,8 +690,8 @@ class WhyLabsClient:
 
         @backoff.on_exception(
             backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
+            _RETRY_EXCEPTIONS,
+            giveup=_giveup,
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,
@@ -703,8 +715,8 @@ class WhyLabsClient:
 
         @backoff.on_exception(
             backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
+            _RETRY_EXCEPTIONS,
+            giveup=_giveup,
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,
@@ -719,8 +731,8 @@ class WhyLabsClient:
 
         @backoff.on_exception(
             backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
+            _RETRY_EXCEPTIONS,
+            giveup=_giveup,
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,
@@ -740,8 +752,8 @@ class WhyLabsClient:
 
         @backoff.on_exception(
             backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
+            _RETRY_EXCEPTIONS,
+            giveup=_giveup,
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,
@@ -800,8 +812,8 @@ class WhyLabsClient:
 
         @backoff.on_exception(
             backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
+            _RETRY_EXCEPTIONS,
+            giveup=_giveup,
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,
@@ -828,8 +840,8 @@ class WhyLabsClient:
 
         @backoff.on_exception(
             backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
+            _RETRY_EXCEPTIONS,
+            giveup=_giveup,
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,
@@ -858,8 +870,8 @@ class WhyLabsClient:
     def _get_existing_column_schema(self, model_api_instance, column_name) -> Optional[ColumnSchema]:
         @backoff.on_exception(
             backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
+            _RETRY_EXCEPTIONS,
+            giveup=_giveup,
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,
@@ -907,8 +919,8 @@ class WhyLabsClient:
 
             @backoff.on_exception(
                 backoff.expo,
-                ApiException,
-                giveup=lambda e: e.status != 429,  # type: ignore
+                _RETRY_EXCEPTIONS,
+                giveup=_giveup,
                 max_time=MAX_REQUEST_TIME,
                 max_tries=MAX_REQUEST_TRIES,
                 jitter=backoff.full_jitter,
@@ -949,8 +961,8 @@ class WhyLabsClient:
 
         @backoff.on_exception(
             backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
+            _RETRY_EXCEPTIONS,
+            giveup=_giveup,
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,
@@ -1003,8 +1015,8 @@ class WhyLabsClient:
 
         @backoff.on_exception(
             backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
+            _RETRY_EXCEPTIONS,
+            giveup=_giveup,
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,
@@ -1034,8 +1046,8 @@ class WhyLabsClient:
 
         @backoff.on_exception(
             backoff.expo,
-            ApiException,
-            giveup=lambda e: e.status != 429,  # type: ignore
+            _RETRY_EXCEPTIONS,
+            giveup=_giveup,
             max_time=MAX_REQUEST_TIME,
             max_tries=MAX_REQUEST_TRIES,
             jitter=backoff.full_jitter,
