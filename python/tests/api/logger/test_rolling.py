@@ -17,7 +17,7 @@ from whylogs.api.store.local_store import LocalStore
 from whylogs.api.store.query import DatasetIdQuery
 from whylogs.api.whylabs.session.config import EnvVariableName
 from whylogs.api.writer.local import LocalWriter
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import _Writable
 from whylogs.core.errors import BadConfigError
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.segmentation_partition import segment_on_column
@@ -58,14 +58,14 @@ class TestWriter(LocalWriter):
 
     def write(
         self,
-        file: Writable,
+        file: _Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
     ) -> Tuple[bool, str]:
         filename = dest or self._base_name or file.get_default_filename()  # type: ignore
         filename += str(self._counter)
         self._counter += 1
-        success, full_path = file.write(self._base_dir, filename, **kwargs)
+        success, full_path = file._write(self._base_dir, filename, **kwargs)
         return success, full_path
 
 

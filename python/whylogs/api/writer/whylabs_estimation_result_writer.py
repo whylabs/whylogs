@@ -8,7 +8,7 @@ from whylogs.api.logger import log
 from whylogs.api.whylabs.session.session_manager import INIT_DOCS
 from whylogs.api.writer.whylabs_base import WhyLabsWriterBase
 from whylogs.api.writer.whylabs_client import WhyLabsClient
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import _Writable
 from whylogs.core.utils import deprecated_alias
 from whylogs.experimental.performance_estimation.estimation_results import (
     EstimationResult,
@@ -74,7 +74,7 @@ class WhyLabsEstimationResultWriter(WhyLabsWriterBase):
 
     @deprecated_alias(profile="file")
     def write(
-        self, file: Writable, dest: Optional[str] = None, **kwargs: Any
+        self, file: _Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
         if not isinstance(file, EstimationResult):
             raise ValueError("I can only write EstimationResult")

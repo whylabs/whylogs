@@ -238,7 +238,7 @@ def test_condition_count_in_profile() -> None:
     prof = DatasetProfile(schema)
     prof.track(row=row)
     prof1_view = prof.view()
-    prof1_view.write(path="/tmp", filename="test_condition_count_metric_in_profile")
+    prof1_view._write(path="/tmp", filename="test_condition_count_metric_in_profile")
     prof2_view = DatasetProfile.read("/tmp/test_condition_count_metric_in_profile")
     prof1_cols = prof1_view.get_columns()
     prof2_cols = prof2_view.get_columns()
