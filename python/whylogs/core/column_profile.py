@@ -47,7 +47,8 @@ class ColumnProfile(object):
         logger.debug("Flushing out the cache for col: %s. Cache size: %s", self._name, self._cache_size)
         old_cache = self._cache
         self._cache = []
-        self.track_column(old_cache)
+        if old_cache:
+            self.track_column(old_cache)
 
     def _process_extracted_column(self, extracted_column: PreprocessedColumn) -> None:
         for metric in self._metrics.values():
