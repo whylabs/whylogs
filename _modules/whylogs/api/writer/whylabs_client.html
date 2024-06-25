@@ -476,7 +476,11 @@
 <span class="kn">from</span> <span class="nn">whylabs_client.model.transaction_commit_request</span> <span class="kn">import</span> <span class="n">TransactionCommitRequest</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.model.transaction_log_request</span> <span class="kn">import</span> <span class="n">TransactionLogRequest</span>
 <span class="kn">from</span> <span class="nn">whylabs_client.model.transaction_start_request</span> <span class="kn">import</span> <span class="n">TransactionStartRequest</span>
-<span class="kn">from</span> <span class="nn">whylabs_client.rest</span> <span class="kn">import</span> <span class="n">ApiException</span><span class="p">,</span> <span class="n">ForbiddenException</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">whylabs_client.rest</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># type: ignore</span>
+    <span class="n">ApiException</span><span class="p">,</span>
+    <span class="n">ForbiddenException</span><span class="p">,</span>
+    <span class="n">ServiceException</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">SegmentedResultSet</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">INIT_DOCS</span><span class="p">,</span> <span class="n">default_init</span>
@@ -533,6 +537,14 @@
     <span class="s2">&quot;norm_dis_cumul_gain_k_&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;fractional&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">),</span>
     <span class="s2">&quot;sum_gain_k_&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;fractional&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">),</span>
 <span class="p">}</span>
+
+
+<span class="n">_RETRY_EXCEPTIONS</span> <span class="o">=</span> <span class="p">(</span><span class="n">ApiException</span><span class="p">,</span> <span class="n">ServiceException</span><span class="p">)</span>
+<span class="n">_RETRY_CODES</span> <span class="o">=</span> <span class="p">{</span><span class="mi">408</span><span class="p">,</span> <span class="mi">429</span><span class="p">,</span> <span class="mi">502</span><span class="p">,</span> <span class="mi">503</span><span class="p">,</span> <span class="mi">504</span><span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">_giveup</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_RETRY_CODES</span><span class="p">,)</span>  <span class="c1"># type: ignore</span>
 
 
 <span class="k">def</span> <span class="nf">_get_column_names</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -880,8 +892,8 @@
 
         <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
             <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-            <span class="n">ApiException</span><span class="p">,</span>
-            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
             <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
             <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
@@ -940,8 +952,8 @@
 
         <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
             <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-            <span class="n">ApiException</span><span class="p">,</span>
-            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
             <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
             <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
@@ -1103,8 +1115,8 @@
 
         <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
             <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-            <span class="n">ApiException</span><span class="p">,</span>
-            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
             <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
             <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
@@ -1123,8 +1135,8 @@
 
         <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
             <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-            <span class="n">ApiException</span><span class="p">,</span>
-            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
             <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
             <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
@@ -1148,8 +1160,8 @@
 
         <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
             <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-            <span class="n">ApiException</span><span class="p">,</span>
-            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
             <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
             <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
@@ -1164,8 +1176,8 @@
 
         <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
             <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-            <span class="n">ApiException</span><span class="p">,</span>
-            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
             <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
             <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
@@ -1185,8 +1197,8 @@
 
         <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
             <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-            <span class="n">ApiException</span><span class="p">,</span>
-            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
             <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
             <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
@@ -1245,8 +1257,8 @@
 
         <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
             <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-            <span class="n">ApiException</span><span class="p">,</span>
-            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
             <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
             <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
@@ -1273,8 +1285,8 @@
 
         <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
             <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-            <span class="n">ApiException</span><span class="p">,</span>
-            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
             <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
             <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
@@ -1303,8 +1315,8 @@
     <span class="k">def</span> <span class="nf">_get_existing_column_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_api_instance</span><span class="p">,</span> <span class="n">column_name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ColumnSchema</span><span class="p">]:</span>
         <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
             <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-            <span class="n">ApiException</span><span class="p">,</span>
-            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
             <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
             <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
@@ -1352,8 +1364,8 @@
 
             <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
                 <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-                <span class="n">ApiException</span><span class="p">,</span>
-                <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+                <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
                 <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
                 <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
                 <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
@@ -1394,8 +1406,8 @@
 
         <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
             <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-            <span class="n">ApiException</span><span class="p">,</span>
-            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
             <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
             <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
@@ -1448,8 +1460,8 @@
 
         <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
             <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-            <span class="n">ApiException</span><span class="p">,</span>
-            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
             <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
             <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
@@ -1479,8 +1491,8 @@
 
         <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span>
             <span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span>
-            <span class="n">ApiException</span><span class="p">,</span>
-            <span class="n">giveup</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">429</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_RETRY_EXCEPTIONS</span><span class="p">,</span>
+            <span class="n">giveup</span><span class="o">=</span><span class="n">_giveup</span><span class="p">,</span>
             <span class="n">max_time</span><span class="o">=</span><span class="n">MAX_REQUEST_TIME</span><span class="p">,</span>
             <span class="n">max_tries</span><span class="o">=</span><span class="n">MAX_REQUEST_TRIES</span><span class="p">,</span>
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>

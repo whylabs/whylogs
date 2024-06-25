@@ -492,7 +492,8 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Flushing out the cache for col: </span><span class="si">%s</span><span class="s2">. Cache size: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_size</span><span class="p">)</span>
         <span class="n">old_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">track_column</span><span class="p">(</span><span class="n">old_cache</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">old_cache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">track_column</span><span class="p">(</span><span class="n">old_cache</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_process_extracted_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extracted_column</span><span class="p">:</span> <span class="n">PreprocessedColumn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
