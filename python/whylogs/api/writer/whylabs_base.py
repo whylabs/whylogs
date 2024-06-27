@@ -82,11 +82,6 @@ class WhyLabsWriterBase(Writer):
             ssl_ca_cert,
             _timeout_seconds,
         )
-        session = default_init()  # Force an init if the user didn't do it, it's idempotent
-        config = session.config
-
-        self._reference_profile_name = config.get_whylabs_refernce_profile_name()
-        self._transaction_id = None
 
     @property
     def _api_client(self) -> ApiClient:
@@ -144,10 +139,6 @@ class WhyLabsWriterBase(Writer):
 
         """
         self._whylabs_client = self._whylabs_client.option(**kwargs)
-        if kwargs.get("reference_profile_name") is not None:
-            self._reference_profile_name = kwargs.get("reference_profile_name")
-        if kwargs.get("transaction_id") is not None:
-            self._transaction_id = kwargs.get("transaction_id")
         return self
 
     def _get_dataset_epoch(

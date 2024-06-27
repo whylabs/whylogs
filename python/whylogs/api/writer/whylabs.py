@@ -78,7 +78,6 @@ class WhyLabsWriter(WhyLabsWriterBase):
         whylabs_client: Optional[WhyLabsClient] = None,
     ):
         super().__init__(org_id, api_key, dataset_id, api_client, ssl_ca_cert, _timeout_seconds, whylabs_client)
-        self._transaction_id: Optional[str] = None
 
     @deprecated(message="please use WhyLabsClient instead")
     def tag_output_columns(self, columns: List[str]) -> Tuple[bool, str]:
@@ -179,31 +178,29 @@ class WhyLabsWriter(WhyLabsWriterBase):
         Zipped profiles are not supported
         Reference profiles are not supported
         """
-        if self._transaction_id is not None:
+        if self._whylabs_client._transaction_id is not None:
             logger.error("Must end current transaction with commit_transaction() before starting another")
-            return self._transaction_id
+            return self._whylabs_client._transaction_id
 
         if transaction_id is not None:
-            self._transaction_id = transaction_id  # type: ignore
             self._whylabs_client._transaction_id = transaction_id  # type: ignore
             return transaction_id
 
-        transaction_id = self._whylabs_client.get_transaction_id()  # type: ignore
-        self._transaction_id = transaction_id
+        # initiate a new transaction
+        transaction_id : str = self._whylabs_client.get_transaction_id()  # type: ignore
         self._whylabs_client._transaction_id = transaction_id  # type: ignore
-        return self._transaction_id  # type: ignore
+        return transaction_id
 
     def commit_transaction(self) -> None:
         """
         Ingest any profiles written since the previous start_transaction().
         Throws on failure.
         """
-        if self._transaction_id is None:
+        if self._whylabs_client._transaction_id is None:
             logger.error("Must call start_transaction() before commit_transaction()")
             return
 
-        id = self._transaction_id
-        self._transaction_id = None
+        id = self._whylabs_client._transaction_id
         self._whylabs_client._transaction_id = None  # type: ignore
         self._whylabs_client.commit_transaction(id)  # type: ignore
 
@@ -213,7 +210,7 @@ class WhyLabsWriter(WhyLabsWriterBase):
         ingested. You still need to call commit_transaction(), but it will
         throw a NotFoundException to indicate the transaction was unsuccessful.
         """
-        self._whylabs_client.abort_transaction(self._transaction_id)  # type: ignore
+        self._whylabs_client.abort_transaction(self._whylabs_client._transaction_id)  # type: ignore
 
     def _get_writer(self, writer_type) -> WhyLabsWriterBase:
         return writer_type(
@@ -239,16 +236,16 @@ class WhyLabsWriter(WhyLabsWriterBase):
 
         # Writable is some flavor of profile -- DatasetProfile, [Segmented]DatasetProfileView, or ResultSet
 
-        if (self._transaction_id is not None) or kwargs.get("transaction"):
-            if self._reference_profile_name is not None:
+        if (self._whylabs_client._transaction_id is not None) or kwargs.get("transaction"):
+            if self._whylabs_client._reference_profile_name is not None:
                 return False, "Cannot send reference profiles in a transaction"
             return self._get_writer(WhyLabsTransactionWriter).write(
-                file, dest, transaction_id=self._transaction_id, **kwargs
+                file, dest, transaction_id=self._whylabs_client._transaction_id, **kwargs
             )
 
-        elif self._reference_profile_name is not None:
+        elif self._whylabs_client._reference_profile_name is not None:
             return self._get_writer(WhyLabsReferenceWriter).write(
-                file, dest, reference_profile_name=self._reference_profile_name, **kwargs
+                file, dest, reference_profile_name=self._whylabs_client._reference_profile_name, **kwargs
             )
 
         return self._get_writer(WhyLabsBatchWriter).write(file, dest, **kwargs)
@@ -259,9 +256,9 @@ class WhyLabsTransaction:
         self._writer = writer
 
     def __enter__(self) -> str:
-        if self._writer._transaction_id is None:
+        if self._writer._whylabs_client._transaction_id is None:
             self._writer.start_transaction()
-        return self._writer._transaction_id  # type: ignore
+        return self._writer._whylabs_client._transaction_id  # type: ignore
 
     def __exit__(self, exc_type, exc_value, exc_tb) -> None:
         self._writer.commit_transaction()
