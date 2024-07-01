@@ -28,6 +28,7 @@ from whylogs.core.schema import ColumnSchema, DatasetSchema
 
 logger = logging.getLogger(__name__)
 
+
 try:
     import numpy as np  # type: ignore
     from PIL import Image
@@ -35,10 +36,9 @@ try:
     from PIL.ImageStat import Stat  # type: ignore
     from PIL.TiffImagePlugin import IFDRational  # type: ignore
     from PIL.TiffTags import TAGS  # type: ignore
-except ImportError as e:
+except ImportError:
     ImageType = None  # type: ignore
-    logger.warning(str(e))
-    logger.warning("Unable to load PIL; install Pillow for image support")
+
 
 DEFAULT_IMAGE_FEATURES: List[str] = []
 
@@ -147,6 +147,10 @@ class ImageSubmetricSchema(SubmetricSchema):
         return metrics
 
 
+def _no_pil_msg():
+    logger.error("Unable to import PIL; install Pillow for image support")
+
+
 @dataclass(frozen=True)
 class ImageMetricConfig(MetricConfig):
     allowed_exif_tags: Set[str] = field(default_factory=set)
@@ -164,7 +168,7 @@ class ImageMetric(MultiMetric):
         fi_disabled: bool = False,
     ):
         if ImageType is None:
-            logger.error("Install Pillow for image support")
+            _no_pil_msg()
         super(ImageMetric, self).__init__(submetrics)
         self._allowed_exif_tags = allowed_exif_tags or set()
         self._forbidden_exif_tags = forbidden_exif_tags or set()
@@ -303,4 +307,7 @@ def log_image(
 
 
 # Register it so Multimetric and ProfileView can deserialize
+tmp = _no_pil_msg
+_no_pil_msg = lambda: None  # noqa
 register_metric(ImageMetric)
+_no_pil_msg = tmp
