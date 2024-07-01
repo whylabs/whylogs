@@ -94,9 +94,11 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
             if not bool_status:
                 self._whylabs_client.abort_transaction(self._whylabs_client._transaction_id)  # type: ignore
                 self._aborted = True
-                logger.info(f"Uploading {profile_id} failed; aborting transaction {self._whylabs_client._transaction_id}")
+                logger.info(
+                    f"Uploading {profile_id} failed; aborting transaction {self._whylabs_client._transaction_id}"  # type: ignore
+                )
             else:
-                logger.info(f"Added profile {profile_id} to transaction {self._whylabs_client._transaction_id}")
+                logger.info(f"Added profile {profile_id} to transaction {self._whylabs_client._transaction_id}")  # type: ignore
             and_status = and_status and bool_status
 
         logger.debug(f"Completed writing {len(views)} files!")
@@ -109,12 +111,12 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
     ) -> Tuple[bool, str]:
         dataset_timestamp_epoch = self._get_dataset_epoch(view)
         profile_id, upload_url = self._whylabs_client.get_upload_url_transaction(dataset_timestamp_epoch)  # type: ignore
-        logger.info(f"Added profile {profile_id} to transaction {self._whylabs_client._transaction_id}")
+        logger.info(f"Added profile {profile_id} to transaction {self._whylabs_client._transaction_id}")  # type: ignore
         success, message = self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, **kwargs)
         if not success:
             self._whylabs_client.abort_transaction(self.transaction_id)  # type: ignore
             self._aborted = True
-            logger.info(f"Uploading {profile_id} failed; aborting transaction {self._whylabs_client._transaction_id}")
+            logger.info(f"Uploading {profile_id} failed; aborting transaction {self._whylabs_client._transaction_id}")  # type: ignore
         return success, message
 
     @deprecated_alias(profile="file")
@@ -122,9 +124,9 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         self, file: _Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
         if self._aborted:
-            return False, f"Transaction {self._whylabs_client._transaction_id} was aborted"
+            return False, f"Transaction {self._whylabs_client._transaction_id} was aborted"  # type: ignore
 
-        transaction_id = kwargs.get("transaction_id") or self._whylabs_client._transaction_id
+        transaction_id = kwargs.get("transaction_id") or self._whylabs_client._transaction_id  # type: ignore
         if not transaction_id:
             raise ValueError("Missing transaction id")
 

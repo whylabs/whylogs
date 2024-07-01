@@ -178,16 +178,16 @@ class WhyLabsWriter(WhyLabsWriterBase):
         Zipped profiles are not supported
         Reference profiles are not supported
         """
-        if self._whylabs_client._transaction_id is not None:
+        if self._whylabs_client._transaction_id is not None:  # type: ignore
             logger.error("Must end current transaction with commit_transaction() before starting another")
-            return self._whylabs_client._transaction_id
+            return self._whylabs_client._transaction_id  # type: ignore
 
         if transaction_id is not None:
             self._whylabs_client._transaction_id = transaction_id  # type: ignore
             return transaction_id
 
         # initiate a new transaction
-        transaction_id : str = self._whylabs_client.get_transaction_id()  # type: ignore
+        transaction_id = self._whylabs_client.get_transaction_id()  # type: ignore
         self._whylabs_client._transaction_id = transaction_id  # type: ignore
         return transaction_id
 
@@ -196,11 +196,11 @@ class WhyLabsWriter(WhyLabsWriterBase):
         Ingest any profiles written since the previous start_transaction().
         Throws on failure.
         """
-        if self._whylabs_client._transaction_id is None:
+        if self._whylabs_client._transaction_id is None:  # type: ignore
             logger.error("Must call start_transaction() before commit_transaction()")
             return
 
-        id = self._whylabs_client._transaction_id
+        id = self._whylabs_client._transaction_id  # type: ignore
         self._whylabs_client._transaction_id = None  # type: ignore
         self._whylabs_client.commit_transaction(id)  # type: ignore
 
