@@ -40,6 +40,7 @@ Attributes
    whylogs.extras.image_metric.logger
    whylogs.extras.image_metric.ImageType
    whylogs.extras.image_metric.DEFAULT_IMAGE_FEATURES
+   whylogs.extras.image_metric.tmp
 
 
 .. py:data:: logger
@@ -259,4 +260,8 @@ Attributes
 
 .. py:function:: log_image(images: Union[PIL.Image.Image, List[PIL.Image.Image], Dict[str, PIL.Image.Image]], default_column_prefix: str = 'image', schema: Optional[whylogs.core.schema.DatasetSchema] = None, trace_id: Optional[str] = None) -> whylogs.api.logger.result_set.ResultSet
 
+
+.. py:data:: tmp
+
+   
 
