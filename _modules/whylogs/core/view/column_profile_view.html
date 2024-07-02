@@ -558,9 +558,23 @@
     <span class="k">def</span> <span class="nf">from_protobuf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">ColumnMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ColumnProfileView&quot;</span><span class="p">:</span>
         <span class="c1"># importing to trigger registration of non-standard metrics</span>
         <span class="kn">import</span> <span class="nn">whylogs.experimental.core.metrics.udf_metric</span>  <span class="c1"># noqa</span>
-        <span class="kn">import</span> <span class="nn">whylogs.experimental.extras.embedding_metric</span>  <span class="c1"># noqa</span>
-        <span class="kn">import</span> <span class="nn">whylogs.experimental.extras.nlp_metric</span>  <span class="c1"># noqa</span>
-        <span class="kn">import</span> <span class="nn">whylogs.extras.image_metric</span>  <span class="c1"># noqa</span>
+
+        <span class="c1"># These require numpy &amp; PIL, but we assume users will install</span>
+        <span class="c1"># whylogs with the optional dependencies and import the metric</span>
+        <span class="c1"># modules if they want to use them. So it should be safe to</span>
+        <span class="c1"># ignore the import failures.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">whylogs.experimental.extras.embedding_metric</span>  <span class="c1"># noqa</span>
+        <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">whylogs.experimental.extras.nlp_metric</span>  <span class="c1"># noqa</span>
+        <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">whylogs.extras.image_metric</span>  <span class="c1"># noqa</span>
+        <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+            <span class="k">pass</span>
 
         <span class="n">result_metrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">metric_messages</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MetricComponentMessage</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -589,7 +603,9 @@
                 <span class="n">deserialized_metric</span> <span class="o">=</span> <span class="n">metric_class</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="n">m_msg</span><span class="p">)</span>
                 <span class="n">result_metrics</span><span class="p">[</span><span class="n">m_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">deserialized_metric</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># noqa</span>
-                <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to deserialize metric: </span><span class="si">{</span><span class="n">m_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Failed to deserialize metric: </span><span class="si">{</span><span class="n">m_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">; possibly missing dependencies&quot;</span>
+                <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">ColumnProfileView</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="n">result_metrics</span><span class="p">)</span></div>
 
