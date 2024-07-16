@@ -6,11 +6,11 @@ from typing import Any, List, Optional, Tuple, Union
 from IPython.core.display import HTML  # type: ignore
 
 from whylogs import DatasetProfileView
-from whylogs.api.writer.writer import Writable, WriterWrapper
+from whylogs.api.writer.writer import WriterWrapper, _Writable
 from whylogs.viz.enums.enums import PageSpec
 
 
-class HTMLReport(Writable, ABC):
+class HTMLReport(_Writable, ABC):
     def __init__(
         self,
         ref_view: Optional[DatasetProfileView] = None,
@@ -33,7 +33,7 @@ class HTMLReport(Writable, ABC):
     def report(self) -> HTML:
         pass
 
-    def write(
+    def _write(
         self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[str]]]:
         """Create HTML file for a given report.

@@ -26,7 +26,7 @@ from whylogs.api.logger.experimental.logger.actor.thread_rolling_logger import (
 from whylogs.api.logger.experimental.logger.actor.time_util import TimeGranularity
 from whylogs.api.logger.segment_processing import SegmentationPartition
 from whylogs.api.whylabs.session.session_manager import SessionManager, init
-from whylogs.api.writer.writer import Writable, Writer
+from whylogs.api.writer.writer import Writer, _Writable
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.resolvers import STANDARD_RESOLVER
 from whylogs.core.segmentation_partition import ColumnMapperFunction
@@ -51,7 +51,7 @@ class FakeWriter(Writer):
             return self._write_calls.value  # type: ignore
 
     @property
-    def last_writables(self) -> List[Writable]:
+    def last_writables(self) -> List[_Writable]:
         # files: List[str] = []
         while not self._writable_files.empty():
             self._files.append(self._writable_files.get())
@@ -60,7 +60,7 @@ class FakeWriter(Writer):
 
     def write(
         self,
-        file: Writable,
+        file: _Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
@@ -69,7 +69,7 @@ class FakeWriter(Writer):
             num = self._write_calls.value  # type: ignore
 
         file_path = f"/tmp/profile_{num}.bin"
-        file.write(path="/tmp", filename=f"profile_{num}.bin")
+        file._write(path="/tmp", filename=f"profile_{num}.bin")
         self._writable_files.put(file_path)
 
         return True, ""

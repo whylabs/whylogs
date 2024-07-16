@@ -113,9 +113,23 @@ class ColumnProfileView(object):
     def from_protobuf(cls, msg: ColumnMessage) -> "ColumnProfileView":
         # importing to trigger registration of non-standard metrics
         import whylogs.experimental.core.metrics.udf_metric  # noqa
-        import whylogs.experimental.extras.embedding_metric  # noqa
-        import whylogs.experimental.extras.nlp_metric  # noqa
-        import whylogs.extras.image_metric  # noqa
+
+        # These require numpy & PIL, but we assume users will install
+        # whylogs with the optional dependencies and import the metric
+        # modules if they want to use them. So it should be safe to
+        # ignore the import failures.
+        try:
+            import whylogs.experimental.extras.embedding_metric  # noqa
+        except ModuleNotFoundError:
+            pass
+        try:
+            import whylogs.experimental.extras.nlp_metric  # noqa
+        except ModuleNotFoundError:
+            pass
+        try:
+            import whylogs.extras.image_metric  # noqa
+        except ModuleNotFoundError:
+            pass
 
         result_metrics: Dict[str, Metric] = {}
         metric_messages: Dict[str, Dict[str, MetricComponentMessage]] = {}
@@ -144,7 +158,9 @@ class ColumnProfileView(object):
                 deserialized_metric = metric_class.from_protobuf(m_msg)
                 result_metrics[m_name] = deserialized_metric
             except Exception as error:  # noqa
-                raise DeserializationError(f"Failed to deserialize metric: {m_name}:{error}")
+                raise DeserializationError(
+                    f"Failed to deserialize metric: {m_name}:{error}; possibly missing dependencies"
+                )
 
         return ColumnProfileView(metrics=result_metrics)
 

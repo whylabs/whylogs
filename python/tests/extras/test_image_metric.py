@@ -179,7 +179,7 @@ def test_deserialize_profile(tmp_path) -> None:
     image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
     img = image_loader(image_path)
     profile_view = log_image(img, "image_column").view()
-    profile_view.write(path=tmp_path, filename="test.bin")
+    profile_view._write(path=tmp_path, filename="test.bin")
     deserialized_view = DatasetProfileView.read(os.path.join(tmp_path, "test.bin"))
     assert (
         profile_view.get_column("image_column").to_summary_dict()

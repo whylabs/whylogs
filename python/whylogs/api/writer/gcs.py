@@ -5,7 +5,7 @@ from typing import Any, List, Optional, Tuple, Union
 from google.cloud import exceptions, storage  # type: ignore
 
 from whylogs.api.writer import Writer
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import _Writable
 from whylogs.core.utils import deprecated_alias
 
 logger = logging.getLogger(__name__)
@@ -54,14 +54,14 @@ class GCSWriter(Writer):
     @deprecated_alias(profile="file")
     def write(
         self,
-        file: Writable,
+        file: _Writable,
         dest: Optional[str] = None,  # TODO: this should be used as object_name
         **kwargs: Any,
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
-        success, files = file.write(**kwargs)
+        success, files = file._write(**kwargs)
         files = [files] if isinstance(files, str) else files
         if not success:
-            return False, "Writable failed to create temporary file(s)"
+            return False, "_Writable failed to create temporary file(s)"
 
         # TODO: support ZipFile ?
 

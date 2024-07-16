@@ -4,7 +4,7 @@ from datetime import datetime
 from logging import getLogger
 from typing import IO, Any, BinaryIO, Dict, List, Optional, Tuple, Union
 
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import _Writable
 from whylogs.core.proto import (
     ChunkHeader,
     ChunkMessage,
@@ -19,6 +19,7 @@ from whylogs.core.segment import Segment
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.utils import write_delimited_protobuf
 from whylogs.core.utils.timestamp_calculations import to_utc_milliseconds
+from whylogs.core.utils.utils import deprecated
 from whylogs.core.view.dataset_profile_view import (
     WHYLOGS_MAGIC_HEADER_BYTES,
     DatasetProfileView,
@@ -33,7 +34,7 @@ logger = getLogger(__name__)
 _BUFFER_CHUNK = 1024
 
 
-class SegmentedDatasetProfileView(Writable):
+class SegmentedDatasetProfileView(_Writable):
     _profile_view: DatasetProfileView
     _segment: Segment
     _partition: SegmentationPartition
@@ -210,7 +211,7 @@ class SegmentedDatasetProfileView(Writable):
 
         return True, path
 
-    def _write(self, out_f: BinaryIO, **kwargs: Any) -> Tuple[bool, str]:
+    def _do_write(self, out_f: BinaryIO, **kwargs: Any) -> Tuple[bool, str]:
         if kwargs.get("use_v0") or self.profile_view.model_performance_metrics:
             if self.profile_view.model_performance_metrics:
                 logger.info("Converting segmented profile with performance metrics to v0 format before writing.")
@@ -220,15 +221,21 @@ class SegmentedDatasetProfileView(Writable):
         else:
             return self._write_v1(out_f)
 
-    def write(
+    @deprecated(message="please use a Writer")
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+        success, files = self._write("", path, **kwargs)
+        files = files[0] if isinstance(files, list) else files
+        return success, files
+
+    def _write(
         self, path: Optional[str] = None, filename: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[str]]]:
         out_f = kwargs.get("file")
         if out_f is not None:
-            return self._write(out_f, **kwargs)
+            return self._do_write(out_f, **kwargs)
 
         path = path if path is not None else self._get_default_path()
         filename = filename if filename is not None else self._get_default_filename()
         path = os.path.join(path, filename) if path is not None else filename
-        with Writable._safe_open_write(path, "+b") as out_f:
-            return self._write(out_f, **kwargs)
+        with _Writable._safe_open_write(path, "+b") as out_f:
+            return self._do_write(out_f, **kwargs)

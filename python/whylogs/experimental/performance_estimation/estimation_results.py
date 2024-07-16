@@ -2,12 +2,13 @@ from datetime import datetime
 from logging import getLogger
 from typing import Any, List, Optional, Tuple, Union
 
-from whylogs.api.writer import Writable, WriterWrapper
+from whylogs.api.writer import WriterWrapper, _Writable
+from whylogs.core.utils import deprecated
 
 logger = getLogger(__name__)
 
 
-class EstimationResult(Writable):
+class EstimationResult(_Writable):
     """
     The result of a performance estimation.
     accuracy: The estimated accuracy.
@@ -33,7 +34,11 @@ class EstimationResult(Writable):
     def _get_default_path(self) -> str:
         raise ValueError("I'm not a real Writable")
 
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]:
+    @deprecated(message="please use a Writer")
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
+        raise ValueError("I'm not a real Writable")
+
+    def _write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, Union[str, List[str]]]:
         raise ValueError("I'm not a real Writable")
 
 
