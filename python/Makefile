@@ -38,7 +38,7 @@ endif
 
 install-poetry:
 	@$(call i, Installing Poetry)
-	curl -sSL https://install.python-poetry.org | python3 - --version 1.6.1
+	curl -sSL https://install.python-poetry.org | python3 - --version 1.8.3
 	echo "Add ~/.local/bin to your PATH"
 
 help:
@@ -165,7 +165,13 @@ telemetry-opt-out: ## create opt out file
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
-	poetry install -E "viz s3 spark mlflow image fugue gcs embeddings proc"
+	@if [ "$(OS)" = "Windows_NT" ]; then \
+		echo "Windows install"; \
+		poetry install -E "viz s3 spark mlflow image fugue gcs embeddings proc-mp"; \
+	else \
+		echo "non-Windows install"; \
+		poetry install -E "viz s3 spark mlflow image fugue gcs embeddings proc"; \
+	fi
 
 coverage: ## Generate test coverage reports.
 	@$(call i, Generating test coverage)

@@ -13,7 +13,7 @@ defaults:
 
 env:
   CODECOV_UPLOAD: false
-  POETRY_VERSION: "1.8.3"
+  POETRY_VERSION: "1.5.1"
   PROTOC_VERSION: "3.19.4"
   PYPI_PUBLISH: false
   HEAP_APPID_DEV: "3422045963"
@@ -27,71 +27,47 @@ jobs:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        id: setup-python
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
           poetry-version: ${{ env.POETRY_VERSION }}
-      - name: Set up python with poetry cache
-        uses: actions/setup-python@v4
-        id: setup-python
+      - uses: actions/cache@v3
+        id: poetry-cache
+        name: Cache dependencies based on poetry.lock file
         with:
-          python-version: ${{ matrix.python-version }}
-          cache: poetry
-      - run: echo 'python ${{ matrix.python-version }} poetry cache hit ${{ steps.setup-python.outputs.cache-hit }}'
-
+          path: ./.venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-
       - name: Set up pre-commit cache
         uses: actions/cache@v3
-        if: startsWith(runner.os, 'Linux')
+        if: ${{ matrix.python-version == 3.8 && startsWith(runner.os, 'Linux')}}
         with:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
           restore-keys: ${{ runner.os }}-pre-commit-
 
       - name: Install Protoc
-        uses: arduino/setup-protoc@v1
+        uses: arduino/setup-protoc@v3
         with:
-          version: ${{ env.PROTOC_VERSION }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check Poetry version
-        run: |
-          POETRY_VERSION_INSTALLED=$(poetry -V)
-          echo "The POETRY_VERSION environment variable is set to $POETRY_VERSION."
-          echo "The installed Poetry version is $POETRY_VERSION_INSTALLED."
-          case $POETRY_VERSION_INSTALLED in
-          *$POETRY_VERSION*) echo "Poetry version correct." ;;
-          *) echo "Poetry version incorrect." && exit 1 ;;
-          esac
-      - name: List all packages
-        if: ${{ matrix.python-version == 3.7 }}
-        run: pip list
-      - name: Debug Python environment
-        if: ${{ matrix.python-version == 3.7 }}
-        run: |
-          python3.7 -c "import sys; print(sys.path)"
-          python3.7 -c "import site; print(site.getsitepackages())"
-      - name: Debug packaging
-        if: ${{ matrix.python-version == 3.7 }}
-        run: |
-          python3.7 -c "import packaging; print(open(packaging._manylinux.__file__).read())"
-
+      - name: check poetry env
+        run: poetry env info
+      - name: configure telemetry
+        run: make telemetry-opt-out
+      - name: poetry cache hit
+        if: steps.poetry-cache.outputs.cache-hit == 'true'
+        run: echo 'poetry cache hit, skipping poetry install'
       - name: Install dependencies
-        run: make telemetry-opt-out install
-
-      - name: Check virtualenv location
-        run: |
-          EXPECTED_VIRTUALENV_PATH=${{ github.workspace }}/python/.venv
-          INSTALLED_VIRTUALENV_PATH=$(poetry env info --path)
-          echo "The virtualenv should be at $EXPECTED_VIRTUALENV_PATH."
-          echo "Poetry is using a virtualenv at $INSTALLED_VIRTUALENV_PATH."
-          case "$INSTALLED_VIRTUALENV_PATH" in
-          "$EXPECTED_VIRTUALENV_PATH") echo "Correct Poetry virtualenv." ;;
-          *) echo "Incorrect Poetry virtualenv." && exit 1 ;;
-          esac
-
+        run: make install
       - name: Run pre-commit checks
-        if: ${{ matrix.python-version == 3.8 }}
+        if: ${{ matrix.python-version == 3.8 && startsWith(runner.os, 'Linux')}}
         run: make pre-commit
 
       - name: Run build and test
@@ -114,41 +90,6 @@ jobs:
           fail_ci_if_error: true
           flags: unit
 
-  java-ci:
-    runs-on: [ubuntu-latest]
-    defaults:
-      run:
-        shell: bash
-        working-directory: java
-    steps:
-      - uses: actions/checkout@v3
-      - name: Change to Java dir
-        run: |
-          echo $(pwd)
-      - name: Setup Java 8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 8
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - uses: eskatos/gradle-command-action@v1
-        with:
-          build-root-directory: java
-          arguments: build
-      - name: Smoke test jar in client environment
-        uses: gradle/gradle-build-action@v2
-        with:
-          build-root-directory: java/smoketest
-          arguments: run
-          gradle-executable: java/gradlew
-
   docs-ci:
     needs: python-ci
 
@@ -159,12 +100,12 @@ jobs:
         python-version: ["3.9"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
           poetry-version: ${{ env.POETRY_VERSION }}
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         id: docs
         with:
           python-version: ${{ matrix.python-version }}
