@@ -273,8 +273,6 @@ def test_rolling_logger_load_test(tmp_path: Any) -> None:
     import gc
     import tracemalloc
 
-    from memory_profiler import memory_usage
-
     num_messages = 10
     messages = [{"col1": i % 2, "col2": i * i * 1.2, "col3": "a"} for i in range(num_messages)]
     tracemalloc.start()
@@ -293,14 +291,11 @@ def test_rolling_logger_load_test(tmp_path: Any) -> None:
     def loop_test(rolling_logger, messages, test_iterations):
         for i in range(test_iterations):
             if i % 1000 == 0:
-                mem_used = memory_usage()[0]
-                print(f"Iteration {i} out of {test_iterations} using memory {mem_used} MB")
+                print(f"Iteration {i} out of {test_iterations}")
             for message in messages:
                 rolling_logger.log(message)
 
-    mem_usage_before = memory_usage()[0]
     loop_test(rolling_logger, messages, test_iterations)
-    mem_usage_after = memory_usage()[0]
     gc.collect()
     snapshot = tracemalloc.take_snapshot()
     top_stats = snapshot.statistics("lineno")
@@ -309,10 +304,7 @@ def test_rolling_logger_load_test(tmp_path: Any) -> None:
     for stat in top_stats[:5]:
         TEST_LOGGER.info(stat)
 
-    TEST_LOGGER.info(
-        f"load test with {test_iterations} iterations each using {num_messages} "
-        f"messages done, start: {mem_usage_before} end: {mem_usage_after}"
-    )
+    TEST_LOGGER.info(f"load test with {test_iterations} iterations each using {num_messages}")
 
     # after explicitly calling close on the logger, we trigger one more flush which has two segments and expect two callbacks
     rolling_logger.close()
