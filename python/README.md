@@ -152,7 +152,6 @@ Ingesting whylogs profiles into WhyLabs is easy. After obtaining your access cre
 import whylogs as why
 import os
 
-os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-0" # ORG-ID is case-sensitive
 os.environ["WHYLABS_API_KEY"] = "YOUR-API-KEY"
 os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "model-0" # The selected model project "MODEL-NAME" is "model-0"
 
