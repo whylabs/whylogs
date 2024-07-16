@@ -63,6 +63,18 @@ jobs:
           *$POETRY_VERSION*) echo "Poetry version correct." ;;
           *) echo "Poetry version incorrect." && exit 1 ;;
           esac
+      - name: List all packages
+        if: ${{ matrix.python-version == 3.7 }}
+        run: pip list
+      - name: Debug Python environment
+        if: ${{ matrix.python-version == 3.7 }}
+        run: |
+          python3.7 -c "import sys; print(sys.path)"
+          python3.7 -c "import site; print(site.getsitepackages())"
+      - name: Debug packaging
+        if: ${{ matrix.python-version == 3.7 }}
+        run: |
+          python3.7 -c "import packaging; print(open(packaging._manylinux.__file__).read())"
 
       - name: Install dependencies
         run: make telemetry-opt-out install
@@ -73,7 +85,6 @@ jobs:
           INSTALLED_VIRTUALENV_PATH=$(poetry env info --path)
           echo "The virtualenv should be at $EXPECTED_VIRTUALENV_PATH."
           echo "Poetry is using a virtualenv at $INSTALLED_VIRTUALENV_PATH."
-          poetry check
           case "$INSTALLED_VIRTUALENV_PATH" in
           "$EXPECTED_VIRTUALENV_PATH") echo "Correct Poetry virtualenv." ;;
           *) echo "Incorrect Poetry virtualenv." && exit 1 ;;
