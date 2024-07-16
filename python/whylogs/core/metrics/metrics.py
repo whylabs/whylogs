@@ -262,7 +262,7 @@ class DistributionMetric(Metric):
         if view.numpy.len > 0:
             for arr in [view.numpy.floats, view.numpy.ints]:
                 if arr is not None:
-                    self.kll.value.update(arr)
+                    self.kll.value.update(array=arr)
                     n_b = len(arr)
                     if n_b > 1:
                         n_b = len(arr)
@@ -281,7 +281,7 @@ class DistributionMetric(Metric):
 
         for lst in [view.list.ints, view.list.floats]:
             if lst is not None and len(lst) > 0:
-                self.kll.value.update_list(lst)
+                self.kll.value.update_list(num_items=lst)
                 n_b = len(lst)
                 if n_b > 1:
                     mean_b = statistics.mean(lst)

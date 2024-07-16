@@ -2,6 +2,7 @@ import functools
 import math
 import os
 from datetime import datetime, timezone
+from logging import getLogger
 from os import listdir
 from os.path import isfile
 from typing import Any, Optional, Tuple
@@ -21,6 +22,8 @@ from whylogs.api.writer.writer import Writable
 from whylogs.core.errors import BadConfigError
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.segmentation_partition import segment_on_column
+
+TEST_LOGGER = getLogger(__name__)
 
 
 class TimerContext:
@@ -263,6 +266,56 @@ def test_rolling_row_messages_with_segments(tmp_path: Any) -> None:
     # after explicitly calling close on the logger, we trigger one more flush which has two segments and expect two callbacks
     rolling_logger.close()
     assert rolling_callback.call_count == 2
+
+
+@pytest.mark.load
+def test_rolling_logger_load_test(tmp_path: Any) -> None:
+    import gc
+    import tracemalloc
+
+    from memory_profiler import memory_usage
+
+    num_messages = 10
+    messages = [{"col1": i % 2, "col2": i * i * 1.2, "col3": "a"} for i in range(num_messages)]
+    tracemalloc.start()
+    # Here we create an aggressively rolling logger to try and test for memory pressure related to
+    # long running rolling logger instances over time. Don't do this in actual integrations.
+    rolling_logger = why.logger(
+        mode="rolling",
+        interval=1,
+        when="S",
+        base_name="test_base_name",
+    )
+    rolling_logger.append_writer("local", base_dir=tmp_path)
+    # parameterize the load test, 10,000 iterations with 10 messages per loop -> 100k log calls
+    test_iterations = 10000
+
+    def loop_test(rolling_logger, messages, test_iterations):
+        for i in range(test_iterations):
+            if i % 1000 == 0:
+                mem_used = memory_usage()[0]
+                print(f"Iteration {i} out of {test_iterations} using memory {mem_used} MB")
+            for message in messages:
+                rolling_logger.log(message)
+
+    mem_usage_before = memory_usage()[0]
+    loop_test(rolling_logger, messages, test_iterations)
+    mem_usage_after = memory_usage()[0]
+    gc.collect()
+    snapshot = tracemalloc.take_snapshot()
+    top_stats = snapshot.statistics("lineno")
+
+    TEST_LOGGER.info("Top memory-consuming lines:")
+    for stat in top_stats[:5]:
+        TEST_LOGGER.info(stat)
+
+    TEST_LOGGER.info(
+        f"load test with {test_iterations} iterations each using {num_messages} "
+        f"messages done, start: {mem_usage_before} end: {mem_usage_after}"
+    )
+
+    # after explicitly calling close on the logger, we trigger one more flush which has two segments and expect two callbacks
+    rolling_logger.close()
 
 
 def test_rolling_do_rollover():
