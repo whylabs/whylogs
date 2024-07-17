@@ -522,15 +522,15 @@ def test_transactions():
     trace_id = str(uuid4())
     result = why.log(data, schema=schema, trace_id=trace_id)
     writer = WhyLabsWriter(dataset_id=MODEL_ID)
-    assert writer._transaction_id is None
+    assert writer._whylabs_client._transaction_id is None
     transaction_id = writer.start_transaction()
-    assert writer._transaction_id is not None
-    assert writer._transaction_id == writer._whylabs_client._transaction_id == transaction_id
+    assert writer._whylabs_client._transaction_id is not None
+    assert writer._whylabs_client._transaction_id == transaction_id
     writer.start_transaction(transaction_id)
-    assert writer._transaction_id == writer._whylabs_client._transaction_id == transaction_id
+    assert writer._whylabs_client._transaction_id == transaction_id
     status, id = writer.write(result)
     writer.commit_transaction()
-    assert writer._transaction_id is None
+    assert writer._whylabs_client._transaction_id is None
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
@@ -563,7 +563,7 @@ def test_transaction_aborted():
         writer.commit_transaction()
         assert str(e) == "Transaction has been aborted"
 
-    assert writer._transaction_id is None
+    assert writer._whylabs_client._transaction_id is None
     time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
     dataset_api = DatasetProfileApi(writer._api_client)
     response: ProfileTracesResponse = dataset_api.get_profile_traces(
@@ -586,7 +586,6 @@ def test_transaction_context():
     tids = list()
     with WhyLabsTransactionWriter() as writer:
         assert writer.transaction_id is not None
-        assert writer._whylabs_client._transaction_id == writer.transaction_id
         for data in pdfs:
             trace_id = str(uuid4())
             tids.append(trace_id)
@@ -626,8 +625,7 @@ def test_old_transaction_context():
     tids = list()
     writer = WhyLabsWriter()
     with WhyLabsTransaction(writer):
-        assert writer._transaction_id is not None
-        assert writer._whylabs_client._transaction_id == writer._transaction_id
+        assert writer._whylabs_client._transaction_id is not None
         for data in pdfs:
             trace_id = str(uuid4())
             tids.append(trace_id)
@@ -670,7 +668,6 @@ def test_transaction_context_aborted():
                     writer._whylabs_client.abort_transaction(transaction_id)
                 writer.write(result)
 
-    assert writer.transaction_id is None
     assert writer._whylabs_client._transaction_id is None
 
 
