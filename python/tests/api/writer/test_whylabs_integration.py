@@ -61,12 +61,17 @@ wlc.MAX_REQUEST_TIME = 2
 wlc.MAX_REQUEST_TRIES = 3
 
 
+def _get_org() -> str:
+    key = os.environ["WHYLABS_API_KEY"]
+    return key[-5:]
+
+
 @pytest.mark.skipif(sys.version_info >= (3, 10), reason="HTTPretty not supported with this Python version")
 @pytest.mark.load
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_whylabs_writer_throttle_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = "XXX"
     uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/log/async/{MODEL_ID}"
     httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
@@ -84,7 +89,7 @@ def test_whylabs_writer_throttle_retry():
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_performance_column_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = "XXX"
     uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/models/{MODEL_ID}/schema/metric"
     httpretty.register_uri(httpretty.PUT, uri, status=429)  # Fake WhyLabs that throttles
@@ -113,7 +118,7 @@ def test_get_transaction_id_retry():
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_set_column_schema_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = "XXX"
     COL_NAME = "foo"
     uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/models/{MODEL_ID}/schema/column/{COL_NAME}"
@@ -186,7 +191,7 @@ def test_log_transaction_retry():
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_get_feature_weights_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = "xxx"
     uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/dataset/{MODEL_ID}/weights"
     httpretty.register_uri(httpretty.GET, uri, status=429)  # Fake WhyLabs that throttles
@@ -202,7 +207,7 @@ def test_get_feature_weights_retry():
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_write_feature_weights_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = "xxx"
     uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/dataset/{MODEL_ID}/weights"
     httpretty.register_uri(httpretty.PUT, uri, status=429)  # Fake WhyLabs that throttles
@@ -219,7 +224,7 @@ def test_write_feature_weights_retry():
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_get_column_schema_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = "xxx"
     COLUMN_NAME = "foo"
     uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/models/{MODEL_ID}/schema/column/{COLUMN_NAME}"
@@ -236,7 +241,7 @@ def test_get_column_schema_retry():
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_put_column_schema_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = "xxx"
     COLUMN_NAME = "foo"
     uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/models/{MODEL_ID}/schema/column/{COLUMN_NAME}"
@@ -266,7 +271,7 @@ def test_put_column_schema_retry():
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_log_async_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = "xxx"
     uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/log/async/{MODEL_ID}"
     httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
@@ -282,7 +287,7 @@ def test_log_async_retry():
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_post_log_segmented_reference_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = "xxx"
     uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/dataset-profiles/models/{MODEL_ID}/reference-profile"
     httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
@@ -298,7 +303,7 @@ def test_post_log_segmented_reference_retry():
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_post_log_unsegmented_reference_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = "xxx"
     uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/log/reference/{MODEL_ID}"
     httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
@@ -311,7 +316,7 @@ def test_post_log_unsegmented_reference_retry():
 
 @pytest.mark.load
 def test_whylabs_writer():
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
     schema = DatasetSchema()
@@ -344,7 +349,7 @@ def test_whylabs_writer():
     ],
 )
 def test_whylabs_writer_segmented(zipped: bool):
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
     schema = DatasetSchema(segments=segment_on_column("col1"))
@@ -383,7 +388,7 @@ def test_whylabs_writer_segmented(zipped: bool):
     ],
 )
 def test_whylabs_writer_reference(segmented: bool, zipped: bool):
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
     if segmented:
@@ -468,7 +473,7 @@ def test_feature_weights_client():
 
 @pytest.mark.load
 def test_performance_column():
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     writer = WhyLabsWriter()
     status, _ = writer.tag_custom_performance_column("col1", "perf_column", "mean")
@@ -490,7 +495,7 @@ def test_performance_column():
 
 @pytest.mark.load
 def test_estimation_result():
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     result = EstimationResult(0.5)
     writer = WhyLabsWriter()
@@ -514,7 +519,7 @@ def test_estimation_result():
 
 @pytest.mark.load
 def test_transactions():
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
     schema = DatasetSchema()
@@ -547,7 +552,7 @@ def test_transactions():
 
 @pytest.mark.load
 def test_transaction_aborted():
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
     data = {"col1": 1, "col2": "foo"}
@@ -576,7 +581,7 @@ def test_transaction_aborted():
 
 @pytest.mark.load
 def test_transaction_context():
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
     schema = DatasetSchema()
@@ -615,7 +620,7 @@ def test_transaction_context():
 
 @pytest.mark.load
 def test_old_transaction_context():
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
     schema = DatasetSchema()
@@ -673,7 +678,7 @@ def test_transaction_context_aborted():
 
 @pytest.mark.load
 def test_transaction_segmented():
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
     schema = DatasetSchema(segments=segment_on_column("Gender"))
@@ -714,7 +719,7 @@ def test_transaction_segmented():
 
 @pytest.mark.load
 def test_transaction_distributed():
-    ORG_ID = os.environ.get("WHYLABS_DEFAULT_ORG_ID")
+    ORG_ID = _get_org()
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
     why.init(force_local=True)
     schema = DatasetSchema()
