@@ -99,15 +99,21 @@ Attributes
       :param org_id the organization ID:
       :param dataset_id the dataset Id:
       :param api_key the API key:
+      :param reference_profile_name the name of the reference profile:
       :param configuration the additional configuration for the REST client:
+      :param transaction_id to ID of currently active transaction:
       :param org_id:
       :type org_id: Optional[str] = None,
       :param dataset_id:
       :type dataset_id: Optional[str] = None,
       :param api_key:
       :type api_key: Optional[str] = None,
+      :param reference_profile_name:
+      :type reference_profile_name: Optional[str] = None,
       :param configuration:
       :type configuration: Optional[Configuration] = None,
+      :param transaction_id:
+      :type transaction_id: Optional[str] = None,
       :param ssl_ca_cert:
       :type ssl_ca_cert: Optional[str] = None,
       :param api_client:

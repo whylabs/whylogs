@@ -454,7 +454,6 @@
 <span class="kn">from</span> <span class="nn">whylabs_client.model.segment_tag</span> <span class="kn">import</span> <span class="n">SegmentTag</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ProfileResultSet</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">ViewResultSet</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">default_init</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs_client</span> <span class="kn">import</span> <span class="n">WhyLabsClient</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer.writer</span> <span class="kn">import</span> <span class="n">Writer</span><span class="p">,</span> <span class="n">_Writable</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfileView</span>
@@ -527,11 +526,6 @@
             <span class="n">ssl_ca_cert</span><span class="p">,</span>
             <span class="n">_timeout_seconds</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">session</span> <span class="o">=</span> <span class="n">default_init</span><span class="p">()</span>  <span class="c1"># Force an init if the user didn&#39;t do it, it&#39;s idempotent</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_whylabs_refernce_profile_name</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_api_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ApiClient</span><span class="p">:</span>
@@ -589,10 +583,6 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_whylabs_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_whylabs_client</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reference_profile_name&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_reference_profile_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reference_profile_name&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transaction_id&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transaction_id&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
     <span class="k">def</span> <span class="nf">_get_dataset_epoch</span><span class="p">(</span>
