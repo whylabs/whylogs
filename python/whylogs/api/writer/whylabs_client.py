@@ -303,12 +303,16 @@ class WhyLabsClient:
         org_id the organization ID
         dataset_id the dataset Id
         api_key the API key
+        reference_profile_name the name of the reference profile
         configuration the additional configuration for the REST client
+        transaction_id to ID of currently active transaction
 
         org_id: Optional[str] = None,
         dataset_id: Optional[str] = None,
         api_key: Optional[str] = None,
+        reference_profile_name: Optional[str] = None,
         configuration: Optional[Configuration] = None,
+        transaction_id: Optional[str] = None,
         ssl_ca_cert: Optional[str] = None,
         api_client: Optional[ApiClient] = None,
         timeout_seconds: Optional[float] = None,
@@ -322,6 +326,7 @@ class WhyLabsClient:
         org_id = kwargs.get("org_id")
         dataset_id = kwargs.get("dataset_id")
         api_key = kwargs.get("api_key")
+        reference_profile_name = kwargs.get("reference_profile_name")
         configuration = kwargs.get("configuration")
         ssl_ca_cert = kwargs.get("ssl_ca_cert")
         api_client = kwargs.get("api_client")
@@ -334,6 +339,8 @@ class WhyLabsClient:
             self._org_id = org_id
         if api_key is not None:
             self._api_key = api_key
+        if reference_profile_name is not None:
+            self._reference_profile_name = reference_profile_name
         if configuration is not None:
             raise ValueError("Manual configuration is not supported. Please override the api_client instead")
         if api_client is not None:

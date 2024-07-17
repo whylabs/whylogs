@@ -11,6 +11,7 @@ from whylogs.api.writer.whylabs_base import WhyLabsWriterBase
 from whylogs.api.writer.whylabs_client import WhyLabsClient
 from whylogs.api.writer.writer import _Writable
 from whylogs.core import DatasetProfileView
+from whylogs.core.errors import UnsupportedError
 from whylogs.core.utils import deprecated_alias
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 
@@ -78,7 +79,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
         dataset_timestamp_epoch = self._get_dataset_epoch(views[-1])  # original writer used timestamp of last segment
         and_status: bool = True
         profile_id, upload_urls = self._whylabs_client._get_upload_urls_segmented_reference(  # type: ignore
-            whylabs_tags, dataset_timestamp_epoch, self._reference_profile_name
+            whylabs_tags, dataset_timestamp_epoch, self._whylabs_client._reference_profile_name
         )
         for view, url in zip(views, upload_urls):
             bool_status, message = self._upload_view(view, profile_id, url, dataset_timestamp_epoch)
@@ -90,6 +91,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
     # views before serializing them. We could add a Writable fiddling call-back argument
     # to _create_zip(), but this isn't too bad...
     def _write_segmented_result_set_zip(self, file: SegmentedResultSet, **kwargs: Any) -> Tuple[bool, str]:
+        raise UnsupportedError("Zipped reference profiles don't work yet")
         views = file.get_writables()
         if not views:
             logger.warning("Attempt to write a result set with no writables, nothing written!")
@@ -98,7 +100,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
         whylabs_tags = file.get_whylabs_tags()
         dataset_timestamp_epoch = self._get_dataset_epoch(views[-1])  # original writer used timestamp of last segment
         profile_id, upload_url = self._whylabs_client._get_upload_url_segmented_reference_zip(  # type: ignore
-            whylabs_tags, dataset_timestamp_epoch, self._reference_profile_name
+            whylabs_tags, dataset_timestamp_epoch, self._whylabs_client._reference_profile_name
         )
         with tempfile.NamedTemporaryFile(suffix=".zip") as tmp_file:
             with ZipFile(tmp_file, "w", allowZip64=True) as zip_file:
@@ -126,7 +128,7 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
     ) -> Tuple[bool, str]:
         dataset_timestamp_epoch = self._get_dataset_epoch(view)
         profile_id, upload_url = self._whylabs_client.get_upload_url_unsegmented_reference(  # type: ignore
-            dataset_timestamp_epoch, self._reference_profile_name
+            dataset_timestamp_epoch, self._whylabs_client._reference_profile_name
         )
         return self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, **kwargs)
 
@@ -135,7 +137,6 @@ class WhyLabsReferenceWriter(WhyLabsWriterBase):
         self, file: _Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
         self.option(**kwargs)
-        self._whylabs_client = self._whylabs_client.option(**kwargs)  # type: ignore
         self._custom_tagging(file)
 
         if isinstance(file, SegmentedResultSet):

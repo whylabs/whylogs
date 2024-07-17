@@ -68,7 +68,6 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
     ):
         super().__init__(org_id, api_key, dataset_id, api_client, ssl_ca_cert, _timeout_seconds, whylabs_client)
         transaction_id = transaction_id or self._whylabs_client.get_transaction_id()  # type: ignore
-        self._transaction_id = transaction_id
         self._whylabs_client._transaction_id = transaction_id  # type: ignore
         self._aborted: bool = False
 
@@ -93,11 +92,13 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
                 view, profile_id, upload_url, dataset_timestamp_epoch, tags, **kwargs
             )
             if not bool_status:
-                self._whylabs_client.abort_transaction(self.transaction_id)  # type: ignore
+                self._whylabs_client.abort_transaction(self._whylabs_client._transaction_id)  # type: ignore
                 self._aborted = True
-                logger.info(f"Uploading {profile_id} failed; aborting transaction {self.transaction_id}")
+                logger.info(
+                    f"Uploading {profile_id} failed; aborting transaction {self._whylabs_client._transaction_id}"  # type: ignore
+                )
             else:
-                logger.info(f"Added profile {profile_id} to transaction {self.transaction_id}")
+                logger.info(f"Added profile {profile_id} to transaction {self._whylabs_client._transaction_id}")  # type: ignore
             and_status = and_status and bool_status
 
         logger.debug(f"Completed writing {len(views)} files!")
@@ -110,12 +111,12 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
     ) -> Tuple[bool, str]:
         dataset_timestamp_epoch = self._get_dataset_epoch(view)
         profile_id, upload_url = self._whylabs_client.get_upload_url_transaction(dataset_timestamp_epoch)  # type: ignore
-        logger.info(f"Added profile {profile_id} to transaction {self.transaction_id}")
+        logger.info(f"Added profile {profile_id} to transaction {self._whylabs_client._transaction_id}")  # type: ignore
         success, message = self._upload_view(view, profile_id, upload_url, dataset_timestamp_epoch, **kwargs)
         if not success:
             self._whylabs_client.abort_transaction(self.transaction_id)  # type: ignore
             self._aborted = True
-            logger.info(f"Uploading {profile_id} failed; aborting transaction {self.transaction_id}")
+            logger.info(f"Uploading {profile_id} failed; aborting transaction {self._whylabs_client._transaction_id}")  # type: ignore
         return success, message
 
     @deprecated_alias(profile="file")
@@ -123,9 +124,9 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         self, file: _Writable, dest: Optional[str] = None, **kwargs: Any
     ) -> Tuple[bool, Union[str, List[Tuple[bool, str]]]]:
         if self._aborted:
-            return False, f"Transaction {self.transaction_id} was aborted"
+            return False, f"Transaction {self._whylabs_client._transaction_id} was aborted"  # type: ignore
 
-        transaction_id = kwargs.get("transaction_id") or self.transaction_id
+        transaction_id = kwargs.get("transaction_id") or self._whylabs_client._transaction_id  # type: ignore
         if not transaction_id:
             raise ValueError("Missing transaction id")
 
@@ -139,14 +140,12 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         return self._write_view(view, **kwargs)
 
     def __enter__(self) -> "WhyLabsTransactionWriter":
-        if self.transaction_id is None:
-            self._transaction_id = self._whylabs_client.get_transaction_id()
-            self._whylabs_client._transaction_id = self._transaction_id
+        if self._whylabs_client._transaction_id is None:
+            self._whylabs_client._transaction_id = self._whylabs_client.get_transaction_id()
 
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb) -> None:
-        id = self.transaction_id
-        self._transaction_id = None
+        id = self._whylabs_client._transaction_id
         self._whylabs_client._transaction_id = None  # type: ignore
         self._whylabs_client.commit_transaction(id)  # type: ignore

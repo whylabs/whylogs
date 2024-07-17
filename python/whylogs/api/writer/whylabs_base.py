@@ -9,7 +9,6 @@ from whylabs_client import ApiClient
 from whylabs_client.model.segment_tag import SegmentTag
 
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet, ViewResultSet
-from whylogs.api.whylabs.session.session_manager import default_init
 from whylogs.api.writer.whylabs_client import WhyLabsClient
 from whylogs.api.writer.writer import Writer, _Writable
 from whylogs.core import DatasetProfileView
@@ -82,11 +81,6 @@ class WhyLabsWriterBase(Writer):
             ssl_ca_cert,
             _timeout_seconds,
         )
-        session = default_init()  # Force an init if the user didn't do it, it's idempotent
-        config = session.config
-
-        self._reference_profile_name = config.get_whylabs_refernce_profile_name()
-        self._transaction_id = None
 
     @property
     def _api_client(self) -> ApiClient:
@@ -144,10 +138,6 @@ class WhyLabsWriterBase(Writer):
 
         """
         self._whylabs_client = self._whylabs_client.option(**kwargs)
-        if kwargs.get("reference_profile_name") is not None:
-            self._reference_profile_name = kwargs.get("reference_profile_name")
-        if kwargs.get("transaction_id") is not None:
-            self._transaction_id = kwargs.get("transaction_id")
         return self
 
     def _get_dataset_epoch(
