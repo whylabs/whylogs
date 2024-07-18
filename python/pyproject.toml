@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "1.4.2"
+version = "1.4.3-dev0"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -16,7 +16,7 @@ whylogs-sketching = ">=3.4.1.dev3"
 protobuf = ">=3.19.4"
 importlib-metadata = { version = "<4.3", python = "<3.8" }
 typing-extensions = { version = ">=3.10", markers = "python_version < \"4\""}
-whylabs-client = "^0.6.2"
+whylabs-client = "^0.6.5"
 requests = "^2.27"
 backoff = "^2.2.1"
 platformdirs = "^3.5.0"

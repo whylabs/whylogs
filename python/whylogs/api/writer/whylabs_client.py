@@ -450,6 +450,7 @@ class WhyLabsClient:
             label=label,
             column=column,
             default_metric=default_metric,
+            builtin_metric=None,
         )
 
         @backoff.on_exception(
