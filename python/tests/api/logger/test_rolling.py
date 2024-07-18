@@ -300,13 +300,15 @@ def test_rolling_logger_load_test(tmp_path: Any) -> None:
     snapshot = tracemalloc.take_snapshot()
     top_stats = snapshot.statistics("lineno")
 
+    # Before the memory fix, this would show hundreds of megabytes surviving garbage collection
+    # the expected results here are under a few megabytes for any of the top lines.
+    # TODO: use an assert to catch catastrophic regressions.
     TEST_LOGGER.info("Top memory-consuming lines:")
     for stat in top_stats[:5]:
         TEST_LOGGER.info(stat)
 
     TEST_LOGGER.info(f"load test with {test_iterations} iterations each using {num_messages}")
 
-    # after explicitly calling close on the logger, we trigger one more flush which has two segments and expect two callbacks
     rolling_logger.close()
 
 
