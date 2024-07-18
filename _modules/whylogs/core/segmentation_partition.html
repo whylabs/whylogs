@@ -449,6 +449,7 @@
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span>
 
+<span class="kn">from</span> <span class="nn">whylogs.api.usage_stats</span> <span class="kn">import</span> <span class="n">emit_usage</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.projectors</span> <span class="kn">import</span> <span class="n">FieldProjector</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -514,6 +515,8 @@
 
 
 <div class="viewcode-block" id="segment_on_column"><a class="viewcode-back" href="../../../api/whylogs/core/segmentation_partition/index.html#whylogs.core.segment_on_column">[docs]</a><span class="k">def</span> <span class="nf">segment_on_column</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SegmentationPartition</span><span class="p">]:</span>
+    <span class="n">emit_usage</span><span class="p">(</span><span class="s2">&quot;segment_on_column&quot;</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="p">{</span><span class="n">column_name</span><span class="p">:</span> <span class="n">SegmentationPartition</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">mapper</span><span class="o">=</span><span class="n">ColumnMapperFunction</span><span class="p">(</span><span class="n">col_names</span><span class="o">=</span><span class="p">[</span><span class="n">column_name</span><span class="p">]))}</span></div>
 </pre></div>
         </article>
