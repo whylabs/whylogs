@@ -37,7 +37,7 @@ class ConditionValidator(Validator):
     def __post_init__(self):
         from whylogs.api.usage_stats import emit_usage
 
-        emit_usage("condition_validators")
+        emit_usage("condition_validator")
         for cond_name in self.conditions.keys():
             if cond_name not in self.failures:
                 self.failures[cond_name] = 0
