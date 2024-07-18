@@ -10,7 +10,7 @@ defaults:
     working-directory: python
 
 env:
-  POETRY_VERSION: "1.4.1"
+  POETRY_VERSION: "1.5.1"
   PROTOC_VERSION: "3.19.4"
 
 jobs:

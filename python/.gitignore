@@ -8,6 +8,11 @@ dist
 output.ipynb
 whylogs_data
 
+# test artifacts
+artifact_downloads
+html_reports
+mlruns
+
 # These are created during the sagemaker notebook example
 examples/integrations/sagemaker_whylabs_example/model.tar.gz
 examples/integrations/sagemaker_whylabs_example/resnet.pt
