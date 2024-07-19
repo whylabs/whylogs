@@ -10,6 +10,7 @@ from typing import (
     List,
     Mapping,
     Optional,
+    Set,
     Tuple,
     Type,
     Union,
@@ -178,6 +179,7 @@ class UdfSchema(DeclarativeSchema):
         segments: Optional[Dict[str, SegmentationPartition]] = None,
         validators: Optional[Dict[str, List[Validator]]] = None,
         udf_specs: Optional[List[UdfSpec]] = None,
+        drop_columns: Optional[Set[str]] = None,
     ) -> None:
         super().__init__(
             resolvers=resolvers,
@@ -189,6 +191,7 @@ class UdfSchema(DeclarativeSchema):
             segments=segments,
             validators=validators,
         )
+        self.drop_columns = drop_columns if drop_columns else set()
         udf_specs = udf_specs if udf_specs else []
         self.multicolumn_udfs = [spec for spec in udf_specs if spec.column_names]
         self.type_udfs = defaultdict(list)
@@ -236,23 +239,28 @@ class UdfSchema(DeclarativeSchema):
                 _apply_type_udfs(pandas[column], udfs, new_df, input_cols)
 
     def _run_udfs(
-        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
+        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, drop_columns: bool = True
     ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
         new_columns = deepcopy(row) if row else None
         new_df = pd.DataFrame()
         if row is not None:
             self._run_udfs_on_row(row, new_columns, row.keys())  # type: ignore
+            if drop_columns and self.drop_columns:
+                for col in set(row.keys()).intersection(self.drop_columns):
+                    row.pop(col)
 
         if pandas is not None:
             self._run_udfs_on_dataframe(pandas, new_df, pandas.keys())
             new_df = pd.concat([pandas, new_df], axis=1)
+            if drop_columns and self.drop_columns:
+                new_df = new_df.drop(columns=list(set(new_df.keys()).intersection(self.drop_columns)))
 
         return new_df if pandas is not None else None, new_columns
 
     def apply_udfs(
-        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
+        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, drop_columns: bool = True
     ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
-        return self._run_udfs(pandas, row)
+        return self._run_udfs(pandas, row, drop_columns)
 
 
 _multicolumn_udfs: Dict[str, List[UdfSpec]] = defaultdict(list)
