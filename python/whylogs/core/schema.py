@@ -176,7 +176,7 @@ class DatasetSchema:
         return dirty
 
     def _run_udfs(
-        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None, drop_columns: bool = True
+        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None
     ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
         return pandas, row
 
