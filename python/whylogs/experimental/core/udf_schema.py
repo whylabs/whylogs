@@ -252,7 +252,7 @@ class UdfSchema(DeclarativeSchema):
         if pandas is not None:
             self._run_udfs_on_dataframe(pandas, new_df, pandas.keys())
             new_df = pd.concat([pandas, new_df], axis=1)
-            if drop_columns and self.drop_columns:
+            if self.drop_columns:
                 new_df = new_df.drop(columns=list(set(new_df.keys()).intersection(self.drop_columns)))
 
         return new_df if pandas is not None else None, new_columns
