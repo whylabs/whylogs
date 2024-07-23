@@ -245,7 +245,7 @@ class UdfSchema(DeclarativeSchema):
         new_df = pd.DataFrame()
         if row is not None:
             self._run_udfs_on_row(row, new_columns, row.keys())  # type: ignore
-            if drop_columns and self.drop_columns:
+            if self.drop_columns:
                 for col in set(row.keys()).intersection(self.drop_columns):
                     row.pop(col)
 
