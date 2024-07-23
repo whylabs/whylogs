@@ -258,7 +258,7 @@ class UdfSchema(DeclarativeSchema):
         return new_df if pandas is not None else None, new_columns
 
     def apply_udfs(
-        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, drop_columns: bool = True
+        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
     ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
         return self._run_udfs(pandas, row, drop_columns)
 
