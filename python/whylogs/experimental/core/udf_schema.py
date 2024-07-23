@@ -260,7 +260,7 @@ class UdfSchema(DeclarativeSchema):
     def apply_udfs(
         self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
     ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
-        return self._run_udfs(pandas, row, drop_columns)
+        return self._run_udfs(pandas, row)
 
 
 _multicolumn_udfs: Dict[str, List[UdfSpec]] = defaultdict(list)
