@@ -467,6 +467,7 @@ def udf_schema(
     validators: Optional[Dict[str, List[Validator]]] = None,
     schema_name: Union[str, List[str]] = "",
     include_default_schema: bool = True,
+    drop_columns: Optional[Set[str]] = None,
 ) -> UdfSchema:
     """
     Returns a UdfSchema that implements any registered UDFs, along with any
@@ -492,4 +493,5 @@ def udf_schema(
         segments,
         validators,
         generate_udf_specs(other_udf_specs, schema_name, include_default_schema),
+        drop_columns,
     )
