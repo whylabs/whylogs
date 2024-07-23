@@ -239,7 +239,7 @@ class UdfSchema(DeclarativeSchema):
                 _apply_type_udfs(pandas[column], udfs, new_df, input_cols)
 
     def _run_udfs(
-        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, drop_columns: bool = True
+        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
     ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
         new_columns = deepcopy(row) if row else None
         new_df = pd.DataFrame()
