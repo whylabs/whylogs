@@ -133,6 +133,11 @@ def _deserialize(
         right, i = _deserialize(token, i + 1)
         return Predicate(Relation._not, right=right, component=right._component), i
 
+    if token[i] == "%":
+        component, i = _get_component(token, i + 1)
+        value, i = _get_value(token, i, metric, profile)
+        return Predicate(Relation.search, value(), component=component), i
+
     raise ValueError("Unable to parse predicate expression '{' '.join(token)}' at token {i+1}.")
 
 

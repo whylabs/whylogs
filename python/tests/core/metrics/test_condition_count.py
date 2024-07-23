@@ -157,6 +157,7 @@ def test_condition_predicates() -> None:
     conditions = {
         "match": Condition(X.matches("[a-zA-Z]+")),
         "fullmatch": Condition(X.fullmatch("[a-zA-Z]+")),
+        "search": Condition(X.search("5")),
         "equal_str": Condition(X.equals("42")),
         "equal_int": Condition(X.equals(42)),
         "equal_flt": Condition(X.equals(42.1)),
@@ -170,12 +171,13 @@ def test_condition_predicates() -> None:
     }
     config = ConditionCountConfig(conditions=conditions)
     metric = ConditionCountMetric.zero(config)
-    data = ["abc", "abc123", "42", 41, 42, 42.0, 42.1, 43]
+    data = ["abc", "abc123", "42", " 42", 41, 42, 42.0, 42.1, 43, "5", "15", "152", "51", "55", "1552", "123"]
     metric.columnar_update(PreprocessedColumn.apply(data))
     summary = metric.to_summary_dict(None)
 
     assert summary["total"] == len(data)
     assert summary["match"] == 2
+    assert summary["search"] == 6
     assert summary["fullmatch"] == 1
     assert summary["equal_str"] == 1
     assert summary["equal_int"] == 2
@@ -185,7 +187,7 @@ def test_condition_predicates() -> None:
     assert summary["leq"] == 3
     assert summary["greater"] == 2
     assert summary["geq"] == 4
-    assert summary["neq"] == 6
+    assert summary["neq"] == 14
     assert summary["udf"] == 2
 
 
@@ -432,6 +434,7 @@ def test_expression_tokenizer(input: str, expected: List[str]) -> None:
         (X.matches("abc def"), '~ x "abc def"'),
         (X.matches("[a-zA-Z]+"), '~ x "[a-zA-Z]+"'),
         (X.fullmatch("[a-zA-Z]+"), '~= x "[a-zA-Z]+"'),
+        (X.search("[a-zA-Z]*"), '% x "[a-zA-Z]*"'),
         (X.equals("42"), '== x "42"'),
         (X.equals(42), "== x 42"),
         (X.equals(42.1), "== x 42.1"),
@@ -450,6 +453,7 @@ def test_expression_tokenizer(input: str, expected: List[str]) -> None:
         #
         (Require("mean").matches("[a-zA-Z]+"), '~ mean "[a-zA-Z]+"'),
         (Require("mean").fullmatch("[a-zA-Z]+"), '~= mean "[a-zA-Z]+"'),
+        (Require("mean").search("[a-zA-Z]*"), '% mean "[a-zA-Z]*"'),
         (Require("mean").equals("42"), '== mean "42"'),
         (Require("mean").equals(42), "== mean 42"),
         (Require("mean").equals(42.1), "== mean 42.1"),
@@ -478,6 +482,7 @@ def test_serialization(predicate: X, serialized: str) -> None:
         (X.matches("abc def")),
         (X.matches("[a-zA-Z]+")),
         (X.fullmatch("[a-zA-Z]+")),
+        (X.search("[a-zA-Z]*")),
         (X.equals("42")),
         (X.equals(42)),
         (X.equals(42.1)),
@@ -496,6 +501,7 @@ def test_serialization(predicate: X, serialized: str) -> None:
         #
         (Require("mean").matches("[a-zA-Z]+")),
         (Require("mean").fullmatch("[a-zA-Z]+")),
+        (Require("mean").search("[a-zA-Z]*")),
         (Require("mean").equals("42")),
         (Require("mean").equals(42)),
         (Require("mean").equals(42.1)),

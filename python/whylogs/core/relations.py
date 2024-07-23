@@ -57,9 +57,10 @@ class Relation(Enum):
     _or = 10
     _not = 11
     _udf = 12
+    search = 13
 
 
-_TOKEN = ["", "~", "~=", "==", "<", "<=", ">", ">=", "!=", "and", "or", "not", "udf"]
+_TOKEN = ["", "~", "~=", "==", "<", "<=", ">", ">=", "!=", "and", "or", "not", "udf", "%"]
 
 
 class Predicate:
@@ -75,7 +76,7 @@ class Predicate:
         self._component = component
         self._op = op
         self._udf = udf
-        if op in {Relation.match, Relation.fullmatch}:
+        if op in {Relation.match, Relation.fullmatch, Relation.search}:
             if not isinstance(value, str):
                 raise ValueError("match requires a string regular expression argument")
             self._re = re.compile(value)
@@ -110,6 +111,8 @@ class Predicate:
             return isinstance(x, str) and bool(self._re.match(x))
         if op == Relation.fullmatch:
             return isinstance(x, str) and bool(self._re.fullmatch(x))
+        if op == Relation.search:
+            return isinstance(x, str) and bool(self._re.search(x))
 
         value = self._value()
         if op == Relation.equal:
@@ -148,6 +151,9 @@ class Predicate:
 
     def fullmatch(self, value: Union[str, int, float, ValueGetter]) -> "Predicate":
         return self._maybe_not(Relation.fullmatch, value)
+
+    def search(self, value: Union[str, int, float, ValueGetter]) -> "Predicate":
+        return self._maybe_not(Relation.search, value)
 
     def equals(self, value: Union[str, int, float, ValueGetter]) -> "Predicate":
         return self._maybe_not(Relation.equal, value)
