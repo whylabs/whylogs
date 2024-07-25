@@ -103,6 +103,21 @@ def test_multioutput_udf_dataframe() -> None:
     assert results.get_column("bar") is not None
 
 
+def test_drop_columns() -> None:
+    schema = udf_schema(drop_columns={"xx1", "xx2"})
+    df = pd.DataFrame({"xx1": [42, 7], "xx2": [3.14, 2.72]})
+    results = why.log(df, schema=schema).view()
+    assert results.get_column("xx1") is None
+    assert results.get_column("xx2") is None
+    # UDFs that needed the dropped columns as input still work
+    assert results.get_column("f1.foo") is not None
+    assert results.get_column("f1.bar") is not None
+    assert results.get_column("blah.foo") is not None
+    assert results.get_column("blah.bar") is not None
+    assert results.get_column("foo") is not None
+    assert results.get_column("bar") is not None
+
+
 @register_dataset_udf(["col1"], schema_name="unit-tests")
 def add5(x: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     return [xx + 5 for xx in x["col1"]]
