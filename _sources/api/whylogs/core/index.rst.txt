@@ -368,6 +368,9 @@ Attributes
    .. py:method:: fullmatch(value: Union[str, int, float, ValueGetter]) -> Predicate
 
 
+   .. py:method:: search(value: Union[str, int, float, ValueGetter]) -> Predicate
+
+
    .. py:method:: equals(value: Union[str, int, float, ValueGetter]) -> Predicate
 
 
