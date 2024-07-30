@@ -5,7 +5,6 @@ from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import Literal
 
-from whylogs.api.logger.events import log_debug_event
 from whylogs.api.logger.logger import Logger
 from whylogs.api.logger.result_set import (
     ProfileResultSet,
@@ -26,7 +25,6 @@ from whylogs.api.whylabs.session.notebook_logger import (
     notebook_session_log_comparison,
 )
 from whylogs.core import DatasetProfile, DatasetSchema
-from whylogs.core.metadata import WHYLABS_TRACE_ID_KEY
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
 )
@@ -73,16 +71,7 @@ def log(
         notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
 
         if debug_event is not None:
-            if trace_id is None and WHYLABS_TRACE_ID_KEY in result_set.metadata:
-                trace_id = result_set.metadata.get(WHYLABS_TRACE_ID_KEY)
-            debug_event_status = log_debug_event(
-                debug_event=debug_event,
-                trace_id=trace_id,
-                tags=tags,
-                segment_key_values=segment_key_values,
-                dataset_timestamp=dataset_timestamp,
-            )
-            diagnostic_logger.info(f"Done log_debug_event: {debug_event_status}")
+            diagnostic_logger.warning("Calling log_debug_event in deprecated build")
         return result_set
 
 
