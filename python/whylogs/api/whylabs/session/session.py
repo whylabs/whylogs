@@ -279,8 +279,10 @@ class ApiKeySession(Session):
     def upload_reference_profiles(self, profile_aliases: Dict[str, ResultSet]) -> Union[UploadResult, NotSupported]:
         results: List[str] = []
         for alias, profile in profile_aliases.items():
-            result = profile.writer("whylabs").option(reference_profile_name=alias).write()
-            results.append(*[id for status, id in result if status])
+            success, ids = profile.writer("whylabs").option(reference_profile_name=alias).write()
+            if success:
+                ids = ids if isinstance(ids, list) else [(True, ids)]
+                results.append(*[id for _, id in ids])
 
         request: GetProfileObservatoryLinkRequest = GetProfileObservatoryLinkRequest(
             reference_profile_ids=results, batch_profile_timestamps=[]

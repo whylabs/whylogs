@@ -315,6 +315,52 @@ def test_post_log_unsegmented_reference_retry():
 
 
 @pytest.mark.load
+def test_log_reference():
+    ORG_ID = _get_org()
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+    why.init(reinit=True, allow_local=False)
+    data = {"col1": 1, "col2": "foo"}
+    trace_id = str(uuid4())
+    why.log(data, trace_id=trace_id, name="foo")
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
+    writer = WhyLabsWriter()
+    dataset_api = DatasetProfileApi(writer._api_client)
+    response: ProfileTracesResponse = dataset_api.get_profile_traces(
+        org_id=ORG_ID,
+        dataset_id=MODEL_ID,
+        trace_id=trace_id,
+    )
+    download_url = response.get("traces")[0]["download_url"]
+    headers = {"Content-Type": "application/octet-stream"}
+    downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
+    deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+    assert deserialized_view.get_columns().keys() == data.keys()
+
+
+@pytest.mark.load
+def test_log_batch():
+    ORG_ID = _get_org()
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+    why.init(reinit=True, allow_local=False)
+    data = {"col1": 1, "col2": "foo"}
+    trace_id = str(uuid4())
+    why.log(data, trace_id=trace_id)
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
+    writer = WhyLabsWriter()
+    dataset_api = DatasetProfileApi(writer._api_client)
+    response: ProfileTracesResponse = dataset_api.get_profile_traces(
+        org_id=ORG_ID,
+        dataset_id=MODEL_ID,
+        trace_id=trace_id,
+    )
+    download_url = response.get("traces")[0]["download_url"]
+    headers = {"Content-Type": "application/octet-stream"}
+    downloaded_profile = writer._s3_pool.request("GET", download_url, headers=headers, timeout=writer._timeout_seconds)
+    deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+    assert deserialized_view.get_columns().keys() == data.keys()
+
+
+@pytest.mark.load
 def test_whylabs_writer():
     ORG_ID = _get_org()
     MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
