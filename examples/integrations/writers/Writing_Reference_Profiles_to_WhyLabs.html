@@ -732,40 +732,14 @@ together!</em></p>
 <h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
 <p>First, let’s install <strong>whylogs</strong>. Since we want to write to WhyLabs, we’ll also install the <strong>whylabs</strong> extra.</p>
 <p>If you don’t have it installed already, uncomment the line below:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
-<span class="o">%</span><span class="k">pip</span> install whylogs
+<span class="o">%</span><span class="k">pip</span> install whylogs==1.3.32
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Requirement already satisfied: whylogs in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (1.3.1)
-Requirement already satisfied: platformdirs&lt;4.0.0,&gt;=3.5.0 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (3.10.0)
-Requirement already satisfied: protobuf&gt;=3.19.4 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (4.24.2)
-Requirement already satisfied: requests&lt;3.0,&gt;=2.27 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (2.31.0)
-Requirement already satisfied: types-requests&lt;3.0.0.0,&gt;=2.30.0.0 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (2.31.0.2)
-Requirement already satisfied: typing-extensions&gt;=3.10 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (4.7.1)
-Requirement already satisfied: whylabs-client&lt;0.6.0,&gt;=0.5.5 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (0.5.5)
-Requirement already satisfied: whylogs-sketching&gt;=3.4.1.dev3 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylogs) (3.4.1.dev3)
-Requirement already satisfied: charset-normalizer&lt;4,&gt;=2 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from requests&lt;3.0,&gt;=2.27-&gt;whylogs) (3.2.0)
-Requirement already satisfied: idna&lt;4,&gt;=2.5 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from requests&lt;3.0,&gt;=2.27-&gt;whylogs) (3.4)
-Requirement already satisfied: urllib3&lt;3,&gt;=1.21.1 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from requests&lt;3.0,&gt;=2.27-&gt;whylogs) (1.26.16)
-Requirement already satisfied: certifi&gt;=2017.4.17 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from requests&lt;3.0,&gt;=2.27-&gt;whylogs) (2023.7.22)
-Requirement already satisfied: types-urllib3 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from types-requests&lt;3.0.0.0,&gt;=2.30.0.0-&gt;whylogs) (1.26.25.14)
-Requirement already satisfied: python-dateutil in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from whylabs-client&lt;0.6.0,&gt;=0.5.5-&gt;whylogs) (2.8.2)
-Requirement already satisfied: six&gt;=1.5 in /home/anthony/workspace/whylogs/python/.venv/lib/python3.9/site-packages (from python-dateutil-&gt;whylabs-client&lt;0.6.0,&gt;=0.5.5-&gt;whylogs) (1.16.0)
-<span class="ansi-yellow-fg">DEPRECATION: feast 0.22.4 has a non-standard dependency specifier googleapis-common-protos&lt;2,&gt;=1.52.*. pip 23.3 will enforce this behaviour change. A possible replacement is to upgrade to a newer version of feast or contact the author to suggest that they release a version with a conforming dependency specifiers. Discussion can be found at https://github.com/pypa/pip/issues/12063</span><span class="ansi-yellow-fg">
-</span><span class="ansi-yellow-fg">DEPRECATION: feast 0.22.4 has a non-standard dependency specifier PyYAML&lt;7,&gt;=5.4.*. pip 23.3 will enforce this behaviour change. A possible replacement is to upgrade to a newer version of feast or contact the author to suggest that they release a version with a conforming dependency specifiers. Discussion can be found at https://github.com/pypa/pip/issues/12063</span><span class="ansi-yellow-fg">
-</span><span class="ansi-yellow-fg">DEPRECATION: feast 0.22.4 has a non-standard dependency specifier dask&lt;2022.02.0,&gt;=2021.*. pip 23.3 will enforce this behaviour change. A possible replacement is to upgrade to a newer version of feast or contact the author to suggest that they release a version with a conforming dependency specifiers. Discussion can be found at https://github.com/pypa/pip/issues/12063</span><span class="ansi-yellow-fg">
-</span>Note: you may need to restart the kernel to use updated packages.
-</pre></div></div>
 </div>
 </section>
 <section id="✔️-Setting-the-Environment-Variables">
@@ -944,7 +918,7 @@ Requirement already satisfied: six&gt;=1.5 in /home/anthony/workspace/whylogs/py
 <section id="🔍-A-Look-on-the-Other-Side">
 <h2>🔍 A Look on the Other Side<a class="headerlink" href="#🔍-A-Look-on-the-Other-Side" title="Permalink to this headline">#</a></h2>
 <p>Now, check your dashboard to verify everything went ok. At the <strong>Profile</strong> tab, you should see something like this:</p>
-<p><img alt="alt text" src="../../../_images/whylabs.png" /></p>
+<p><img alt="alt text" src="../../../_images/reference_profile.png" /></p>
 <p>In the image above, we’re comparing both reference profiles sent previously. Usually, we’d be interested in comparing a reference profile with a batch profile obtained in the production pipeline, which is, of course, also possible.</p>
 </section>
 </section>
