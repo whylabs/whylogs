@@ -4,12 +4,6 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
-env:
-  WHYLABS_DEFAULT_DATASET_ID: "model-2250"
-  WHYLABS_NO_ANALYTICS: "True"
-  WHYLABS_API_KEY: ${{ secrets.WL_API_KEY }}
-  WHYLABS_API_ENDPOINT: ${{ secrets.WL_END_POINT }}
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -17,6 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Test Dockerfile
+        env:
+          WHYLABS_DEFAULT_DATASET_ID: "model-2250"
+          WHYLABS_NO_ANALYTICS: "True"
+          WHYLABS_API_KEY: ${{ secrets.WL_API_KEY }}
+          WHYLABS_API_ENDPOINT: ${{ secrets.WL_END_POINT }}
         run: |
           docker build -t whylogs -f Dockerfile .
           docker run --rm --user 0:0 -v $(pwd):/workspace whylogs ./docker_test.sh
