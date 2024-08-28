@@ -3,6 +3,7 @@ name: Nightly Docker test
 on:
   schedule:
     - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
   test:
@@ -11,11 +12,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Test Dockerfile
-        env:
-          WHYLABS_DEFAULT_DATASET_ID: "model-2250"
-          WHYLABS_NO_ANALYTICS: "True"
-          WHYLABS_API_KEY: ${{ secrets.WL_API_KEY }}
-          WHYLABS_API_ENDPOINT: ${{ secrets.WL_END_POINT }}
+
         run: |
           docker build -t whylogs -f Dockerfile .
-          docker run --rm --user 0:0 -v $(pwd):/workspace whylogs ./docker_test.sh
+          docker run --rm --user 0:0 -v $(pwd):/workspace \
+	    -e WHYLABS_DEFAULT_DATASET_ID='model-2250' \
+            -e WHYLABS_NO_ANALYTICS='True' \
+	    -e WHYLABS_API_KEY=${{ secrets.WL_API_KEY }} \
+	    -e WHYLABS_API_ENDPOINT=${{ secrets.WL_END_POINT }} \
+	    whylogs ./docker_test.sh
