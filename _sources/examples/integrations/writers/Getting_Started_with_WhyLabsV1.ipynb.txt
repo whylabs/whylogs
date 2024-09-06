@@ -117,7 +117,7 @@
     },
     {
       "cell_type": "code",
-      "execution_count": 2,
+      "execution_count": 1,
       "id": "b78028ea-c7cb-494f-a303-071f1c345dfc",
       "metadata": {
         "colab": {
@@ -154,7 +154,7 @@
     },
     {
       "cell_type": "code",
-      "execution_count": 3,
+      "execution_count": 2,
       "id": "67b81ab4-a456-4d2d-9547-ad0d772e0aaa",
       "metadata": {
         "colab": {
@@ -471,7 +471,7 @@
               "[8 rows x 126 columns]"
             ]
           },
-          "execution_count": 3,
+          "execution_count": 2,
           "metadata": {},
           "output_type": "execute_result"
         }
@@ -499,7 +499,7 @@
     },
     {
       "cell_type": "code",
-      "execution_count": null,
+      "execution_count": 3,
       "id": "31371bc6-4ec8-4518-84a0-4718b19d1506",
       "metadata": {
         "colab": {
@@ -508,7 +508,32 @@
         "id": "31371bc6-4ec8-4518-84a0-4718b19d1506",
         "outputId": "ddb7451b-5354-4318-e2eb-294ab4d4a7e2"
       },
-      "outputs": [],
+      "outputs": [
+        {
+          "name": "stdout",
+          "output_type": "stream",
+          "text": [
+            "❓ What kind of session do you want to use?\n",
+            " ⤷ 1. WhyLabs. Use an api key to upload to WhyLabs.\n",
+            " ⤷ 2. WhyLabs Anonymous. Upload data anonymously to WhyLabs and get a viewing url.\n",
+            "\n",
+            "Initializing session with config /home/jamie/.config/whylogs/config.ini\n",
+            "\n",
+            "✅ Using session type: WHYLABS_ANONYMOUS\n",
+            " ⤷ session id: <will be generated before upload>\n"
+          ]
+        },
+        {
+          "data": {
+            "text/plain": [
+              "<whylogs.api.whylabs.session.session.GuestSession at 0x7fbf885ff880>"
+            ]
+          },
+          "execution_count": 3,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
       "source": [
         "import whylogs as why\n",
         "\n",
@@ -556,7 +581,7 @@
     },
     {
       "cell_type": "code",
-      "execution_count": 5,
+      "execution_count": 4,
       "id": "3a006a2b-8403-477f-a1f5-a37ea33b160c",
       "metadata": {
         "colab": {
@@ -574,44 +599,44 @@
             "✅ Aggregated 407 rows into profile \n",
             "\n",
             "Visualize and explore this profile with one-click\n",
-            "🔍 https://hub.whylabsapp.com/resources/model-62/profiles?profile=1694131200000\n",
+            "🔍 https://hub.whylabsapp.com/resources/model-1/profiles?profile=1725321600000&sessionToken=session-GKTK6PAd\n",
             "\n",
             "✅ Aggregated 390 rows into profile \n",
             "\n",
             "Visualize and explore this profile with one-click\n",
-            "🔍 https://hub.whylabsapp.com/resources/model-62/profiles?profile=1694044800000\n",
+            "🔍 https://hub.whylabsapp.com/resources/model-1/profiles?profile=1725235200000&sessionToken=session-GKTK6PAd\n",
             "\n",
             "✅ Aggregated 382 rows into profile \n",
             "\n",
             "Visualize and explore this profile with one-click\n",
-            "🔍 https://hub.whylabsapp.com/resources/model-62/profiles?profile=1693958400000\n",
+            "🔍 https://hub.whylabsapp.com/resources/model-1/profiles?profile=1725148800000&sessionToken=session-GKTK6PAd\n",
             "\n",
             "✅ Aggregated 371 rows into profile \n",
             "\n",
             "Visualize and explore this profile with one-click\n",
-            "🔍 https://hub.whylabsapp.com/resources/model-62/profiles?profile=1693872000000\n",
+            "🔍 https://hub.whylabsapp.com/resources/model-1/profiles?profile=1725062400000&sessionToken=session-GKTK6PAd\n",
             "\n",
             "✅ Aggregated 301 rows into profile \n",
             "\n",
             "Visualize and explore this profile with one-click\n",
-            "🔍 https://hub.whylabsapp.com/resources/model-62/profiles?profile=1693785600000\n",
+            "🔍 https://hub.whylabsapp.com/resources/model-1/profiles?profile=1724976000000&sessionToken=session-GKTK6PAd\n",
             "\n",
             "✅ Aggregated 392 rows into profile \n",
             "\n",
             "Visualize and explore this profile with one-click\n",
-            "🔍 https://hub.whylabsapp.com/resources/model-62/profiles?profile=1693699200000\n",
+            "🔍 https://hub.whylabsapp.com/resources/model-1/profiles?profile=1724889600000&sessionToken=session-GKTK6PAd\n",
             "\n",
             "✅ Aggregated 283 rows into profile \n",
             "\n",
             "Visualize and explore this profile with one-click\n",
-            "🔍 https://hub.whylabsapp.com/resources/model-62/profiles?profile=1693612800000\n"
+            "🔍 https://hub.whylabsapp.com/resources/model-1/profiles?profile=1724803200000&sessionToken=session-GKTK6PAd\n"
           ]
         }
       ],
       "source": [
-        "from whylogs.api.writer.whylabs import WhyLabsWriter\n",
-        "import whylogs as why\n",
         "import datetime\n",
+        "\n",
+        "import whylogs as why\n",
         "\n",
         "for i, df in enumerate(pdfs):\n",
         "    # walking backwards. Each dataset has to map to a date to show up as a different batch\n",
@@ -619,12 +644,12 @@
         "    dt = datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(days=i)\n",
         "\n",
         "    # log each day's data and set the date on the profile\n",
-        "    profile = why.log(df, dataset_timestamp=dt).profile()"
+        "    results = why.log(df, dataset_timestamp=dt)"
       ]
     },
     {
       "cell_type": "code",
-      "execution_count": null,
+      "execution_count": 5,
       "id": "ScXRPmxJVjju",
       "metadata": {
         "colab": {
@@ -634,10 +659,25 @@
         "id": "ScXRPmxJVjju",
         "outputId": "5d9e7f45-5c0b-4bd6-d369-3f7bb94c0f65"
       },
-      "outputs": [],
+      "outputs": [
+        {
+          "data": {
+            "text/html": [
+              "To view your statistics, go to the <a href=\"https://hub.whylabsapp.com/models/None/summary\" target=\"_blank\">model dashboard</a>"
+            ],
+            "text/plain": [
+              "<IPython.core.display.HTML object>"
+            ]
+          },
+          "execution_count": 5,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
       "source": [
-        "from whylogs.api.whylabs.session.session_manager import get_current_session\n",
         "from IPython.core.display import HTML\n",
+        "\n",
+        "from whylogs.api.whylabs.session.session_manager import get_current_session\n",
         "\n",
         "session = get_current_session()\n",
         "model_id = session.config.get_default_dataset_id()\n",
@@ -705,7 +745,7 @@
       "name": "python",
       "nbconvert_exporter": "python",
       "pygments_lexer": "ipython3",
-      "version": "3.9.16"
+      "version": "3.8.10"
     },
     "vscode": {
       "interpreter": {
