@@ -180,7 +180,7 @@ class GuestSession(Session):
             else:
                 timestamp = int(datetime.now(timezone.utc).timestamp() * 1000)
 
-            request = LogAsyncRequest(datasetTimestamp=timestamp, dataset="model-1", segment_tags=[])
+            request = LogAsyncRequest(dataset_timestamp=timestamp, dataset="model-1", segment_tags=[])
             session_id = self._get_or_create_session_id()
             response: CreateDatasetProfileUploadResponse = (
                 self._whylabs_session_api.value.create_dataset_profile_upload(session_id, request)
