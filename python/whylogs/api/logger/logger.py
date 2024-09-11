@@ -8,7 +8,10 @@ from whylogs.api.logger.result_set import (
     ResultSet,
     SegmentedResultSet,
 )
-from whylogs.api.logger.segment_processing import segment_processing
+from whylogs.api.logger.segment_processing import (
+    _result_set_for_segment_key_values,
+    segment_processing,
+)
 from whylogs.api.store import ProfileStore
 from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetSchema
@@ -110,6 +113,11 @@ class Logger(ABC):
 
         # If segments are defined use segment_processing to return a SegmentedResultSet
         if active_schema and active_schema.segments:
+            if segment_key_values:
+                raise ValueError(
+                    f"using explicit `segment_key_values` {segment_key_values} is not compatible "
+                    f"with segmentation also defined in the DatasetSchema: {active_schema.segments}"
+                )
             segmented_results: SegmentedResultSet = segment_processing(
                 schema=active_schema,
                 obj=obj,
@@ -135,6 +143,9 @@ class Logger(ABC):
             if first_profile._metadata is None:
                 first_profile._metadata = dict()
             first_profile._metadata["name"] = name
+
+        if segment_key_values:
+            return _result_set_for_segment_key_values(segment_key_values, first_profile)
         return ProfileResultSet(first_profile)
 
     def close(self) -> None:
