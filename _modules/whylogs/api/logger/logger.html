@@ -453,7 +453,10 @@
     <span class="n">ResultSet</span><span class="p">,</span>
     <span class="n">SegmentedResultSet</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.logger.segment_processing</span> <span class="kn">import</span> <span class="n">segment_processing</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.logger.segment_processing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_result_set_for_segment_key_values</span><span class="p">,</span>
+    <span class="n">segment_processing</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.store</span> <span class="kn">import</span> <span class="n">ProfileStore</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.writer</span> <span class="kn">import</span> <span class="n">Writer</span><span class="p">,</span> <span class="n">Writers</span>
 <span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetSchema</span>
@@ -555,6 +558,11 @@
 
         <span class="c1"># If segments are defined use segment_processing to return a SegmentedResultSet</span>
         <span class="k">if</span> <span class="n">active_schema</span> <span class="ow">and</span> <span class="n">active_schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">segment_key_values</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;using explicit `segment_key_values` </span><span class="si">{</span><span class="n">segment_key_values</span><span class="si">}</span><span class="s2"> is not compatible &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;with segmentation also defined in the DatasetSchema: </span><span class="si">{</span><span class="n">active_schema</span><span class="o">.</span><span class="n">segments</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
             <span class="n">segmented_results</span><span class="p">:</span> <span class="n">SegmentedResultSet</span> <span class="o">=</span> <span class="n">segment_processing</span><span class="p">(</span>
                 <span class="n">schema</span><span class="o">=</span><span class="n">active_schema</span><span class="p">,</span>
                 <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
@@ -580,6 +588,9 @@
             <span class="k">if</span> <span class="n">first_profile</span><span class="o">.</span><span class="n">_metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">first_profile</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
             <span class="n">first_profile</span><span class="o">.</span><span class="n">_metadata</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">if</span> <span class="n">segment_key_values</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_result_set_for_segment_key_values</span><span class="p">(</span><span class="n">segment_key_values</span><span class="p">,</span> <span class="n">first_profile</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ProfileResultSet</span><span class="p">(</span><span class="n">first_profile</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Logger.close"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/logger/index.html#whylogs.api.logger.Logger.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
