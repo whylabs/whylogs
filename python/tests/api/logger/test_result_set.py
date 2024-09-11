@@ -62,6 +62,25 @@ def test_segmented_result_set_timestamp():
         assert results.view(segment).dataset_timestamp == timestamp
 
 
+def test_explicit_segment_key_values_result_set():
+    segment_column = "col1"
+    df = pd.DataFrame(data={segment_column: [1, 2]})
+    segment_value = "1.2.3"
+    segment_key = "version"
+    results: SegmentedResultSet = why.log(df, segment_key_values={segment_key: segment_value})
+    segments = results.segments()
+    assert len(segments) == 1
+    for segment in segments:
+        assert segment_value in segment.key
+        view = results.view(segment=segment)
+        assert view is not None
+        assert isinstance(view, DatasetProfileView)
+
+    TEST_LOGGER.info(f"parition: {results.partitions[0]}")
+    TEST_LOGGER.info(f"segment: {segment}")
+    TEST_LOGGER.info(f"view: {view.to_pandas()}")
+
+
 def test_view_result_set_timestamp():
     results = ViewResultSet(DatasetProfileView(columns=dict(), dataset_timestamp=None, creation_timestamp=None))
     timestamp = datetime.now(tz=timezone.utc) - timedelta(days=1)

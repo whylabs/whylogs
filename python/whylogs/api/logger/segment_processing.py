@@ -9,7 +9,11 @@ from whylogs.core import DatasetSchema
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.input_resolver import _pandas_or_dict
 from whylogs.core.segment import Segment
-from whylogs.core.segmentation_partition import SegmentationPartition, SegmentFilter
+from whylogs.core.segmentation_partition import (
+    ColumnMapperFunction,
+    SegmentationPartition,
+    SegmentFilter,
+)
 from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
@@ -176,4 +180,17 @@ def segment_processing(
         segmented_profiles[segment_partition.id] = partition_segments
         segment_partitions.append(segment_partition)
         logger.debug(f"Done profiling for partition with name({partition_name})")
+    return SegmentedResultSet(segments=segmented_profiles, partitions=segment_partitions)
+
+
+def _result_set_for_segment_key_values(segment_key_values: Dict[str, Any], profile) -> SegmentedResultSet:
+    segment_keys = segment_key_values.keys()
+    segment_values = segment_key_values.values()
+    partition_name = ",".join(segment_keys)
+    partition = SegmentationPartition(name=partition_name, mapper=ColumnMapperFunction(col_names=list(segment_keys)))
+    segment_key = Segment(key=tuple(segment_values), parent_id=partition.id)
+    partition_segments = {segment_key: profile}
+    segmented_profiles = {partition.id: partition_segments}
+    segment_partitions = [partition]
+
     return SegmentedResultSet(segments=segmented_profiles, partitions=segment_partitions)
