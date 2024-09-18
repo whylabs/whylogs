@@ -112,3 +112,26 @@ def test_column_counts_with_and_without_nan_field():
     )
     assert full_column_counts.nan.value == 3
     assert full_column_counts.inf.value == 4
+
+
+def test_column_counts_true_count() -> None:
+    counts = ColumnCountsMetric.zero()
+    p_col = PreprocessedColumn.apply(["twelve", 12, True, False, True, "True", None])
+    operation_result = counts.columnar_update(p_col)
+    assert operation_result is not None
+    assert counts.n.value == 7
+    assert counts.true.value == 2
+    assert operation_result.ok
+
+    buf = counts.to_protobuf()
+    deserialized = ColumnCountsMetric.from_protobuf(buf)
+    assert deserialized.n.value == 7
+    assert deserialized.true.value == 2
+
+    # TODO: I haven't found a way to remove the counts.true attribute with the
+    #       ColumnCountsMetric frozen, but the following works at room temperature:
+    # delattr(counts, "true")
+    # buf = counts.to_protobuf()
+    # deserialized = ColumnCountsMetric.from_protobuf(buf)
+    # assert deserialized.n.value == 7
+    # assert deserialized.true.value == 0

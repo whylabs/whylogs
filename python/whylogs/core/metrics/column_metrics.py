@@ -113,6 +113,7 @@ class ColumnCountsMetric(Metric):
     null: IntegralComponent
     nan: IntegralComponent = field(default_factory=lambda: IntegralComponent(0))
     inf: IntegralComponent = field(default_factory=lambda: IntegralComponent(0))
+    true: IntegralComponent = field(default_factory=lambda: IntegralComponent(0))
 
     @property
     def namespace(self) -> str:
@@ -123,6 +124,7 @@ class ColumnCountsMetric(Metric):
         null: int = self.null.value
         nan: int = self.nan.value
         inf: int = self.inf.value
+        true: int = self.true.value
 
         if data.len <= 0:
             return OperationResult.ok(0)
@@ -138,15 +140,28 @@ class ColumnCountsMetric(Metric):
         inf += data.inf_count
         self.inf.set(inf)
 
+        true += data.bool_count_where_true
+        self.true.set(true)
+
         return OperationResult.ok(data.len)
 
     def to_summary_dict(self, cfg: Optional[SummaryConfig] = None) -> Dict[str, Any]:
-        return {"n": self.n.value, "null": self.null.value, "nan": self.nan.value, "inf": self.inf.value}
+        return {
+            "n": self.n.value,
+            "null": self.null.value,
+            "nan": self.nan.value,
+            "inf": self.inf.value,
+            "true": self.true.value,
+        }
 
     @classmethod
     def zero(cls, config: Optional[MetricConfig] = None) -> "ColumnCountsMetric":
         return ColumnCountsMetric(
-            n=IntegralComponent(0), null=IntegralComponent(0), nan=IntegralComponent(0), inf=IntegralComponent(0)
+            n=IntegralComponent(0),
+            null=IntegralComponent(0),
+            nan=IntegralComponent(0),
+            inf=IntegralComponent(0),
+            true=IntegralComponent(0),
         )
 
 
