@@ -128,6 +128,23 @@ def test_distribution_metrics_mixed_np_and_list() -> None:
     assert dist.variance == overall.m2 / (overall.n - 1)
 
 
+def test_distribution_metrics_bool() -> None:
+    dist = DistributionMetric.zero()
+    p_col = PreprocessedColumn.apply([True, True, True, True, False, "foo", "bar"])
+    operation_result = dist.columnar_update(p_col)
+    assert operation_result.ok
+    assert round(dist.mean.value, 3) == 0.8
+
+
+def test_distribution_metrics_bool_mixed() -> None:
+    dist = DistributionMetric.zero()
+    p_col = PreprocessedColumn.apply([True, False, 42])
+    operation_result = dist.columnar_update(p_col)
+    assert operation_result.ok
+    assert dist.kll.value.get_n() == 3
+    assert round(dist.avg, 3) == round(43 / 3, 3)
+
+
 def test_track_single_values_profile_mean() -> None:
     data = list(range(30))
     df = pd.DataFrame(data, columns=["col1"])
@@ -199,6 +216,14 @@ def test_frequent_items_handling_int_as_string() -> None:
 
     res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
     assert res.array[0][0].value == "1"  # type: ignore
+
+
+def test_frequent_items_handling_bool_as_string() -> None:
+    df = pd.DataFrame({"bool": [True, True, True, True, False]})
+
+    res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
+    assert res.array[0][0].value == "True"  # type: ignore
+    assert res.array[0][1].value == "False"  # type: ignore
 
 
 def test_frequent_items_bounds_order() -> None:

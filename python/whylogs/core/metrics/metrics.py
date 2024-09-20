@@ -279,7 +279,8 @@ class DistributionMetric(Metric):
                         else:
                             first = welford_online_variance_m2(existing=first, new_value=arr[0])
 
-        for lst in [view.list.ints, view.list.floats]:
+        bools = [1] * view.bool_count_where_true + [0] * (view.bool_count - view.bool_count_where_true)
+        for lst in [view.list.ints, view.list.floats, bools]:
             if lst is not None and len(lst) > 0:
                 self.kll.value.update_list(num_items=lst)
                 n_b = len(lst)
@@ -447,6 +448,11 @@ class FrequentItemsMetric(Metric):
         if view.list.ints is not None:
             self.frequent_strings.value.update_int_list(view.list.ints)
             successes += len(view.list.ints)
+
+        if view.bool_count > 0:
+            self.frequent_strings.value.update_str_list(
+                ["True"] * view.bool_count_where_true + ["False"] * (view.bool_count - view.bool_count_where_true)
+            )
 
         if view.list.floats is not None:
             self.frequent_strings.value.update_double_list(view.list.floats)
