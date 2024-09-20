@@ -294,7 +294,7 @@ class DistributionMetric(Metric):
                     first = parallel_variance_m2(first=first, second=second)
                 else:
                     first = welford_online_variance_m2(existing=first, new_value=lst[0])
-            
+
         for lst in [view.list.ints, view.list.floats]:
             process_int_list(lst)
 
