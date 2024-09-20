@@ -480,6 +480,9 @@
 <span class="n">METRIC</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;METRIC&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Metric&quot;</span><span class="p">)</span>
 
 
+<span class="n">_BOOL_LIST_CHUNK_SIZE</span> <span class="o">=</span> <span class="mi">1000</span>
+
+
 <div class="viewcode-block" id="MetricConfig"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.MetricConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MetricConfig</span><span class="p">:</span>
     <span class="n">hll_lg_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">conf</span><span class="o">.</span><span class="n">hll_lg_k</span><span class="p">)</span>
@@ -724,7 +727,8 @@
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">first</span> <span class="o">=</span> <span class="n">welford_online_variance_m2</span><span class="p">(</span><span class="n">existing</span><span class="o">=</span><span class="n">first</span><span class="p">,</span> <span class="n">new_value</span><span class="o">=</span><span class="n">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-        <span class="k">for</span> <span class="n">lst</span> <span class="ow">in</span> <span class="p">[</span><span class="n">view</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">ints</span><span class="p">,</span> <span class="n">view</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">floats</span><span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">process_int_list</span><span class="p">(</span><span class="n">lst</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">nonlocal</span> <span class="n">first</span><span class="p">,</span> <span class="n">second</span>
             <span class="k">if</span> <span class="n">lst</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">update_list</span><span class="p">(</span><span class="n">num_items</span><span class="o">=</span><span class="n">lst</span><span class="p">)</span>
                 <span class="n">n_b</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span>
@@ -732,10 +736,27 @@
                     <span class="n">mean_b</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span>
                     <span class="n">m2_b</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">variance</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_b</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
                     <span class="n">second</span> <span class="o">=</span> <span class="n">VarianceM2Result</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n_b</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">mean_b</span><span class="p">,</span> <span class="n">m2</span><span class="o">=</span><span class="n">m2_b</span><span class="p">)</span>
-
                     <span class="n">first</span> <span class="o">=</span> <span class="n">parallel_variance_m2</span><span class="p">(</span><span class="n">first</span><span class="o">=</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="o">=</span><span class="n">second</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">first</span> <span class="o">=</span> <span class="n">welford_online_variance_m2</span><span class="p">(</span><span class="n">existing</span><span class="o">=</span><span class="n">first</span><span class="p">,</span> <span class="n">new_value</span><span class="o">=</span><span class="n">lst</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">lst</span> <span class="ow">in</span> <span class="p">[</span><span class="n">view</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">ints</span><span class="p">,</span> <span class="n">view</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">floats</span><span class="p">]:</span>
+            <span class="n">process_int_list</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">view</span><span class="o">.</span><span class="n">bool_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">bool_count_where_true</span>
+            <span class="k">while</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">chunk_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">_BOOL_LIST_CHUNK_SIZE</span><span class="p">)</span>
+                <span class="n">chunk</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">chunk_size</span>
+                <span class="n">process_int_list</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                <span class="n">count</span> <span class="o">-=</span> <span class="n">chunk_size</span>
+
+            <span class="n">count</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">bool_count</span> <span class="o">-</span> <span class="n">view</span><span class="o">.</span><span class="n">bool_count_where_true</span>
+            <span class="k">while</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">chunk_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">_BOOL_LIST_CHUNK_SIZE</span><span class="p">)</span>
+                <span class="n">chunk</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">chunk_size</span>
+                <span class="n">process_int_list</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                <span class="n">count</span> <span class="o">-=</span> <span class="n">chunk_size</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">first</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">m2</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">first</span><span class="o">.</span><span class="n">m2</span><span class="p">)</span>
@@ -892,6 +913,21 @@
         <span class="k">if</span> <span class="n">view</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">ints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">frequent_strings</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">update_int_list</span><span class="p">(</span><span class="n">view</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">ints</span><span class="p">)</span>
             <span class="n">successes</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">view</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">ints</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">view</span><span class="o">.</span><span class="n">bool_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">bool_count_where_true</span>
+            <span class="k">while</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">chunk_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">_BOOL_LIST_CHUNK_SIZE</span><span class="p">)</span>
+                <span class="n">chunk</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;True&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">chunk_size</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frequent_strings</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">update_str_list</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                <span class="n">count</span> <span class="o">-=</span> <span class="n">chunk_size</span>
+
+            <span class="n">count</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">bool_count</span> <span class="o">-</span> <span class="n">view</span><span class="o">.</span><span class="n">bool_count_where_true</span>
+            <span class="k">while</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">chunk_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">_BOOL_LIST_CHUNK_SIZE</span><span class="p">)</span>
+                <span class="n">chunk</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;False&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">chunk_size</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frequent_strings</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">update_str_list</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                <span class="n">count</span> <span class="o">-=</span> <span class="n">chunk_size</span>
 
         <span class="k">if</span> <span class="n">view</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">floats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">frequent_strings</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">update_double_list</span><span class="p">(</span><span class="n">view</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">floats</span><span class="p">)</span>
