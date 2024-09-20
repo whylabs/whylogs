@@ -129,6 +129,9 @@ def test_distribution_metrics_mixed_np_and_list() -> None:
 
 
 def test_distribution_metrics_bool() -> None:
+    import whylogs.core.metrics.metrics as met
+    met._BOOL_LIST_CHUNK_SIZE = 2
+
     dist = DistributionMetric.zero()
     p_col = PreprocessedColumn.apply([True, True, True, True, False, "foo", "bar"])
     operation_result = dist.columnar_update(p_col)
@@ -137,6 +140,9 @@ def test_distribution_metrics_bool() -> None:
 
 
 def test_distribution_metrics_bool_mixed() -> None:
+    import whylogs.core.metrics.metrics as met
+    met._BOOL_LIST_CHUNK_SIZE = 2
+
     dist = DistributionMetric.zero()
     p_col = PreprocessedColumn.apply([True, False, 42])
     operation_result = dist.columnar_update(p_col)
@@ -219,6 +225,8 @@ def test_frequent_items_handling_int_as_string() -> None:
 
 
 def test_frequent_items_handling_bool_as_string() -> None:
+    import whylogs.core.metrics.metrics as met
+    met._BOOL_LIST_CHUNK_SIZE = 2
     df = pd.DataFrame({"bool": [True, True, True, True, False]})
 
     res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
