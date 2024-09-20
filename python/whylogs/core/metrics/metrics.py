@@ -35,6 +35,9 @@ NUM = TypeVar("NUM", float, int)
 METRIC = TypeVar("METRIC", bound="Metric")
 
 
+_BOOL_LIST_CHUNK_SIZE = 1000
+
+
 @dataclass(frozen=True)
 class MetricConfig:
     hll_lg_k: int = field(default_factory=lambda: conf.hll_lg_k)
@@ -436,9 +439,6 @@ class FrequentItem:
     est: int
     upper: int
     lower: int
-
-
-_BOOL_LIST_CHUNK_SIZE = 1000
 
 
 @dataclass(frozen=True)
