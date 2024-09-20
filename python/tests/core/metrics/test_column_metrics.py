@@ -125,7 +125,7 @@ def test_column_counts_true_count() -> None:
     assert operation_result.ok
 
     # This is a serialized ColumnCountsMetric from before adding the true component
-    msg = b'\n\t\n\x03nan\x12\x02\x10\x00\n\n\n\x04null\x12\x02\x10\x01\n\t\n\x03inf\x12\x02\x10\x00\n\x07\n\x01n\x12\x02\x10\x07'
+    msg = b"\n\t\n\x03nan\x12\x02\x10\x00\n\n\n\x04null\x12\x02\x10\x01\n\t\n\x03inf\x12\x02\x10\x00\n\x07\n\x01n\x12\x02\x10\x07"
     buf = MetricMessage()
     buf.ParseFromString(msg)
     deserialized = ColumnCountsMetric.from_protobuf(buf)
