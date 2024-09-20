@@ -6,6 +6,7 @@ from whylogs.core import ColumnSchema
 from whylogs.core.metrics import ColumnCountsMetric, TypeCountersMetric
 from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.proto import MetricMessage
 
 INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]
 FLOAT_TYPES = [float, np.double, np.longdouble, np.float16, np.float64]
@@ -112,3 +113,21 @@ def test_column_counts_with_and_without_nan_field():
     )
     assert full_column_counts.nan.value == 3
     assert full_column_counts.inf.value == 4
+
+
+def test_column_counts_true_count() -> None:
+    counts = ColumnCountsMetric.zero()
+    p_col = PreprocessedColumn.apply(["twelve", 12, True, False, True, "True", None])
+    operation_result = counts.columnar_update(p_col)
+    assert operation_result is not None
+    assert counts.n.value == 7
+    assert counts.true.value == 2
+    assert operation_result.ok
+
+    # This is a serialized ColumnCountsMetric from before adding the true component
+    msg = b"\n\t\n\x03nan\x12\x02\x10\x00\n\n\n\x04null\x12\x02\x10\x01\n\t\n\x03inf\x12\x02\x10\x00\n\x07\n\x01n\x12\x02\x10\x07"
+    buf = MetricMessage()
+    buf.ParseFromString(msg)
+    deserialized = ColumnCountsMetric.from_protobuf(buf)
+    assert deserialized.n.value == 7
+    assert deserialized.true.value == 0
