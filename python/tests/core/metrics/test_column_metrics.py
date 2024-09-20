@@ -6,6 +6,7 @@ from whylogs.core import ColumnSchema
 from whylogs.core.metrics import ColumnCountsMetric, TypeCountersMetric
 from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.proto import MetricMessage
 
 INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]
 FLOAT_TYPES = [float, np.double, np.longdouble, np.float16, np.float64]
@@ -123,15 +124,10 @@ def test_column_counts_true_count() -> None:
     assert counts.true.value == 2
     assert operation_result.ok
 
-    buf = counts.to_protobuf()
+    # This is a serialized ColumnCountsMetric from before adding the true component
+    msg = b'\n\t\n\x03nan\x12\x02\x10\x00\n\n\n\x04null\x12\x02\x10\x01\n\t\n\x03inf\x12\x02\x10\x00\n\x07\n\x01n\x12\x02\x10\x07'
+    buf = MetricMessage()
+    buf.ParseFromString(msg)
     deserialized = ColumnCountsMetric.from_protobuf(buf)
     assert deserialized.n.value == 7
-    assert deserialized.true.value == 2
-
-    # TODO: I haven't found a way to remove the counts.true attribute with the
-    #       ColumnCountsMetric frozen, but the following works at room temperature:
-    # delattr(counts, "true")
-    # buf = counts.to_protobuf()
-    # deserialized = ColumnCountsMetric.from_protobuf(buf)
-    # assert deserialized.n.value == 7
-    # assert deserialized.true.value == 0
+    assert deserialized.true.value == 0
