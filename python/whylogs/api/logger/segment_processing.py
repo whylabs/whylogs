@@ -39,7 +39,7 @@ def _process_segment(
     segments[segment_key] = profile
 
 
-def _get_segment_from_group_key(group_key, partition_id) -> Tuple[str, ...]:
+def _get_segment_from_group_key(group_key, partition_id, explicit_keys: Tuple[str, ...] = ()) -> Tuple[str, ...]:
     if isinstance(group_key, str):
         segment_tuple_key: Tuple[str, ...] = (group_key,)
     elif isinstance(group_key, (List, Iterable, Iterator)):
@@ -47,7 +47,7 @@ def _get_segment_from_group_key(group_key, partition_id) -> Tuple[str, ...]:
     else:
         segment_tuple_key = (str(group_key),)
 
-    return Segment(segment_tuple_key, partition_id)
+    return Segment(segment_tuple_key + explicit_keys, partition_id)
 
 
 def _is_nan(x):
@@ -65,7 +65,9 @@ def _process_simple_partition(
     pandas: Optional[pd.DataFrame] = None,
     row: Optional[Mapping[str, Any]] = None,
     segment_cache: Optional[SegmentCache] = None,
+    segment_key_values: Optional[Dict[str, str]] = None,
 ):
+    explicit_keys = tuple(str(v) for v in segment_key_values.values()) if segment_key_values else tuple()
     if pandas is not None:
         # simple means we can segment on column values
         grouped_data = pandas.groupby(columns)
@@ -81,11 +83,11 @@ def _process_simple_partition(
                 pandas_segment = pandas[mask]
             else:
                 pandas_segment = grouped_data.get_group(group)
-            segment_key = _get_segment_from_group_key(group, partition_id)
+            segment_key = _get_segment_from_group_key(group, partition_id, explicit_keys)
             _process_segment(pandas_segment, segment_key, segments, schema, segment_cache)
     elif row:
         # TODO: consider if we need to combine with the column names
-        segment_key = Segment(tuple(str(row[element]) for element in columns), partition_id)
+        segment_key = Segment(tuple(str(row[element]) for element in columns) + explicit_keys, partition_id)
         _process_segment(row, segment_key, segments, schema, segment_cache)
 
 
@@ -129,15 +131,19 @@ def _log_segment(
     pandas: Optional[pd.DataFrame] = None,
     row: Optional[Mapping[str, Any]] = None,
     segment_cache: Optional[SegmentCache] = None,
+    segment_key_values: Optional[Dict[str, str]] = None,
 ) -> Dict[Segment, Any]:
     segments: Dict[Segment, Any] = {}
     pandas, row = _pandas_or_dict(obj, pandas, row)
     if partition.filter:
+        # TODO: segment_key_values don't apply to filter since they're explicitely added
         pandas, row = _filter_inputs(partition.filter, pandas, row)
     if partition.simple:
         columns = partition.mapper.col_names if partition.mapper else None
         if columns:
-            _process_simple_partition(partition.id, schema, segments, columns, pandas, row, segment_cache)
+            _process_simple_partition(
+                partition.id, schema, segments, columns, pandas, row, segment_cache, segment_key_values
+            )
     else:
         raise NotImplementedError("custom mapped segments not yet implemented")
     return segments
@@ -149,6 +155,7 @@ def segment_processing(
     pandas: Optional[pd.DataFrame] = None,
     row: Optional[Dict[str, Any]] = None,
     segment_cache: Optional[SegmentCache] = None,
+    segment_key_values: Optional[Dict[str, str]] = None,
 ) -> SegmentedResultSet:
     number_of_partitions = len(schema.segments)
     logger.info(f"The specified schema defines segments with {number_of_partitions} partitions.")
@@ -176,6 +183,7 @@ def segment_processing(
             pandas=pandas,
             row=row,
             segment_cache=segment_cache,
+            segment_key_values=segment_key_values,
         )
         segmented_profiles[segment_partition.id] = partition_segments
         segment_partitions.append(segment_partition)
