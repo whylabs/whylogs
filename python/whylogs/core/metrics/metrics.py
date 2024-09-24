@@ -35,6 +35,9 @@ NUM = TypeVar("NUM", float, int)
 METRIC = TypeVar("METRIC", bound="Metric")
 
 
+_BOOL_LIST_CHUNK_SIZE = 1000
+
+
 @dataclass(frozen=True)
 class MetricConfig:
     hll_lg_k: int = field(default_factory=lambda: conf.hll_lg_k)
@@ -279,7 +282,8 @@ class DistributionMetric(Metric):
                         else:
                             first = welford_online_variance_m2(existing=first, new_value=arr[0])
 
-        for lst in [view.list.ints, view.list.floats]:
+        def process_int_list(lst: List[int]) -> None:
+            nonlocal first, second
             if lst is not None and len(lst) > 0:
                 self.kll.value.update_list(num_items=lst)
                 n_b = len(lst)
@@ -287,10 +291,27 @@ class DistributionMetric(Metric):
                     mean_b = statistics.mean(lst)
                     m2_b = statistics.variance(lst) * (n_b - 1)
                     second = VarianceM2Result(n=n_b, mean=mean_b, m2=m2_b)
-
                     first = parallel_variance_m2(first=first, second=second)
                 else:
                     first = welford_online_variance_m2(existing=first, new_value=lst[0])
+
+        for lst in [view.list.ints, view.list.floats]:
+            process_int_list(lst)
+
+        if view.bool_count > 0:
+            count = view.bool_count_where_true
+            while count > 0:
+                chunk_size = min(count, _BOOL_LIST_CHUNK_SIZE)
+                chunk = [1] * chunk_size
+                process_int_list(chunk)
+                count -= chunk_size
+
+            count = view.bool_count - view.bool_count_where_true
+            while count > 0:
+                chunk_size = min(count, _BOOL_LIST_CHUNK_SIZE)
+                chunk = [0] * chunk_size
+                process_int_list(chunk)
+                count -= chunk_size
 
         self.mean.set(first.mean)
         self.m2.set(first.m2)
@@ -447,6 +468,21 @@ class FrequentItemsMetric(Metric):
         if view.list.ints is not None:
             self.frequent_strings.value.update_int_list(view.list.ints)
             successes += len(view.list.ints)
+
+        if view.bool_count > 0:
+            count = view.bool_count_where_true
+            while count > 0:
+                chunk_size = min(count, _BOOL_LIST_CHUNK_SIZE)
+                chunk = ["True"] * chunk_size
+                self.frequent_strings.value.update_str_list(chunk)
+                count -= chunk_size
+
+            count = view.bool_count - view.bool_count_where_true
+            while count > 0:
+                chunk_size = min(count, _BOOL_LIST_CHUNK_SIZE)
+                chunk = ["False"] * chunk_size
+                self.frequent_strings.value.update_str_list(chunk)
+                count -= chunk_size
 
         if view.list.floats is not None:
             self.frequent_strings.value.update_double_list(view.list.floats)
