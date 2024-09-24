@@ -165,6 +165,7 @@ def log_classification_metrics(
     schema: Optional[DatasetSchema] = None,
     log_full_data: bool = False,
     dataset_timestamp: Optional[datetime] = None,
+    # TODO: should we add segmente_key_values here?
 ) -> ResultSet:
     """
     Function to track metrics based on validation data.
