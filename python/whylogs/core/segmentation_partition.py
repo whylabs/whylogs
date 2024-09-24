@@ -26,6 +26,17 @@ class ColumnMapperFunction:
         column_string = ",".join(sorted(self.col_names))
         segment_hash = hashlib.sha512(bytes(column_string + mapper_string, encoding="utf8"))
         self.id = segment_hash.hexdigest()
+        self.explicit_names = list()
+
+    def set_explicit_names(self, key_names: List[str] = []) -> None:
+        if self.col_names:
+            for name in key_names:
+                if name in self.col_names:
+                    raise ValueError(
+                        f"Cannot have segmentation key {name} as both a column name and explicit segment key"
+                    )
+
+        self.explicit_names = sorted(key_names)
 
 
 @dataclass

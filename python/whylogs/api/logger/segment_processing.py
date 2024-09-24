@@ -67,7 +67,9 @@ def _process_simple_partition(
     segment_cache: Optional[SegmentCache] = None,
     segment_key_values: Optional[Dict[str, str]] = None,
 ):
-    explicit_keys = tuple(str(v) for v in segment_key_values.values()) if segment_key_values else tuple()
+    explicit_keys = (
+        tuple(str(segment_key_values[k]) for k in sorted(segment_key_values.keys())) if segment_key_values else tuple()
+    )
     if pandas is not None:
         # simple means we can segment on column values
         grouped_data = pandas.groupby(columns)
@@ -167,6 +169,9 @@ def segment_processing(
 
     for partition_name in schema.segments:
         segment_partition = schema.segments[partition_name]
+        if segment_partition.mapper and segment_key_values:
+            segment_partition.mapper.set_explicit_names(segment_key_values.keys())
+
         logger.info(f"Processing partition with name({partition_name})")
         logger.debug(f"{partition_name}: is simple ({segment_partition.simple}), id ({segment_partition.id})")
         if segment_partition.filter:
