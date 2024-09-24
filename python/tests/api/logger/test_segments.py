@@ -95,7 +95,7 @@ def test_single_column_segment() -> None:
     assert cardinality == 1.0
 
 
-def test_manual1() -> None:
+def test_single_column_and_manual_segment() -> None:
     input_rows = 100
     segment_column = "col3"
     number_of_segments = 5
@@ -115,10 +115,10 @@ def test_manual1() -> None:
     assert len(partitions) == 1
     partition = partitions[0]
     segments = results.segments_in_partition(partition)
-    print(f"SEGMENTS: {segments}")
     assert len(segments) == number_of_segments
 
     first_segment = next(iter(segments))
+    assert first_segment.key == ("x0", "1", "bar")
     first_segment_profile = results.profile(first_segment)
     assert first_segment_profile is not None
     assert first_segment_profile._columns["col1"]._schema.dtype == np.int64
@@ -349,7 +349,7 @@ def test_multi_column_segment() -> None:
     assert count == 1
 
 
-def test_manual2() -> None:
+def test_multicolumn_and_manual_segmentat() -> None:
     input_rows = 100
     d = {
         "col1": [i for i in range(input_rows)],
