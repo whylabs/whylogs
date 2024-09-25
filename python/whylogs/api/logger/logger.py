@@ -113,9 +113,6 @@ class Logger(ABC):
 
         # If segments are defined use segment_processing to return a SegmentedResultSet
         if active_schema and active_schema.segments:
-            if segment_key_values:
-                pass  # TODO: maybe check for duplicate keys
-
             segmented_results: SegmentedResultSet = segment_processing(
                 schema=active_schema,
                 obj=obj,
