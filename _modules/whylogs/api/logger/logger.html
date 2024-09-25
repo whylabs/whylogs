@@ -558,17 +558,13 @@
 
         <span class="c1"># If segments are defined use segment_processing to return a SegmentedResultSet</span>
         <span class="k">if</span> <span class="n">active_schema</span> <span class="ow">and</span> <span class="n">active_schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">segment_key_values</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;using explicit `segment_key_values` </span><span class="si">{</span><span class="n">segment_key_values</span><span class="si">}</span><span class="s2"> is not compatible &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;with segmentation also defined in the DatasetSchema: </span><span class="si">{</span><span class="n">active_schema</span><span class="o">.</span><span class="n">segments</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
             <span class="n">segmented_results</span><span class="p">:</span> <span class="n">SegmentedResultSet</span> <span class="o">=</span> <span class="n">segment_processing</span><span class="p">(</span>
                 <span class="n">schema</span><span class="o">=</span><span class="n">active_schema</span><span class="p">,</span>
                 <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
                 <span class="n">pandas</span><span class="o">=</span><span class="n">pandas</span><span class="p">,</span>
                 <span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span>
                 <span class="n">segment_cache</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_segment_cache</span><span class="p">,</span>
+                <span class="n">segment_key_values</span><span class="o">=</span><span class="n">segment_key_values</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="c1"># Update the existing segmented_results metadata with the trace_id and other keys if not present</span>
             <span class="n">_populate_common_profile_metadata</span><span class="p">(</span><span class="n">segmented_results</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">trace_id</span><span class="o">=</span><span class="n">trace_id</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">)</span>

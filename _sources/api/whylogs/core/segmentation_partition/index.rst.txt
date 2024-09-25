@@ -73,6 +73,9 @@ Attributes
 
       
 
+   .. py:method:: set_explicit_names(key_names: List[str] = []) -> None
+
+
 
 .. py:class:: SegmentFilter
 

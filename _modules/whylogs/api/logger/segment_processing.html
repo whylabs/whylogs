@@ -484,7 +484,7 @@
     <span class="n">segments</span><span class="p">[</span><span class="n">segment_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">profile</span>
 
 
-<span class="k">def</span> <span class="nf">_get_segment_from_group_key</span><span class="p">(</span><span class="n">group_key</span><span class="p">,</span> <span class="n">partition_id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">_get_segment_from_group_key</span><span class="p">(</span><span class="n">group_key</span><span class="p">,</span> <span class="n">partition_id</span><span class="p">,</span> <span class="n">explicit_keys</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group_key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">segment_tuple_key</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">group_key</span><span class="p">,)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group_key</span><span class="p">,</span> <span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">)):</span>
@@ -492,7 +492,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">segment_tuple_key</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">group_key</span><span class="p">),)</span>
 
-    <span class="k">return</span> <span class="n">Segment</span><span class="p">(</span><span class="n">segment_tuple_key</span><span class="p">,</span> <span class="n">partition_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Segment</span><span class="p">(</span><span class="n">segment_tuple_key</span> <span class="o">+</span> <span class="n">explicit_keys</span><span class="p">,</span> <span class="n">partition_id</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_is_nan</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
@@ -510,7 +510,11 @@
     <span class="n">pandas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">row</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">segment_cache</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SegmentCache</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">segment_key_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
+    <span class="n">explicit_keys</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">segment_key_values</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">segment_key_values</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span> <span class="k">if</span> <span class="n">segment_key_values</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">()</span>
+    <span class="p">)</span>
     <span class="k">if</span> <span class="n">pandas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># simple means we can segment on column values</span>
         <span class="n">grouped_data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
@@ -526,11 +530,11 @@
                 <span class="n">pandas_segment</span> <span class="o">=</span> <span class="n">pandas</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">pandas_segment</span> <span class="o">=</span> <span class="n">grouped_data</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
-            <span class="n">segment_key</span> <span class="o">=</span> <span class="n">_get_segment_from_group_key</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">partition_id</span><span class="p">)</span>
+            <span class="n">segment_key</span> <span class="o">=</span> <span class="n">_get_segment_from_group_key</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">partition_id</span><span class="p">,</span> <span class="n">explicit_keys</span><span class="p">)</span>
             <span class="n">_process_segment</span><span class="p">(</span><span class="n">pandas_segment</span><span class="p">,</span> <span class="n">segment_key</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">segment_cache</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">row</span><span class="p">:</span>
         <span class="c1"># TODO: consider if we need to combine with the column names</span>
-        <span class="n">segment_key</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">element</span><span class="p">])</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">),</span> <span class="n">partition_id</span><span class="p">)</span>
+        <span class="n">segment_key</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">element</span><span class="p">])</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span> <span class="o">+</span> <span class="n">explicit_keys</span><span class="p">,</span> <span class="n">partition_id</span><span class="p">)</span>
         <span class="n">_process_segment</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">segment_key</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">segment_cache</span><span class="p">)</span>
 
 
@@ -574,6 +578,7 @@
     <span class="n">pandas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">row</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">segment_cache</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SegmentCache</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">segment_key_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Segment</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
     <span class="n">segments</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Segment</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">pandas</span><span class="p">,</span> <span class="n">row</span> <span class="o">=</span> <span class="n">_pandas_or_dict</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pandas</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
@@ -582,7 +587,13 @@
     <span class="k">if</span> <span class="n">partition</span><span class="o">.</span><span class="n">simple</span><span class="p">:</span>
         <span class="n">columns</span> <span class="o">=</span> <span class="n">partition</span><span class="o">.</span><span class="n">mapper</span><span class="o">.</span><span class="n">col_names</span> <span class="k">if</span> <span class="n">partition</span><span class="o">.</span><span class="n">mapper</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">columns</span><span class="p">:</span>
-            <span class="n">_process_simple_partition</span><span class="p">(</span><span class="n">partition</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">pandas</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">segment_cache</span><span class="p">)</span>
+            <span class="n">_process_simple_partition</span><span class="p">(</span>
+                <span class="n">partition</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">pandas</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">segment_cache</span><span class="p">,</span> <span class="n">segment_key_values</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Segmented DatasetSchema defines no segments; use an unsegmented DatasetSchema or specify columns to segment on.&quot;</span>
+            <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;custom mapped segments not yet implemented&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">segments</span>
@@ -594,6 +605,7 @@
     <span class="n">pandas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">row</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">segment_cache</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SegmentCache</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">segment_key_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SegmentedResultSet</span><span class="p">:</span>
     <span class="n">number_of_partitions</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The specified schema defines segments with </span><span class="si">{</span><span class="n">number_of_partitions</span><span class="si">}</span><span class="s2"> partitions.&quot;</span><span class="p">)</span>
@@ -605,6 +617,9 @@
 
     <span class="k">for</span> <span class="n">partition_name</span> <span class="ow">in</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
         <span class="n">segment_partition</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">segments</span><span class="p">[</span><span class="n">partition_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">segment_partition</span><span class="o">.</span><span class="n">mapper</span> <span class="ow">and</span> <span class="n">segment_key_values</span><span class="p">:</span>
+            <span class="n">segment_partition</span><span class="o">.</span><span class="n">mapper</span><span class="o">.</span><span class="n">set_explicit_names</span><span class="p">(</span><span class="n">segment_key_values</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing partition with name(</span><span class="si">{</span><span class="n">partition_name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">partition_name</span><span class="si">}</span><span class="s2">: is simple (</span><span class="si">{</span><span class="n">segment_partition</span><span class="o">.</span><span class="n">simple</span><span class="si">}</span><span class="s2">), id (</span><span class="si">{</span><span class="n">segment_partition</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">segment_partition</span><span class="o">.</span><span class="n">filter</span><span class="p">:</span>
@@ -621,6 +636,7 @@
             <span class="n">pandas</span><span class="o">=</span><span class="n">pandas</span><span class="p">,</span>
             <span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">,</span>
             <span class="n">segment_cache</span><span class="o">=</span><span class="n">segment_cache</span><span class="p">,</span>
+            <span class="n">segment_key_values</span><span class="o">=</span><span class="n">segment_key_values</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">segmented_profiles</span><span class="p">[</span><span class="n">segment_partition</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">partition_segments</span>
         <span class="n">segment_partitions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">segment_partition</span><span class="p">)</span>
