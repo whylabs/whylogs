@@ -78,8 +78,9 @@ def _generate_segment_tags_metadata(
 
         segment_tags = []
         col_names = partition.mapper.col_names
+        explicit_names = partition.mapper.explicit_names
 
-        for index, column_name in enumerate(col_names):
+        for index, column_name in enumerate(col_names + explicit_names):
             segment_tags.append(SegmentTag(key=_TAG_PREFIX + column_name, value=segment.key[index]))
     else:
         raise NotImplementedError(

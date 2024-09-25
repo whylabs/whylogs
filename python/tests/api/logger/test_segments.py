@@ -95,6 +95,60 @@ def test_single_column_segment() -> None:
     assert cardinality == 1.0
 
 
+def test_single_column_and_manual_segment() -> None:
+    input_rows = 100
+    segment_column = "col3"
+    number_of_segments = 5
+    d = {
+        "col1": [i for i in range(input_rows)],
+        "col2": [i * i * 1.1 for i in range(input_rows)],
+        segment_column: [f"x{str(i%number_of_segments)}" for i in range(input_rows)],
+    }
+
+    df = pd.DataFrame(data=d)
+    test_segments = segment_on_column("col3")
+    results: SegmentedResultSet = why.log(
+        df, schema=DatasetSchema(segments=test_segments), segment_key_values={"zzz": "foo", "ver": 1}
+    )
+    assert results.count == number_of_segments
+    partitions = results.partitions
+    assert len(partitions) == 1
+    partition = partitions[0]
+    segments = results.segments_in_partition(partition)
+    assert len(segments) == number_of_segments
+
+    first_segment = next(iter(segments))
+    assert first_segment.key == ("x0", "1", "foo")
+    first_segment_profile = results.profile(first_segment)
+    assert first_segment_profile is not None
+    assert first_segment_profile._columns["col1"]._schema.dtype == np.int64
+    assert first_segment_profile._columns["col2"]._schema.dtype == np.float64
+    assert first_segment_profile._columns["col3"]._schema.dtype.name == "object"
+    segment_cardinality: CardinalityMetric = (
+        first_segment_profile.view().get_column(segment_column).get_metric("cardinality")
+    )
+    cardinality = segment_cardinality.estimate
+    assert cardinality is not None
+    assert cardinality == 1.0
+
+
+def test_throw_on_duplicate_keys() -> None:
+    input_rows = 100
+    segment_column = "col3"
+    number_of_segments = 5
+    d = {
+        "col1": [i for i in range(input_rows)],
+        "col2": [i * i * 1.1 for i in range(input_rows)],
+        segment_column: [f"x{str(i%number_of_segments)}" for i in range(input_rows)],
+    }
+
+    df = pd.DataFrame(data=d)
+    test_segments = segment_on_column("col3")
+
+    with pytest.raises(ValueError):
+        why.log(df, schema=DatasetSchema(segments=test_segments), segment_key_values={segment_column: "foo"})
+
+
 def test_single_column_segment_with_trace_id() -> None:
     input_rows = 100
     segment_column = "col3"
@@ -299,6 +353,41 @@ def test_multi_column_segment() -> None:
     # Note this segment is not useful as there is only one datapoint per segment, we have 100 rows and
     # 100 segments. The segment value is a tuple of strings identifying this segment.
     assert last_segment.key == ("99", "x4")
+
+    last_segment_profile = results.profile(last_segment)
+
+    assert last_segment_profile._columns["col1"]._schema.dtype == np.int64
+    assert last_segment_profile._columns["col2"]._schema.dtype == np.float64
+    assert last_segment_profile._columns["col3"]._schema.dtype.name == "object"
+
+    segment_distribution: DistributionMetric = last_segment_profile.view().get_column("col1").get_metric("distribution")
+    count = segment_distribution.n
+    assert count is not None
+    assert count == 1
+
+
+def test_multicolumn_and_manual_segment() -> None:
+    input_rows = 100
+    d = {
+        "col1": [i for i in range(input_rows)],
+        "col2": [i * i * 1.1 for i in range(input_rows)],
+        "col3": [f"x{str(i%5)}" for i in range(input_rows)],
+    }
+
+    df = pd.DataFrame(data=d)
+    segmentation_partition = SegmentationPartition(
+        name="col1,col3", mapper=ColumnMapperFunction(col_names=["col1", "col3"])
+    )
+    test_segments = {segmentation_partition.name: segmentation_partition}
+    results: SegmentedResultSet = why.log(
+        df, schema=DatasetSchema(segments=test_segments), segment_key_values={"ver": 42, "zzz": "bar"}
+    )
+    segments = results.segments()
+    last_segment = segments[-1]
+
+    # Note this segment is not useful as there is only one datapoint per segment, we have 100 rows and
+    # 100 segments. The segment value is a tuple of strings identifying this segment.
+    assert last_segment.key == ("99", "x4", "42", "bar")
 
     last_segment_profile = results.profile(last_segment)
 
