@@ -138,13 +138,16 @@ def _log_segment(
     segments: Dict[Segment, Any] = {}
     pandas, row = _pandas_or_dict(obj, pandas, row)
     if partition.filter:
-        # TODO: segment_key_values don't apply to filter since they're explicitely added
         pandas, row = _filter_inputs(partition.filter, pandas, row)
     if partition.simple:
         columns = partition.mapper.col_names if partition.mapper else None
         if columns:
             _process_simple_partition(
                 partition.id, schema, segments, columns, pandas, row, segment_cache, segment_key_values
+            )
+        else:
+            logger.error(
+                "Segmented DatasetSchema defines no segments; use an unsegmented DatasetSchema or specify columns to segment on."
             )
     else:
         raise NotImplementedError("custom mapped segments not yet implemented")
