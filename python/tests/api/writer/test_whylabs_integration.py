@@ -425,6 +425,49 @@ def test_whylabs_writer_segmented(zipped: bool):
 
 
 @pytest.mark.load
+def test_whylabs_writer_explicit_segmented():
+    ORG_ID = _get_org()
+    MODEL_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+    why.init(reinit=True, force_local=True)
+    schema = DatasetSchema(segments=segment_on_column("col1"))
+    data = {"col1": [1, 2, 1, 3, 2, 2], "col2": ["foo", "bar", "wat", "foo", "baz", "wat"]}
+    df = pd.DataFrame(data)
+    trace_id = str(uuid4())
+    profile = why.log(df, schema=schema, trace_id=trace_id, segment_key_values={"version": "1.0.0"})
+
+    assert profile.count == 3
+    partitions = profile.partitions
+    assert len(partitions) == 1
+    partition = partitions[0]
+    segments = profile.segments_in_partition(partition)
+    assert len(segments) == 3
+
+    first_segment = next(iter(segments))
+    assert first_segment.key == ("1", "1.0.0")
+
+    writer = WhyLabsWriter()
+    success, status = writer.write(profile)
+    assert success
+    time.sleep(SLEEP_TIME)  # platform needs time to become aware of the profile
+    dataset_api = DatasetProfileApi(writer._api_client)
+    response: ProfileTracesResponse = dataset_api.get_profile_traces(
+        org_id=ORG_ID,
+        dataset_id=MODEL_ID,
+        trace_id=trace_id,
+    )
+    assert len(response.get("traces")) == 3
+    for trace in response.get("traces"):
+        download_url = trace.get("download_url")
+        headers = {"Content-Type": "application/octet-stream"}
+        downloaded_profile = writer._s3_pool.request(
+            "GET", download_url, headers=headers, timeout=writer._timeout_seconds
+        )
+        deserialized_view = DatasetProfileView.deserialize(downloaded_profile.data)
+        assert deserialized_view._metadata["whylogs.tag.version"] == "1.0.0"
+        assert deserialized_view.get_columns().keys() == data.keys()
+
+
+@pytest.mark.load
 @pytest.mark.parametrize(
     "segmented,zipped",
     [

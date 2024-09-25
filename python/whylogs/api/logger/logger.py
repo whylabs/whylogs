@@ -113,17 +113,13 @@ class Logger(ABC):
 
         # If segments are defined use segment_processing to return a SegmentedResultSet
         if active_schema and active_schema.segments:
-            if segment_key_values:
-                raise ValueError(
-                    f"using explicit `segment_key_values` {segment_key_values} is not compatible "
-                    f"with segmentation also defined in the DatasetSchema: {active_schema.segments}"
-                )
             segmented_results: SegmentedResultSet = segment_processing(
                 schema=active_schema,
                 obj=obj,
                 pandas=pandas,
                 row=row,
                 segment_cache=self._segment_cache,
+                segment_key_values=segment_key_values,
             )
             # Update the existing segmented_results metadata with the trace_id and other keys if not present
             _populate_common_profile_metadata(segmented_results.metadata, trace_id=trace_id, tags=tags)
