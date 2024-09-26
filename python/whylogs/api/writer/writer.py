@@ -105,7 +105,6 @@ class Writer(ABC):
     def option(self, **kwargs: Any) -> "Writer":
         return self
 
-    @abstractmethod
     def _option(self, **kwargs: Any) -> "Writer":
         return self
 
