@@ -737,14 +737,14 @@ together!</em></p>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
-<span class="o">%</span><span class="k">pip</span> install whylogs==1.3.32
+<span class="o">%</span><span class="k">pip</span> install whylogs
 </pre></div>
 </div>
 </div>
 </section>
 <section id="✔️-Setting-the-Environment-Variables">
 <h2>✔️ Setting the Environment Variables<a class="headerlink" href="#✔️-Setting-the-Environment-Variables" title="Permalink to this headline">#</a></h2>
-<p>In order to send our profile to WhyLabs, let’s first set up an account. You can skip this if you already have an account and a model set up.</p>
+<p>In order to send your profile to WhyLabs, let’s first set up an account. You can skip this if you already have an account and a model set up.</p>
 <p>We will need three pieces of information:</p>
 <ul class="simple">
 <li><p>API token</p></li>
@@ -753,13 +753,21 @@ together!</em></p>
 </ul>
 <p>Go to <a class="reference external" href="https://whylabs.ai/free">https://whylabs.ai/free</a> and grab a free account. You can follow along with the examples if you wish, but if you’re interested in only following this demonstration, you can go ahead and skip the quick start instructions.</p>
 <p>After that, you’ll be prompted to create an API token. Once you create it, copy and store it locally. The second important information here is your org ID. Take note of it as well. After you get your API Token and Org ID, you can go to <a class="reference external" href="https://hub.whylabsapp.com/models">https://hub.whylabsapp.com/models</a> to see your projects dashboard. You can create a new project and take note of it’s ID (if it’s a model project it will look like <code class="docutils literal notranslate"><span class="pre">model-xxxx</span></code>).</p>
+<p>Let’s enter the information in environment variables so whylogs can send the profile to WhyLabs.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">getpass</span> <span class="kn">import</span> <span class="n">getpass</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
-<span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs API token&quot;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using API key ID: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;WHYLABS_API_KEY&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your organization ID&quot;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_ORG_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs Dataset ID&quot;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_DATASET_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -785,7 +793,8 @@ together!</em></p>
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div>
+  <div id="df-c121eedf-9240-46f4-a295-a1713816f8be" class="colab-df-container">
+    <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -895,30 +904,255 @@ together!</em></p>
     </tr>
   </tbody>
 </table>
-</div></div>
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-c121eedf-9240-46f4-a295-a1713816f8be')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-c121eedf-9240-46f4-a295-a1713816f8be button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-c121eedf-9240-46f4-a295-a1713816f8be');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-b01e8df3-e77e-4892-99b9-2f18569c287e">
+  <button class="colab-df-quickchart" onclick="quickchart('df-b01e8df3-e77e-4892-99b9-2f18569c287e')"
+            title="Suggest charts"
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const quickchartButtonEl =
+        document.querySelector('#' + key + ' button');
+      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+      quickchartButtonEl.classList.add('colab-df-spinner');
+      try {
+        const charts = await google.colab.kernel.invokeFunction(
+            'suggestCharts', [key], {});
+      } catch (error) {
+        console.error('Error during call to suggestCharts:', error);
+      }
+      quickchartButtonEl.classList.remove('colab-df-spinner');
+      quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-b01e8df3-e77e-4892-99b9-2f18569c287e button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
+
+    </div>
+  </div></div>
 </div>
 </section>
 <section id="📊-Profiling-the-Data">
 <h2>📊 Profiling the Data<a class="headerlink" href="#📊-Profiling-the-Data" title="Permalink to this headline">#</a></h2>
 <p>Let’s profile the data with whylogs:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="n">current_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">current_date</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tour&quot;</span><span class="p">)</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">current_date</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>We’re setting the profile’s dataset timestamp as the current datetime. If this is not set, the Writer would simply assign the current datetime automatically to the profile.</p>
+</section>
+<section id="Uploading-Reference-Profile-to-WhyLabs">
+<h2>Uploading Reference Profile to WhyLabs<a class="headerlink" href="#Uploading-Reference-Profile-to-WhyLabs" title="Permalink to this headline">#</a></h2>
+<p>Now we’ll use the <code class="docutils literal notranslate"><span class="pre">WhyLabsWriter</span></code> to send the profile to WhyLabs. By default, the profile will be sent to the model specified by the environment variables we set earlier. Setting the <code class="docutils literal notranslate"><span class="pre">reference_profile_name</span></code> tells WhyLabs it’s a reference profile; if the name is not specified, it will be sent as a batch profile.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span>
+
+<span class="n">writer</span> <span class="o">=</span> <span class="n">WhyLabsWriter</span><span class="p">()</span>
+<span class="n">writer</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">reference_profile_name</span><span class="o">=</span><span class="s2">&quot;tour&quot;</span><span class="p">)</span>
+<span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 <p>In this case, We named the refrence profile <code class="docutils literal notranslate"><span class="pre">tour</span></code>, which means we can find it in the profile page under that name. We could also name it <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> (empty string) which tells WhyLabs to generate a name for it based on the timestamp, like <code class="docutils literal notranslate"><span class="pre">ref-2022-08-16T17:53:49.041</span></code></p>
 </section>
 <section id="🔍-A-Look-on-the-Other-Side">
 <h2>🔍 A Look on the Other Side<a class="headerlink" href="#🔍-A-Look-on-the-Other-Side" title="Permalink to this headline">#</a></h2>
 <p>Now, check your dashboard to verify everything went ok. At the <strong>Profile</strong> tab, you should see something like this:</p>
-<p><img alt="alt text" src="../../../_images/reference_profile.png" /></p>
+<p><img alt="alt text" src="https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/images/reference_profile.png?raw=1" /></p>
 <p>In the image above, we’re comparing both reference profiles sent previously. Usually, we’d be interested in comparing a reference profile with a batch profile obtained in the production pipeline, which is, of course, also possible.</p>
 </section>
 </section>
@@ -992,6 +1226,7 @@ together!</em></p>
 <li><a class="reference internal" href="#✔️-Setting-the-Environment-Variables">✔️ Setting the Environment Variables</a></li>
 <li><a class="reference internal" href="#Fetching-the-Data">Fetching the Data</a></li>
 <li><a class="reference internal" href="#📊-Profiling-the-Data">📊 Profiling the Data</a></li>
+<li><a class="reference internal" href="#Uploading-Reference-Profile-to-WhyLabs">Uploading Reference Profile to WhyLabs</a></li>
 <li><a class="reference internal" href="#🔍-A-Look-on-the-Other-Side">🔍 A Look on the Other Side</a></li>
 </ul>
 </li>
