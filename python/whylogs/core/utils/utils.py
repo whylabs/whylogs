@@ -37,7 +37,7 @@ def deprecated_argument(arg_name: str, message: Optional[str] = None):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if arg_name in kwargs:
-                warnings.warn(f"Argument {arg_name} is deprecated, {message if message else 'do not use it'}.")
+                warnings.warn(f"Argument {arg_name} is deprecated, {message if message else 'it will be removed in the next major version of whylogs'}.")
             return func(*args, **kwargs)
 
         return wrapper
