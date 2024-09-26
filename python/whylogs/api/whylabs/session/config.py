@@ -16,6 +16,7 @@ from whylogs.api.whylabs.session.prompts import (
     prompt_default_dataset_id,
     prompt_org_id,
     prompt_session_type,
+    prompt_upload_on_log,
 )
 from whylogs.api.whylabs.session.session_types import ApiKeyV1, ApiKeyV2
 from whylogs.api.whylabs.session.session_types import InteractiveLogger as il
@@ -66,10 +67,11 @@ class ConfigVariableName(Enum):
 class InitConfig:
     whylabs_api_key: Optional[str] = None
     allow_anonymous: bool = True
-    allow_local: bool = False
+    allow_local: bool = True
     default_dataset_id: Optional[str] = None
     config_path: Optional[str] = None
     force_local: Optional[bool] = None
+    upload_on_log: bool = False
 
 
 class SessionConfig:
@@ -90,8 +92,10 @@ class SessionConfig:
         if force_interactive:
             self.reset_config()
             self.session_type = self._determine_session_type_prompt(self._init_config)
+            self.upload_on_log = self._determine_upload_on_log_prompt()
         else:
             self.session_type = self._determine_session_type(self._init_config)
+            self.upload_on_log = self._determine_upload_on_log(self._init_config)
 
     def _init_parser(self) -> None:
         try:
@@ -405,6 +409,19 @@ class SessionConfig:
             "and there is no WhyLabs api key in the environment, config file, or why.init() call, and this isn't an "
             f"interactive environment. See {INIT_DOCS} for instructions on using why.init()."
         )
+
+    def _determine_upload_on_log_prompt(self) -> bool:
+        return self.session_type != SessionType.LOCAL and prompt_upload_on_log()
+
+    def _determine_upload_on_log(self, init_config: InitConfig) -> bool:
+        if init_config.force_local or self.session_type == SessionType.LOCAL:
+            return False
+
+        # If we're in an interactive environment then prompt the user to pick upload on log
+        if is_interractive():
+            return self._determine_upload_on_log_prompt()
+
+        return init_config.upload_on_log or False
 
 
 _CONFIG_WHYLABS_SECTION = "whylabs"

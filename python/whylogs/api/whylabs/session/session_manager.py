@@ -57,7 +57,7 @@ class SessionManager:
 def init(
     reinit: bool = False,
     allow_anonymous: bool = True,
-    allow_local: bool = False,
+    allow_local: bool = True,
     whylabs_api_key: Optional[str] = None,
     default_dataset_id: Optional[str] = None,
     config_path: Optional[str] = None,

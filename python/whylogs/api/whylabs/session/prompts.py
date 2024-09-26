@@ -43,6 +43,15 @@ def prompt_session_type(allow_anonymous: bool = True, allow_local: bool = False)
     return [SessionType.WHYLABS, SessionType.WHYLABS_ANONYMOUS, SessionType.LOCAL][choice - 1]
 
 
+def prompt_upload_on_log() -> bool:
+    options = [
+        "No. Use an explicit WhyLabsWriter to manage uploads to WhyLabs",
+        "Yes. Calling why.log() will automatically upload the results to WhyLabs",
+    ]
+    choice = _get_user_choice("Do you want to automatically upload profiles in why.log()?", options)
+    return [False, True][choice - 1]
+
+
 def prompt_default_dataset_id() -> Optional[str]:
     try:
         sys.stdout.flush()

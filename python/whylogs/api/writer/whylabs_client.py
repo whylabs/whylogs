@@ -192,6 +192,7 @@ class WhyLabsClient:
         self._api_config: Optional[Configuration] = None
         self._prefer_sync = read_bool_env_var(WHYLOGS_PREFER_SYNC_KEY, False)
         self._transaction_id: Optional[str] = None
+        self._called_from_log = False
 
         _http_proxy = os.environ.get("HTTP_PROXY")
         _https_proxy = os.environ.get("HTTPS_PROXY")
@@ -359,6 +360,19 @@ class WhyLabsClient:
             whylabs_api_endpoint=self._cache_config.whylabs_api_endpoint,
             endpoint_hostname=self._cache_config.endpoint_hostname,
         )
+        return self
+
+    def _option(self, **kwargs) -> "WhyLabsClient":  # type: ignore
+        """
+
+        Parameters
+        ----------
+        called_from_log: bool  Set this to True in the context of a Session logger
+        """
+
+        called_from_log = kwargs.get("called_from_log")
+        if called_from_log is not None:
+            self._called_from_log = called_from_log
         return self
 
     def _tag_columns(self, columns: List[str], value: str) -> Tuple[bool, str]:
@@ -634,6 +648,14 @@ class WhyLabsClient:
         profile_file: Optional[IO[bytes]] = None,
     ) -> Tuple[bool, str]:
         assert profile_path or profile_file, "Either a file or file path must be specified when uploading profiles"
+        session = default_init()
+        config = session.config
+        if config.upload_on_log and not self._called_from_log:
+            logger.warning(
+                "The current session is configured to upload profiles in the why.log() call. "
+                + "Uploading profiles explicitely with a WhyLabsWriter may result in redundant uploads."
+            )
+
         try:
             if profile_file:
                 status, reason = self._put_file(profile_file, upload_url, dataset_timestamp)  # type: ignore
