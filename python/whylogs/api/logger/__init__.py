@@ -31,12 +31,14 @@ from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
 )
 from whylogs.core.stubs import pd
+from whylogs.core.utils import deprecated_argument
 
 diagnostic_logger = logging.getLogger(__name__)
 
 Loggable = Union["pd.DataFrame", List[Dict[str, Any]]]
 
 
+@deprecated_argument("debug_event")
 def log(
     obj: Any = None,
     *,

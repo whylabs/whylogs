@@ -4,7 +4,7 @@ from .stats_calculations import (
     get_distribution_metrics,
     is_probably_unique,
 )
-from .utils import deprecated, deprecated_alias, ensure_timezone
+from .utils import deprecated, deprecated_alias, deprecated_argument, ensure_timezone
 
 __ALL__ = [  #
     read_delimited_protobuf,
@@ -13,6 +13,7 @@ __ALL__ = [  #
     is_probably_unique,
     get_cardinality_estimate,
     deprecated_alias,
+    deprecated_argument,
     deprecated,
     ensure_timezone,  #
 ]
