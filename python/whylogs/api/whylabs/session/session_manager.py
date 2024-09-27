@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from whylogs.api.whylabs.session.config import INIT_DOCS, InitConfig, SessionConfig
+from whylogs.api.whylabs.session.config import InitConfig, SessionConfig
 from whylogs.api.whylabs.session.session import (
     ApiKeySession,
     GuestSession,
