@@ -38,7 +38,8 @@ from whylabs_client.rest import (  # type: ignore
 )
 
 from whylogs.api.logger.result_set import ResultSet, SegmentedResultSet
-from whylogs.api.whylabs.session.session_manager import INIT_DOCS, default_init
+from whylogs.api.whylabs.session.session_manager import default_init
+from whylogs.api.whylabs.session.config import INIT_DOCS
 from whylogs.api.whylabs.session.whylabs_client_cache import (
     ClientCacheConfig,
     EnvironmentKeyRefresher,

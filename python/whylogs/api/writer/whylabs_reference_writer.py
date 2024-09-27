@@ -6,7 +6,7 @@ from zipfile import ZipFile
 from whylabs_client import ApiClient
 
 from whylogs.api.logger.result_set import SegmentedResultSet
-from whylogs.api.whylabs.session.session_manager import INIT_DOCS
+from whylogs.api.whylabs.session.config import INIT_DOCS
 from whylogs.api.writer.whylabs_base import WhyLabsWriterBase
 from whylogs.api.writer.whylabs_client import WhyLabsClient
 from whylogs.api.writer.writer import _Writable

@@ -3,7 +3,7 @@ from typing import Any, List, Optional, Tuple, Union
 
 from whylabs_client import ApiClient
 
-from whylogs.api.whylabs.session.session_manager import INIT_DOCS
+from whylogs.api.whylabs.session.config import INIT_DOCS
 from whylogs.api.writer.whylabs_base import WhyLabsWriterBase
 from whylogs.api.writer.whylabs_batch_writer import WhyLabsBatchWriter
 from whylogs.api.writer.whylabs_client import WhyLabsClient
