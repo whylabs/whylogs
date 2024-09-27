@@ -71,7 +71,7 @@ class InitConfig:
     default_dataset_id: Optional[str] = None
     config_path: Optional[str] = None
     force_local: Optional[bool] = None
-    upload_on_log: bool = False
+    upload_on_log: Optional[bool] = None
 
 
 class SessionConfig:
@@ -92,7 +92,7 @@ class SessionConfig:
         if force_interactive:
             self.reset_config()
             self.session_type = self._determine_session_type_prompt(self._init_config)
-            self.upload_on_log = self._determine_upload_on_log_prompt()
+            self.upload_on_log = self._determine_upload_on_log_prompt(self._init_config)
         else:
             self.session_type = self._determine_session_type(self._init_config)
             self.upload_on_log = self._determine_upload_on_log(self._init_config)
@@ -358,7 +358,8 @@ class SessionConfig:
         )
 
     def _determine_session_type_prompt(self, init_config: InitConfig) -> SessionType:
-        session_type = prompt_session_type(init_config.allow_anonymous, init_config.allow_local)
+        allow_local = init_config.allow_local and init_config.upload_on_log in {None, False}
+        session_type = prompt_session_type(init_config.allow_anonymous, allow_local)
         if session_type == SessionType.WHYLABS:
             api_key = prompt_api_key()
 
@@ -410,7 +411,10 @@ class SessionConfig:
             f"interactive environment. See {INIT_DOCS} for instructions on using why.init()."
         )
 
-    def _determine_upload_on_log_prompt(self) -> bool:
+    def _determine_upload_on_log_prompt(self, init_config: InitConfig) -> bool:
+        if init_config.upload_on_log is not None:
+            return init_config.upload_on_log and self.session_type != SessionType.LOCAL
+
         return self.session_type != SessionType.LOCAL and prompt_upload_on_log()
 
     def _determine_upload_on_log(self, init_config: InitConfig) -> bool:
@@ -418,8 +422,8 @@ class SessionConfig:
             return False
 
         # If we're in an interactive environment then prompt the user to pick upload on log
-        if is_interractive():
-            return self._determine_upload_on_log_prompt()
+        if is_interractive() and init_config.upload_on_log is None:
+            return self._determine_upload_on_log_prompt(init_config)
 
         return init_config.upload_on_log or False
 

@@ -113,6 +113,7 @@ def init(
             default_dataset_id=default_dataset_id,
             config_path=config_path,
             force_local=kwargs.get("force_local", False),
+            upload_on_log=kwargs.get("upload_on_log", False),
         )
     )
 
@@ -134,11 +135,6 @@ def get_current_session() -> Optional[Session]:
     manager = SessionManager.get_instance()
     if manager is not None:
         return manager.session
-
-    il.warning_once(
-        f"No session found. Call whylogs.init() to initialize a session and authenticate. See {INIT_DOCS} for more information.",
-        logger.warning,
-    )
 
     return None
 
