@@ -85,7 +85,6 @@ def init(
     - If allow_local is True, then authenticate session as LOCAL.
 
     Args:
-        session_type: Deprecated, use allow_anonymous and allow_local instead
         reinit: Normally, init() is idempotent, so you can run it over and over again in a notebook without any issues, for example.
             If reinit=True then it will run the initialization logic again, so you can switch authentication methods without restarting.
         allow_anonymous: If True, then the user will be able to choose WHYLABS_ANONYMOUS if no other authentication method is found.
@@ -113,7 +112,7 @@ def init(
             default_dataset_id=default_dataset_id,
             config_path=config_path,
             force_local=kwargs.get("force_local", False),
-            upload_on_log=kwargs.get("upload_on_log", False),
+            upload_on_log=kwargs.get("upload_on_log"),
         )
     )
 
