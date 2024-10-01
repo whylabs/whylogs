@@ -156,14 +156,14 @@ class DatasetSchema:
         Resolve ColumnSchema from the dataframe. We only resolve newly detected
         columns unless `force_resolve` is set to True.
         """
-        col_names = df.dtypes.keys()
+        col_names = df.columns
         dirty = False
         for col_name in col_names:
             if not force_resolve and col_name in self._columns:
                 logger.debug("column is already configured")
                 continue
 
-            col_dtype = df.dtypes[col_name]
+            col_dtype = df.schema[col_name]
             self._columns[col_name] = ColumnSchema(
                 dtype=col_dtype,
                 cfg=self.default_configs,
