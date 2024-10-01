@@ -488,6 +488,15 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS</span><span class="p">,</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">WHYLABS_ANONYMOUS</span><span class="p">,</span> <span class="n">SessionType</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">][</span><span class="n">choice</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span></div>
 
 
+<div class="viewcode-block" id="prompt_upload_on_log"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/prompts/index.html#whylogs.api.whylabs.session.prompts.prompt_upload_on_log">[docs]</a><span class="k">def</span> <span class="nf">prompt_upload_on_log</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;No. Use an explicit WhyLabsWriter to manage uploads to WhyLabs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Yes. Calling why.log() will automatically upload the results to WhyLabs&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">choice</span> <span class="o">=</span> <span class="n">_get_user_choice</span><span class="p">(</span><span class="s2">&quot;Do you want to automatically upload profiles in why.log()?&quot;</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">][</span><span class="n">choice</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span></div>
+
+
 <div class="viewcode-block" id="prompt_default_dataset_id"><a class="viewcode-back" href="../../../../../api/whylogs/api/whylabs/session/prompts/index.html#whylogs.api.whylabs.session.prompts.prompt_default_dataset_id">[docs]</a><span class="k">def</span> <span class="nf">prompt_default_dataset_id</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>

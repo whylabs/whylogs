@@ -213,7 +213,7 @@ Attributes
 
    .. py:attribute:: allow_local
       :type: bool
-      :value: False
+      :value: True
 
       
 
@@ -228,6 +228,11 @@ Attributes
       
 
    .. py:attribute:: force_local
+      :type: Optional[bool]
+
+      
+
+   .. py:attribute:: upload_on_log
       :type: Optional[bool]
 
       

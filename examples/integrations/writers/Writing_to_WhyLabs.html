@@ -731,7 +731,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
-<span class="o">%</span><span class="k">pip</span> install whylogs
+<span class="o">%</span><span class="k">pip</span> install &#39;whylogs&gt;=1.5.0&#39;
 </pre></div>
 </div>
 </div>
@@ -747,9 +747,9 @@ div.rendered_html tbody tr:hover {
 </ul>
 <p>Go to <a class="reference external" href="https://whylabs.ai/free">https://whylabs.ai/free</a> and grab a free account. You can follow along with the examples if you wish, but if you’re interested in only following this demonstration, you can go ahead and skip the quick start instructions.</p>
 <p>After that, you’ll be prompted to create an API token. Once you create it, copy and store it locally. The second important information here is your org ID. Take note of it as well. After you get your API Token and Org ID, you can go to <a class="reference external" href="https://hub.whylabsapp.com/models">https://hub.whylabsapp.com/models</a> to see your projects dashboard. You can create a new project and take note of it’s ID (if it’s a model project it will look like <code class="docutils literal notranslate"><span class="pre">model-xxxx</span></code>).</p>
-<p>We’ll now set the credentials as environment variables. The WhyLabs Writer will check for the existence of these variables in order to send the profiles to your dashboard.</p>
+<p>You’ll now be prompted to enter the credentials. The WhyLabs Writer will use these variables in order to send the profiles to your dashboard.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -757,34 +757,24 @@ div.rendered_html tbody tr:hover {
 
 <span class="c1"># Optionally you can override the AWS region that profiles get uploaded to when uploading to WhyLabs</span>
 <span class="c1"># os.environ[&quot;WHYLABS_UPLOAD_REGION&quot;] = &#39;ap-southeast-2&#39;</span>
-<span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">allow_anonymous</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">upload_on_log</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 &lt;whylogs.api.whylabs.session.session.LocalSession at 0x7fe3f463edf0&gt;
 </pre></div></div>
 </div>
-<p>Normally, uploads are done automatically after logging when you use why.init, but this notebook demonstrates manual WhyLabs uploads using the WhyLabs writer API, which you might need if you’re doing something custom with the profiles before they get uploaded. Doing this will disable automatic uploads.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">force_local</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reinit</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
 </section>
 <section id="Fetching-the-Data">
 <h2>Fetching the Data<a class="headerlink" href="#Fetching-the-Data" title="Permalink to this headline">#</a></h2>
 <p>For demonstration, let’s use data for transactions from a small retail business:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -797,8 +787,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
@@ -918,7 +907,7 @@ div.rendered_html tbody tr:hover {
 <h2>📊 Profiling the Data<a class="headerlink" href="#📊-Profiling-the-Data" title="Permalink to this headline">#</a></h2>
 <p>Let’s profile the data with whylogs:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
@@ -934,7 +923,7 @@ div.rendered_html tbody tr:hover {
 <h2>✍️ The WhyLabs Writer<a class="headerlink" href="#✍️-The-WhyLabs-Writer" title="Permalink to this headline">#</a></h2>
 <p>Now, you can simply create a WhyLabsWriter object and use it to send your profiles, like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span>
@@ -946,8 +935,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
@@ -960,7 +948,7 @@ div.rendered_html tbody tr:hover {
 <h3>Option #2: Profile Result writer<a class="headerlink" href="#Option-#2:-Profile-Result-writer" title="Permalink to this headline">#</a></h3>
 <p>A second way to write to WhyLabs is by directly using the <code class="docutils literal notranslate"><span class="pre">writer</span></code> method of a <strong>Profile Result</strong> set, like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -969,8 +957,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
@@ -982,7 +969,7 @@ div.rendered_html tbody tr:hover {
 <section id="🔍-A-Look-on-the-Other-Side">
 <h2>🔍 A Look on the Other Side<a class="headerlink" href="#🔍-A-Look-on-the-Other-Side" title="Permalink to this headline">#</a></h2>
 <p>Now, check your dashboard to verify everything went ok. At the <strong>Profile</strong> tab, you should see something like this:</p>
-<p><img alt="alt text" src="../../../_images/whylabs.png" /></p>
+<p><img alt="alt text" src="https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/images/whylabs.png?raw=1" /></p>
 </section>
 <section id="Going-from-One-to-Many-Profiles">
 <h2>Going from One to Many Profiles<a class="headerlink" href="#Going-from-One-to-Many-Profiles" title="Permalink to this headline">#</a></h2>

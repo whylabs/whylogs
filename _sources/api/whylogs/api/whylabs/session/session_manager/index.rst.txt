@@ -63,7 +63,7 @@ Attributes
 
 
 
-.. py:function:: init(reinit: bool = False, allow_anonymous: bool = True, allow_local: bool = False, whylabs_api_key: Optional[str] = None, default_dataset_id: Optional[str] = None, config_path: Optional[str] = None, **kwargs: bool) -> whylogs.api.whylabs.session.session.Session
+.. py:function:: init(reinit: bool = False, allow_anonymous: bool = True, allow_local: bool = True, whylabs_api_key: Optional[str] = None, default_dataset_id: Optional[str] = None, config_path: Optional[str] = None, **kwargs: bool) -> whylogs.api.whylabs.session.session.Session
 
    Set up authentication for this whylogs logging session. There are three modes that you can authentiate in.
 
@@ -85,7 +85,6 @@ Attributes
    - If allow_anonymous is True, then authenticate session as WHYLABS_ANONYMOUS.
    - If allow_local is True, then authenticate session as LOCAL.
 
-   :param session_type: Deprecated, use allow_anonymous and allow_local instead
    :param reinit: Normally, init() is idempotent, so you can run it over and over again in a notebook without any issues, for example.
                   If reinit=True then it will run the initialization logic again, so you can switch authentication methods without restarting.
    :param allow_anonymous: If True, then the user will be able to choose WHYLABS_ANONYMOUS if no other authentication method is found.

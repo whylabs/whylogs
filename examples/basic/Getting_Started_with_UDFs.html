@@ -726,7 +726,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install whylogs
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install &#39;whylogs&gt;=1.5.0&#39;
 </pre></div>
 </div>
 </div>
@@ -783,7 +783,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 
-<span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">force_local</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;udf_demo&quot;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">custom_schema</span><span class="p">)</span>
 <span class="n">results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>

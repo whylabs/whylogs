@@ -738,7 +738,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
 <span class="c1">### The following WhyLabs Platform integration example requires the latest whylogs version:</span>
-<span class="o">%</span><span class="k">pip</span> install whylogs
+<span class="o">%</span><span class="k">pip</span> install &#39;whylogs&gt;=1.5.0&#39;
 </pre></div>
 </div>
 </div>
@@ -1041,7 +1041,7 @@ Loading data from https://whylabs-public.s3.us-west-2.amazonaws.com/demo_batches
 
 <span class="c1"># Create a model in the dashboard and use that model id as the default dataset id in the prompt here. It will be</span>
 <span class="c1"># saved in your whylogs conifg for future use. You can optionally supply reinit=True to reset your conifg.</span>
-<span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="n">why</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">upload_on_log</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

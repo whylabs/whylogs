@@ -483,7 +483,8 @@
 <span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">SegmentedResultSet</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">INIT_DOCS</span><span class="p">,</span> <span class="n">default_init</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.config</span> <span class="kn">import</span> <span class="n">INIT_DOCS</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.session_manager</span> <span class="kn">import</span> <span class="n">default_init</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.whylabs_client_cache</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ClientCacheConfig</span><span class="p">,</span>
     <span class="n">EnvironmentKeyRefresher</span><span class="p">,</span>
@@ -637,6 +638,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_api_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Configuration</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefer_sync</span> <span class="o">=</span> <span class="n">read_bool_env_var</span><span class="p">(</span><span class="n">WHYLOGS_PREFER_SYNC_KEY</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_transaction_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_called_from_log</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">_http_proxy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HTTP_PROXY&quot;</span><span class="p">)</span>
         <span class="n">_https_proxy</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HTTPS_PROXY&quot;</span><span class="p">)</span>
@@ -805,6 +807,19 @@
             <span class="n">endpoint_hostname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache_config</span><span class="o">.</span><span class="n">endpoint_hostname</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WhyLabsClient&quot;</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        called_from_log: bool  Set this to True in the context of a Session logger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">called_from_log</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;called_from_log&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">called_from_log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_called_from_log</span> <span class="o">=</span> <span class="n">called_from_log</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">_tag_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the column as an input or output for the specified dataset.</span>
@@ -1079,6 +1094,14 @@
         <span class="n">profile_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">assert</span> <span class="n">profile_path</span> <span class="ow">or</span> <span class="n">profile_file</span><span class="p">,</span> <span class="s2">&quot;Either a file or file path must be specified when uploading profiles&quot;</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">default_init</span><span class="p">()</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">upload_on_log</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_called_from_log</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;The current session is configured to upload profiles in the why.log() call. &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;Uploading profiles explicitely with a WhyLabsWriter may result in redundant uploads.&quot;</span>
+            <span class="p">)</span>
+
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">profile_file</span><span class="p">:</span>
                 <span class="n">status</span><span class="p">,</span> <span class="n">reason</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_put_file</span><span class="p">(</span><span class="n">profile_file</span><span class="p">,</span> <span class="n">upload_url</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="p">)</span>  <span class="c1"># type: ignore</span>

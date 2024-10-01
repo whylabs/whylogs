@@ -99,7 +99,7 @@
       "source": [
         "# Note: you may need to restart the kernel to use updated packages.\n",
         "### The following WhyLabs Platform integration example requires the latest whylogs version: \n",
-        "%pip install whylogs"
+        "%pip install 'whylogs>=1.5.0'"
       ]
     },
     {
@@ -539,7 +539,7 @@
         "\n",
         "# Create a model in the dashboard and use that model id as the default dataset id in the prompt here. It will be\n",
         "# saved in your whylogs conifg for future use. You can optionally supply reinit=True to reset your conifg. \n",
-        "why.init()"
+        "why.init(upload_on_log=True)"
       ]
     },
     {

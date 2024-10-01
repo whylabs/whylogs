@@ -14,6 +14,7 @@ Functions
 .. autoapisummary::
 
    whylogs.api.whylabs.session.prompts.prompt_session_type
+   whylogs.api.whylabs.session.prompts.prompt_upload_on_log
    whylogs.api.whylabs.session.prompts.prompt_default_dataset_id
    whylogs.api.whylabs.session.prompts.prompt_api_key
    whylogs.api.whylabs.session.prompts.prompt_org_id
@@ -21,6 +22,9 @@ Functions
 
 
 .. py:function:: prompt_session_type(allow_anonymous: bool = True, allow_local: bool = False) -> whylogs.api.whylabs.session.session_types.SessionType
+
+
+.. py:function:: prompt_upload_on_log() -> bool
 
 
 .. py:function:: prompt_default_dataset_id() -> Optional[str]
