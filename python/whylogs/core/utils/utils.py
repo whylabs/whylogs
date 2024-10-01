@@ -1,7 +1,7 @@
 import datetime
 import functools
 import warnings
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Optional
 from urllib.parse import urlparse
 
 from urllib3 import util
@@ -26,6 +26,21 @@ def deprecated_alias(**aliases: str) -> Callable:
         def wrapper(*args, **kwargs):
             rename_kwargs(method.__name__, kwargs, aliases)
             return method(*args, **kwargs)
+
+        return wrapper
+
+    return deprecated_decorator
+
+
+def deprecated_argument(arg_name: str, message: Optional[str] = None):
+    def deprecated_decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if arg_name in kwargs:
+                warnings.warn(
+                    f"Argument {arg_name} is deprecated, {message if message else 'it will be removed in the next major version of whylogs'}."
+                )
+            return func(*args, **kwargs)
 
         return wrapper
 
