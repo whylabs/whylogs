@@ -279,7 +279,9 @@ class ApiKeySession(Session):
     def upload_reference_profiles(self, profile_aliases: Dict[str, ResultSet]) -> Union[UploadResult, NotSupported]:
         results: List[str] = []
         for alias, profile in profile_aliases.items():
-            success, ids = profile.writer("whylabs").option(reference_profile_name=alias).write()
+            success, ids = (
+                profile.writer("whylabs")._option(call_from_log=True).option(reference_profile_name=alias).write()
+            )
             if success:
                 ids = ids if isinstance(ids, list) else [(True, ids)]
                 results.append(*[id for _, id in ids])
@@ -301,7 +303,7 @@ class ApiKeySession(Session):
         )
 
     def upload_batch_profile(self, profile: ResultSet) -> Union[UploadResult, NotSupported]:
-        result = profile.writer("whylabs").write()
+        result = profile.writer("whylabs")._option(call_from_log=True).write()
         utc_now = int(datetime.now(timezone.utc).timestamp() * 1000)
         timestamps: Set[int] = set()  # For generating the viewing url after upload
 

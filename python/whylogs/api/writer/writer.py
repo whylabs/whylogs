@@ -105,6 +105,9 @@ class Writer(ABC):
     def option(self, **kwargs: Any) -> "Writer":
         return self
 
+    def _option(self, **kwargs: Any) -> "Writer":
+        return self
+
 
 class WriterWrapper:
     """Elide the Writable argument"""
@@ -125,6 +128,10 @@ class WriterWrapper:
 
     def option(self, **kwargs: Any) -> "WriterWrapper":
         self._writer = self._writer.option(**kwargs)
+        return self
+
+    def _option(self, **kwargs: Any) -> "WriterWrapper":
+        self._writer = self._writer._option(**kwargs)
         return self
 
 

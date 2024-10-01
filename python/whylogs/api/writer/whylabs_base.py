@@ -140,6 +140,10 @@ class WhyLabsWriterBase(Writer):
         self._whylabs_client = self._whylabs_client.option(**kwargs)
         return self
 
+    def _option(self, **kwargs) -> Writer:  # type: ignore
+        self._whylabs_client = self._whylabs_client._option(**kwargs)
+        return self
+
     def _get_dataset_epoch(
         self, view: Union[DatasetProfileView, SegmentedDatasetProfileView], utc_now: Optional[datetime.datetime] = None
     ) -> int:

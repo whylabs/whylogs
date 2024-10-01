@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from whylogs.api.whylabs.session.config import INIT_DOCS, InitConfig, SessionConfig
+from whylogs.api.whylabs.session.config import InitConfig, SessionConfig
 from whylogs.api.whylabs.session.session import (
     ApiKeySession,
     GuestSession,
@@ -57,7 +57,7 @@ class SessionManager:
 def init(
     reinit: bool = False,
     allow_anonymous: bool = True,
-    allow_local: bool = False,
+    allow_local: bool = True,
     whylabs_api_key: Optional[str] = None,
     default_dataset_id: Optional[str] = None,
     config_path: Optional[str] = None,
@@ -85,7 +85,6 @@ def init(
     - If allow_local is True, then authenticate session as LOCAL.
 
     Args:
-        session_type: Deprecated, use allow_anonymous and allow_local instead
         reinit: Normally, init() is idempotent, so you can run it over and over again in a notebook without any issues, for example.
             If reinit=True then it will run the initialization logic again, so you can switch authentication methods without restarting.
         allow_anonymous: If True, then the user will be able to choose WHYLABS_ANONYMOUS if no other authentication method is found.
@@ -113,6 +112,7 @@ def init(
             default_dataset_id=default_dataset_id,
             config_path=config_path,
             force_local=kwargs.get("force_local", False),
+            upload_on_log=kwargs.get("upload_on_log"),
         )
     )
 
@@ -134,11 +134,6 @@ def get_current_session() -> Optional[Session]:
     manager = SessionManager.get_instance()
     if manager is not None:
         return manager.session
-
-    il.warning_once(
-        f"No session found. Call whylogs.init() to initialize a session and authenticate. See {INIT_DOCS} for more information.",
-        logger.warning,
-    )
 
     return None
 
