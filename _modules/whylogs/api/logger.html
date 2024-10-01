@@ -476,13 +476,15 @@
     <span class="n">ModelPerformanceMetrics</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.utils</span> <span class="kn">import</span> <span class="n">deprecated_argument</span>
 
 <span class="n">diagnostic_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">Loggable</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span>
 
 
-<div class="viewcode-block" id="log"><a class="viewcode-back" href="../../../api/whylogs/index.html#whylogs.api.log">[docs]</a><span class="k">def</span> <span class="nf">log</span><span class="p">(</span>
+<div class="viewcode-block" id="log"><a class="viewcode-back" href="../../../api/whylogs/index.html#whylogs.api.log">[docs]</a><span class="nd">@deprecated_argument</span><span class="p">(</span><span class="s2">&quot;debug_event&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">log</span><span class="p">(</span>
     <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">pandas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
