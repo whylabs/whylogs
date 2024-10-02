@@ -519,6 +519,8 @@ via the init() prompt in a notebook.</p></li>
 <li><p><strong>default_dataset_id</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – The default dataset id to use for uploading profiles. This is only used if the session is authenticated.
 This is a convenience argument so that you don’t have to supply the dataset id every time you upload a profile if
 you’re only using a single dataset id.</p></li>
+<li><p><strong>upload_on_log</strong> – If True, and the session type is WHYLOGS or WHYLOGS_ANONYMOUS, automaticall upload the profile to WhyLabs
+from the why.log() function. By default, uploading to WhyLabs requires an explicit write() call from a WhyLabsWriter.</p></li>
 <li><p><strong>config_path</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
 </ul>

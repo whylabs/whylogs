@@ -49,5 +49,7 @@ Functions
    :param default_dataset_id: The default dataset id to use for uploading profiles. This is only used if the session is authenticated.
                               This is a convenience argument so that you don't have to supply the dataset id every time you upload a profile if
                               you're only using a single dataset id.
+   :param upload_on_log: If True, and the session type is WHYLOGS or WHYLOGS_ANONYMOUS, automaticall upload the profile to WhyLabs
+                         from the why.log() function. By default, uploading to WhyLabs requires an explicit write() call from a WhyLabsWriter.
 
 

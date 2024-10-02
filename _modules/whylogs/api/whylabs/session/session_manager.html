@@ -540,7 +540,8 @@
 <span class="sd">        default_dataset_id: The default dataset id to use for uploading profiles. This is only used if the session is authenticated.</span>
 <span class="sd">            This is a convenience argument so that you don&#39;t have to supply the dataset id every time you upload a profile if</span>
 <span class="sd">            you&#39;re only using a single dataset id.</span>
-
+<span class="sd">        upload_on_log: If True, and the session type is WHYLOGS or WHYLOGS_ANONYMOUS, automaticall upload the profile to WhyLabs</span>
+<span class="sd">            from the why.log() function. By default, uploading to WhyLabs requires an explicit write() call from a WhyLabsWriter.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">reinit</span><span class="p">:</span>
         <span class="n">SessionManager</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
