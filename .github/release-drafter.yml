@@ -31,6 +31,18 @@ categories:
 exclude-labels:
   - "changelog: skip"
 
+version-resolver:
+  major:
+    labels:
+      - "major"
+  minor:
+    labels:
+      - "minor"
+  patch:
+    labels:
+      - "patch"
+  default: patch
+
 template: |
 
   ## whylogs release v$NEXT_PATCH_VERSION
