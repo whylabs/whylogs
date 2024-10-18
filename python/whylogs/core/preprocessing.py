@@ -6,7 +6,7 @@ from enum import Enum
 from math import isinf, isnan
 from typing import Any, Iterable, Iterator, List, Optional, Tuple, Union
 
-from whylogs.core.stubs import is_not_stub, np, pd
+from whylogs.core.stubs import is_not_stub, np, pd, pl
 
 logger = logging.getLogger("whylogs.core.views")
 
@@ -170,7 +170,7 @@ class PreprocessedColumn:
         int_mask = non_null_series.apply(lambda x: pdc.is_number(x) and pdc.is_integer(x) and not pdc.is_bool(x))
         str_mask = non_null_series.apply(lambda x: isinstance(x, str))
         tensor_mask = non_null_series.apply(
-            lambda x: isinstance(x, (list, np.ndarray)) and PreprocessedColumn._is_tensorable(x)
+            lambda x: isinstance(x, (list, np.ndarray)) and _is_tensorable(x)
         )
 
         floats = non_null_series[float_mask]
@@ -198,6 +198,54 @@ class PreprocessedColumn:
         self.pandas.objs = objs
         self.bool_count = bool_count
         self.bool_count_where_true = bool_count_where_true
+
+    def _polars_split(self, series: pl.Series, parse_numeric_string: bool = False) -> None:
+        """
+        Split a Polars Series into numpy array and other Polars series.
+
+        Args:
+            series: the original Pandas series
+            parse_numeric_string: if set, this will coerce values into integer using pands.to_numeric() method.
+
+        Returns:
+            SplitSeries with multiple values, including numpy arrays for numbers, and strings as a Polars Series.
+        """
+
+        # TODO: add a PolarsView, or convert PandasView to work with both Polars & Pandas
+
+        if series is None:
+            return None
+        if pl.Series is None:
+            return None
+
+        non_null_series = series.drop_nulls()
+        if non_null_series.len() < 1:
+            return
+
+        self.null_count = series.null_count()
+        if series.dtype.is_numeric():
+            if series.dtype.is_float():
+                non_nan_series = non_null_series.drop_nans()
+                self.nan_count = non_null_series.len() - non_nan_series.len()
+                self.inf_count = non_null_series.is_infinite().sum()
+                self.numpy.floats = non_null_series.to_numpy()
+                return
+            else:
+                self.numpy.ints = non_null_series.to_numpy()
+                return
+
+        if series.dtype in {pl.String, pl.Categorical, pl.Enum, pl.Utf8}:
+            self.numpy.strings = non_null_series.to_numpy()
+            return
+
+        # TODO: tensor support
+
+        if series.dtype == pl.Boolean:
+            self.bool_count = non_null_series.len()
+            self.bool_count_where_true = non_null_series.sum()
+            return
+
+        self.list.objs = non_null_series.to_list()
 
     def raw_iterator(self) -> Iterator[Any]:
         iterables = [
@@ -234,9 +282,9 @@ class PreprocessedColumn:
             float_list.append(value)
         elif isinstance(value, str):
             string_list.append(value)
-        elif isinstance(value, list) and PreprocessedColumn._is_tensorable(value):
+        elif isinstance(value, list) and _is_tensorable(value):
             tensor_list.append(np.asarray(value))
-        elif is_not_stub(np.ndarray) and PreprocessedColumn._is_tensorable(value):
+        elif is_not_stub(np.ndarray) and _is_tensorable(value):
             tensor_list.append(value)
         elif value is not None:
             obj_list.append(value)
@@ -292,7 +340,7 @@ class PreprocessedColumn:
             result.bool_count = series.count()
             result.bool_count_where_true = series[bool_mask_where_true].count()
             return result
-        elif isinstance(value, (list, np.ndarray)) and PreprocessedColumn._is_tensorable(value):
+        elif isinstance(value, (list, np.ndarray)) and _is_tensorable(value):
             if isinstance(value, np.ndarray):
                 result.pandas.tensors = series
             else:
@@ -309,6 +357,11 @@ class PreprocessedColumn:
         result.original = data
         if pd.Series is not None and isinstance(data, pd.Series):
             result._pandas_split(data)
+            result.len = len(data)
+            return result
+
+        if pl.Series is not None and isinstance(data, pl.Series):
+            result._polars_split(data)
             result.len = len(data)
             return result
 
@@ -343,9 +396,9 @@ class PreprocessedColumn:
                     float_list.append(x)
                 elif isinstance(x, str):
                     string_list.append(x)
-                elif isinstance(x, list) and PreprocessedColumn._is_tensorable(x):
+                elif isinstance(x, list) and _is_tensorable(x):
                     tensor_list.append(np.asarray(x))
-                elif isinstance(x, np.ndarray) and PreprocessedColumn._is_tensorable(x):
+                elif isinstance(x, np.ndarray) and _is_tensorable(x):
                     tensor_list.append(x)
                 elif x is not None:
                     obj_list.append(x)
@@ -378,14 +431,14 @@ class PreprocessedColumn:
         list_format = [data]
         return PreprocessedColumn.apply(list_format)
 
-    @staticmethod
-    def _is_tensorable(value: Union[np.ndarray, List[Any]]) -> bool:
-        if not is_not_stub(np.ndarray):
-            return False
 
-        maybe_tensor = value if isinstance(value, np.ndarray) else np.asarray(value)
-        return (
-            len(maybe_tensor.shape) > 0
-            and all([i > 0 for i in maybe_tensor.shape])
-            and np.issubdtype(maybe_tensor.dtype, np.number)
-        )
+def _is_tensorable(value: Union[np.ndarray, List[Any]]) -> bool:
+    if not is_not_stub(np.ndarray):
+        return False
+
+    maybe_tensor = value if isinstance(value, np.ndarray) else np.asarray(value)
+    return (
+        len(maybe_tensor.shape) > 0
+        and all([i > 0 for i in maybe_tensor.shape])
+        and np.issubdtype(maybe_tensor.dtype, np.number)
+    )

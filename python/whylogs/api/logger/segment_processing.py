@@ -7,14 +7,15 @@ from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.api.logger.segment_cache import SegmentCache
 from whylogs.core import DatasetSchema
 from whylogs.core.dataset_profile import DatasetProfile
-from whylogs.core.input_resolver import _pandas_or_dict
+from whylogs.core.dataframe_wrapper import DataFrameWrapper
+from whylogs.core.input_resolver import _dataframe_or_dict
 from whylogs.core.segment import Segment
 from whylogs.core.segmentation_partition import (
     ColumnMapperFunction,
     SegmentationPartition,
     SegmentFilter,
 )
-from whylogs.core.stubs import pd
+from whylogs.core.stubs import pd, pl
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +137,8 @@ def _log_segment(
     segment_key_values: Optional[Dict[str, str]] = None,
 ) -> Dict[Segment, Any]:
     segments: Dict[Segment, Any] = {}
-    pandas, row = _pandas_or_dict(obj, pandas, row)
+    dataframe, row = _dataframe_or_dict(obj, pandas, row=row)
+    pandas = dataframe.pd_df if dataframe else pandas
     if partition.filter:
         pandas, row = _filter_inputs(partition.filter, pandas, row)
     if partition.simple:

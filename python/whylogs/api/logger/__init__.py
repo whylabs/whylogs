@@ -30,7 +30,7 @@ from whylogs.core.metadata import WHYLABS_TRACE_ID_KEY
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
 )
-from whylogs.core.stubs import pd
+from whylogs.core.stubs import pd, pl
 from whylogs.core.utils import deprecated_argument
 
 diagnostic_logger = logging.getLogger(__name__)
@@ -43,6 +43,7 @@ def log(
     obj: Any = None,
     *,
     pandas: Optional[pd.DataFrame] = None,
+    polars: Optional[pl.DataFrame] = None,
     row: Optional[Dict[str, Any]] = None,
     schema: Optional[DatasetSchema] = None,
     name: Optional[str] = None,
@@ -68,11 +69,18 @@ def log(
         return result_set
     else:
         result_set = TransientLogger(schema=schema).log(
-            obj, pandas=pandas, row=row, name=name, trace_id=trace_id, tags=tags, segment_key_values=segment_key_values
+            obj,
+            pandas=pandas,
+            polars=polars,
+            row=row,
+            name=name,
+            trace_id=trace_id,
+            tags=tags,
+            segment_key_values=segment_key_values
         )
         if dataset_timestamp is not None:
             result_set.set_dataset_timestamp(dataset_timestamp)
-        notebook_session_log(result_set, obj, pandas=pandas, row=row, name=name)
+        notebook_session_log(result_set, obj, pandas=pandas, polars=polars, row=row, name=name)
 
         if debug_event is not None:
             if trace_id is None and WHYLABS_TRACE_ID_KEY in result_set.metadata:

@@ -79,6 +79,7 @@ class UnicodeRangeMetric(MultiMetric):
             view.pandas.strings.to_list() if view.pandas.strings is not None and not view.pandas.strings.empty else []
         )
         data = (data + view.list.strings) if view.list.strings else data
+        data = (data + view.numpy.strings.tolist()) if view.numpy.strings is not None else data
         range_data: Dict[str, List[int]] = {range_name: [] for range_name in self.range_definitions.keys()}
         lengths: List[int] = []
         for value in data:

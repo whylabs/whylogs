@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional, Set, Tuple, TypeVar, Union
 
 import whylogs.core.resolvers as res
+from whylogs.core.dataframe_wrapper import DataFrameWrapper
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import (
@@ -13,7 +14,7 @@ from whylogs.core.resolvers import (
     ResolverSpec,
 )
 from whylogs.core.segmentation_partition import SegmentationPartition
-from whylogs.core.stubs import pd
+from whylogs.core.stubs import pd, pl
 from whylogs.core.validators.validator import Validator, deepcopy_validators
 
 logger = logging.getLogger(__name__)
@@ -131,10 +132,14 @@ class DatasetSchema:
         self,
         *,
         pandas: Optional[pd.DataFrame] = None,
+        polars: Optional[pl.DataFrame] = None,
+        dataframe: Optional[DataFrameWrapper] = None,
         row: Optional[Mapping[str, Any]] = None,
     ) -> bool:
-        if pandas is not None:
-            return self._resolve_pdf(pandas)
+        if dataframe:
+            return self._resolve_dataframe(dataframe)
+        if pandas is not None or polars is not None:
+            return self._resolve_dataframe(DataFrameWrapper(pandas, polars))
 
         if row is not None:
             for k, v in row.items():
@@ -151,12 +156,12 @@ class DatasetSchema:
             return True
         raise NotImplementedError
 
-    def _resolve_pdf(self, df: pd.DataFrame, force_resolve: bool = False) -> bool:
+    def _resolve_dataframe(self, df: DataFrameWrapper, force_resolve: bool = False) -> bool:
         """
         Resolve ColumnSchema from the dataframe. We only resolve newly detected
         columns unless `force_resolve` is set to True.
         """
-        col_names = df.dtypes.keys()
+        col_names = df.column_names
         dirty = False
         for col_name in col_names:
             if not force_resolve and col_name in self._columns:
@@ -176,9 +181,9 @@ class DatasetSchema:
         return dirty
 
     def _run_udfs(
-        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None
-    ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
-        return pandas, row
+        self, df: Optional[DataFrameWrapper] = None, row: Optional[Mapping[str, Any]] = None
+    ) -> Tuple[Optional[DataFrameWrapper], Optional[Mapping[str, Any]]]:
+        return df, row
 
     def get_col_names(self) -> tuple:
         return tuple(self._columns.keys())

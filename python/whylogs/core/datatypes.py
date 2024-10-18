@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import Any, Generic, List, Optional, Type, TypeVar, Union
 
-from whylogs.core.stubs import is_not_stub, np
+from whylogs.core.stubs import is_not_stub, np, pl
 
 try:
     from pandas.core.api import CategoricalDtype
@@ -51,10 +51,13 @@ class Integral(DataType[int]):
         if maybe_type:
             dtype_or_type = maybe_type  # type: ignore
 
+        if issubclass(type(dtype_or_type), pl.datatypes.IntegerType):
+            return True
+
         if not isinstance(dtype_or_type, type):
             return False
 
-        if issubclass(dtype_or_type, (bool, int, np.number, np.bool_)):
+        if issubclass(dtype_or_type, (bool, int, np.number, np.bool_, pl.datatypes.IntegerType)):
             if is_not_stub(np.issubdtype) and np.issubdtype(dtype_or_type, np.floating):
                 return False
             if issubclass(dtype_or_type, (np.datetime64, np.timedelta64)):
@@ -73,6 +76,9 @@ class Fractional(DataType[float]):
         if maybe_type:
             dtype_or_type = maybe_type
 
+        if issubclass(type(dtype_or_type), (pl.Float32, pl.Float64)):
+            return True
+
         if not isinstance(dtype_or_type, type):
             return False
 
@@ -85,6 +91,9 @@ class String(DataType[str]):
 
     @classmethod
     def _do_match(cls, dtype_or_type: Any, maybe_type: Optional[Any]) -> bool:
+        if issubclass(type(dtype_or_type), (pl.String, pl.Utf8)):
+            return True
+
         # Pandas Categorical is Strings
         if CategoricalDtype is not None and isinstance(dtype_or_type, CategoricalDtype):
             return True
@@ -101,7 +110,7 @@ class String(DataType[str]):
         if not isinstance(dtype_or_type, type):
             return False
 
-        if issubclass(dtype_or_type, (str, np.unicode_)):
+        if issubclass(dtype_or_type, (str, np.unicode_, pl.String, pl.Utf8)):
             return True
 
         return False

@@ -34,7 +34,11 @@ numpy = [
 ]
 
 # datasets module.
-pandas = { version = "*", optional = true}
+pandas = { version = "*", optional = true }
+
+# Polars module.
+polars = { version = ">=1.8.2", optional = true }
+# TODO: do we want polars-u64-idx ?
 
 # Doc dependencies
 sphinx = { version = "*", optional = true }
@@ -110,6 +114,10 @@ spark = [
 datasets = [
   "pandas",
 ]
+polars = [
+  "polars",
+]
+
 gcs = [
   "google-cloud-storage",
 ]
@@ -148,6 +156,7 @@ all = [
   "boto3",
   "google-cloud-storage",
   "pandas",
+  "polars",
   "pyarrow",
   "pyspark",
   "ipython",
@@ -177,6 +186,7 @@ mypy-protobuf = ">=3.2.0"
 types-protobuf = ">=0.1.14"
 pandas = "*"
 pandas-stubs = "*"
+polars = "*"
 ipykernel = ">=6.11" # for developing in Jupyter notebook
 types-python-dateutil = "^2.8.12"
 moto = ">4.2"
