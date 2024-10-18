@@ -27,9 +27,7 @@ class QueueType(Enum):
     FASTER_FIFO = "FASTER_FIFO"
 
 
-class ProcessActor(
-    Actor[Union[ProcessMessageType, ProcessStatusMessage]], mp.Process, Generic[ProcessMessageType, StatusType]
-):
+class ProcessActor(Actor[Union[ProcessMessageType, ProcessStatusMessage]], mp.Process, Generic[ProcessMessageType, StatusType]):
     """
     Subclass of Actor that uses a process to process messages.
     """
@@ -117,9 +115,7 @@ class ProcessActor(
         This is always synchronous and requires the ProcessActor to be created with sync_enabled=True.
         """
         if self._pipe_signaler is None:
-            raise Exception(
-                "Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True."
-            )
+            raise Exception("Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True.")
 
         # add a sync flag to Message
         message = ProcessStatusMessage()
