@@ -121,9 +121,7 @@ class Actor(ABC, Generic[MessageType]):
         raise NotImplementedError()
 
     @abstractmethod
-    def process_batch(
-        self, batch: List[Union[MessageType, CloseMessage]], batch_type: Type[Union[MessageType, CloseMessage]]
-    ) -> None:
+    def process_batch(self, batch: List[Union[MessageType, CloseMessage]], batch_type: Type[Union[MessageType, CloseMessage]]) -> None:
         raise NotImplementedError()
 
     def send(self, message: Union[MessageType, CloseMessage]) -> None:
@@ -143,9 +141,7 @@ class Actor(ABC, Generic[MessageType]):
                 if current_size == 0:
                     str_msg = str(message)
                     msg = str_msg[: min(len(str_msg), 400)]
-                    self._logger.error(
-                        f"Message queue can't fit '{msg}...', dropping it permanently. Message was too big to ever fit."
-                    )
+                    self._logger.error(f"Message queue can't fit '{msg}...', dropping it permanently. Message was too big to ever fit.")
                     done = True
                 else:
                     self._logger.warning(f"Message queue full, trying again. Current size :{self._queue.size()}")
@@ -185,9 +181,7 @@ class Actor(ABC, Generic[MessageType]):
             try:
                 next_batch = self._queue.get_many(timeout=self._queue_config.message_poll_wait, max=max)
                 batch += next_batch
-                self._logger.debug(
-                    f"Adding {len(next_batch)} to poll batch of length {len(batch)}. {self._queue.size()} remaining"
-                )
+                self._logger.debug(f"Adding {len(next_batch)} to poll batch of length {len(batch)}. {self._queue.size()} remaining")
             except queue.Empty:
                 if self.is_closed() and self.close_message_handled():
                     self._logger.info("Queue closed and no more messages to process.")
@@ -207,9 +201,7 @@ class Actor(ABC, Generic[MessageType]):
                 if batch is None or batch_type is None:
                     continue
 
-                self._logger.info(
-                    f"Processing batch of {len(batch)} {batch_type.__name__}. {self._queue.size()} remaining"
-                )
+                self._logger.info(f"Processing batch of {len(batch)} {batch_type.__name__}. {self._queue.size()} remaining")
 
                 try:
                     self.process_batch(batch, batch_type)
