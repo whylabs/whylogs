@@ -10,6 +10,11 @@ except ImportError:  # noqa
     _pd = None  # type: ignore
 
 try:
+    import polars as _pl
+except ImportError:  # noqa
+    _pl = None  # type: ignore
+
+try:
     import numpy as _np
 except ImportError:  # noqa
     _np = None  # type: ignore
@@ -56,6 +61,25 @@ class PandasStub(object):
 
 
 @dataclass(frozen=True)
+class _PolarsTypeStub:
+    IntegerType: type = _StubClass
+
+
+@dataclass(frozen=True)
+class PolarsStub(object):
+    Series: type = _StubClass
+    DataFrame: type = _StubClass
+    # TODO: support more Polars types?
+    datatypes: type = _PolarsTypeStub
+    Int32: type = _StubClass
+    Int64: type = _StubClass
+    Float32: type = _StubClass
+    Float64: type = _StubClass
+    String: type = _StubClass
+    Utf8: type = _StubClass
+
+
+@dataclass(frozen=True)
 class ScipyStub:
     sparse: type = _StubClass
 
@@ -72,7 +96,7 @@ def is_not_stub(stubbed_class: Any) -> bool:
     if (
         stubbed_class
         and stubbed_class is not _StubClass
-        and not isinstance(stubbed_class, (PandasStub, NumpyStub, ScipyStub, ScikitLearnStub))
+        and not isinstance(stubbed_class, (PandasStub, PolarsStub, NumpyStub, ScipyStub, ScikitLearnStub))
     ):
         return True
     return False
@@ -83,6 +107,9 @@ if _np is None:
 
 if _pd is None:
     _pd = PandasStub()
+
+if _pl is None:
+    _pl = PolarsStub()
 
 if _sp is None:
     _sp = ScipyStub()
@@ -99,6 +126,7 @@ if _skld is None:
 
 np = _np
 pd = _pd
+pl = _pl
 sp = _sp
 sklp = _sklp
 sklc = _sklc

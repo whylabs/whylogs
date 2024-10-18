@@ -12,9 +12,10 @@ from whylogs.core.preprocessing import ColumnProperties
 from whylogs.core.utils.utils import deprecated, deprecated_alias, ensure_timezone
 
 from .column_profile import ColumnProfile
-from .input_resolver import _pandas_or_dict
+from .dataframe_wrapper import DataFrameWrapper
+from .input_resolver import _dataframe_or_dict
 from .schema import DatasetSchema
-from .stubs import pd
+from .stubs import pd, pl
 from .view import DatasetProfileView
 
 logger = logging.getLogger(__name__)
@@ -109,13 +110,18 @@ class DatasetProfile(_Writable):
         obj: Any = None,
         *,
         pandas: Optional[pd.DataFrame] = None,
+        polars: Optional[pl.DataFrame] = None,
+        dataframe: Optional[DataFrameWrapper] = None,
         row: Optional[Mapping[str, Any]] = None,
         execute_udfs: bool = True,
     ) -> None:
+        if dataframe is None:
+            dataframe, row = _dataframe_or_dict(obj, pandas, polars, row)
+
         try:
             self._is_active = True
             self._track_count += 1
-            self._do_track(obj, pandas=pandas, row=row, execute_udfs=execute_udfs)
+            self._do_track(obj, dataframe=dataframe, row=row, execute_udfs=execute_udfs)
         finally:
             self._is_active = False
 
@@ -123,18 +129,17 @@ class DatasetProfile(_Writable):
         self,
         obj: Any = None,
         *,
-        pandas: Optional[pd.DataFrame] = None,
+        dataframe: Optional[DataFrameWrapper] = None,
         row: Optional[Mapping[str, Any]] = None,
         execute_udfs: bool = True,
     ) -> None:
-        pandas, row = _pandas_or_dict(obj, pandas, row)
         if execute_udfs:
-            pandas, row = self._schema._run_udfs(pandas, row)
+            dataframe, row = self._schema._run_udfs(dataframe, row)
 
         col_id: Optional[str] = getattr(self._schema.default_configs, "identity_column", None)
 
         # TODO: do this less frequently when operating at row level
-        dirty = self._schema.resolve(pandas=pandas, row=row)
+        dirty = self._schema.resolve(dataframe=dataframe, row=row)
         if dirty:
             schema_col_keys = self._schema.get_col_names()
             new_cols = (col for col in schema_col_keys if col not in self._columns)
@@ -146,23 +151,24 @@ class DatasetProfile(_Writable):
                 self._columns[k]._track_datum(row[k], row_id)
             return
 
-        elif pandas is not None:
+        elif dataframe is not None:
             # TODO: iterating over each column in order assumes single column metrics
             #   but if we instead iterate over a new artifact contained in dataset profile: "MetricProfiles", then
             #   each metric profile can specify which columns its tracks, and we can call like this:
             #   metric_profile.track(pandas)
-            if pandas.empty:
-                logger.warning("whylogs was passed an empty pandas DataFrame so nothing to profile in this call.")
+            if dataframe.empty:
+                logger.warning("whylogs was passed an empty DataFrame so nothing to profile in this call.")
                 return
-            for k in pandas.keys():
-                column_values = pandas.get(k)
+            for k in dataframe.column_names:
+                column_values = dataframe.get(k)
                 if column_values is None:
                     logger.error(
-                        f"whylogs was passed a pandas DataFrame with key [{k}] but DataFrame.get({k}) returned nothing!"
+                        f"whylogs was passed a DataFrame with key [{k}] but DataFrame.get({k}) returned nothing!"
                     )
                     return
 
                 dtype = self._schema.types.get(k)
+                # TODO: support Polars homogeneous columns?
                 homogeneous = (
                     dtype is not None
                     and isinstance(dtype, tuple)
@@ -171,7 +177,7 @@ class DatasetProfile(_Writable):
                     and dtype[1] == ColumnProperties.homogeneous
                 )
 
-                id_values = pandas.get(col_id) if col_id else None
+                id_values = dataframe.get(col_id) if col_id else None
                 if col_id is not None and id_values is None:
                     logger.warning(f"identity column was passed as {col_id} but column was not found in the dataframe.")
 

@@ -6,7 +6,8 @@ from whylogs.api.whylabs.session.session import NotSupported
 from whylogs.api.whylabs.session.session_manager import get_current_session
 from whylogs.api.whylabs.session.session_types import InteractiveLogger as il
 from whylogs.api.whylabs.session.session_types import SessionType
-from whylogs.core.stubs import pd
+from whylogs.core.dataframe_wrapper import DataFrameWrapper
+from whylogs.core.stubs import pd, pl
 
 
 def notebook_session_log_comparison(
@@ -61,6 +62,7 @@ def notebook_session_log(
     obj: Any = None,
     *,
     pandas: Optional[pd.DataFrame] = None,
+    polars: Optional[pl.DataFrame] = None,
     row: Optional[Dict[str, Any]] = None,
     name: Optional[str] = None,
 ) -> None:
