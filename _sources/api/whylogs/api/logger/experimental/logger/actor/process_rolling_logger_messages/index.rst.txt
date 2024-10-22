@@ -190,6 +190,11 @@ Attributes
 
       
 
+   .. py:attribute:: orgId
+      :type: typing_extensions.NotRequired[Optional[str]]
+
+      
+
    .. py:method:: clear()
 
       D.clear() -> None.  Remove all items from D.
@@ -277,6 +282,11 @@ Attributes
 
    .. py:attribute:: embeddings
       :type: Dict[str, List[DataTypes]]
+
+      
+
+   .. py:attribute:: orgId
+      :type: typing_extensions.NotRequired[Optional[str]]
 
       
 

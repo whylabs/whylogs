@@ -44,7 +44,7 @@ Attributes
 
 .. py:class:: WriterFactory
 
-   .. py:method:: create_writers(dataset_id: str) -> List[whylogs.api.writer.Writer]
+   .. py:method:: create_writers(dataset_id: str, org_id: Optional[str] = None) -> List[whylogs.api.writer.Writer]
       :abstractmethod:
 
 
@@ -53,7 +53,7 @@ Attributes
 
    Bases: :py:obj:`WriterFactory`
 
-   .. py:method:: create_writers(dataset_id: str) -> List[whylogs.api.writer.Writer]
+   .. py:method:: create_writers(dataset_id: str, org_id: Optional[str] = None) -> List[whylogs.api.writer.Writer]
 
 
 
@@ -108,7 +108,7 @@ Attributes
 
 .. py:class:: LoggerFactory
 
-   .. py:method:: create_logger(dataset_id: str, options: LoggerOptions) -> whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.ThreadRollingLogger
+   .. py:method:: create_logger(dataset_id: str, org_id: Optional[str], options: LoggerOptions) -> whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.ThreadRollingLogger
       :abstractmethod:
 
 
@@ -117,7 +117,7 @@ Attributes
 
    Bases: :py:obj:`LoggerFactory`
 
-   .. py:method:: create_logger(dataset_id: str, options: LoggerOptions) -> whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.ThreadRollingLogger
+   .. py:method:: create_logger(dataset_id: str, org_id: Optional[str], options: LoggerOptions) -> whylogs.api.logger.experimental.logger.actor.thread_rolling_logger.ThreadRollingLogger
 
 
 
@@ -229,7 +229,7 @@ Attributes
    .. py:method:: process_flush_message(messages: Optional[List[whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.FlushMessage]] = None) -> None
 
 
-   .. py:method:: log(data: whylogs.api.logger.experimental.logger.actor.data_logger.TrackData, timestamp_ms: Optional[int] = None, sync: bool = False, dataset_id: Optional[str] = None) -> None
+   .. py:method:: log(data: whylogs.api.logger.experimental.logger.actor.data_logger.TrackData, timestamp_ms: Optional[int] = None, sync: bool = False, dataset_id: Optional[str] = None, org_id: Optional[str] = None) -> None
 
       Log some data.
 
@@ -430,7 +430,7 @@ Attributes
    .. py:method:: process_flush_message(messages: Optional[List[whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages.FlushMessage]] = None) -> None
 
 
-   .. py:method:: log(data: whylogs.api.logger.experimental.logger.actor.data_logger.TrackData, timestamp_ms: Optional[int] = None, sync: bool = False, dataset_id: Optional[str] = None) -> None
+   .. py:method:: log(data: whylogs.api.logger.experimental.logger.actor.data_logger.TrackData, timestamp_ms: Optional[int] = None, sync: bool = False, dataset_id: Optional[str] = None, org_id: Optional[str] = None) -> None
 
       Log some data.
 
