@@ -70,18 +70,18 @@ class DatasetProfileContainer:
 
         if self._schema:
             if isinstance(data, List):
-                input_data = [self._schema._run_udfs(pandas=None, row=it)[1] for it in data]  # pyright: ignore[reportPrivateUsage, reportUnknownMemberType]
+                input_data = [self._schema._run_udfs(pandas=None, row=it)[1] for it in data]  # type: ignore
             else:
                 df = data if isinstance(data, pd.DataFrame) else None
-                row = data if isinstance(data, dict) else None
-                df, row = self._schema._run_udfs(df, row)  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType, reportPrivateUsage]
+                row = data if isinstance(data, dict) else None  # pyright: ignore[reportUnknownVariableType]
+                df, row = self._schema._run_udfs(df, row)  # type: ignore
                 input_data: TrackData = cast(TrackData, df if df is not None else row)
         else:
             input_data = data
 
         if isinstance(input_data, List):
-            for row in input_data:
-                segment_processing(self._schema, row=row, segment_cache=self._target)
+            for row in input_data:  # pyright: ignore[reportUnknownVariableType]
+                segment_processing(self._schema, row=row, segment_cache=self._target)  # pyright: ignore[reportUnknownArgumentType]
         else:
             segment_processing(self._schema, input_data, segment_cache=self._target)
 
@@ -90,7 +90,7 @@ class DatasetProfileContainer:
             raise Exception("Dataset profile missing in logger")
 
         if isinstance(data, List):
-            for row in data:
+            for row in data:  # pyright: ignore[reportUnknownVariableType]
                 self._target.track(row=row)  # type: ignore
         else:
             self._target.track(data)  # type: ignore

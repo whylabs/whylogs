@@ -11,7 +11,10 @@ important to not raise exceptions in those data classes because the actor does a
 and exceptions would result in losing the entire batch. Instead, they return None and log errors if there is
 some issue deserializing or validating.
 """
+
 import sys
+
+from typing_extensions import NotRequired
 
 if sys.version_info >= (3, 8):
     from typing import Protocol, TypedDict  # pylint: disable=no-name-in-module
@@ -64,12 +67,14 @@ class LogRequestDict(TypedDict):
     datasetId: str
     timestamp: Optional[int]
     multiple: DataDict
+    orgId: NotRequired[Optional[str]]
 
 
 class LogEmbeddingRequestDict(TypedDict):
     datasetId: str
     timestamp: Optional[int]
     embeddings: Dict[str, List[DataTypes]]
+    orgId: NotRequired[Optional[str]]
 
 
 class PubSubMessage(TypedDict):
@@ -147,9 +152,12 @@ class RawLogMessage:
             _logger.error(f"Request missing dataset id {d}")
             return None
 
-        if "multiple" not in d or d["multiple"] is None:  # type: ignore
+        if "multiple" not in d or d["multiple"] is None:
             _logger.error(f"Request has no 'multiple' field {d}")
             return None
+
+        if "orgId" not in d or not d["orgId"]:
+            d["orgId"] = None
 
         return d
 
@@ -242,6 +250,9 @@ class RawLogEmbeddingsMessage:
             _logger.error(f"Request has no embeddings field {d}")
             return None
 
+        if "orgId" not in d or not d["orgId"]:
+            d["orgId"] = None
+
         if not isinstance(d["embeddings"], dict):  # type: ignore
             # TODO test recovering from errors like this. It seems to brick the container
             _logger.error(
@@ -286,9 +297,7 @@ def reduce_embeddings_request(acc: LogEmbeddingRequestDict, cur: LogEmbeddingReq
     return acc
 
 
-def determine_dataset_timestamp(
-    cadence: TimeGranularity, request: Union[LogRequestDict, LogEmbeddingRequestDict]
-) -> Optional[int]:
+def determine_dataset_timestamp(cadence: TimeGranularity, request: Union[LogRequestDict, LogEmbeddingRequestDict]) -> Optional[int]:
     ts = request["timestamp"]
     if ts is None:
         return None

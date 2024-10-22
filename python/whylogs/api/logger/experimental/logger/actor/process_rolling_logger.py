@@ -21,6 +21,7 @@ from typing import (
 
 from whylogs.api.whylabs.session.config import INIT_DOCS
 from whylogs.api.whylabs.session.session_manager import default_init
+from whylogs.api.writer.whylabs import WhyLabsWriter
 
 try:
     import orjson  # type: ignore
@@ -75,7 +76,7 @@ from whylogs.api.logger.experimental.logger.actor.time_util import (
     TimeGranularity,
     current_time_ms,
 )
-from whylogs.api.writer import Writer, Writers
+from whylogs.api.writer import Writer
 from whylogs.core.schema import DatasetSchema
 
 DataTypes = Union[str, int, float, bool, List[float], List[int], List[str]]
@@ -86,26 +87,19 @@ DictType = TypeVar("DictType", LogRequestDict, LogEmbeddingRequestDict)
 
 class WriterFactory:
     @abstractmethod
-    def create_writers(self, dataset_id: str) -> List[Writer]:
+    def create_writers(self, dataset_id: str, org_id: Optional[str] = None) -> List[Writer]:
         raise NotImplementedError()
 
 
 class WhyLabsWriterFactory(WriterFactory):
-    def create_writers(self, dataset_id: str) -> List[Writer]:
-        return [
-            Writers.get(  # type: ignore
-                "whylabs",
-                dataset_id=dataset_id,
-            )
-        ]
+    def create_writers(self, dataset_id: str, org_id: Optional[str] = None) -> List[Writer]:
+        return [WhyLabsWriter(dataset_id=dataset_id, org_id=org_id)]
 
 
 @dataclass
 class LoggerOptions:
     aggregate_by: TimeGranularity = TimeGranularity.Hour
-    write_schedule: Optional[Schedule] = field(
-        default_factory=lambda: Schedule(cadence=TimeGranularity.Minute, interval=5)
-    )
+    write_schedule: Optional[Schedule] = field(default_factory=lambda: Schedule(cadence=TimeGranularity.Minute, interval=5))
     schema: Optional[DatasetSchema] = None
     sync_enabled: bool = False
     current_time_fn: Optional[Callable[[], int]] = None
@@ -117,15 +111,15 @@ class LoggerOptions:
 
 class LoggerFactory:
     @abstractmethod
-    def create_logger(self, dataset_id: str, options: LoggerOptions) -> ThreadRollingLogger:
+    def create_logger(self, dataset_id: str, org_id: Optional[str], options: LoggerOptions) -> ThreadRollingLogger:
         raise NotImplementedError()
 
 
 class ThreadLoggerFactory(LoggerFactory):
-    def create_logger(self, dataset_id: str, options: LoggerOptions) -> ThreadRollingLogger:
+    def create_logger(self, dataset_id: str, org_id: Optional[str], options: LoggerOptions) -> ThreadRollingLogger:
         logger = ThreadRollingLogger(
             aggregate_by=options.aggregate_by,
-            writers=options.writer_factory.create_writers(dataset_id),
+            writers=options.writer_factory.create_writers(dataset_id, org_id),
             schema=options.schema,
             write_schedule=options.write_schedule,
             current_time_fn=options.current_time_fn,
@@ -229,13 +223,15 @@ class BaseProcessRollingLogger(
         self.schema = schema
         self._session = default_init()
 
-    def _create_logger(self, dataset_id: str) -> ThreadRollingLogger:
-        return self._logger_factory.create_logger(dataset_id, self._logger_options)
+    def _create_logger(self, dataset_id: str, org_id: Optional[str]) -> ThreadRollingLogger:
+        return self._logger_factory.create_logger(dataset_id, org_id, self._logger_options)
 
-    def _get_logger(self, dataset_id: str) -> ThreadRollingLogger:
-        if dataset_id not in self.loggers:
-            self.loggers[dataset_id] = self._create_logger(dataset_id)
-        return self.loggers[dataset_id]
+    def _get_logger(self, dataset_id: str, org_id: Optional[str]) -> ThreadRollingLogger:
+        composite_key = f"{org_id}_{dataset_id}" if org_id is not None else dataset_id
+
+        if composite_key not in self.loggers:
+            self.loggers[composite_key] = self._create_logger(dataset_id, org_id)
+        return self.loggers[composite_key]
 
     def process_batch(
         self,
@@ -275,9 +271,7 @@ class BaseProcessRollingLogger(
 
     def _process_logger_status_message(self, messages: List[ProcessStatusMessage]) -> None:
         if self._pipe_signaler is None:
-            raise Exception(
-                "Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True."
-            )
+            raise Exception("Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True.")
 
         futures: List[Tuple[str, "Future[LoggerStatus]"]] = []
 
@@ -304,11 +298,7 @@ class BaseProcessRollingLogger(
 
     def process_pubsub_embedding(self, messages: List[RawPubSubEmbeddingMessage]) -> None:
         self._logger.info("Processing pubsub embedding message")
-        pubsub = [
-            msg["log_embedding_request"]
-            for msg in [it.to_pubsub_embedding_message() for it in messages]
-            if msg is not None
-        ]
+        pubsub = [msg["log_embedding_request"] for msg in [it.to_pubsub_embedding_message() for it in messages] if msg is not None]
         self.process_log_embeddings_dicts(pubsub)
 
     def process_log_messages(self, messages: List[LogMessage]) -> None:
@@ -350,23 +340,26 @@ class BaseProcessRollingLogger(
         reducer: Callable[[DictType, DictType], DictType],
         pre_processor: Callable[[DictType], Tuple[TrackData, int]],
     ) -> None:
-        for dataset_id, group in groupby(dicts, lambda it: it["datasetId"]):
-            for dataset_timestamp, ts_grouped in groupby(
-                group,
-                lambda it: determine_dataset_timestamp(self._logger_options.aggregate_by, it),
-            ):
-                for n, sub_group in groupby(ts_grouped, lambda it: encode_strings(get_columns(it))):
-                    self._logger.info(
-                        f"Logging data for ts {dataset_timestamp} in dataset {dataset_id} for column set {n}"
-                    )
-                    giga_message = reduce(reducer, sub_group)
-                    loggable, row_count = pre_processor(giga_message)
-                    start = time.perf_counter()
-                    logger = self._get_logger(dataset_id)
-                    # TODO this error looks real. I think the thread logger can't handle numpy arrays currently
-                    # TODO unify the Loggable and TrackData types?
-                    logger.log(loggable, timestamp_ms=dataset_timestamp, sync=True)
-                    self._logger.debug(f"Took {time.perf_counter() - start}s to log {row_count} rows")
+        # First, group by org_id
+        for org_id, org_group in groupby(dicts, lambda it: it.get("orgId")):
+            self._logger.info(f"Processing data for org_id: {org_id}")
+
+            # Then, group by datasetId
+            for dataset_id, dataset_group in groupby(org_group, lambda it: it["datasetId"]):
+                for dataset_timestamp, ts_grouped in groupby(
+                    dataset_group,
+                    lambda it: determine_dataset_timestamp(self._logger_options.aggregate_by, it),
+                ):
+                    for n, sub_group in groupby(ts_grouped, lambda it: encode_strings(get_columns(it))):
+                        self._logger.info(f"Logging data for org {org_id}, dataset {dataset_id}, ts {dataset_timestamp}, column set {n}")
+                        giga_message = reduce(reducer, sub_group)
+                        loggable, row_count = pre_processor(giga_message)
+                        start = time.perf_counter()
+                        logger = self._get_logger(dataset_id, org_id)
+                        # TODO this error looks real. I think the thread logger can't handle numpy arrays currently
+                        # TODO unify the Loggable and TrackData types?
+                        logger.log(loggable, timestamp_ms=dataset_timestamp, sync=True)
+                        self._logger.debug(f"Took {time.perf_counter() - start}s to log {row_count} rows")
 
     def process_flush_message(self, messages: Optional[List[FlushMessage]] = None) -> None:
         if not self.loggers:
@@ -386,8 +379,8 @@ class BaseProcessRollingLogger(
             return data_dict_from_pandas(pd.DataFrame(data))
         elif isinstance(data, dict):
             return {
-                "columns": list(data.keys()),
-                "data": [list(data.values())],
+                "columns": list(data.keys()),  # pyright: ignore[reportUnknownArgumentType]
+                "data": [list(data.values())],  # pyright: ignore[reportUnknownArgumentType]
             }
         else:
             raise Exception(f"Unsupported data type {type(data)}")
@@ -398,6 +391,7 @@ class BaseProcessRollingLogger(
         timestamp_ms: Optional[int] = None,  # The timestamp that the data happened at
         sync: bool = False,
         dataset_id: Optional[str] = None,
+        org_id: Optional[str] = None,
     ) -> None:
         if self.pid is None:
             raise Exception("Logger hasn't been started yet. Call start() first.")
@@ -408,14 +402,13 @@ class BaseProcessRollingLogger(
         if dataset_id is None:
             dataset_id = self._session.config.get_default_dataset_id()
             if dataset_id is None:
-                raise Exception(
-                    f"Need to specify a dataset_id when calling log, or set it through why.init(). See {INIT_DOCS}"
-                )
+                raise Exception(f"Need to specify a dataset_id when calling log, or set it through why.init(). See {INIT_DOCS}")
 
         log_request = LogRequestDict(
             datasetId=dataset_id,
             timestamp=timestamp_ms,
             multiple=self._create_multiple(data),
+            orgId=org_id,
         )
 
         message = RawLogMessage(
@@ -424,15 +417,11 @@ class BaseProcessRollingLogger(
             sync=sync,
         )
 
-        result: Optional["Future[ProcessLoggerStatus]"] = (
-            cast("Future[ProcessLoggerStatus]", Future()) if sync else None
-        )
+        result: Optional["Future[ProcessLoggerStatus]"] = cast("Future[ProcessLoggerStatus]", Future()) if sync else None
         if result is not None:
             self._logger.debug(f"Registering result id {message.id} for synchronous logging")
             if self._pipe_signaler is None:
-                raise Exception(
-                    "Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True."
-                )
+                raise Exception("Can't log synchronously without a pipe signaler. Initialize the process logger with sync_enabled=True.")
             self._pipe_signaler.register(result, message.id)
 
         self.send(message)

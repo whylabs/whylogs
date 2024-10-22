@@ -1,7 +1,7 @@
 import multiprocessing as mp
 import os
 from dataclasses import dataclass
-from typing import List, Type, TypeVar, Union
+from typing import Any, List, Type, Union
 
 import pytest
 
@@ -9,6 +9,9 @@ from whylogs.api.logger.experimental.logger.actor.actor import CloseMessage, Que
 from whylogs.api.logger.experimental.logger.actor.process_actor import (
     ProcessActor,
     QueueType,
+)
+from whylogs.api.logger.experimental.logger.actor.process_rolling_logger_messages import (
+    ProcessStatusMessage,
 )
 from whylogs.api.logger.experimental.logger.actor.thread_actor import ThreadActor
 
@@ -23,9 +26,6 @@ class Message2:
     pass
 
 
-StatusType = TypeVar("StatusType")
-
-
 Messages = Union[Message1, Message2]
 
 
@@ -37,7 +37,7 @@ class Counter:
         self.call_count = mp.Value("i", 0)
 
     def process_batch(
-        self, batch: List[Union[Messages, CloseMessage]], batch_type: Type[Union[Messages, CloseMessage]]
+        self, batch: List[Any], batch_type: Type[Union[Messages, ProcessStatusMessage, CloseMessage]]
     ) -> None:
         with self.call_count.get_lock():
             self.call_count.value += 1  # type: ignore
@@ -55,25 +55,21 @@ class Counter:
             raise Exception(f"Unknown batch type: {batch_type}")
 
 
-class CountingMPProcessActor(ProcessActor[Messages, StatusType]):
+class CountingMPProcessActor(ProcessActor[Messages, Any]):
     def __init__(self, queue_config: QueueConfig = QueueConfig()) -> None:
         super().__init__(queue_config, queue_type=QueueType.MP)
         self.counter = Counter()
 
-    def process_batch(
-        self, batch: List[Union[Messages, CloseMessage]], batch_type: Type[Union[Messages, CloseMessage]]
-    ) -> None:
+    def process_batch(self, batch, batch_type) -> None:
         self.counter.process_batch(batch, batch_type)
 
 
-class CountingFasterFifoProcessActor(ProcessActor[Messages, StatusType]):
+class CountingFasterFifoProcessActor(ProcessActor[Messages, Any]):
     def __init__(self, queue_config: QueueConfig = QueueConfig()) -> None:
         super().__init__(queue_config, queue_type=QueueType.FASTER_FIFO)
         self.counter = Counter()
 
-    def process_batch(
-        self, batch: List[Union[Messages, CloseMessage]], batch_type: Type[Union[Messages, CloseMessage]]
-    ) -> None:
+    def process_batch(self, batch, batch_type) -> None:
         self.counter.process_batch(batch, batch_type)
 
 
