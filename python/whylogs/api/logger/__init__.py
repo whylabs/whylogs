@@ -99,6 +99,8 @@ def _log_with_metrics(
         results = log(pandas=data, schema=schema, dataset_timestamp=dataset_timestamp)
     else:
         results = ProfileResultSet(DatasetProfile(schema=schema))
+        if dataset_timestamp is not None:
+            results.set_dataset_timestamp(dataset_timestamp)
 
     results.add_model_performance_metrics(metrics)
     return results
