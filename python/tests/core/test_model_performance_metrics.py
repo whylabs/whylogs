@@ -1,4 +1,5 @@
 import base64
+from datetime import datetime, timedelta, timezone
 from logging import getLogger
 
 import numpy as np
@@ -238,6 +239,26 @@ def test_profile_write_top_level_api_back_compat():
     assert metrics2.regression_metrics is not None
     assert results1.view().get_column(prediction_column) is None
     assert results2.view().get_column(prediction_column) is None
+
+
+def test_regression_metrics_timestamp():
+    input_rows = 2
+    prediction_column = "col3"
+    target_column = "col3.ground_truth"
+    number_of_classes = 2
+    d = {
+        "col1": [i for i in range(input_rows)],
+        "col2": [i * i * 1.1 for i in range(input_rows)],
+        prediction_column: [f"x{str(i%number_of_classes)}" for i in range(input_rows)],
+        target_column: [f"x{str((i+1)%number_of_classes)}" for i in range(input_rows)],
+    }
+
+    df = pd.DataFrame(data=d)
+    timestamp = datetime.now(timezone.utc) - timedelta(days=7)
+    results = log_regression_metrics(
+        df, target_column="col1", prediction_column="col2", log_full_data=False, dataset_timestamp=timestamp
+    )
+    assert results.profile().dataset_timestamp == timestamp
 
 
 def test_profile_top_level_api_segmented_performance():
