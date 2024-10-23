@@ -544,6 +544,8 @@
         <span class="n">results</span> <span class="o">=</span> <span class="n">log</span><span class="p">(</span><span class="n">pandas</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">ProfileResultSet</span><span class="p">(</span><span class="n">DatasetProfile</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">dataset_timestamp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">set_dataset_timestamp</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">)</span>
 
     <span class="n">results</span><span class="o">.</span><span class="n">add_model_performance_metrics</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">results</span>
