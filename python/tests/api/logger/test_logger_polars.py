@@ -3,7 +3,6 @@ import tempfile
 from typing import Any
 
 import numpy as np
-import pandas as pd
 import polars as pl
 import pytest
 
@@ -16,15 +15,8 @@ from whylogs.core.metrics import StandardMetric
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import DatasetSchema
 
-'''
-FLOAT_TYPES = [float, np.float16, np.float32, np.float64, np.floating, np.float_, np.longdouble]
+FLOAT_TYPES = [float, np.float32, np.float64, np.float_]
 INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]
-DATETIME_TYPES = [np.datetime64, pd.Timestamp]
-TIMEDELTA_TYPES = ["timedelta64[s]", "timedelta64[ms]"]
-'''
-
-pd.set_option("display.max_columns", None)
-pd.set_option("display.max_rows", None)
 
 
 def test_basic_log_schema() -> None:
@@ -34,6 +26,7 @@ def test_basic_log_schema() -> None:
     results = logger.log(df, schema=DatasetSchema())
     profile = results.profile()
     assert profile._columns["col1"]._schema.dtype == pl.Int64
+
 
 def test_basic_log_schem_constructor() -> None:
     d = {"col1": [1, 2]}
@@ -141,11 +134,10 @@ def test_profile_write(tmp_path: Any) -> None:
     assert os.path.isfile(path)
 
 
-'''
-@pytest.mark.parametrize("data_type", [*INTEGER_TYPES, *FLOAT_TYPES, *TIMEDELTA_TYPES])
+@pytest.mark.parametrize("data_type", [*INTEGER_TYPES, *FLOAT_TYPES])
 def test_different_integer_types(data_type) -> None:
-    d = {"col1": [1, 3, 2, 5]}
-    df = pl.DataFrame(d, dtype=data_type)
+    d = {"col1": [data_type(x) for x in [1, 3, 2, 5]]}
+    df = pl.DataFrame(d)
     results = why.log(df)
     view = results.view()
 
@@ -156,7 +148,6 @@ def test_different_integer_types(data_type) -> None:
     view_pandas = view.to_pandas()
     assert len(view_pandas) == 1
     assert len(view_pandas.columns) > 0
-'''
 
 
 def test_counters_dataframe_vs_row() -> None:

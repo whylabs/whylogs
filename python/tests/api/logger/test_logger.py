@@ -15,9 +15,6 @@ from whylogs.core.metrics import StandardMetric
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import DatasetSchema
 
-pd.set_option("display.max_columns", None)
-pd.set_option("display.max_rows", None)
-
 FLOAT_TYPES = [float, np.float16, np.float32, np.float64, np.floating, np.float_, np.longdouble]
 INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]
 DATETIME_TYPES = [np.datetime64, pd.Timestamp]
@@ -31,8 +28,6 @@ def test_basic_log_schema() -> None:
     results = logger.log(df, schema=DatasetSchema())
     profile = results.profile()
     assert profile._columns["col1"]._schema.dtype == np.int64
-    print(profile.view().to_pandas())
-    assert False
 
 
 def test_basic_log_schem_constructor() -> None:

@@ -27,6 +27,7 @@ from whylogs.api.store import ProfileStore
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
+from whylogs.core.input_resolver import _dataframe_or_dict  # pyright: ignore[reportPrivateUsage,reportUnknownVariableType]
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 
 try:
@@ -70,11 +71,12 @@ class DatasetProfileContainer:
 
         if self._schema:
             if isinstance(data, List):
-                input_data = [self._schema._run_udfs(pandas=None, row=it)[1] for it in data]  # type: ignore
+                input_data = [self._schema._run_udfs(df=None, row=it)[1] for it in data]  # pyright: ignore[reportPrivateUsage, reportUnknownMemberType]
             else:
                 df = data if isinstance(data, pd.DataFrame) else None
-                row = data if isinstance(data, dict) else None  # pyright: ignore[reportUnknownVariableType]
-                df, row = self._schema._run_udfs(df, row)  # type: ignore
+                row = data if isinstance(data, dict) else None
+                df, row = _dataframe_or_dict(df, None, None, row)
+                df, row = self._schema._run_udfs(df, row)  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType, reportPrivateUsage]
                 input_data: TrackData = cast(TrackData, df if df is not None else row)
         else:
             input_data = data

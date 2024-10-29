@@ -169,9 +169,7 @@ class PreprocessedColumn:
         bool_mask_where_true = non_null_series.apply(lambda x: pdc.is_bool(x) and x)
         int_mask = non_null_series.apply(lambda x: pdc.is_number(x) and pdc.is_integer(x) and not pdc.is_bool(x))
         str_mask = non_null_series.apply(lambda x: isinstance(x, str))
-        tensor_mask = non_null_series.apply(
-            lambda x: isinstance(x, (list, np.ndarray)) and _is_tensorable(x)
-        )
+        tensor_mask = non_null_series.apply(lambda x: isinstance(x, (list, np.ndarray)) and _is_tensorable(x))
 
         floats = non_null_series[float_mask]
         if non_null_series[int_mask].empty:

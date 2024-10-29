@@ -76,7 +76,7 @@ def log(
             name=name,
             trace_id=trace_id,
             tags=tags,
-            segment_key_values=segment_key_values
+            segment_key_values=segment_key_values,
         )
         if dataset_timestamp is not None:
             result_set.set_dataset_timestamp(dataset_timestamp)

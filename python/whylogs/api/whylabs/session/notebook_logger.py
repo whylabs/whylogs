@@ -6,7 +6,6 @@ from whylogs.api.whylabs.session.session import NotSupported
 from whylogs.api.whylabs.session.session_manager import get_current_session
 from whylogs.api.whylabs.session.session_types import InteractiveLogger as il
 from whylogs.api.whylabs.session.session_types import SessionType
-from whylogs.core.dataframe_wrapper import DataFrameWrapper
 from whylogs.core.stubs import pd, pl
 
 

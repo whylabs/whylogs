@@ -5,7 +5,10 @@ from whylogs.core.stubs import pd, pl
 
 
 def _dataframe_or_dict(
-    obj: Any, pandas: Optional[pd.DataFrame] = None, polars: Optional[pl.DataFrame] = None, row: Optional[Mapping[str, Any]] = None
+    obj: Any,
+    pandas: Optional[pd.DataFrame] = None,
+    polars: Optional[pl.DataFrame] = None,
+    row: Optional[Mapping[str, Any]] = None,
 ) -> Tuple[Optional[DataFrameWrapper], Optional[Mapping[str, Any]]]:
     if obj is not None:
         if pandas is not None:

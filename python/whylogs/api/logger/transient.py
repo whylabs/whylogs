@@ -3,7 +3,6 @@ from typing import Any, Dict, List, Optional
 from whylogs.api.logger.logger import Logger
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.dataframe_wrapper import DataFrameWrapper
-from whylogs.core.stubs import pd
 
 
 class TransientLogger(Logger):

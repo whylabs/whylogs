@@ -15,7 +15,6 @@ from whylogs.api.logger.segment_cache import SegmentCache
 from whylogs.api.writer import Writer
 from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
 from whylogs.core.dataframe_wrapper import DataFrameWrapper
-from whylogs.core.stubs import pd
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 
 logger = logging.getLogger(__name__)

@@ -113,13 +113,13 @@ class Logger(ABC):
             dataframe, row = active_schema._run_udfs(dataframe, row)
         obj = None
 
-
         # If segments are defined use segment_processing to return a SegmentedResultSet
         if active_schema and active_schema.segments:
             segmented_results: SegmentedResultSet = segment_processing(
                 schema=active_schema,
                 obj=obj,
-                pandas=pandas,
+                pandas=dataframe.pd_df if dataframe else None,
+                polars=dataframe.pl_df if dataframe else None,
                 row=row,
                 segment_cache=self._segment_cache,
                 segment_key_values=segment_key_values,

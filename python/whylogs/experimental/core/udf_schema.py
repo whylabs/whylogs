@@ -16,12 +16,13 @@ from typing import (
     Union,
 )
 
+from whylogs.core.dataframe_wrapper import DataFrameWrapper
 from whylogs.core.datatypes import DataType, StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import NO_FI_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.schema import DeclarativeSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
-from whylogs.core.stubs import pd
+from whylogs.core.stubs import pd, pl
 from whylogs.core.validators.validator import Validator
 from whylogs.experimental.core.metrics.udf_metric import (
     _reset_metric_udfs,
@@ -109,7 +110,7 @@ def _apply_udf_on_row(
 
 
 def _apply_udfs_on_dataframe(
-    pandas: pd.DataFrame, udfs: Dict, new_df: pd.DataFrame, input_cols: Collection[str]
+    df: DataFrameWrapper, udfs: Dict, new_df: DataFrameWrapper, input_cols: Collection[str]
 ) -> None:
     """multiple input columns, single output column"""
     for new_col, udf in udfs.items():
@@ -117,23 +118,24 @@ def _apply_udfs_on_dataframe(
             continue
 
         try:
-            new_df[new_col] = pd.Series(udf(pandas))
+            tmp = df.apply_udf(udf)
+            new_df[new_col] = tmp
         except Exception as e:  # noqa
-            new_df[new_col] = pd.Series([None])
-            logger.exception(f"Evaluating UDF {new_col} failed on columns {pandas.keys()} with error {e}")
+            new_df[new_col] = df.apply_udf(lambda x: float("nan"))  # should be None, but can't infer type
+            logger.exception(f"Evaluating UDF {new_col} failed on columns {df.column_names} with error {e}")
 
 
 def _apply_udf_on_dataframe(
     name: str,
     prefix: Optional[str],
-    pandas: pd.DataFrame,
+    df: DataFrameWrapper,
     udf: Callable,
-    new_df: pd.DataFrame,
+    new_df: DataFrameWrapper,
     input_cols: Collection[str],
 ) -> None:
     """
     multiple input columns, multiple output columns
-    udf(Union[Dict[str, List], pd.DataFrame]) -> Union[Dict[str, List], pd.DataFrame]
+    udf(Union[Dict[str, List], pd.DataFrame, pl.DataFrame]) -> Union[Dict[str, List], pd.DataFrame, pl.DataFrame]
     """
 
     def add_prefix(col):
@@ -141,24 +143,23 @@ def _apply_udf_on_dataframe(
 
     try:
         # TODO: I think it's OKAY if udf returns a dictionary
-        udf_output = pd.DataFrame(udf(pandas))
-        udf_output = udf_output.rename(columns={old: add_prefix(old) for old in udf_output.keys()})
-        for new_col in udf_output.keys():
-            new_df[new_col] = udf_output[new_col]
+        udf_output = df.apply_multicolumn_udf(udf)  # pd.DataFrame(udf(pandas))
+        udf_output.rename(columns={old: add_prefix(old) for old in udf_output.column_names})
+        new_df.concat(udf_output)
     except Exception as e:  # noqa
-        logger.exception(f"Evaluating UDF {name} failed on columns {pandas.keys()} with error {e}")
+        logger.exception(f"Evaluating UDF {name} failed on columns {df.column_names} with error {e}")
         return pd.DataFrame()
 
 
-def _apply_type_udfs(pandas: pd.Series, udfs: Dict, new_df: pd.DataFrame, input_cols: Collection[str]) -> None:
+def _apply_type_udfs(df: DataFrameWrapper, udfs: Dict, new_df: pd.DataFrame, input_cols: Collection[str]) -> None:
     for new_col, udf in udfs.items():
         if new_col in input_cols:
             continue
 
         try:
-            new_df[new_col] = pd.Series(udf(pandas))
+            new_df[new_col] = df.apply_type_udf(udf)
         except Exception as e:  # noqa
-            new_df[new_col] = pd.Series([None])
+            new_df[new_col] = df.apply_udf(lambda x: float("nan"))  # should be None, but can't infer type
             logger.exception(f"Evaluating UDF {new_col} failed on column {new_col} with error {e}")
 
 
@@ -222,45 +223,62 @@ class UdfSchema(DeclarativeSchema):
                 udfs = {f"{column}.{key}": spec.udfs[key] for key in spec.udfs.keys()}
                 _apply_udfs_on_row([value], udfs, new_columns, input_cols)
 
-    def _run_udfs_on_dataframe(self, pandas: pd.DataFrame, new_df: pd.DataFrame, input_cols: Collection[str]) -> None:
+    def _run_udfs_on_dataframe(
+        self, df: DataFrameWrapper, new_df: DataFrameWrapper, input_cols: Collection[str]
+    ) -> None:
         for spec in self.multicolumn_udfs:
-            if spec.column_names and set(spec.column_names).issubset(set(pandas.keys())):
+            if spec.column_names and set(spec.column_names).issubset(set(df.column_names)):
                 if spec.udf is not None:
                     _apply_udf_on_dataframe(
-                        spec.name, spec.prefix, pandas[spec.column_names], spec.udf, new_df, input_cols  # type: ignore
+                        spec.name, spec.prefix, df[spec.column_names], spec.udf, new_df, input_cols  # type: ignore
                     )
                 else:
-                    _apply_udfs_on_dataframe(pandas[spec.column_names], spec.udfs, new_df, input_cols)
+                    _apply_udfs_on_dataframe(df[spec.column_names], spec.udfs, new_df, input_cols)
 
-        for column, dtype in pandas.dtypes.items():
+        for column, dtype in df.dtypes.items():
             why_type = type(self.type_mapper(dtype))
             for spec in self.type_udfs[why_type]:
                 udfs = {f"{column}.{key}": spec.udfs[key] for key in spec.udfs.keys()}
-                _apply_type_udfs(pandas[column], udfs, new_df, input_cols)
+                _apply_type_udfs(df[column], udfs, new_df, input_cols)
 
     def _run_udfs(
-        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
-    ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
+        self, df: Optional[DataFrameWrapper] = None, row: Optional[Dict[str, Any]] = None
+    ) -> Tuple[Optional[DataFrameWrapper], Optional[Dict[str, Any]]]:
         new_columns = deepcopy(row) if row else None
-        new_df = pd.DataFrame()
+        if df:
+            new_df = (
+                DataFrameWrapper(pandas=pd.DataFrame())
+                if df.pd_df is not None
+                else DataFrameWrapper(polars=pl.DataFrame())
+            )
+        else:
+            new_df = None
+
         if row is not None:
             self._run_udfs_on_row(row, new_columns, row.keys())  # type: ignore
             if self.drop_columns:
                 for col in set(row.keys()).intersection(self.drop_columns):
                     row.pop(col)
 
-        if pandas is not None:
-            self._run_udfs_on_dataframe(pandas, new_df, pandas.keys())
-            new_df = pd.concat([pandas, new_df], axis=1)
+        if df is not None:
+            self._run_udfs_on_dataframe(df, new_df, df.column_names)
+            df.concat(new_df)
             if self.drop_columns:
-                new_df = new_df.drop(columns=list(set(new_df.keys()).intersection(self.drop_columns)))
-
-        return new_df if pandas is not None else None, new_columns
+                df.drop_columns(columns=list(set(df.column_names).intersection(self.drop_columns)))
+        return df if df is not None else None, new_columns
 
     def apply_udfs(
-        self, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
-    ) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
-        return self._run_udfs(pandas, row)
+        self,
+        pandas: Optional[pd.DataFrame] = None,
+        row: Optional[Dict[str, Any]] = None,
+        polars: Optional[pl.DataFrame] = None,
+    ) -> Tuple[Optional[Union[pd.DataFrame, pl.DataFrame]], Optional[Mapping[str, Any]]]:
+        df = DataFrameWrapper(pandas, polars) if (pandas is not None or polars is not None) else None
+        df, row = self._run_udfs(df, row)
+        if df is not None:
+            df = df.pd_df if df.pd_df is not None else df.pl_df
+
+        return df, row
 
 
 _multicolumn_udfs: Dict[str, List[UdfSpec]] = defaultdict(list)

@@ -6,8 +6,8 @@ from typing import Any, Dict, Iterable, Iterator, List, Mapping, Optional, Tuple
 from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.api.logger.segment_cache import SegmentCache
 from whylogs.core import DatasetSchema
-from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.dataframe_wrapper import DataFrameWrapper
+from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.input_resolver import _dataframe_or_dict
 from whylogs.core.segment import Segment
 from whylogs.core.segmentation_partition import (
@@ -36,7 +36,11 @@ def _process_segment(
     if profile is None:
         profile = DatasetProfile(schema)
 
-    profile.track(segmented_data, execute_udfs=False)
+    if isinstance(segmented_data, DataFrameWrapper):
+        profile.track(dataframe=segmented_data, execute_udfs=False)
+    else:
+        profile.track(segmented_data, execute_udfs=False)
+
     segments[segment_key] = profile
 
 
@@ -63,7 +67,7 @@ def _process_simple_partition(
     schema: DatasetSchema,
     segments: Dict[Segment, Any],
     columns: List[str],
-    pandas: Optional[pd.DataFrame] = None,
+    dataframe: Optional[DataFrameWrapper] = None,
     row: Optional[Mapping[str, Any]] = None,
     segment_cache: Optional[SegmentCache] = None,
     segment_key_values: Optional[Dict[str, str]] = None,
@@ -71,23 +75,22 @@ def _process_simple_partition(
     explicit_keys = (
         tuple(str(segment_key_values[k]) for k in sorted(segment_key_values.keys())) if segment_key_values else tuple()
     )
-    if pandas is not None:
-        # simple means we can segment on column values
-        grouped_data = pandas.groupby(columns)
-        for group in grouped_data.groups.keys():
+    if dataframe is not None:
+        group_keys = dataframe.group_keys(columns)
+        for group in group_keys:
             if isinstance(group, tuple) and any([_is_nan(x) for x in group]):
                 evaluations = []
                 for val, col in zip(group, columns):
                     if _is_nan(val):
-                        evaluations.append((pandas[col].isna()))
+                        evaluations.append(dataframe.get_nan_mask(col))
                     else:
-                        evaluations.append((pandas[col] == val))
+                        evaluations.append(dataframe.get_val_mask(col, val))
                 mask = reduce(lambda x, y: x & y, evaluations)
-                pandas_segment = pandas[mask]
+                segment_frame = dataframe.filter(mask)
             else:
-                pandas_segment = grouped_data.get_group(group)
+                segment_frame = dataframe.get_group(columns, group)
             segment_key = _get_segment_from_group_key(group, partition_id, explicit_keys)
-            _process_segment(pandas_segment, segment_key, segments, schema, segment_cache)
+            _process_segment(segment_frame, segment_key, segments, schema, segment_cache)
     elif row:
         # TODO: consider if we need to combine with the column names
         segment_key = Segment(tuple(str(row[element]) for element in columns) + explicit_keys, partition_id)
@@ -95,18 +98,18 @@ def _process_simple_partition(
 
 
 def _filter_inputs(
-    filter: SegmentFilter, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None
+    filter: SegmentFilter, dataframe: Optional[DataFrameWrapper] = None, row: Optional[Mapping[str, Any]] = None
 ) -> Tuple[Optional[pd.DataFrame], Optional[Dict[str, Any]]]:
     assert (
         filter.filter_function or filter.query_string
     ), f"must define at least a filter function or query string when specifying a segment filter: {filter}"
-    filtered_pandas = None
+    filtered_dataframe = None
     filtered_row = None
-    if pandas is not None:
+    if dataframe is not None:
         if filter.filter_function:
-            filtered_pandas = pandas[filter.filter_function]
+            filtered_dataframe = dataframe.filter(filter.filter_function)
         elif filter.query_string:
-            filtered_pandas = pandas.query(filter.query_string)
+            filtered_dataframe = dataframe.query(filter.query_string)
     elif row is not None:
         if filter.filter_function:
             filtered_row = filter.filter_function(row)
@@ -114,7 +117,7 @@ def _filter_inputs(
             raise ValueError(
                 "SegmentFilter query string not supported when logging rows, either don't specify a filter or implement the filter.filter_function"
             )
-    return (filtered_pandas, filtered_row)
+    return (filtered_dataframe, filtered_row)
 
 
 def _grouped_dataframe(partition: SegmentationPartition, pandas: pd.DataFrame):
@@ -135,17 +138,17 @@ def _log_segment(
     row: Optional[Mapping[str, Any]] = None,
     segment_cache: Optional[SegmentCache] = None,
     segment_key_values: Optional[Dict[str, str]] = None,
+    polars: Optional[pl.DataFrame] = None,
 ) -> Dict[Segment, Any]:
     segments: Dict[Segment, Any] = {}
-    dataframe, row = _dataframe_or_dict(obj, pandas, row=row)
-    pandas = dataframe.pd_df if dataframe else pandas
+    dataframe, row = _dataframe_or_dict(obj, pandas, polars, row)
     if partition.filter:
-        pandas, row = _filter_inputs(partition.filter, pandas, row)
+        dataframe, row = _filter_inputs(partition.filter, dataframe, row)
     if partition.simple:
         columns = partition.mapper.col_names if partition.mapper else None
         if columns:
             _process_simple_partition(
-                partition.id, schema, segments, columns, pandas, row, segment_cache, segment_key_values
+                partition.id, schema, segments, columns, dataframe, row, segment_cache, segment_key_values
             )
         else:
             logger.error(
@@ -163,6 +166,7 @@ def segment_processing(
     row: Optional[Dict[str, Any]] = None,
     segment_cache: Optional[SegmentCache] = None,
     segment_key_values: Optional[Dict[str, str]] = None,
+    polars: Optional[pl.DataFrame] = None,
 ) -> SegmentedResultSet:
     number_of_partitions = len(schema.segments)
     logger.info(f"The specified schema defines segments with {number_of_partitions} partitions.")
@@ -191,6 +195,7 @@ def segment_processing(
             schema=schema,
             obj=obj,
             pandas=pandas,
+            polars=polars,
             row=row,
             segment_cache=segment_cache,
             segment_key_values=segment_key_values,
