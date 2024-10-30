@@ -43,6 +43,7 @@ skip_notebooks = [
     "Monitoring_Embeddings.ipynb",  # skipped because needs user input
     "whylogs_UDF_examples.ipynb",  # skipped until multiple output column UDFs released
     "Transaction_Examples.ipynb",  # skipped because API key required for whylabs writing
+    "Basics_of_Custom_Performance_Metrics.ipynb",  # skipped because API key required for whylabs writing
 ]
 
 # Collect notebooks to test
