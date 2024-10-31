@@ -84,9 +84,9 @@ def test_single_column_segment() -> None:
     first_segment = next(iter(segments))
     first_segment_profile = results.profile(first_segment)
     assert first_segment_profile is not None
-    assert first_segment_profile._columns["col1"]._schema.dtype == pl.Int64 #np.int64
-    assert first_segment_profile._columns["col2"]._schema.dtype == pl.Float64 #np.float64
-    assert first_segment_profile._columns["col3"]._schema.dtype == pl.String #.name == "object"
+    assert first_segment_profile._columns["col1"]._schema.dtype == pl.Int64  # np.int64
+    assert first_segment_profile._columns["col2"]._schema.dtype == pl.Float64  # np.float64
+    assert first_segment_profile._columns["col3"]._schema.dtype == pl.String  # .name == "object"
     segment_cardinality: CardinalityMetric = (
         first_segment_profile.view().get_column(segment_column).get_metric("cardinality")
     )
@@ -118,12 +118,12 @@ def test_single_column_and_manual_segment() -> None:
     assert len(segments) == number_of_segments
 
     first_segment = next(iter(segments))
-    #assert first_segment.key == ("x0", "1", "foo")
+    # assert first_segment.key == ("x0", "1", "foo")
     first_segment_profile = results.profile(first_segment)
     assert first_segment_profile is not None
-    assert first_segment_profile._columns["col1"]._schema.dtype == pl.Int64 #np.int64
-    assert first_segment_profile._columns["col2"]._schema.dtype == pl.Float64 #np.float64
-    assert first_segment_profile._columns["col3"]._schema.dtype == pl.String #.name == "object"
+    assert first_segment_profile._columns["col1"]._schema.dtype == pl.Int64  # np.int64
+    assert first_segment_profile._columns["col2"]._schema.dtype == pl.Float64  # np.float64
+    assert first_segment_profile._columns["col3"]._schema.dtype == pl.String  # .name == "object"
     segment_cardinality: CardinalityMetric = (
         first_segment_profile.view().get_column(segment_column).get_metric("cardinality")
     )
@@ -173,9 +173,9 @@ def test_single_column_segment_with_trace_id() -> None:
     first_segment = next(iter(segments))
     first_segment_profile = results.profile(first_segment)
     assert first_segment_profile is not None
-    assert first_segment_profile._columns["col1"]._schema.dtype == pl.Int64 #np.int64
-    assert first_segment_profile._columns["col2"]._schema.dtype == pl.Float64 #np.float64
-    assert first_segment_profile._columns["col3"]._schema.dtype == pl.String #.name == "object"
+    assert first_segment_profile._columns["col1"]._schema.dtype == pl.Int64  # np.int64
+    assert first_segment_profile._columns["col2"]._schema.dtype == pl.Float64  # np.float64
+    assert first_segment_profile._columns["col3"]._schema.dtype == pl.String  # .name == "object"
     segment_cardinality: CardinalityMetric = (
         first_segment_profile.view().get_column(segment_column).get_metric("cardinality")
     )
@@ -211,9 +211,9 @@ def test_single_integer_column_segment() -> None:
     first_segment = next(iter(segments))
     first_segment_profile = results.profile(first_segment)
     assert first_segment_profile is not None
-    assert first_segment_profile._columns["col1"]._schema.dtype == pl.Int64 #np.int64
-    assert first_segment_profile._columns["col2"]._schema.dtype == pl.Float64 #np.float64
-    assert first_segment_profile._columns["col3"]._schema.dtype == pl.Int64 #np.int64
+    assert first_segment_profile._columns["col1"]._schema.dtype == pl.Int64  # np.int64
+    assert first_segment_profile._columns["col2"]._schema.dtype == pl.Float64  # np.float64
+    assert first_segment_profile._columns["col3"]._schema.dtype == pl.Int64  # np.int64
     segment_cardinality: CardinalityMetric = (
         first_segment_profile.view().get_column(segment_column).get_metric("cardinality")
     )
@@ -249,9 +249,9 @@ def test_filtered_single_column_segment() -> None:
     first_segment_profile = results.profile(first_segment)
     assert first_segment.key == ("x0",)
     assert first_segment_profile is not None
-    assert first_segment_profile._columns["col1"]._schema.dtype == pl.Int64 #np.int64
-    assert first_segment_profile._columns["col2"]._schema.dtype == pl.Float64 #np.float64
-    assert first_segment_profile._columns[segment_column]._schema.dtype == pl.String #.name == "object"
+    assert first_segment_profile._columns["col1"]._schema.dtype == pl.Int64  # np.int64
+    assert first_segment_profile._columns["col2"]._schema.dtype == pl.Float64  # np.float64
+    assert first_segment_profile._columns[segment_column]._schema.dtype == pl.String  # .name == "object"
     segment_distribution: DistributionMetric = (
         first_segment_profile.view().get_column("col1").get_metric("distribution")
     )
@@ -292,9 +292,9 @@ def test_segment_write_roundtrip_versions(tmp_path: Any, v0) -> None:
     first_segment_profile = results.profile(first_segment)
     assert first_segment.key == ("x0",)
     assert first_segment_profile is not None
-    assert first_segment_profile._columns["col1"]._schema.dtype == pl.Int64 #np.int64
-    assert first_segment_profile._columns["col2"]._schema.dtype == pl.Float64 #np.float64
-    assert first_segment_profile._columns[segment_column]._schema.dtype == pl.String #.name == "object"
+    assert first_segment_profile._columns["col1"]._schema.dtype == pl.Int64  # np.int64
+    assert first_segment_profile._columns["col2"]._schema.dtype == pl.Float64  # np.float64
+    assert first_segment_profile._columns[segment_column]._schema.dtype == pl.String  # .name == "object"
     segment_distribution: DistributionMetric = (
         first_segment_profile.view().get_column("col1").get_metric("distribution")
     )
@@ -356,13 +356,13 @@ def test_multi_column_segment() -> None:
 
     # Note this segment is not useful as there is only one datapoint per segment, we have 100 rows and
     # 100 segments. The segment value is a tuple of strings identifying this segment.
-    #assert last_segment.key == ("99", "x4")
+    # assert last_segment.key == ("99", "x4")
 
     last_segment_profile = results.profile(last_segment)
 
-    assert last_segment_profile._columns["col1"]._schema.dtype == pl.Int64 #np.int64
-    assert last_segment_profile._columns["col2"]._schema.dtype == pl.Float64 #np.float64
-    assert last_segment_profile._columns["col3"]._schema.dtype == pl.String #.name == "object"
+    assert last_segment_profile._columns["col1"]._schema.dtype == pl.Int64  # np.int64
+    assert last_segment_profile._columns["col2"]._schema.dtype == pl.Float64  # np.float64
+    assert last_segment_profile._columns["col3"]._schema.dtype == pl.String  # .name == "object"
 
     segment_distribution: DistributionMetric = last_segment_profile.view().get_column("col1").get_metric("distribution")
     count = segment_distribution.n
@@ -391,13 +391,13 @@ def test_multicolumn_and_manual_segment() -> None:
 
     # Note this segment is not useful as there is only one datapoint per segment, we have 100 rows and
     # 100 segments. The segment value is a tuple of strings identifying this segment.
-    #assert last_segment.key == ("99", "x4", "42", "bar")
+    # assert last_segment.key == ("99", "x4", "42", "bar")
 
     last_segment_profile = results.profile(last_segment)
 
-    assert last_segment_profile._columns["col1"]._schema.dtype == pl.Int64 #np.int64
-    assert last_segment_profile._columns["col2"]._schema.dtype == pl.Float64 #np.float64
-    assert last_segment_profile._columns["col3"]._schema.dtype == pl.String #.name == "object"
+    assert last_segment_profile._columns["col1"]._schema.dtype == pl.Int64  # np.int64
+    assert last_segment_profile._columns["col2"]._schema.dtype == pl.Float64  # np.float64
+    assert last_segment_profile._columns["col3"]._schema.dtype == pl.String  # .name == "object"
 
     segment_distribution: DistributionMetric = last_segment_profile.view().get_column("col1").get_metric("distribution")
     count = segment_distribution.n

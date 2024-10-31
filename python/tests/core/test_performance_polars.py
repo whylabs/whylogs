@@ -55,7 +55,7 @@ def test_track_column_benchmark(test_resolver: Resolver) -> None:
         profiler.enable()
         for column_index in range(num_columns):
             column_name = str(column_index)
-            col_df = pl.DataFrame({ column_name: np.random.random(size=(num_rows,)) })
+            col_df = pl.DataFrame({column_name: np.random.random(size=(num_rows,))})
             col_prof = ColumnProfile(
                 name="perf_test", schema=ColumnSchema(float, resolver=test_resolver), cache_size=1024
             )
@@ -84,9 +84,7 @@ def test_track_dataset_benchmark() -> None:
 
         profiler = cProfile.Profile()
         string_output_stream = StringIO()
-        full_df = pl.DataFrame(
-            { str(i): np.random.random(size=(num_rows,)) for i in range(num_columns) }
-        )
+        full_df = pl.DataFrame({str(i): np.random.random(size=(num_rows,)) for i in range(num_columns)})
         dataset_profile = DatasetProfile()
         profiler.enable()
         dataset_profile.track(full_df)
@@ -118,7 +116,7 @@ def test_track_baseline_benchmark() -> None:
         for column_index in range(num_columns):
             column_name = str(column_index)
             baseline_metric = CustomHistogramMetric()
-            col_df = pl.DataFrame( {column_name: np.random.random(size=(num_rows,)) } )
+            col_df = pl.DataFrame({column_name: np.random.random(size=(num_rows,))})
             if column_index == 0:
                 TEST_LOGGER.info(f"using the following trackers {baseline_metric}")
             for value in col_df[column_name]:

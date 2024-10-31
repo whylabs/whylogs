@@ -1,17 +1,11 @@
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Tuple
 
 import polars as pl
 
 import whylogs as why
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import Fractional, Integral, String
-from whylogs.core.metrics import (
-    CardinalityMetric,
-    DistributionMetric,
-    MetricConfig,
-    StandardMetric,
-)
-from whylogs.core.preprocessing import ColumnProperties
+from whylogs.core.metrics import CardinalityMetric, DistributionMetric, StandardMetric
 from whylogs.core.resolvers import STANDARD_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.segmentation_partition import segment_on_column
 from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
@@ -22,7 +16,6 @@ from whylogs.experimental.core.udf_schema import (
     register_multioutput_udf,
     register_type_udf,
     udf_schema,
-    unregister_udf,
 )
 from whylogs.experimental.core.validators import condition_validator
 
@@ -86,7 +79,7 @@ def test_drop_columns() -> None:
 
 @register_dataset_udf(["col1"], schema_name="polars-unit-tests")
 def add5(x) -> float:
-    return x[0]+5
+    return x[0] + 5
 
 
 def square(x: Tuple) -> float:
@@ -105,7 +98,9 @@ def do_something_important(validator_name, condition_name: str, value: Any, colu
     return
 
 
-@condition_validator(["col1", "add5"], condition_name="less_than_four", actions=[do_something_important], schema_name="polars")
+@condition_validator(
+    ["col1", "add5"], condition_name="less_than_four", actions=[do_something_important], schema_name="polars"
+)
 def lt_4(x):
     return x < 4
 
@@ -121,7 +116,9 @@ def test_validator_udf_polars() -> None:
 def test_validator_double_register_udf_polars() -> None:
     global action_list
 
-    @condition_validator(["col1", "add5"], condition_name="less_than_four", actions=[do_something_important], schema_name="polars")
+    @condition_validator(
+        ["col1", "add5"], condition_name="less_than_four", actions=[do_something_important], schema_name="polars"
+    )
     def lt_4_2(x):
         return x < 4
 
