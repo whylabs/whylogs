@@ -41,24 +41,24 @@ def test_udf_polars() -> None:
     assert len(data.columns) == 1
 
 
-@register_multioutput_udf(["xx1", "xx2"])
+@register_multioutput_udf(["xx1", "xx2"], schema_name="polars")
 def f1(x) -> pl.DataFrame:
     return pl.DataFrame({"foo": x["xx1"], "bar": x["xx2"]})
 
 
-@register_multioutput_udf(["xx1", "xx2"], prefix="blah")
+@register_multioutput_udf(["xx1", "xx2"], prefix="blah", schema_name="polars")
 def f2(x) -> pl.DataFrame:
     return pl.DataFrame({"foo": x["xx1"], "bar": x["xx2"]})
 
 
-@register_multioutput_udf(["xx1", "xx2"], no_prefix=True)
+@register_multioutput_udf(["xx1", "xx2"], no_prefix=True, schema_name="polars")
 def no_prefix_udf(x) -> pl.DataFrame:
     df = pl.DataFrame({"foo": x["xx1"], "bar": x["xx2"]})
     return df
 
 
 def test_multioutput_udf_dataframe() -> None:
-    schema = udf_schema()
+    schema = udf_schema(schema_name="polars")
     df = pl.DataFrame({"xx1": [42, 7], "xx2": [3.14, 2.72]})
     results = why.log(df, schema=schema).view()
     assert results.get_column("f1.foo") is not None
@@ -70,7 +70,7 @@ def test_multioutput_udf_dataframe() -> None:
 
 
 def test_drop_columns() -> None:
-    schema = udf_schema(drop_columns={"xx1", "xx2"})
+    schema = udf_schema(drop_columns={"xx1", "xx2"}, schema_name="polars")
     df = pl.DataFrame({"xx1": [42, 7], "xx2": [3.14, 2.72]})
     results = why.log(df, schema=schema).view()
     assert results.get_column("xx1") is None
@@ -84,13 +84,12 @@ def test_drop_columns() -> None:
     assert results.get_column("bar") is not None
 
 
-@register_dataset_udf(["col1"], schema_name="unit-tests")
+@register_dataset_udf(["col1"], schema_name="polars-unit-tests")
 def add5(x) -> float:
     return x[0]+5
 
 
 def square(x: Tuple) -> float:
-    print(f"square(): {type(x)}\n{x}")
     return x[0] * x[0]
 
 
@@ -106,7 +105,7 @@ def do_something_important(validator_name, condition_name: str, value: Any, colu
     return
 
 
-@condition_validator(["col1", "add5"], condition_name="less_than_four", actions=[do_something_important])
+@condition_validator(["col1", "add5"], condition_name="less_than_four", actions=[do_something_important], schema_name="polars")
 def lt_4(x):
     return x < 4
 
@@ -114,7 +113,7 @@ def lt_4(x):
 def test_validator_udf_polars() -> None:
     global action_list
     data = pl.DataFrame({"col1": [1, 3, 7]})
-    schema = udf_schema()
+    schema = udf_schema(schema_name="polars", include_default_schema=False)
     why.log(data, schema=schema).view()
     assert 7 in action_list
 
@@ -122,19 +121,20 @@ def test_validator_udf_polars() -> None:
 def test_validator_double_register_udf_polars() -> None:
     global action_list
 
-    @condition_validator(["col1", "add5"], condition_name="less_than_four", actions=[do_something_important])
+    @condition_validator(["col1", "add5"], condition_name="less_than_four", actions=[do_something_important], schema_name="polars")
     def lt_4_2(x):
         return x < 4
 
-    schema = udf_schema()
+    schema = udf_schema(schema_name="polars", include_default_schema=False)
     # registering the same validator twice should keep only the latest registration
     assert schema.validators["col1"][0].conditions["less_than_four"].__name__ == "lt_4_2"
+    print(f"schema.validators['col1'] = {schema.validators['col1']}")
     assert len(schema.validators["col1"]) == 1
 
 
 def test_decorator_polars() -> None:
     extra_spec = UdfSpec(["col1"], {"sqr": square})
-    schema = udf_schema([extra_spec], STANDARD_RESOLVER, schema_name="unit-tests")
+    schema = udf_schema([extra_spec], STANDARD_RESOLVER, schema_name="polars-unit-tests")
     data = pl.DataFrame({"col1": [42, 12, 7], "col2": ["a", "b", "c"]})
     results = why.log(data, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
@@ -146,14 +146,14 @@ def test_decorator_polars() -> None:
 
 
 @register_dataset_udf(
-    ["col1"], "annihilate_me", anti_metrics=[CardinalityMetric, DistributionMetric], schema_name="unit-tests"
+    ["col1"], "annihilate_me", anti_metrics=[CardinalityMetric, DistributionMetric], schema_name="polars-unit-tests"
 )
 def plus1(x) -> float:
     return x[0] + 1
 
 
 def test_anti_resolver() -> None:
-    schema = udf_schema(schema_name="unit-tests")
+    schema = udf_schema(schema_name="polars-unit-tests")
     data = pl.DataFrame({"col1": [42, 12, 7], "col2": ["a", "b", "c"]})
     results = why.log(data, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
@@ -171,23 +171,23 @@ def test_anti_resolver() -> None:
     assert "cardinality/est" not in plus1_summary
 
 
-@register_dataset_udf(["col1"], "colliding_name", namespace="pluto", schema_name="unit-tests")
+@register_dataset_udf(["col1"], "colliding_name", namespace="pluto", schema_name="polars-unit-tests")
 def a_function(x):
     return x[0]
 
 
-@register_dataset_udf(["col1"], "colliding_name", namespace="neptune", schema_name="unit-tests")
+@register_dataset_udf(["col1"], "colliding_name", namespace="neptune", schema_name="polars-unit-tests")
 def another_function(x):
     return x[0]
 
 
-@register_dataset_udf(["col1", "col2"], "product", schema_name="unit-tests")
+@register_dataset_udf(["col1", "col2"], "product", schema_name="polars-unit-tests")
 def times(x: Tuple) -> float:
     return x[0] * x[1]
 
 
 @register_dataset_udf(
-    ["col1", "col3"], metrics=[MetricSpec(StandardMetric.distribution.value)], schema_name="unit-tests"
+    ["col1", "col3"], metrics=[MetricSpec(StandardMetric.distribution.value)], schema_name="polars-unit-tests"
 )
 def ratio(x: Tuple) -> float:
     return x[0] / x[1]
@@ -210,7 +210,7 @@ def test_multicolumn_udf_pandas() -> None:
     ]
 
     extra_spec = UdfSpec(["col1"], {"sqr": square})
-    schema = udf_schema([extra_spec], count_only, schema_name="unit-tests")
+    schema = udf_schema([extra_spec], count_only, schema_name="polars-unit-tests")
     data = pl.DataFrame({"col1": [42, 12, 7], "col2": [2, 3, 4], "col3": [2, 3, 4]})
     results = why.log(data, schema=schema).view()
     col1_summary = results.get_column("col1").to_summary_dict()
@@ -235,7 +235,7 @@ def test_multicolumn_udf_pandas() -> None:
 n: int = 0
 
 
-@register_dataset_udf(["oops"], schema_name="unit-tests")
+@register_dataset_udf(["oops"], schema_name="polars-unit-tests")
 def exothermic(x: pl.DataFrame) -> pl.Series:
     global n
     n += 1
@@ -248,7 +248,7 @@ def exothermic(x: pl.DataFrame) -> pl.Series:
 def test_udf_throws_polars() -> None:
     global n
     n = 0
-    schema = udf_schema(schema_name="unit-tests")
+    schema = udf_schema(schema_name="polars-unit-tests")
     df = pl.DataFrame({"oops": [1, 2, 3, 4], "ok": [5, 6, 7, 8]})
     results = why.log(df, schema=schema).view()
     assert "exothermic" in results.get_columns()
@@ -264,7 +264,7 @@ def bar(x: Any) -> Any:
 
 
 def test_udf_metric_resolving() -> None:
-    schema = udf_schema(schema_name="unit-tests")
+    schema = udf_schema(schema_name="polars-unit-tests")
     df = pl.DataFrame({"col1": [1, 2, 3], "foo": [1, 2, 3]})
     results = why.log(df, schema=schema).view()
     assert "add5" in results.get_columns()
@@ -276,7 +276,7 @@ def test_udf_metric_resolving() -> None:
 
 def test_udf_segmentation_pandas() -> None:
     column_segments = segment_on_column("product")
-    segmented_schema = udf_schema(segments=column_segments, schema_name="unit-tests")
+    segmented_schema = udf_schema(segments=column_segments, schema_name="polars-unit-tests")
     data = pl.DataFrame({"col1": [42, 12, 7], "col2": [2, 3, 4], "col3": [2, 3, 4]})
     results = why.log(data, schema=segmented_schema)
     assert len(results.segments()) == 3
@@ -284,14 +284,14 @@ def test_udf_segmentation_pandas() -> None:
 
 def test_udf_segmentation_obj() -> None:
     column_segments = segment_on_column("product")
-    segmented_schema = udf_schema(segments=column_segments, schema_name="unit-tests")
+    segmented_schema = udf_schema(segments=column_segments, schema_name="polars-unit-tests")
     data = {"col1": 42, "col2": 2, "col3": 2}
     results = why.log(data, schema=segmented_schema)
     assert len(results.segments()) == 1
 
 
 def test_udf_track() -> None:
-    schema = udf_schema(schema_name="unit-tests")
+    schema = udf_schema(schema_name="polars-unit-tests")
     prof = DatasetProfile(schema)
     data = pl.DataFrame({"col1": [42, 12, 7], "col2": [2, 3, 4], "col3": [2, 3, 4]})
     prof.track(data)
@@ -310,23 +310,23 @@ def test_udf_track() -> None:
     assert div_summary["distribution/n"] == 3
 
 
-@register_dataset_udf(["schema.col1"], schema_name="bob")
+@register_dataset_udf(["schema.col1"], schema_name="polars-bob")
 def bob(x: pl.DataFrame) -> pl.Series:
     return x["schema.col1"]
 
 
-@register_metric_udf("schema.col1", schema_name="bob")
+@register_metric_udf("schema.col1", schema_name="polars-bob")
 def rob(x: Any) -> Any:
     return x
 
 
-@register_dataset_udf(["schema.col1"], "add5")
+@register_dataset_udf(["schema.col1"], "add5", schema_name="polars")
 def fob(x: pl.DataFrame) -> pl.Series:
     return x["schema.col1"] + 5
 
 
 def test_direct_udfs() -> None:
-    schema = udf_schema(schema_name=["", "bob"])
+    schema = udf_schema(schema_name=["polars", "polars-bob"])
     data = pl.DataFrame({"col1": [42, 12, 7]})
     more_data, _ = schema.apply_udfs(polars=data)
     udf_columns = set(more_data.columns)
@@ -340,13 +340,13 @@ def test_direct_udfs() -> None:
     assert more_columns == profile_columns
 
 
-@register_type_udf(Fractional, schema_name="unit-tests")
+@register_type_udf(Fractional, schema_name="polars-unit-tests")
 def square_type(x: pl.Series) -> pl.Series:
     return x * x
 
 
 def test_type_udf_dataframe() -> None:
-    schema = udf_schema(schema_name="unit-tests")
+    schema = udf_schema(schema_name="polars-unit-tests")
     data = pl.DataFrame({"col1": [3.14, 42.0]})
     results = why.log(data, schema=schema).view()
     assert "col1.square_type" in results.get_columns().keys()
@@ -355,13 +355,13 @@ def test_type_udf_dataframe() -> None:
     assert summary["types/fractional"] == 2
 
 
-@register_type_udf(float, schema_name="unit-tests")
+@register_type_udf(float, schema_name="polars-unit-tests")
 def square_python_type(x: pl.Series) -> pl.Series:
     return x * x
 
 
 def test_python_type_udf() -> None:
-    schema = udf_schema(schema_name="unit-tests")
+    schema = udf_schema(schema_name="polars-unit-tests")
     data = pl.DataFrame({"col1": [3.14, 42.0]})
     results = why.log(data, schema=schema).view()
     assert "col1.square_python_type" in results.get_columns().keys()

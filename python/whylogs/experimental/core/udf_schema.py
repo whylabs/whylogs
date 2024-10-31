@@ -498,7 +498,7 @@ def udf_schema(
 
     for name in schema_names:
         resolver_specs += _resolver_specs[name]
-        validators = generate_validators(validators, name, include_default_schema=True)
+        validators = generate_validators(validators, name, include_default_schema=include_default_schema)
 
     resolver_specs += generate_udf_resolvers(schema_name, include_default_schema)
     return UdfSchema(
