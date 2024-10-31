@@ -71,13 +71,16 @@ class DatasetProfileContainer:
 
         if self._schema:
             if isinstance(data, List):
-                input_data = [self._schema._run_udfs(df=None, row=it)[1] for it in data]  # pyright: ignore[reportPrivateUsage, reportUnknownMemberType]
+                input_data = [
+                    self._schema._run_udfs(df=None, row=it)[1]  # pyright: ignore[reportUnknownArgumentType,reportPrivateUsage]
+                    for it in data  # pyright: ignore[reportUnknownArgumentType,reportUnknownVariableType,reportPrivateUsage]
+                ]  # pyright: ignore[reportPrivateUsage, reportUnknownMemberType, reportUnknownArgumentType, reportUnknownvariableType]
             else:
                 df = data if isinstance(data, pd.DataFrame) else None
-                row = data if isinstance(data, dict) else None
-                df, row = _dataframe_or_dict(df, None, None, row)
+                row = data if isinstance(data, dict) else None  # pyright: ignore[reportUnknownVariableType]
+                df, row = _dataframe_or_dict(df, None, None, row)  # pyright: ignore[reportUnknownArgumentType]
                 df, row = self._schema._run_udfs(df, row)  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType, reportPrivateUsage]
-                input_data: TrackData = cast(TrackData, df if df is not None else row)
+                input_data: TrackData = cast(TrackData, df if df is not None else row)  # type: ignore[no-redef]
         else:
             input_data = data
 
