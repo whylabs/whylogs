@@ -39,7 +39,7 @@ class UdfSpec:
 
     For UDFs matched by column_name(s), the function is passed a dictionary or
     dataframe with the named columns available (the UDF will not be called unless
-    all the named columns are available). The output column name is the key in
+     all the named columns are available). The output column name is the key in
     the udfs dictionary.
 
     For UDFs matched by column_type, the function is passed the value or Pandas
