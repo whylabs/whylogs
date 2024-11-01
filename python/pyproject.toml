@@ -11,7 +11,7 @@ include = ["whylogs/core/proto/v0/*.py*", "whylogs/core/proto/*.py*"]
 
 [tool.poetry.dependencies]
 # core dependencies. Be REALLY mindful when touching this list
-python = ">=3.7.1, <4"
+python = ">=3.8, <4"
 whylogs-sketching = ">=3.4.1.dev3"
 protobuf = ">=3.19.4"
 importlib-metadata = { version = "<4.3", python = "<3.8" }
@@ -37,7 +37,7 @@ numpy = [
 pandas = { version = "*", optional = true }
 
 # Polars module.
-polars = { version = ">=1.8.2", optional = true }
+polars = { version = ">=1.8.2", python = ">=3.8", optional = true }
 # TODO: do we want polars-u64-idx ?
 
 # Doc dependencies
