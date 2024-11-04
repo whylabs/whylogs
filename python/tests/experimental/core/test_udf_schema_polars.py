@@ -1,6 +1,7 @@
 from typing import Any, Tuple
 
-import polars as pl
+import pytest
+import sys
 
 import whylogs as why
 from whylogs.core.dataset_profile import DatasetProfile
@@ -8,6 +9,7 @@ from whylogs.core.datatypes import Fractional, Integral, String
 from whylogs.core.metrics import CardinalityMetric, DistributionMetric, StandardMetric
 from whylogs.core.resolvers import STANDARD_RESOLVER, MetricSpec, ResolverSpec
 from whylogs.core.segmentation_partition import segment_on_column
+from whylogs.core.stubs import pl
 from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
 from whylogs.experimental.core.udf_schema import (
     UdfSchema,
@@ -18,6 +20,10 @@ from whylogs.experimental.core.udf_schema import (
     udf_schema,
 )
 from whylogs.experimental.core.validators import condition_validator
+
+
+if sys.version_info < (3, 8):
+    pytest.skip(allow_module_level=True, reason="Polars requires Python >= 3.7")
 
 
 def test_udf_polars() -> None:

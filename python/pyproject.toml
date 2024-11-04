@@ -20,6 +20,10 @@ whylabs-client = "^0.6.5"
 requests = "^2.27"
 backoff = "^2.2.1"
 platformdirs = "^3.5.0"
+setuptools = [
+  { version = "<58", python = "<3.8", optional = false },
+  { version = "*", python = ">=3.8", optional = false }
+]
 
 # viz module. Everything after this should be optional
 pybars3 = { version = "^0.9", optional = true }

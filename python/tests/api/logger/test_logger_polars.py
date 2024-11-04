@@ -3,8 +3,8 @@ import tempfile
 from typing import Any
 
 import numpy as np
-import polars as pl
 import pytest
+import sys
 
 import whylogs as why
 from whylogs.api.logger import write
@@ -14,6 +14,12 @@ from whylogs.core.errors import LoggingError
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import DatasetSchema
+from whylogs.core.stubs import pl
+
+
+if sys.version_info < (3, 8):
+    pytest.skip(allow_module_level=True, reason="Polars requires Python >= 3.7")
+
 
 FLOAT_TYPES = [float, np.float32, np.float64, np.float_]
 INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]
