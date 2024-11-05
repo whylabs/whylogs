@@ -97,7 +97,7 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v4.1.1
         with:
-          token: ${{ secrets.VERSION_UPDATE }}
+          token: ${{ secrets.VERSION_UPDATE_WHYLOGS }}
           commit-message: Update version to ${{ env.VERSION }}
           committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
