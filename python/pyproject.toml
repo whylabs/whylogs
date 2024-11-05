@@ -22,7 +22,7 @@ backoff = "^2.2.1"
 platformdirs = "^3.5.0"
 setuptools = [
   { version = "<58", python = "<3.8", optional = false },
-  { version = "*", python = ">=3.8", optional = false }
+  { version = ">=75", python = ">=3.8", optional = false }
 ]
 
 # viz module. Everything after this should be optional
