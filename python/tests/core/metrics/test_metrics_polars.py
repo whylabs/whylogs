@@ -1,47 +1,36 @@
 from logging import getLogger
 
 import numpy as np
-import pandas as pd
 import pytest
+import sys
 
 import whylogs as why
 import whylogs.core.configs as cfg
 from whylogs.core import ColumnProfileView, DatasetSchema
-from whylogs.core.datatypes import Integral
+from whylogs.core.datatypes import AnyType, Integral
 from whylogs.core.metrics.maths import VarianceM2Result, parallel_variance_m2
+from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import (
     CardinalityMetric,
     DistributionMetric,
     MetricConfig,
 )
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.resolvers import StandardResolver
-from whylogs.core.schema import ColumnSchema
+from whylogs.core.resolvers import MetricSpec, ResolverSpec, StandardResolver
+from whylogs.core.schema import ColumnSchema, DeclarativeSchema
+from whylogs.core.stubs import pd, pl
+
+
+if sys.version_info < (3, 8):
+    pytest.skip(allow_module_level=True, reason="Polars requires Python >= 3.7")
+
 
 TEST_LOGGER = getLogger(__name__)
 
 
-def test_distribution_metrics_numpy() -> None:
-    dist = DistributionMetric.zero(MetricConfig())
-    data = list(range(0, 100))
-    arr = np.array(data)
-    col = PreprocessedColumn.apply(arr)
-    dist.columnar_update(col)
-
-    assert dist.kll.value.get_n() == 100
-    assert dist.mean.value == arr.mean()
-    assert dist.variance == arr.var(ddof=1)
-
-    distribution_summary = dist.to_summary_dict()
-    assert distribution_summary["q_01"] == 1.0
-    assert distribution_summary["q_05"] == 5.0
-    assert distribution_summary["q_95"] == 95.0
-    assert distribution_summary["q_99"] == 99.0
-
-
 def test_distribution_metrics_series() -> None:
     dist = DistributionMetric.zero(MetricConfig())
-    data = pd.Series(list(range(100)))
+    data = pl.Series(list(range(100)))
     col = PreprocessedColumn.apply(data)
     dist.columnar_update(col)
 
@@ -55,6 +44,7 @@ def test_distribution_variance_m2() -> None:
 
     dist_list = DistributionMetric.zero(MetricConfig())
     dist_pandas = DistributionMetric.zero(MetricConfig())
+    dist_polars = DistributionMetric.zero(MetricConfig())
     dist_numpy = DistributionMetric.zero(MetricConfig())
     test_input = [1, 2, 3, 4]
 
@@ -66,66 +56,39 @@ def test_distribution_variance_m2() -> None:
     m2 = (n - 1) * variance
     TEST_LOGGER.info(f"statistic package using input {test_input} has variance={variance}, m2={m2}, n={n}")
     pandas_test_input = PreprocessedColumn.apply(pd.Series(test_input))
+    polars_test_input = PreprocessedColumn.apply(pl.Series(test_input))
     numpy_test_input = PreprocessedColumn.apply(np.array(test_input))
     dist_list.columnar_update(list_test_input)
     dist_pandas.columnar_update(pandas_test_input)
+    dist_polars.columnar_update(polars_test_input)
     dist_numpy.columnar_update(numpy_test_input)
 
     TEST_LOGGER.info(f"dist_list={dist_list.to_summary_dict()}")
     TEST_LOGGER.info(f"dist_pandas={dist_pandas.to_summary_dict()}")
+    TEST_LOGGER.info(f"dist_polars={dist_polars.to_summary_dict()}")
     TEST_LOGGER.info(f"dist_numpy={dist_numpy.to_summary_dict()}")
     assert dist_list.m2.value == m2
     assert dist_pandas.m2.value == m2
+    assert dist_polars.m2.value == m2
     assert dist_numpy.m2.value == m2
     assert dist_list.variance == variance
     assert dist_pandas.variance == variance
+    assert dist_polars.variance == variance
     assert dist_numpy.variance == variance
     assert dist_list.avg == mean
     assert dist_pandas.avg == mean
+    assert dist_polars.avg == mean
     assert dist_numpy.avg == mean
 
 
 def test_distribution_metrics_indexed_series_single_row() -> None:
     dist = DistributionMetric.zero(MetricConfig())
-    data = pd.Series(list(range(1)), index=[284])
+    data = pl.Series(list(range(1)))
     col = PreprocessedColumn.apply(data)
     dist.columnar_update(col)
 
     assert dist.kll.value.get_n() == 1
     assert dist.mean.value == data.mean()
-
-
-def test_distribution_metrics_list() -> None:
-    dist = DistributionMetric.zero(MetricConfig())
-    col = PreprocessedColumn()
-    data = list(range(0, 100))
-    col.list.ints = data
-    dist.columnar_update(col)
-
-    assert dist.kll.value.get_n() == 100
-    assert dist.mean.value == np.array(data).mean()
-    assert dist.variance == np.array(data).var(ddof=1)
-
-
-def test_distribution_metrics_mixed_np_and_list() -> None:
-    dist = DistributionMetric.zero(MetricConfig())
-    col = PreprocessedColumn()
-    col.list.ints = list(range(0, 50))
-    col.numpy.ints = np.array(range(50, 100))
-    dist.columnar_update(col)
-
-    assert dist.kll.value.get_n() == 100
-    a = np.array(col.list.ints)
-    b = col.numpy.ints
-
-    assert dist.mean.value == np.array(np.concatenate([a, b])).mean()
-
-    m2_a = a.var(ddof=1) * (len(a) - 1)
-    m2_b = b.var(ddof=1) * (len(b) - 1)
-    a_var = VarianceM2Result(n=len(a), mean=a.mean(), m2=m2_a)
-    b_var = VarianceM2Result(n=len(b), mean=b.mean(), m2=m2_b)
-    overall = parallel_variance_m2(first=a_var, second=b_var)
-    assert dist.variance == overall.m2 / (overall.n - 1)
 
 
 def test_distribution_metrics_bool() -> None:
@@ -155,7 +118,7 @@ def test_distribution_metrics_bool_mixed() -> None:
 
 def test_track_single_values_profile_mean() -> None:
     data = list(range(30))
-    df = pd.DataFrame(data, columns=["col1"])
+    df = pl.DataFrame({"col1": data})
     actual_mean = df["col1"].mean()
     actual_stddev = df["col1"].std()
     prof_view_df = why.log(df).profile().view()
@@ -177,7 +140,7 @@ def test_track_single_values_profile_mean() -> None:
 
 def test_merge_single_values_profile_mean() -> None:
     data = list(range(30))
-    df = pd.DataFrame(data, columns=["col1"])
+    df = pl.DataFrame({"col1": data})
     actual_mean = df["col1"].mean()
     actual_stddev = df["col1"].std()
     prof_view_df = why.log(df).profile().view()
@@ -220,7 +183,7 @@ def test_merge_two_profiles_mean(lending_club_df: pd.DataFrame) -> None:
 
 
 def test_frequent_items_handling_int_as_string() -> None:
-    df = pd.DataFrame({"int": [1, 1, 1]})
+    df = pl.DataFrame({"int": [1, 1, 1]})
 
     res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
     assert res.array[0][0].value == "1"  # type: ignore
@@ -230,23 +193,25 @@ def test_frequent_items_handling_bool_as_string() -> None:
     import whylogs.core.metrics.metrics as met
 
     met._BOOL_LIST_CHUNK_SIZE = 2
-    df = pd.DataFrame({"bool": [True, True, True, True, False]})
+    df = pl.DataFrame({"bool": [True, True, True, True, False]})
 
-    res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
+    schema = DeclarativeSchema([ResolverSpec(column_type=AnyType, metrics=[MetricSpec(StandardMetric.frequent_items.value)])])
+    res = why.log(df, schema=schema).view().to_pandas()["frequent_items/frequent_strings"]
     assert res.array[0][0].value == "True"  # type: ignore
     assert res.array[0][1].value == "False"  # type: ignore
 
 
 def test_frequent_items_bounds_order() -> None:
-    df_gamma = pd.DataFrame({"feature1": np.random.gamma(1, 2, 1000).astype(int)})
-    df_rand = pd.DataFrame({"feature1": np.random.randint(10000, size=9000)})
-    df = df_gamma.append(df_rand)
+    df_gamma = pl.DataFrame({"feature1": np.random.gamma(1, 2, 1000).astype(int)})
+    df_rand = pl.DataFrame({"feature1": np.random.randint(10000, size=9000)})
+    df = pl.concat([df_gamma, df_rand])
 
     res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
     fi_tuple = res.array[0][0]
     assert fi_tuple.lower <= fi_tuple.est <= fi_tuple.upper
 
 
+@pytest.mark.skip("frequent item length is only enforced on pandas view strings")
 @pytest.mark.parametrize(
     "config, limit",
     [
@@ -255,7 +220,7 @@ def test_frequent_items_bounds_order() -> None:
     ],
 )
 def test_frequent_item_max_size(config: MetricConfig, limit: int) -> None:
-    df = pd.DataFrame({"str": ["X" * 200]})
+    df = pl.DataFrame({"str": ["X" * 200]})
     schema = DatasetSchema(default_configs=config)
     res = why.log(df, schema=schema).view().to_pandas()["frequent_items/frequent_strings"]
     assert len(res.array[0][0].value) <= limit
@@ -263,7 +228,7 @@ def test_frequent_item_max_size(config: MetricConfig, limit: int) -> None:
 
 def test_cardinality_metric_booleans() -> None:
     cardinality = CardinalityMetric.zero(MetricConfig())
-    data = pd.Series([True, False, True, True])
+    data = pl.Series([True, False, True, True])
     col = PreprocessedColumn.apply(data)
     cardinality.columnar_update(col)
 
@@ -288,9 +253,10 @@ def test_cardinality_metric_booleans_top_level_api() -> None:
     input_rows = 5
     col_name = "p"
     d = {col_name: [bool(i % 2) for i in range(input_rows)]}
-    df = pd.DataFrame(data=d)
+    df = pl.DataFrame(d)
 
-    results = why.log(df)
+    schema = DeclarativeSchema([ResolverSpec(column_type=AnyType, metrics=[MetricSpec(StandardMetric.cardinality.value)])])
+    results = why.log(df, schema=schema)
     col_prof = results.view().get_column(col_name)
     cardinality: CardinalityMetric = col_prof.get_metric("cardinality")
     assert cardinality is not None
@@ -298,8 +264,9 @@ def test_cardinality_metric_booleans_top_level_api() -> None:
 
 
 def test_cardinality_metric_booleans_all_false() -> None:
-    df = pd.DataFrame({"b": [False for i in range(3)]})
-    col_prof = why.log(df).view().get_column("b")
+    df = pl.DataFrame({"b": [False for i in range(3)]})
+    schema = DeclarativeSchema([ResolverSpec(column_type=AnyType, metrics=[MetricSpec(StandardMetric.cardinality.value)])])
+    col_prof = why.log(df, schema=schema).view().get_column("b")
     cardinality: CardinalityMetric = col_prof.get_metric("cardinality")
     assert cardinality.estimate == pytest.approx(1, 0.1)
 
