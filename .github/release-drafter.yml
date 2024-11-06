@@ -1,5 +1,5 @@
-name-template: "v$NEXT_PATCH_VERSION"
-tag-template: "v$NEXT_PATCH_VERSION"
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
 change-template: "- $TITLE #$NUMBER [@$AUTHOR]"
 
 categories:
@@ -45,8 +45,8 @@ version-resolver:
 
 template: |
 
-  ## whylogs release v$NEXT_PATCH_VERSION
-  Hi everyone! We’ve now released whylogs $NEXT_PATCH_VERSION 🚀.
+  ## whylogs release v$RESOLVED_VERSION
+  Hi everyone! We’ve now released whylogs $RESOLVED_VERSION 🚀.
   whylogs is the open standard for data and ML logging created by WhyLabs. 👩🏽‍🔬
   This version includes:
 
