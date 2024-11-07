@@ -34,7 +34,7 @@ def test_basic_log_schema() -> None:
     assert profile._columns["col1"]._schema.dtype == pl.Int64
 
 
-def test_basic_log_schem_constructor() -> None:
+def test_basic_log_schema_constructor() -> None:
     d = {"col1": [1, 2]}
     df = pl.DataFrame(data=d)
     logger = why.logger(schema=DatasetSchema())
