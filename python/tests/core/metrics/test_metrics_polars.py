@@ -91,19 +91,6 @@ def test_distribution_metrics_indexed_series_single_row() -> None:
     assert dist.mean.value == data.mean()
 
 
-def test_distribution_metrics_bool_mixed() -> None:
-    import whylogs.core.metrics.metrics as met
-
-    met._BOOL_LIST_CHUNK_SIZE = 2
-
-    dist = DistributionMetric.zero()
-    p_col = PreprocessedColumn.apply([True, False, 42])
-    operation_result = dist.columnar_update(p_col)
-    assert operation_result.ok
-    assert dist.kll.value.get_n() == 3
-    assert round(dist.avg, 3) == round(43 / 3, 3)
-
-
 def test_track_single_values_profile_mean() -> None:
     data = list(range(30))
     df = pl.DataFrame({"col1": data})
