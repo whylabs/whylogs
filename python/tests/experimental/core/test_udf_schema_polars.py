@@ -277,7 +277,7 @@ def test_udf_metric_resolving() -> None:
     assert "udf/bar:counts/n" in foo_summary
 
 
-def test_udf_segmentation_pandas() -> None:
+def test_udf_segmentation_polars() -> None:
     column_segments = segment_on_column("product")
     segmented_schema = udf_schema(segments=column_segments, schema_name="polars-unit-tests")
     data = pl.DataFrame({"col1": [42, 12, 7], "col2": [2, 3, 4], "col3": [2, 3, 4]})
