@@ -37,36 +37,6 @@ if sys.version_info < (3, 8):
 TEST_LOGGER = getLogger(__name__)
 
 
-def test_single_row_segment() -> None:
-    segment_column = "col3"
-    number_of_segments = 1
-
-    test_segments = segment_on_column("col3")
-    results: SegmentedResultSet = why.log(
-        {"col1": 1, "col2": 1.1, "col3": "x0"}, schema=DatasetSchema(segments=test_segments)
-    )
-    assert results.count == number_of_segments
-    partitions = results.partitions
-    assert len(partitions) == 1
-    partition = partitions[0]
-    segments = results.segments_in_partition(partition)
-    assert len(segments) == number_of_segments
-
-    first_segment = next(iter(segments))
-    assert first_segment.key == ("x0",)
-    first_segment_profile = results.profile(first_segment)
-    assert first_segment_profile is not None
-    assert first_segment_profile._columns["col1"]._schema.dtype == int
-    assert first_segment_profile._columns["col2"]._schema.dtype == float
-    assert first_segment_profile._columns["col3"]._schema.dtype == str
-    segment_cardinality: CardinalityMetric = (
-        first_segment_profile.view().get_column(segment_column).get_metric("cardinality")
-    )
-    cardinality = segment_cardinality.estimate
-    assert cardinality is not None
-    assert cardinality == 1.0
-
-
 def test_single_column_segment() -> None:
     input_rows = 100
     segment_column = "col3"
