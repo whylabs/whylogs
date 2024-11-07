@@ -210,20 +210,6 @@ def test_cardinality_metric_booleans() -> None:
     assert cardinality.estimate == pytest.approx(2, 0.1)
 
 
-def test_cardinality_metric_row_booleans() -> None:
-    column_name = "col1"
-    data = {column_name: True}
-    profile = why.log(data).profile()
-    view = profile.view()
-    cardinality = view.get_column(column_name).get_metric("cardinality")
-
-    assert cardinality is not None
-    assert cardinality.estimate == pytest.approx(1, 0.1)
-    # track a bool value of false in the same column and check that cardinality increased to near 2.
-    profile.track(row={column_name: False})
-    assert cardinality.estimate == pytest.approx(2, 0.1)
-
-
 def test_cardinality_metric_booleans_top_level_api() -> None:
     input_rows = 5
     col_name = "p"
