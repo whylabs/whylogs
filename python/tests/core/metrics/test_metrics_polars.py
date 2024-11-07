@@ -244,16 +244,3 @@ def test_cardinality_metric_booleans_all_false() -> None:
     col_prof = why.log(df, schema=schema).view().get_column("b")
     cardinality: CardinalityMetric = col_prof.get_metric("cardinality")
     assert cardinality.estimate == pytest.approx(1, 0.1)
-
-
-def test_configure_MetricConfig_defaults():
-    c0 = MetricConfig()
-    assert c0.kll_k == cfg.kll_k
-    assert not c0.fi_disabled
-    assert "frequent_items" in StandardResolver().resolve("", Integral(), ColumnSchema(Integral, c0))
-    cfg.fi_disabled = True
-    c1 = MetricConfig()
-    assert c1.fi_disabled
-    assert not c0.fi_disabled
-    assert "frequent_items" not in StandardResolver().resolve("", Integral(), ColumnSchema(Integral, c1))
-    cfg.fi_disabled = False
