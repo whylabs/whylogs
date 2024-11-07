@@ -23,7 +23,7 @@ from whylogs.experimental.core.validators import condition_validator
 
 
 if sys.version_info < (3, 8):
-    pytest.skip(allow_module_level=True, reason="Polars requires Python >= 3.7")
+    pytest.skip(allow_module_level=True, reason="Polars requires Python >= 3.8")
 
 
 def test_udf_polars() -> None:
