@@ -14,7 +14,7 @@ from whylogs.core.errors import LoggingError
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import DatasetSchema
-from whylogs.core.stubs import pl
+from whylogs.core.stubs import pd, pl
 
 
 if sys.version_info < (3, 8):
