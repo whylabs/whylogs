@@ -27,7 +27,7 @@ INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulong
 
 def test_basic_log_schema() -> None:
     d = {"col1": [1, 2]}
-    df = pl.DataFrame(data=d)
+    df = pl.DataFrame(d)
     logger = why.logger()
     results = logger.log(df, schema=DatasetSchema())
     profile = results.profile()
