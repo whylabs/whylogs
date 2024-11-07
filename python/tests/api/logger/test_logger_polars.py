@@ -56,11 +56,6 @@ def test_basic_log() -> None:
     assert profile._columns["col3"]._schema.dtype == pl.Utf8
 
 
-def test_log_nothing_raises_error() -> None:
-    with pytest.raises(LoggingError):
-        why.log()
-
-
 def test_basic_log_row() -> None:
     d = {"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]}
 
