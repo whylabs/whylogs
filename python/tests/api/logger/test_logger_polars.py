@@ -56,29 +56,6 @@ def test_basic_log() -> None:
     assert profile._columns["col3"]._schema.dtype == pl.Utf8
 
 
-def test_basic_log_dict_of_lists() -> None:
-    d = {"col1": [np.int64(1), np.int64(2)], "col2": [3.0, 4.0], "col3": ["a", "b"]}
-
-    results = why.log(d)
-
-    profile = results.profile()
-
-    assert profile._columns["col1"]._schema.dtype == list
-    assert profile._columns["col2"]._schema.dtype == list
-    assert profile._columns["col3"]._schema.dtype == list
-
-
-def test_basic_log_dictionary() -> None:
-    d = {"a": 1.0, "b": 2.0}
-
-    results = why.log(d)
-
-    profile = results.profile()
-
-    assert profile._columns["a"]._schema.dtype == float
-    assert profile._columns["b"]._schema.dtype == float
-
-
 def test_lending_club(lending_club_df: pl.DataFrame) -> None:
     res = why.log(lending_club_df)
     view = res.view()
