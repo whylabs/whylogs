@@ -146,7 +146,7 @@ def test_merge_two_profiles_mean(lending_club_df: pd.DataFrame) -> None:
 
     first_profile: ColumnProfileView = why.log(pl.from_pandas(first_df)).view().get_column("loan_amnt")
     first_profile_mean = first_profile.get_metric("distribution").mean.value
-    second_profile = why.log(second_df).view().get_column("loan_amnt")
+    second_profile = why.log(pl.from_pandas(second_df)).view().get_column("loan_amnt")
     second_profile_mean = second_profile.get_metric("distribution").mean.value
 
     merged_profile = first_profile.merge(second_profile)
