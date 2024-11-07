@@ -56,8 +56,9 @@ def test_basic_log() -> None:
     assert profile._columns["col3"]._schema.dtype == pl.Utf8
 
 
-def test_lending_club(lending_club_df: pl.DataFrame) -> None:
-    res = why.log(lending_club_df)
+def test_lending_club(lending_club_df: pd.DataFrame) -> None:
+    df = pl.from_pandas(lending_club_df)
+    res = why.log(df)
     view = res.view()
     df = view.to_pandas()
     assert len(df) == 151
