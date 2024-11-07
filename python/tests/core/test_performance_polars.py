@@ -26,7 +26,7 @@ from whylogs.core.resolvers import (
 
 
 if sys.version_info < (3, 8):
-    pytest.skip(allow_module_level=True, reason="Polars requires Python >= 3.7")
+    pytest.skip(allow_module_level=True, reason="Polars requires Python >= 3.8")
 
 
 TEST_LOGGER = getLogger(__name__)
