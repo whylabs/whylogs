@@ -36,10 +36,6 @@ Package Contents
 
    
 
-.. py:data:: DataType
-
-   
-
 .. py:data:: HllSketchMessage
 
    

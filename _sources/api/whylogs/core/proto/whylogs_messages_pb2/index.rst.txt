@@ -16,10 +16,6 @@ Module Contents
 
    
 
-.. py:data:: DataType
-
-   
-
 .. py:data:: HllSketchMessage
 
    
