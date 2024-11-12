@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional
 
 from whylogs.api.logger.logger import Logger
 from whylogs.core import DatasetProfile, DatasetSchema
-from whylogs.core.dataframe_wrapper import DataFrameWrapper
+from whylogs.core.dataframe_wrapper import DataFrame
 
 
 class TransientLogger(Logger):
@@ -13,7 +13,7 @@ class TransientLogger(Logger):
         self,
         obj: Any = None,
         *,
-        dataframe: Optional[DataFrameWrapper] = None,
+        dataframe: Optional[DataFrame] = None,
         row: Optional[Dict[str, Any]] = None,
         schema: Optional[DatasetSchema] = None,
     ) -> List[DatasetProfile]:

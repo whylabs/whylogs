@@ -6,11 +6,12 @@ from whylogs.api.whylabs.session.session import NotSupported
 from whylogs.api.whylabs.session.session_manager import get_current_session
 from whylogs.api.whylabs.session.session_types import InteractiveLogger as il
 from whylogs.api.whylabs.session.session_types import SessionType
+from whylogs.core.dataframe_wrapper import DataFrame, DataFrameWrapper
 from whylogs.core.stubs import pd, pl
 
 
 def notebook_session_log_comparison(
-    data: Dict[str, Union["pd.DataFrame", List[Dict[str, Any]]]], result_sets: Dict[str, ResultSet]
+    data: Dict[str, Union[pd.DataFrame, List[Dict[str, Any]]]], result_sets: Dict[str, ResultSet]
 ) -> None:
     session = get_current_session()
 
@@ -47,8 +48,8 @@ def notebook_session_log_comparison(
         traceback.print_exc()
 
 
-def _get_loggable_length(loggable: Optional[Union["pd.DataFrame", Dict[str, Any]]]) -> Optional[int]:
-    if isinstance(loggable, pd.DataFrame):
+def _get_loggable_length(loggable: Optional[Union[DataFrame, Dict[str, Any]]]) -> Optional[int]:
+    if isinstance(loggable, (pd.DataFrame, pl.DataFrame, DataFrameWrapper)):
         return len(loggable)
     elif isinstance(loggable, dict):
         return 1
@@ -61,7 +62,7 @@ def notebook_session_log(
     obj: Any = None,
     *,
     pandas: Optional[pd.DataFrame] = None,
-    polars: Optional[pl.DataFrame] = None,
+    dataframe: Optional[DataFrame] = None,
     row: Optional[Dict[str, Any]] = None,
     name: Optional[str] = None,
 ) -> None:
@@ -75,7 +76,12 @@ def notebook_session_log(
         return
 
     # Get the length of whatever was just logged
-    rows = _get_loggable_length(pandas) or _get_loggable_length(obj) or _get_loggable_length(row)
+    rows = (
+        _get_loggable_length(pandas)
+        or _get_loggable_length(obj)
+        or _get_loggable_length(row)
+        or _get_loggable_length(dataframe)
+    )
 
     il.message()
     if rows is not None:

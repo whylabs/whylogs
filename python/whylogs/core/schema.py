@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional, Set, Tuple, TypeVar, Union
 
 import whylogs.core.resolvers as res
-from whylogs.core.dataframe_wrapper import DataFrameWrapper
+from whylogs.core.dataframe_wrapper import DataFrame, DataFrameWrapper
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import (
@@ -14,7 +14,7 @@ from whylogs.core.resolvers import (
     ResolverSpec,
 )
 from whylogs.core.segmentation_partition import SegmentationPartition
-from whylogs.core.stubs import pd, pl
+from whylogs.core.stubs import pd
 from whylogs.core.validators.validator import Validator, deepcopy_validators
 
 logger = logging.getLogger(__name__)
@@ -132,14 +132,13 @@ class DatasetSchema:
         self,
         *,
         pandas: Optional[pd.DataFrame] = None,
-        polars: Optional[pl.DataFrame] = None,
-        dataframe: Optional[DataFrameWrapper] = None,
+        dataframe: Optional[DataFrame] = None,
         row: Optional[Mapping[str, Any]] = None,
     ) -> bool:
-        if dataframe:
-            return self._resolve_dataframe(dataframe)
-        if pandas is not None or polars is not None:
-            return self._resolve_dataframe(DataFrameWrapper(pandas, polars))
+        if dataframe is not None:
+            return self._resolve_dataframe(DataFrameWrapper(dataframe))
+        if pandas is not None:
+            return self._resolve_dataframe(DataFrameWrapper(pandas))
 
         if row is not None:
             for k, v in row.items():

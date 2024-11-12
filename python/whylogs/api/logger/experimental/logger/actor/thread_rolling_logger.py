@@ -78,7 +78,7 @@ class DatasetProfileContainer:
             else:
                 df = data if isinstance(data, pd.DataFrame) else None
                 row = data if isinstance(data, dict) else None  # pyright: ignore[reportUnknownVariableType]
-                df, row = _dataframe_or_dict(df, None, None, row)  # pyright: ignore[reportUnknownArgumentType]
+                df, row = _dataframe_or_dict(df, None, row)  # pyright: ignore[reportUnknownArgumentType]
                 df, row = self._schema._run_udfs(df, row)  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType, reportPrivateUsage]
                 input_data: TrackData = cast(TrackData, df if df is not None else row)  # type: ignore[no-redef]
         else:

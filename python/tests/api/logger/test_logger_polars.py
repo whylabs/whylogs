@@ -156,7 +156,7 @@ def test_bool_count():
 
     df = pl.DataFrame(data)
 
-    results = why.log(polars=df)
+    results = why.log(dataframe=df)
     prof_view = results.profile().view()
     assert prof_view._columns.get("fly")._metrics.get("types").boolean.value == 4
     assert prof_view._columns.get("fly")._metrics.get("types").integral.value == 0

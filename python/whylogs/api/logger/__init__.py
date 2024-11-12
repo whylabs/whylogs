@@ -26,6 +26,7 @@ from whylogs.api.whylabs.session.notebook_logger import (
     notebook_session_log_comparison,
 )
 from whylogs.core import DatasetProfile, DatasetSchema
+from whylogs.core.dataframe_wrapper import DataFrame, DataFrameWrapper
 from whylogs.core.metadata import WHYLABS_TRACE_ID_KEY
 from whylogs.core.model_performance_metrics.model_performance_metrics import (
     ModelPerformanceMetrics,
@@ -35,7 +36,7 @@ from whylogs.core.utils import deprecated_argument
 
 diagnostic_logger = logging.getLogger(__name__)
 
-Loggable = Union["pd.DataFrame", List[Dict[str, Any]]]
+Loggable = Union["pd.DataFrame", "pl.DataFrame", DataFrameWrapper, List[Dict[str, Any]]]
 
 
 @deprecated_argument("debug_event")
@@ -43,7 +44,7 @@ def log(
     obj: Any = None,
     *,
     pandas: Optional[pd.DataFrame] = None,
-    polars: Optional[pl.DataFrame] = None,
+    dataframe: Optional[DataFrame] = None,
     row: Optional[Dict[str, Any]] = None,
     schema: Optional[DatasetSchema] = None,
     name: Optional[str] = None,
@@ -71,7 +72,7 @@ def log(
         result_set = TransientLogger(schema=schema).log(
             obj,
             pandas=pandas,
-            polars=polars,
+            dataframe=dataframe,
             row=row,
             name=name,
             trace_id=trace_id,
@@ -80,7 +81,7 @@ def log(
         )
         if dataset_timestamp is not None:
             result_set.set_dataset_timestamp(dataset_timestamp)
-        notebook_session_log(result_set, obj, pandas=pandas, polars=polars, row=row, name=name)
+        notebook_session_log(result_set, obj, pandas=pandas, dataframe=dataframe, row=row, name=name)
 
         if debug_event is not None:
             if trace_id is None and WHYLABS_TRACE_ID_KEY in result_set.metadata:

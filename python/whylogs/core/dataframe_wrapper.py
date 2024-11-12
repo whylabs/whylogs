@@ -2,15 +2,19 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from whylogs.core.stubs import pd, pl
 
+DataFrame = Union[pd.DataFrame, pl.DataFrame, "DataFrameWrapper"]
+Series = Union[pd.Series, pl.Series]
+
 
 class DataFrameWrapper:
-    def __init__(self, pandas: Optional[pd.DataFrame] = None, polars: Optional[pl.DataFrame] = None):
-        # TODO: __init__(self, df: Union[pd.DataFrame, pl.DataFrame]): with isinstance
-        # TODO: maybe PandasDataFrame, PolarsDataFrame <: DataFrameWrapper
-        if pandas is not None and polars is not None:
-            raise ValueError("Cannot pass both pandas and polars params")
-        if pandas is None and polars is None:
-            raise ValueError("Must pass either pandas or polars")
+    def __init__(self, dataframe: DataFrame):
+        # TODO: PandasDataFrame, PolarsDataFrame <: DataFrameWrapper
+        if isinstance(dataframe, DataFrameWrapper):
+            pandas, polars = dataframe.pd_df, dataframe.pl_df
+        elif isinstance(dataframe, pd.DataFrame):
+            pandas, polars = dataframe, None
+        else:
+            pandas, polars = None, dataframe
 
         self.pd_df = pandas
         self.pl_df = polars
@@ -19,29 +23,35 @@ class DataFrameWrapper:
         self.dtypes = pandas.dtypes if pandas is not None else polars.schema  # type: ignore
         self.empty = pandas.empty if pandas is not None else len(polars) == 0  # type: ignore
 
+    def len(self) -> int:
+        return len(self.pd_df if self.pd_df is not None else self.pl_df)
+
+    def __len__(self) -> int:
+        return len(self.pd_df if self.pd_df is not None else self.pl_df)
+
     def _update(self) -> None:
         self.column_names = list(self.pd_df.columns) if self.pd_df is not None else self.pl_df.columns  # type: ignore
         self.dtypes = self.pd_df.dtypes if self.pd_df is not None else self.pl_df.schema  # type: ignore
         self.empty = self.pd_df.empty if self.pd_df is not None else len(self.pl_df) == 0  # type: ignore
 
-    def get(self, column: str) -> Optional[Union[pd.Series, pl.Series]]:
+    def get(self, column: str) -> Optional[Series]:
         if self.pd_df is not None:
             return self.pd_df.get(column)
         return self.pl_df[column] if column in self.pl_df.schema else None  # type: ignore
 
     def filter(self, filter: Any) -> Optional["DataFrameWrapper"]:
         if self.pd_df is not None:
-            return DataFrameWrapper(pandas=self.pd_df[filter])
+            return DataFrameWrapper(self.pd_df[filter])
         if self.pl_df is not None:
-            return DataFrameWrapper(polars=self.pl_df.filter(filter))
+            return DataFrameWrapper(self.pl_df.filter(filter))
         return None
 
     def query(self, query: str) -> Optional["DataFrameWrapper"]:
         if self.pd_df is not None:
-            return DataFrameWrapper(pandas=self.pd_df.query(query))
+            return DataFrameWrapper(self.pd_df.query(query))
         if self.pl_df is not None:
             ctx = pl.SQLContext(population=self.pl_df, eager=True)
-            return ctx.execute(query)
+            return DataFrameWrapper(ctx.execute(query))
         return None
 
     def group_keys(self, columns: List[str]) -> List[Tuple[Any]]:
@@ -109,9 +119,9 @@ class DataFrameWrapper:
 
     def __getitem__(self, key: str) -> "DataFrameWrapper":
         if self.pd_df is not None:
-            return DataFrameWrapper(pandas=pd.DataFrame(self.pd_df[key]))
+            return DataFrameWrapper(pd.DataFrame(self.pd_df[key]))
         elif self.pl_df is not None:
-            return DataFrameWrapper(polars=pl.DataFrame(self.pl_df[key]))
+            return DataFrameWrapper(pl.DataFrame(self.pl_df[key]))
         raise ValueError("Cannot index empty DataFrame")
 
     def __setitem__(self, key: str, value: Union[pd.Series, pl.Series]) -> None:
@@ -125,14 +135,14 @@ class DataFrameWrapper:
             return
         raise ValueError("Cannot index empty DataFrame")
 
-    def apply_udf(self, udf: Callable) -> Union[pd.Series, pl.Series]:
+    def apply_udf(self, udf: Callable) -> Series:
         if self.pd_df is not None:
             return pd.Series(udf(self.pd_df))
         elif self.pl_df is not None:
             return self.pl_df.map_rows(udf)["map"]
         raise ValueError("Cannot apply UDFs to empty DataFrame")
 
-    def apply_type_udf(self, udf: Callable) -> Union[pd.Series, pl.Series]:
+    def apply_type_udf(self, udf: Callable) -> Series:
         if self.pd_df is not None:
             return pd.Series(udf(self.pd_df[self.pd_df.columns[0]]))
         elif self.pl_df is not None:
@@ -141,9 +151,9 @@ class DataFrameWrapper:
 
     def apply_multicolumn_udf(self, udf: Callable) -> "DataFrameWrapper":
         if self.pd_df is not None:
-            return DataFrameWrapper(pandas=udf(self.pd_df))
+            return DataFrameWrapper(udf(self.pd_df))
         elif self.pl_df is not None:
-            return DataFrameWrapper(polars=udf(self.pl_df))
+            return DataFrameWrapper(udf(self.pl_df))
         raise ValueError("Cannot apply UDFs to empty DataFrame")
 
     def rename(self, columns: Dict[str, str]) -> None:

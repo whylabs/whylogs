@@ -12,10 +12,10 @@ from whylogs.core.preprocessing import ColumnProperties
 from whylogs.core.utils.utils import deprecated, deprecated_alias, ensure_timezone
 
 from .column_profile import ColumnProfile
-from .dataframe_wrapper import DataFrameWrapper
+from .dataframe_wrapper import DataFrame, DataFrameWrapper
 from .input_resolver import _dataframe_or_dict
 from .schema import DatasetSchema
-from .stubs import pd, pl
+from .stubs import pd
 from .view import DatasetProfileView
 
 logger = logging.getLogger(__name__)
@@ -110,24 +110,21 @@ class DatasetProfile(_Writable):
         obj: Any = None,
         *,
         pandas: Optional[pd.DataFrame] = None,
-        polars: Optional[pl.DataFrame] = None,
-        dataframe: Optional[DataFrameWrapper] = None,
+        dataframe: Optional[DataFrame] = None,
         row: Optional[Mapping[str, Any]] = None,
         execute_udfs: bool = True,
     ) -> None:
-        if dataframe is None:
-            dataframe, row = _dataframe_or_dict(obj, pandas, polars, row)
+        dataframe, row = _dataframe_or_dict(obj, dataframe if dataframe is not None else pandas, row)
 
         try:
             self._is_active = True
             self._track_count += 1
-            self._do_track(obj, dataframe=dataframe, row=row, execute_udfs=execute_udfs)
+            self._do_track(dataframe=dataframe, row=row, execute_udfs=execute_udfs)
         finally:
             self._is_active = False
 
     def _do_track(
         self,
-        obj: Any = None,
         *,
         dataframe: Optional[DataFrameWrapper] = None,
         row: Optional[Mapping[str, Any]] = None,

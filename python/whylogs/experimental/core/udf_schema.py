@@ -16,7 +16,7 @@ from typing import (
     Union,
 )
 
-from whylogs.core.dataframe_wrapper import DataFrameWrapper
+from whylogs.core.dataframe_wrapper import DataFrame, DataFrameWrapper
 from whylogs.core.datatypes import DataType, StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import NO_FI_RESOLVER, MetricSpec, ResolverSpec
@@ -246,11 +246,7 @@ class UdfSchema(DeclarativeSchema):
     ) -> Tuple[Optional[DataFrameWrapper], Optional[Dict[str, Any]]]:
         new_columns = deepcopy(row) if row else None
         if df:
-            new_df = (
-                DataFrameWrapper(pandas=pd.DataFrame())
-                if df.pd_df is not None
-                else DataFrameWrapper(polars=pl.DataFrame())
-            )
+            new_df = DataFrameWrapper(pd.DataFrame()) if df.pd_df is not None else DataFrameWrapper(pl.DataFrame())
         else:
             new_df = None
 
@@ -271,9 +267,13 @@ class UdfSchema(DeclarativeSchema):
         self,
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Dict[str, Any]] = None,
-        polars: Optional[pl.DataFrame] = None,
-    ) -> Tuple[Optional[Union[pd.DataFrame, pl.DataFrame]], Optional[Mapping[str, Any]]]:
-        df = DataFrameWrapper(pandas, polars) if (pandas is not None or polars is not None) else None
+        dataframe: Optional[DataFrame] = None,
+    ) -> Tuple[Optional[DataFrame], Optional[Mapping[str, Any]]]:
+        df = (
+            DataFrameWrapper(dataframe if dataframe is not None else pandas)
+            if (pandas is not None or dataframe is not None)
+            else None
+        )
         df, row = self._run_udfs(df, row)
         if df is not None:
             df = df.pd_df if df.pd_df is not None else df.pl_df

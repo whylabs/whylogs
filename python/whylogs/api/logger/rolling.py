@@ -14,7 +14,7 @@ from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
 from whylogs.api.logger.segment_cache import SegmentCache
 from whylogs.api.writer import Writer
 from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
-from whylogs.core.dataframe_wrapper import DataFrameWrapper
+from whylogs.core.dataframe_wrapper import DataFrame
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 
 logger = logging.getLogger(__name__)
@@ -147,7 +147,7 @@ class TimedRollingLogger(Logger):
         self,
         obj: Any = None,
         *,
-        dataframe: Optional[DataFrameWrapper] = None,
+        dataframe: Optional[DataFrame] = None,
         row: Optional[Dict[str, Any]] = None,
         schema: Optional[DatasetSchema] = None,
     ) -> List[DatasetProfile]:

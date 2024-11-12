@@ -15,14 +15,14 @@ from whylogs.api.logger.segment_processing import (
 from whylogs.api.store import ProfileStore
 from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetSchema
-from whylogs.core.dataframe_wrapper import DataFrameWrapper
+from whylogs.core.dataframe_wrapper import DataFrame
 from whylogs.core.errors import LoggingError
 from whylogs.core.input_resolver import _dataframe_or_dict
 from whylogs.core.metadata import (
     _populate_common_profile_metadata,
     _safe_merge_metadata,
 )
-from whylogs.core.stubs import pd, pl
+from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +71,7 @@ class Logger(ABC):
         self,
         obj: Any = None,
         *,
-        dataframe: Optional[DataFrameWrapper] = None,
+        dataframe: Optional[DataFrame] = None,
         row: Optional[Dict[str, Any]] = None,
         schema: Optional[DatasetSchema] = None,
     ) -> List[DatasetProfile]:
@@ -82,7 +82,7 @@ class Logger(ABC):
         obj: Any = None,
         *,
         pandas: Optional[pd.DataFrame] = None,
-        polars: Optional[pl.DataFrame] = None,
+        dataframe: Optional[DataFrame] = None,
         row: Optional[Dict[str, Any]] = None,
         schema: Optional[DatasetSchema] = None,
         timestamp_ms: Optional[int] = None,  # Not the dataset timestamp, but the timestamp of the data
@@ -99,7 +99,7 @@ class Logger(ABC):
         """
         if self._is_closed:
             raise LoggingError("Cannot log to a closed logger")
-        if obj is None and pandas is None and polars is None and row is None:
+        if obj is None and pandas is None and dataframe is None and row is None:
             # TODO: check for shell environment and emit more verbose error string to let user know how to correct.
             raise LoggingError("log() was called without passing in any input!")
 
@@ -108,18 +108,17 @@ class Logger(ABC):
                 self._metadata = dict()
             self._metadata["name"] = name
         active_schema = schema or self._schema
-        dataframe, row = _dataframe_or_dict(obj, pandas, polars, row)
+        dataframe, row = _dataframe_or_dict(obj, dataframe if dataframe is not None else pandas, row)
         if active_schema:
             dataframe, row = active_schema._run_udfs(dataframe, row)
-        obj = None
 
         # If segments are defined use segment_processing to return a SegmentedResultSet
         if active_schema and active_schema.segments:
             segmented_results: SegmentedResultSet = segment_processing(
                 schema=active_schema,
-                obj=obj,
-                pandas=dataframe.pd_df if dataframe else None,
-                polars=dataframe.pl_df if dataframe else None,
+                obj=None,
+                pandas=None,
+                dataframe=dataframe,
                 row=row,
                 segment_cache=self._segment_cache,
                 segment_key_values=segment_key_values,
@@ -132,7 +131,7 @@ class Logger(ABC):
         profiles = self._get_matching_profiles(obj, dataframe=dataframe, row=row, schema=active_schema)
 
         for prof in profiles:
-            prof.track(obj, dataframe=dataframe, row=row, execute_udfs=False)
+            prof.track(None, dataframe=dataframe, row=row, execute_udfs=False)
             prof._metadata = _populate_common_profile_metadata(prof._metadata, trace_id=trace_id, tags=tags)
             if active_schema:
                 _safe_merge_metadata(prof._metadata, active_schema.metadata)

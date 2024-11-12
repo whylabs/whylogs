@@ -331,7 +331,7 @@ def fob(x: pl.DataFrame) -> pl.Series:
 def test_direct_udfs() -> None:
     schema = udf_schema(schema_name=["polars", "polars-bob"])
     data = pl.DataFrame({"col1": [42, 12, 7]})
-    more_data, _ = schema.apply_udfs(polars=data)
+    more_data, _ = schema.apply_udfs(dataframe=data)
     udf_columns = set(more_data.columns)
 
     result = why.log(data, schema=schema).view()

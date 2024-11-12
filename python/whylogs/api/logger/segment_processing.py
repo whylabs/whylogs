@@ -6,7 +6,7 @@ from typing import Any, Dict, Iterable, Iterator, List, Mapping, Optional, Tuple
 from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.api.logger.segment_cache import SegmentCache
 from whylogs.core import DatasetSchema
-from whylogs.core.dataframe_wrapper import DataFrameWrapper
+from whylogs.core.dataframe_wrapper import DataFrame, DataFrameWrapper
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.input_resolver import _dataframe_or_dict
 from whylogs.core.segment import Segment
@@ -15,7 +15,7 @@ from whylogs.core.segmentation_partition import (
     SegmentationPartition,
     SegmentFilter,
 )
-from whylogs.core.stubs import pd, pl
+from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
 
@@ -138,10 +138,10 @@ def _log_segment(
     row: Optional[Mapping[str, Any]] = None,
     segment_cache: Optional[SegmentCache] = None,
     segment_key_values: Optional[Dict[str, str]] = None,
-    polars: Optional[pl.DataFrame] = None,
+    dataframe: Optional[DataFrame] = None,
 ) -> Dict[Segment, Any]:
     segments: Dict[Segment, Any] = {}
-    dataframe, row = _dataframe_or_dict(obj, pandas, polars, row)
+    dataframe, row = _dataframe_or_dict(obj, dataframe if dataframe is not None else pandas, row)
     if partition.filter:
         dataframe, row = _filter_inputs(partition.filter, dataframe, row)
     if partition.simple:
@@ -166,7 +166,7 @@ def segment_processing(
     row: Optional[Dict[str, Any]] = None,
     segment_cache: Optional[SegmentCache] = None,
     segment_key_values: Optional[Dict[str, str]] = None,
-    polars: Optional[pl.DataFrame] = None,
+    dataframe: Optional[DataFrame] = None,
 ) -> SegmentedResultSet:
     number_of_partitions = len(schema.segments)
     logger.info(f"The specified schema defines segments with {number_of_partitions} partitions.")
@@ -195,7 +195,7 @@ def segment_processing(
             schema=schema,
             obj=obj,
             pandas=pandas,
-            polars=polars,
+            dataframe=dataframe,
             row=row,
             segment_cache=segment_cache,
             segment_key_values=segment_key_values,
