@@ -7,19 +7,6 @@ option java_package = "com.whylogs.core.message";
 option java_outer_classname = "Messages";
 option java_multiple_files = true;
 
-message DataType {
-  enum Type {
-    UNKNOWN = 0;
-    NULL = 1;
-    FRACTIONAL = 2;
-    INTEGRAL = 3;
-    BOOLEAN = 4;
-    STRING = 5;
-  }
-
-  Type type = 1;
-}
-
 message HllSketchMessage {
   bytes sketch = 1;
 }
