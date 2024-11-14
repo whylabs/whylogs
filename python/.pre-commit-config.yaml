@@ -6,12 +6,10 @@ repos:
     hooks:
       - id: black
         exclude: python/whylogs/core/proto/|python/docs/|python/whylogs/viz/html/|java|python/whylogs/api/logger/experimental/logger
-        files: ^(python/whylogs/)
   - repo: https://github.com/pycqa/flake8
     rev: 4.0.1
     hooks:
       - id: flake8
-        files: ^(python/whylogs/)
         args:
           - --max-line-length=160
           - --exclude="""\.tox |
@@ -32,24 +30,17 @@ repos:
     hooks:
       - id: isort
         args: [--filter-files]
-        files: ^(python/whylogs/)
         exclude: python/whylogs/core/proto/|python/docs/|python/whylogs/viz/html/|java|python/whylogs/api/logger/experimental/logger
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.942
     hooks:
       - id: mypy
         language: system
-        files: ^(python/whylogs/)
-        exclude: ^(python/.venv/lib/python3.8/site-packages/polars/ml/torch.py|python/tests/|python/examples/|python/examples/integration/|python/whylogs/core/proto/|python/docs/|python/whylogs/viz/html/|java|python/whylogs/api/logger/experimental/logger)
-        verbose: true
-        args:
-          - --exclude python/.venv
-          - -V
+        exclude: ^(python/tests/|python/examples/|python/examples/integration/|python/whylogs/core/proto/|python/docs/|python/whylogs/viz/html/|java|python/whylogs/api/logger/experimental/logger)
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.5.1
     hooks:
       - id: prettier
-        files: ^(python/whylogs/)
         exclude: python/tests/|python/whylogs/core/proto/|python/docs/|python/whylogs/viz/html/|java
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0

@@ -1,14 +1,12 @@
+import sys
 from logging import getLogger
 
 import numpy as np
 import pytest
-import sys
 
 import whylogs as why
-import whylogs.core.configs as cfg
 from whylogs.core import ColumnProfileView, DatasetSchema
-from whylogs.core.datatypes import AnyType, Integral
-from whylogs.core.metrics.maths import VarianceM2Result, parallel_variance_m2
+from whylogs.core.datatypes import AnyType
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import (
     CardinalityMetric,
@@ -16,13 +14,15 @@ from whylogs.core.metrics.metrics import (
     MetricConfig,
 )
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.resolvers import MetricSpec, ResolverSpec, StandardResolver
-from whylogs.core.schema import ColumnSchema, DeclarativeSchema
-from whylogs.core.stubs import pd, pl
-
+from whylogs.core.resolvers import MetricSpec, ResolverSpec
+from whylogs.core.schema import DeclarativeSchema
+from whylogs.core.stubs import is_stub, pd, pl
 
 if sys.version_info < (3, 8):
     pytest.skip(allow_module_level=True, reason="Polars requires Python >= 3.8")
+
+if is_stub(pl.DataFrame):
+    pytest.skip(allow_module_level=True, reason="Requires Polars")
 
 
 TEST_LOGGER = getLogger(__name__)
@@ -170,7 +170,9 @@ def test_frequent_items_handling_bool_as_string() -> None:
     met._BOOL_LIST_CHUNK_SIZE = 2
     df = pl.DataFrame({"bool": [True, True, True, True, False]})
 
-    schema = DeclarativeSchema([ResolverSpec(column_type=AnyType, metrics=[MetricSpec(StandardMetric.frequent_items.value)])])
+    schema = DeclarativeSchema(
+        [ResolverSpec(column_type=AnyType, metrics=[MetricSpec(StandardMetric.frequent_items.value)])]
+    )
     res = why.log(df, schema=schema).view().to_pandas()["frequent_items/frequent_strings"]
     assert res.array[0][0].value == "True"  # type: ignore
     assert res.array[0][1].value == "False"  # type: ignore
@@ -216,7 +218,9 @@ def test_cardinality_metric_booleans_top_level_api() -> None:
     d = {col_name: [bool(i % 2) for i in range(input_rows)]}
     df = pl.DataFrame(d)
 
-    schema = DeclarativeSchema([ResolverSpec(column_type=AnyType, metrics=[MetricSpec(StandardMetric.cardinality.value)])])
+    schema = DeclarativeSchema(
+        [ResolverSpec(column_type=AnyType, metrics=[MetricSpec(StandardMetric.cardinality.value)])]
+    )
     results = why.log(df, schema=schema)
     col_prof = results.view().get_column(col_name)
     cardinality: CardinalityMetric = col_prof.get_metric("cardinality")
@@ -226,7 +230,9 @@ def test_cardinality_metric_booleans_top_level_api() -> None:
 
 def test_cardinality_metric_booleans_all_false() -> None:
     df = pl.DataFrame({"b": [False for i in range(3)]})
-    schema = DeclarativeSchema([ResolverSpec(column_type=AnyType, metrics=[MetricSpec(StandardMetric.cardinality.value)])])
+    schema = DeclarativeSchema(
+        [ResolverSpec(column_type=AnyType, metrics=[MetricSpec(StandardMetric.cardinality.value)])]
+    )
     col_prof = why.log(df, schema=schema).view().get_column("b")
     cardinality: CardinalityMetric = col_prof.get_metric("cardinality")
     assert cardinality.estimate == pytest.approx(1, 0.1)

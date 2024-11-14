@@ -1,6 +1,7 @@
 import math
 import os
 import pickle
+import sys
 import tempfile
 from glob import glob
 from logging import getLogger
@@ -8,7 +9,6 @@ from typing import Any
 
 import numpy as np
 import pytest
-import sys
 
 import whylogs as why
 from whylogs.api.logger.result_set import (
@@ -25,13 +25,15 @@ from whylogs.core.segmentation_partition import (
     SegmentFilter,
     segment_on_column,
 )
-from whylogs.core.stubs import pl
+from whylogs.core.stubs import is_stub, pl
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.migration.converters import read_v0_to_view
 
-
 if sys.version_info < (3, 8):
     pytest.skip(allow_module_level=True, reason="Polars requires Python >= 3.8")
+
+if is_stub(pl.DataFrame):
+    pytest.skip(allow_module_level=True, reason="Requires Polars")
 
 
 TEST_LOGGER = getLogger(__name__)

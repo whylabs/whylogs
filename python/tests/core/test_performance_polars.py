@@ -1,6 +1,7 @@
 import cProfile
 import pstats
 import random
+import sys
 from dataclasses import dataclass, field
 from io import StringIO
 from logging import getLogger
@@ -9,21 +10,19 @@ from typing import Any, Dict
 import numpy as np
 import pandas as pd
 import pytest
-import sys
 import whylogs_sketching as ds  # type: ignore
 
 import whylogs
 from whylogs.core import ColumnProfile, ColumnSchema
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metrics.metrics import MetricConfig
-from whylogs.core.stubs import pl
 from whylogs.core.resolvers import (
     HistogramCountingTrackingResolver,
     LimitedTrackingResolver,
     Resolver,
     StandardResolver,
 )
-
+from whylogs.core.stubs import pl
 
 if sys.version_info < (3, 8):
     pytest.skip(allow_module_level=True, reason="Polars requires Python >= 3.8")

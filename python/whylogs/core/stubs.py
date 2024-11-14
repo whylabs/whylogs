@@ -102,6 +102,10 @@ def is_not_stub(stubbed_class: Any) -> bool:
     return False
 
 
+def is_stub(stubbed_class: Any) -> bool:
+    return not is_not_stub(stubbed_class)
+
+
 if _np is None:
     _np = NumpyStub()
 

@@ -10,7 +10,7 @@ class DataFrameWrapper:
     def __init__(self, dataframe: DataFrame):
         # TODO: PandasDataFrame, PolarsDataFrame <: DataFrameWrapper
         if isinstance(dataframe, DataFrameWrapper):
-            pandas, polars = dataframe.pd_df, dataframe.pl_df
+            pandas, polars = dataframe.pd_df, dataframe.pl_df  # type: ignore
         elif isinstance(dataframe, pd.DataFrame):
             pandas, polars = dataframe, None
         else:
