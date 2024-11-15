@@ -286,19 +286,19 @@ class ApiKeySession(Session):
                 ids = ids if isinstance(ids, list) else [(True, ids)]
                 results.append(*[id for _, id in ids])
 
+        request: GetProfileObservatoryLinkRequest = GetProfileObservatoryLinkRequest(
+            reference_profile_ids=results, batch_profile_timestamps=[]
+        )
+
+        org_id = self.config.require_org_id()
+        dataset_id = self.config.require_default_dataset_id()
         try:
-            request: GetProfileObservatoryLinkRequest = GetProfileObservatoryLinkRequest(
-                reference_profile_ids=results, batch_profile_timestamps=[]
+            response: GetProfileObservatoryLinkResponse = self._whylabs_log_api.value.get_profile_observatory_link(
+                dataset_id, org_id, request
             )
         except Exception as e:
             logger.info(f"Convenience profile links could not be generated for the sucessfully uploading profiles: {e}")
             return NotSupported()
-
-        org_id = self.config.require_org_id()
-        dataset_id = self.config.require_default_dataset_id()
-        response: GetProfileObservatoryLinkResponse = self._whylabs_log_api.value.get_profile_observatory_link(
-            dataset_id, org_id, request
-        )
 
         return UploadResult(
             viewing_url=response.observatory_url,
