@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import whylogs_sketching as ds  # type: ignore
-from google.protobuf.struct_pb2 import Struct
+from google.protobuf.struct_pb2 import Struct  # type: ignore
 
 import whylogs.core.configs as conf
 from whylogs.core.metrics.maths import (

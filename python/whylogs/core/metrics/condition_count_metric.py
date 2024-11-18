@@ -200,7 +200,7 @@ class ConditionCountMetric(Metric):
             count += 1
             for cond_name, condition in self.conditions.items():
                 try:
-                    if condition.relation(datum):
+                    if condition.relation(datum):  # type: ignore
                         self.matches[cond_name].set(self.matches[cond_name].value + 1)
                     else:
                         if condition.log_on_failure:

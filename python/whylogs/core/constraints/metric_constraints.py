@@ -217,7 +217,7 @@ class DatasetComparisonConstraint:
     def validate_profile(
         self, dataset_profile: DatasetProfileView, reference_profile: DatasetProfileView
     ) -> Tuple[bool, Optional[Dict[str, Any]]]:
-        validate_result, summary = self.condition(dataset_profile, reference_profile)
+        (validate_result, summary) = self.condition(dataset_profile, reference_profile)  # type: ignore
         return (validate_result, summary)
 
 
@@ -245,7 +245,7 @@ class DatasetConstraint:
 
     def validate_profile(self, dataset_profile: DatasetProfileView) -> Tuple[bool, Optional[Dict[str, Any]]]:
         try:
-            validate_result, metrics = self.condition(dataset_profile)
+            (validate_result, metrics) = self.condition(dataset_profile)  # type: ignore
         except MissingMetric as e:
             if self.require_column_existence:
                 logger.info(f"validate_profile could not get metric {str(e)} so returning False.")
@@ -522,11 +522,15 @@ class Constraints:
                     logger.info(f"{constraint_name} failed on column {column_name}")
                     return False
 
-        for constraint in self.dataset_constraints + self.dataset_comparison_constraints:
-            if isinstance(constraint, DatasetConstraint):
-                (result, _) = constraint.validate_profile(profile)
-            elif isinstance(constraint, DatasetComparisonConstraint):
-                (result, _) = constraint.validate_profile(profile, self.reference_profile_view)
+        constraint: Union[DatasetConstraint, DatasetComparisonConstraint]
+        for constraint in self.dataset_constraints:
+            (result, _) = constraint.validate_profile(profile)
+            if not result:
+                logger.info(f"{constraint.name} failed on dataset")
+                return False
+
+        for constraint in self.dataset_comparison_constraints:
+            (result, _) = constraint.validate_profile(profile, self.reference_profile_view)
             if not result:
                 logger.info(f"{constraint.name} failed on dataset")
                 return False
@@ -605,7 +609,7 @@ class Constraints:
 
                 results.append(metric_report)
 
-        for constraint in self.dataset_constraints + self.dataset_comparison_constraints:
+        for constraint in self.dataset_constraints + self.dataset_comparison_constraints:  # type: ignore
             metric_report = self._generate_dataset_report(
                 profile_view=profile,
                 constraint=constraint,

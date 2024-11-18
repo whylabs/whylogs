@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from functools import partial
 from typing import Any, Dict, List, Optional, Set, Union, cast
 
-import requests as web_requests
+import requests as web_requests  # type: ignore
 from whylabs_client import ApiException  # type: ignore
 from whylabs_client.api.log_api import (  # type: ignore
     GetProfileObservatoryLinkRequest,

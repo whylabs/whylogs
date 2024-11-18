@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Union
 from whylogs.core.metrics.condition_count_metric import Condition
 
 
-@dataclass
+@dataclass  # type: ignore
 class Validator(ABC):
     name: str
     conditions: Dict[str, Union[Condition, Callable[[Any], bool]]]

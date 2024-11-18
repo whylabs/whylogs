@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, BinaryIO, Dict, List, Optional, Tuple, Union
 
-from google.protobuf.message import DecodeError
+from google.protobuf.message import DecodeError  # type: ignore
 
 from whylogs.api.writer.writer import _Writable
 from whylogs.core.configs import SummaryConfig

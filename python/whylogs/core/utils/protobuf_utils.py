@@ -6,7 +6,7 @@ import warnings
 from logging import getLogger
 from typing import IO, Type, TypeVar
 
-from google.protobuf.message import Message
+from google.protobuf.message import Message  # type: ignore
 
 from whylogs.core.errors import DeserializationError
 
