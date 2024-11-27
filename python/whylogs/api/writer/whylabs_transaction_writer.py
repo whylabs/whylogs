@@ -67,7 +67,7 @@ class WhyLabsTransactionWriter(WhyLabsWriterBase):
         transaction_id: Optional[str] = None,
     ):
         super().__init__(org_id, api_key, dataset_id, api_client, ssl_ca_cert, _timeout_seconds, whylabs_client)
-        transaction_id = transaction_id or self._whylabs_client.get_transaction_id()  # type: ignore
+        transaction_id = transaction_id or self._whylabs_client._transaction_id or self._whylabs_client.get_transaction_id()  # type: ignore
         self._whylabs_client._transaction_id = transaction_id  # type: ignore
         self._aborted: bool = False
 
