@@ -1444,7 +1444,7 @@
             <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">def</span> <span class="nf">do_request</span><span class="p">():</span>
-            <span class="k">return</span> <span class="n">log_api</span><span class="o">.</span><span class="n">log_async</span><span class="p">(</span><span class="n">org_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_org_id</span><span class="p">,</span> <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">log_async_request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">log_api</span><span class="o">.</span><span class="n">log_profile</span><span class="p">(</span><span class="n">x_whylabs_resource</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_id</span><span class="p">,</span> <span class="n">log_async_request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">do_request</span><span class="p">()</span>
