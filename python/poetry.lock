@@ -4649,13 +4649,13 @@ watchdog = ["watchdog"]
 
 [[package]]
 name = "whylabs-client"
-version = "0.6.5"
+version = "0.6.15"
 description = "WhyLabs API client"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "whylabs-client-0.6.5.tar.gz", hash = "sha256:6a1a32847844cd45768c58441944592eb6d3ed69578dcc84cda9d7d6caea6cab"},
-    {file = "whylabs_client-0.6.5-py3-none-any.whl", hash = "sha256:6c686f6d5b7a1ae2c487a83c450c9ece46fe176784d5c5261ee840a0de9e45a5"},
+    {file = "whylabs-client-0.6.15.tar.gz", hash = "sha256:fab30b93a117ea3b2a1d84e1ed4ed4374c530a82fee791c5c7e427c76e8f0415"},
+    {file = "whylabs_client-0.6.15-py3-none-any.whl", hash = "sha256:c663cd4dcad94640c8fe96693a3c34dc30e2d9c123ff8f1c47b52c7f297190d3"},
 ]
 
 [package.dependencies]
@@ -4680,6 +4680,9 @@ files = [
     {file = "whylogs_sketching-3.4.1.dev3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0ba536fca5f9578fa34d106c243fdccfef7d75b9d1fffb9d93df0debfe8e3ebc"},
     {file = "whylogs_sketching-3.4.1.dev3-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:afa843c68cafa08e82624e6a33d13ab7f00ad0301101960872fe152d5af5ab53"},
     {file = "whylogs_sketching-3.4.1.dev3-cp311-cp311-win_amd64.whl", hash = "sha256:303d55c37565340c2d21c268c64a712fad612504cc4b98b1d1df848cac6d934f"},
+    {file = "whylogs_sketching-3.4.1.dev3-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4b636cebf5f4d7724437616368199c8e7b153f89dfd396f9e8279a95bf55d817"},
+    {file = "whylogs_sketching-3.4.1.dev3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ba4519780defebb35c4718ecc13d1b8c38894be722147a047e67b953cd2430ab"},
+    {file = "whylogs_sketching-3.4.1.dev3-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:b4606e5360ce922e6ad770e845c75038d873300fd8a54ea856e99003b3254fc9"},
     {file = "whylogs_sketching-3.4.1.dev3-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:9d65fcf8dade1affe50181582b8894929993e37d7daa922d973a811790cd0208"},
     {file = "whylogs_sketching-3.4.1.dev3-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c4845e77c208ae64ada9170e1b92ed0abe28fe311c0fc35f9d8efa6926211ca2"},
     {file = "whylogs_sketching-3.4.1.dev3-cp36-cp36m-musllinux_1_1_x86_64.whl", hash = "sha256:02cac1c87ac42d7fc7e6597862ac50bc035825988d21e8a2d763b416e83e845f"},
@@ -4825,4 +4828,4 @@ viz = ["Pillow", "Pillow", "ipython", "numpy", "numpy", "pybars3", "scipy", "sci
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.1, <4"
-content-hash = "9e2ecd0f225c7e843c021525c5269f8230ee356787fc82ff5345f99c8431e6a4"
+content-hash = "e9690e80e79e6b51ad34660bf5bf5d2c24d8dc261d9fa304f7f5bdb9ed07e769"
