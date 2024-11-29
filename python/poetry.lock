@@ -4709,13 +4709,13 @@ watchdog = ["watchdog"]
 
 [[package]]
 name = "whylabs-client"
-version = "0.6.5"
+version = "0.6.15"
 description = "WhyLabs API client"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "whylabs-client-0.6.5.tar.gz", hash = "sha256:6a1a32847844cd45768c58441944592eb6d3ed69578dcc84cda9d7d6caea6cab"},
-    {file = "whylabs_client-0.6.5-py3-none-any.whl", hash = "sha256:6c686f6d5b7a1ae2c487a83c450c9ece46fe176784d5c5261ee840a0de9e45a5"},
+    {file = "whylabs-client-0.6.15.tar.gz", hash = "sha256:fab30b93a117ea3b2a1d84e1ed4ed4374c530a82fee791c5c7e427c76e8f0415"},
+    {file = "whylabs_client-0.6.15-py3-none-any.whl", hash = "sha256:c663cd4dcad94640c8fe96693a3c34dc30e2d9c123ff8f1c47b52c7f297190d3"},
 ]
 
 [package.dependencies]

@@ -999,7 +999,7 @@ class WhyLabsClient:
             jitter=backoff.full_jitter,
         )
         def do_request():
-            return log_api.log_async(org_id=self._org_id, dataset_id=self._dataset_id, log_async_request=request)
+            return log_api.log_profile(x_whylabs_resource=self._dataset_id, log_async_request=request)
 
         try:
             result = do_request()

@@ -220,6 +220,7 @@ class WhyLabsWriter(WhyLabsWriterBase):
             None,  # self._whylabs_client._api_client,  # TODO: handle custom client
             self._whylabs_client._ssl_ca_cert,  # type: ignore
             self._whylabs_client._timeout_seconds,  # type: ignore
+            self._whylabs_client,  # type: ignore
         )
 
     @deprecated_alias(profile="file")
