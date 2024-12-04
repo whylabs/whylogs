@@ -722,7 +722,7 @@ div.rendered_html tbody tr:hover {
 <h2>Installing the extra dependency<a class="headerlink" href="#Installing-the-extra-dependency" title="Permalink to this headline">#</a></h2>
 <p>As we want to enable users to have exactly what they need to use from whylogs, the <code class="docutils literal notranslate"><span class="pre">pyspark</span></code> integration comes as an extra dependency. In order to have it available, simply uncomment and run the following cell:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: you may need to restart the kernel to use updated packages.</span>
@@ -738,7 +738,7 @@ div.rendered_html tbody tr:hover {
 <div><p><strong>IMPORTANT</strong>: Make sure you have Spark 3.0+ available in your environment, as our implementation relies on it for a smoother integration</p>
 </div></blockquote>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
@@ -746,7 +746,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s1">&#39;whylogs-testing&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
@@ -760,7 +760,7 @@ div.rendered_html tbody tr:hover {
 <h2>Reading the data<a class="headerlink" href="#Reading-the-data" title="Permalink to this headline">#</a></h2>
 <p>For the sake of simplicity (and computational efforts, so you can run this notebook from your local machine), we will read the Wine Quality dataset, available in this URL: “<a class="reference external" href="http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv">http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv</a>”.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkFiles</span>
@@ -770,24 +770,16 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark_dataframe</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;delimiter&quot;</span><span class="p">,</span> <span class="s2">&quot;;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;inferSchema&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">SparkFiles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;winequality-red.csv&quot;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark_dataframe</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">vertical</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -817,7 +809,7 @@ only showing top 1 row
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark_dataframe</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
@@ -849,8 +841,8 @@ root
 <section id="Profiling-the-data-with-whylogs">
 <h2>Profiling the data with whylogs<a class="headerlink" href="#Profiling-the-data-with-whylogs" title="Permalink to this headline">#</a></h2>
 <p>Now that we have a Spark DataFrame in place, let’s see how easy it is to profile our data with whylogs.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.pyspark.experimental</span> <span class="kn">import</span> <span class="n">collect_column_profile_views</span>
@@ -859,18 +851,10 @@ root
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
 <p>Yeap. It’s done. It is <strong>that</strong> easy.</p>
 <p>But what do we get with a <code class="docutils literal notranslate"><span class="pre">column_views_dict</span></code>?</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">column_views_dict</span><span class="p">)</span>
@@ -882,12 +866,12 @@ root
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{&#39;alcohol&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d240e20&gt;, &#39;chlorides&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d29ec70&gt;, &#39;citric acid&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2a2d00&gt;, &#39;density&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2a6d90&gt;, &#39;fixed acidity&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2a3e20&gt;, &#39;free sulfur dioxide&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2aaeb0&gt;, &#39;pH&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2adf40&gt;, &#39;quality&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2b7100&gt;, &#39;residual sugar&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2b7d60&gt;, &#39;sulphates&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2bddf0&gt;, &#39;total sulfur dioxide&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2c0d90&gt;, &#39;volatile acidity&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2c4e20&gt;}
+{&#39;alcohol&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x7a9dc4128910&gt;, &#39;chlorides&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x7a9dc40644f0&gt;, &#39;citric acid&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x7a9dc423ab90&gt;, &#39;density&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x7a9dc41c64d0&gt;, &#39;fixed acidity&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x7a9dc41c5030&gt;, &#39;free sulfur dioxide&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x7a9dc419b370&gt;, &#39;pH&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x7a9dc5370550&gt;, &#39;quality&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x7a9dc53719f0&gt;, &#39;residual sugar&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x7a9dc53eb4c0&gt;, &#39;sulphates&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x7a9dc53e9f00&gt;, &#39;total sulfur dioxide&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x7a9dc5414100&gt;, &#39;volatile acidity&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x7a9dc5417010&gt;}
 </pre></div></div>
 </div>
 <p>It is a dictionary with one <code class="docutils literal notranslate"><span class="pre">ColumnProfileView</span></code> object per column in your dataset. And we can inspect some of the metrics on each one of them, such as the counts for a given column</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">column_views_dict</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="s2">&quot;counts&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">spark_dataframe</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
@@ -895,7 +879,7 @@ root
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -905,7 +889,7 @@ root
 </div>
 <p>Or their <code class="docutils literal notranslate"><span class="pre">mean</span></code> value:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">column_views_dict</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="s2">&quot;distribution&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">value</span>
@@ -913,7 +897,7 @@ root
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -923,7 +907,7 @@ root
 </div>
 <p>And now let’s check how accurate whylogs did store that <code class="docutils literal notranslate"><span class="pre">mean</span></code> calculation.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">mean</span>
@@ -951,7 +935,7 @@ root
 </div></blockquote>
 <p>Well, you’ve come to the right place, because we will inspect the next method that does just that!</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.pyspark.experimental</span> <span class="kn">import</span> <span class="n">collect_dataset_profile_view</span>
@@ -962,7 +946,7 @@ root
 </div>
 <p>Yes, that easy. You now have a <code class="docutils literal notranslate"><span class="pre">DatasetProfileView</span></code>. As you might have seen from other example notebooks in our repo, you can turn this <em>lightweight</em> object into a pandas DataFrame, and visualize all the important metrics that we’ve profiled, like this:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -972,11 +956,12 @@ root
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div>
+  <div id="df-cd1f2ac0-5bd4-48a5-8851-2a4341a14198" class="colab-df-container">
+    <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -994,27 +979,27 @@ root
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>counts/n</th>
-      <th>counts/null</th>
-      <th>types/integral</th>
-      <th>types/fractional</th>
-      <th>types/boolean</th>
-      <th>types/string</th>
-      <th>types/object</th>
       <th>cardinality/est</th>
-      <th>cardinality/upper_1</th>
       <th>cardinality/lower_1</th>
+      <th>cardinality/upper_1</th>
+      <th>counts/inf</th>
+      <th>counts/n</th>
+      <th>counts/nan</th>
+      <th>counts/null</th>
+      <th>counts/true</th>
+      <th>distribution/max</th>
+      <th>distribution/mean</th>
       <th>...</th>
-      <th>distribution/min</th>
-      <th>distribution/q_10</th>
-      <th>distribution/q_25</th>
-      <th>distribution/median</th>
-      <th>distribution/q_75</th>
-      <th>distribution/q_90</th>
       <th>type</th>
+      <th>types/boolean</th>
+      <th>types/fractional</th>
+      <th>types/integral</th>
+      <th>types/object</th>
+      <th>types/string</th>
+      <th>types/tensor</th>
+      <th>frequent_items/frequent_strings</th>
       <th>ints/max</th>
       <th>ints/min</th>
-      <th>frequent_items/frequent_strings</th>
     </tr>
     <tr>
       <th>column</th>
@@ -1044,135 +1029,344 @@ root
   <tbody>
     <tr>
       <th>alcohol</th>
-      <td>1599</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1599</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
       <td>65.000010</td>
-      <td>65.003256</td>
       <td>65.000000</td>
+      <td>65.003256</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>14.90000</td>
+      <td>10.422983</td>
       <td>...</td>
-      <td>8.40000</td>
-      <td>9.30000</td>
-      <td>9.5000</td>
-      <td>10.20000</td>
-      <td>11.10000</td>
-      <td>12.00000</td>
       <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>chlorides</th>
-      <td>1599</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1599</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
       <td>153.000058</td>
-      <td>153.007697</td>
       <td>153.000000</td>
+      <td>153.007697</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.61100</td>
+      <td>0.087467</td>
       <td>...</td>
-      <td>0.01200</td>
-      <td>0.06000</td>
-      <td>0.0700</td>
-      <td>0.07900</td>
-      <td>0.09100</td>
-      <td>0.10900</td>
       <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>citric acid</th>
-      <td>1599</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1599</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
       <td>80.000016</td>
-      <td>80.004010</td>
       <td>80.000000</td>
+      <td>80.004010</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.00000</td>
+      <td>0.270976</td>
       <td>...</td>
-      <td>0.00000</td>
-      <td>0.01000</td>
-      <td>0.0900</td>
-      <td>0.26000</td>
-      <td>0.43000</td>
-      <td>0.53000</td>
       <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>density</th>
-      <td>1599</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1599</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
       <td>439.557368</td>
-      <td>445.310933</td>
       <td>433.943761</td>
+      <td>445.310933</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.00369</td>
+      <td>0.996747</td>
       <td>...</td>
-      <td>0.99007</td>
-      <td>0.99451</td>
-      <td>0.9956</td>
-      <td>0.99675</td>
-      <td>0.99786</td>
-      <td>0.99914</td>
       <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>fixed acidity</th>
-      <td>1599</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1599</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
       <td>96.000023</td>
-      <td>96.004816</td>
       <td>96.000000</td>
+      <td>96.004816</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>15.90000</td>
+      <td>8.319637</td>
       <td>...</td>
-      <td>4.60000</td>
-      <td>6.60000</td>
-      <td>7.1000</td>
-      <td>7.90000</td>
-      <td>9.20000</td>
-      <td>10.70000</td>
       <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
   </tbody>
 </table>
-<p>5 rows × 24 columns</p>
-</div></div>
+<p>5 rows × 32 columns</p>
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-cd1f2ac0-5bd4-48a5-8851-2a4341a14198')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-cd1f2ac0-5bd4-48a5-8851-2a4341a14198 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-cd1f2ac0-5bd4-48a5-8851-2a4341a14198');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-1389eab0-5c0a-4a7d-8beb-1263feefa95b">
+  <button class="colab-df-quickchart" onclick="quickchart('df-1389eab0-5c0a-4a7d-8beb-1263feefa95b')"
+            title="Suggest charts"
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const quickchartButtonEl =
+        document.querySelector('#' + key + ' button');
+      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+      quickchartButtonEl.classList.add('colab-df-spinner');
+      try {
+        const charts = await google.colab.kernel.invokeFunction(
+            'suggestCharts', [key], {});
+      } catch (error) {
+        console.error('Error during call to suggestCharts:', error);
+      }
+      quickchartButtonEl.classList.remove('colab-df-spinner');
+      quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-1389eab0-5c0a-4a7d-8beb-1263feefa95b button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
+
+    </div>
+  </div></div>
 </div>
 </section>
 <section id="Persisting-as-a-file">
 <h2>Persisting as a file<a class="headerlink" href="#Persisting-as-a-file" title="Permalink to this headline">#</a></h2>
 <p>After collecting profiles, it is a good practice to store them as a file. This will allow you to later on read them back, merge with future profiles and track how is your data behaving along the way.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_profile_view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;my_super_awesome_profile.bin&quot;</span><span class="p">)</span>
@@ -1181,6 +1375,130 @@ root
 </div>
 <p>And that’s it, you have just written a profile generated with spark to your local environment! If you wish to upload to different locations, such as s3, whylabs or others, please make sure to check out our <a class="reference external" href="https://github.com/whylabs/whylogs/tree/mainline/python/examples">other examples</a> page.</p>
 <p>Hopefully this tutorial will help you get started to profile and observe your data behaviour in your Spark jobs with almost no friction :)</p>
+</section>
+<section id="Periods-in-column-names">
+<h2>Periods in column names<a class="headerlink" href="#Periods-in-column-names" title="Permalink to this headline">#</a></h2>
+<p>Spark interprets periods in column names as structured fields. This can cause problems when using Spark to profile dataframes created outside of Spark that have periods in their column names. For example:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pandas_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;col1.mass&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.3</span><span class="p">,</span> <span class="mf">4.1</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">],</span> <span class="s2">&quot;col1.volume&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">10.3</span><span class="p">,</span> <span class="mf">8.7</span><span class="p">,</span> <span class="mf">6.3</span><span class="p">]})</span>
+<span class="n">spark_df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">pandas_df</span><span class="p">)</span>
+<span class="n">spark_df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">collect_column_profile_views</span><span class="p">(</span><span class="n">spark_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++---------+-----------+
+|col1.mass|col1.volume|
++---------+-----------+
+|      2.3|       10.3|
+|      4.1|        8.7|
+|      1.8|        6.3|
++---------+-----------+
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">AnalysisException</span>                         Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-21-811c9e827257&gt;</span> in <span class="ansi-cyan-fg">&lt;cell line: 4&gt;</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">      2</span> spark_df <span class="ansi-blue-fg">=</span> spark<span class="ansi-blue-fg">.</span>createDataFrame<span class="ansi-blue-fg">(</span>pandas_df<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">      3</span> spark_df<span class="ansi-blue-fg">.</span>show<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-fg">----&gt; 4</span><span class="ansi-red-fg"> </span>collect_column_profile_views<span class="ansi-blue-fg">(</span>spark_df<span class="ansi-blue-fg">)</span>
+
+<span class="ansi-green-fg">/usr/local/lib/python3.10/dist-packages/whylogs/api/pyspark/experimental/profiler.py</span> in <span class="ansi-cyan-fg">collect_column_profile_views</span><span class="ansi-blue-fg">(input_df, schema)</span>
+<span class="ansi-green-intense-fg ansi-bold">     68</span>     whylogs_pandas_map_profiler_with_schema <span class="ansi-blue-fg">=</span> partial<span class="ansi-blue-fg">(</span>whylogs_pandas_map_profiler<span class="ansi-blue-fg">,</span> schema<span class="ansi-blue-fg">=</span>schema<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     69</span>
+<span class="ansi-green-fg">---&gt; 70</span><span class="ansi-red-fg">     </span>profile_bytes_df <span class="ansi-blue-fg">=</span> input_df_arrays<span class="ansi-blue-fg">.</span>mapInPandas<span class="ansi-blue-fg">(</span>whylogs_pandas_map_profiler_with_schema<span class="ansi-blue-fg">,</span> schema<span class="ansi-blue-fg">=</span>cp<span class="ansi-blue-fg">)</span>  <span class="ansi-red-fg"># type: ignore</span>
+<span class="ansi-green-intense-fg ansi-bold">     71</span>     column_profiles = profile_bytes_df.groupby(COL_NAME_FIELD).applyInPandas(  # linebreak
+<span class="ansi-green-intense-fg ansi-bold">     72</span>         column_profile_bytes_aggregator<span class="ansi-blue-fg">,</span> schema<span class="ansi-blue-fg">=</span>cp
+
+<span class="ansi-green-fg">/usr/local/lib/python3.10/dist-packages/pyspark/sql/pandas/map_ops.py</span> in <span class="ansi-cyan-fg">mapInPandas</span><span class="ansi-blue-fg">(self, func, schema, barrier)</span>
+<span class="ansi-green-intense-fg ansi-bold">    109</span>             func<span class="ansi-blue-fg">,</span> returnType<span class="ansi-blue-fg">=</span>schema<span class="ansi-blue-fg">,</span> functionType<span class="ansi-blue-fg">=</span>PythonEvalType<span class="ansi-blue-fg">.</span>SQL_MAP_PANDAS_ITER_UDF
+<span class="ansi-green-intense-fg ansi-bold">    110</span>         )  # type: ignore[call-overload]
+<span class="ansi-green-fg">--&gt; 111</span><span class="ansi-red-fg">         </span>udf_column <span class="ansi-blue-fg">=</span> udf<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">*</span><span class="ansi-blue-fg">[</span>self<span class="ansi-blue-fg">[</span>col<span class="ansi-blue-fg">]</span> <span class="ansi-green-fg">for</span> col <span class="ansi-green-fg">in</span> self<span class="ansi-blue-fg">.</span>columns<span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    112</span>         jdf <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>_jdf<span class="ansi-blue-fg">.</span>mapInPandas<span class="ansi-blue-fg">(</span>udf_column<span class="ansi-blue-fg">.</span>_jc<span class="ansi-blue-fg">.</span>expr<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span> barrier<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    113</span>         <span class="ansi-green-fg">return</span> DataFrame<span class="ansi-blue-fg">(</span>jdf<span class="ansi-blue-fg">,</span> self<span class="ansi-blue-fg">.</span>sparkSession<span class="ansi-blue-fg">)</span>
+
+<span class="ansi-green-fg">/usr/local/lib/python3.10/dist-packages/pyspark/sql/pandas/map_ops.py</span> in <span class="ansi-cyan-fg">&lt;listcomp&gt;</span><span class="ansi-blue-fg">(.0)</span>
+<span class="ansi-green-intense-fg ansi-bold">    109</span>             func<span class="ansi-blue-fg">,</span> returnType<span class="ansi-blue-fg">=</span>schema<span class="ansi-blue-fg">,</span> functionType<span class="ansi-blue-fg">=</span>PythonEvalType<span class="ansi-blue-fg">.</span>SQL_MAP_PANDAS_ITER_UDF
+<span class="ansi-green-intense-fg ansi-bold">    110</span>         )  # type: ignore[call-overload]
+<span class="ansi-green-fg">--&gt; 111</span><span class="ansi-red-fg">         </span>udf_column <span class="ansi-blue-fg">=</span> udf<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">*</span><span class="ansi-blue-fg">[</span>self<span class="ansi-blue-fg">[</span>col<span class="ansi-blue-fg">]</span> <span class="ansi-green-fg">for</span> col <span class="ansi-green-fg">in</span> self<span class="ansi-blue-fg">.</span>columns<span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    112</span>         jdf <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>_jdf<span class="ansi-blue-fg">.</span>mapInPandas<span class="ansi-blue-fg">(</span>udf_column<span class="ansi-blue-fg">.</span>_jc<span class="ansi-blue-fg">.</span>expr<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span> barrier<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    113</span>         <span class="ansi-green-fg">return</span> DataFrame<span class="ansi-blue-fg">(</span>jdf<span class="ansi-blue-fg">,</span> self<span class="ansi-blue-fg">.</span>sparkSession<span class="ansi-blue-fg">)</span>
+
+<span class="ansi-green-fg">/usr/local/lib/python3.10/dist-packages/pyspark/sql/dataframe.py</span> in <span class="ansi-cyan-fg">__getitem__</span><span class="ansi-blue-fg">(self, item)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3078</span>         &#34;&#34;&#34;
+<span class="ansi-green-intense-fg ansi-bold">   3079</span>         <span class="ansi-green-fg">if</span> isinstance<span class="ansi-blue-fg">(</span>item<span class="ansi-blue-fg">,</span> str<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">-&gt; 3080</span><span class="ansi-red-fg">             </span>jc <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>_jdf<span class="ansi-blue-fg">.</span>apply<span class="ansi-blue-fg">(</span>item<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3081</span>             <span class="ansi-green-fg">return</span> Column<span class="ansi-blue-fg">(</span>jc<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3082</span>         <span class="ansi-green-fg">elif</span> isinstance<span class="ansi-blue-fg">(</span>item<span class="ansi-blue-fg">,</span> Column<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+
+<span class="ansi-green-fg">/usr/local/lib/python3.10/dist-packages/py4j/java_gateway.py</span> in <span class="ansi-cyan-fg">__call__</span><span class="ansi-blue-fg">(self, *args)</span>
+<span class="ansi-green-intense-fg ansi-bold">   1320</span>
+<span class="ansi-green-intense-fg ansi-bold">   1321</span>         answer <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>gateway_client<span class="ansi-blue-fg">.</span>send_command<span class="ansi-blue-fg">(</span>command<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-fg">-&gt; 1322</span><span class="ansi-red-fg">         return_value = get_return_value(
+</span><span class="ansi-green-intense-fg ansi-bold">   1323</span>             answer, self.gateway_client, self.target_id, self.name)
+<span class="ansi-green-intense-fg ansi-bold">   1324</span>
+
+<span class="ansi-green-fg">/usr/local/lib/python3.10/dist-packages/pyspark/errors/exceptions/captured.py</span> in <span class="ansi-cyan-fg">deco</span><span class="ansi-blue-fg">(*a, **kw)</span>
+<span class="ansi-green-intense-fg ansi-bold">    183</span>                 <span class="ansi-red-fg"># Hide where the exception came from that shows a non-Pythonic</span>
+<span class="ansi-green-intense-fg ansi-bold">    184</span>                 <span class="ansi-red-fg"># JVM exception message.</span>
+<span class="ansi-green-fg">--&gt; 185</span><span class="ansi-red-fg">                 </span><span class="ansi-green-fg">raise</span> converted <span class="ansi-green-fg">from</span> <span class="ansi-green-fg">None</span>
+<span class="ansi-green-intense-fg ansi-bold">    186</span>             <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    187</span>                 <span class="ansi-green-fg">raise</span>
+
+<span class="ansi-red-fg">AnalysisException</span>: [UNRESOLVED_COLUMN.WITH_SUGGESTION] A column or function parameter with name `col1`.`mass` cannot be resolved. Did you mean one of the following? [`col1`.`mass`, `col1`.`volume`].
+</pre></div></div>
+</div>
+<p>The error above is caused by Spark misinterpreting the periods in the column names. We can work around this limitation by replacing any periods in the column names:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">renamed_df</span> <span class="o">=</span> <span class="n">spark_df</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">spark_df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+<span class="n">renamed_df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">collect_column_profile_views</span><span class="p">(</span><span class="n">renamed_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++---------+-----------+
+|col1_mass|col1_volume|
++---------+-----------+
+|      2.3|       10.3|
+|      4.1|        8.7|
+|      1.8|        6.3|
++---------+-----------+
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;col1_mass&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView at 0x7a9dc6e7c520&gt;,
+ &#39;col1_volume&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView at 0x7a9dbfdae950&gt;}
+</pre></div></div>
+</div>
+<p>⚠ Be sure that any column names specified in whylogs schemas or UDFs match the renamed columns if you use this approach.</p>
 </section>
 <section id="Important-note">
 <h2>Important note<a class="headerlink" href="#Important-note" title="Permalink to this headline">#</a></h2>
@@ -1259,6 +1577,7 @@ Slack</a> and interact with us there. We will love to hear from you :)</p>
 <li><a class="reference internal" href="#Reading-the-data">Reading the data</a></li>
 <li><a class="reference internal" href="#Profiling-the-data-with-whylogs">Profiling the data with whylogs</a></li>
 <li><a class="reference internal" href="#Persisting-as-a-file">Persisting as a file</a></li>
+<li><a class="reference internal" href="#Periods-in-column-names">Periods in column names</a></li>
 <li><a class="reference internal" href="#Important-note">Important note</a></li>
 </ul>
 </li>
