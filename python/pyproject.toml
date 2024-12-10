@@ -20,10 +20,6 @@ whylabs-client = "^0.6.15"
 requests = "^2.27"
 backoff = "^2.2.1"
 platformdirs = "^3.5.0"
-setuptools = [
-  { version = "<58", python = "<3.8", optional = false },
-  { version = ">=75", python = ">=3.8", optional = false }
-]
 
 # viz module. Everything after this should be optional
 pybars3 = { version = "^0.9", optional = true }
@@ -201,6 +197,10 @@ pyright = "^1.1.383"
 httpretty = { version = "^1.1.4", python = ">=3.6,<3.10"}
 ruff = "^0.4.4"
 pytest-xdist = {version = "^3.6.1", python = ">=3.8,<4"}
+setuptools = [
+  { version = "<58", python = "<3.8", optional = false },
+  { version = ">=75", python = ">=3.8", optional = false }
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
