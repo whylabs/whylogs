@@ -71,9 +71,8 @@ def _get_org() -> str:
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_whylabs_writer_throttle_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
-    ORG_ID = _get_org()
     MODEL_ID = "XXX"
-    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/log/async/{MODEL_ID}"
+    uri = f"{ENDPOINT}/v1/log/async"
     httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
     why.init(reinit=True, force_local=True)
     data = {"col1": 1, "col2": "foo"}
@@ -271,9 +270,8 @@ def test_put_column_schema_retry():
 @httpretty.activate(allow_net_connect=False, verbose=True)
 def test_log_async_retry():
     ENDPOINT = os.environ["WHYLABS_API_ENDPOINT"]
-    ORG_ID = _get_org()
     MODEL_ID = "xxx"
-    uri = f"{ENDPOINT}/v0/organizations/{ORG_ID}/log/async/{MODEL_ID}"
+    uri = f"{ENDPOINT}/v1/log/async"
     httpretty.register_uri(httpretty.POST, uri, status=429)  # Fake WhyLabs that throttles
 
     writer = WhyLabsWriter(dataset_id=MODEL_ID)
@@ -651,8 +649,9 @@ def test_transaction_aborted():
     transaction_id = writer.start_transaction()
     status, id = writer.write(result)
     assert status
-    writer._whylabs_client.abort_transaction(transaction_id)
+    writer.abort_transaction()
     status, id = writer.write(result)
+    assert transaction_id == writer._whylabs_client._transaction_id
     with pytest.raises(TransactionAbortedException) as e:
         writer.commit_transaction()
         assert str(e) == "Transaction has been aborted"
