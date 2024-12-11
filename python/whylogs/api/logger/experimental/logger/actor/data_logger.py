@@ -1,11 +1,7 @@
 from abc import abstractmethod
 from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
-# TODO: stubs?
-try:
-    import pandas as pd  # type: ignore
-except ImportError:
-    pd: Any = None  # type: ignore
+from whylogs.core.stubs import pd
 
 
 # TODO add strong typing here. whylogs takes pretty much anything in log() so we don't actually
