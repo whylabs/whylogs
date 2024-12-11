@@ -57,7 +57,7 @@ class Integral(DataType[int]):
         if not isinstance(dtype_or_type, type):
             return False
 
-        if issubclass(dtype_or_type, (bool, int, np.number, np.bool_, pl.datatypes.IntegerType)):
+        if issubclass(dtype_or_type, (bool, int, np.number, np.bool_)):
             if is_not_stub(np.issubdtype) and np.issubdtype(dtype_or_type, np.floating):
                 return False
             if issubclass(dtype_or_type, (np.datetime64, np.timedelta64)):
