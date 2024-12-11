@@ -67,8 +67,6 @@ class DataFrameWrapper:
         if self.pd_df is not None:
             grouped = self.pd_df.groupby(columns)
             return grouped
-            d = {g: grouped.get_group(g) for g in grouped.groups.keys()}
-            return d
         elif self.pl_df is not None:
             return self.pl_df.group_by(columns)
 
