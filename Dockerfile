@@ -31,8 +31,6 @@ RUN apt-get update && \
 RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get update && apt-get install nodejs npm -y
 RUN npm install --global yarn
-RUN curl -sLJO "https://gitlab-runner-downloads.s3.amazonaws.com/latest/deb/gitlab-runner_amd64.deb" && \
-    dpkg -i gitlab-runner_amd64.deb
 
 RUN apt-get update && apt-get install -y less emacs vim
 
