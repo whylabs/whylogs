@@ -1,5 +1,3 @@
-from whylogs.api.usage_stats import emit_usage
-
 from .metric_constraints import (
     Constraints,
     ConstraintsBuilder,
@@ -19,5 +17,3 @@ __ALL__ = [
     MetricsSelector,
     PrefixCondition,
 ]
-
-emit_usage("metric_constraints")

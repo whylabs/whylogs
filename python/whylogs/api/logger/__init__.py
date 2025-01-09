@@ -20,7 +20,6 @@ from whylogs.api.logger.segment_processing import (
     _log_segment,
 )
 from whylogs.api.logger.transient import TransientLogger
-from whylogs.api.usage_stats import emit_usage
 from whylogs.api.whylabs.session.notebook_logger import (
     notebook_session_log,
     notebook_session_log_comparison,
@@ -55,7 +54,6 @@ def log(
 ) -> ResultSet:
     if multiple is not None:
         result_sets: Dict[str, ResultSet] = {}
-        emit_usage("multiple")
         for alias, data in multiple.items():
             result_set = TransientLogger(schema=schema).log(data, trace_id=trace_id)
             if dataset_timestamp is not None:

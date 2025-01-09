@@ -1,5 +1,3 @@
-from whylogs.api.usage_stats import emit_usage
-
 from .cardinality_metrics import distinct_number_in_range
 from .condition_counts import (
     condition_count_below,
@@ -65,5 +63,3 @@ ALL = [
     condition_count_below,
     column_is_probably_unique,
 ]
-
-emit_usage("constraints_factories")

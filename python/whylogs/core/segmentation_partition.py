@@ -4,7 +4,6 @@ import logging
 from dataclasses import dataclass, field
 from typing import Callable, List, Mapping, Optional
 
-from whylogs.api.usage_stats import emit_usage
 from whylogs.core.projectors import FieldProjector
 
 logger = logging.getLogger(__name__)
@@ -81,6 +80,4 @@ class SegmentationPartition:
 
 
 def segment_on_column(column_name: str) -> Mapping[str, SegmentationPartition]:
-    emit_usage("segment_on_column")
-
     return {column_name: SegmentationPartition(name=column_name, mapper=ColumnMapperFunction(col_names=[column_name]))}
