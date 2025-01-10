@@ -100,7 +100,9 @@ _RETRY_CODES = {408, 429, 502, 503, 504}
 
 
 def _giveup(e) -> bool:
-    return (e.status not in _RETRY_CODES,)  # type: ignore
+    result = e.status not in _RETRY_CODES
+    logger.warning(f"whylabs client communication error: {e}, retryable: {result}")
+    return result
 
 
 def _get_column_names(x: Union[DatasetProfile, DatasetProfileView, SegmentedDatasetProfileView, ResultSet]) -> Set[str]:

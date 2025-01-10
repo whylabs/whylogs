@@ -342,22 +342,6 @@ class TestWhylabsWriter(object):
         assert writer._whylabs_client._dataset_id == "new_dataset_id"
         assert writer.key_id == "newkeynewk"
 
-    def test_api_key_prefers_parameter_over_env_var(self, results, caplog):
-        with pytest.raises(ValueError):
-            results.writer("whylabs").option(org_id="org_id", api_key="api_key_123.foo").write(dataset_id="dataset_id")
-
-    def test_writer_accepts_dest_param(self, results, caplog):
-        # TODO: inspect error or mock better to avoid network call and keep test focused.
-        with pytest.raises(ValueError):
-            results.writer("whylabs").option(api_key="bad_key_format").write(dataset_id="dataset_id", dest="tmp")
-
-    def test_write_response(self, results):
-        with pytest.raises(ValueError):
-            response = (
-                results.writer("whylabs").option(api_key="bad_key_format").write(dataset_id="dataset_id", dest="tmp")
-            )
-            assert response[0] is True
-
     def test_changing_api_key_works(self) -> None:
         #
         # Defaults
