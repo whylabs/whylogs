@@ -252,7 +252,6 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/store/sqlite_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.sqlite_store</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/whylogs/api/whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.whylabs</span></code></a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../../../api/whylogs/api/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/api/writer/gcs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.gcs</span></code></a></li>
@@ -545,7 +544,9 @@
 
 
 <span class="k">def</span> <span class="nf">_giveup</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_RETRY_CODES</span><span class="p">,)</span>  <span class="c1"># type: ignore</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">status</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_RETRY_CODES</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;whylabs client communication error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">, giveup: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
 
 
 <span class="k">def</span> <span class="nf">_get_column_names</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetProfileView</span><span class="p">,</span> <span class="n">SegmentedDatasetProfileView</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>

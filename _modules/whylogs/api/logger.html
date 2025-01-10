@@ -252,7 +252,6 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/api/store/sqlite_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.sqlite_store</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/api/whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.whylabs</span></code></a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../../api/whylogs/api/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/api/writer/gcs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.gcs</span></code></a></li>
@@ -465,7 +464,6 @@
     <span class="n">_log_segment</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.logger.transient</span> <span class="kn">import</span> <span class="n">TransientLogger</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.usage_stats</span> <span class="kn">import</span> <span class="n">emit_usage</span>
 <span class="kn">from</span> <span class="nn">whylogs.api.whylabs.session.notebook_logger</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">notebook_session_log</span><span class="p">,</span>
     <span class="n">notebook_session_log_comparison</span><span class="p">,</span>
@@ -500,7 +498,6 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultSet</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">multiple</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">result_sets</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">emit_usage</span><span class="p">(</span><span class="s2">&quot;multiple&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">alias</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">multiple</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">result_set</span> <span class="o">=</span> <span class="n">TransientLogger</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">trace_id</span><span class="o">=</span><span class="n">trace_id</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">dataset_timestamp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

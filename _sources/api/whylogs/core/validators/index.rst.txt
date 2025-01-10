@@ -27,17 +27,6 @@ Classes
 
 
 
-Functions
-~~~~~~~~~
-
-.. autoapisummary::
-
-   whylogs.core.validators.emit_usage
-
-
-
-.. py:function:: emit_usage(event: str) -> None
-
 
 .. py:class:: ConditionValidator
 

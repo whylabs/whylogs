@@ -54,7 +54,6 @@ Functions
 .. autoapisummary::
 
    whylogs.api.logger.log_debug_event
-   whylogs.api.logger.emit_usage
    whylogs.api.logger.notebook_session_log
    whylogs.api.logger.notebook_session_log_comparison
    whylogs.api.logger.log
@@ -413,9 +412,6 @@ Attributes
 
    .. py:method:: close() -> None
 
-
-
-.. py:function:: emit_usage(event: str) -> None
 
 
 .. py:function:: notebook_session_log(result_set: whylogs.api.logger.result_set.ResultSet, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, name: Optional[str] = None) -> None

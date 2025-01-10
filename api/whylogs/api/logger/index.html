@@ -261,7 +261,6 @@
 <li class="toctree-l5"><a class="reference internal" href="../store/sqlite_store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.store.sqlite_store</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="../usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.whylabs</span></code></a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../writer/gcs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.gcs</span></code></a></li>
@@ -536,34 +535,31 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.log_debug_event" title="whylogs.api.logger.log_debug_event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_debug_event</span></code></a>([debug_event, name, tags, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.emit_usage" title="whylogs.api.logger.emit_usage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">emit_usage</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.notebook_session_log" title="whylogs.api.logger.notebook_session_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notebook_session_log</span></code></a>(→ None)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.notebook_session_log" title="whylogs.api.logger.notebook_session_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notebook_session_log</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.notebook_session_log_comparison" title="whylogs.api.logger.notebook_session_log_comparison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notebook_session_log_comparison</span></code></a>(→ None)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.notebook_session_log_comparison" title="whylogs.api.logger.notebook_session_log_comparison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notebook_session_log_comparison</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.log" title="whylogs.api.logger.log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log</span></code></a>(→ result_set.ResultSet)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.log" title="whylogs.api.logger.log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log</span></code></a>(→ result_set.ResultSet)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.log_classification_metrics" title="whylogs.api.logger.log_classification_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_classification_metrics</span></code></a>(→ result_set.ResultSet)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.log_classification_metrics" title="whylogs.api.logger.log_classification_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_classification_metrics</span></code></a>(→ result_set.ResultSet)</p></td>
 <td><p>Function to track metrics based on validation data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.log_regression_metrics" title="whylogs.api.logger.log_regression_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_regression_metrics</span></code></a>(→ result_set.ResultSet)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.log_regression_metrics" title="whylogs.api.logger.log_regression_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_regression_metrics</span></code></a>(→ result_set.ResultSet)</p></td>
 <td><p>Function to track regression metrics based on validation data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.read" title="whylogs.api.logger.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read</span></code></a>(→ result_set.ResultSet)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.read" title="whylogs.api.logger.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read</span></code></a>(→ result_set.ResultSet)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.reader" title="whylogs.api.logger.reader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reader</span></code></a>(→ result_set.ResultSetReader)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.reader" title="whylogs.api.logger.reader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reader</span></code></a>(→ result_set.ResultSetReader)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.logger.write" title="whylogs.api.logger.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.logger.write" title="whylogs.api.logger.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(→ None)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="logger/index.html#module-whylogs.api.logger.logger" title="whylogs.api.logger.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="logger/index.html#module-whylogs.api.logger.logger" title="whylogs.api.logger.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -1674,19 +1670,6 @@ timestamp will end up being the start of the hour of the provided timestamp_ms, 
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="whylogs.api.logger.emit_usage">
-<span class="sig-prename descclassname"><span class="pre">whylogs.api.logger.</span></span><span class="sig-name descname"><span class="pre">emit_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/api/usage_stats.html#emit_usage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.logger.emit_usage" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>event</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="whylogs.api.logger.notebook_session_log">
 <span class="sig-prename descclassname"><span class="pre">whylogs.api.logger.</span></span><span class="sig-name descname"><span class="pre">notebook_session_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="result_set/index.html#whylogs.api.logger.result_set.ResultSet" title="whylogs.api.logger.result_set.ResultSet"><span class="pre">whylogs.api.logger.result_set.ResultSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pandas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">whylogs.core.stubs.pd.DataFrame</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/api/whylabs/session/notebook_logger.html#notebook_session_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.logger.notebook_session_log" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
@@ -2584,7 +2567,6 @@ input features, consider leaving this as False. by default False.</p></li>
 <li><a class="reference internal" href="#whylogs.api.logger.TransientLogger.close">close</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#whylogs.api.logger.emit_usage">emit_usage</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.notebook_session_log">notebook_session_log</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.notebook_session_log_comparison">notebook_session_log_comparison</a></li>
 <li><a class="reference internal" href="#whylogs.api.logger.DatasetProfile">DatasetProfile</a><ul>

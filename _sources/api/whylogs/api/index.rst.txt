@@ -14,7 +14,6 @@ Subpackages
    logger/index.rst
    reader/index.rst
    store/index.rst
-   usage_stats/index.rst
    whylabs/index.rst
    writer/index.rst
 
