@@ -8,7 +8,6 @@ from typing import Dict, Iterable, List, Optional, Tuple
 import whylogs as why
 from whylogs.api.logger.result_set import ResultSet, SegmentedResultSet
 from whylogs.api.pyspark.experimental.profiler import COL_NAME_FIELD, COL_PROFILE_FIELD
-from whylogs.api.usage_stats import emit_usage
 from whylogs.core import DatasetSchema
 from whylogs.core.segment import Segment
 from whylogs.core.segmentation_partition import SegmentationPartition
@@ -17,7 +16,6 @@ from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 logger = getLogger(__name__)
-emit_usage("pyspark")
 
 try:  # type: ignore
     from pyspark.ml.functions import vector_to_array

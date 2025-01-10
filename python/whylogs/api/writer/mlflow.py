@@ -5,7 +5,6 @@ from typing import Any, List, Optional, Tuple, Union
 
 import mlflow
 
-from whylogs.api.usage_stats import emit_usage
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import _Writable
 from whylogs.core.utils import deprecated_alias
@@ -18,7 +17,6 @@ class MlflowWriter(Writer):
         self._file_dir = "whylogs"
         self._file_name = None
         self._end_run = True
-        emit_usage("mlflow_writer")
 
     @deprecated_alias(profile="file")
     def write(

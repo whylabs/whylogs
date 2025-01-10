@@ -22,10 +22,6 @@ class KeyRefresher(abc.ABC):
     def _validate_api_key(self, api_key: Optional[str]) -> str:
         if api_key is None:
             raise ValueError("Missing API key. Set it via WHYLABS_API_KEY environment variable or as an api_key option")
-        if len(api_key) < 12:
-            raise ValueError("API key too short")
-        if api_key[10] != ".":
-            raise ValueError("Invalid format. Expecting a dot at an index 10")
         return api_key[:10]
 
 

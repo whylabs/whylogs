@@ -77,14 +77,12 @@ class GuestSession(Session):
         If neither exist then this will attempt to create a new session and store the id in the config,
         which does require a successful service call to whylabs.
         """
-        from whylogs.api.usage_stats import emit_usage
 
         super().__init__(config)
 
         # Using lazy initialization to work around circular dependency issues
         self._whylabs_session_api = Lazy(self.__create_session_api)
         self._user_guid = self._get_or_create_user_guid()
-        emit_usage("guest_session")
 
     def __create_session_api(self) -> SessionsApi:
         from whylogs.api.whylabs.session.whylabs_client_cache import ClientCacheConfig
@@ -255,15 +253,12 @@ class LocalSession(Session):
 
 class ApiKeySession(Session):
     def __init__(self, config: SessionConfig) -> None:
-        from whylogs.api.usage_stats import emit_usage
-
         super().__init__(config)
         self.api_key = config.get_api_key()
         self.org_id = config.get_org_id()
 
         # Using lazy initialization to work around circular dependency issues
         self._whylabs_log_api = Lazy(partial(self.__create_log_api, config))
-        emit_usage("api_key_session")
 
     def __create_log_api(self, config: SessionConfig) -> LogApi:
         from whylogs.api.whylabs.session.whylabs_client_cache import ClientCacheConfig
