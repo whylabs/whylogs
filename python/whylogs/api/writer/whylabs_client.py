@@ -101,7 +101,7 @@ _RETRY_CODES = {408, 429, 502, 503, 504}
 
 def _giveup(e) -> bool:
     result = e.status not in _RETRY_CODES
-    logger.warning(f"whylabs client communication error: {e}, retryable: {result}")
+    logger.warning(f"whylabs client communication error: {e}, giveup: {result}")
     return result
 
 
