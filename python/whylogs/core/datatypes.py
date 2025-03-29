@@ -101,7 +101,7 @@ class String(DataType[str]):
         if not isinstance(dtype_or_type, type):
             return False
 
-        if issubclass(dtype_or_type, (str, np.unicode_)):
+        if issubclass(dtype_or_type, (str, np.str_)):
             return True
 
         return False
