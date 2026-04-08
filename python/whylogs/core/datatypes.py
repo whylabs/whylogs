@@ -6,7 +6,7 @@ from whylogs.core.stubs import is_not_stub, np
 
 try:
     from pandas.core.api import CategoricalDtype
-except:  # noqa
+except ImportError:  # noqa
     CategoricalDtype = None  # type: ignore
 
 NT = TypeVar("NT")
