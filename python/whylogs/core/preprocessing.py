@@ -12,7 +12,7 @@ logger = logging.getLogger("whylogs.core.views")
 
 try:
     import pandas.core.dtypes.common as pdc
-except:  # noqa
+except ImportError:  # noqa
     pass
 
 
