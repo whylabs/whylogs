@@ -54,10 +54,11 @@ import json
 import time
 import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
-import whylogs as why
-from whylogs.core import DatasetProfileView
+if TYPE_CHECKING:
+    import whylogs as why
+    from whylogs.core import DatasetProfileView
 
 
 class GNAPLogger:
@@ -82,14 +83,16 @@ class GNAPLogger:
     # Public API                                                           #
     # ------------------------------------------------------------------ #
 
-    def log_snapshot(self) -> DatasetProfileView:
+    def log_snapshot(self) -> "DatasetProfileView":
         """
         Scan the GNAP repo, build whylogs rows, and return a profile view.
 
         Each row corresponds to a single run attempt and carries the metric
         names proposed in whylogs#1601.
         """
+        import whylogs as why  # lazy import — keeps Sphinx/doc builds working
         rows = self._build_rows()
+        
         if not rows:
             raise ValueError(
                 f"No loggable GNAP data found in {self.gnap_dir}. "
@@ -102,7 +105,7 @@ class GNAPLogger:
         print(f"[gnap_logger] Logged {len(rows)} row(s) from {self.gnap_dir}")
         return view
 
-    def log_snapshot_to_file(self, output_path: str) -> DatasetProfileView:
+    def log_snapshot_to_file(self, output_path: str) -> "DatasetProfileView":
         """Log a snapshot and write the profile binary to *output_path*."""
         view = self.log_snapshot()
         view.write(output_path)
