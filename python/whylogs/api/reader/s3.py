@@ -1,10 +1,11 @@
 from tempfile import NamedTemporaryFile
 from typing import Optional
 
-import boto3
 from botocore.client import BaseClient
+from botocore.config import Config
 
 from whylogs import ResultSet
+from whylogs.api._s3_client import build_s3_client
 from whylogs.api.reader.reader import Reader
 
 
@@ -15,6 +16,10 @@ class S3Reader(Reader):
     >**IMPORTANT**: In order to correctly connect to your Amazon S3 bucket, make sure you have
     the following environment variables set: `[AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]`.
 
+    The same reader targets any S3-compatible object store by passing an ``endpoint_url``
+    (and matching credentials). To reuse a fully configured client instead, pass it as
+    ``s3_client`` and it is used as provided.
+
     Parameters
     ----------
     bucket_name: str, optional
@@ -23,6 +28,13 @@ class S3Reader(Reader):
     object_name: str, optional
         The s3's object name. It basically states the location where the file goes to.
         Also made optional, so it can be defined through the `option` method
+    s3_client: BaseClient, optional
+        A boto3 S3 client. When omitted, a client is built internally.
+    endpoint_url: str, optional
+        Endpoint URL of an S3-compatible object store. Leave unset for AWS S3.
+        Only applies to the internally built client.
+    config: botocore.config.Config, optional
+        Extra botocore configuration merged into the internally built client.
 
     Examples
     --------
@@ -40,8 +52,10 @@ class S3Reader(Reader):
         object_name: Optional[str] = None,
         bucket_name: Optional[str] = None,
         s3_client: Optional[BaseClient] = None,
+        endpoint_url: Optional[str] = None,
+        config: Optional[Config] = None,
     ):
-        self.s3_client = s3_client or boto3.client("s3")
+        self.s3_client = s3_client or build_s3_client(config=config, endpoint_url=endpoint_url)
         self.object_name = object_name or None
         self.bucket_name = bucket_name or ""
 
