@@ -2,10 +2,11 @@ import logging
 import os
 from typing import Any, List, Optional, Tuple, Union
 
-import boto3
 from botocore.client import BaseClient
+from botocore.config import Config
 from botocore.exceptions import ClientError
 
+from whylogs.api._s3_client import build_s3_client
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import _Writable
 from whylogs.core.utils import deprecated_alias
@@ -20,11 +21,16 @@ class S3Writer(Writer):
     >**IMPORTANT**: In order to correctly connect to your Amazon S3 bucket, make sure you have
     the following environment variables set: `[AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]`
 
+    The same writer targets any S3-compatible object store by passing an ``endpoint_url``
+    (and matching credentials). To reuse a fully configured client instead, pass it as
+    ``s3_client`` and it is used as provided.
+
     Parameters
     ----------
     s3_client: BaseClient, optional
         The s3 client used to authenticate and perform operations on the s3 bucket.
-        Should be a BaseClient from the boto3 library
+        Should be a BaseClient from the boto3 library. When omitted, a client is built
+        internally.
     base_prefix: str, optional
         The base file prefix for s3, in order to organize. A placeholder 'profile' will take place if None is provided.
     bucket_name: str, optional
@@ -33,6 +39,11 @@ class S3Writer(Writer):
     object_name: str, optional
         The s3's object name. It basically states the location where the file goes to.
         Also made optional, so it can be defined through the `option` method
+    endpoint_url: str, optional
+        Endpoint URL of an S3-compatible object store. Leave unset for AWS S3.
+        Only applies to the internally built client.
+    config: botocore.config.Config, optional
+        Extra botocore configuration merged into the internally built client.
     Returns
     -------
         None
@@ -49,6 +60,15 @@ class S3Writer(Writer):
     profile.writer("s3").option(bucket_name="my_bucket").write()
     ```
 
+    Writing to an S3-compatible endpoint:
+
+    ```python
+    profile.writer("s3").option(
+        bucket_name="my_bucket",
+        endpoint_url="https://<s3-compatible-endpoint>",
+    ).write()
+    ```
+
     """
 
     def __init__(
@@ -57,8 +77,10 @@ class S3Writer(Writer):
         base_prefix: Optional[str] = None,
         bucket_name: Optional[str] = None,
         object_name: Optional[str] = None,
+        endpoint_url: Optional[str] = None,
+        config: Optional[Config] = None,
     ):
-        self.s3_client = s3_client or boto3.client("s3")
+        self.s3_client = s3_client or build_s3_client(config=config, endpoint_url=endpoint_url)
         self.base_prefix = base_prefix or "profile"
         self.bucket_name = bucket_name or ""
         self.object_name = object_name or None
