@@ -3,9 +3,12 @@ from typing import Optional
 
 import boto3
 from botocore.client import BaseClient
+from botocore.config import Config
 
-from whylogs import ResultSet
+from whylogs import ResultSet, __version__
 from whylogs.api.reader.reader import Reader
+
+_USER_AGENT_EXTRA = f"whylogs/python/{__version__}"
 
 
 class S3Reader(Reader):
@@ -41,7 +44,7 @@ class S3Reader(Reader):
         bucket_name: Optional[str] = None,
         s3_client: Optional[BaseClient] = None,
     ):
-        self.s3_client = s3_client or boto3.client("s3")
+        self.s3_client = s3_client or boto3.client("s3", config=Config(user_agent_extra=_USER_AGENT_EXTRA))
         self.object_name = object_name or None
         self.bucket_name = bucket_name or ""
 
