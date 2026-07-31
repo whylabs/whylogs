@@ -24,6 +24,10 @@ class S3Writer(Writer):
     >**IMPORTANT**: In order to correctly connect to your Amazon S3 bucket, make sure you have
     the following environment variables set: `[AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]`
 
+    To write to an S3-compatible object store instead (for example Backblaze B2, Cloudflare R2,
+    or MinIO), pass a client built with that store's endpoint, such as
+    `S3Writer(s3_client=boto3.client("s3", endpoint_url="https://s3.example-region.example.com"))`.
+
     Parameters
     ----------
     s3_client: BaseClient, optional
