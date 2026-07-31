@@ -3,9 +3,12 @@ from typing import Optional
 
 import boto3
 from botocore.client import BaseClient
+from botocore.config import Config
 
-from whylogs import ResultSet
+from whylogs import ResultSet, __version__
 from whylogs.api.reader.reader import Reader
+
+_USER_AGENT_EXTRA = f"whylogs/python/{__version__}"
 
 
 class S3Reader(Reader):
@@ -14,6 +17,10 @@ class S3Reader(Reader):
 
     >**IMPORTANT**: In order to correctly connect to your Amazon S3 bucket, make sure you have
     the following environment variables set: `[AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]`.
+
+    To read from an S3-compatible object store instead (for example Backblaze B2, Cloudflare R2,
+    or MinIO), pass a client built with that store's endpoint, such as
+    `S3Reader(s3_client=boto3.client("s3", endpoint_url="https://s3.example-region.example.com"))`.
 
     Parameters
     ----------
@@ -41,7 +48,7 @@ class S3Reader(Reader):
         bucket_name: Optional[str] = None,
         s3_client: Optional[BaseClient] = None,
     ):
-        self.s3_client = s3_client or boto3.client("s3")
+        self.s3_client = s3_client or boto3.client("s3", config=Config(user_agent_extra=_USER_AGENT_EXTRA))
         self.object_name = object_name or None
         self.bucket_name = bucket_name or ""
 

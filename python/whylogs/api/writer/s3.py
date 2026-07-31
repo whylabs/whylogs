@@ -4,13 +4,17 @@ from typing import Any, List, Optional, Tuple, Union
 
 import boto3
 from botocore.client import BaseClient
+from botocore.config import Config
 from botocore.exceptions import ClientError
 
+from whylogs import __version__
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import _Writable
 from whylogs.core.utils import deprecated_alias
 
 logger = logging.getLogger(__name__)
+
+_USER_AGENT_EXTRA = f"whylogs/python/{__version__}"
 
 
 class S3Writer(Writer):
@@ -19,6 +23,10 @@ class S3Writer(Writer):
 
     >**IMPORTANT**: In order to correctly connect to your Amazon S3 bucket, make sure you have
     the following environment variables set: `[AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]`
+
+    To write to an S3-compatible object store instead (for example Backblaze B2, Cloudflare R2,
+    or MinIO), pass a client built with that store's endpoint, such as
+    `S3Writer(s3_client=boto3.client("s3", endpoint_url="https://s3.example-region.example.com"))`.
 
     Parameters
     ----------
@@ -58,7 +66,7 @@ class S3Writer(Writer):
         bucket_name: Optional[str] = None,
         object_name: Optional[str] = None,
     ):
-        self.s3_client = s3_client or boto3.client("s3")
+        self.s3_client = s3_client or boto3.client("s3", config=Config(user_agent_extra=_USER_AGENT_EXTRA))
         self.base_prefix = base_prefix or "profile"
         self.bucket_name = bucket_name or ""
         self.object_name = object_name or None

@@ -49,6 +49,10 @@ class TestS3Reader(object):
         assert isinstance(profile_option, ResultSet)
         assert isinstance(profile_option.view(), DatasetProfileView)
 
+    def test_s3_reader_sets_whylogs_user_agent(self):
+        reader = S3Reader()
+        assert "whylogs/python/" in reader.s3_client.meta.config.user_agent_extra
+
     def test_empty_bucket_failure(self, object_path):
         reader = S3Reader(bucket_name=None, object_name=object_path)
         with pytest.raises(ParamValidationError):

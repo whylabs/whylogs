@@ -46,6 +46,10 @@ class TestS3Writer(object):
         objects = writer.s3_client.list_objects(Bucket=BUCKET_NAME)
         assert tmp_path.name in [obj["Key"] for obj in objects.get("Contents", [])]
 
+    def test_s3_writer_sets_whylogs_user_agent(self):
+        writer = S3Writer()
+        assert "whylogs/python/" in writer.s3_client.meta.config.user_agent_extra
+
     def test_empty_string_bucket_name_raises_exception(self, result_set):
         with pytest.raises(ParamValidationError):
             response = result_set.writer("s3").option(bucket_name="").write()
